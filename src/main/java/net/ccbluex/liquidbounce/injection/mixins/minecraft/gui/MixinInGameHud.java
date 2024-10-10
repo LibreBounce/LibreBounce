@@ -22,6 +22,8 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.OverlayMessageEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
@@ -35,6 +37,8 @@ import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShieldItem;
+import net.minecraft.item.SwordItem;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
@@ -69,6 +73,9 @@ public abstract class MixinInGameHud {
 
     @Shadow
     protected abstract void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed);
+
+    @Shadow
+    protected abstract void renderDemoTimer(DrawContext context, RenderTickCounter tickCounter);
 
     /**
      * Hook render hud event at the top layer
@@ -177,6 +184,13 @@ public abstract class MixinInGameHud {
         }
     }
 
+    @ModifyExpressionValue(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
+    private boolean hookOffhandItem(boolean original) {
+        return original || (ModuleSwordBlock.INSTANCE.handleEvents() || AutoBlock.INSTANCE.getBlockVisual())
+                && getCameraPlayer().getMainHandStack().getItem() instanceof SwordItem
+                && getCameraPlayer().getOffHandStack().getItem() instanceof ShieldItem;
+    }
+
     @Unique
     private void drawHotbar(DrawContext context, RenderTickCounter tickCounter, IntegratedComponent component) {
         var playerEntity = this.getCameraPlayer();
@@ -199,7 +213,7 @@ public abstract class MixinInGameHud {
         }
 
         var offHandStack = playerEntity.getOffHandStack();
-        if (!offHandStack.isEmpty()) {
+        if (!hookOffhandItem(offHandStack.isEmpty())) {
             this.renderHotbarItem(context, center - offset - 32, (int) y, tickCounter, playerEntity, offHandStack, l++);
         }
     }
