@@ -15,6 +15,8 @@
     import Keystrokes from "./elements/keystrokes/Keystrokes.svelte";
     import Effects from "./elements/Effects.svelte";
     import BlockCounter from "./elements/BlockCounter.svelte";
+    import ArmorItems from "./elements/inventory/ArmorItems.svelte";
+    import InventoryContainer from "./elements/inventory/InventoryContainer.svelte";
     import Text from "./elements/Text.svelte";
 
     let zoom = 100;
@@ -58,6 +60,10 @@
                     <HotBar/>
                 {:else if c.name === "Scoreboard"}
                     <Scoreboard/>
+                {:else if c.name === "ArmorItems"}
+                    <ArmorItems/>
+                {:else if c.name === "Inventory"}
+                    <InventoryContainer/>
                 {:else if c.name === "Taco"}
                     <Taco/>
                 {:else if c.name === "Keystrokes"}
