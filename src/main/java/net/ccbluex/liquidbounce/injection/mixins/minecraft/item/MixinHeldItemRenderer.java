@@ -63,9 +63,6 @@ public abstract class MixinHeldItemRenderer {
         }
     }
 
-    @Shadow
-    protected abstract void applySwingOffset(MatrixStack matrices, Arm arm, float swingProgress);
-
     @Final
     @Shadow
     private MinecraftClient client;
@@ -75,12 +72,12 @@ public abstract class MixinHeldItemRenderer {
                                                 Hand hand, float swingProgress, ItemStack item, float equipProgress,
                                                 MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
                                                 CallbackInfo ci) {
-        var shouldHide = ModuleSwordBlock.INSTANCE.getEnabled() || AutoBlock.INSTANCE.getBlockVisual();
-        if (shouldHide && hand == Hand.OFF_HAND && item.getItem() instanceof ShieldItem &&
-                !player.getStackInHand(Hand.MAIN_HAND).isEmpty()
-                && player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof SwordItem) {
-            ci.cancel();
-        }
+        if ((ModuleSwordBlock.INSTANCE.handleEvents() || AutoBlock.INSTANCE.getBlockVisual())
+                && hand == Hand.OFF_HAND
+                && item.getItem() instanceof ShieldItem
+                && (player.getMainHandStack().getItem() instanceof SwordItem
+                || ModuleSwordBlock.INSTANCE.handleEvents() && ModuleSwordBlock.INSTANCE.getAlwaysHideShield())
+        ) ci.cancel();
     }
 
     @Redirect(method = "renderFirstPersonItem", at = @At(
