@@ -77,6 +77,10 @@ export interface PlayerMainInventoryEvent {
     stacks: ItemStack[];
 }
 
+export interface PlayerCraftingInventoryEvent {
+    stacks: ItemStack[];
+}
+
 export interface ProxyAdditionResultEvent {
     proxy: Proxy | null;
     error: string | null;
