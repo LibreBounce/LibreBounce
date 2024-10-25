@@ -32,9 +32,8 @@ import net.minecraft.client.util.InputUtil
 
 // GET /api/v1/client/input
 @Suppress("UNUSED_PARAMETER")
-fun getInputInfo(requestObject: RequestObject) = requestObject.queryParams["code"]?.toIntOrNull()?.let { key ->
-    val scanCode = requestObject.queryParams["scanCode"]?.toIntOrNull() ?: -1
-    val input = InputUtil.fromKeyCode(key, scanCode)
+fun getInputInfo(requestObject: RequestObject) = requestObject.queryParams["key"]?.let { key ->
+    val input = InputUtil.fromTranslationKey(key)
 
     httpOk(JsonObject().apply {
         addProperty("translationKey", input.translationKey)
