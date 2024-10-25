@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventHandler
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.v1Functions
 import net.ccbluex.netty.http.HttpServer
+import net.ccbluex.netty.http.middleware.CorsMiddleware
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import java.net.Socket
@@ -63,6 +64,9 @@ object ClientInteropServer {
                 v1Functions(this)
                 file("/", ConfigSystem.rootFolder.resolve("themes"))
             }
+
+            // Add CORS middleware
+            httpServer.middleware(CorsMiddleware())
 
             // Register events with @WebSocketEvent annotation
             socketEventHandler.registerAll()
