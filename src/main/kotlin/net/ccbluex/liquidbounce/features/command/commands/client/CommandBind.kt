@@ -56,8 +56,20 @@ object CommandBind {
                 val module = ModuleManager.find { it.name.equals(name, true) }
                     ?: throw CommandException(command.result("moduleNotFound", name))
 
-                module.bind.bind(keyName)
-                chat(regular(command.result("moduleBound", variable(module.name), variable(module.bind.keyName))))
+                if (keyName.equals("none", true)) {
+                    module.bind.unbind()
+                    chat(regular(command.result("moduleUnbound", variable(module.name))))
+                    return@handler
+                }
+
+                runCatching {
+                    module.bind.bind(keyName)
+                }.onSuccess {
+                    chat(regular(command.result("moduleBound", variable(module.name), variable(module.bind.keyName))))
+                }.onFailure {
+                    chat(markAsError(command.result("keyNotFound", variable(keyName))))
+                }
+
             }
             .build()
     }
