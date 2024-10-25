@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.AbstractBlockLocationTracker
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
@@ -71,6 +72,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private val renderY by float("RenderY", 0.0F, -2.0F..2.0F)
     private val maxDistance by float("MaxDistance", 256.0f, 128.0f..1280.0f)
     private val maxCount by int("MaxCount", 8, 1..64)
+    private val highlightUnbreakable by boolean("HighlightUnbreakable", true)
 
     private val fontRenderer by lazy {
         Fonts.DEFAULT_FONT.get()
@@ -147,8 +149,18 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                         surrounding.forEach {
                             topLeftX += ITEM_SIZE
 
+                            val defaultState = it.block.defaultState
+                            val color =
+                                if (highlightUnbreakable && defaultState.isToolRequired && findHotbarSlot { stack ->
+                                        stack.isSuitableFor(defaultState)
+                                    } == null) {
+                                    Color4b.RED
+                                } else {
+                                    Color4b.WHITE
+                                }
+
                             // count
-                            val countText = process(it.count.toString())
+                            val countText = process(it.count.toString(), color)
                             draw(
                                 countText,
                                 topLeftX + ITEM_SIZE - countText.widthWithShadow * fontScale,
@@ -159,7 +171,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                             commit(buf)
 
                             // layer
-                            val layerText = process(ROMAN_NUMERALS[it.layer])
+                            val layerText = process(ROMAN_NUMERALS[it.layer], color)
                             draw(
                                 layerText,
                                 topLeftX.toFloat(),
