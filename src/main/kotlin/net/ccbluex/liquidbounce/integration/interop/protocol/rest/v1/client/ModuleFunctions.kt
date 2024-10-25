@@ -45,7 +45,7 @@ fun getModules(requestObject: RequestObject): FullHttpResponse {
         mods.add(JsonObject().apply {
             addProperty("name", module.name)
             addProperty("category", module.category.readableName)
-            addProperty("keyBind", protocolGson.toJsonTree(module.bind))
+            add("keyBind", protocolGson.toJsonTree(module.bind))
             addProperty("enabled", module.enabled)
             addProperty("description", module.description)
             addProperty("tag", module.tag)

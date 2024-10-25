@@ -24,7 +24,6 @@
     <ID>BracesOnIfStatements:ModuleAutoBow.kt$ModuleAutoBow$if</ID>
     <ID>BracesOnIfStatements:ModuleAutoFarm.kt$ModuleAutoFarm$if</ID>
     <ID>BracesOnIfStatements:ModuleBacktrack.kt$ModuleBacktrack$if</ID>
-    <ID>BracesOnIfStatements:ModuleBedPlates.kt$ModuleBedPlates.BlockTracker$else</ID>
     <ID>BracesOnIfStatements:ModuleBlink.kt$ModuleBlink$if</ID>
     <ID>BracesOnIfStatements:ModuleBlockESP.kt$ModuleBlockESP.Glow$if</ID>
     <ID>BracesOnIfStatements:ModuleBlockESP.kt$ModuleBlockESP.Outline$if</ID>
@@ -37,18 +36,14 @@
     <ID>BracesOnIfStatements:ModuleNoSlow.kt$ModuleNoSlow$if</ID>
     <ID>BracesOnIfStatements:ModulePlugins.kt$ModulePlugins$else</ID>
     <ID>BracesOnIfStatements:ModulePlugins.kt$ModulePlugins$if</ID>
-    <ID>BracesOnIfStatements:ModuleRotations.kt$ModuleRotations$if</ID>
     <ID>BracesOnIfStatements:ModuleSkinDerp.kt$ModuleSkinDerp$else</ID>
     <ID>BracesOnIfStatements:ModuleSkinDerp.kt$ModuleSkinDerp$if</ID>
     <ID>BracesOnIfStatements:ModuleSmartEat.kt$ModuleSmartEat.Estimator$else</ID>
     <ID>BracesOnIfStatements:ModuleSmartEat.kt$ModuleSmartEat.Estimator$if</ID>
     <ID>BracesOnIfStatements:ModuleSmartEat.kt$ModuleSmartEat.SilentOffhand$if</ID>
-    <ID>BracesOnIfStatements:ModuleStorageESP.kt$ModuleStorageESP.Glow$if</ID>
     <ID>BracesOnIfStatements:ModuleTimerRange.kt$ModuleTimerRange$if</ID>
     <ID>BracesOnIfStatements:ProxyManager.kt$ProxyManager.ProxyCredentials.Companion$else</ID>
     <ID>BracesOnIfStatements:ProxyManager.kt$ProxyManager.ProxyCredentials.Companion$if</ID>
-    <ID>BracesOnIfStatements:RenderBufferBuilder.kt$RenderBufferBuilder$else</ID>
-    <ID>BracesOnIfStatements:RenderBufferBuilder.kt$RenderBufferBuilder$if</ID>
     <ID>BracesOnIfStatements:RenderShortcuts.kt$else</ID>
     <ID>BracesOnIfStatements:RenderShortcuts.kt$if</ID>
     <ID>BracesOnIfStatements:SpeedGeneric.kt$SpeedBHopBase$if</ID>
@@ -56,11 +51,11 @@
     <ID>BracesOnIfStatements:SpeedHypixelBHop.kt$SpeedHypixelBHop$if</ID>
     <ID>BracesOnIfStatements:SpeedPreventDeadlyJump.kt$SpeedPreventDeadlyJump$if</ID>
     <ID>BracesOnIfStatements:TargetFinding.kt$BlockPlacementTarget$if</ID>
-    <ID>BracesOnIfStatements:TargetFinding.kt$if</ID>
     <ID>BracesOnIfStatements:TargetRenderer.kt$WorldTargetRenderer.GlowingCircle$else</ID>
     <ID>BracesOnIfStatements:TargetRenderer.kt$WorldTargetRenderer.GlowingCircle$if</ID>
     <ID>CognitiveComplexMethod:AutoBlock.kt$AutoBlock$fun startBlocking()</ID>
     <ID>CognitiveComplexMethod:AutoConfig.kt$AutoConfig$fun handlePossibleAutoConfig(jsonObject: JsonObject)</ID>
+    <ID>CognitiveComplexMethod:BlockExtensions.kt$fun Block?.isInteractable(blockState: BlockState?): Boolean</ID>
     <ID>CognitiveComplexMethod:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
     <ID>CognitiveComplexMethod:Command.kt$Command$fun autoComplete( builder: SuggestionsBuilder, tokenizationResult: Pair&lt;List&lt;String>, List&lt;Int>>, commandIdx: Int, isNewParameter: Boolean )</ID>
     <ID>CognitiveComplexMethod:CommandClient.kt$CommandClient$private fun accountCommand()</ID>
@@ -73,14 +68,17 @@
     <ID>CognitiveComplexMethod:FailSwing.kt$FailSwing$suspend fun Sequence&lt;*>.dealWithFakeSwing(target: Entity?)</ID>
     <ID>CognitiveComplexMethod:IpInfoApi.kt$IpInfoApi$private fun makeAsyncEndpointRequest(proxy: ProxyManager.Proxy?, endpoint: String, success: (String) -> Unit, failure: (Throwable) -> Unit)</ID>
     <ID>CognitiveComplexMethod:ItemCategorization.kt$ItemCategorization$@Suppress("CyclomaticComplexMethod", "LongMethod") fun getItemFacets(slot: ItemSlot): Array&lt;ItemFacet></ID>
-    <ID>CognitiveComplexMethod:ModuleBedPlates.kt$ModuleBedPlates$private fun BlockPos.getBedPlatesAround(): Map&lt;Block, Int></ID>
     <ID>CognitiveComplexMethod:ModuleHoleESP.kt$ModuleHoleESP$private fun updateRegion(region: Region)</ID>
     <ID>CognitiveComplexMethod:ModuleKillAura.kt$ModuleKillAura$internal suspend fun Sequence&lt;*>.prepareAttackEnvironment(rotation: Rotation? = null, attack: () -> Unit)</ID>
     <ID>CognitiveComplexMethod:ModuleKillAura.kt$ModuleKillAura$private suspend fun Sequence&lt;*>.mightAttack(chosenEntity: Entity, rotation: Rotation)</ID>
+    <ID>CognitiveComplexMethod:PlacementRenderHandler.kt$PlacementRenderHandler$fun render(event: WorldRenderEvent, time: Long)</ID>
     <ID>CognitiveComplexMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>CognitiveComplexMethod:SimulatedArrow.kt$SimulatedArrow$private fun updateCollision(pos: Vec3d, newPos: Vec3d): HitResult?</ID>
     <ID>CognitiveComplexMethod:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
+    <ID>CognitiveComplexMethod:SupportFeature.kt$SupportFeature$fun findSupport(targetPos: BlockPos): Set&lt;BlockPos>?</ID>
+    <ID>ComplexCondition:PlacementRenderHandler.kt$PlacementRenderHandler$(!direction1Present &amp;&amp; !direction2Present) || (direction1Present &amp;&amp; direction2Present &amp;&amp; !diagonalPresent)</ID>
     <ID>ComplexCondition:SimulatedArrow.kt$SimulatedArrow$!it.isSpectator &amp;&amp; it.isAlive &amp;&amp; (it.canHit() || arrowEntity != mc.player &amp;&amp; it == arrowEntity)</ID>
+    <ID>ComplexCondition:SupportFeature.kt$SupportFeature$blockedPositions.contains(neighbor) || // exclude blocks where the structure is... // this useless because we already search the shortest path under all structure blocks? placer.blocks.contains(neighbor) || neighbor.manhattanDistanceTo(targetPos) > depth || player.eyePos.squaredDistanceTo(neighbor.toCenterPos()) > rangeSq || neighbor.isBlockedByEntities()</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleAimbot.kt$ModuleAimbot$val (fromPoint, toPoint, box, cutOffBox) = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleAutoShoot.kt$ModuleAutoShoot$val (fromPoint, toPoint, _, _) = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleKillAura.kt$ModuleKillAura$val (eyes, nextPoint, box, cutOffBox) = pointTracker.gatherPoint( entity, situation )</ID>
@@ -88,7 +86,6 @@
     <ID>EmptyFunctionBlock:EmptyDrawableRoute.kt$EmptyDrawableRoute${ }</ID>
     <ID>EmptyFunctionBlock:ModuleStorageESP.kt$ModuleStorageESP.StorageScanner${}</ID>
     <ID>FunctionOnlyReturningConstant:SimulatedArrow.kt$SimulatedArrow$private fun isTouchingWater(): Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:ThemeManager.kt$ThemeManager$fun drawBackground(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float): Boolean</ID>
     <ID>LongMethod:AutoConfig.kt$AutoConfig$fun handlePossibleAutoConfig(jsonObject: JsonObject)</ID>
     <ID>LongMethod:ChatClient.kt$ChatClient$private fun handleFunctionalPacket(packet: Packet)</ID>
     <ID>LongMethod:CommandAutoDisable.kt$CommandAutoDisable$fun createCommand(): Command</ID>
@@ -113,9 +110,11 @@
     <ID>LongParameterList:Mat4.kt$Mat4.Companion$( left: Float, top: Float, right: Float, bottom: Float, nearPlane: Float, farPlane: Float )</ID>
     <ID>LongParameterList:Parameter.kt$Parameter$( val name: String, val required: Boolean, val vararg: Boolean, val verifier: ParameterVerifier&lt;T>?, val autocompletionHandler: AutoCompletionHandler?, val useMinecraftAutoCompletion: Boolean, var command: Command? = null )</ID>
     <ID>LongParameterList:Region.kt$Region$(minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int)</ID>
+    <ID>LongParameterList:RotationsUtil.kt$RotationManager$( rotation: Rotation, considerInventory: Boolean = true, configurable: RotationsConfigurable, priority: Priority, provider: Module, whenReached: RestrictedSingleUseAction? = null )</ID>
     <ID>LongParameterList:RotationsUtil.kt$RotationManager$( vecRotation: VecRotation, entity: Entity? = null, considerInventory: Boolean = true, configurable: RotationsConfigurable, priority: Priority, provider: Module )</ID>
-    <ID>LongParameterList:ThemeManager.kt$ThemeManager$(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float)</ID>
-    <ID>LoopWithTooManyJumpStatements:ModuleIgnite.kt$ModuleIgnite$for</ID>
+    <ID>LongParameterList:TargetFinding.kt$BlockPlacementTargetFindingOptions$( val offsetsToInvestigate: List&lt;Vec3i>, val stackToPlaceWith: ItemStack, val facePositionFactory: FaceTargetPositionFactory, val offsetPriorityGetter: (Vec3i) -> Double, val playerPositionOnPlacement: Vec3d, val playerPoseOnPlacement: EntityPose = EntityPose.STANDING, val allowPointingAway: Boolean = false )</ID>
+    <ID>LongParameterList:Wallpaper.kt$Wallpaper$(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float)</ID>
+    <ID>LoopWithTooManyJumpStatements:BlockPlacer.kt$BlockPlacer$while</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleKillAura.kt$ModuleKillAura$for</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleProjectilePuncher.kt$ModuleProjectilePuncher$for</ID>
     <ID>LoopWithTooManyJumpStatements:TargetFinding.kt$for</ID>
@@ -123,6 +122,7 @@
     <ID>MatchingDeclarationName:MovementUtils.kt$DirectionalInput</ID>
     <ID>MaxLineLength:ChunkRenderer.kt$ChunkRenderer$fun</ID>
     <ID>MaxLineLength:HttpClient.kt$HttpClient$"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"</ID>
+    <ID>MaxLineLength:HudDrawableRoute.kt$HudDrawableRoute$if</ID>
     <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager</ID>
     <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$dirtyChunks &lt; _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.FULL_UPLOAD_THRESHOLD -> uploadOnlyDirtyPositions()</ID>
     <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$editor: (NativeImageBackedTexture, _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager.AtlasPosition) -> Unit</ID>
@@ -137,28 +137,27 @@
     <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$this.dirtyAtlasPositions.add(_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.NOT_LOADED_ATLAS_POSITION)</ID>
     <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager.AtlasPosition$val pixelSize = _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.ATLAS_SIZE * 16.0F</ID>
     <ID>MaxLineLength:MinimapTextureAtlasManager.kt$_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager</ID>
-    <ID>MaxLineLength:ModuleTracers.kt$ModuleTracers$(if (DistanceColor.useViewDistance) mc.options.viewDistance.value.toFloat() else DistanceColor.customViewDistance) * 16</ID>
     <ID>MaxLineLength:NativeComponent.kt$NativeComponent$abstract</ID>
     <ID>MaxLineLength:Theme.kt$RouteType.Native$data</ID>
-    <ID>MaxLineLength:WebComponent.kt$WebComponent$tweaks = metadata.tweaks?.mapNotNull { tweak -> ComponentTweak.entries.find { it.name == tweak } }?.toTypedArray() ?: emptyArray()</ID>
-    <ID>NestedBlockDepth:ChunkScanner.kt$ChunkScanner.ChunkScannerThread$private fun scanChunk(request: UpdateRequest.ChunkUpdateRequest)</ID>
     <ID>NestedBlockDepth:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>
     <ID>NestedBlockDepth:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
     <ID>NestedBlockDepth:EntityExtensions.kt$fun LivingEntity.getActualHealth(fromScoreboard: Boolean = true): Float</ID>
-    <ID>NestedBlockDepth:ModuleBedDefender.kt$ModuleBedDefender$private fun BlockPos.getPlacementPositionsAround(): List&lt;BlockPos></ID>
+    <ID>NestedBlockDepth:SupportFeature.kt$SupportFeature$fun findSupport(targetPos: BlockPos): Set&lt;BlockPos>?</ID>
     <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
     <ID>ReturnCount:AutoFarmBlockHandler.kt$AutoFarmBlockTracker$override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates?</ID>
     <ID>ReturnCount:IntegrationHandler.kt$IntegrationHandler$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
     <ID>ReturnCount:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
-    <ID>SpreadOperator:ComponentOverlay.kt$( *NativeTheme.components.toTypedArray(), )</ID>
     <ID>SpreadOperator:JsReflectionUtil.kt$JsReflectionUtil$( Remapper.remapField(clazz, name, true), *args.map { it!!::class.java }.toTypedArray() )</ID>
     <ID>SpreadOperator:JsReflectionUtil.kt$JsReflectionUtil$( Remapper.remapField(obj::class.java, name, true), *args.map { it!!::class.java }.toTypedArray() )</ID>
     <ID>SpreadOperator:JsReflectionUtil.kt$JsReflectionUtil$(*args.map { it!!::class.java }.toTypedArray())</ID>
     <ID>SpreadOperator:ModuleScaffold.kt$ModuleScaffold$(blockInMainHand, blockInOffHand, *blocksInHotbar.map { it.second }.toTypedArray())</ID>
+    <ID>SpreadOperator:ModuleVomit.kt$ModuleVomit$( *emptySlots.map { slot -> CreativeInventoryAction.performFillSlot(randomStack, slot) } .toTypedArray(), *emptySlots.map { slot -> ClickInventoryAction.performThrow(null, slot) } .toTypedArray() )</ID>
+    <ID>SpreadOperator:ThemeManager.kt$ThemeManager$( // Weather we support web themes, it might also load native theme defaults instead *fallbackTheme.components // Check if the component is enabled by default .filter { factory -> factory.default } // Create a new component instance .map { factory -> factory.new(fallbackTheme) } .toTypedArray() )</ID>
     <ID>SpreadOperator:ThemeManager.kt$ThemeManager$( NativeTheme, *themesFolder.listFiles() ?.filter(File::isDirectory) ?.map(::WebTheme) ?.toTypedArray() ?: emptyArray() )</ID>
     <ID>StringLiteralDuplication:AutoQueueGommeDuels.kt$AutoQueueGommeDuels$"AutoPlay"</ID>
     <ID>StringLiteralDuplication:JsSetting.kt$JsSetting$"default"</ID>
+    <ID>SwallowedException:ChunkScanner.kt$ChunkScanner.ChunkScannerThread$e: CancellationException</ID>
     <ID>SwallowedException:ClientInteropServer.kt$ClientInteropServer$e: Exception</ID>
     <ID>SwallowedException:CommandValue.kt$CommandValue$e: Exception</ID>
     <ID>SwallowedException:ModuleMobOwners.kt$ModuleMobOwners$e: Exception</ID>
@@ -173,9 +172,9 @@
     <ID>TooManyFunctions:AccountFunctions.kt$net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client.AccountFunctions.kt</ID>
     <ID>TooManyFunctions:AccountManager.kt$AccountManager : ConfigurableListenable</ID>
     <ID>TooManyFunctions:BlockExtensions.kt$net.ccbluex.liquidbounce.utils.block.BlockExtensions.kt</ID>
+    <ID>TooManyFunctions:BlockPlacer.kt$BlockPlacer : ConfigurableListenable</ID>
     <ID>TooManyFunctions:ChatClient.kt$ChatClient</ID>
     <ID>TooManyFunctions:ClientUtils.kt$net.ccbluex.liquidbounce.utils.client.ClientUtils.kt</ID>
-    <ID>TooManyFunctions:RenderTasks.kt$Color4b</ID>
     <ID>TooManyFunctions:CommandClient.kt$CommandClient</ID>
     <ID>TooManyFunctions:CommandManager.kt$CommandManager : Iterable</ID>
     <ID>TooManyFunctions:ConfigSystem.kt$ConfigSystem</ID>
@@ -186,7 +185,9 @@
     <ID>TooManyFunctions:ItemExtensions.kt$net.ccbluex.liquidbounce.utils.item.ItemExtensions.kt</ID>
     <ID>TooManyFunctions:JsSetting.kt$JsSetting</ID>
     <ID>TooManyFunctions:ModuleManager.kt$ModuleManager : ListenableIterable</ID>
+    <ID>TooManyFunctions:PlacementRenderHandler.kt$PlacementRenderHandler</ID>
     <ID>TooManyFunctions:ProxyFunctions.kt$net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client.ProxyFunctions.kt</ID>
+    <ID>TooManyFunctions:RenderTasks.kt$Color4b</ID>
     <ID>TooManyFunctions:RotationsUtil.kt$RotationManager : Listenable</ID>
     <ID>TooManyFunctions:TextExtensions.kt$net.ccbluex.liquidbounce.utils.client.TextExtensions.kt</ID>
     <ID>UnusedParameter:ClientApi.kt$ClientApi$settings: String</ID>
@@ -194,14 +195,7 @@
     <ID>UnusedParameter:CommandLocalConfig.kt$CommandLocalConfig$validator: (Module) -> Boolean = { true }</ID>
     <ID>UnusedParameter:FaceTargetPositionFactory.kt$StabilizedRotationTargetPositionFactory$face: Face</ID>
     <ID>UnusedParameter:ModuleManager.kt$ModuleManager$args: List&lt;String></ID>
-    <ID>UnusedParameter:ThemeManager.kt$ThemeManager$context: DrawContext</ID>
-    <ID>UnusedParameter:ThemeManager.kt$ThemeManager$delta: Float</ID>
-    <ID>UnusedParameter:ThemeManager.kt$ThemeManager$height: Int</ID>
-    <ID>UnusedParameter:ThemeManager.kt$ThemeManager$mouseX: Int</ID>
-    <ID>UnusedParameter:ThemeManager.kt$ThemeManager$mouseY: Int</ID>
-    <ID>UnusedParameter:ThemeManager.kt$ThemeManager$width: Int</ID>
     <ID>UnusedPrivateMember:ModuleHoleESP.kt$ModuleHoleESP$private fun flatten(pos: BlockPos): BlockPos</ID>
-    <ID>UnusedPrivateMember:ThemeManager.kt$ThemeManager$private fun extractDefault()</ID>
     <ID>UnusedPrivateProperty:NoFallBlink.kt$NoFallBlink$i</ID>
   </CurrentIssues>
 </SmellBaseline>
