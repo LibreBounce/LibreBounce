@@ -284,6 +284,7 @@ shadowJar {
 
     dependencies {
         include(dependency('com.github.CCBlueX:mcef'))
+        include(dependency('com.github.CCBlueX:netty-httpserver'))
         include(dependency('com.github.CCBlueX:mc-authlib'))
         include(dependency('com.github.CCBlueX:DiscordIPC'))
         include(dependency('com.thealtening.api:api'))
