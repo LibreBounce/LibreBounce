@@ -52,7 +52,6 @@ https://github.com/CCBlueX/LiquidBounce
 Our website: https://ccbluex.net/
 Our youtube: https://youtube.com/ccbluex
 Our twitter: https://twitter.com/ccbluex
-Our guilded: https://www.guilded.gg/CCBlueX
 
 ➔ License
 This project is subject to the GNU General Public License v3.0. This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
