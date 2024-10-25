@@ -39,6 +39,7 @@ import net.minecraft.scoreboard.Team
 import net.minecraft.scoreboard.number.NumberFormat
 import net.minecraft.scoreboard.number.StyledNumberFormat
 import net.minecraft.text.Text
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
 
 fun RestNode.playerRest() {
@@ -50,6 +51,8 @@ fun RestNode.playerRest() {
 data class PlayerData(
     val username: String,
     val uuid: String,
+    val position: Vec3d,
+    val velocity: Vec3d,
     val selectedSlot: Int,
     val gameMode: GameMode = GameMode.DEFAULT,
     val health: Float,
@@ -74,6 +77,8 @@ data class PlayerData(
         fun fromPlayer(player: PlayerEntity) = PlayerData(
             player.nameForScoreboard,
             player.uuidAsString,
+            player.pos,
+            player.velocity,
             player.inventory.selectedSlot,
             if (mc.player == player) interaction.currentGameMode else GameMode.DEFAULT,
             player.health.fixNaN(),

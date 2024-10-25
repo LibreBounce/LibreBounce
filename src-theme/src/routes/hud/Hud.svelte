@@ -15,6 +15,7 @@
     import Keystrokes from "./elements/keystrokes/Keystrokes.svelte";
     import Effects from "./elements/Effects.svelte";
     import BlockCounter from "./elements/BlockCounter.svelte";
+    import Text from "./elements/Text.svelte";
 
     let zoom = 100;
     let components: Component[] = [];
@@ -31,6 +32,8 @@
     });
 
     listen("componentsUpdate", (data: ComponentsUpdateEvent) => {
+        // force update to re-render
+        components = [];
         components = data.components;
     });
 </script>
@@ -62,7 +65,7 @@
                 {:else if c.name === "Effects"}
                     <Effects />
                 {:else if c.name === "Text"}
-                    <p>{c.settings.text}</p>
+                    <Text settings={c.settings} />
                 {:else if c.name === "Image"}
                     <img alt="" src="{c.settings.src}" style="scale: {c.settings.scale};">
                 {/if}
