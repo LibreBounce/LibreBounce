@@ -60,7 +60,7 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = InputBind.BindA
         tree(Scroll)
     }
 
-    private val animation by curve("Animation", Easing.QUAD_IN)
+    private val transition by curve("Transition", Easing.QUAD_IN)
     private val durationFactor by float("DurationFactor", 2f, 0f..10f, "x")
 
     private val chronometer = Chronometer()
@@ -93,7 +93,7 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = InputBind.BindA
             disableAnimationFinished = true
         }
 
-        return MathHelper.lerp(animation.transform(factor), previousFov, targetFov)
+        return MathHelper.lerp(transition.transform(factor), previousFov, targetFov)
     }
 
     private fun getDefaultFov(): Int {
