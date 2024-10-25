@@ -21,7 +21,9 @@ package net.ccbluex.liquidbounce.features.module
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
+import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleAutoConfig
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleLiquidChat
@@ -35,10 +37,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVe
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.servercrasher.ModuleServerCrasher
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleDankBobbing
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleDerp
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleHandDerp
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleSkinDerp
+import net.ccbluex.liquidbounce.features.module.modules.`fun`.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat
@@ -68,11 +67,14 @@ import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.Mod
 import net.ccbluex.liquidbounce.features.module.modules.render.nametags.ModuleNametags
 import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.ModuleTrajectories
 import net.ccbluex.liquidbounce.features.module.modules.world.*
+import net.ccbluex.liquidbounce.features.module.modules.world.autobuild.ModuleAutoBuild
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
 import net.ccbluex.liquidbounce.features.module.modules.world.fucker.ModuleFucker
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
 import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.input.InputBind
 import org.lwjgl.glfw.GLFW
 
 private val modules = mutableListOf<Module>()
@@ -86,31 +88,41 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
 
     /**
      * Handles keystrokes for module binds.
-     */
-    @Suppress("unused")
-    val keyHandler = handler<KeyEvent> { event ->
-        if (event.action == GLFW.GLFW_PRESS) {
-            filter { it.bind == event.key.keyCode } // modules bound to a specific key
-                .forEach {
-                    if (it.bindAction == Module.BindAction.HOLD) {
-                        it.enabled = true
-                    } else {
-                        it.enabled = !it.enabled // toggle modules
-                    }
-                }
-        }
-    }
-
-    /**
-     * Handles keystrokes for module binds.
      * This also runs in GUIs, so that if a GUI is opened while a key is pressed,
      * any modules that need to be disabled on key release will be properly disabled.
      */
     @Suppress("unused")
-    val keyReleaseHandler = handler<KeyboardKeyEvent> { event ->
-        if (event.action == GLFW.GLFW_RELEASE) {
-            filter { it.bind == event.keyCode && it.bindAction == Module.BindAction.HOLD }
-                .forEach { it.enabled = false }
+    private val keyboardKeyHandler = handler<KeyboardKeyEvent> { event ->
+        when (event.action) {
+            GLFW.GLFW_PRESS -> if (mc.currentScreen == null) {
+                    filter { m -> m.bind.matchesKey(event.keyCode, event.scanCode) }
+                    .forEach { m ->
+                        m.enabled = !m.enabled || m.bind.action == InputBind.BindAction.HOLD
+                    }
+                }
+            GLFW.GLFW_RELEASE ->
+                filter { m ->
+                    m.bind.matchesKey(event.keyCode, event.scanCode) &&
+                        m.bind.action == InputBind.BindAction.HOLD
+                }.forEach { m ->
+                    m.enabled = false
+                }
+        }
+    }
+
+    @Suppress("unused")
+    private val mouseButtonHandler = handler<MouseButtonEvent> { event ->
+        when (event.action) {
+            GLFW.GLFW_PRESS -> if (mc.currentScreen == null) {
+                filter { m -> m.bind.matchesMouse(event.button) }
+                    .forEach { m ->
+                        m.enabled = !m.enabled || m.bind.action == InputBind.BindAction.HOLD
+                    }
+            }
+            GLFW.GLFW_RELEASE ->
+                filter { m ->
+                    m.bind.matchesMouse(event.button) && m.bind.action == InputBind.BindAction.HOLD
+                }.forEach { m -> m.enabled = false }
         }
     }
 
@@ -155,7 +167,6 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleResetVL,
             ModuleDamage,
             ModuleDisabler,
-            ModuleForceUnicodeChat,
             ModuleGhostHand,
             ModuleKick,
             ModuleMoreCarry,
@@ -182,6 +193,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleDerp,
             ModuleSkinDerp,
             ModuleHandDerp,
+            ModuleVomit,
 
             // Misc
             ModuleAntiBot,
@@ -261,6 +273,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleBreadcrumbs,
             ModuleCameraClip,
             ModuleClickGui,
+            ModuleDamageParticles,
             ModuleESP,
             ModuleFreeCam,
             ModuleFullBright,
@@ -286,7 +299,9 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleProphuntESP,
             ModuleQuickPerspectiveSwap,
             ModuleRotations,
+            ModuleSilentHotbar,
             ModuleStorageESP,
+            ModuleTNTTimer,
             ModuleTracers,
             ModuleTrajectories,
             ModuleTrueSight,
@@ -295,6 +310,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleZoom,
 
             // World
+            ModuleAutoBuild,
             ModuleAutoDisable,
             ModuleAutoFarm,
             ModuleAutoTool,
@@ -392,7 +408,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
      */
     @JvmName("getCategories")
     @ScriptApi
-    fun getCategories() = Category.values().map { it.readableName }.toTypedArray()
+    fun getCategories() = Category.entries.map { it.readableName }.toTypedArray()
 
     @JvmName("getModules")
     fun getModules() = modules

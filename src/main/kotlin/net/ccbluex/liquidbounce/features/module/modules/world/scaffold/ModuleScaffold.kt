@@ -48,6 +48,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.Sca
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
 import net.ccbluex.liquidbounce.utils.block.PlacementSwingMode
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
@@ -66,6 +67,7 @@ import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.*
@@ -190,6 +192,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     private var swingMode by enumChoice("Swing", PlacementSwingMode.DO_NOT_HIDE)
 
     object SimulatePlacementAttempts : ToggleableConfigurable(this, "SimulatePlacementAttempts", false) {
+
         internal val clickScheduler = tree(ClickScheduler(ModuleScaffold, false, maxCps = 100))
         val failedAttemptsOnly by boolean("FailedAttemptsOnly", true)
     }
@@ -204,6 +207,8 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     }
 
     private var ledge by boolean("Ledge", true)
+
+    private val renderer = tree(PlacementRenderer("Render", true, this, keep = false))
 
     private var placementY = 0
     private var forceSneak = 0
@@ -498,6 +503,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         // Take the fall off position before placing the block
         val previousFallOffPos = currentOptimalLine?.let { l -> ScaffoldMovementPrediction.getFallOffPositionOnLine(l) }
 
+        renderer.addBlock(target.placedBlock)
         doPlacement(currentCrosshairTarget, handToInteractWith, {
             ScaffoldMovementPlanner.trackPlacedBlock(target)
             currentTarget = null
@@ -507,7 +513,12 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         }, placementSwingMode = swingMode)
 
         if (rotationTiming == ON_TICK && RotationManager.serverRotation != player.rotation) {
-            network.sendPacket(Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround))
+            network.sendPacket(
+               Full(
+                    player.x, player.y, player.z, player.withFixedYaw(currentRotation),
+                    player.pitch, player.isOnGround
+                )
+            )
         }
 
         if (wasSuccessful) {
