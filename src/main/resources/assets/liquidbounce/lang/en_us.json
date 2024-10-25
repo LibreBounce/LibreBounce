@@ -344,6 +344,7 @@
   "liquidbounce.module.civBreak.description": "Allows you to mine blocks faster.",
   "liquidbounce.module.civBreak.value.switch.description": "Silently switches to the right tool or uses auto tool if it is enabled.",
   "liquidbounce.module.ESP.description": "Allows you to see targets through walls.",
+  "liquidbounce.module.tntTimer.description": "Highlight the active TNTs.",
   "liquidbounce.module.abortBreaking.description": "Allows you to abort breaking without losing progress.",
   "liquidbounce.module.aimbot.description": "Automatically faces targets nearby.",
   "liquidbounce.module.airJump.description": "Allows you to jump mid-air.",
@@ -448,7 +449,6 @@
   "liquidbounce.module.betterChat.value.infiniteLength.description": "Disables the 100 messages chat history limit.",
   "liquidbounce.module.betterChat.value.antiClear.description": "Protects your chat from being cleared.",
   "liquidbounce.module.betterChat.value.antiClear.betterScreenshotMessages": "Send a more advanced screenshot message with copying as quick action.",
-  "liquidbounce.module.forceUnicodeChat.description": "Translates all chat messages you send to unicode.",
   "liquidbounce.module.flagCheck.description": "Alerts you about flags.",
   "liquidbounce.module.flagCheck.messages.alert": "Detected %s (%sx)",
   "liquidbounce.module.flagCheck.messages.alertWithExtra": "Detected %s %s (%sx)",
@@ -591,5 +591,9 @@
   "liquidbounce.module.autoShop.messages.loadError": "Cannot load the config",
   "liquidbounce.module.liquidPlace.description": "Allows you to place blocks on liquids.",
   "liquidbounce.module.multiActions.description": "Allows you to do multiple things at the same time.",
-  "liquidbounce.module.bedDefender.description": "Automatically places blocks to defend your bed in BedWars."
+  "liquidbounce.module.bedDefender.description": "Automatically places blocks to defend your bed in BedWars.",
+  "liquidbounce.module.autoBuild.description": "Automatically builds certain structures.",
+  "liquidbounce.module.autoBuild.messages.noPosition": "No possible position found, disabling...",
+  "liquidbounce.module.autoBuild.messages.noObsidian": "No obsidian found, disabling...",
+  "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "No flint-and-steel found, disabling..."
 }
