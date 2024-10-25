@@ -79,7 +79,7 @@ object ModuleFlagCheck : Module("FlagCheck", Category.MISC, aliases = arrayOf("F
 
         @Suppress("unused")
         val renderHandler = handler<WorldRenderEvent> {
-            if (notInFirstPerson && mc.options.perspective.isFirstPerson || finished) {
+            if (finished || notInFirstPerson && mc.options.perspective.isFirstPerson) {
                 return@handler
             }
 
