@@ -70,6 +70,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private val scale by float("Scale", 1.5f, 0.5f..3.0f)
     private val renderY by float("RenderY", 0.0F, -2.0F..2.0F)
     private val maxDistance by float("MaxDistance", 256.0f, 128.0f..1280.0f)
+    private val maxCount by int("MaxCount", 8, 1..64)
 
     private val fontRenderer by lazy {
         Fonts.DEFAULT_FONT.get()
@@ -86,16 +87,16 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                     DoubleObjectImmutablePair(key.getSquaredDistance(playerPos), value)
                 }.filter {
                     it.keyDouble() < maxDistanceSquared
-                }.sortedByDescending {
+                }.sortedBy {
                     it.keyDouble()
-                }.forEachWithSelf { entry, i, self ->
+                }.take(maxCount).forEachWithSelf { entry, i, self ->
                     val bedState = entry.value()
                     val screenPos = WorldToScreen.calculateScreenPos(bedState.pos.add(0.0, renderY.toDouble(), 0.0))
                         ?: return@forEachWithSelf
                     val distance = sqrt(entry.keyDouble())
                     val surrounding = bedState.surroundingBlocks
 
-                    val z = 1000.0F * i / self.size
+                    val z = 1000.0F * (self.size - i - 1) / self.size
 
                     // without padding
                     val rectWidth = ITEM_SIZE * (1 + surrounding.size)
