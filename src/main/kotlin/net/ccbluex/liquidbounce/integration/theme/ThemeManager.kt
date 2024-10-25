@@ -126,6 +126,14 @@ object ThemeManager {
      */
     private fun extractDefault() {
         runCatching {
+            // Delete old generated default theme
+            runCatching {
+                themesFolder.resolve("default")
+                    .takeIf { it.exists() }
+                    ?.deleteRecursively()
+            }
+
+            // Extract default theme
             val folder = themesFolder.resolve("liquidbounce")
             val stream = resource("/assets/liquidbounce/default_theme.zip")
 
