@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.math.Easing
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -62,22 +63,45 @@ object ModuleFlagCheck : Module("FlagCheck", Category.MISC, aliases = arrayOf("F
     private object Render : ToggleableConfigurable(this, "Render", true) {
 
         private val notInFirstPerson by boolean("NotInFirstPerson", true)
-        //private var renderTime by int("Alive", 1000, 1..2000, "ms")
+        private val renderTime by int("Alive", 1000, 0..3000, "ms")
+        private val fadeOut by curve("FadeOut", Easing.QUAD_OUT)
+        private val outTime by int("OutTime", 500, 0..2000, "ms")
         private var color by color("Color", Color4b.RED.alpha(100).darker())
         private var outlineColor by color("OutlineColor", Color4b.RED.darker())
 
         val wireframePlayer = WireframePlayer(Vec3d.ZERO, 0f, 0f)
         var creationTime = 0L
+        var finished = true
+
+        override fun enable() {
+            finished = true
+        }
 
         @Suppress("unused")
-        val renderHandler = handler<WorldRenderEvent> { // TODO fade out
-            if (notInFirstPerson && mc.options.perspective.isFirstPerson) {
+        val renderHandler = handler<WorldRenderEvent> {
+            if (notInFirstPerson && mc.options.perspective.isFirstPerson || finished) {
                 return@handler
             }
 
-            //if (System.currentTimeMillis() - creationTime <= renderTime) {
+            val time = System.currentTimeMillis()
+            val withinRenderDuration = time - creationTime < renderTime
+
+            if (withinRenderDuration) {
                 wireframePlayer.render(it, color, outlineColor)
-            //}
+            } else {
+                val factor = 1f - fadeOut.getFactor(creationTime + renderTime, time, outTime.toFloat())
+                if (factor == 0f) {
+                    finished = true
+                    return@handler
+                }
+
+                wireframePlayer.render(it, color.fade(factor), outlineColor.fade(factor))
+            }
+        }
+
+        fun reset() {
+            creationTime = System.currentTimeMillis()
+            finished = false
         }
 
     }
@@ -99,7 +123,7 @@ object ModuleFlagCheck : Module("FlagCheck", Category.MISC, aliases = arrayOf("F
 
                 flagCount++
                 alert(AlertReason.LAGBACK)
-                Render.creationTime = System.currentTimeMillis()
+                Render.reset()
                 Render.wireframePlayer.setPosRot(packet.x, packet.y, packet.z, packet.yaw, packet.pitch)
             }
 
