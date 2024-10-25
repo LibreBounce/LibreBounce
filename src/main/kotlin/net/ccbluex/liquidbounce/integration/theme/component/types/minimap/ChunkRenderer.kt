@@ -77,7 +77,7 @@ object ChunkRenderer {
                 }
 
             for (posToUpdate in positionsToUpdate) {
-                val color = getColor(posToUpdate)
+                val color = getColor(posToUpdate.x, posToUpdate.z)
 
                 textureAtlasManager.editChunk(ChunkPos(posToUpdate)) { texture, atlasPosition ->
                     val (x, y) = atlasPosition.getPosOnAtlas(posToUpdate.x and 15, posToUpdate.z and 15)
@@ -87,10 +87,10 @@ object ChunkRenderer {
             }
         }
 
-        private fun getColor(pos: BlockPos): Int {
+        private fun getColor(x: Int, z: Int): Int {
             val world = mc.world!!
 
-            val height = heightmapManager.getHeight(pos.x, pos.z)
+            val height = heightmapManager.getHeight(x, z)
             val offsetsToCheck =
                 arrayOf(
                     Vec2i(-1, 0),
@@ -105,7 +105,7 @@ object ChunkRenderer {
 
             val higherOffsets =
                 offsetsToCheck.filter { offset ->
-                    heightmapManager.getHeight(pos.x + offset.x, pos.z + offset.y) > height
+                    heightmapManager.getHeight(x + offset.x, z + offset.y) > height
                 }
 
             val higherOffsetVec = higherOffsets.fold(Vec2i(0, 0)) { acc, vec -> acc.add(vec) }
@@ -117,13 +117,13 @@ object ChunkRenderer {
                     130.0 / 255.0
                 } else {
                     val similarityToSunDirection = higherOffsetVec.similarity(SUN_DIRECTION)
-                    val eee = higherOffsetVec.dotProduct(Vec2i(pos.x, pos.z)).toDouble() / higherOffsetVec.length()
+                    val eee = higherOffsetVec.dotProduct(Vec2i(x, z)).toDouble() / higherOffsetVec.length()
                     val sine = sin(eee * 0.5 * PI)
 
                     (190.0 + (similarityToSunDirection * 55.0) + sine * 10.0) / 255.0
                 }
 
-            val surfaceBlockPos = BlockPos(pos.x, height, pos.z)
+            val surfaceBlockPos = BlockPos(x, height, z)
             val surfaceBlockState = world.getBlockState(surfaceBlockPos)
 
             if (surfaceBlockState.isAir) {
@@ -162,7 +162,7 @@ object ChunkRenderer {
                     for (offZ in 0..15) {
                         val (texX, texY) = atlasPosition.getPosOnAtlas(offX, offZ)
 
-                        val color = getColor(BlockPos(offX or (x shl 4), 0, offZ or (z shl 4)))
+                        val color = getColor(offX or (x shl 4), offZ or (z shl 4))
 
                         texture.image!!.setColor(texX, texY, color)
                     }
@@ -175,7 +175,7 @@ object ChunkRenderer {
                         for (offZ in from.y..to.y) {
                             val (texX, texY) = atlasPosition.getPosOnAtlas(offX, offZ)
 
-                            val color = getColor(BlockPos(offX + otherPos.startX, 0, offZ + otherPos.startZ))
+                            val color = getColor(offX + otherPos.startX, offZ + otherPos.startZ)
 
                             texture.image!!.setColor(texX, texY, color)
                         }
