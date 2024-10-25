@@ -26,13 +26,11 @@ import net.ccbluex.liquidbounce.config.adapter.*
 import net.ccbluex.liquidbounce.config.util.ExcludeStrategy
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.config.adapter.AlignmentSerializer
 import net.ccbluex.liquidbounce.render.Fonts
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.ccbluex.liquidbounce.utils.render.Alignment
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
@@ -121,8 +119,6 @@ object ConfigSystem {
             .registerTypeAdapter(ChoiceConfigurable::class.javaObjectType, ChoiceConfigurableSerializer)
             .registerTypeHierarchyAdapter(NamedChoice::class.javaObjectType, EnumChoiceSerializer)
             .registerTypeHierarchyAdapter(MinecraftAccount::class.javaObjectType, MinecraftAccountSerializer)
-            .registerTypeAdapter(Alignment::class.java, AlignmentSerializer)
-
 
     /**
      * Create new root configurable

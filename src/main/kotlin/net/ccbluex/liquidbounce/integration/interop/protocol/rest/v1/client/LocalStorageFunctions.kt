@@ -22,7 +22,7 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.integration.persistant.PersistentLocalStorage
+import net.ccbluex.liquidbounce.integration.interop.persistant.PersistentLocalStorage
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk

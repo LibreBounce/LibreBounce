@@ -61,6 +61,7 @@ import net.ccbluex.liquidbounce.integration.IntegrationHandler
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.resource.ResourceManager
 import net.minecraft.resource.ResourceReloader
@@ -164,6 +165,7 @@ object LiquidBounce : Listenable {
 
             // Load theme and component overlay
             ThemeManager
+            ComponentOverlay.insertComponents()
 
             // Load config system from disk
             ConfigSystem.loadAll()

@@ -61,21 +61,18 @@ public abstract class MixinScreen {
 
     @Inject(method = "init(Lnet/minecraft/client/MinecraftClient;II)V", at = @At("TAIL"))
     private void objInit(CallbackInfo ci) {
-        var wallpaper = ThemeManager.INSTANCE.getActiveWallpaper();
-        if (wallpaper != null) wallpaper.load();
+        ThemeManager.INSTANCE.initialiseBackground();
     }
 
     @Inject(method = "init()V", at = @At("TAIL"))
     protected void init(CallbackInfo ci) {
-        var wallpaper = ThemeManager.INSTANCE.getActiveWallpaper();
-        if (wallpaper != null) wallpaper.load();
+        ThemeManager.INSTANCE.initialiseBackground();
     }
 
     @Inject(method = "renderBackground", at = @At("HEAD"), cancellable = true)
     private void renderBackgroundTexture(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (this.client != null && this.client.world == null && !HideAppearance.INSTANCE.isHidingNow()) {
-            var wallpaper = ThemeManager.INSTANCE.getActiveWallpaper();
-            if (wallpaper != null && wallpaper.draw(context, width, height, mouseX, mouseY, delta)) {
+            if (ThemeManager.INSTANCE.drawBackground(context, width, height, mouseX, mouseY, delta)) {
                 ci.cancel();
             }
         }

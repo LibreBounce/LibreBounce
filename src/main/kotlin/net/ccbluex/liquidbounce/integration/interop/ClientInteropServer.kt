@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventHandler
-import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.v1Functions
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.registerInteropFunctions
 import net.ccbluex.netty.http.HttpServer
 import net.ccbluex.netty.http.middleware.CorsMiddleware
 import net.ccbluex.netty.http.model.RequestObject
@@ -61,7 +61,7 @@ object ClientInteropServer {
             // RestAPI
             httpServer.routeController.apply {
                 get("/", ::getRootResponse)
-                v1Functions(this)
+                registerInteropFunctions(this)
                 file("/", ConfigSystem.rootFolder.resolve("themes"))
             }
 

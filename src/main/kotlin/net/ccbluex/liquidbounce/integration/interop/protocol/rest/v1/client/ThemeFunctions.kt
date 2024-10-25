@@ -19,18 +19,24 @@
  */
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
-import net.ccbluex.netty.http.util.httpBadRequest
 
 // GET /api/v1/client/theme
 @Suppress("UNUSED_PARAMETER")
 fun getThemeInfo(requestObject: RequestObject): FullHttpResponse = httpOk(JsonObject().apply {
-    addProperty("theme", ThemeManager.activeTheme.name)
-    addProperty("wallpaper", ThemeManager.activeWallpaper?.name)
+    addProperty("activeTheme", ThemeManager.activeTheme.name)
+    addProperty("shaderEnabled", ThemeManager.shaderEnabled)
 })
+
+// POST /api/v1/client/shader
+@Suppress("UNUSED_PARAMETER")
+fun postToggleShader(requestObject: RequestObject): FullHttpResponse {
+    ThemeManager.shaderEnabled = !ThemeManager.shaderEnabled
+    ConfigSystem.storeConfigurable(ThemeManager)
+    return httpOk(JsonObject())
+}

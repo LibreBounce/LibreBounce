@@ -23,8 +23,7 @@ import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen
-import net.ccbluex.liquidbounce.integration.theme.ThemeManager.route
+import net.ccbluex.liquidbounce.integration.VrScreen
 import org.lwjgl.glfw.GLFW
 
 /**
@@ -50,7 +49,7 @@ object ModuleClickGui :
             return
         }
 
-        mc.setScreen(VirtualDisplayScreen(route(VirtualScreenType.CLICK_GUI)))
+        mc.setScreen(VrScreen(VirtualScreenType.CLICK_GUI))
         super.enable()
     }
 

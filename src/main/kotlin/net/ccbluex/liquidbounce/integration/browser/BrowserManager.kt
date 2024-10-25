@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
-import net.ccbluex.liquidbounce.integration.persistant.PersistentLocalStorage
+import net.ccbluex.liquidbounce.integration.interop.persistant.PersistentLocalStorage
 
 object BrowserManager : Configurable("browser") {
 

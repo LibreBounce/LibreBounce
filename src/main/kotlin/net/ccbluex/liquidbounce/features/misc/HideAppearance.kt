@@ -55,9 +55,9 @@ object HideAppearance : Listenable {
 
     private fun updateClient() {
         if (isHidingNow) {
-            IntegrationHandler.restoreOriginal()
+            IntegrationHandler.restoreOriginalScreen()
         } else {
-            IntegrationHandler.sync()
+            IntegrationHandler.updateIntegrationBrowser()
         }
 
         mc.updateWindowTitle()

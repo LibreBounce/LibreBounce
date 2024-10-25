@@ -17,7 +17,7 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package net.ccbluex.liquidbounce.integration.persistant
+package net.ccbluex.liquidbounce.integration.interop.persistant
 
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.Configurable

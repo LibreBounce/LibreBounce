@@ -20,9 +20,9 @@
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.features
 
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.integration.BrowserScreen
+import net.ccbluex.liquidbounce.integration.browserTabs
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.integration.browser.BrowserScreen
-import net.ccbluex.liquidbounce.integration.browser.browserTabs
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpBadRequest
 import net.ccbluex.netty.http.util.httpOk

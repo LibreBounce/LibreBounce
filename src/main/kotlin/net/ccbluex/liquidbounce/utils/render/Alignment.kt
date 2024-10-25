@@ -18,18 +18,22 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f
 import net.ccbluex.liquidbounce.utils.client.mc
 
-data class Alignment(
-    val horizontalAlignment: ScreenAxisX,
-    val horizontalOffset: Int,
-    val verticalAlignment: ScreenAxisY,
-    val verticalOffset: Int,
-) {
+class Alignment(
+    horizontalAlignment: ScreenAxisX,
+    horizontalOffset: Int,
+    verticalAlignment: ScreenAxisY,
+    verticalOffset: Int,
+) : Configurable("Alignment") {
 
-    constructor() : this(ScreenAxisX.LEFT, 0, ScreenAxisY.TOP, 0)
+    val horizontalAlignment by enumChoice("Horizontal", horizontalAlignment)
+    val horizontalOffset by int("HorizontalOffset", horizontalOffset, -1000..1000)
+    val verticalAlignment by enumChoice("Vertical", verticalAlignment)
+    val verticalOffset by int("VerticalOffset", verticalOffset, -1000..1000)
 
     fun getBounds(
         width: Float,
@@ -72,22 +76,26 @@ data class Alignment(
     }
 
     /**
-     * Checks if the given point is inside the bounds of the alignment
+     * Converts the alignement configurable to style (CSS)
      */
-    fun contains(x: Float, y: Float, width: Float, height: Float): Boolean {
-        val bounds = getBounds(width, height)
-        return x >= bounds.xMin && x <= bounds.xMax && y >= bounds.yMin && y <= bounds.yMax
-    }
-
-    fun move(offsetX: Int, offsetY: Int) = copy(
-        horizontalOffset = horizontalOffset + when (horizontalAlignment) {
-            ScreenAxisX.RIGHT -> -offsetX
-            else -> offsetX
-        },
-        verticalOffset = verticalOffset + when (verticalAlignment) {
-            ScreenAxisY.BOTTOM -> -offsetY
-            else -> offsetY
-        }
-    )
+    fun toStyle() = """
+        position: fixed;
+        ${when (horizontalAlignment) {
+            ScreenAxisX.LEFT -> "left: ${horizontalOffset}px"
+            ScreenAxisX.RIGHT -> "right: ${horizontalOffset}px"
+            ScreenAxisX.CENTER -> "left: calc(50% + ${horizontalOffset}px)"
+            ScreenAxisX.CENTER_TRANSLATED -> "left: calc(50% + ${horizontalOffset}px)"
+    }};
+        ${when (verticalAlignment) {
+            ScreenAxisY.TOP -> "top: ${verticalOffset}px"
+            ScreenAxisY.BOTTOM -> "bottom: ${verticalOffset}px"
+            ScreenAxisY.CENTER -> "top: calc(50% + ${verticalOffset}px)"
+            ScreenAxisY.CENTER_TRANSLATED -> "top: calc(50% + ${verticalOffset}px)"
+    }};
+        transform: translate(
+            ${if (horizontalAlignment == ScreenAxisX.CENTER_TRANSLATED) "-50%" else "0"},
+            ${if (verticalAlignment == ScreenAxisY.CENTER_TRANSLATED) "-50%" else "0"}
+        );
+    """.trimIndent().replace("\n", "")
 
 }

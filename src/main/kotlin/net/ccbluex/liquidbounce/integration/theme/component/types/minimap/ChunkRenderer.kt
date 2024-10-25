@@ -18,7 +18,7 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap
+package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
 
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -44,7 +44,7 @@ object ChunkRenderer {
         textureAtlasManager.deallocateAll()
     }
 
-    fun getAtlasPosition(chunkPos: ChunkPos): net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager.AtlasPosition {
+    fun getAtlasPosition(chunkPos: ChunkPos): MinimapTextureAtlasManager.AtlasPosition {
         return textureAtlasManager.getOrNotLoadedTexture(chunkPos)
     }
 

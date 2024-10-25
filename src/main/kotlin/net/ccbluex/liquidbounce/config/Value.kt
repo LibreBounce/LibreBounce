@@ -445,8 +445,7 @@ enum class ValueType {
     INVALID,
     PROXY,
     CONFIGURABLE,
-    TOGGLEABLE,
-    ALIGNMENT,
+    TOGGLEABLE
 }
 
 enum class ListValueType(val type: Class<*>?) {

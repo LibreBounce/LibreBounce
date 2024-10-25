@@ -27,8 +27,7 @@ export type ModuleSetting =
     | ColorSetting
     | TextSetting
     | TextArraySetting
-    | BindSetting
-    | AlignmentSetting;
+    | BindSetting;
 
 export interface BlocksSetting {
     valueType: string;
@@ -148,27 +147,6 @@ export interface TogglableSetting {
     valueType: string;
     name: string;
     value: ModuleSetting[];
-}
-
-export interface AlignmentSetting {
-    horizontal: HorizontalAlignment,
-    vertical: VerticalAlignment,
-    horizontalOffset: number,
-    verticalOffset: number
-}
-
-export enum HorizontalAlignment {
-    LEFT = "Left",
-    RIGHT = "Right",
-    CENTER = "Center",
-    CENTER_TRANSLATED = "CenterTranslated",
-}
-
-export enum VerticalAlignment {
-    TOP = "Top",
-    BOTTOM = "Bottom",
-    CENTER = "Center",
-    CENTER_TRANSLATED = "CenterTranslated",
 }
 
 export interface PersistentStorageItem {
@@ -348,13 +326,7 @@ export interface GameWindow {
     guiScale: number;
 }
 
-export interface ComponentFactories {
-    name: string;
-    components: string[];
-}
-
 export interface Component {
-    id: number;
     name: string;
     settings: { [name: string]: any };
 }
@@ -390,14 +362,4 @@ export interface ClientUpdate {
 
 export interface Browser {
     url: string
-}
-
-export interface Wallpaper {
-    active: ThemeWallpaper | null;
-    available: ThemeWallpaper[];
-}
-
-export interface ThemeWallpaper {
-    theme: string;
-    name: string;
 }

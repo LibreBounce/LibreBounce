@@ -18,7 +18,7 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap
+package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
 
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.block.BlockState

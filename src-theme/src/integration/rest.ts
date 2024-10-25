@@ -1,17 +1,14 @@
 import {REST_BASE} from "./host";
 import type {
     Account,
-    AlignmentSetting,
     Browser,
     ClientInfo,
     ClientUpdate,
     Component,
-    ComponentFactories,
     ConfigurableSetting,
     GameWindow,
     MinecraftKeybind,
     Module,
-    ModuleSetting,
     PersistentStorageItem,
     PlayerData,
     PrintableKey,
@@ -21,7 +18,6 @@ import type {
     Server,
     Session,
     VirtualScreen,
-    Wallpaper,
     World
 } from "./types";
 
@@ -512,60 +508,9 @@ export async function getGameWindow(): Promise<GameWindow> {
     return data;
 }
 
-// todo: get name from metadata
-const THEME_NAME = "LiquidBounce";
-
-export async function getAllComponents(): Promise<Component[]> {
+export async function getComponents(): Promise<Component[]> {
     const response = await fetch(`${API_BASE}/client/components`);
     return await response.json();
-}
-
-export async function getComponentFactories(): Promise<ComponentFactories[]> {
-    const response = await fetch(`${API_BASE}/client/componentFactories`);
-    return await response.json();
-}
-
-export async function getComponents(): Promise<Component[]> {
-    const response = await fetch(`${API_BASE}/client/components/${THEME_NAME}`);
-    return await response.json();
-}
-
-export async function getComponent(index: number): Promise<ConfigurableSetting> {
-    const response = await fetch(`${API_BASE}/client/components/${THEME_NAME}/${index}`);
-    return await response.json();
-}
-
-export async function createComponent(theme: string, name: string) {
-    await fetch(`${API_BASE}/client/components/${theme}/${name}`, {
-        method: "POST"
-    });
-}
-
-// todo: use index of get all components
-export async function deleteComponent(index: number) {
-    await fetch(`${API_BASE}/client/component/${index}`, {
-        method: "DELETE"
-    });
-}
-
-export async function moveComponent(index: number, alignment: AlignmentSetting) {
-    await fetch(`${API_BASE}/client/components/${THEME_NAME}/${index}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(alignment)
-    });
-}
-
-export async function updateComponent(index: number, settings: ConfigurableSetting) {
-    await fetch(`${API_BASE}/client/components/${THEME_NAME}/${index}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(settings)
-    });
 }
 
 export async function getClientInfo(): Promise<ClientInfo> {
@@ -588,16 +533,9 @@ export async function reconnectToServer() {
     });
 }
 
-export async function getWallpaper(): Promise<Wallpaper> {
-    const response = await fetch(`${API_BASE}/client/wallpaper`);
-    const data: Wallpaper = await response.json();
-
-    return data;
-}
-
-export async function putWallpaper(theme: string, name: string) {
-    await fetch(`${API_BASE}/client/wallpaper/${theme}/${name}`, {
-        method: "PUT",
+export async function toggleBackgroundShaderEnabled() {
+    await fetch(`${API_BASE}/client/shader`, {
+        method: "POST",
     });
 }
 

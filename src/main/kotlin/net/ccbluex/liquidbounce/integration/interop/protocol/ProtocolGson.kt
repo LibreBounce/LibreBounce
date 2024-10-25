@@ -23,6 +23,8 @@ import com.google.gson.*
 import net.ccbluex.liquidbounce.api.ClientApi.formatAvatarUrl
 import net.ccbluex.liquidbounce.config.ConfigSystem.registerCommonTypeAdapters
 import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.integration.theme.ComponentSerializer
+import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.isPremium
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -56,6 +58,10 @@ object ProtocolConfigurableWithComponentSerializer : JsonSerializer<Configurable
         typeOfSrc: Type,
         context: JsonSerializationContext
     ): JsonElement {
+        if (src is Component) {
+            return ComponentSerializer.serialize(src, typeOfSrc, context)
+        }
+
         return JsonObject().apply {
             addProperty("name", src.name)
             add("value", context.serialize(src.inner.filter {
@@ -209,7 +215,7 @@ internal val genericProtocolGson = GsonBuilder()
 internal val protocolGson = GsonBuilder()
     .addSerializationExclusionStrategy(ProtocolExclusionStrategy())
     .registerCommonTypeAdapters()
-    .registerTypeHierarchyAdapter(Configurable::class.javaObjectType, ProtocolConfigurableSerializer)
+    .registerTypeHierarchyAdapter(Configurable::class.javaObjectType, ProtocolConfigurableWithComponentSerializer)
     .registerTypeHierarchyAdapter(Text::class.java, TextSerializer())
     .registerTypeAdapter(Session::class.java, SessionSerializer())
     .registerTypeAdapter(ServerInfo::class.java, ServerInfoSerializer())

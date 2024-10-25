@@ -38,10 +38,18 @@ import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.integration.browser.BrowserScreen
+import net.ccbluex.liquidbounce.integration.BrowserScreen
 import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationHandler.clientJcef
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.ccbluex.liquidbounce.integration.theme.type.native.NativeTheme
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.components
+import net.ccbluex.liquidbounce.integration.theme.component.customComponents
+import net.ccbluex.liquidbounce.integration.theme.component.types.ImageComponent
+import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
 import net.minecraft.util.Util
 
 /**
@@ -61,6 +69,7 @@ object CommandClient {
         .subcommand(integrationCommand())
         .subcommand(languageCommand())
         .subcommand(themeCommand())
+        .subcommand(componentCommand())
         .subcommand(appereanceCommand())
         .subcommand(prefixCommand())
         .subcommand(destructCommand())
@@ -103,61 +112,61 @@ object CommandClient {
             .alias("url")
             .handler { command, args ->
                 chat(variable("Client Integration"))
-//                val baseUrl = ThemeManager.route().url
-//
-//                chat(
-//                    regular("Base URL: ")
-//                        .append(variable(baseUrl).styled {
-//                            it.withUnderline(true)
-//                                .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, baseUrl))
-//                                .withHoverEvent(
-//                                    HoverEvent(
-//                                        HoverEvent.Action.SHOW_TEXT,
-//                                        regular("Click to open the integration URL in your browser.")
-//                                    )
-//                                )
-//                        }),
-//                    prefix = false
-//                )
+                val baseUrl = ThemeManager.route().url
 
-//                chat(prefix = false)
-//                chat(regular("Integration Menu:"))
-//                for (screenType in VirtualScreenType.entries) {
-//                    val url = runCatching {
-//                        ThemeManager.route(screenType, true)
-//                    }.getOrNull()?.url ?: continue
-//                    val upperFirstName = screenType.routeName.replaceFirstChar { it.uppercase() }
-//
-//                    chat(
-//                        regular("-> $upperFirstName (")
-//                            .append(variable("Browser").styled {
-//                                it.withUnderline(true)
-//                                    .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, url))
-//                                    .withHoverEvent(
-//                                        HoverEvent(
-//                                            HoverEvent.Action.SHOW_TEXT,
-//                                            regular("Click to open the URL in your browser.")
-//                                        )
-//                                    )
-//                            })
-//                            .append(regular(", "))
-//                            .append(variable("Clipboard").styled {
-//                                it.withUnderline(true)
-//                                    .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, url))
-//                                    .withHoverEvent(
-//                                        HoverEvent(
-//                                            HoverEvent.Action.SHOW_TEXT,
-//                                            regular("Click to copy the URL to your clipboard.")
-//                                        )
-//                                    )
-//                            })
-//                            .append(regular(")")),
-//                        prefix = false
-//                    )
-//                }
-//
-//                chat(variable("Hint: You can also access the integration from another device.")
-//                    .styled { it.withItalic(true) })
+                chat(
+                    regular("Base URL: ")
+                        .append(variable(baseUrl).styled {
+                            it.withUnderline(true)
+                                .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, baseUrl))
+                                .withHoverEvent(
+                                    HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        regular("Click to open the integration URL in your browser.")
+                                    )
+                                )
+                        }),
+                    prefix = false
+                )
+
+                chat(prefix = false)
+                chat(regular("Integration Menu:"))
+                for (screenType in VirtualScreenType.entries) {
+                    val url = runCatching {
+                        ThemeManager.route(screenType, true)
+                    }.getOrNull()?.url ?: continue
+                    val upperFirstName = screenType.routeName.replaceFirstChar { it.uppercase() }
+
+                    chat(
+                        regular("-> $upperFirstName (")
+                            .append(variable("Browser").styled {
+                                it.withUnderline(true)
+                                    .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, url))
+                                    .withHoverEvent(
+                                        HoverEvent(
+                                            HoverEvent.Action.SHOW_TEXT,
+                                            regular("Click to open the URL in your browser.")
+                                        )
+                                    )
+                            })
+                            .append(regular(", "))
+                            .append(variable("Clipboard").styled {
+                                it.withUnderline(true)
+                                    .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, url))
+                                    .withHoverEvent(
+                                        HoverEvent(
+                                            HoverEvent.Action.SHOW_TEXT,
+                                            regular("Click to copy the URL to your clipboard.")
+                                        )
+                                    )
+                            })
+                            .append(regular(")")),
+                        prefix = false
+                    )
+                }
+
+                chat(variable("Hint: You can also access the integration from another device.")
+                    .styled { it.withItalic(true) })
             }.build()
         )
         .subcommand(CommandBuilder.begin("override")
@@ -167,12 +176,12 @@ object CommandClient {
                     .build()
             ).handler { command, args ->
                 chat(regular("Overrides client JCEF browser..."))
-//                integrationReference.loadUrl(args[0] as String)
+                clientJcef.loadUrl(args[0] as String)
             }.build()
         ).subcommand(CommandBuilder.begin("reset")
             .handler { command, args ->
                 chat(regular("Resetting client JCEF browser..."))
-                IntegrationHandler.sync()
+                IntegrationHandler.updateIntegrationBrowser()
             }.build()
         )
         .build()
@@ -221,11 +230,10 @@ object CommandClient {
                 @Suppress("SpreadOperator")
                 chat(
                     regular("Available themes: "),
-                    *ThemeManager.availableThemes.flatMapIndexed { index, theme ->
+                    *ThemeManager.themes().flatMapIndexed { index, name ->
                         listOf(
                             regular(if (index == 0) "" else ", "),
-                            variable(theme.name),
-                            regular(" (${if (theme is NativeTheme) "Native" else "Web"})")
+                            variable(name)
                         )
                     }.toTypedArray()
                 )
@@ -236,14 +244,18 @@ object CommandClient {
                 ParameterBuilder.begin<String>("theme")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
                     .autocompletedWith { s, _ ->
-                        ThemeManager.availableThemes
-                            .map { theme -> theme.name }
-                            .filter { name -> name.startsWith(name, true) }
+                        ThemeManager.themes().filter { it.startsWith(s, true) }
                     }
                     .build()
             )
             .handler { command, args ->
                 val name = args[0] as String
+
+                if (name.equals("default", true)) {
+                    ThemeManager.activeTheme = ThemeManager.defaultTheme
+                    chat(regular("Switching theme to default..."))
+                    return@handler
+                }
 
                 runCatching {
                     ThemeManager.chooseTheme(name)
@@ -258,6 +270,89 @@ object CommandClient {
             Util.getOperatingSystem().open(ThemeManager.themesFolder)
             chat(regular("Location: "), variable(ThemeManager.themesFolder.absolutePath))
         }.build())
+        .build()
+
+    private fun componentCommand() = CommandBuilder.begin("component")
+        .hub()
+        .subcommand(CommandBuilder.begin("list")
+            .handler { command, args ->
+                chat(regular("In-built:"))
+                for (component in components) {
+                    chat(regular("-> ${component.name}"))
+                }
+
+                chat(regular("Custom:"))
+                for ((index, component) in customComponents.withIndex()) {
+                    chat(regular("-> ${component.name} (#$index}"))
+                }
+            }.build()
+        )
+        .subcommand(CommandBuilder.begin("add")
+            .hub()
+            .subcommand(CommandBuilder.begin("text")
+                .parameter(
+                    ParameterBuilder.begin<String>("text")
+                        .vararg()
+                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
+                        .build()
+                ).handler { command, args ->
+                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
+                    customComponents += TextComponent(arg)
+                    ComponentOverlay.fireComponentsUpdate()
+
+                    chat("Successfully added text component.")
+                }.build()
+            )
+            .subcommand(CommandBuilder.begin("image")
+                .parameter(
+                    ParameterBuilder.begin<String>("url")
+                        .vararg()
+                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
+                        .build()
+                ).handler { command, args ->
+                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
+                    customComponents += ImageComponent(arg)
+                    ComponentOverlay.fireComponentsUpdate()
+
+                    chat("Successfully added image component.")
+                }.build()
+            )
+            .build()
+        )
+        .subcommand(CommandBuilder.begin("remove")
+            .parameter(
+                ParameterBuilder.begin<Int>("id")
+                    .verifiedBy(ParameterBuilder.INTEGER_VALIDATOR).required()
+                    .build()
+            ).handler { command, args ->
+                val index = args[0] as Int
+                val component = customComponents.getOrNull(index)
+
+                if (component == null) {
+                    chat(regular("Component ID is out of range."))
+                    return@handler
+                }
+
+                customComponents -= component
+                ComponentOverlay.fireComponentsUpdate()
+                chat("Successfully removed component.")
+            }.build()
+        )
+        .subcommand(CommandBuilder.begin("clear")
+            .handler { command, args ->
+                customComponents.clear()
+                ComponentOverlay.fireComponentsUpdate()
+
+                chat("Successfully cleared components.")
+            }.build()
+        )
+        .subcommand(CommandBuilder.begin("update")
+            .handler { command, args ->
+                ComponentOverlay.fireComponentsUpdate()
+
+                chat("Successfully updated components.")
+            }.build()
+        )
         .build()
 
     private fun appereanceCommand() = CommandBuilder.begin("appearance")

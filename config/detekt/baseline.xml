@@ -64,7 +64,6 @@
     <ID>CognitiveComplexMethod:CommandManager.kt$CommandManager$fun tokenizeCommand(line: String): Pair&lt;List&lt;String>, List&lt;Int>></ID>
     <ID>CognitiveComplexMethod:CommandScript.kt$CommandScript$fun createCommand(): Command</ID>
     <ID>CognitiveComplexMethod:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
-    <ID>CognitiveComplexMethod:DrawerReference.kt$DrawerReference$fun update(route: RouteType)</ID>
     <ID>CognitiveComplexMethod:FailSwing.kt$FailSwing$suspend fun Sequence&lt;*>.dealWithFakeSwing(target: Entity?)</ID>
     <ID>CognitiveComplexMethod:IpInfoApi.kt$IpInfoApi$private fun makeAsyncEndpointRequest(proxy: ProxyManager.Proxy?, endpoint: String, success: (String) -> Unit, failure: (Throwable) -> Unit)</ID>
     <ID>CognitiveComplexMethod:ItemCategorization.kt$ItemCategorization$@Suppress("CyclomaticComplexMethod", "LongMethod") fun getItemFacets(slot: ItemSlot): Array&lt;ItemFacet></ID>
@@ -83,13 +82,14 @@
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleAutoShoot.kt$ModuleAutoShoot$val (fromPoint, toPoint, _, _) = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleKillAura.kt$ModuleKillAura$val (eyes, nextPoint, box, cutOffBox) = pointTracker.gatherPoint( entity, situation )</ID>
     <ID>EmptyCatchBlock:ModuleMobOwners.kt$ModuleMobOwners${ }</ID>
-    <ID>EmptyFunctionBlock:EmptyDrawableRoute.kt$EmptyDrawableRoute${ }</ID>
     <ID>EmptyFunctionBlock:ModuleStorageESP.kt$ModuleStorageESP.StorageScanner${}</ID>
     <ID>FunctionOnlyReturningConstant:SimulatedArrow.kt$SimulatedArrow$private fun isTouchingWater(): Boolean</ID>
     <ID>LongMethod:AutoConfig.kt$AutoConfig$fun handlePossibleAutoConfig(jsonObject: JsonObject)</ID>
     <ID>LongMethod:ChatClient.kt$ChatClient$private fun handleFunctionalPacket(packet: Packet)</ID>
     <ID>LongMethod:CommandAutoDisable.kt$CommandAutoDisable$fun createCommand(): Command</ID>
     <ID>LongMethod:CommandBinds.kt$CommandBinds$fun createCommand(): Command</ID>
+    <ID>LongMethod:CommandClient.kt$CommandClient$private fun componentCommand()</ID>
+    <ID>LongMethod:CommandClient.kt$CommandClient$private fun integrationCommand()</ID>
     <ID>LongMethod:CommandConfig.kt$CommandConfig$fun createCommand(): Command</ID>
     <ID>LongMethod:CommandContainers.kt$CommandContainers$fun createCommand(): Command</ID>
     <ID>LongMethod:CommandHide.kt$CommandHide$fun createCommand(): Command</ID>
@@ -98,8 +98,7 @@
     <ID>LongMethod:CommandManager.kt$CommandManager$@ScriptApi @JvmName("execute") fun execute(cmd: String)</ID>
     <ID>LongMethod:CommandScript.kt$CommandScript$fun createCommand(): Command</ID>
     <ID>LongMethod:CommandXRay.kt$CommandXRay$fun createCommand(): Command</ID>
-    <ID>LongMethod:FunctionsV1.kt$internal fun v1Functions(node: Node)</ID>
-    <ID>LongMethod:MinimapComponent.kt$MinimapComponent$override fun render(context: DrawContext, delta: Float)</ID>
+    <ID>LongMethod:InteropFunctionRegistry.kt$internal fun registerInteropFunctions(node: Node)</ID>
     <ID>LongMethod:ModuleManager.kt$ModuleManager$fun registerInbuilt()</ID>
     <ID>LongMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>LongMethod:Value.kt$Value$open fun setByString(string: String)</ID>
@@ -113,32 +112,14 @@
     <ID>LongParameterList:RotationsUtil.kt$RotationManager$( rotation: Rotation, considerInventory: Boolean = true, configurable: RotationsConfigurable, priority: Priority, provider: Module, whenReached: RestrictedSingleUseAction? = null )</ID>
     <ID>LongParameterList:RotationsUtil.kt$RotationManager$( vecRotation: VecRotation, entity: Entity? = null, considerInventory: Boolean = true, configurable: RotationsConfigurable, priority: Priority, provider: Module )</ID>
     <ID>LongParameterList:TargetFinding.kt$BlockPlacementTargetFindingOptions$( val offsetsToInvestigate: List&lt;Vec3i>, val stackToPlaceWith: ItemStack, val facePositionFactory: FaceTargetPositionFactory, val offsetPriorityGetter: (Vec3i) -> Double, val playerPositionOnPlacement: Vec3d, val playerPoseOnPlacement: EntityPose = EntityPose.STANDING, val allowPointingAway: Boolean = false )</ID>
-    <ID>LongParameterList:Wallpaper.kt$Wallpaper$(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float)</ID>
+    <ID>LongParameterList:ThemeManager.kt$ThemeManager$(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float)</ID>
     <ID>LoopWithTooManyJumpStatements:BlockPlacer.kt$BlockPlacer$while</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleKillAura.kt$ModuleKillAura$for</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleProjectilePuncher.kt$ModuleProjectilePuncher$for</ID>
     <ID>LoopWithTooManyJumpStatements:TargetFinding.kt$for</ID>
     <ID>MatchingDeclarationName:ComparatorUtils.kt$ComparatorChain&lt;T> : Comparator</ID>
     <ID>MatchingDeclarationName:MovementUtils.kt$DirectionalInput</ID>
-    <ID>MaxLineLength:ChunkRenderer.kt$ChunkRenderer$fun</ID>
     <ID>MaxLineLength:HttpClient.kt$HttpClient$"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"</ID>
-    <ID>MaxLineLength:HudDrawableRoute.kt$HudDrawableRoute$if</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$dirtyChunks &lt; _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.FULL_UPLOAD_THRESHOLD -> uploadOnlyDirtyPositions()</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$editor: (NativeImageBackedTexture, _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager.AtlasPosition) -> Unit</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$for</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$fun</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$private</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$private val availableAtlasPositions = mutableListOf&lt;net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager.AtlasPosition>()</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$private val chunkPosAtlasPosMap = hashMapOf&lt;ChunkPos, _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager.AtlasPosition>()</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$private val dirtyAtlasPositions = hashSetOf&lt;_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager.AtlasPosition>()</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$private val texture = NativeImageBackedTexture(_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.ATLAS_SIZE * 16, _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.ATLAS_SIZE * 16, false)</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$return chunkPosAtlasPosMap[chunkPos] ?: _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.NOT_LOADED_ATLAS_POSITION</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager$this.dirtyAtlasPositions.add(_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.NOT_LOADED_ATLAS_POSITION)</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$MinimapTextureAtlasManager.AtlasPosition$val pixelSize = _root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.ATLAS_SIZE * 16.0F</ID>
-    <ID>MaxLineLength:MinimapTextureAtlasManager.kt$_root_ide_package_.net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapTextureAtlasManager</ID>
-    <ID>MaxLineLength:NativeComponent.kt$NativeComponent$abstract</ID>
-    <ID>MaxLineLength:Theme.kt$RouteType.Native$data</ID>
     <ID>NestedBlockDepth:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>
     <ID>NestedBlockDepth:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
@@ -153,8 +134,6 @@
     <ID>SpreadOperator:JsReflectionUtil.kt$JsReflectionUtil$(*args.map { it!!::class.java }.toTypedArray())</ID>
     <ID>SpreadOperator:ModuleScaffold.kt$ModuleScaffold$(blockInMainHand, blockInOffHand, *blocksInHotbar.map { it.second }.toTypedArray())</ID>
     <ID>SpreadOperator:ModuleVomit.kt$ModuleVomit$( *emptySlots.map { slot -> CreativeInventoryAction.performFillSlot(randomStack, slot) } .toTypedArray(), *emptySlots.map { slot -> ClickInventoryAction.performThrow(null, slot) } .toTypedArray() )</ID>
-    <ID>SpreadOperator:ThemeManager.kt$ThemeManager$( // Weather we support web themes, it might also load native theme defaults instead *fallbackTheme.components // Check if the component is enabled by default .filter { factory -> factory.default } // Create a new component instance .map { factory -> factory.new(fallbackTheme) } .toTypedArray() )</ID>
-    <ID>SpreadOperator:ThemeManager.kt$ThemeManager$( NativeTheme, *themesFolder.listFiles() ?.filter(File::isDirectory) ?.map(::WebTheme) ?.toTypedArray() ?: emptyArray() )</ID>
     <ID>StringLiteralDuplication:AutoQueueGommeDuels.kt$AutoQueueGommeDuels$"AutoPlay"</ID>
     <ID>StringLiteralDuplication:JsSetting.kt$JsSetting$"default"</ID>
     <ID>SwallowedException:ChunkScanner.kt$ChunkScanner.ChunkScannerThread$e: CancellationException</ID>
