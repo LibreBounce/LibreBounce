@@ -4,7 +4,9 @@
   "liquidbounce.command.bind.parameter.key.description": "Eine Taste, mit welcher das Modul verknüpft werden soll.",
   "liquidbounce.command.bind.parameter.name.description": "Name des Moduls.",
   "liquidbounce.command.bind.result.moduleBound": "Modul \"%s\" wurde mit Taste \"%s\" verknüpft.",
+  "liquidbounce.command.bind.result.moduleUnbound": "Die Tastenverknüpfung vom Modul \"%s\" wurde entfernt.",
   "liquidbounce.command.bind.result.moduleNotFound": "Modul \"%s\" nicht gefunden.",
+  "liquidbounce.command.bind.result.keyNotFound": "Die Tastenverknüpfung \"%s\" wurde nicht gefunden.",
   "liquidbounce.command.binds.description": "Erlaubt es dir, ein Modul mit einer Taste zu verknüpfen.",
   "liquidbounce.command.binds.subcommand.add.description": "Verknüpft ein Modul mit einer Taste.",
   "liquidbounce.command.binds.subcommand.add.parameter.key.description": "Eine Taste, mit welcher das Modul verknüpft werden soll.",
@@ -329,8 +331,7 @@
   "liquidbounce.generic.enabled": "Aktiviert",
   "liquidbounce.generic.error": "Fehler",
   "liquidbounce.generic.forum": "Forum",
-  "liquidbounce.generic.guilded": "Guilded",
-  "liquidbounce.generic.notifyDeveloper": "Überprüf dein Spielprotokoll und benachrichtige uns.",
+  "liquidbounce.generic.notifyDeveloper": "Überprüfe dein Spielprotokoll und benachrichtige uns.",
   "liquidbounce.generic.locked": "Das Modul ist gesperrt und kann nicht aktiviert werden. Es bypassed wahrscheinlich nicht.",
   "liquidbounce.liquidchat.authenticationFailed": "Authentifizierung fehlgeschlagen! Für LiquidChat ist ein Minecraft-Premium-Konto erforderlich.",
   "liquidbounce.liquidchat.jwtTokenReceived": "JWT-Token erhalten! Erneut anmelden...",
@@ -595,5 +596,6 @@
   "liquidbounce.module.autoBuild.description": "Baut automatisch bestimmte Strukturen.",
   "liquidbounce.module.autoBuild.messages.noPosition": "Es wurde keine mögliche Position gefunden, deaktiviere Modul...",
   "liquidbounce.module.autoBuild.messages.noObsidian": "Es wurde kein Obsidian gefunden, deaktiviere Modul...",
-  "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "Es wurde kein Feuerzeug gefunden, deaktiviere Modul..."
+  "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "Es wurde kein Feuerzeug gefunden, deaktiviere Modul...",
+  "liquidbounce.module.offhand.description": "Verwaltet deine Offhand."
 }
