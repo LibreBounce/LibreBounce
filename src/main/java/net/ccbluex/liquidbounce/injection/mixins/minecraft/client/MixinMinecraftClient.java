@@ -31,8 +31,8 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActio
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.render.engine.RenderingFlags;
 import net.ccbluex.liquidbounce.utils.combat.CombatManager;
-import net.ccbluex.liquidbounce.web.integration.BrowserScreen;
-import net.ccbluex.liquidbounce.web.integration.VrScreen;
+import net.ccbluex.liquidbounce.integration.BrowserScreen;
+import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.AccessibilityOnboardingScreen;

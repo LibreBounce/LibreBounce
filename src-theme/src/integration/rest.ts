@@ -534,7 +534,7 @@ export async function reconnectToServer() {
 }
 
 export async function toggleBackgroundShaderEnabled() {
-    await fetch(`${API_BASE}/client/theme/shader/switch`, {
+    await fetch(`${API_BASE}/client/shader`, {
         method: "POST",
     });
 }

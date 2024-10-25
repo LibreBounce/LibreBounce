@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCustomAmbience;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFullBright;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -64,8 +64,8 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
     @Unique
     private boolean liquid_bounce$dirty = false;
 
-    @Redirect(method = "update(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/SimpleOption;getValue()Ljava/lang/Object;", ordinal = 1))
-    private Object injectXRayFullBright(SimpleOption option) {
+    @ModifyExpressionValue(method = "update(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/SimpleOption;getValue()Ljava/lang/Object;", ordinal = 1))
+    private Object injectXRayFullBright(Object original) {
         // If fullBright is enabled, we need to return our own gamma value
         if (ModuleFullBright.INSTANCE.getEnabled() && ModuleFullBright.FullBrightGamma.INSTANCE.isActive()) {
             return ModuleFullBright.FullBrightGamma.INSTANCE.getGamma();
@@ -74,10 +74,11 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
         // Xray fullbright
         final ModuleXRay module = ModuleXRay.INSTANCE;
         if (!module.getEnabled() || !module.getFullBright()) {
-            return option.getValue();
+            return original;
         }
 
-        // They use .floatValue() afterward on the return value, so we need to return a value which is not bigger than Float.MAX_VALUE
+        // They use .floatValue() afterward on the return value,
+        // so we need to return a value which is not bigger than Float.MAX_VALUE
         return (double) Float.MAX_VALUE;
     }
 
