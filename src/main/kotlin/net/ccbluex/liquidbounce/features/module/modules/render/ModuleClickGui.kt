@@ -50,7 +50,7 @@ object ModuleClickGui :
             return
         }
 
-        mc.setScreen(VirtualDisplayScreen(route(VirtualScreenType.EDITOR)))
+        mc.setScreen(VirtualDisplayScreen(route(VirtualScreenType.CLICK_GUI)))
         super.enable()
     }
 
