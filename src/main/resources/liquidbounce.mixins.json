@@ -88,14 +88,15 @@
     "minecraft.render.MixinPostEffectPass",
     "minecraft.render.MixinRenderTickCounter",
     "minecraft.render.MixinSignText",
-    "minecraft.render.MixinSodiumBlockOcclusionCache",
+    "sodium.MixinSodiumBlockOcclusionCache",
     "minecraft.render.MixinTextRenderer",
     "minecraft.render.MixinWorldRenderer",
     "minecraft.render.entity.feature.MixinDeadmau5FeatureRenderer",
     "minecraft.text.MixinChatHudLine",
     "minecraft.text.MixinChatHudLineVisible",
+    "minecraft.text.MixinTextColor",
     "minecraft.text.MixinTranslatableTextContent",
-    "minecraft.text.MixinTextColor"
+    "sodium.MixinSodiumLightDataAccessMixin"
   ],
   "server": [],
   "injectors": {
