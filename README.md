@@ -5,7 +5,6 @@
 
 [liquidbounce.net](https://liquidbounce.net) |
 [Forum](https://forums.ccbluex.net) |
-[Guilded](https://guilded.gg/CCBlueX) |
 [YouTube](https://youtube.com/CCBlueX) |
 [Twitter](https://twitter.com/CCBlueX)
 </div>

@@ -105,8 +105,8 @@ export async function getPlayerData(): Promise<PlayerData> {
     return data;
 }
 
-export async function getPrintableKeyName(code: number): Promise<PrintableKey> {
-    const searchParams = new URLSearchParams({code: code.toString()});
+export async function getPrintableKeyName(key: string): Promise<PrintableKey> {
+    const searchParams = new URLSearchParams({key});
 
     const response = await fetch(`${API_BASE}/client/input?${searchParams.toString()}`);
     const data: PrintableKey = await response.json();
@@ -534,7 +534,7 @@ export async function reconnectToServer() {
 }
 
 export async function toggleBackgroundShaderEnabled() {
-    await fetch(`${API_BASE}/client/theme/shader/switch`, {
+    await fetch(`${API_BASE}/client/shader`, {
         method: "POST",
     });
 }

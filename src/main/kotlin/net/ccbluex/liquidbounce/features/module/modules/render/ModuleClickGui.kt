@@ -22,8 +22,8 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.web.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.web.integration.VrScreen
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.VrScreen
 import org.lwjgl.glfw.GLFW
 
 /**
