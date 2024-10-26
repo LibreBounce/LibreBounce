@@ -50,13 +50,15 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     put("/screen", ::putScreen)
 
     // Module Functions
-    get("/modules", ::getModules)
-    put("/modules/toggle", ::toggleModule)
-    delete("/modules/toggle", ::toggleModule)
-    post("/modules/toggle", ::toggleModule)
-    get("/modules/settings", ::getSettings)
-    put("/modules/settings", ::putSettings)
-    post("/modules/panic", ::postPanic)
+    get("/modules", ::getModules).apply {
+        put("/toggle", ::toggleModule)
+        delete("/toggle", ::toggleModule)
+        post("/toggle", ::toggleModule)
+        get("/settings", ::getSettings)
+        put("/settings", ::putSettings)
+        post("/panic", ::postPanic)
+    }
+
 
     // Component Functions
     get("/components", ::getComponents)
@@ -87,24 +89,26 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     get("/proxy", ::getProxyInfo)
     post("/proxy", ::postProxy)
     delete("/proxy", ::deleteProxy)
-    get("/proxies", ::getProxies)
-    post("/proxies/add", ::postAddProxy)
-    post("/proxies/clipboard", ::postClipboardProxy)
-    post("/proxies/edit", ::postEditProxy)
-    post("/proxies/check", ::postCheckProxy)
-    delete("/proxies/remove", ::deleteRemoveProxy)
-    put("/proxies/favorite", ::putFavoriteProxy)
-    delete("/proxies/favorite", ::deleteFavoriteProxy)
+    get("/proxies", ::getProxies).apply {
+        post("/add", ::postAddProxy)
+        post("/clipboard", ::postClipboardProxy)
+        post("/edit", ::postEditProxy)
+        post("/check", ::postCheckProxy)
+        delete("/remove", ::deleteRemoveProxy)
+        put("/favorite", ::putFavoriteProxy)
+        delete("/favorite", ::deleteFavoriteProxy)
+    }
 
     // Browser Functions
-    get("/browser", ::getBrowserInfo)
-    post("/browser/navigate", ::postBrowserNavigate)
-    post("/browser/close", ::postBrowserClose)
-    post("/browser/reload", ::postBrowserReload)
-    post("/browser/forceReload", ::postBrowserForceReload)
-    post("/browser/forward", ::postBrowserForward)
-    post("/browser/back", ::postBrowserBack)
-    post("/browser/closeTab", ::postBrowserCloseTab)
+    get("/browser", ::getBrowserInfo).apply {
+        post("/navigate", ::postBrowserNavigate)
+        post("/close", ::postBrowserClose)
+        post("/reload", ::postBrowserReload)
+        post("/forceReload", ::postBrowserForceReload)
+        post("/forward", ::postBrowserForward)
+        post("/back", ::postBrowserBack)
+        post("/closeTab", ::postBrowserCloseTab)
+    }
 
     // Container Functions
     // TODO: Not being used but should be re-implemented in the future
@@ -130,22 +134,25 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     get("/registries", ::getRegistries)
 
     // ServerList Functions
-    get("/servers", ::getServers)
-    put("/servers/add", ::putAddServer)
-    delete("/servers/remove", ::deleteServer)
-    put("/servers/edit", ::putEditServer)
-    post("/servers/swap", ::postSwapServers)
-    post("/servers/order", ::postOrderServers)
-    post("/servers/connect", ::postConnect)
+    get("/servers", ::getServers).apply {
+        put("/add", ::putAddServer)
+        delete("/remove", ::deleteServer)
+        put("/edit", ::putEditServer)
+        post("/swap", ::postSwapServers)
+        post("/order", ::postOrderServers)
+        post("/connect", ::postConnect)
+    }
 
     // Texture Functions
-    get("/resource", ::getResource)
-    get("/itemTexture", ::getItemTexture)
-    get("/skin", ::getSkin)
+    get("/resource", ::getResource).apply {
+        get("/itemTexture", ::getItemTexture)
+        get("/skin", ::getSkin)
+    }
 
     // World Functions
-    get("/worlds", ::getWorlds)
-    post("/worlds/join", ::postJoinWorld)
-    post("/worlds/edit", ::postEditWorld)
-    post("/worlds/delete", ::postDeleteWorld)
+    get("/worlds", ::getWorlds).apply {
+        post("/join", ::postJoinWorld)
+        post("/edit", ::postEditWorld)
+        post("/delete", ::postDeleteWorld)
+    }
 }
