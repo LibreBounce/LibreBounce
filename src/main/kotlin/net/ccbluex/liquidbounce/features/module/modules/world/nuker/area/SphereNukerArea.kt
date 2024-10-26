@@ -20,7 +20,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.wasTarget
-import net.ccbluex.liquidbounce.utils.block.isUnbreakable
+import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.eyes
@@ -37,7 +37,7 @@ object SphereNukerArea : NukerArea("Sphere") {
         val eyesPos = player.eyes
 
         val positions = searchBlocksInCuboid(range, eyesPos) { pos, state ->
-            if (state.isAir || state.block.isUnbreakable()) {
+            if (state.isNotBreakable(pos)) {
                 return@searchBlocksInCuboid false
             }
 

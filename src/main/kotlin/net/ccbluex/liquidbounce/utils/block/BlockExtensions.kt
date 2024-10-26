@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.eyes
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.minecraft.block.*
 import net.minecraft.fluid.Fluids
 import net.minecraft.item.ItemPlacementContext
@@ -570,9 +569,3 @@ fun BlockPos.isBlockedByEntities(): Boolean {
         it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))
     }
 }
-
-/**
- * @return Check if the block requires a tool to be broken or cannot be broken at all.
- */
-fun Block.isUnbreakable() = !interaction.hasCreativeInventory() &&
-    defaultState.isToolRequired && findHotbarSlot { stack -> stack.isSuitableFor(defaultState) } == null

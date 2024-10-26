@@ -20,7 +20,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.isUnbreakable
+import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.math.component1
@@ -73,9 +73,13 @@ object FloorNukerArea : NukerArea("Floor") {
                     val pos = BlockPos(x, y, z)
                     val state = pos.getState() ?: return@mapNotNull null
 
+                    if (state.isNotBreakable(pos)) {
+                        return@mapNotNull null
+                    }
+
                     val shape = state.getCollisionShape(world, pos, ShapeContext.of(player))
 
-                    if (!state.isAir && !state.block.isUnbreakable() && !shape.isEmpty &&
+                    if (!shape.isEmpty &&
                         shape.offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
                             .getClosestPointTo(eyesPos)
                             .map { vec3d -> vec3d.squaredDistanceTo(eyesPos) <= rangeSquared }

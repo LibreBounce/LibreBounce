@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.AbstractBlockLocationTracker
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.isUnbreakable
+import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
@@ -149,8 +149,11 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                         surrounding.forEach {
                             topLeftX += ITEM_SIZE
 
+                            val defaultState = it.block.defaultState
                             val color =
-                                if (highlightUnbreakable && it.block.isUnbreakable()) {
+                                if (highlightUnbreakable && defaultState.isToolRequired && findHotbarSlot { stack ->
+                                        stack.isSuitableFor(defaultState)
+                                    } == null) {
                                     Color4b.RED
                                 } else {
                                     Color4b.WHITE
