@@ -109,6 +109,9 @@ fun selectProtocolVersion(protocolId: Int) {
     // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
     if (hasProtocolTranslator) {
         VfpCompatibility.INSTANCE.unsafeSelectProtocolVersion(protocolId)
+
+        // Update the window title
+        mc.updateWindowTitle()
     } else {
         error("ViaFabricPlus is not loaded")
     }
