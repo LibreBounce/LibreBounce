@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
@@ -24,23 +24,21 @@ import net.minecraft.util.ResourceLocation
 object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetecting = false, hideModule = true) {
     val customHotbar by BoolValue("CustomHotbar", true)
 
+    val smoothHotbarSlot by BoolValue("SmoothHotbarSlot", true) { customHotbar }
+
     val roundedHotbarRadius by FloatValue("RoundedHotbar-Radius", 0F, 0F..5F) { customHotbar }
 
     val hotbarMode by ListValue("Hotbar-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom") { customHotbar }
-
     val hbHighlightColors = ColorSettingsInteger(this, "Hotbar-Highlight-Colors", applyMax = true)
     { customHotbar }.with(a = 100)
     val hbBackgroundColors = ColorSettingsInteger(this, "Hotbar-Background-Colors")
     { customHotbar && hotbarMode == "Custom" }.with(a = 100)
-
     val gradientHotbarSpeed by FloatValue("Hotbar-Gradient-Speed", 1f, 0.5f..10f)
     { customHotbar && hotbarMode == "Gradient" }
-
     val maxHotbarGradientColors by IntegerValue("Max-Hotbar-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { customHotbar && hotbarMode == "Gradient" }
     val bgGradColors = ColorSettingsFloat.create(this, "Hotbar-Gradient")
     { customHotbar && hotbarMode == "Gradient" && it <= maxHotbarGradientColors }
-
     val hotbarBorder by FloatValue("HotbarBorder-Width", 0.5F, 0.5F..5F) { customHotbar }
     val hbBorderColors = ColorSettingsInteger(this, "HotbarBorder", zeroAlphaCheck = true) { customHotbar }.with(a = 0)
 
