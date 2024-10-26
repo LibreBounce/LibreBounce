@@ -49,7 +49,15 @@ class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : C
 
 @Nameable("keybindChange")
 @WebSocketEvent
-class KeybindChangeEvent: Event()
+class KeybindChangeEvent : Event()
+
+@Nameable("keybinding")
+@WebSocketEvent
+class KeyBindingEvent(val key: InputUtil.Key, val action: Int, val mods: Int) : Event()
+
+@Nameable("keybindingCPS")
+@WebSocketEvent
+class KeyBindingCPSEvent(val key: InputUtil.Key, val cps: Int) : Event()
 
 @Nameable("useCooldown")
 class UseCooldownEvent(var cooldown: Int) : Event()

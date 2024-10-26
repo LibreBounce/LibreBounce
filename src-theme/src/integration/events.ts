@@ -43,6 +43,17 @@ export interface KeyEvent {
     mods: number;
 }
 
+export interface KeyBindingEvent {
+    key: string;
+    action: number;
+    mods: number;
+}
+
+export interface KeyBindingCPSEvent {
+    key: string;
+    cps: number;
+}
+
 export interface TargetChangeEvent {
     target: PlayerData | null;
 }
