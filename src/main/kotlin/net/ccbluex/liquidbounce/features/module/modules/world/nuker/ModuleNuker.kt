@@ -18,8 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.nuker
 
-import net.ccbluex.liquidbounce.event.events.GameTickEvent
-import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.area.FloorNukerArea
@@ -27,7 +25,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.nuker.area.SphereN
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode.InstantNukerMode
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode.LegitNukerMode
 import net.ccbluex.liquidbounce.utils.block.SwingMode
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.util.math.BlockPos
 
@@ -50,7 +47,7 @@ object ModuleNuker : Module("Nuker", Category.WORLD, disableOnQuit = true) {
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
 
     private val targetRenderer = tree(
-        PlacementRenderer("TargetRendering", true, this)
+        PlacementRenderer("TargetRendering", true, this, keep = false)
     )
 
     /**
@@ -61,12 +58,6 @@ object ModuleNuker : Module("Nuker", Category.WORLD, disableOnQuit = true) {
             field = value
             targetRenderer.addBlock(value ?: return)
         }
-
-    @Suppress("unused")
-    private val tickHandler = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
-        // I could not find a better way of removing the blocks from the renderer.
-        targetRenderer.clearSilently()
-    }
 
     override fun disable() {
         wasTarget = null
