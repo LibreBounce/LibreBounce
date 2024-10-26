@@ -200,7 +200,6 @@ inline fun searchBlocksInRadius(
 @Suppress("NestedBlockDepth")
 fun BlockPos.getSphere(radius: Float): Sequence<DoubleObjectPair<BlockPos>> = sequence {
     val radiusSq = radius * radius
-
     val radiusCeil = MathHelper.ceil(radius)
 
     val range = radiusCeil downTo -radiusCeil
@@ -209,7 +208,7 @@ fun BlockPos.getSphere(radius: Float): Sequence<DoubleObjectPair<BlockPos>> = se
         for (y in range) {
             for (z in range) {
                 val distanceSq = getSquaredDistance(x.toDouble(), y.toDouble(), z.toDouble())
-                if (distanceSq <= radiusSq) {
+                if (distanceSq > radiusSq) {
                     continue
                 }
 
