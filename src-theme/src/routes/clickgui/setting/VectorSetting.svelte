@@ -1,6 +1,6 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import type {BlockHitResult, ModuleSetting, VectorSetting,} from "../../../integration/types";
+    import type {BlockHitResult, ModuleSetting, VectorSetting} from "../../../integration/types";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
     import {getCrosshairData, getPlayerData} from "../../../integration/rest";
 
@@ -10,28 +10,20 @@
     const dispatch = createEventDispatcher();
 
     function handleChange() {
-        setting = {...cSetting};
+        setting = { ...cSetting };
         dispatch("change");
     }
-
-    const isDouble = setting.valueType === "VECTOR_D";
 
     async function locate() {
         const hitResult = await getCrosshairData();
 
-        console.log(JSON.stringify(hitResult));
-        // Check if crosshair data is block and convert to BlockHitResult
         if (hitResult.type === "block") {
             const blockHitResult = hitResult as BlockHitResult;
 
-            cSetting.value.x = blockHitResult.blockPos.x;
-            cSetting.value.y = blockHitResult.blockPos.y;
-            cSetting.value.z = blockHitResult.blockPos.z;
+            cSetting.value = blockHitResult.blockPos;
         } else {
             const playerData = await getPlayerData();
-            cSetting.value.x = playerData.blockPosition.x;
-            cSetting.value.y = playerData.blockPosition.y;
-            cSetting.value.z = playerData.blockPosition.z;
+            cSetting.value = playerData.blockPosition;
         }
         handleChange();
     }
@@ -39,18 +31,12 @@
 
 <div class="setting">
     <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
-    <input type="number" class="valueX" spellcheck="false"
-           placeholder="X"
-           bind:value={cSetting.value.x} on:input={handleChange}>
-    <input type="number" class="valueY" spellcheck="false"
-           placeholder="Y"
-           bind:value={cSetting.value.y} on:input={handleChange}>
-    <input type="number" class="valueZ" spellcheck="false"
-           placeholder="Z"
-           bind:value={cSetting.value.z} on:input={handleChange}>
-    {#if !isDouble}
-        <button on:click={locate}>Locate</button>
-    {/if}
+    <div class="input-group">
+        <input type="number" class="value" spellcheck="false" placeholder="X" bind:value={cSetting.value.x} on:input={handleChange} />
+        <input type="number" class="value" spellcheck="false" placeholder="Y" bind:value={cSetting.value.y} on:input={handleChange} />
+        <input type="number" class="value" spellcheck="false" placeholder="Z" bind:value={cSetting.value.z} on:input={handleChange} />
+        <button class="locate-btn" on:click={locate}>&#x2299;</button>
+    </div>
 </div>
 
 <style lang="scss">
@@ -67,20 +53,52 @@
     margin-bottom: 5px;
   }
 
-  .value {
-    width: 100%;
-    background-color: rgba($clickgui-base-color, .36);
-    font-family: monospace;
-    font-size: 12px;
-    color: $clickgui-text-color;
-    border: none;
-    border-bottom: solid 2px $accent-color;
-    padding: 5px;
-    border-radius: 3px;
-    transition: ease border-color .2s;
+  .input-group {
+    display: flex;
+    gap: 5px;
 
-    &::-webkit-scrollbar {
+    input.value {
+      width: 100%;
+      background-color: rgba($clickgui-base-color, .36);
+      font-family: monospace;
+      font-size: 12px;
+      color: $clickgui-text-color;
+      border: none;
+      border-bottom: solid 2px $accent-color;
+      padding: 5px;
+      border-radius: 3px;
+      transition: ease border-color .2s;
+      appearance: textfield;
+
+      &::-webkit-scrollbar {
+        background-color: transparent;
+      }
+
+      /* Hide the number input spinner buttons */
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+
+    .locate-btn {
       background-color: transparent;
+      border: solid 2px $accent-color;
+      border-radius: 3px;
+      cursor: pointer;
+      color: $clickgui-text-color;
+      font-size: 12px;
+      font-family: "Inter", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: ease border-color .2s;
+      width: 50%;
+
+      &:hover {
+        border-color: darken($accent-color, 10%);
+      }
     }
   }
 </style>
