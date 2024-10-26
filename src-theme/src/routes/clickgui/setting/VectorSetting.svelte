@@ -1,7 +1,8 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import type {ModuleSetting, VectorSetting,} from "../../../integration/types";
+    import type {BlockHitResult, ModuleSetting, VectorSetting,} from "../../../integration/types";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {getCrosshairData, getPlayerData} from "../../../integration/rest";
 
     export let setting: ModuleSetting;
     const cSetting = setting as VectorSetting;
@@ -13,8 +14,27 @@
         dispatch("change");
     }
 
-    // todo: style input fields
-    // todo: VECTOR_I and VECTOR_D should define if the input can take floating point numbers or not
+    const isDouble = setting.valueType === "VECTOR_D";
+
+    async function locate() {
+        const hitResult = await getCrosshairData();
+
+        console.log(JSON.stringify(hitResult));
+        // Check if crosshair data is block and convert to BlockHitResult
+        if (hitResult.type === "block") {
+            const blockHitResult = hitResult as BlockHitResult;
+
+            cSetting.value.x = blockHitResult.blockPos.x;
+            cSetting.value.y = blockHitResult.blockPos.y;
+            cSetting.value.z = blockHitResult.blockPos.z;
+        } else {
+            const playerData = await getPlayerData();
+            cSetting.value.x = playerData.blockPosition.x;
+            cSetting.value.y = playerData.blockPosition.y;
+            cSetting.value.z = playerData.blockPosition.z;
+        }
+        handleChange();
+    }
 </script>
 
 <div class="setting">
@@ -28,6 +48,9 @@
     <input type="number" class="valueZ" spellcheck="false"
            placeholder="Z"
            bind:value={cSetting.value.z} on:input={handleChange}>
+    {#if !isDouble}
+        <button on:click={locate}>Locate</button>
+    {/if}
 </div>
 
 <style lang="scss">

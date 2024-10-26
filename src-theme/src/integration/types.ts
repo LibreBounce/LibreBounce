@@ -178,6 +178,7 @@ export interface PlayerData {
     username: string;
     uuid: string;
     position: Vec3;
+    blockPosition: Vec3;
     velocity: Vec3;
     selectedSlot: number;
     gameMode: string;
@@ -377,4 +378,21 @@ export interface ClientUpdate {
 
 export interface Browser {
     url: string
+}
+
+export interface HitResult {
+    type: 'block' | 'entity' | 'miss';
+    pos: Vec3;
+}
+
+export interface BlockHitResult extends HitResult {
+    blockPos: Vec3;
+    side: string;
+    isInsideBlock: boolean;
+}
+
+export interface EntityHitResult extends HitResult {
+    entityName: string;
+    entityType: string;
+    entityPos: Vec3;
 }

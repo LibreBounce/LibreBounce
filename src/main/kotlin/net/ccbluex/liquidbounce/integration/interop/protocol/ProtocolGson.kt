@@ -38,6 +38,9 @@ import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
+import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.hit.HitResult
 import net.minecraft.world.GameMode
 import java.lang.reflect.Type
 import java.util.*
@@ -206,6 +209,38 @@ class TextSerializer : JsonSerializer<Text> {
     }
 }
 
+class HitResultSerializer : JsonSerializer<HitResult> {
+
+    override fun serialize(src: HitResult, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        return JsonObject().apply {
+            // Due to Minecraft obfuscation, we have to use a when statement here
+            addProperty("type", when (src.type) {
+                HitResult.Type.BLOCK -> "block"
+                HitResult.Type.ENTITY -> "entity"
+                else -> "miss"
+            })
+
+            when (src) {
+                is BlockHitResult -> {
+                    add("pos", context.serialize(src.pos))
+                    add("blockPos", context.serialize(src.blockPos))
+                    add("side", JsonPrimitive(src.side.getName()))
+                    add("isInsideBlock", JsonPrimitive(src.isInsideBlock))
+                }
+                is EntityHitResult -> {
+                    add("pos", context.serialize(src.pos))
+                    add("entityName", context.serialize(src.entity.nameForScoreboard))
+                    add("entityType", JsonPrimitive(Registries.ENTITY_TYPE.getId(src.entity.type).toString()))
+                    add("entityPos", context.serialize(src.entity.pos))
+                }
+                else -> { }
+            }
+        }
+    }
+
+}
+
+
 internal val genericProtocolGson = GsonBuilder()
     .addSerializationExclusionStrategy(ProtocolExclusionStrategy())
     .registerCommonTypeAdapters()
@@ -223,5 +258,6 @@ internal val protocolGson = GsonBuilder()
     .registerTypeAdapter(ItemStack::class.java, ItemStackSerializer())
     .registerTypeAdapter(Identifier::class.java, IdentifierSerializer())
     .registerTypeAdapter(StatusEffectInstance::class.java, StatusEffectInstanceSerializer())
+    .registerTypeHierarchyAdapter(HitResult::class.java, HitResultSerializer())
     .create()
 
