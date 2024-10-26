@@ -423,19 +423,19 @@ object ModuleNuker : Module("Nuker", Category.WORLD, disableOnQuit = true) {
         val radiusSquared = radius * radius
         val eyesPos = player.eyes
 
-        return searchBlocksInCuboid(radius, eyesPos) { pos, state ->
-            !state.isAir && !blacklistedBlocks.contains(state.block) && !isOnPlatform(pos)
+        return eyesPos.searchBlocksInCuboid(radius) { pos, state ->
+            !state.isAir && state.block !in blacklistedBlocks && !isOnPlatform(pos)
                     && getNearestPoint(eyesPos, Box.enclosing(pos, pos.add(1, 1, 1)))
                 .squaredDistanceTo(eyesPos) <= radiusSquared
-        }.sortedBy { (pos, state) ->
+        }.toList().sortedBy { (pos, state) ->
             when (comparisonMode) {
                 ComparisonMode.SERVER_ROTATION -> RotationManager.rotationDifference(
-                    RotationManager.makeRotation(pos.toCenterPos(), player.eyes),
+                    RotationManager.makeRotation(pos.toCenterPos(), eyesPos),
                     RotationManager.serverRotation
                 )
 
                 ComparisonMode.CLIENT_ROTATION -> RotationManager.rotationDifference(
-                    RotationManager.makeRotation(pos.toCenterPos(), player.eyes),
+                    RotationManager.makeRotation(pos.toCenterPos(), eyesPos),
                     player.rotation
                 )
 

@@ -451,7 +451,7 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
             ModuleLiquidWalk.enabled && ModuleLiquidWalk.standingOnWater(),
             player.isInLava, player.isTouchingWater, player.hasVehicle(),
             // Cobwebs
-            collideBlockIntersects(player.box, checkCollisionShape = false) { it is CobwebBlock },
+            player.box.collideBlockIntersects(checkCollisionShape = false) { it is CobwebBlock },
             // Effects
             blockingEffects.any(player::hasStatusEffect),
             // Disabling conditions

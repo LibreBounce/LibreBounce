@@ -21,7 +21,6 @@ package net.ccbluex.liquidbounce.utils.block.placer
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isBlockedByEntities
-import net.ccbluex.liquidbounce.utils.block.manhattanDistanceTo
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -89,7 +88,7 @@ class SupportFeature(val placer: BlockPlacer) : ToggleableConfigurable(placer, "
                     // exclude blocks where the structure is...
                     // this useless because we already search the shortest path under all structure blocks?
                     placer.blocks.contains(neighbor) ||
-                    neighbor.manhattanDistanceTo(targetPos) > depth ||
+                    neighbor.getManhattanDistance(targetPos) > depth ||
                     player.eyePos.squaredDistanceTo(neighbor.toCenterPos()) > rangeSq ||
                     neighbor.isBlockedByEntities()
                     ) {
