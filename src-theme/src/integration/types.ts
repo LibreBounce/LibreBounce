@@ -27,7 +27,8 @@ export type ModuleSetting =
     | ColorSetting
     | TextSetting
     | TextArraySetting
-    | BindSetting;
+    | BindSetting
+    | VectorSetting;
 
 export interface BlocksSetting {
     valueType: string;
@@ -52,6 +53,12 @@ export interface TextSetting {
     valueType: string;
     name: string;
     value: string;
+}
+
+export interface VectorSetting {
+    valueType: string;
+    name: string;
+    value: Vec3;
 }
 
 export interface TextArraySetting {
@@ -199,6 +206,12 @@ export interface StatusEffect {
     visible: boolean;
     showIcon: boolean;
     color: number;
+}
+
+export interface Vec3 {
+    x: number;
+    y: number;
+    z: number;
 }
 
 export interface ItemStack {
