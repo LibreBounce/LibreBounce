@@ -49,7 +49,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
-import net.ccbluex.liquidbounce.utils.block.PlacementSwingMode
+import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
@@ -189,7 +189,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
 
     private var currentTarget: BlockPlacementTarget? = null
 
-    private var swingMode by enumChoice("Swing", PlacementSwingMode.DO_NOT_HIDE)
+    private var swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
 
     object SimulatePlacementAttempts : ToggleableConfigurable(this, "SimulatePlacementAttempts", false) {
 
@@ -450,7 +450,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
             && SimulatePlacementAttempts.clickScheduler.goingToClick
         ) {
             SimulatePlacementAttempts.clickScheduler.clicks {
-                doPlacement(currentCrosshairTarget!!, suitableHand!!, placementSwingMode = swingMode)
+                doPlacement(currentCrosshairTarget!!, suitableHand!!, swingMode = swingMode)
                 true
             }
         }
@@ -510,7 +510,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
 
             wasSuccessful = true
             true
-        }, placementSwingMode = swingMode)
+        }, swingMode = swingMode)
 
         if (rotationTiming == ON_TICK && RotationManager.serverRotation != player.rotation) {
             network.sendPacket(

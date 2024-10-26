@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.minecraft.block.*
 import net.minecraft.fluid.Fluids
 import net.minecraft.item.ItemPlacementContext
@@ -353,15 +354,17 @@ fun BlockState.canBeReplacedWith(
     )
 }
 
-enum class PlacementSwingMode(
+@Suppress("unused")
+enum class SwingMode(
     override val choiceName: String,
-    val hideClientSide: Boolean,
-    val hideServerSide: Boolean
+    val swing: (Hand) -> Unit = { }
 ): NamedChoice {
-    DO_NOT_HIDE("DoNotHide", false, false),
-    HIDE_BOTH("HideForBoth", true, true),
-    HIDE_CLIENT("HideForClient", true, false),
-    HIDE_SERVER("HideForServer", false, true),
+
+    DO_NOT_HIDE("DoNotHide", { player.swingHand(it) }),
+    HIDE_BOTH("HideForBoth"),
+    HIDE_CLIENT("HideForClient", { network.sendPacket(HandSwingC2SPacket(it)) }),
+    HIDE_SERVER("HideForServer", { player.swingHand(it, false) });
+
 }
 
 fun doPlacement(
@@ -369,7 +372,7 @@ fun doPlacement(
     hand: Hand = Hand.MAIN_HAND,
     onPlacementSuccess: () -> Boolean = { true },
     onItemUseSuccess: () -> Boolean = { true },
-    placementSwingMode: PlacementSwingMode = PlacementSwingMode.DO_NOT_HIDE
+    swingMode: SwingMode = SwingMode.DO_NOT_HIDE
 ) {
     val stack = player.mainHandStack
     val count = stack.count
@@ -384,14 +387,14 @@ fun doPlacement(
         interactionResult == ActionResult.PASS -> {
             // Ok, we cannot place on the block, so let's just use the item in the direction
             // without targeting a block (for buckets, etc.)
-            handlePass(hand, stack, onItemUseSuccess, placementSwingMode)
+            handlePass(hand, stack, onItemUseSuccess, swingMode)
             return
         }
 
         interactionResult.isAccepted -> {
             val wasStackUsed = !stack.isEmpty && (stack.count != count || interaction.hasCreativeInventory())
 
-            handleActionsOnAccept(hand, interactionResult, wasStackUsed, onPlacementSuccess, placementSwingMode)
+            handleActionsOnAccept(hand, interactionResult, wasStackUsed, onPlacementSuccess, swingMode)
         }
     }
 }
@@ -406,25 +409,14 @@ private fun handleActionsOnAccept(
     interactionResult: ActionResult,
     wasStackUsed: Boolean,
     onPlacementSuccess: () -> Boolean,
-    placementSwingMode: PlacementSwingMode = PlacementSwingMode.DO_NOT_HIDE,
+    swingMode: SwingMode = SwingMode.DO_NOT_HIDE,
 ) {
     if (!interactionResult.shouldSwingHand()) {
         return
     }
 
     if (onPlacementSuccess()) {
-        when (placementSwingMode) {
-            PlacementSwingMode.DO_NOT_HIDE -> {
-                player.swingHand(hand)
-            }
-            PlacementSwingMode.HIDE_BOTH -> { }
-            PlacementSwingMode.HIDE_CLIENT -> {
-                network.sendPacket(HandSwingC2SPacket(hand))
-            }
-            PlacementSwingMode.HIDE_SERVER -> {
-                player.swingHand(hand, false)
-            }
-        }
+        swingMode.swing(hand)
     }
 
     if (wasStackUsed) {
@@ -441,7 +433,7 @@ private fun handlePass(
     hand: Hand,
     stack: ItemStack,
     onItemUseSuccess: () -> Boolean,
-    placementSwingMode: PlacementSwingMode
+    swingMode: SwingMode
 ) {
     if (stack.isEmpty) {
         return
@@ -449,7 +441,7 @@ private fun handlePass(
 
     val actionResult = interaction.interactItem(player, hand)
 
-    handleActionsOnAccept(hand, actionResult, true, onItemUseSuccess, placementSwingMode)
+    handleActionsOnAccept(hand, actionResult, true, onItemUseSuccess, swingMode)
 }
 
 /**
@@ -458,6 +450,13 @@ private fun handlePass(
 fun doBreak(rayTraceResult: BlockHitResult, immediate: Boolean = false) {
     val direction = rayTraceResult.side
     val blockPos = rayTraceResult.blockPos
+
+    if (player.isCreative) {
+        if (interaction.attackBlock(blockPos, rayTraceResult.side)) {
+            player.swingHand(Hand.MAIN_HAND)
+            return
+        }
+    }
 
     if (immediate) {
         EventManager.callEvent(BlockBreakingProgressEvent(blockPos))
@@ -474,13 +473,6 @@ fun doBreak(rayTraceResult: BlockHitResult, immediate: Boolean = false) {
             )
         )
         return
-    }
-
-    if (player.isCreative) {
-        if (interaction.attackBlock(blockPos, rayTraceResult.side)) {
-            player.swingHand(Hand.MAIN_HAND)
-            return
-        }
     }
 
     if (interaction.updateBlockBreakingProgress(blockPos, direction)) {
@@ -579,3 +571,9 @@ fun BlockPos.isBlockedByEntities(): Boolean {
         it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))
     }
 }
+
+/**
+ * @return Check if the block requires a tool to be broken or cannot be broken at all.
+ */
+fun Block.isUnbreakable() = !interaction.hasCreativeInventory() &&
+    defaultState.isToolRequired && findHotbarSlot { stack -> stack.isSuitableFor(defaultState) } == null
