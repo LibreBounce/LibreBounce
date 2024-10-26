@@ -177,6 +177,8 @@ export interface Scoreboard {
 export interface PlayerData {
     username: string;
     uuid: string;
+    position: Vec3;
+    velocity: Vec3;
     selectedSlot: number;
     gameMode: string;
     health: number,
