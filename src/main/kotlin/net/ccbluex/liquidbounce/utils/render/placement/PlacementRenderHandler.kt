@@ -131,11 +131,11 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
             val blockPos = it.toImmutable()
             inList.computeIfPresent(blockPos) { _, value ->
                 Triple(value.first, getCullData(blockPos), value.third)
-            }
+            }?.let { return@forEach }
 
             currentList.computeIfPresent(blockPos) { _, value ->
                 getCullData(blockPos) to value.second
-            }
+            }?.let { return@forEach }
         }
     }
 
