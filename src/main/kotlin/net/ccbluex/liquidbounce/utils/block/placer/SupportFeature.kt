@@ -55,6 +55,7 @@ class SupportFeature(val placer: BlockPlacer) : ToggleableConfigurable(placer, "
      * Currently finds the best path of blocks to support the placement of [targetPos] using Dijkstra's algorithm,
      * the speed can possibly be improved by adding heuristics and making it an A* algorithm.
      */
+    @Suppress("detekt:all")
     fun findSupport(targetPos: BlockPos): Set<BlockPos>? {
         val rangeSq = placer.range.sq()
 
