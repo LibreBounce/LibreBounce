@@ -24,11 +24,11 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 
 /**
- * Sneak toggle module
+ * Twerk module
  *
  * Automatically sneaks and unsneaks.
  */
-object ModuleSneakToggle : Module("SneakToggle", Category.FUN) {
+object ModuleTwerk : Module("Twerk", Category.FUN) {
 
     /**
      * How long each sneak / normal period is.

@@ -194,7 +194,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleDerp,
             ModuleSkinDerp,
             ModuleHandDerp,
-            ModuleSneakToggle,
+            ModuleTwerk,
             ModuleVomit,
 
             // Misc
