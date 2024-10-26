@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.doBreak
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.isUnbreakable
+import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -97,7 +97,7 @@ object LegitNukerMode : Choice("Legit") {
         currentTarget?.let { pos ->
             val blockState = pos.getState() ?: return@let
 
-            if (blockState.isAir || blockState.block.isUnbreakable()) {
+            if (blockState.isNotBreakable(pos)) {
                 return@let
             }
 
