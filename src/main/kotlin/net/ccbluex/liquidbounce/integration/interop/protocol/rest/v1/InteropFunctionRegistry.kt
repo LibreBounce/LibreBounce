@@ -110,10 +110,11 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     // TODO: Not being used but should be re-implemented in the future
 
     // Protocol Functions
-    get("/protocols", ::getProtocols)
-    get("/protocol", ::getProtocol)
-    put("/protocol", ::putProtocol)
-    delete("/protocol", ::deleteProtocol)
+    get("/protocols", ::getProtocols).apply {
+        get("/protocol", ::getProtocol)
+        put("/protocol", ::putProtocol)
+        delete("/protocol", ::deleteProtocol)
+    }
 
     // Reconnect Functions
     post("/reconnect", ::postReconnect)

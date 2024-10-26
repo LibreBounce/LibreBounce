@@ -42,14 +42,14 @@ fun getProtocols(requestObject: RequestObject) = httpOk(JsonArray().apply {
     }
 })
 
-// GET /api/v1/protocol
+// GET /api/v1/protocols/protocol
 @Suppress("UNUSED_PARAMETER")
 fun getProtocol(requestObject: RequestObject) = httpOk(JsonObject().apply {
     addProperty("name", protocolVersion.name)
     addProperty("version", protocolVersion.version)
 })
 
-// PUT /api/v1/protocol
+// PUT /api/v1/protocols/protocol
 fun putProtocol(requestObject: RequestObject): FullHttpResponse {
     data class ProtocolRequest(val version: Int)
     val protocolRequest = requestObject.asJson<ProtocolRequest>()
@@ -58,7 +58,7 @@ fun putProtocol(requestObject: RequestObject): FullHttpResponse {
     return httpOk(JsonObject())
 }
 
-// DELETE /api/v1/protocol
+// DELETE /api/v1/protocols/protocol
 @Suppress("UNUSED_PARAMETER")
 fun deleteProtocol(requestObject: RequestObject): FullHttpResponse {
     selectProtocolVersion(defaultProtocolVersion.version)
