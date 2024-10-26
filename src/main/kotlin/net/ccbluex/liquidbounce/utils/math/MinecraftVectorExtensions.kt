@@ -21,11 +21,19 @@
 package net.ccbluex.liquidbounce.utils.math
 
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.utils.block.Region
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
-import kotlin.math.floor
+
+inline operator fun BlockPos.rangeTo(other: BlockPos) = Region(this, other)
+
+inline operator fun Vec3i.component1() = this.x
+inline operator fun Vec3i.component2() = this.y
+inline operator fun Vec3i.component3() = this.z
+
+inline fun BlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos(x, y, z)
 
 inline operator fun Vec3d.plus(other: Vec3d): Vec3d {
     return this.add(other)
@@ -46,12 +54,7 @@ fun Vec3i.toVec3d(): Vec3d = Vec3d.of(this)
 fun Vec3d.toVec3() = Vec3(this.x, this.y, this.z)
 fun Vec3d.toVec3i() = Vec3i(this.x.toInt(), this.y.toInt(), this.z.toInt())
 
-fun Vec3d.toBlockPos(): BlockPos {
-    val d = floor(this.x).toInt()
-    val e = floor(this.y).toInt()
-    val f = floor(this.z).toInt()
-    return BlockPos(d, e, f)
-}
+fun Vec3d.toBlockPos() = BlockPos.ofFloored(x, y, z)!!
 
 fun Vec3d.squaredXZDistanceTo(other: Vec3d): Double {
     val d = this.x - other.x

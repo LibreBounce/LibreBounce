@@ -263,6 +263,7 @@
   "liquidbounce.module.killAura.description": "Автоматические атакует врагов",
   "liquidbounce.module.superKnockback.description": "Увеличивает отбрасывание других сущностей.",
   "liquidbounce.module.velocity.description": "Изменяет величину отдачи, которую вы получаете.",
+  "liquidbounce.module.vomit.description": "Выбрасывает предметы из вашего инвентаря.",
   "liquidbounce.module.abortBreaking.description": "Позволяет прервать ломание, сохраняя прогресс.",
   "liquidbounce.module.clip.description": "Позволяет проходить сквозь блоки.",
   "liquidbounce.module.damage.description": "Наносит указанное количество повреждений себе.",
@@ -580,9 +581,19 @@
   "liquidbounce.module.autoShop.messages.loadError": "Невозможно загрузить конфигурацию",
   "liquidbounce.module.liquidPlace.description": "Позволяет ставить блоки на жидкости.",
   "liquidbounce.module.ESP.description": "Позволяет Вам видеть цели через стены.",
+  "liquidbounce.module.tntTimer.description": "Подсвечивает активные TNT.",
   "liquidbounce.module.targets.description": "Позволяет Вам выбрать, какие сущности будут считаться враждебными.",
   "liquidbounce.module.maceKill.description": "Мгновенно убивает при использовании булавы.",
   "liquidbounce.module.bedDefender.description": "Автоматически размещает блоки для защиты вашей кровати в BedWars.",
   "liquidbounce.module.multiActions.description": "Позволяет выполнять несколько действий одновременно.",
-  "liquidbounce.module.zoom.description": "Позволяет вам сделать всё в вашем мире больше или меньше."
+  "liquidbounce.module.zoom.description": "Позволяет вам сделать всё в вашем мире больше или меньше.",
+  "liquidbounce.module.damageParticles.description": "Показывает изменения здоровья сущностей.",
+  "liquidbounce.module.noMissCooldown.description": "Отключает кулдаун удара из версии 1.8 или полностью отменяет пропущенные атаки.",
+  "liquidbounce.module.itemTags.description": "Отображает значки и количество для выброшенных предметов.",
+  "liquidbounce.module.blockOutline.description": "Изменяет способ выделения блоков в Minecraft.",
+  "liquidbounce.module.prophuntESP.description": "Показывает объекты в режиме Prophunt.",
+  "liquidbounce.module.autoBuild.description": "Автоматически строит определенные структуры.",
+  "liquidbounce.module.autoBuild.messages.noPosition": "Не удалось найти подходящую позицию, отключаю...",
+  "liquidbounce.module.autoBuild.messages.noObsidian": "Обсидиан не найден, отключаю...",
+  "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "Зажигалка не найдена, отключаю..."
 }

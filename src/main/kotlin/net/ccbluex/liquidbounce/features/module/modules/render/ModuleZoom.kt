@@ -25,6 +25,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.client.MixinMouse
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.util.math.MathHelper
 import kotlin.math.abs
 import kotlin.math.round
@@ -36,7 +38,7 @@ import kotlin.math.round
  *
  * The mouse is slowed down with the help of mixins in [MixinMouse].
  */
-object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = BindAction.HOLD) {
+object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = InputBind.BindAction.HOLD) {
 
     val zoom by int("Zoom", 30, 10..150)
 
@@ -47,7 +49,7 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = BindAction.HOLD
         @Suppress("unused")
         val onScroll = handler<MouseScrollInHotbarEvent> {
             previousFov = getFov(true)
-            targetFov = (targetFov + round(it.speed * this.speed).toInt()).coerceIn(1..179)
+            targetFov = (targetFov - round(it.speed * this.speed).toInt()).coerceIn(1..179)
             reset()
             it.cancelEvent()
         }
@@ -57,6 +59,9 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = BindAction.HOLD
     init {
         tree(Scroll)
     }
+
+    private val transition by curve("Transition", Easing.QUAD_IN)
+    private val durationFactor by float("DurationFactor", 2f, 0f..10f, "x")
 
     private val chronometer = Chronometer()
     private var targetFov = 0
@@ -88,7 +93,7 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = BindAction.HOLD
             disableAnimationFinished = true
         }
 
-        return MathHelper.lerp(factor, previousFov, targetFov)
+        return MathHelper.lerp(transition.transform(factor), previousFov, targetFov)
     }
 
     private fun getDefaultFov(): Int {
@@ -98,7 +103,7 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = BindAction.HOLD
 
     private fun reset() {
         chronometer.reset()
-        scaledDifference = 2.5 * abs(targetFov - previousFov)
+        scaledDifference = durationFactor.toDouble() * abs(targetFov - previousFov)
     }
 
 }
