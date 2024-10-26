@@ -27,9 +27,11 @@ import net.ccbluex.liquidbounce.utils.math.component1
 import net.ccbluex.liquidbounce.utils.math.component2
 import net.ccbluex.liquidbounce.utils.math.component3
 import net.minecraft.block.BlockState
+import net.minecraft.block.ShapeContext
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3i
+import kotlin.jvm.optionals.getOrDefault
 
 object FloorNukerArea : NukerArea("Floor") {
 
@@ -48,7 +50,9 @@ object FloorNukerArea : NukerArea("Floor") {
         )
 
         // Check if the box is within the radius
-        if (box.squaredBoxedDistanceTo(player.eyes) > radius * radius) {
+        val eyesPos = player.eyes
+        val rangeSquared = radius * radius
+        if (box.squaredBoxedDistanceTo(eyesPos) > rangeSquared) {
             // Return empty list if not
             return emptyList()
         }
@@ -69,7 +73,13 @@ object FloorNukerArea : NukerArea("Floor") {
                     val pos = BlockPos(x, y, z)
                     val state = pos.getState() ?: return@mapNotNull null
 
-                    if (!state.isAir && !state.block.isUnbreakable()) {
+                    val shape = state.getCollisionShape(world, pos, ShapeContext.of(player))
+
+                    if (!state.isAir && !state.block.isUnbreakable() && !shape.isEmpty &&
+                        shape.offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
+                            .getClosestPointTo(eyesPos)
+                            .map { vec3d -> vec3d.squaredDistanceTo(eyesPos) <= rangeSquared }
+                            .getOrDefault(false)) {
                         pos to state
                     } else {
                         null
