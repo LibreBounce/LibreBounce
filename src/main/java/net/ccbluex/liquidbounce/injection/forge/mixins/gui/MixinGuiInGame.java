@@ -12,7 +12,9 @@ import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoScoreboard;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.ClassUtils;
-import net.ccbluex.liquidbounce.utils.render.*;
+import net.ccbluex.liquidbounce.utils.render.ColorSettingsKt;
+import net.ccbluex.liquidbounce.utils.render.FakeItemRender;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader;
 import net.minecraft.client.Minecraft;
@@ -27,7 +29,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -68,7 +73,9 @@ public abstract class MixinGuiInGame extends Gui {
     @Shadow
     protected abstract void renderHotbarItem(int index, int xPos, int yPos, float partialTicks, EntityPlayer player);
 
-    @Shadow @Final protected Minecraft mc;
+    @Shadow
+    @Final
+    protected Minecraft mc;
 
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void renderScoreboard(CallbackInfo callbackInfo) {
@@ -158,7 +165,6 @@ public abstract class MixinGuiInGame extends Gui {
                             true,
                             gradientX,
                             gradientY,
-                            hud.getMaxHotbarGradientColors(),
                             gradientColors,
                             hud.getGradientHotbarSpeed(),
                             gradientOffset

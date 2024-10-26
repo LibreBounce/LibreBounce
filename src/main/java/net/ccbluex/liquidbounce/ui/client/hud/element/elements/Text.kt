@@ -26,7 +26,6 @@ import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorder
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
@@ -277,7 +276,6 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 backgroundMode == "Gradient",
                 gradientX,
                 gradientY,
-                maxBackgroundGradientColors,
                 bgGradColors.toColorArray(maxBackgroundGradientColors),
                 gradientBackgroundSpeed,
                 gradientOffset
@@ -335,7 +333,6 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
             GradientFontShader.begin(gradient,
                 gradientX,
                 gradientY,
-                maxTextGradientColors,
                 textGradColors.toColorArray(maxTextGradientColors),
                 gradientTextSpeed,
                 gradientOffset
