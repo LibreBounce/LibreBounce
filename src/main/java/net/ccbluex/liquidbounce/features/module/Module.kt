@@ -112,8 +112,7 @@ open class Module constructor(
                     )
                 }
                 addNotification(
-                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName())
-                    )
+                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
                 )
             }
 

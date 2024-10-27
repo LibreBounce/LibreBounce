@@ -304,6 +304,8 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         val world = mc.theWorld ?: return false
         val bedBlock: Block = world.getBlockState(bedPos).block
 
+        if (index < 0) return false
+
         while (bedBlocks.size <= index) {
             bedBlocks.add(mutableListOf())
         }
