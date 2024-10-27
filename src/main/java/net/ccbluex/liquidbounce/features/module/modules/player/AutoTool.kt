@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.render.FakeItemRender
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.minecraft.util.BlockPos
@@ -26,17 +27,12 @@ object AutoTool :
         switchSlot(event.clickedBlock ?: return)
     }
 
-    var formerSlot = -1;
-
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         // set fakeItem to null if mouse is not pressed
-        if (!mc.gameSettings.keyBindAttack.isKeyDown) {
-            if (switchBack && formerSlot != -1) {
-                mc.thePlayer.inventory.currentItem = formerSlot
-                formerSlot = -1
-            }
-            FakeItemRender.fakeItem = -1
+        if (!mc.gameSettings.keyBindAttack.isKeyDown && !FakeItemRender.shouldNotOverride) {
+            if (switchBack) FakeItemRender.renderFormerSlot()
+            FakeItemRender.resetFakeItem()
         }
     }
 
@@ -59,13 +55,9 @@ object AutoTool :
         }
 
         if (bestSlot != -1 && mc.thePlayer.inventory.currentItem != bestSlot) {
-            if (fakeItem && FakeItemRender.fakeItem == -1) {
-                FakeItemRender.fakeItem = mc.thePlayer.inventory.currentItem
-            }
-            if (formerSlot == -1) {
-                formerSlot = mc.thePlayer.inventory.currentItem
-            }
-            mc.thePlayer.inventory.currentItem = bestSlot
+            if (fakeItem) FakeItemRender.renderFakeItem(mc.thePlayer.inventory.currentItem)
+            FakeItemRender.saveFormerSlot(mc.thePlayer.inventory.currentItem)
+            updatePlayerItem(bestSlot)
         }
 
     }

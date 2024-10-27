@@ -18,13 +18,16 @@ import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.retrieveDe
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.shouldUse
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.swing
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
+import net.ccbluex.liquidbounce.utils.render.FakeItemRender
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockWeb
@@ -64,11 +67,17 @@ object MLG : NoFallMode("MLG") {
 
             when (autoMLG.lowercase()) {
                 "pick" -> {
-                    player.inventory.currentItem = mlgSlot - 36
-                    mc.playerController.updateController()
+                    updatePlayerItem(mlgSlot - 36)
                 }
 
-                "spoof", "switch" -> serverSlot = mlgSlot - 36
+                "switch" -> serverSlot = mlgSlot - 36
+
+                "spoof" -> {
+                    FakeItemRender.shouldNotOverride = true
+                    FakeItemRender.saveFormerSlot(player.inventory.currentItem)
+                    FakeItemRender.renderFakeItem(player.inventory.currentItem)
+                    updatePlayerItem(mlgSlot - 36)
+                }
             }
 
             currentMlgBlock?.toVec()?.let { RotationUtils.toRotation(it, false, player) }?.run {
@@ -127,7 +136,8 @@ object MLG : NoFallMode("MLG") {
 
         if (mlgInProgress && !shouldUse) {
             WaitTickUtils.scheduleTicks(retrieveDelay + 2) {
-                serverSlot = player.inventory.currentItem
+                FakeItemRender.resetFakeItem()
+                FakeItemRender.renderFormerSlot()
 
                 mlgInProgress = false
                 bucketUsed = false
@@ -164,6 +174,8 @@ object MLG : NoFallMode("MLG") {
 
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[serverSlot] = null
+                FakeItemRender.resetFakeItem()
+                FakeItemRender.renderFormerSlot()
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
             } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
@@ -187,10 +199,12 @@ object MLG : NoFallMode("MLG") {
 
         TickedActions.TickScheduler(NoFall) += {
             if (autoMLG == "Pick") {
-                player.inventory.currentItem = switchSlot - 36
-                mc.playerController.updateController()
+                updatePlayerItem(switchSlot - 36)
             } else {
-                serverSlot = switchSlot - 36
+                FakeItemRender.shouldNotOverride = true
+                FakeItemRender.saveFormerSlot(player.inventory.currentItem)
+                FakeItemRender.renderFakeItem(player.inventory.currentItem)
+                updatePlayerItem(switchSlot - 36)
             }
         }
     }

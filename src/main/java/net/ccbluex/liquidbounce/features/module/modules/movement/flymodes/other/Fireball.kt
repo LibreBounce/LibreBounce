@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.init.Items
@@ -35,8 +36,7 @@ object Fireball : FlyMode("Fireball") {
 
         when (Fly.autoFireball.lowercase()) {
             "pick" -> {
-                player.inventory.currentItem = fireballSlot - 36
-                mc.playerController.updateController()
+                updatePlayerItem(fireballSlot - 36)
             }
 
             "spoof", "switch" -> serverSlot = fireballSlot - 36
@@ -93,8 +93,7 @@ object Fireball : FlyMode("Fireball") {
 
             WaitTickUtils.scheduleTicks(2) {
                 if (Fly.autoFireball == "Pick") {
-                    player.inventory.currentItem = fireballSlot - 36
-                    mc.playerController.updateController()
+                    updatePlayerItem(fireballSlot - 36)
                 } else {
                     serverSlot = fireballSlot - 36
                 }

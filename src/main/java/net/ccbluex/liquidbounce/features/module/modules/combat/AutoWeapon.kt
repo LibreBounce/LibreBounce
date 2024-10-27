@@ -12,8 +12,9 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.inventory.attackDamage
+import net.ccbluex.liquidbounce.utils.render.FakeItemRender
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.minecraft.item.ItemSword
@@ -54,11 +55,12 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true, hid
 
             // Switch to best weapon
             if (spoof) {
-                serverSlot = slot
+                FakeItemRender.renderFakeItem(mc.thePlayer.inventory.currentItem)
+                FakeItemRender.saveFormerSlot(mc.thePlayer.inventory.currentItem)
+                updatePlayerItem(slot)
                 ticks = spoofTicks
             } else {
-                mc.thePlayer.inventory.currentItem = slot
-                mc.playerController.updateController()
+                updatePlayerItem(slot)
             }
 
             // Resend attack packet
@@ -71,8 +73,10 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true, hid
     fun onUpdate(update: UpdateEvent) {
         // Switch back to old item after some time
         if (ticks > 0) {
-            if (ticks == 1)
-                serverSlot = mc.thePlayer.inventory.currentItem
+            if (ticks == 1 && !FakeItemRender.shouldNotOverride) {
+                FakeItemRender.renderFormerSlot()
+                FakeItemRender.resetFakeItem()
+            }
 
             ticks--
         }

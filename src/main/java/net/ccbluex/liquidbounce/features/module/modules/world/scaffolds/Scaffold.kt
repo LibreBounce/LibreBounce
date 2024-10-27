@@ -24,12 +24,11 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.blocksAmount
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.utils.render.FakeItemRender
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.timing.DelayTimer
-import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils
+import net.ccbluex.liquidbounce.utils.timing.*
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
@@ -592,7 +591,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         simPlayer.tick()
 
-        if (!simPlayer.onGround || blocksPlacedUntilJump > blocksToJump) {
+        if (!simPlayer.onGround && !isManualJumpOptionActive || blocksPlacedUntilJump > blocksToJump) {
             event.originalInput.jump = true
 
             blocksPlacedUntilJump = 0
@@ -702,15 +701,20 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                 InventoryUtils.findBlockInHotbar() ?: return
             }
 
-            when (autoBlock.lowercase()) {
-                "off" -> return
+            FakeItemRender.shouldNotOverride = true
+            FakeItemRender.saveFormerSlot(player.inventory.currentItem)
 
+            when (autoBlock.lowercase()) {
                 "pick" -> {
-                    player.inventory.currentItem = blockSlot - 36
-                    mc.playerController.updateController()
+                    updatePlayerItem(blockSlot - 36)
                 }
 
-                "spoof", "switch" -> serverSlot = blockSlot - 36
+                "switch" -> serverSlot = blockSlot - 36
+
+                "spoof" -> {
+                    FakeItemRender.renderFakeItem(player.inventory.currentItem)
+                    updatePlayerItem(blockSlot - 36)
+                }
             }
             stack = player.inventoryContainer.getSlot(blockSlot).stack
         }
@@ -815,7 +819,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         mc.timer.timerSpeed = 1f
 
         TickScheduler += {
-            serverSlot = player.inventory.currentItem
+            FakeItemRender.resetFakeItem()
+            FakeItemRender.renderFormerSlot()
         }
 
         options.instant = false
@@ -1092,12 +1097,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             InventoryUtils.findBlockInHotbar()
         } ?: return
 
+        FakeItemRender.shouldNotOverride = true
+        FakeItemRender.saveFormerSlot(player.inventory.currentItem)
+
         TickScheduler += {
             if (autoBlock == "Pick") {
-                player.inventory.currentItem = switchSlot - 36
-                mc.playerController.updateController()
+                updatePlayerItem(switchSlot - 36)
             } else {
-                serverSlot = switchSlot - 36
+                FakeItemRender.renderFakeItem(player.inventory.currentItem)
+                updatePlayerItem(switchSlot - 36)
             }
         }
     }
@@ -1149,6 +1157,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
             if (stack.stackSize <= 0) {
                 thePlayer.inventory.mainInventory[serverSlot] = null
+                FakeItemRender.resetFakeItem()
+                FakeItemRender.renderFormerSlot()
                 ForgeEventFactory.onPlayerDestroyItem(thePlayer, stack)
             } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
@@ -1260,6 +1270,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             movingYaw % 90 == 0f
         } else movingYaw in steps45 && player.movementInput.isSideways
 
+        if (!player.isNearEdge(2f)) return
+
         if (!MovementUtils.isMoving) {
             placeRotation?.run {
                 val axisMovement = floor(this.rotation.yaw / 90) * 90
@@ -1280,9 +1292,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                 isOnRightSide = floor(player.posX + cos(movingYaw.toRadians()) * 0.5) != floor(player.posX) ||
                     floor(player.posZ + sin(movingYaw.toRadians()) * 0.5) != floor(player.posZ)
 
-                val posInDirection = BlockPos(player.positionVector.offset(EnumFacing.fromAngle(movingYaw.toDouble()),
-                    0.6
-                )
+                val posInDirection = BlockPos(player.positionVector.offset(
+                    EnumFacing.fromAngle(movingYaw.toDouble()), 0.6)
                 )
 
                 val isLeaningOffBlock = getBlock(player.position.down()) == air

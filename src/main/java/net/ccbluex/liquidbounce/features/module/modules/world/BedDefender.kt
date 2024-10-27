@@ -21,6 +21,8 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.isBlockBBValid
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
+import net.ccbluex.liquidbounce.utils.render.FakeItemRender
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.BoolValue
@@ -78,7 +80,8 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
         bedBottomPositions.clear()
 
         TickScheduler += {
-            serverSlot = player.inventory.currentItem
+            FakeItemRender.resetFakeItem()
+            FakeItemRender.renderFormerSlot()
         }
     }
 
@@ -195,11 +198,16 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
                 "off" -> return
 
                 "pick" -> {
-                    player.inventory.currentItem = blockSlot - 36
-                    mc.playerController.updateController()
+                    updatePlayerItem(blockSlot - 36)
                 }
 
-                "spoof", "switch" -> serverSlot = blockSlot - 36
+                "switch" -> serverSlot = blockSlot - 36
+
+                "spoof" -> {
+                    FakeItemRender.renderFakeItem(player.inventory.currentItem)
+                    FakeItemRender.saveFormerSlot(player.inventory.currentItem)
+                    updatePlayerItem(blockSlot - 36)
+                }
             }
             stack = player.inventoryContainer.getSlot(blockSlot).stack
         }
@@ -234,6 +242,8 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
 
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[serverSlot] = null
+                FakeItemRender.resetFakeItem()
+                FakeItemRender.renderFormerSlot()
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
             } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
@@ -274,10 +284,11 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
 
         TickScheduler += {
             if (autoBlock == "Pick") {
-                player.inventory.currentItem = switchSlot - 36
-                mc.playerController.updateController()
+                updatePlayerItem(switchSlot - 36)
             } else {
-                serverSlot = switchSlot - 36
+                FakeItemRender.renderFakeItem(player.inventory.currentItem)
+                FakeItemRender.saveFormerSlot(player.inventory.currentItem)
+                updatePlayerItem(switchSlot - 36)
             }
         }
     }

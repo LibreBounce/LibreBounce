@@ -178,6 +178,13 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return amount
     }
 
+    fun updatePlayerItem(slot: Int) {
+        val player = mc.thePlayer ?: return
+
+        player.inventory.currentItem = slot
+        mc.playerController.updateController()
+    }
+
     @EventTarget
     fun onPacket(event: PacketEvent) {
         if (event.isCancelled) return

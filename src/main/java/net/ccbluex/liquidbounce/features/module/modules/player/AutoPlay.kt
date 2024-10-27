@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.init.Items
@@ -54,8 +55,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hid
             "Paper" -> {
                 val paper = InventoryUtils.findItem(36, 44, Items.paper) ?: return
 
-                player.inventory.currentItem = (paper - 36)
-                mc.playerController.updateController()
+                updatePlayerItem(paper - 36)
 
                 if (delayTick >= delay) {
                     mc.playerController.sendUseItem(player, mc.theWorld, player.inventoryContainer.getSlot(paper).stack)

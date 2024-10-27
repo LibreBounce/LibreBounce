@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RaycastUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
@@ -60,8 +61,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
             if (rodPullTimer.hasTimePassed(pullbackDelay)) {
                 if (switchBack != -1 && mc.thePlayer.inventory.currentItem != switchBack) {
                     // Switch back to previous item
-                    mc.thePlayer.inventory.currentItem = switchBack
-                    mc.playerController.updateController()
+                    updatePlayerItem(switchBack)
                 } else {
                     // Stop using rod
                     mc.thePlayer.stopUsingItem()
@@ -128,8 +128,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
                     // Switch to rod
                     switchBack = mc.thePlayer.inventory.currentItem
 
-                    mc.thePlayer.inventory.currentItem = rod - 36
-                    mc.playerController.updateController()
+                    updatePlayerItem(rod - 36)
                 }
 
                 rod()
@@ -143,7 +142,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
     private fun rod() {
         val rod = findRod(36, 45)
 
-        mc.thePlayer.inventory.currentItem = rod - 36
+        updatePlayerItem(rod - 36)
         // We do not need to send our own packet, because sendUseItem will handle it for us.
         mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventoryContainer.getSlot(rod).stack)
 

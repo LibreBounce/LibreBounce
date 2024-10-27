@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.utils.extensions.fixedSensitivityPitch
 import net.ccbluex.liquidbounce.utils.extensions.fixedSensitivityYaw
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.updatePlayerItem
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -75,8 +76,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false, hideM
                             delayTimer.reset()
                         }
                         3 -> {
-                            thePlayer.inventory.currentItem = nextInt(0, 9)
-                            mc.playerController.updateController()
+                            updatePlayerItem(nextInt(0, 9))
                             delayTimer.reset()
                         }
                         4 -> {
