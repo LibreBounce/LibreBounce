@@ -50,15 +50,21 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     private val range by floatRange("Range", 1f..3f, 0f..6f)
     private val delay by int("Delay", 100, 0..1000, "ms").apply { tagBy(this) }
+    private val nextBacktrackDelay by int("NextBacktrackDelay", 0,0..2000)
     private val chance by float("Chance", 50f, 0f..100f, "%")
     private val renderMode = choices("Mode", Box, arrayOf(Box, Wireframe))
 
     private val packetQueue = LinkedHashSet<DelayData>()
+    private var delayForNextBacktrack = 0L
 
     private var target: Entity? = null
     private var position: TrackedPosition? = null
 
     val packetHandler = handler<PacketEvent> {
+        if (packetQueue.isNotEmpty()) {
+            delayForNextBacktrack = System.currentTimeMillis() + nextBacktrackDelay
+        }
+
         synchronized(packetQueue) {
             if (it.origin != TransferOrigin.RECEIVE || it.isCancelled) {
                 return@handler
@@ -254,9 +260,11 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         enabled && packetQueue.isNotEmpty()
 
     private fun shouldConsiderAsEnemy(target: Entity) =
-        target.shouldBeAttacked() && target.boxedDistanceTo(player) in range &&
+        target.shouldBeAttacked() &&
+            target.boxedDistanceTo(player) in range &&
             player.age > 10 &&
-            Math.random() * 100 < chance
+            Math.random() * 100 < chance &&
+            System.currentTimeMillis() >= delayForNextBacktrack
 
     private fun shouldCancelPackets() =
         target != null && target!!.isAlive && shouldConsiderAsEnemy(target!!)
