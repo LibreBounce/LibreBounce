@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.utils.combat.EntityTargetingInfo
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.PriorityField
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
 
 @Nameable("attack")
 class AttackEvent(val enemy: Entity) : Event()
@@ -63,3 +64,6 @@ class TagEntityEvent(val entity: Entity, var targetingInfo: EntityTargetingInfo)
         this.color.trySet(col, priority)
     }
 }
+
+@Nameable("entityDeath")
+class EntityDeathEvent(val entity: LivingEntity) : Event()

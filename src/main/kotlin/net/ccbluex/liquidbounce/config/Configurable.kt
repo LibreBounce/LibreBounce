@@ -87,6 +87,10 @@ open class Configurable(
         return configurable
     }
 
+    protected fun trees(vararg configurable: Configurable) {
+        configurable.forEach { inner.add(it) }
+    }
+
     protected fun <T : Any> value(
         name: String,
         default: T,

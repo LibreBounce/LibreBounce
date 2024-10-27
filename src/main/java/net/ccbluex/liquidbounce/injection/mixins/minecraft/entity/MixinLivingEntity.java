@@ -22,10 +22,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.config.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.PacketEvent;
-import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
-import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
-import net.ccbluex.liquidbounce.event.events.TransferOrigin;
+import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAirJump;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiLevitation;
@@ -283,6 +280,11 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Redirect(method = "damage", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 0))
     private boolean hookDamage(World world) {
         return !(LivingEntity.class.cast(this) instanceof FakePlayer) && world.isClient;
+    }
+
+    @Inject(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getAttacker()Lnet/minecraft/entity/Entity;"))
+    private void hookDeath(DamageSource damageSource, CallbackInfo ci) {
+        EventManager.INSTANCE.callEvent(new EntityDeathEvent(LivingEntity.class.cast(this)));
     }
 
 }

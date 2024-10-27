@@ -123,7 +123,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     BrowserUrlChangeEvent::class,
     TagEntityEvent::class,
     MouseScrollInHotbarEvent::class,
-    PlayerFluidCollisionCheckEvent::class
+    PlayerFluidCollisionCheckEvent::class,
+    EntityDeathEvent::class
 )
 
 /**
