@@ -215,6 +215,7 @@ export interface ItemStack {
     damage: number;
     maxDamage: number;
     displayName: TextComponent | string;
+    hasEnchantment: boolean;
 }
 
 export interface PrintableKey {

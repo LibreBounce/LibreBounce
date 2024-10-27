@@ -1,10 +1,11 @@
 <script lang="ts">
     import type {ItemStack} from "../../../../integration/types";
     import {REST_BASE} from "../../../../integration/host";
+    import {effectFrame} from "./inventory";
 
     export let stack: ItemStack;
 
-    const {count, damage, identifier, maxDamage} = stack;
+    const {count, damage, identifier, maxDamage, hasEnchantment} = stack;
 
     const countColor = count <= 0 ? 'red' : 'white';
 
@@ -20,10 +21,15 @@
             return 'rgb(0, 255, 0)';
         }
     })();
+
+    const imgUrl = REST_BASE + '/api/v1/client/resource/itemTexture?id=' + identifier;
 </script>
 
 <figure class="item-stack">
-    <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={identifier}" alt={identifier}/>
+    {#if hasEnchantment}
+        <img class="mask" style="mask-size: cover; mask-image: url({imgUrl})" src={$effectFrame} alt="Mask-{identifier}">
+    {/if}
+    <img class="icon" src={imgUrl} alt={identifier}/>
 
     <div class="durability-bar" class:hidden={damage === 0}>
         <div class="durability"
@@ -31,11 +37,9 @@
         </div>
     </div>
 
-    {#if count > 1 || count < 0}
-        <div class="count" style="color: {countColor}">
-            {count}
-        </div>
-    {/if}
+    <div class="count" class:hidden={count === 0 || count === 1} style="color: {countColor}">
+        {count}
+    </div>
 </figure>
 
 <style lang="scss">
@@ -49,6 +53,16 @@
     position: relative;
     width: 32px;
     height: 32px;
+  }
+
+  .mask {
+    position: absolute;
+    opacity: 50%; // TODO
+    filter: brightness(5); // TODO
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .icon {

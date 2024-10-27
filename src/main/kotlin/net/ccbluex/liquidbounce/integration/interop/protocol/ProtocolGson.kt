@@ -154,6 +154,7 @@ class ItemStackSerializer : JsonSerializer<ItemStack> {
                 addProperty("damage", it.damage)
                 addProperty("maxDamage", it.maxDamage)
                 addProperty("empty", it.isEmpty)
+                addProperty("hasEnchantment", !it.enchantments.isEmpty)
             }
     }
 
