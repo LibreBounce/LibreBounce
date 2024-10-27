@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
@@ -298,6 +299,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyConstant(method = "canSprint", constant = @Constant(floatValue = 6.0F), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/HungerManager;getFoodLevel()I", ordinal = 0)))
     private float hookSprintIgnoreHunger(float constant) {
         return ModuleSprint.INSTANCE.shouldIgnoreHunger() ? -1F : constant;
+    }
+
+    @ModifyReturnValue(method = "canSprint", at = @At("RETURN"))
+    private boolean injectScaffoldSprintValue(boolean original) {
+        return original && (!ModuleScaffold.INSTANCE.getRunning() || ModuleScaffold.INSTANCE.getAllowSprinting());
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
