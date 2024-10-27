@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.DelayData
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -49,10 +50,12 @@ import net.minecraft.util.math.Vec3d
 object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     private val range by floatRange("Range", 1f..3f, 0f..6f)
-    private val delay by int("Delay", 100, 0..1000, "ms").apply { tagBy(this) }
-    private val nextBacktrackDelay by int("NextBacktrackDelay", 0,0..2000)
+    private val delay by intRange("Delay", 100..150, 0..1000, "ms").apply { tagBy(this) }
+    private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ticks")
     private val chance by float("Chance", 50f, 0f..100f, "%")
-    private val renderMode = choices("Mode", Box, arrayOf(Box, Wireframe))
+    private val requiresKillAura by boolean("RequiresKillAura", true)
+
+    private val renderMode = choices("RenderMode", Box, arrayOf(Box, Wireframe))
 
     private val packetQueue = LinkedHashSet<DelayData>()
     private var delayForNextBacktrack = 0L
@@ -62,11 +65,15 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     val packetHandler = handler<PacketEvent> {
         if (packetQueue.isNotEmpty()) {
-            delayForNextBacktrack = System.currentTimeMillis() + nextBacktrackDelay
+            delayForNextBacktrack = System.currentTimeMillis() + nextBacktrackDelay.random()
         }
 
         synchronized(packetQueue) {
             if (it.origin != TransferOrigin.RECEIVE || it.isCancelled) {
+                return@handler
+            }
+
+            if (requiresKillAura && !ModuleKillAura.enabled) {
                 return@handler
             }
 
@@ -208,7 +215,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     val attackHandler = handler<AttackEvent> {
         val enemy = it.enemy
 
-        if (!shouldConsiderAsEnemy(enemy))
+        if (!shouldBacktrack(enemy))
             return@handler
 
         // Reset on enemy change
@@ -233,7 +240,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private fun processPackets(clear: Boolean = false) {
         synchronized(packetQueue) {
             packetQueue.removeIf {
-                if (clear || it.delay <= System.currentTimeMillis() - delay) {
+                if (clear || it.delay <= System.currentTimeMillis() - delay.random()) {
                     mc.renderTaskQueue.add { handlePacket(it.packet) }
                     return@removeIf true
                 }
@@ -259,7 +266,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     fun isLagging() =
         enabled && packetQueue.isNotEmpty()
 
-    private fun shouldConsiderAsEnemy(target: Entity) =
+    private fun shouldBacktrack(target: Entity) =
         target.shouldBeAttacked() &&
             target.boxedDistanceTo(player) in range &&
             player.age > 10 &&
@@ -267,5 +274,5 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
             System.currentTimeMillis() >= delayForNextBacktrack
 
     private fun shouldCancelPackets() =
-        target != null && target!!.isAlive && shouldConsiderAsEnemy(target!!)
+        target != null && target!!.isAlive && shouldBacktrack(target!!)
 }
