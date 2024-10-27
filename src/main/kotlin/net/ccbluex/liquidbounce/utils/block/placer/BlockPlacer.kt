@@ -85,6 +85,8 @@ class BlockPlacer(
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     val ignoreUsingItem by boolean("IgnoreUsingItem", true)
 
+    private val slotResetDelay by int("SlotResetDelay", 5, 0..40, "ticks")
+
     val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     })
@@ -99,7 +101,7 @@ class BlockPlacer(
         }
     }
 
-    private val slotResetDelay by int("SlotResetDelay", 5, 0..40, "ticks")
+    val crystalDestroyer = tree(CrystalDestroyFeature(this, module))
 
     /**
      * Renders all tracked positions that are queued to be placed.
@@ -117,7 +119,8 @@ class BlockPlacer(
     ))
 
     /**
-     * Stores all block positions where blocks should be placed.
+     * Stores all block positions where blocks should be placed paired with a boolean that is `true`
+     * if the position was added by [support].
      */
     val blocks = Object2BooleanLinkedOpenHashMap<BlockPos>()
 
@@ -242,7 +245,19 @@ class BlockPlacer(
                 continue
             }
 
-            if (pos.isBlockedByEntities()) {
+            if (!pos.getState()!!.isReplaceable) {
+                inaccessible.add(pos)
+                continue
+            }
+
+            val blockedResult = pos.isBlockedByEntitiesReturnCrystal()
+            if (crystalDestroyer.enabled) {
+                blockedResult.value()?.let {
+                    crystalDestroyer.currentTarget = it
+                }
+            }
+
+            if (blockedResult.keyBoolean()) {
                 inaccessible.add(pos)
                 continue
             }
@@ -412,6 +427,7 @@ class BlockPlacer(
      */
     fun disable() {
         reset()
+        crystalDestroyer.onDisable()
         targetRenderer.clearSilently()
         placedRenderer.clearSilently()
     }

@@ -29,8 +29,8 @@ import net.minecraft.block.Blocks
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import java.util.*
-import kotlin.Comparator
 
+// TODO multiple paths a tick if enough placements in none rotation mode
 // TODO support no wall range, proper reach calculations
 // wall range support could be done by taking the angle and, if the face is pointing to the player, exclude
 // TODO cache blocked / allowed spots
@@ -40,7 +40,7 @@ import kotlin.Comparator
 class SupportFeature(val placer: BlockPlacer) : ToggleableConfigurable(placer, "Support", true) {
 
     private val depth by int("Depth", 4, 1..12)
-    val delay by int("Delay", 500, 0..1000)
+    val delay by int("Delay", 500, 0..1000, "ms")
 
     // what block helping blocks can be, by default just "trash blocks", meaning very common blocks
     val filter by enumChoice("Filter", Filter.WHITELIST)
