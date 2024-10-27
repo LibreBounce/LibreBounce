@@ -503,7 +503,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         val ticks = if (options.keepRotation) {
             if (scaffoldMode == "Telly") 1 else options.resetTicks
         } else {
-            RotationUtils.resetTicks
+            if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive) {
@@ -1153,6 +1153,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
+            placeRotation = null
         } else {
             if (thePlayer.sendUseItem(stack))
                 mc.entityRenderer.itemRenderer.resetEquippedProgress2()
@@ -1269,6 +1270,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                 setRotation(Rotation(yaw, pitch), ticks)
                 return
             }
+
+            if (!options.keepRotation)
+                return
         }
 
         val rotation = if (isMovingStraight) {
