@@ -51,7 +51,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     private val range by floatRange("Range", 1f..3f, 0f..6f)
     private val delay by intRange("Delay", 100..150, 0..1000, "ms").apply { tagBy(this) }
-    private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ticks")
+    private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
     private val requiresKillAura by boolean("RequiresKillAura", true)
 
