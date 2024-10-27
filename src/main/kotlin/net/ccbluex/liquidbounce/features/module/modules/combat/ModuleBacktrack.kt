@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.Choice
+import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.DelayData
@@ -33,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.TrackedPosition
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
@@ -47,7 +50,8 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     private val range by floatRange("Range", 1f..3f, 0f..6f)
     private val delay by int("Delay", 100, 0..1000, "ms").apply { tagBy(this) }
-    private val boxColor by color("BoxColor", Color4b(36, 32, 147, 87))
+    private val chance by float("Chance", 50f, 0f..100f, "%")
+    private val renderMode = choices("Mode", Box, arrayOf(Box, Wireframe))
 
     private val packetQueue = LinkedHashSet<DelayData>()
 
@@ -121,23 +125,47 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         }
     }
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
-        val entity = target ?: return@handler
-        val pos = position?.pos ?: return@handler
+    object Box : Choice("Box") {
+        override val parent: ChoiceConfigurable<Choice>
+            get() = renderMode
 
-        val dimensions = entity.getDimensions(entity.pose)
-        val d = dimensions.width.toDouble() / 2.0
+        private val color by color("Color", Color4b(36, 32, 147, 87))
 
-        val box = Box(-d, 0.0, -d, d, dimensions.height.toDouble(), d).expand(0.05)
+        val renderHandler = handler<WorldRenderEvent> { event ->
+            val entity = target ?: return@handler
+            val pos = position?.pos ?: return@handler
 
-        renderEnvironmentForWorld(event.matrixStack) {
-            val color = boxColor
+            val dimensions = entity.getDimensions(entity.pose)
+            val d = dimensions.width.toDouble() / 2.0
 
-            withPositionRelativeToCamera(pos) {
-                withColor(color) {
-                    drawSolidBox(box)
+            val box = Box(-d, 0.0, -d, d, dimensions.height.toDouble(), d).expand(0.05)
+
+            renderEnvironmentForWorld(event.matrixStack) {
+                val color = color
+
+                withPositionRelativeToCamera(pos) {
+                    withColor(color) {
+                        drawSolidBox(box)
+                    }
                 }
             }
+        }
+    }
+
+    object Wireframe : Choice("Wireframe") {
+        override val parent: ChoiceConfigurable<Choice>
+            get() = renderMode
+
+        private val color by color("Color", Color4b(36, 32, 147, 87))
+        private val outlineColor by color("OutlineColor", Color4b(36, 32, 147, 255))
+
+        val renderHandler = handler<WorldRenderEvent> {
+            val entity = target ?: return@handler
+            val pos = position?.pos ?: return@handler
+
+            val wireframePlayer = WireframePlayer(pos, entity.yaw, entity.pitch)
+            val color = color
+            wireframePlayer.render(it, color, outlineColor)
         }
     }
 
@@ -226,7 +254,9 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         enabled && packetQueue.isNotEmpty()
 
     private fun shouldConsiderAsEnemy(target: Entity) =
-        target.shouldBeAttacked() && target.boxedDistanceTo(player) in range && player.age > 10
+        target.shouldBeAttacked() && target.boxedDistanceTo(player) in range &&
+            player.age > 10 &&
+            Math.random() * 100 < chance
 
     private fun shouldCancelPackets() =
         target != null && target!!.isAlive && shouldConsiderAsEnemy(target!!)
