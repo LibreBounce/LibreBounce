@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.handlePacket
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -55,14 +56,14 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private val renderMode = choices("RenderMode", Box, arrayOf(Box, Wireframe, None))
 
     private val packetQueue = LinkedHashSet<DelayData>()
-    private var delayForNextBacktrack = 0L
+    private val chronometer = Chronometer()
 
     private var target: Entity? = null
     private var position: TrackedPosition? = null
 
     val packetHandler = handler<PacketEvent> {
         if (packetQueue.isNotEmpty()) {
-            delayForNextBacktrack = System.currentTimeMillis() + nextBacktrackDelay.random()
+            chronometer.waitForAtLeast(nextBacktrackDelay.random().toLong())
         }
 
         synchronized(packetQueue) {
@@ -271,7 +272,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
             target.boxedDistanceTo(player) in range &&
             player.age > 10 &&
             Math.random() * 100 < chance &&
-            System.currentTimeMillis() >= delayForNextBacktrack
+            chronometer.hasElapsed()
 
     private fun shouldCancelPackets() =
         target != null && target!!.isAlive && shouldBacktrack(target!!)
