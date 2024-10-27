@@ -1,13 +1,13 @@
 <script lang="ts">
     import type {ItemStack} from "../../../../integration/types";
     import {listen} from "../../../../integration/ws";
-    import type {PlayerMainInventoryEvent} from "../../../../integration/events";
+    import type {PlayerInventoryEvent} from "../../../../integration/events";
     import ItemStackView from "./ItemStackView.svelte";
 
     let stacks: ItemStack[] = [];
 
-    listen("playerMainInventory", (data: PlayerMainInventoryEvent) => {
-        stacks = data.stacks.slice(9);
+    listen("playerInventory", (data: PlayerInventoryEvent) => {
+        stacks = data.main.slice(9);
     });
 </script>
 

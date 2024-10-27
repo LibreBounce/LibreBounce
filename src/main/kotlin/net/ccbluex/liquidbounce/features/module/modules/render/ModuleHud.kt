@@ -21,21 +21,24 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.PlayerInventory
+import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
+import net.ccbluex.liquidbounce.event.events.ScreenEvent
+import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isHidingNow
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.markAsError
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.components
 import net.ccbluex.liquidbounce.integration.theme.component.customComponents
 import net.ccbluex.liquidbounce.integration.theme.component.types.minimap.ChunkRenderer
+import net.ccbluex.liquidbounce.utils.block.ChunkScanner
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.inGame
+import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.minecraft.client.gui.screen.DisconnectedScreen
 
 /**
@@ -62,9 +65,13 @@ object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
 
     @Suppress("unused")
     val tickHandler = handler<PlayerTickEvent> {
-        EventManager.callEvent(PlayerArmorInventory(player.inventory.armor))
-        EventManager.callEvent(PlayerMainInventory(player.inventory.main))
-        EventManager.callEvent(PlayerCraftingInventory(player.playerScreenHandler.craftingInput.heldStacks))
+        EventManager.callEvent(
+            PlayerInventory(
+                armor = player.inventory.armor,
+                main = player.inventory.main,
+                crafting = player.playerScreenHandler.craftingInput.heldStacks,
+            )
+        )
     }
 
     val isBlurable

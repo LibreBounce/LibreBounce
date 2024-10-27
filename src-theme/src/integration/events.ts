@@ -69,16 +69,10 @@ export interface ServerPingedEvent {
     server: Server;
 }
 
-export interface PlayerArmorInventoryEvent {
-    stacks: ItemStack[];
-}
-
-export interface PlayerMainInventoryEvent {
-    stacks: ItemStack[];
-}
-
-export interface PlayerCraftingInventoryEvent {
-    stacks: ItemStack[];
+export interface PlayerInventoryEvent {
+    armor: ItemStack[];
+    main: ItemStack[];
+    crafting: ItemStack[];
 }
 
 export interface ProxyAdditionResultEvent {

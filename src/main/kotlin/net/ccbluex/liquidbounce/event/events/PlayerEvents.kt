@@ -80,17 +80,9 @@ class PlayerUseMultiplier(var forward: Float, var sideways: Float) : Event()
 @Nameable("playerInteractedItem")
 class PlayerInteractedItem(val player: PlayerEntity, val hand: Hand, val actionResult: ActionResult) : Event()
 
-@Nameable("playerArmorInventory")
+@Nameable("playerInventory")
 @WebSocketEvent
-class PlayerArmorInventory(val stacks: List<ItemStack>) : Event()
-
-@Nameable("playerMainInventory")
-@WebSocketEvent
-class PlayerMainInventory(val stacks: List<ItemStack>) : Event()
-
-@Nameable("playerCraftingInventory")
-@WebSocketEvent
-class PlayerCraftingInventory(val stacks: List<ItemStack>) : Event()
+class PlayerInventory(val armor: List<ItemStack>, val main: List<ItemStack>, val crafting: List<ItemStack>) : Event()
 
 @Nameable("playerStrafe")
 class PlayerVelocityStrafe(val movementInput: Vec3d, val speed: Float, val yaw: Float, var velocity: Vec3d) : Event()
