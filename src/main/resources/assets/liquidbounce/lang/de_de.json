@@ -597,5 +597,6 @@
   "liquidbounce.module.autoBuild.messages.noPosition": "Es wurde keine mögliche Position gefunden, deaktiviere Modul...",
   "liquidbounce.module.autoBuild.messages.noObsidian": "Es wurde kein Obsidian gefunden, deaktiviere Modul...",
   "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "Es wurde kein Feuerzeug gefunden, deaktiviere Modul...",
-  "liquidbounce.module.offhand.description": "Verwaltet deine Offhand."
+  "liquidbounce.module.offhand.description": "Verwaltet deine Offhand.",
+  "liquidbounce.module.twerk.description": "Sneakt und Unsneakt automatisch."
 }
