@@ -10,7 +10,7 @@
     const dispatch = createEventDispatcher();
 
     function handleChange() {
-        setting = { ...cSetting };
+        setting = {...cSetting};
         dispatch("change");
     }
 
@@ -32,10 +32,13 @@
 <div class="setting">
     <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
     <div class="input-group">
-        <input type="number" class="value" spellcheck="false" placeholder="X" bind:value={cSetting.value.x} on:input={handleChange} />
-        <input type="number" class="value" spellcheck="false" placeholder="Y" bind:value={cSetting.value.y} on:input={handleChange} />
-        <input type="number" class="value" spellcheck="false" placeholder="Z" bind:value={cSetting.value.z} on:input={handleChange} />
-        <button class="locate-btn" on:click={locate}>&#x2299;</button>
+        <input type="number" class="value" spellcheck="false" placeholder="X" bind:value={cSetting.value.x}
+               on:input={handleChange}/>
+        <input type="number" class="value" spellcheck="false" placeholder="Y" bind:value={cSetting.value.y}
+               on:input={handleChange}/>
+        <input type="number" class="value" spellcheck="false" placeholder="Z" bind:value={cSetting.value.z}
+               on:input={handleChange}/>
+        <button class="locate-btn" on:click={locate} title="Locate">&#x2299;</button>
     </div>
 </div>
 
@@ -43,7 +46,7 @@
   @import "../../../colors.scss";
 
   .setting {
-    padding: 7px 0px;
+    padding: 7px 0;
   }
 
   .name {
@@ -54,8 +57,9 @@
   }
 
   .input-group {
-    display: flex;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 20px;
+    column-gap: 5px;
 
     input.value {
       width: 100%;
@@ -83,22 +87,13 @@
     }
 
     .locate-btn {
+      display: block;
       background-color: transparent;
-      border: solid 2px $accent-color;
-      border-radius: 3px;
+      border: none;
       cursor: pointer;
       color: $clickgui-text-color;
       font-size: 12px;
-      font-family: "Inter", sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: ease border-color .2s;
-      width: 50%;
-
-      &:hover {
-        border-color: darken($accent-color, 10%);
-      }
+      text-align: right;
     }
   }
 </style>

@@ -381,7 +381,7 @@ export interface Browser {
 }
 
 export interface HitResult {
-    type: 'block' | 'entity' | 'miss';
+    type: "block" | "entity" | "miss";
     pos: Vec3;
 }
 
