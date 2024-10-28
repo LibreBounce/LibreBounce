@@ -20,11 +20,13 @@ package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.math.Easing
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 
 open class Configurable(
     name: String,
@@ -135,6 +137,10 @@ open class Configurable(
     protected fun color(name: String, default: Color4b) = value(name, default, ValueType.COLOR)
 
     protected fun block(name: String, default: Block) = value(name, default, ValueType.BLOCK)
+
+    protected fun vec3i(name: String, default: Vec3i) = value(name, default, ValueType.VECTOR_I)
+
+    protected fun vec3d(name: String, default: Vec3d) = value(name, default, ValueType.VECTOR_D)
 
     protected fun blocks(name: String, default: MutableSet<Block>) =
         value(name, default, ValueType.BLOCKS, ListValueType.Block)

@@ -33,7 +33,7 @@ class MinimapHeightmapManager {
         x: Int,
         z: Int,
     ): Int {
-        val chunkPos = ChunkPos(BlockPos(x, 0, z))
+        val chunkPos = ChunkPos(x shr 4, z shr 4)
         val heightmap = getHeightmap(chunkPos)
 
         return heightmap.getHeight(x - chunkPos.startX, z - chunkPos.startZ)
@@ -54,7 +54,7 @@ class MinimapHeightmapManager {
 
         for (x in 0..15) {
             for (z in 0..15) {
-                heightmap.setHeight(x, z, calculateHeight(chunkPos.startX + x, chunkPos.startZ + z))
+                heightmap.setHeight(x, z, calculateHeight(chunkPos.startX or x, chunkPos.startZ or z))
             }
         }
     }
@@ -116,20 +116,21 @@ class MinimapHeightmapManager {
         z: Int,
         maxY: Int? = null,
     ): Int {
-        val world = mc.world!!
+        val chunk = mc.world!!.getChunk(x shr 4, z shr 4)
 
-        val maxHeight = (maxY ?: world.height) - 1
+        val maxHeight = (maxY ?: chunk.height) - 1
 
         val pos = BlockPos.Mutable(x, maxHeight, z)
-        while (pos.y > world.bottomY) {
-            val state = world.getBlockState(pos)
+
+        while (pos.y > chunk.bottomY) {
+            val state = chunk.getBlockState(pos)
             if (isSurface(pos, state)) {
                 return pos.y
             }
             pos.y--
         }
 
-        return world.bottomY
+        return chunk.bottomY
     }
 
     private fun isSurface(

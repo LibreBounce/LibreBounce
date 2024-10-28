@@ -65,6 +65,7 @@
     <ID>CognitiveComplexMethod:CommandScript.kt$CommandScript$fun createCommand(): Command</ID>
     <ID>CognitiveComplexMethod:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
     <ID>CognitiveComplexMethod:FailSwing.kt$FailSwing$suspend fun Sequence&lt;*>.dealWithFakeSwing(target: Entity?)</ID>
+    <ID>CognitiveComplexMethod:FloorNukerArea.kt$FloorNukerArea$override fun lookupTargets(radius: Float, count: Int?): List&lt;Pair&lt;BlockPos, BlockState>></ID>
     <ID>CognitiveComplexMethod:IpInfoApi.kt$IpInfoApi$private fun makeAsyncEndpointRequest(proxy: ProxyManager.Proxy?, endpoint: String, success: (String) -> Unit, failure: (Throwable) -> Unit)</ID>
     <ID>CognitiveComplexMethod:ItemCategorization.kt$ItemCategorization$@Suppress("CyclomaticComplexMethod", "LongMethod") fun getItemFacets(slot: ItemSlot): Array&lt;ItemFacet></ID>
     <ID>CognitiveComplexMethod:ModuleHoleESP.kt$ModuleHoleESP$private fun updateRegion(region: Region)</ID>

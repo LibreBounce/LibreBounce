@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.utils.render.placement
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -41,7 +41,7 @@ import net.minecraft.util.math.Box
 open class PlacementRenderer(
     name: String,
     enabled: Boolean,
-    val module: Module,
+    val module: Listenable,
     val keep: Boolean = true,
     clump: Boolean = true
 ) : ToggleableConfigurable(module, name, enabled) {
