@@ -48,7 +48,6 @@ import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.LightType
 
 object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
@@ -171,13 +170,13 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         override val parent: ChoiceConfigurable<RenderChoice>
             get() = renderMode
 
-        private val darkenAmount by float("DarkenAmount", 0.3f, 0.01f..1f)
+        private val lightAmount by float("LightAmount", 0.3f, 0.01f..1f)
 
         val renderHandler = handler<WorldRenderEvent> { event ->
             val (entity, pos) = getEntityPosition() ?: return@handler
 
             val light = mc.world!!.getLightLevel(BlockPos.ORIGIN)
-            val reducedLight = (light * darkenAmount.toDouble()).toInt()
+            val reducedLight = (light * lightAmount.toDouble()).toInt()
             val mc = MinecraftClient.getInstance()
 
             renderEnvironmentForWorld(event.matrixStack) {
