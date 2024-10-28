@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
+import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.TrackedPosition
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
@@ -44,8 +45,10 @@ import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket
 import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.sound.SoundEvents
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.LightType
 
 object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
@@ -53,7 +56,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private val delay by intRange("Delay", 100..150, 0..1000, "ms")
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
-    private val renderMode = choices("RenderMode", Box, arrayOf(Box, Wireframe, None))
+    val renderMode = choices("RenderMode", Box, arrayOf(Box, Model, Wireframe, None))
 
     private val packetQueue = LinkedHashSet<DelayData>()
     private val chronometer = Chronometer()
@@ -159,6 +162,37 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
                     withColor(color) {
                         drawSolidBox(box)
                     }
+                }
+            }
+        }
+    }
+
+    object Model : RenderChoice("Model") {
+        override val parent: ChoiceConfigurable<RenderChoice>
+            get() = renderMode
+
+        private val darkenAmount by float("DarkenAmount", 0.3f, 0.01f..1f)
+
+        val renderHandler = handler<WorldRenderEvent> { event ->
+            val (entity, pos) = getEntityPosition() ?: return@handler
+
+            val light = mc.world!!.getLightLevel(BlockPos.ORIGIN)
+            val reducedLight = (light * darkenAmount.toDouble()).toInt()
+            val mc = MinecraftClient.getInstance()
+
+            renderEnvironmentForWorld(event.matrixStack) {
+                withPositionRelativeToCamera(pos) {
+                    mc.entityRenderDispatcher.render(
+                        entity,
+                        0.0,
+                        0.0,
+                        0.0,
+                        entity.yaw,
+                        1.0f,
+                        event.matrixStack,
+                        mc.bufferBuilders.entityVertexConsumers,
+                        reducedLight
+                    )
                 }
             }
         }
