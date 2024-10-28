@@ -66,9 +66,9 @@ object SphereNukerArea : NukerArea("Sphere") {
         val list = nonStandingPositions.ifEmpty { positions }
 
         return if (count != null) {
-            list.take(count)
+            list.take(count).toList()
         } else {
-            list
+            list.toList()
         }
     }
 
