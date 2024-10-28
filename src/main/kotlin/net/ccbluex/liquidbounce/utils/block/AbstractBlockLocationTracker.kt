@@ -35,7 +35,7 @@ abstract class AbstractBlockLocationTracker<T> : ChunkScanner.BlockChangeSubscri
 
     override fun recordBlock(pos: BlockPos, state: BlockState, cleared: Boolean) {
         val newState = this.getStateFor(pos, state)
-        val targetBlockPos = pos.toImmutable()
+        val targetBlockPos = if (pos is BlockPos.Mutable) pos.toImmutable() else pos
 
         if (newState == null) {
             if (!cleared) {

@@ -71,7 +71,7 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
 
         this.from = fixedFrom
         this.to = fixedTo
-        this.volume = (fixedTo.x - fixedFrom.x) * (fixedFrom.y - fixedTo.y) * (fixedFrom.z - fixedFrom.z)
+        this.volume = (fixedTo.x - fixedFrom.x) * (fixedTo.y - fixedFrom.y) * (fixedTo.z - fixedFrom.z)
     }
 
     private inline val xRange: IntRange
@@ -98,7 +98,9 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
     }
 
     private fun intersects(minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int): Boolean {
-        return minX..maxX in xRange && maxY..minY in yRange && minZ..maxZ in zRange
+        return !(this.to.x <= minX || this.from.x >= maxX ||
+            this.to.y <= minY || this.from.y >= maxY ||
+            this.to.z <= minZ || this.from.z >= maxZ)
     }
 
     override fun equals(other: Any?): Boolean {
