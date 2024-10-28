@@ -36,7 +36,7 @@ object SphereNukerArea : NukerArea("Sphere") {
         val rangeSquared = range * range
         val eyesPos = player.eyes
 
-        val positions = searchBlocksInCuboid(range, eyesPos) { pos, state ->
+        val positions = eyesPos.searchBlocksInCuboid(range) { pos, state ->
             if (state.isNotBreakable(pos)) {
                 return@searchBlocksInCuboid false
             }
