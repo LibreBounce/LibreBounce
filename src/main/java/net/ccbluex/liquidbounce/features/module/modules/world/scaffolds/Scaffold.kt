@@ -592,7 +592,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         simPlayer.tick()
 
-        if (!simPlayer.onGround || blocksPlacedUntilJump > blocksToJump) {
+        if (!simPlayer.onGround  && !isManualJumpOptionActive || blocksPlacedUntilJump > blocksToJump) {
             event.originalInput.jump = true
 
             blocksPlacedUntilJump = 0
@@ -1259,6 +1259,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         val isMovingStraight = if (options.applyServerSide) {
             movingYaw % 90 == 0f
         } else movingYaw in steps45 && player.movementInput.isSideways
+
+        if (!player.isNearEdge(2.5f)) return
 
         if (!MovementUtils.isMoving) {
             placeRotation?.run {
