@@ -36,6 +36,7 @@ internal object NoSlowSneaking : ToggleableConfigurable(ModuleNoSlow, "Sneaking"
         arrayOf(
             NoneChoice(it),
             NoSlowSneakingSwitch(it),
+            NoSlowSneakingAAC5(it),
         )
     }
 
