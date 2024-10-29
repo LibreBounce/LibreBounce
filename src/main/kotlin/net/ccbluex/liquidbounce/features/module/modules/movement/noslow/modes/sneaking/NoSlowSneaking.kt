@@ -18,10 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sneaking
 
+import net.ccbluex.liquidbounce.config.Choice
+import net.ccbluex.liquidbounce.config.NoneChoice
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerSneakMultiplier
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
+import net.ccbluex.liquidbounce.utils.client.inGame
 import kotlin.math.max
 
 internal object NoSlowSneaking : ToggleableConfigurable(ModuleNoSlow, "Sneaking", true) {
@@ -29,7 +32,17 @@ internal object NoSlowSneaking : ToggleableConfigurable(ModuleNoSlow, "Sneaking"
     private val minMultiplier by float("MinMultiplier", 1f, 0.3f..1f)
 
     @Suppress("unused")
+    private val modes = choices<Choice>(this, "Mode", { it.choices[0] }) {
+        arrayOf(
+            NoneChoice(it),
+            NoSlowSneakingSwitch(it),
+        )
+    }
+
+    @Suppress("unused")
     val multiplierHandler = handler<PlayerSneakMultiplier> { event ->
         event.multiplier = max(event.multiplier, minMultiplier)
     }
+
+    override fun handleEvents() = super.handleEvents() && inGame && player.isSneaking
 }
