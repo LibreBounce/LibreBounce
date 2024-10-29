@@ -28,5 +28,5 @@ object BungeeCordSpoof : MinecraftInstance(), Listenable {
 
     private fun getRandomIpPart() = nextInt(endExclusive = 256).toString()
 
-    override fun handleEvents()= enabled
+    override fun handleEvents() = enabled
 }

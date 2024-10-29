@@ -53,5 +53,5 @@ object TimerBalanceUtils : MinecraftInstance(), Listenable {
         balance = 0
     }
 
-    override fun handleEvents() = true
+    
 }

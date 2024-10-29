@@ -73,7 +73,7 @@ object TacoCommand : Command("taco"), Listenable {
         if (image >= tacoTextures.size) image = 0
     }
 
-    override fun handleEvents() = true
+    
 
     override fun tabComplete(args: Array<String>) = listOf("TACO")
 }

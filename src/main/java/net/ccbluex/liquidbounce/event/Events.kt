@@ -193,6 +193,8 @@ class CameraPositionEvent(
     }
 }
 
+class ClientSlotChange(var supposedSlot: Int, var modifiedSlot: Int) : Event()
+
 /**
  * Called when minecraft player will be updated
  */

@@ -260,7 +260,7 @@ object CapeService : Listenable, MinecraftInstance() {
         }
     }
 
-    override fun handleEvents() = true
+    
 
 }
 

@@ -138,5 +138,5 @@ object MovementUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    override fun handleEvents() = true
+    
 }

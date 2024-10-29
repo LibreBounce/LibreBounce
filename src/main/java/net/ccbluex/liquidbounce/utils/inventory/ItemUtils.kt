@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils.inventory
 import net.ccbluex.liquidbounce.injection.implementations.IMixinItemStack
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.enchantment.Enchantment
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.*
 import net.minecraft.nbt.JsonToNBT
 import net.minecraft.util.ResourceLocation
@@ -47,12 +48,14 @@ object ItemUtils : MinecraftInstance() {
         }
     }
 
-    fun getItems(startInclusive: Int = 0, endInclusive: Int = 44,
-                 itemDelay: Int? = null, filter: ((ItemStack, Int) -> Boolean)? = null): Map<Int, ItemStack> {
+    fun getItems(
+        startInclusive: Int = 0, endInclusive: Int = 44, itemDelay: Int? = null,
+        filter: ((ItemStack, Int) -> Boolean)? = null,
+    ): Map<Int, ItemStack> {
         val items = mutableMapOf<Int, ItemStack>()
 
         for (i in startInclusive..endInclusive) {
-            val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack ?: continue
+            val itemStack = mc.thePlayer.inventorySlot(i).stack ?: continue
 
             if (itemStack.isEmpty())
                 continue
@@ -135,12 +138,15 @@ fun ItemStack?.isEmpty(): Boolean {
     return this == null || item == null
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-fun ItemStack?.hasItemAgePassed(delay: Int) = this == null
-        || System.currentTimeMillis() - (this as IMixinItemStack).itemDelay >= delay
+@Suppress("KotlinConstantConditions")
+fun ItemStack?.hasItemAgePassed(delay: Int) =
+    this == null || System.currentTimeMillis() - (this as IMixinItemStack).itemDelay >= delay
 
 val ItemStack.attackDamage
     get() = (attributeModifiers["generic.attackDamage"].firstOrNull()?.amount ?: 1.0) +
-            1.25 * getEnchantmentLevel(Enchantment.sharpness)
+        1.25 * getEnchantmentLevel(Enchantment.sharpness)
 
 fun ItemStack.isSplashPotion() = item is ItemPotion && ItemPotion.isSplash(metadata)
+
+fun EntityPlayer.inventorySlot(slot: Int) = inventoryContainer.getSlot(slot)!!
+fun EntityPlayer.hotBarSlot(slot: Int) = inventorySlot(slot + 36)

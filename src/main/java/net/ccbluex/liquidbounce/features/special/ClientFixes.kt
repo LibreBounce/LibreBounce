@@ -72,6 +72,6 @@ object ClientFixes : MinecraftInstance(), Listenable {
         LOGGER.error("Failed to handle packet on client fixes.", it)
     }
 
-    override fun handleEvents() = true
+    
 
 }

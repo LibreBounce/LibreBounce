@@ -220,7 +220,8 @@ object ModuleManager : Listenable {
             TickBase,
             RotationRecorder,
             ForwardTrack,
-            FreeLook
+            FreeLook,
+            SilentHotbarModule
         )
 
         InventoryManager.startCoroutine()
@@ -308,5 +309,5 @@ object ModuleManager : Listenable {
     @EventTarget
     private fun onKey(event: KeyEvent) = modules.forEach { if (it.keyBind == event.key) it.toggle() }
 
-    override fun handleEvents() = true
+    
 }

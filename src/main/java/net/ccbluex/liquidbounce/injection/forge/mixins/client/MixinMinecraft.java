@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.ui.client.GuiUpdate;
 import net.ccbluex.liquidbounce.ui.client.GuiWelcome;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
+import net.ccbluex.liquidbounce.utils.SilentHotbar;
 import net.ccbluex.liquidbounce.utils.render.IconUtils;
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -34,6 +35,7 @@ import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
@@ -43,9 +45,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -158,6 +162,7 @@ public abstract class MixinMinecraft {
         EventManager.INSTANCE.callEvent(new ScreenEvent(currentScreen));
     }
 
+    @Unique
     private long lastFrame = getTime();
 
     @Inject(method = "runGameLoop", at = @At("HEAD"))
@@ -169,6 +174,7 @@ public abstract class MixinMinecraft {
         RenderUtils.INSTANCE.setDeltaTime(deltaTime);
     }
 
+    @Unique
     public long getTime() {
         return (Sys.getTime() * 1000) / Sys.getTimerResolution();
     }
@@ -176,6 +182,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "runTick", at = @At("HEAD"))
     private void injectGameRuntimeTicks(CallbackInfo ci) {
         ClientUtils.INSTANCE.setRunTimeTicks(ClientUtils.INSTANCE.getRunTimeTicks() + 1);
+        SilentHotbar.INSTANCE.updateSilentSlot();
     }
 
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", ordinal = 0))
@@ -290,6 +297,11 @@ public abstract class MixinMinecraft {
     @Redirect(method = "runGameLoop", at = @At(value = "INVOKE", target = "Ljava/util/Queue;isEmpty()Z"))
     private boolean injectTickBase(Queue instance) {
         return TickBase.INSTANCE.getDuringTickModification() || instance.isEmpty();
+    }
+
+    @Redirect(method = "*", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I", opcode = Opcodes.GETFIELD))
+    private int hookSilentHotbar(InventoryPlayer inventory) {
+        return inventory.currentItem;
     }
 
     /**

@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.player.AutoTool
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationSettings
@@ -228,10 +227,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
                     return
                 }
 
-                // Auto Tool
-                if (AutoTool.handleEvents()) {
-                    AutoTool.switchSlot(currentPos)
-                }
+                EventManager.callEvent(ClickBlockEvent(currentPos, raytrace.sideHit))
 
                 // Break block
                 if (instant && !hypixel) {

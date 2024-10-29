@@ -123,6 +123,7 @@ object LiquidBounce {
             registerListener(BPSUtils)
             registerListener(Tower)
             registerListener(WaitTickUtils)
+            registerListener(SilentHotbar)
 
             // Load client fonts
             loadFonts()

@@ -111,6 +111,6 @@ object MiniMapRegister : MinecraftInstance(), Listenable {
 
     data class ChunkLocation(val x: Int, val z: Int)
 
-    override fun handleEvents() = true
+    
 
 }
