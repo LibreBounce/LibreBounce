@@ -430,6 +430,7 @@ object RenderUtils : MinecraftInstance() {
     }
 
     fun drawRect(x: Float, y: Float, x2: Float, y2: Float, color: Int) {
+        glPushMatrix()
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -445,9 +446,11 @@ object RenderUtils : MinecraftInstance() {
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_LINE_SMOOTH)
+        glPopMatrix()
     }
 
     fun drawRect(x: Int, y: Int, x2: Int, y2: Int, color: Int) {
+        glPushMatrix()
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -463,12 +466,14 @@ object RenderUtils : MinecraftInstance() {
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_LINE_SMOOTH)
+        glPopMatrix()
     }
 
     /**
      * Like [.drawRect], but without setup
      */
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float, color: Int) {
+        glPushMatrix()
         glColor(color)
         glBegin(GL_QUADS)
         glVertex2d(x2.toDouble(), y.toDouble())
@@ -477,6 +482,7 @@ object RenderUtils : MinecraftInstance() {
         glVertex2d(x2.toDouble(), y2.toDouble())
         glEnd()
         glColor4f(1f, 1f, 1f, 1f)
+        glPopMatrix()
     }
 
     fun quickDrawBorderedRect(x: Float, y: Float, x2: Float, y2: Float, width: Float, color1: Int, color2: Int) {
