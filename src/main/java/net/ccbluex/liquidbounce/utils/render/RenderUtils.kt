@@ -441,6 +441,7 @@ object RenderUtils : MinecraftInstance() {
         glVertex2f(x, y2)
         glVertex2f(x2, y2)
         glEnd()
+        glColor4f(1f, 1f, 1f, 1f)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_LINE_SMOOTH)
@@ -458,6 +459,7 @@ object RenderUtils : MinecraftInstance() {
         glVertex2i(x, y2)
         glVertex2i(x2, y2)
         glEnd()
+        glColor4f(1f, 1f, 1f, 1f)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_LINE_SMOOTH)
@@ -474,6 +476,7 @@ object RenderUtils : MinecraftInstance() {
         glVertex2d(x.toDouble(), y2.toDouble())
         glVertex2d(x2.toDouble(), y2.toDouble())
         glEnd()
+        glColor4f(1f, 1f, 1f, 1f)
     }
 
     fun quickDrawBorderedRect(x: Float, y: Float, x2: Float, y2: Float, width: Float, color1: Int, color2: Int) {
@@ -734,6 +737,7 @@ object RenderUtils : MinecraftInstance() {
         glCallList(DISPLAY_LISTS_2D[3])
 
         // Stop render
+        glColor4f(1f, 1f, 1f, 1f)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
@@ -765,6 +769,7 @@ object RenderUtils : MinecraftInstance() {
         glCallList(DISPLAY_LISTS_2D[3])
 
         // Stop render
+        glColor4f(1f, 1f, 1f, 1f)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
