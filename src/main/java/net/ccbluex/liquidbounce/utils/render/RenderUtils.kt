@@ -544,6 +544,7 @@ object RenderUtils : MinecraftInstance() {
     private fun drawRoundedRectangle(x1: Float, y1: Float, x2: Float, y2: Float, red: Float, green: Float, blue: Float, alpha: Float, radius: Float) {
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
+        glPushMatrix()
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -578,6 +579,7 @@ object RenderUtils : MinecraftInstance() {
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)
         glDisable(GL_BLEND)
+        glPopMatrix()
     }
 
     private fun orderPoints(x1: Float, y1: Float, x2: Float, y2: Float): FloatArray {
@@ -634,6 +636,8 @@ object RenderUtils : MinecraftInstance() {
     }
 
     fun drawImage(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int) {
+        glPushMatrix()
+        glPushAttrib(GL_ALL_ATTRIB_BITS)
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glDepthMask(false)
@@ -653,6 +657,8 @@ object RenderUtils : MinecraftInstance() {
         glDepthMask(true)
         glDisable(GL_BLEND)
         glEnable(GL_DEPTH_TEST)
+        glPopAttrib()
+        glPopMatrix()
     }
 
     /**
