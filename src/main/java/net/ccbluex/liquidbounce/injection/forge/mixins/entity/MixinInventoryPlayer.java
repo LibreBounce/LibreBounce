@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.utils.SilentHotbar;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.InventoryPlayer;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,7 @@ public class MixinInventoryPlayer {
 
     @Redirect(method = {"getCurrentItem", "decrementAnimations", "getStrVsBlock"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I", opcode = Opcodes.GETFIELD))
     private int hookSilentHotbar(InventoryPlayer instance) {
-        return SilentHotbar.INSTANCE.getCurrentSlot();
+        return instance.player instanceof EntityPlayerSP ? SilentHotbar.INSTANCE.getCurrentSlot() : instance.currentItem;
+
     }
 }
