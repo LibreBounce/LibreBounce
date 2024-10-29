@@ -26,10 +26,12 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         val moveHandler = handler<PlayerMoveEvent> { event ->
             if (event.type == MovementType.SELF) {
 
-                if (player.isOnGround && player.isSprinting) event.movement.strafe(
-                    player.directionYaw,
-                    strength = strength.toDouble()
-                )
+                if (player.isOnGround && player.isSprinting) {
+                    event.movement.strafe(
+                        player.directionYaw,
+                        strength = strength.toDouble()
+                    )
+                }
             }
         }
     }
