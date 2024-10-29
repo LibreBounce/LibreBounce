@@ -1,7 +1,6 @@
 <script lang="ts">
     import type {ItemStack} from "../../../../integration/types";
     import {REST_BASE} from "../../../../integration/host";
-    import {effectFrame} from "./inventory";
 
     export let stack: ItemStack;
 
@@ -27,7 +26,7 @@
 
 <figure class="item-stack">
     {#if hasEnchantment}
-        <img class="mask" style="mask-size: cover; mask-image: url({imgUrl})" src={$effectFrame} alt="Mask-{identifier}">
+        <div class="mask" style="mask-size: cover; mask-image: url({imgUrl})"></div>
     {/if}
     <img class="icon" src={imgUrl} alt={identifier}/>
 
@@ -57,8 +56,9 @@
 
   .mask {
     position: absolute;
-    opacity: 50%; // TODO
-    filter: brightness(5); // TODO
+    background: radial-gradient(circle, rgba(112, 48, 160, 0.8), rgba(255, 105, 180, 0) 100%);
+    mix-blend-mode: screen;
+    scale: 105%;
     top: 0;
     left: 0;
     width: 100%;
