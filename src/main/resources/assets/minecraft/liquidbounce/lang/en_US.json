@@ -323,6 +323,8 @@
         "module.skinDerp.description": "Makes your skin blink (Requires multi-layer skin).",
 
         "module.slimeJump.description": "Allows you to to jump higher on slime blocks.",
+
+        "module.silentHotbarModule.description": "Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "Automatically sneaks all the time.",
         

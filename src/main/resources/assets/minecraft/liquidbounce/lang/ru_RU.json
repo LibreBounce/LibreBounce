@@ -312,6 +312,8 @@
         "module.skinDerp.description": "Делает ваш скин мигающим (Требуется многослойный скин).",
 
         "module.slimeJump.description": "Позволяет выше прыгать на слайм блоках.",
+
+        "module.silentHotbarModule.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "Автоматически идёт(крадётся) на шифте.",
         

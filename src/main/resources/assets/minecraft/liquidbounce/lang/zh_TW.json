@@ -320,6 +320,8 @@
         "module.skinDerp.description": "讓你的皮膚閃爍 (需要多層皮膚)。",
 
         "module.slimeJump.description": "允許你在黏液塊上跳得更高。",
+
+        "module.silentHotbarModule.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
        
         "module.sneak.description": "自動保持潛行。",
        
