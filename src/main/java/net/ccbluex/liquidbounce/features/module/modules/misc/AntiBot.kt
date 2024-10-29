@@ -55,6 +55,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
     private val needHit by BoolValue("NeedHit", false)
     private val duplicateInWorld by BoolValue("DuplicateInWorld", false)
     private val duplicateInTab by BoolValue("DuplicateInTab", false)
+    private val duplicateProfile by BoolValue("DuplicateProfile", false)
     private val properties by BoolValue("Properties", false)
 
     private val alwaysInRadius by BoolValue("AlwaysInRadius", false)
@@ -150,6 +151,11 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         if (invalidGround && invalidGroundList.getOrDefault(entity.entityId, 0) >= 10)
             return true
 
+        if (duplicateProfile) {
+            return mc.netHandler.playerInfoMap.count { it.gameProfile.name == entity.gameProfile.name
+                    && it.gameProfile.id != entity.gameProfile.id } == 1
+        }
+
         if (tab) {
             val equals = tabMode == "Equals"
             val targetName = stripColor(entity.displayName.formattedText)
@@ -178,9 +184,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
             if (worldDuplicateNames.isNotEmpty()) {
                 val duplicateCount = worldDuplicateNames.size
-                if (mc.theWorld.playerEntities.count { it.name in worldDuplicateNames } > duplicateCount) {
-                    return true
-                }
+                
+                return mc.theWorld.playerEntities.count { it.name in worldDuplicateNames } > duplicateCount
             }
         }
 
@@ -197,9 +202,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
             if (tabDuplicateNames.isNotEmpty()) {
                 val duplicateCount = tabDuplicateNames.size
-                if (mc.netHandler.playerInfoMap.count { stripColor(it.getFullName()) in tabDuplicateNames } > duplicateCount) {
-                    return true
-                }
+                
+                return mc.netHandler.playerInfoMap.count { stripColor(it.getFullName()) in tabDuplicateNames } > duplicateCount
             }
         }
 
