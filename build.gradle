@@ -6,6 +6,7 @@ plugins {
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
     id "com.gorylenko.gradle-git-properties" version "2.4.0"
+    id "maven-publish"
 }
 
 repositories {
@@ -33,12 +34,17 @@ minecraft {
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
-    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m -Xms1024m", "-Ddev-mode"]
+    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
 }
 
 configurations {
     include
     implementation.extendsFrom(include)
+
+    external
+    compile.extendsFrom(external)
+
+    runtimeOnly.canBeResolved = true
 }
 
 dependencies {
@@ -100,10 +106,9 @@ processResources {
     rename "(.+_at.cfg)", "META-INF/\$1"
 }
 
-task moveResources {
+tasks.register('moveResources') {
     doLast {
-        ant.move file: "${buildDir}/resources/main",
-                todir: "${buildDir}/classes/java"
+        "${buildDir}/classes/java"
     }
 }
 
@@ -137,11 +142,22 @@ reobf {
     }
 }
 
-tasks.reobfJar.dependsOn(shadowJar)
+jar.dependsOn("shadowJar")
 
 task copyZipInclude(type: Copy) {
     from 'zip_include/'
     into 'build/libs/zip'
 }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = archivesBaseName
+            version = version
+            from components.java
+        }
+    }
+}
 
-build.dependsOn copyZipInclude
+tasks.reobfShadowJar.mustRunAfter shadowJar
+tasks.reobfJar.dependsOn(shadowJar)
