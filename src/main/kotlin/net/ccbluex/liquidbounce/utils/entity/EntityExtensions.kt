@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
 import net.ccbluex.liquidbounce.utils.block.raycast
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -30,7 +31,6 @@ import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.ccbluex.liquidbounce.utils.movement.findEdgeCollision
 import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.TntEntity
@@ -52,10 +52,8 @@ import net.minecraft.world.Difficulty
 import net.minecraft.world.GameRules
 import net.minecraft.world.RaycastContext
 import net.minecraft.world.explosion.Explosion
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
-import kotlin.math.sqrt
+import net.minecraft.world.explosion.ExplosionBehavior
+import kotlin.math.*
 
 val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
@@ -556,19 +554,21 @@ fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
     }
 }
 
-fun ClientPlayerEntity.isInHole(): Boolean {
-    val pos = BlockPos.ofFloored(pos)
-    return arrayOf(
-        Direction.EAST,
-        Direction.WEST,
-        Direction.SOUTH,
-        Direction.NORTH,
-        Direction.DOWN,
-    ).all {
-        pos.offset(it).isBlastResistant()
+fun ClientPlayerEntity.isInHole(feetBlockPos: BlockPos = getFeetBlockPos()): Boolean {
+    return DIRECTIONS_EXCLUDING_UP.all {
+        feetBlockPos.offset(it).isBlastResistant()
     }
 }
 
 fun ClientPlayerEntity.isBurrowed(): Boolean {
-    return BlockPos.ofFloored(pos).isBlastResistant()
+    return getFeetBlockPos().isBlastResistant()
+}
+
+fun ClientPlayerEntity.getFeetBlockPos(): BlockPos {
+    val bb = boundingBox
+    return BlockPos(
+        MathHelper.floor(MathHelper.lerp(0.5, bb.minX, bb.maxX)),
+        MathHelper.ceil(bb.minY),
+        MathHelper.floor(MathHelper.lerp(0.5, bb.minZ, bb.maxZ))
+    )
 }

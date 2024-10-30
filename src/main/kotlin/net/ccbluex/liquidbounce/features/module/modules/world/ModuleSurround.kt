@@ -18,24 +18,40 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair
+import it.unimi.dsi.fastutil.doubles.DoubleDoublePair
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.events.GameTickEvent
-import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleCenter
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.CrystalDestroyFeature
+import net.ccbluex.liquidbounce.utils.block.placer.NoRotationMode
+import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
+import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
+import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
+import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
+import net.ccbluex.liquidbounce.utils.entity.isInHole
+import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.Blocks
+import net.minecraft.entity.Entity
+import net.minecraft.entity.decoration.EndCrystalEntity
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3i
+import org.lwjgl.glfw.GLFW
+import kotlin.math.abs
 import kotlin.math.ceil
 
 /**
@@ -45,8 +61,14 @@ import kotlin.math.ceil
  */
 object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true) {
 
+    /**
+     * The blocks the surround normal utilizes.
+     */
     private val DEFAULT_BLOCKS = hashSetOf(Blocks.OBSIDIAN, Blocks.ENDER_CHEST, Blocks.CRYING_OBSIDIAN)
 
+    /**
+     * Runs [CommandCenter] when the module is enabled.
+     */
     private val center by boolean("Center", false)
 
     /**
@@ -59,33 +81,97 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
      */
     private val down by boolean("Down", true)
 
-    // TODO x/z distance or movement speed disable
+    /**
+     * Disables the module when the y-coordinate changes.
+     */
     private val disableOnYChange by boolean("DisableOnYChange", true)
 
-    // TODO instant
+    /**
+     * Disables the module when the player has moved at least 0.5 blocks away from the original center.
+     */
+    private val disableOnXZMove by boolean("disableOnXZMove", false)
 
     /**
+     * Disables the module when the player has a speed that is faster than or equal to 5 m/s.
+     */
+    private val disableOnXZSpeed by boolean("disableOnXZSpeed", false)
+
+    /**
+     * Replaces broken block instantly.
+     *
+     * Note: requires the rotation mode "None" in the block placer
+     */
+    private val instant by boolean("Instant", true)
+
+    /**
+     * Protects the surround against being blocked by crystals on destruction.
+     *
      * Requires the crystal destroyer in the placer to be active.
      */
     private object Protect : ToggleableConfigurable(this, "Protect", true) {
 
-        val minDestroyProgress by int("MinDestroyProgress", 4, 0..9, "stage")
+        /**
+         * At what destroy stage, actions should be taken.
+         */
+        private val minDestroyProgress by int("MinDestroyProgress", 4, 0..9, "stage")
+
+        /**
+         * Builds an extra layer around the surround blocks (slice):
+         *     p
+         *   x p x
+         *     x
+         * will become:
+         *   x p x
+         * x x p x x
+         *     x
+         *
+         * X = obsidian
+         * p = the players hitbox
+         */
+        @Suppress("SpellCheckingInspection")
+        object ExtraLayer : ToggleableConfigurable(this, "ExtraLayer", true) {
+
+            /**
+             * Will place even more block (top view):
+             *   x
+             * x p x
+             *   x
+             * will become:
+             * x x x
+             * x p x
+             * x x x
+             *
+             * X = obsidian
+             * p = the players hitbox
+             */
+            @Suppress("SpellCheckingInspection")
+            val corners by boolean("Corners", false)
+
+        }
+
+        val broken = mutableSetOf<BlockPos>()
 
         /**
          * With a higher priority so that it runs before [CrystalDestroyFeature].
          */
         @Suppress("unused")
         private val tickHandler = handler<GameTickEvent>(priority = 10) {
-            if (!placer.crystalDestroyer.enabled) {
+            if (!placer.crystalDestroyer.enabled || addExtraLayerBlocks) {
                 return@handler
             }
 
+            broken.clear()
             placer.blocks.filter { !it.value }.keys.forEach { pos ->
                 val breakingProgressions = mc.worldRenderer.blockBreakingProgressions[pos.asLong()] ?: return@forEach
 
                 val breakingInfo = breakingProgressions.lastOrNull { it.actorId != player.id } ?: return@forEach
-                if (breakingInfo.stage < minDestroyProgress) {
+                val stage = breakingInfo.stage
+                if (stage < minDestroyProgress) {
                     return@forEach
+                }
+
+                if (ExtraLayer.enabled && stage > 0) {
+                    broken.add(pos)
                 }
 
                 val blockedResult = pos.isBlockedByEntitiesReturnCrystal()
@@ -100,6 +186,11 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
 
     }
 
+    /**
+     * Manually triggers the protection mechanism [Protect.ExtraLayer].
+     */
+    private val addExtraLayer by bind("AddExtraLayer", GLFW.GLFW_KEY_UNKNOWN)
+
     init {
         tree(Protect)
     }
@@ -108,18 +199,46 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     private val blocks by blocks("Blocks", DEFAULT_BLOCKS)
     private val placer = tree(BlockPlacer("Placing", this, Priority.NORMAL, { filter.getSlot(blocks) }))
 
+    private var addExtraLayerBlocks = false
     private var startY = 0.0
+    private var centerPos: DoubleDoublePair? = null
 
     init {
+        // for this module, support should by default be able to use obsidian
         placer.support.blocks.addAll(DEFAULT_BLOCKS)
     }
 
     override fun enable() {
         if (center) {
-            ModuleCenter.enabled = true
+            CommandCenter.center = true
         }
 
         startY = player.pos.y
+        val centerBlockPos = player.blockPos.toCenterPos()
+        centerPos = DoubleDoubleImmutablePair(centerBlockPos.x, centerBlockPos.z)
+    }
+
+    override fun disable() {
+        placer.disable()
+        addExtraLayerBlocks = false
+    }
+
+    @Suppress("unused")
+    val keyHandler = handler<KeyEvent> {
+        if (it.key != addExtraLayer.boundKey) {
+            return@handler
+        }
+
+        val action = addExtraLayer.action
+        if (it.action == GLFW.GLFW_PRESS) {
+            addExtraLayerBlocks = if (action == InputBind.BindAction.TOGGLE) {
+                !addExtraLayerBlocks
+            } else { // hold
+                true
+            }
+        } else if (it.action == GLFW.GLFW_RELEASE && action == InputBind.BindAction.HOLD) {
+            addExtraLayerBlocks = true
+        }
     }
 
     @Suppress("unused")
@@ -128,7 +247,13 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
             return@handler
         }
 
-        if (disableOnYChange && it.y > 0.0) {
+        val yChange = disableOnYChange && it.y != startY
+        val dx = abs(player.x - (centerPos?.leftDouble() ?: 0.0))
+        val dz = abs(player.z - (centerPos?.rightDouble() ?: 0.0))
+        val xzChange = disableOnXZMove && (dx > 0.5 || dz > 0.5)
+        val speed = player.pos.subtract(player.prevX, player.prevY, player.prevZ).lengthSquared() * 20.0
+        val highSpeed = disableOnXZSpeed && speed >= 5.0
+        if (yChange || xzChange || highSpeed) {
             enabled = false
         }
     }
@@ -143,6 +268,104 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         val bb = player.boundingBox
         val y = ceil(bb.minY)
 
+        val feetBlockPos = player.getFeetBlockPos()
+        val hole = if (player.isInHole(feetBlockPos)) {
+            setOf(feetBlockPos)
+        } else {
+            setOf(
+                BlockPos.ofFloored(bb.minX, y, bb.minZ),
+                BlockPos.ofFloored(bb.minX, y, bb.maxZ),
+                BlockPos.ofFloored(bb.maxX, y, bb.minZ),
+                BlockPos.ofFloored(bb.maxX, y, bb.maxZ),
+            )
+        }
+
+        val holeBlocks = hashSetOf<BlockPos>()
+        val blocked = hashSetOf<BlockPos>()
+        blocked.addAll(hole)
+
+        hole.forEach {
+            DIRECTIONS_EXCLUDING_UP.forEach { direction ->
+                val pos = it.offset(direction)
+                if (pos in hole || !holeBlocks.add(pos)) {
+                    return@forEach
+                }
+
+                val isDown = direction == Direction.DOWN
+                if (isDown && down) {
+                    holeBlocks.add(it.offset(direction, 2))
+                }
+
+                if (!isDown && (addExtraLayerBlocks || Protect.broken.contains(pos))) {
+                    holeBlocks.add(pos.offset(direction))
+                    holeBlocks.add(pos.up())
+                    if (Protect.ExtraLayer.corners) {
+                        holeBlocks.add(pos.offset(direction.rotateYClockwise()))
+                    }
+                }
+
+                if (!isDown && extend) {
+                    pos.getBlockingEntities { it !is EndCrystalEntity && it != player }.forEach {
+                        getEntitySurround(it, holeBlocks, blocked, y)
+                    }
+                }
+            }
+        }
+
+        placer.update(holeBlocks)
+    }
+
+    @Suppress("unused")
+    private val blockUpdateHandler = handler<PacketEvent> {
+        val packet = it.packet
+        if (!instant || packet !is BlockUpdateS2CPacket || !packet.state.isReplaceable || packet.pos !in placer.blocks) {
+            return@handler
+        }
+
+        val pos = packet.pos
+        val rotationMode = placer.rotationMode.activeChoice
+        if (rotationMode !is NoRotationMode || pos.isBlockedByEntities()) {
+            return@handler
+        }
+
+        val searchOptions = BlockPlacementTargetFindingOptions(
+            listOf(Vec3i(0, 0, 0)),
+            ItemStack(Items.SANDSTONE),
+            CenterTargetPositionFactory,
+            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            player.pos,
+            player.pose,
+            placer.wallRange > 0
+        )
+
+        val placementTarget = findBestBlockPlacementTarget(pos, searchOptions) ?: return@handler
+
+        // Check if we can reach the target
+        if (!placer.canReach(placementTarget.interactedBlockPos, placementTarget.rotation)) {
+            return@handler
+        }
+
+        if (placementTarget.interactedBlockPos.getBlock().isInteractable(
+                placementTarget.interactedBlockPos.getState()
+            )
+        ) {
+            return@handler
+        }
+
+        if (rotationMode.send) {
+            val rotation = placementTarget.rotation.fixedSensitivity()
+            network.connection!!.send(
+                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround),
+                null
+            )
+        }
+
+        placer.doPlacement(false, pos, placementTarget)
+    }
+
+    private fun getEntitySurround(entity: Entity, list: HashSet<BlockPos>, blocked: HashSet<BlockPos>, y: Double) {
+        val bb = entity.boundingBox
+
         val hole = setOf(
             BlockPos.ofFloored(bb.minX, y, bb.minZ),
             BlockPos.ofFloored(bb.minX, y, bb.maxZ),
@@ -150,35 +373,17 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
             BlockPos.ofFloored(bb.maxX, y, bb.maxZ),
         )
 
-        val holeBlocks = hashSetOf<BlockPos>()
+        blocked.addAll(hole)
 
         hole.forEach {
-            // the block is already placed, this could happen when we stand in a corner
-            if (it.isBlastResistant()) {
-                return@forEach
-            }
+            Direction.HORIZONTAL.forEach { direction ->
+                val pos = it.offset(direction)
 
-            DIRECTIONS_EXCLUDING_UP.forEach { direction ->
-                holeBlocks.add(it.offset(direction))
-
-                if (direction == Direction.DOWN && down) {
-                    holeBlocks.add(it.offset(direction, 2))
+                if (it !in blocked) {
+                    list += pos
                 }
             }
         }
-
-        if (extend) {
-            // TODO filter out blocked by crystals
-            holeBlocks.filter { it.isBlockedByEntities() }.forEach {
-
-            }
-        }
-
-        placer.update(holeBlocks)
-    }
-
-    override fun disable() {
-        placer.disable()
     }
 
 }

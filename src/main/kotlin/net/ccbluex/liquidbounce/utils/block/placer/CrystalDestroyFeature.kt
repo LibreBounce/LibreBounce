@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
+import net.ccbluex.liquidbounce.utils.entity.getExplosionDamageFromEntity
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
@@ -77,6 +78,11 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
             return@repeatable
         }
 
+        if (wouldKill(target)) {
+            currentTarget = null
+            return@repeatable
+        }
+
         // find the best spot (and skip if no spot was found)
         val (rotation, _) =
             raytraceBox(
@@ -108,6 +114,11 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
             return@handler
         }
 
+        if (wouldKill(target)) {
+            currentTarget = null
+            return@handler
+        }
+
         if (rotate.enabled && !facingEnemy(
                 toEntity = target,
                 rotation = RotationManager.serverRotation,
@@ -120,6 +131,14 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
         target.attack(swing)
         chronometer.reset()
         currentTarget = null
+    }
+
+    /**
+     * Checks whether the crystal would kill us.
+     */
+    private fun wouldKill(target: EndCrystalEntity): Boolean {
+        val health = player.health + player.absorptionAmount
+        return health - player.getExplosionDamageFromEntity(target) <= 0f
     }
 
     @Suppress("unused")

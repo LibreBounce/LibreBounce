@@ -582,9 +582,10 @@ fun BlockPos.isBlockedByEntities(): Boolean {
     }
 }
 
-fun BlockPos.getBlockingEntities(): List<Entity> {
+inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true }): List<Entity> {
     return world.entities.filter {
-        it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))
+        it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())) &&
+            include.invoke(it)
     }
 }
 

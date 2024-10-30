@@ -29,8 +29,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.features.module.modules.world.ModuleBedDefender.mc
-import net.ccbluex.liquidbounce.features.module.modules.world.ModuleBedDefender.player
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
@@ -41,6 +39,8 @@ import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFi
 import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
 import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -359,7 +359,7 @@ class BlockPlacer(
         return null
     }
 
-    private fun canReach(pos: BlockPos, rotation: Rotation): Boolean {
+    fun canReach(pos: BlockPos, rotation: Rotation): Boolean {
         // not the exact distance but good enough
         val distance = pos.getCenterDistanceSquaredEyes()
         val wallRangeSq = wallRange.toDouble().sq()

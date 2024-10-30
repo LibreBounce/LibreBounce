@@ -129,6 +129,7 @@ object CommandManager : Iterable<Command> {
         addCommand(CommandFriend.createCommand())
         addCommand(CommandToggle.createCommand())
         addCommand(CommandBind.createCommand())
+        addCommand(CommandCenter.createCommand())
         addCommand(CommandHelp.createCommand())
         addCommand(CommandBinds.createCommand())
         addCommand(CommandClear.createCommand())

@@ -219,7 +219,6 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAvoidHazards,
             ModuleBlockBounce,
             ModuleBlockWalk,
-            ModuleCenter,
             ModuleElytraFly,
             ModuleFly,
             ModuleFreeze,
