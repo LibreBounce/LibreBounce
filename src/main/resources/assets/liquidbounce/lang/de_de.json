@@ -599,6 +599,6 @@
   "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "Es wurde kein Feuerzeug gefunden, deaktiviere Modul...",
   "liquidbounce.module.offhand.description": "Verwaltet deine Offhand.",
   "liquidbounce.module.twerk.description": "Sneakt und Unsneakt automatisch.",
-  "liquidbounce.module.silentHotbar.description": "Deaktiviert die Anzeige beim Wechseln von Items bei z.B. AutoTool & AutoWeapon, sodass das Item in deiner Hand weiterhin ausgewählt bleibt.",
+  "liquidbounce.module.silentHotbar.description": "Deaktiviert die Anzeige beim Wechseln von Items bei z.B. AutoTool & AutoWeapon, sodass das Item in deiner Hand weiterhin angezeigt wird.",
   "liquidbounce.module.freeLook.description": "Ermöglicht dir, die Kamera frei um deinen Charakter herum zu bewegen."
 }
