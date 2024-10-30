@@ -445,7 +445,7 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
     fun canCrit(ignoreOnGround: Boolean = false): Boolean {
         val blockingEffects = arrayOf(LEVITATION, BLINDNESS, SLOW_FALLING)
 
-        val blockingConditions = arrayOf(
+        val blockingConditions = booleanArrayOf(
             // Modules
             ModuleFly.enabled,
             ModuleLiquidWalk.enabled && ModuleLiquidWalk.standingOnWater(),
