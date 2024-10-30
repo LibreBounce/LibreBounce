@@ -6,6 +6,7 @@ plugins {
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
     id "com.gorylenko.gradle-git-properties" version "2.4.0"
+    id "maven-publish"
 }
 
 repositories {
@@ -73,7 +74,7 @@ dependencies {
 
     include "org.apache.httpcomponents:httpmime:4.5.14"
 
-    include "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    include "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
 
     include fileTree(include: ["*.jar"], dir: "libs")
     include("org.knowm.xchart:xchart:3.8.0")
@@ -124,7 +125,7 @@ jar {
             "ModSide": "CLIENT",
             "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
             "TweakOrder": "0",
-            "FMLAT": "liquidbounce_at.cfg",
+            "FMLAT": "liquidbounce_at.cfg"
     )
 
     enabled = false
@@ -142,6 +143,18 @@ reobf {
     }
 }
 
+jar.dependsOn("shadowJar")
+
+configurations {
+    compileClasspath {
+        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+    }
+    include {
+        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+    }
+}
+
+tasks.reobfShadowJar.mustRunAfter shadowJar
 tasks.reobfJar.dependsOn(shadowJar)
 
 task copyZipInclude(type: Copy) {
