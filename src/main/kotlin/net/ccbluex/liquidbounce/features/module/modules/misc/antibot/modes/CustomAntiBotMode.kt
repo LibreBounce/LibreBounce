@@ -161,22 +161,21 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
     @Suppress("all")
     private fun meetsCustomConditions(player: PlayerEntity): Boolean {
-        val noGameMode = noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null
-        val invalidGround = InvalidGround.enabled && hasInvalidGround(player)
-        val fakeId = fakeEntityID && (player.id < 0 || player.id >= 1E+9)
-        val isADuplicate = duplicate && isADuplicate(player.gameProfile)
-        val illegalName = illegalName && hasIllegalName(player)
-        val illegalPitch = illegalPitch && abs(player.pitch) > 90
-        val alwaysInRadius = AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(player.id)
-        val needHit = needHit && !hitListSet.contains(player.id)
-        val health = health && player.health > 20f
-        val swung = swung && !swungSet.contains(player.id)
-        val critted = critted && !crittedSet.contains(player.id)
-        val attributes = attributes && !attributesSet.contains(player.id)
-
-        return noGameMode || invalidGround || fakeId || isADuplicate
-            || illegalName || illegalPitch || alwaysInRadius || needHit || health
-            || swung || critted || attributes
+        return when {
+            noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null -> true
+            InvalidGround.enabled && hasInvalidGround(player) -> true
+            fakeEntityID && (player.id < 0 || player.id >= 1E+9) -> true
+            duplicate && isADuplicate(player.gameProfile) -> true
+            illegalName && hasIllegalName(player) -> true
+            illegalPitch && abs(player.pitch) > 90 -> true
+            AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(player.id) -> true
+            needHit && !hitListSet.contains(player.id) -> true
+            health && player.health > 20f -> true
+            swung && !swungSet.contains(player.id) -> true
+            critted && !crittedSet.contains(player.id) -> true
+            attributes && !attributesSet.contains(player.id) -> true
+            else -> false
+        }
     }
 
     override fun isBot(entity: PlayerEntity): Boolean {
