@@ -1,6 +1,4 @@
-/*
- * Original shader from: https://www.shadertoy.com/view/ddKSDd
- */
+#version 120
 
 #ifdef GL_ES
 precision lowp float;
