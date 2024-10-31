@@ -162,7 +162,7 @@ fun BlockPos.searchBlocksInCuboid(radius: Int): Region {
 /**
  * Scan blocks outwards from center along given [directions], up to [layers]
  */
-@Suppress("CognitiveComplexMethod")
+@Suppress("detekt:CognitiveComplexMethod")
 fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<IntObjectPair<BlockPos>> =
     sequence {
         val queue = ArrayDeque<IntObjectPair<BlockPos>>(layers * layers * directions.size / 2).apply {
