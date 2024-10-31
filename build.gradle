@@ -6,7 +6,6 @@ plugins {
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
     id "com.gorylenko.gradle-git-properties" version "2.4.0"
-    id "maven-publish"
 }
 
 repositories {
