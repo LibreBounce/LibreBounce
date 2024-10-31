@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("NOTHING_TO_INLINE")
+
 package net.ccbluex.liquidbounce.utils.kotlin
 
 infix operator fun ClosedRange<Int>.contains(range: ClosedRange<Int>): Boolean {
@@ -70,4 +72,12 @@ inline fun <T, C : Collection<T>> C.forEachWithSelf(action: (T, index: Int, self
     forEachIndexed { i, item ->
         action(item, i, this)
     }
+}
+
+inline fun Sequence<*>.isNotEmpty(): Boolean {
+    return iterator().hasNext()
+}
+
+inline fun Sequence<*>.isEmpty(): Boolean {
+    return !isNotEmpty()
 }

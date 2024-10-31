@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.mode
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.swingMode
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.wasTarget
+import net.ccbluex.liquidbounce.utils.kotlin.isEmpty
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.util.Hand

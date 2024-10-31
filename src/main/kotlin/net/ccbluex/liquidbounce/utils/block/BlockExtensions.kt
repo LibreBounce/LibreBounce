@@ -123,7 +123,7 @@ inline fun Vec3d.searchBlocksInCuboid(
     searchBlocksInCuboid(radius).forEach {
         val state = it.getState() ?: return@forEach
 
-        if (!filter(it, state)) {
+        if (filter(it, state)) {
             yield(Pair(it.toImmutable(), state))
         }
     }
@@ -334,7 +334,6 @@ fun BlockState.canBeReplacedWith(
     )
 }
 
-@Suppress("unused")
 enum class SwingMode(
     override val choiceName: String,
     val swing: (Hand) -> Unit = { }
