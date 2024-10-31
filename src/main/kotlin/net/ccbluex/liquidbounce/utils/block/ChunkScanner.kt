@@ -136,10 +136,10 @@ object ChunkScanner : Listenable {
 
                         when (chunkUpdate) {
                             is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
-                            is UpdateRequest.ChunkUnloadRequest -> removeMarkedBlocksFromChunk(
-                                chunkUpdate.x,
-                                chunkUpdate.z
-                            )
+
+                            is UpdateRequest.ChunkUnloadRequest -> subscribers.forEach {
+                                it.clearChunk(chunkUpdate.x, chunkUpdate.z)
+                            }
 
                             is UpdateRequest.BlockUpdateEvent -> subscribers.forEach {
                                 it.recordBlock(chunkUpdate.blockPos, chunkUpdate.newState, cleared = false)
@@ -190,9 +190,9 @@ object ChunkScanner : Listenable {
 
             val start = System.nanoTime()
 
-            (0 until chunk.height).map { y ->
+            (chunk.bottomY until chunk.topY).map { y ->
                 scope.launch {
-                    val pos = BlockPos.Mutable(chunk.pos.startX, y + chunk.bottomY, chunk.pos.startZ)
+                    val pos = BlockPos.Mutable(chunk.pos.startX, y, chunk.pos.startZ)
                     repeat(16) {
                         repeat(16) {
                             val blockState = chunk.getBlockState(pos)
@@ -206,10 +206,6 @@ object ChunkScanner : Listenable {
             }.joinAll()
 
             logger.debug("Scanning chunk (${chunk.pos.x}, ${chunk.pos.z}) took ${(System.nanoTime() - start) / 1000}us")
-        }
-
-        private fun removeMarkedBlocksFromChunk(x: Int, z: Int) {
-            subscribers.forEach { it.clearChunk(x, z) }
         }
 
         fun stopThread() {
