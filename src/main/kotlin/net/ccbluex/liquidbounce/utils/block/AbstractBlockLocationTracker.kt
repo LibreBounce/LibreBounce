@@ -31,6 +31,9 @@ abstract class AbstractBlockLocationTracker<T> : ChunkScanner.BlockChangeSubscri
 
     val trackedBlockMap = ConcurrentHashMap<BlockPos, T>()
 
+    /**
+     * Implementations of this method must be thread-safe
+     */
     abstract fun getStateFor(pos: BlockPos, state: BlockState): T?
 
     override fun recordBlock(pos: BlockPos, state: BlockState, cleared: Boolean) {
