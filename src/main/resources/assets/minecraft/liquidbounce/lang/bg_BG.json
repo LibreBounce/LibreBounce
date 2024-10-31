@@ -313,7 +313,7 @@
 
         "module.slimeJump.description": "Позволява ви да скочите по-високо на слузните блокове.",
 
-        "module.silentHotbarModule.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
+        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "Автоматично се промъква през цялото време.",
         

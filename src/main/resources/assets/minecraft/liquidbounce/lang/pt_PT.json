@@ -306,7 +306,7 @@
 
         "module.slimeJump.description": "UNTRANSLATED: Allows you to to jump higher on slime blocks.",
 
-        "module.silentHotbarModule.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
+        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "UNTRANSLATED: Automatically sneaks all the time.",
         

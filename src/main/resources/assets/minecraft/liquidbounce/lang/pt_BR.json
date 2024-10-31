@@ -309,7 +309,7 @@
 
         "module.slimeJump.description": "Permite saltar mais alto em blocos de slime.",
 
-        "module.silentHotbarModule.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
+        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
 
         "module.sneak.description": "Automaticamente agacha o tempo todo.",
 
