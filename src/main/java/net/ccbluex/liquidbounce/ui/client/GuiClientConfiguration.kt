@@ -78,7 +78,6 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
             // Background configuration buttons
             // Button location > 2nd row
             add(GuiButton(0, width / 2 - 100, height / 4 + 25 + 75, "Enabled (${if (enabledCustomBackground) "On" else "Off"})").also { backgroundButton = it })
-            add(GuiButton(1, width / 2 - 100, height / 4 + 25 + 75 + 25, "Glows (${if (BackgroundShader.glowOutline) "On" else "Off"})").also { backgroundGlowButton = it })
             add(GuiButton(2, width / 2 - 100, height / 4 + 25 + 75 + 50, "Particles (${if (particles) "On" else "Off"})").also { particlesButton = it })
             add(GuiButton(3, width / 2 - 100, height / 4 + 25 + 75 + 38 * 2, 98, 20, "Change wallpaper"))
             add(GuiButton(4, width / 2 + 2, height / 4 + 25 + 75 + 38 * 2, 98, 20, "Reset wallpaper"))
@@ -104,10 +103,6 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
             0 -> {
                 enabledCustomBackground = !enabledCustomBackground
                 backgroundButton.displayString = "Enabled (${if (enabledCustomBackground) "On" else "Off"})"
-            }
-            1 -> {
-                BackgroundShader.glowOutline = !BackgroundShader.glowOutline
-                backgroundGlowButton.displayString = "Glows (${if (BackgroundShader.glowOutline) "On" else "Off"})"
             }
             2 -> {
                 particles = !particles
