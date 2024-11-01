@@ -9,9 +9,9 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getMaterial
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
@@ -39,7 +39,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
 
         val thePlayer = mc.thePlayer ?: return
 
-        if (thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isSneaking && thePlayer.isSprinting && isMoving) {
+        if (thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isSneaking && thePlayer.isSprinting && thePlayer.isMoving) {
             if (mode == "AAC") {
                 getMaterial(thePlayer.position.down()).let {
                     if (it == Blocks.ice || it == Blocks.packed_ice) {

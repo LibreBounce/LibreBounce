@@ -11,12 +11,14 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.utils.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.extensions.center
 import net.ccbluex.liquidbounce.utils.extensions.getFullName
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
@@ -28,7 +30,9 @@ import net.minecraft.network.play.server.S0BPacketAnimation
 import net.minecraft.network.play.server.S13PacketDestroyEntities
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.network.play.server.S20PacketEntityProperties
+import net.minecraft.potion.Potion
 import kotlin.math.abs
+import kotlin.math.sqrt
 
 object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
@@ -46,6 +50,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
     private val ground by BoolValue("Ground", true)
     private val air by BoolValue("Air", false)
     private val invalidGround by BoolValue("InvalidGround", true)
+    private val invalidSpeed by BoolValue("InvalidSpeed", false)
     private val swing by BoolValue("Swing", false)
     private val health by BoolValue("Health", false)
     private val derp by BoolValue("Derp", true)
@@ -73,6 +78,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
     private val groundList = mutableSetOf<Int>()
     private val airList = mutableSetOf<Int>()
     private val invalidGroundList = mutableMapOf<Int, Int>()
+    private val invalidSpeedList = mutableSetOf<Int>()
     private val swingList = mutableSetOf<Int>()
     private val invisibleList = mutableListOf<Int>()
     private val propertiesList = mutableSetOf<Int>()
@@ -145,6 +151,9 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
                 || entity.capabilities.disableDamage || entity.capabilities.isCreativeMode))
             return true
 
+        if (invalidSpeed && entity.entityId in invalidSpeedList)
+            return true
+
         if (needHit && entity.entityId !in hitList)
             return true
 
@@ -154,21 +163,6 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         if (duplicateProfile) {
             return mc.netHandler.playerInfoMap.count { it.gameProfile.name == entity.gameProfile.name
                     && it.gameProfile.id != entity.gameProfile.id } == 1
-        }
-
-        if (tab) {
-            val equals = tabMode == "Equals"
-            val targetName = stripColor(entity.displayName.formattedText)
-
-            val shouldReturn = mc.netHandler.playerInfoMap.any { networkPlayerInfo ->
-                val networkName = stripColor(networkPlayerInfo.getFullName())
-                if (equals) {
-                    targetName == networkName
-                } else {
-                    networkName in targetName
-                }
-            }
-            return !shouldReturn
         }
 
         if (duplicateInWorld) {
@@ -183,9 +177,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
             }
 
             if (worldDuplicateNames.isNotEmpty()) {
-                val duplicateCount = worldDuplicateNames.size
-                
-                return mc.theWorld.playerEntities.count { it.name in worldDuplicateNames } > duplicateCount
+                return mc.theWorld.playerEntities.count { it.name in worldDuplicateNames } > 1
             }
         }
 
@@ -201,10 +193,23 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
             }
 
             if (tabDuplicateNames.isNotEmpty()) {
-                val duplicateCount = tabDuplicateNames.size
-                
-                return mc.netHandler.playerInfoMap.count { stripColor(it.getFullName()) in tabDuplicateNames } > duplicateCount
+                return mc.netHandler.playerInfoMap.count { stripColor(it.getFullName()) in tabDuplicateNames } > 1
             }
+        }
+
+        if (tab) {
+            val equals = tabMode == "Equals"
+            val targetName = stripColor(entity.displayName.formattedText)
+
+            val shouldReturn = mc.netHandler.playerInfoMap.any { networkPlayerInfo ->
+                val networkName = stripColor(networkPlayerInfo.getFullName())
+                if (equals) {
+                    targetName == networkName
+                } else {
+                    networkName in targetName
+                }
+            }
+            return !shouldReturn
         }
 
         if (alwaysInRadius && entity.entityId !in notAlwaysInRadiusList)
@@ -235,7 +240,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
                 if (entity.onGround) {
                     if (entity.fallDistance > 0.0 || entity.posY == entity.prevPosY || !entity.isCollidedVertically) {
-                        invalidGroundList.putIfAbsent(entity.entityId,
+                        invalidGroundList.putIfAbsent(
+                            entity.entityId,
                             invalidGroundList.getOrDefault(entity.entityId, 0) + 1
                         )
                     }
@@ -282,6 +288,20 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
                         if (entity.entityId in alwaysBehindList) {
                             alwaysBehindList -= entity.entityId
                         }
+                    }
+                }
+
+                if (invalidSpeed) {
+                    val deltaX = entity.posX - entity.prevPosX
+                    val deltaZ = entity.posZ - entity.prevPosZ
+                    val speed = sqrt(deltaX * deltaX + deltaZ * deltaZ)
+
+
+                    if (speed in 0.45..0.46 && (!entity.isSprinting || !entity.isMoving ||
+                                entity.getActivePotionEffect(Potion.moveSpeed) == null))
+                    {
+                        Chat.print(entity.name + " " + speed)
+                        invalidSpeedList += entity.entityId
                     }
                 }
             }
@@ -331,6 +351,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         swingList.clear()
         groundList.clear()
         invalidGroundList.clear()
+        invalidSpeedList.clear()
         invisibleList.clear()
         notAlwaysInRadiusList.clear()
         worldPlayerNames.clear()

@@ -11,15 +11,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.autoFireball
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.options
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.SilentHotbar
-import net.ccbluex.liquidbounce.utils.extensions.getVec
-import net.ccbluex.liquidbounce.utils.extensions.isNearEdge
-import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
@@ -84,7 +80,7 @@ object Fireball : FlyMode("Fireball") {
             return
         }
 
-        if (isMoving) {
+        if (player.isMoving) {
             TickedActions.TickScheduler(Fly) += {
                 if (Fly.swing) player.swingItem() else sendPacket(C0APacketAnimation())
 

@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.extensions.toDegreesF
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
@@ -26,9 +27,6 @@ object MovementUtils : MinecraftInstance(), Listenable {
             strafe(value)
         }
 
-    val isMoving
-        get() = mc.thePlayer?.movementInput?.run { moveForward != 0f || moveStrafe != 0f } ?: false
-
     val hasMotion
         get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } ?: false
 
@@ -38,7 +36,7 @@ object MovementUtils : MinecraftInstance(), Listenable {
         strength: Double = 1.0,
     ) =
         mc.thePlayer?.run {
-            if (!isMoving) {
+            if (!mc.thePlayer.isMoving) {
                 if (stopWhenNoInput) {
                     moveEvent?.zeroXZ()
                     stopXZ()
