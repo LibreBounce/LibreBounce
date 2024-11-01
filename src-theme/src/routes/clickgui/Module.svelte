@@ -72,7 +72,11 @@
     }
 
     async function toggleExpanded() {
-        expanded = !expanded;
+        await setExpanded(!expanded);
+    }
+
+    export async function setExpanded(value: boolean) {
+        expanded = value;
         await setItem(path, expanded.toString());
     }
 </script>

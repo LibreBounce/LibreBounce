@@ -13,6 +13,8 @@
     export let modules: TModule[];
     export let panelIndex: number;
 
+    const allModuleElements: Record<string, Module> = {};
+
     let panelElement: HTMLElement;
     let modulesElement: HTMLElement;
 
@@ -154,6 +156,7 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
             class="title"
+            on:dblclick={() => Object.values(allModuleElements).forEach((it) => it.setExpanded(false))}
             on:mousedown={onMouseDown}
             on:contextmenu|preventDefault={toggleExpanded}
     >
@@ -172,7 +175,7 @@
     <div class="modules" style="max-height: {panelConfig.expanded ? '545px' : '0'}" on:scroll={handleModulesScroll}
          bind:this={modulesElement}>
         {#each modules as {name, enabled, description, aliases} (name)}
-            <Module {name} {enabled} {description} {aliases}/>
+            <Module {name} {enabled} {description} {aliases} bind:this={allModuleElements[name]}/>
         {/each}
     </div>
 </div>
