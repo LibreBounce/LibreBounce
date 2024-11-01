@@ -77,6 +77,15 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     private val extend by boolean("Extend", true)
 
     /**
+     * When enabled, the surround won't build 2x1 or 2x2 holes if we already are in a completed 1x1 hole, even if
+     * we block replacements.
+     *
+     * This should only be enabled if no wall placements are possible, or we have a significantly lower ping
+     * than our opponent.
+     */
+    private val noWaste by boolean("NoWaste", false)
+
+    /**
      * Places blocks bellow the surround so that enemies can't mine the block bellow you making you fall down.
      */
     private val down by boolean("Down", true)
@@ -147,6 +156,10 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
             @Suppress("SpellCheckingInspection")
             val corners by boolean("Corners", false)
 
+        }
+
+        init {
+            tree(ExtraLayer)
         }
 
         val broken = mutableSetOf<BlockPos>()
@@ -269,7 +282,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         val y = ceil(bb.minY)
 
         val feetBlockPos = player.getFeetBlockPos()
-        val hole = if (player.isInHole(feetBlockPos)) {
+        val hole = if (noWaste && player.isInHole(feetBlockPos)) {
             setOf(feetBlockPos)
         } else {
             setOf(
@@ -284,16 +297,16 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         val blocked = hashSetOf<BlockPos>()
         blocked.addAll(hole)
 
-        hole.forEach {
+        for (holePos in hole) {
             DIRECTIONS_EXCLUDING_UP.forEach { direction ->
-                val pos = it.offset(direction)
+                val pos = holePos.offset(direction)
                 if (pos in hole || !holeBlocks.add(pos)) {
                     return@forEach
                 }
 
                 val isDown = direction == Direction.DOWN
                 if (isDown && down) {
-                    holeBlocks.add(it.offset(direction, 2))
+                    holeBlocks.add(holePos.offset(direction, 2))
                 }
 
                 if (!isDown && (addExtraLayerBlocks || Protect.broken.contains(pos))) {
