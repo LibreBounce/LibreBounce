@@ -45,7 +45,7 @@ object ClassUtils {
                  */
                 if (element is Collection<*>) {
                     if (element.firstOrNull() is Value<*>) {
-                        element.forEach { list += it as Value<*> }
+                        element.forEach { checkIfExcluded(list, it as Value<*>) }
                     }
                 }
 
@@ -62,7 +62,7 @@ object ClassUtils {
                         val fieldValue = it[element] ?: return@forEach
 
                         if (fieldValue is Value<*>) {
-                            list += fieldValue
+                            checkIfExcluded(list, fieldValue)
                         } else {
                             findValues(fieldValue, configurables, list)
                         }
@@ -74,13 +74,13 @@ object ClassUtils {
                     val fieldValue = it[element] ?: return@forEach
 
                     if (fieldValue is Value<*>) {
-                        list += fieldValue
+                        checkIfExcluded(list, fieldValue)
                     } else {
                         findValues(fieldValue, configurables, list)
                     }
                 }
             } else if (element is Value<*>) {
-                list += element
+                checkIfExcluded(list, element)
             } else {
                 /**
                  * For variables that hold a list of a possible class that contains Value<*>
@@ -98,6 +98,17 @@ object ClassUtils {
         } catch (e: Exception) {
             LOGGER.error(e)
         }
+    }
+
+    /**
+     * Useful in preventing the config system from reading the given [value]
+     */
+    fun checkIfExcluded(list: MutableSet<Value<*>>, value: Value<*>) {
+        if (value.exclude) {
+            return
+        }
+
+        list += value
     }
 
     fun hasForge() = hasClass("net.minecraftforge.common.MinecraftForge")
