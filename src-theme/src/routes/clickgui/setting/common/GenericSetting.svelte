@@ -1,4 +1,6 @@
 <script lang="ts">
+    import {slide} from "svelte/transition";
+    import {onMount} from "svelte";
     import type {ModuleSetting} from "../../../../integration/types";
     import BooleanSetting from "../BooleanSetting.svelte";
     import ChoiceSetting from "../ChoiceSetting.svelte";
@@ -12,8 +14,6 @@
     import ColorSetting from "../ColorSetting.svelte";
     import TextSetting from "../TextSetting.svelte";
     import BlocksSetting from "../blocks/BlocksSetting.svelte";
-    import {slide} from "svelte/transition";
-    import {onMount} from "svelte";
     import TextArraySetting from "../TextArraySetting.svelte";
     import BindSetting from "../BindSetting.svelte";
     import VectorSetting from "../VectorSetting.svelte";
@@ -27,7 +27,7 @@
     onMount(() => {
         setTimeout(() => {
             ready = true;
-        }, 200)
+        }, 200);
     });
 </script>
 
