@@ -300,7 +300,6 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
                     if (speed in 0.45..0.46 && (!entity.isSprinting || !entity.isMoving ||
                                 entity.getActivePotionEffect(Potion.moveSpeed) == null))
                     {
-                        Chat.print(entity.name + " " + speed)
                         invalidSpeedList += entity.entityId
                     }
                 }
