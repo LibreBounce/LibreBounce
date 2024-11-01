@@ -13,6 +13,7 @@
     import {setItem} from "../../integration/persistent_storage";
     import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
     import {scaleFactor} from "./clickgui_store";
+    import {debounceAsync} from "../../integration/util";
 
     export let name: string;
     export let enabled: boolean;
@@ -110,7 +111,7 @@
     {#if expanded && configurable}
         <div class="settings">
             {#each configurable.value as setting (setting.name)}
-                <GenericSetting skipAnimationDelay {path} bind:setting on:change={updateModuleSettings}/>
+                <GenericSetting skipAnimationDelay {path} bind:setting on:change={debounceAsync(updateModuleSettings)}/>
             {/each}
         </div>
     {/if}
