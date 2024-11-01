@@ -19,6 +19,5 @@ public class MixinInventoryPlayer {
     @Redirect(method = {"getCurrentItem", "decrementAnimations", "getStrVsBlock"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I", opcode = Opcodes.GETFIELD))
     private int hookSilentHotbar(InventoryPlayer instance) {
         return instance.player instanceof EntityPlayerSP ? SilentHotbar.INSTANCE.getCurrentSlot() : instance.currentItem;
-
     }
 }

@@ -84,7 +84,7 @@ object LiquidBounceStyle : Style() {
             } else Int.MAX_VALUE
         )
 
-        val moduleValues = moduleElement.module.values.filter { it.isSupported() }
+        val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
         if (moduleValues.isNotEmpty()) {
             font35.drawString(
                 if (moduleElement.showSettings) "-" else "+",

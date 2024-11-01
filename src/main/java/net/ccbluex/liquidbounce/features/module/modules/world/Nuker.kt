@@ -55,7 +55,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
     private val options = RotationSettings(this).apply {
         immediate = true
 
-        resetTicksValue.isSupported = { false }
+        resetTicksValue.hideWithState()
         withoutKeepRotation()
     }
 

@@ -24,10 +24,14 @@ abstract class Value<T>(
     var isSupported: (() -> Boolean)? = null,
 ) : ReadWriteProperty<Any?, T> {
 
-    var exclude: Boolean = false
+    var excluded: Boolean = false
+        private set
+
+    var hidden = false
+        private set
 
     fun set(newValue: T): Boolean {
-        if (newValue == value)
+        if (newValue == value || hidden || excluded)
             return false
 
         val oldValue = value
@@ -46,6 +50,28 @@ abstract class Value<T>(
             LOGGER.error("[ValueSystem ($name)]: ${e.javaClass.name} (${e.message}) [$oldValue >> $newValue]")
             return false
         }
+    }
+
+    /**
+     * Use only when you want an option to be hidden while keeping its state.
+     *
+     * [state] the value it will be set to before it is hidden.
+     */
+    fun hideWithState(state: T = value) {
+        set(state)
+
+        hidden = true
+    }
+
+    /**
+     * Excludes the chosen option [value] from the config system.
+     *
+     * [state] the value it will be set to before it is excluded.
+     */
+    fun excludeWithState(state: T = value) {
+        set(state)
+
+        excluded = true
     }
 
     fun get() = value
@@ -82,6 +108,8 @@ abstract class Value<T>(
     override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         set(value)
     }
+
+    fun shouldRender() = isSupported() && !hidden
 }
 
 /**
@@ -102,17 +130,10 @@ open class BoolValue(
 
     fun toggle() = set(!value)
 
-    fun isActive() = value && (isSupported() || note == NoteType.HIDE)
+    fun isActive() = value && (isSupported() || hidden)
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean {
         return super.getValue(thisRef, property) && isActive()
-    }
-
-    // Use only when you want something to be enabled while hidden in ClickGUI.
-    var note: NoteType? = null
-
-    enum class NoteType {
-        HIDE,
     }
 }
 
