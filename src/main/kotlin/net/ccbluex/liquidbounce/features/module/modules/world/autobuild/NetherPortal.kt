@@ -63,14 +63,17 @@ class NetherPortal(val origin: BlockPos, val down: Boolean, val direction: Direc
         val canDestroyCrystals = ModuleAutoBuild.placer.crystalDestroyer.enabled
         frameBlocks.forEach {
             val blockState = world.getBlockState(it)
-            if (blockState.block == Blocks.OBSIDIAN) {
-                score += 3
-            } else {
-                if (!blockState.isReplaceable || !canDestroyCrystals && it.isBlockedByEntities()) {
-                    // a block is not obsidian and not replaceable, making the portal invalid
+
+            when {
+                blockState.block == Blocks.OBSIDIAN -> score += 3
+
+                !blockState.isReplaceable || !canDestroyCrystals && it.isBlockedByEntities() -> {
+                    // a block that is not obsidian and not replaceable, making the portal invalid
                     score = -1
                     return
-                } else if (canDestroyCrystals) {
+                }
+
+                canDestroyCrystals -> {
                     val blockingEntities = it.getBlockingEntities()
                     if (blockingEntities.any { entity -> entity !is EndCrystalEntity }) {
                         score = -1

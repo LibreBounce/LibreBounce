@@ -137,7 +137,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
          * X = obsidian
          * p = the players hitbox
          */
-        @Suppress("SpellCheckingInspection")
+        @Suppress("SpellCheckingInspection", "GrazieInspection")
         object ExtraLayer : ToggleableConfigurable(this, "ExtraLayer", true) {
 
             /**
@@ -153,7 +153,6 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
              * X = obsidian
              * p = the players hitbox
              */
-            @Suppress("SpellCheckingInspection")
             val corners by boolean("Corners", false)
 
         }
