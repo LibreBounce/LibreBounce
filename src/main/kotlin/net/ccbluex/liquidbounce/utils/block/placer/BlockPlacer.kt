@@ -245,20 +245,7 @@ class BlockPlacer(
                 continue
             }
 
-            if (!pos.getState()!!.isReplaceable) {
-                inaccessible.add(pos)
-                continue
-            }
-
-            val blockedResult = pos.isBlockedByEntitiesReturnCrystal()
-            if (crystalDestroyer.enabled) {
-                blockedResult.value()?.let {
-                    crystalDestroyer.currentTarget = it
-                }
-            }
-
-            if (blockedResult.keyBoolean()) {
-                inaccessible.add(pos)
+            if (isBlocked(pos)) {
                 continue
             }
 
@@ -303,6 +290,27 @@ class BlockPlacer(
         }
 
         return hasPlaced
+    }
+
+    private fun isBlocked(pos: BlockPos): Boolean {
+        if (!pos.getState()!!.isReplaceable) {
+            inaccessible.add(pos)
+            return true
+        }
+
+        val blockedResult = pos.isBlockedByEntitiesReturnCrystal()
+        if (crystalDestroyer.enabled) {
+            blockedResult.value()?.let {
+                crystalDestroyer.currentTarget = it
+            }
+        }
+
+        if (blockedResult.keyBoolean()) {
+            inaccessible.add(pos)
+            return true
+        }
+
+        return false
     }
 
     fun doPlacement(isSupport: Boolean, pos: BlockPos, placementTarget: BlockPlacementTarget) {

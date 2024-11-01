@@ -331,13 +331,15 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     @Suppress("unused")
     private val blockUpdateHandler = handler<PacketEvent> {
         val packet = it.packet
-        if (!instant || packet !is BlockUpdateS2CPacket || !packet.state.isReplaceable || packet.pos !in placer.blocks) {
+        if (!instant || packet !is BlockUpdateS2CPacket) {
             return@handler
         }
 
+        val irrelevantPacket = !packet.state.isReplaceable || packet.pos !in placer.blocks
+
         val pos = packet.pos
         val rotationMode = placer.rotationMode.activeChoice
-        if (rotationMode !is NoRotationMode || pos.isBlockedByEntities()) {
+        if (irrelevantPacket || rotationMode !is NoRotationMode || pos.isBlockedByEntities()) {
             return@handler
         }
 
