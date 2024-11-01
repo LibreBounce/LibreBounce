@@ -138,6 +138,10 @@
         width: calc(100% - 4px);
         height: calc(100% - 4px);
         border: solid 2px $accent-color;
+        box-shadow:
+                0 0 8px rgba($accent-color, 0.6),
+                0 0 12px rgba($accent-color, 0.5),
+                0 0 16px rgba($accent-color, 0.4);
       }
 
       &:hover {
