@@ -6,9 +6,8 @@
     import type {ToggleModuleEvent} from "../../integration/events";
     import {fade} from "svelte/transition";
     import {quintOut} from "svelte/easing";
-    import {highlightModuleName, maxPanelZIndex} from "./clickgui_store";
+    import {highlightModuleName, maxPanelZIndex, scaleFactor} from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
-    import {scaleFactor} from "./clickgui_store";
 
     export let category: string;
     export let modules: TModule[];
@@ -170,7 +169,8 @@
         </button>
     </div>
 
-    <div class="modules" style="max-height: {panelConfig.expanded ? '545px' : '0'}" on:scroll={handleModulesScroll} bind:this={modulesElement}>
+    <div class="modules" style="max-height: {panelConfig.expanded ? '545px' : '0'}" on:scroll={handleModulesScroll}
+         bind:this={modulesElement}>
         {#each modules as {name, enabled, description, aliases} (name)}
             <Module {name} {enabled} {description} {aliases}/>
         {/each}
