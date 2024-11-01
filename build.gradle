@@ -40,9 +40,6 @@ configurations {
     include
     implementation.extendsFrom(include)
 
-    external
-    compile.extendsFrom(external)
-
     runtimeOnly.canBeResolved = true
 }
 
