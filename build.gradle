@@ -142,7 +142,6 @@ reobf {
 jar.dependsOn("shadowJar")
 
 tasks.reobfShadowJar.mustRunAfter shadowJar
-tasks.reobfJar.dependsOn(shadowJar)
 
 task copyZipInclude(type: Copy) {
     from 'zip_include/'
