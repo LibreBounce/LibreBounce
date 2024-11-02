@@ -152,7 +152,7 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
     }
 
     /**
-     * THis should be called when the module using this destroyer is disabled.
+     * This should be called when the module using this destroyer is disabled.
      */
     fun onDisable() {
         currentTarget = null

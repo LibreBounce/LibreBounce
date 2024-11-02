@@ -18,13 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair
-import it.unimi.dsi.fastutil.doubles.DoubleDoublePair
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter
+import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter.CenterHandlerState
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.*
@@ -50,6 +49,7 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3i
+import org.joml.Vector2d
 import org.lwjgl.glfw.GLFW
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -106,7 +106,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     private val disableOnXZSpeed by boolean("disableOnXZSpeed", false)
 
     /**
-     * Replaces broken block instantly.
+     * Replaces broken blocks instantly.
      *
      * Note: requires the rotation mode "None" in the block placer
      */
@@ -115,7 +115,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     /**
      * Protects the surround against being blocked by crystals on destruction.
      *
-     * Requires the crystal destroyer in the placer to be active.
+     * Destroying requires the crystal destroyer in the placer to be active.
      */
     private object Protect : ToggleableConfigurable(this, "Protect", true) {
 
@@ -141,7 +141,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         object ExtraLayer : ToggleableConfigurable(this, "ExtraLayer", true) {
 
             /**
-             * Will place even more block (top view):
+             * Will place even more blocks (top view):
              *   x
              * x p x
              *   x
@@ -168,28 +168,50 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
          */
         @Suppress("unused")
         private val tickHandler = handler<GameTickEvent>(priority = 10) {
-            if (!placer.crystalDestroyer.enabled || addExtraLayerBlocks) {
+            // check if this feature isn't enabled and the extra layer forcefully applied or not enabled ->
+            // checks are not needed
+            if (!placer.crystalDestroyer.enabled && (addExtraLayerBlocks || !ExtraLayer.enabled)) {
                 return@handler
             }
 
+            // clear the map of previously considered blocks
             broken.clear()
-            placer.blocks.filter { !it.value }.keys.forEach { pos ->
+
+            // iterate all surround blocks and check if they're being broken
+            placer.blocks.filter {
+                !it.value  // exclude support blocks
+            }.keys.forEach { pos ->
+                // find the list of current breaking data, or else return
                 val breakingProgressions = mc.worldRenderer.blockBreakingProgressions[pos.asLong()] ?: return@forEach
 
+                // find the braking info that doesn't belong to us, if we mine our own surround, it should be ignored
                 val breakingInfo = breakingProgressions.lastOrNull { it.actorId != player.id } ?: return@forEach
                 val stage = breakingInfo.stage
+
+                // check if the stage is too low, if so return
                 if (stage < minDestroyProgress) {
                     return@forEach
                 }
 
+                // add the block to the map of blocks that are being broken
                 if (ExtraLayer.enabled && stage > 0) {
                     broken.add(pos)
                 }
 
+                // skip to the next entry if the crystal destroy feature is disabled
+                if (!placer.crystalDestroyer.enabled) {
+                    return@forEach
+                }
+
+                // destroy crystals that would block replacements
                 val blockedResult = pos.isBlockedByEntitiesReturnCrystal()
                 val crystal = blockedResult.value() ?: return@forEach
 
+                // try to replace the current target
                 placer.crystalDestroyer.currentTarget = crystal
+
+                // we could target the blocking crystal, now we have to wait a tick before it has been destroyed
+                // anyways, so we can return here
                 if (placer.crystalDestroyer.currentTarget == crystal) {
                     return@handler
                 }
@@ -213,7 +235,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
 
     private var addExtraLayerBlocks = false
     private var startY = 0.0
-    private var centerPos: DoubleDoublePair? = null
+    private var centerPos: Vector2d? = null
 
     init {
         // for this module, support should by default be able to use obsidian
@@ -222,12 +244,12 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
 
     override fun enable() {
         if (center) {
-            CommandCenter.center = true
+            CommandCenter.state = CenterHandlerState.APPLY_ON_NEXT_EVENT
         }
 
         startY = player.pos.y
         val centerBlockPos = player.blockPos.toCenterPos()
-        centerPos = DoubleDoubleImmutablePair(centerBlockPos.x, centerBlockPos.z)
+        centerPos = Vector2d(centerBlockPos.x, centerBlockPos.z)
     }
 
     override fun disable() {
@@ -260,8 +282,8 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         }
 
         val yChange = disableOnYChange && it.y != startY
-        val dx = abs(player.x - (centerPos?.leftDouble() ?: 0.0))
-        val dz = abs(player.z - (centerPos?.rightDouble() ?: 0.0))
+        val dx = abs(player.x - (centerPos?.x ?: 0.0))
+        val dz = abs(player.z - (centerPos?.y ?: 0.0))
         val xzChange = disableOnXZMove && (dx > 0.5 || dz > 0.5)
         val speed = player.pos.subtract(player.prevX, player.prevY, player.prevZ).lengthSquared() * 20.0
         val highSpeed = disableOnXZSpeed && speed >= 5.0

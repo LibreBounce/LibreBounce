@@ -35,12 +35,12 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
  */
 object CommandCenter : Listenable {
 
-    var center = false
+    var state = CenterHandlerState.INACTIVE
 
     fun createCommand(): Command {
         return CommandBuilder
             .begin("center")
-            .handler { _, _ -> center = true }
+            .handler { _, _ -> state = CenterHandlerState.APPLY_ON_NEXT_EVENT }
             .build()
     }
 
@@ -56,9 +56,14 @@ object CommandCenter : Listenable {
             it.x = delta.x
             it.y = delta.y
             it.z = delta.z
-            center = false
+            state = CenterHandlerState.INACTIVE
         }
 
-    override fun handleEvents() = super.handleEvents() && inGame && center
+    override fun handleEvents() = super.handleEvents() && inGame && state == CenterHandlerState.APPLY_ON_NEXT_EVENT
+
+    enum class CenterHandlerState {
+        INACTIVE,
+        APPLY_ON_NEXT_EVENT
+    }
 
 }
