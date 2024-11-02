@@ -46,6 +46,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import org.lwjgl.glfw.GLFW
@@ -197,14 +198,20 @@ object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("Aut
         val actions = ArrayList<ClickInventoryAction>(3)
 
         if (smart && from is HotbarItemSlot) {
-            if (!player.isSpectator) {
-                network.sendPacket(
-                    PlayerActionC2SPacket(
-                        PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND,
-                        BlockPos.ORIGIN,
-                        Direction.DOWN
-                    )
+            val selectedSlot = player.inventory.selectedSlot
+            val targetSlot = from.hotbarSlot
+            if (selectedSlot != targetSlot) {
+                network.sendPacket(UpdateSelectedSlotC2SPacket(targetSlot))
+            }
+            network.sendPacket(
+                PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND,
+                    BlockPos.ORIGIN,
+                    Direction.DOWN
                 )
+            )
+            if (selectedSlot != targetSlot) {
+                network.sendPacket(UpdateSelectedSlotC2SPacket(selectedSlot))
             }
         } else {
             actions += ClickInventoryAction.performPickup(slot = from)
@@ -359,7 +366,7 @@ object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("Aut
     @Suppress("unused")
     private enum class SwitchMode(override val choiceName: String) : NamedChoice {
         /**
-         * Pickup, but it performs a SWAP_ITEM_WITH_OFFHAND action whenever possible to send fewer packets.
+         * Pickup, but it performs a SWAP_ITEM_WITH_OFFHAND action whenever possible to possible send fewer packets.
          * Works on all versions.
          *
          * It's not the default because some servers kick you when you perform a SWAP_ITEM_WITH_OFFHAND action

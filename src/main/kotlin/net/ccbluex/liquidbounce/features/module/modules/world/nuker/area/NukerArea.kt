@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +15,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 
-package net.ccbluex.liquidbounce.features.module.modules.combat
+package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.kotlin.random
+import net.ccbluex.liquidbounce.config.Choice
+import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.areaMode
+import net.minecraft.block.BlockState
+import net.minecraft.util.math.BlockPos
 
-/**
- * When hitting an entity, the player will keep sprinting
- */
-object ModuleKeepSprint : Module("KeepSprint", Category.COMBAT) {
-    private val motion by floatRange("Motion", 100f..100f, 0f..100f, "%")
+abstract class NukerArea(name: String) : Choice(name) {
 
-    fun getMotion(): Double {
-        return motion.random() / 100.0
-    }
+    override val parent: ChoiceConfigurable<*>
+        get() = areaMode
+
+    abstract fun lookupTargets(radius: Float, count: Int? = null): List<Pair<BlockPos, BlockState>>
 }

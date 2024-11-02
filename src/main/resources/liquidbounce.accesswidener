@@ -174,3 +174,6 @@ accessible field net/minecraft/client/MinecraftClient renderTaskQueue Ljava/util
 accessible field net/minecraft/util/math/Direction HORIZONTAL [Lnet/minecraft/util/math/Direction;
 
 accessible field net/minecraft/client/util/InputUtil$Type map Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
+
+accessible field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
+mutable field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
