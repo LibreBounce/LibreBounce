@@ -25,7 +25,6 @@ import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.BackgroundRenderer.FogType;
 import net.minecraft.client.render.Camera;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -63,7 +62,7 @@ public abstract class MixinBackgroundRenderer {
         }
 
         CameraSubmersionType type = camera.getSubmersionType();
-        if (module.getPowerSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
+        if (module.getPowderSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
             RenderSystem.setShaderFogStart(-8.0F);
             return;
         }
@@ -84,7 +83,7 @@ public abstract class MixinBackgroundRenderer {
         }
 
         CameraSubmersionType type = camera.getSubmersionType();
-        if (module.getPowerSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
+        if (module.getPowderSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
             RenderSystem.setShaderFogEnd(viewDistance * 0.5F);
             return;
         }
