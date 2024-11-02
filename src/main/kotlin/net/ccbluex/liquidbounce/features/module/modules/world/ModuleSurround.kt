@@ -37,7 +37,6 @@ import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
 import net.ccbluex.liquidbounce.utils.entity.isInHole
-import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.Blocks
 import net.minecraft.entity.Entity
@@ -258,21 +257,8 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     }
 
     @Suppress("unused")
-    val keyHandler = handler<KeyEvent> {
-        if (it.key != addExtraLayer.boundKey) {
-            return@handler
-        }
-
-        val action = addExtraLayer.action
-        if (it.action == GLFW.GLFW_PRESS) {
-            addExtraLayerBlocks = if (action == InputBind.BindAction.TOGGLE) {
-                !addExtraLayerBlocks
-            } else { // hold
-                true
-            }
-        } else if (it.action == GLFW.GLFW_RELEASE && action == InputBind.BindAction.HOLD) {
-            addExtraLayerBlocks = true
-        }
+    val keyHandler = handler<KeyboardKeyEvent> {
+        addExtraLayerBlocks = addExtraLayer.getNewState(it, addExtraLayerBlocks)
     }
 
     @Suppress("unused")

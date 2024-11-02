@@ -19,7 +19,10 @@
 package net.ccbluex.liquidbounce.utils.input
 
 import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.util.InputUtil
+import org.lwjgl.glfw.GLFW
 
 /**
  * Data class representing a key binding.
@@ -109,6 +112,29 @@ data class InputBind(
      */
     fun matchesMouse(code: Int): Boolean {
         return this.boundKey.category == InputUtil.Type.MOUSE && this.boundKey.code == code
+    }
+
+    /**
+     * Handles the event. Returns the new state, assumes the original state is `false`.
+     *
+     * @param event The [KeyboardKeyEvent] to handle.
+     * @param currentState The current state.
+     * @return The new state.
+     */
+    fun getNewState(event: KeyboardKeyEvent, currentState: Boolean): Boolean {
+        if (!matchesKey(event.keyCode, event.scanCode)) {
+            return currentState
+        }
+
+        val eventAction = event.action
+        return when {
+            eventAction == GLFW.GLFW_PRESS && mc.currentScreen == null -> {
+                !currentState || action == BindAction.HOLD
+            }
+
+            eventAction == GLFW.GLFW_RELEASE -> false
+            else -> currentState
+        }
     }
 
     /**
