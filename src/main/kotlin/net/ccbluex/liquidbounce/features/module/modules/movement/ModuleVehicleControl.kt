@@ -20,12 +20,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.warning
+import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.directionYaw
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
+import net.minecraft.util.Hand
 import net.minecraft.util.math.Vec3d
 
 /**
@@ -39,18 +47,44 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT) {
         enableLock()
     }
 
-    private val speedVertical by float("Vertical", 0.32f, 0.1f..1f)
-    private val glideVertical by float("GlideVertical", -0.2f, -0.3f..0.3f)
+    private val speedHorizontal by float("Horizontal", 0.48f, 0.1f..15f)
+    private val speedVertical by float("Vertical", 0.32f, 0.1f..10f)
 
-    private val speedHorizontal by float("Horizontal", 0.48f, 0.1f..2f)
+    private val glide by float("Glide", -0.15f, -0.3f..0.3f)
 
-    val repeatable = repeatable {
-        val vehicle = player.vehicle ?: return@repeatable
+    init {
+        tree(Rehook)
+    }
 
+    private var wasInVehicle = false
+
+    override fun enable() {
+        chat(warning(message("quitHelp")))
+        super.enable()
+    }
+
+    @Suppress("unused")
+    private val handleVehicleMovement = repeatable {
+        val vehicle = player.controllingVehicle ?: run {
+            wasInVehicle = false
+            return@repeatable
+        }
+
+        // Show explanation message
+        if (!wasInVehicle && mc.options.useKey.isPressed) {
+            wasInVehicle = true
+            chat(warning(message("quitHelp")))
+        }
+
+        // Control vehicle
         val horizontalSpeed = if (player.moving) speedHorizontal.toDouble() else 0.0
         val verticalSpeed = when {
             mc.options.jumpKey.isPressed -> speedVertical.toDouble()
-            else -> glideVertical.toDouble()
+            mc.options.sneakKey.isPressed -> -speedVertical.toDouble()
+            // If we do not stop the vehicle from going down when touching water, it will
+            // drown in water and cannot be controlled anymore
+            !vehicle.isTouchingWater -> glide.toDouble()
+            else -> 0.0
         }
 
         // Vehicle control velocity
@@ -62,5 +96,70 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT) {
 
         vehicle.velocity = velocity
     }
+
+    @Suppress("unused")
+    private val handleMovementInputEvent = handler<MovementInputEvent> { event ->
+        if (player.controllingVehicle != null || Rehook.vehicleId >= 0) {
+            val isVehicleSafe = player.controllingVehicle?.let { it.isOnGround || it.isTouchingWater } == true
+
+            // Do not quit vehicle if not safe to do so
+            event.sneaking = event.sneaking && isVehicleSafe
+
+            if (event.sneaking) {
+                Rehook.vehicleId = -1
+            }
+        }
+    }
+
+    /**
+     * Bypasses BoatFly checks on anti-cheats such as Vulcan 2.9.1
+     */
+    object Rehook : ToggleableConfigurable(this, "Rehook", false) {
+
+        private var unhookAfter by int("UnhookAfter", 4, 1..10)
+        private var hookAfter by int("HookAfter", 2, 1..10)
+
+        internal var vehicleId = -1
+        private var forceAttempt = false
+
+        @Suppress("unused")
+        private val handleRehooking = repeatable {
+            if (vehicleId >= 0 && !player.hasVehicle()) {
+                val vehicle = world.getEntityById(vehicleId)
+
+                if (vehicle != null && !vehicle.isRemoved) {
+                    // Check if the player is able to reach the vehicle
+                    if (vehicle.boxedDistanceTo(player) > player.entityInteractionRange) {
+                        chat(warning(message("vehicleTooFar")))
+                        vehicleId = -1
+                        return@repeatable
+                    }
+
+                    // Enter the vehicle again
+                    if (!forceAttempt) {
+                        interaction.interactEntity(player, vehicle, Hand.MAIN_HAND)
+                        forceAttempt = true
+                    } else {
+                        // We are already in the vehicle on the server-side, but our client does not know that, so
+                        // we force the client to enter the vehicle again
+                        player.startRiding(vehicle, true)
+                    }
+                } else {
+                    chat(warning(message("vehicleGone")))
+                    vehicleId = -1
+                }
+            } else {
+                forceAttempt = false
+
+                waitTicks(unhookAfter)
+                vehicleId = player.controllingVehicle?.id ?: return@repeatable
+                network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY))
+                player.stopRiding()
+                waitTicks(hookAfter - 1)
+            }
+        }
+
+    }
+
 
 }
