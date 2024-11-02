@@ -118,7 +118,8 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             ordinal = 1,
             shift = At.Shift.BEFORE))
     private void hookNoClip(CallbackInfo ci) {
-        if (!this.noClip && ModuleNoClip.INSTANCE.getEnabled()) {
+        var clip = ModuleNoClip.INSTANCE;
+        if (!this.noClip && clip.getEnabled() && !clip.paused()) {
             this.noClip = true;
         }
     }
