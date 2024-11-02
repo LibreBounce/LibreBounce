@@ -39,19 +39,19 @@ object ModuleNoClip : Module("NoClip", Category.MOVEMENT) {
     private val onlyInVehicle by boolean("OnlyInVehicle", false)
     private val disableOnSetback by boolean("DisableOnSetback", true)
 
-    private var wasClipping = false
+    private var noClipSet = false
 
     @Suppress("unused")
     private val handleGameTick = repeatable {
         if (paused()) {
-            if (wasClipping) {
+            if (noClipSet) {
                 disable()
             }
 
             return@repeatable
         }
 
-        wasClipping = true
+        noClipSet = true
         player.noClip = true
         player.fallDistance = 0f
         player.isOnGround = false
@@ -88,7 +88,7 @@ object ModuleNoClip : Module("NoClip", Category.MOVEMENT) {
     }
 
     override fun disable() {
-        wasClipping = false
+        noClipSet = false
         player.noClip = false
         player.controllingVehicle?.let { it.noClip = false }
     }
