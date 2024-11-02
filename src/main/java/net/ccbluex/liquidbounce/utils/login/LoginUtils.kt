@@ -37,7 +37,7 @@ object LoginUtils : MinecraftInstance() {
 
         val username = UserUtils.getUsername(uuid) ?: return LoginResult.INVALID_ACCOUNT_DATA
 
-        mc.session = Session(username, uuid, accessToken, "mojang")
+        mc.session = Session(username, uuid, accessToken, "microsoft")
         callEvent(SessionEvent())
 
         return LoginResult.LOGGED

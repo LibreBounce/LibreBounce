@@ -455,7 +455,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     minecraftAccount.session.username,
                     minecraftAccount.session.uuid,
                     minecraftAccount.session.token,
-                    "mojang"
+                    "microsoft"
                 )
                 callEvent(SessionEvent())
 

@@ -99,7 +99,6 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
         if (mc.theWorld == null || mode != "Glow")
             return
 
-
         GlowShader.startDraw(event.partialTicks, glowRenderScale)
 
         for (entities in mc.theWorld.loadedEntityList) {

@@ -263,7 +263,6 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
             return
 
         val renderManager = mc.renderManager
-        GlowShader.startDraw(event.partialTicks, glowRenderScale)
 
         try {
             mc.theWorld.loadedTileEntityList
@@ -303,7 +302,5 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
         } catch (ex: Exception) {
             LOGGER.error("An error occurred while rendering all storages for shader esp", ex)
         }
-
-       GlowShader.stopDraw(Color(0, 66, 255), glowRadius, glowFade, glowTargetAlpha)
     }
 }
