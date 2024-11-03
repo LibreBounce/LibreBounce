@@ -15,7 +15,6 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.entity.monster.EntityGhast
@@ -128,8 +127,8 @@ val Entity.currPos: Vec3
 val Entity.lastTickPos: Vec3
     get() = Vec3(lastTickPosX, lastTickPosY, lastTickPosZ)
 
-val EntityLivingBase.isMoving: Boolean
-    get() = this.run { moveForward != 0F || moveStrafing != 0F }
+val EntityLivingBase?.isMoving: Boolean
+    get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
 
 fun Entity.setPosAndPrevPos(currPos: Vec3, prevPos: Vec3 = currPos, lastTickPos: Vec3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
