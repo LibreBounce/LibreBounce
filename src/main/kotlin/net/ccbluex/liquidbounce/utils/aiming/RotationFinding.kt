@@ -24,8 +24,6 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
@@ -508,3 +506,60 @@ fun raytraceUpperBlockSide(
 
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
+
+val sides = arrayOf(
+    Direction.UP,
+    Direction.NORTH,
+    Direction.SOUTH,
+    Direction.WEST,
+    Direction.EAST,
+    Direction.DOWN
+)
+
+/**
+ * Find the best spot and returns the first it finds, not the best.
+ */
+fun raytracePosFast(
+    eyes: Vec3d,
+    range: Double,
+    wallsRange: Double,
+    expectedTarget: BlockPos
+): Pair<VecRotation, Direction>? {
+    val rangeSquared = range * range
+    val wallsRangeSquared = wallsRange * wallsRange
+
+    val vec = Vec3d.of(expectedTarget)
+    Direction.entries.forEach {
+        val vec3d = vec.offset(it, 0.9)
+
+        for (x in 0.1..0.9 step 0.1) {
+            for (y in 0.1..0.9 step 0.1) {
+                val vec3 = pointOnSide(it, x, y, vec3d)
+
+                // skip because of out of range
+                val distance = eyes.squaredDistanceTo(vec3)
+                if (distance > rangeSquared) {
+                    continue
+                }
+
+                // skip because not visible in range
+                if (distance > wallsRangeSquared && !facingBlock(eyes, vec3, expectedTarget, it)) {
+                    continue
+                }
+
+                return VecRotation(RotationManager.makeRotation(vec3, eyes), vec3) to it
+            }
+        }
+    }
+
+    return null
+}
+
+private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {
+    return when (side) {
+        Direction.DOWN, Direction.UP -> vec.add(x, 0.0, y)
+        Direction.NORTH, Direction.SOUTH -> Vec3d(x, y, 0.0)
+        Direction.WEST, Direction.EAST -> Vec3d(0.0, x, y)
+    }
+}
+

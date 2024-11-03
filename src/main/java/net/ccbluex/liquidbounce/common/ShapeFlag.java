@@ -16,23 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.common;
 
-class Chronometer(private var lastUpdate: Long = 0) {
-
-    val elapsed: Long
-        get() = System.currentTimeMillis() - lastUpdate
-
-    fun hasElapsed(ms: Long = 0) = lastUpdate + ms < System.currentTimeMillis()
-
-    fun hasAtLeastElapsed(ms: Long = 0) = lastUpdate + ms <= System.currentTimeMillis()
-
-    fun reset() {
-        this.lastUpdate = System.currentTimeMillis()
-    }
-
-    fun waitForAtLeast(ms: Long) {
-        this.lastUpdate = this.lastUpdate.coerceAtLeast(System.currentTimeMillis() + ms)
-    }
-
+public class ShapeFlag {
+    public static boolean noShapeChange = false;
 }

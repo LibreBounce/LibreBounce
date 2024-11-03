@@ -85,7 +85,7 @@ class BlockPlacer(
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     val ignoreUsingItem by boolean("IgnoreUsingItem", true)
 
-    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+    val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     })
 

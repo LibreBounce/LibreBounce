@@ -184,6 +184,8 @@ object ChunkRenderer {
             }
         }
 
+        override fun chunkUpdateDone(x: Int, z: Int) { /* not needed */ }
+
         override fun clearChunk(
             x: Int,
             z: Int,

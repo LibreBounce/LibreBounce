@@ -15,9 +15,9 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import kotlin.math.max
 
-abstract class RotationMode(
+abstract class BlockPlacerRotationMode(
     name: String,
-    private val configurable: ChoiceConfigurable<RotationMode>,
+    private val configurable: ChoiceConfigurable<BlockPlacerRotationMode>,
     val placer: BlockPlacer
 ) : Choice(name), QuickImports {
 
@@ -36,8 +36,8 @@ abstract class RotationMode(
  * Normal rotations.
  * Only one placement per tick is possible, possible less because rotating takes some time.
  */
-class NormalRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer: BlockPlacer)
-    : RotationMode("Normal", configurable, placer) {
+class NormalRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, placer: BlockPlacer)
+    : BlockPlacerRotationMode("Normal", configurable, placer) {
 
     val rotations = tree(RotationsConfigurable(this))
 
@@ -75,8 +75,8 @@ class NormalRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer:
 /**
  * No rotations, or just a packet containing the rotation target.
  */
-class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer: BlockPlacer)
-    : RotationMode("None", configurable, placer) {
+class NoRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, placer: BlockPlacer)
+    : BlockPlacerRotationMode("None", configurable, placer) {
 
     val send by boolean("SendRotationPacket", false)
 

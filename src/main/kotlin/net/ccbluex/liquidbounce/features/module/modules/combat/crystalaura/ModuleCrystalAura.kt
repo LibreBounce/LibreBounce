@@ -20,97 +20,147 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.event.EventState
+import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.RotationMode
+import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
-import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.entity.Entity
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 
-object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT) {
+object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT, disableOnQuit = true) {
 
-    val swing by boolean("Swing", true)
+    val targetTracker = tree(TargetTracker())
 
-    internal object PlaceOptions : ToggleableConfigurable(this, "Place", true) {
-        val range by float("Range", 4.5F, 1.0F..5.0F)
-        val minEfficiency by float("MinEfficiency", 0.1F, 0.0F..5.0F)
+    object DamageOptions : Configurable("Damage") {
+        val maxSelfDamage by float("MaxSelfDamage", 2.0F, 0.0F..10.0F)
+        val maxFriendDamage by float("MaxFriendDamage", 1.0F, 0.0F..10.0F)
+        val minEnemyDamage by float("MinEnemyDamage", 3.0F, 0.0F..10.0F)
+        val antiSuicide by boolean("AntiSuicide", true)
+        val efficient by boolean("Efficient", true)
     }
-
-    internal object DestroyOptions : ToggleableConfigurable(this, "Destroy", true) {
-        val range by float("Range", 4.5F, 1.0F..5.0F)
-        val minEfficiency by float("MinEfficiency", 0.1F, 0.0F..5.0F)
-    }
-
-    internal object SelfPreservationOptions : ToggleableConfigurable(this, "SelfPreservation", true) {
-        val selfDamageWeight by float("SelfDamageWeight", 2.0F, 0.0F..10.0F)
-        val friendDamageWeight by float("FriendDamageWeight", 1.0F, 0.0F..10.0F)
-    }
-
-    // Rotation
-    internal val rotations = tree(RotationsConfigurable(this))
 
     init {
-        tree(PlaceOptions)
-        tree(DestroyOptions)
-        tree(SelfPreservationOptions)
+        tree(SubmoduleCrystalPlacer)
+        tree(SubmoduleCrystalDestroyer)
+        tree(DamageOptions)
+    }
+
+    private val targetRenderer = tree(WorldTargetRenderer(this))
+
+    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+        arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
+    })
+
+    private val cacheMap = object : LinkedHashMap<DamageConstellation, Float>(64, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<DamageConstellation, Float>): Boolean {
+            return size > 64
+        }
+    }
+
+    var currentTarget: LivingEntity? = null
+    val postMotion = mutableListOf<() -> Unit>() // TODO global queue that also also puts the current normal at the front
+
+    override fun enable() {
+        postMotion.clear()
+    }
+
+    override fun disable() {
+        SubmoduleCrystalPlacer.placementRenderer.clearSilently()
     }
 
     @Suppress("unused")
     val networkTickHandler = repeatable {
+        cacheMap.clear()
+        currentTarget = targetTracker.enemies().firstOrNull()
+        currentTarget ?: return@repeatable
+        // Make the crystal destroyer run
+        SubmoduleCrystalDestroyer.tick()
         // Make the crystal placer run
         SubmoduleCrystalPlacer.tick()
         // Make the crystal destroyer run
         SubmoduleCrystalDestroyer.tick()
     }
 
+    @Suppress("unused")
+    val renderHandler = handler<WorldRenderEvent> {
+        val target = currentTarget ?: return@handler
+
+        renderEnvironmentForWorld(it.matrixStack) {
+            targetRenderer.render(this, target, it.partialTicks)
+        }
+    }
+
+    @Suppress("unused")
+    val networkMove = handler<PlayerNetworkMovementTickEvent> {
+        if (it.state != EventState.POST) {
+            return@handler
+        }
+
+        postMotion.iterator().apply {
+            while (hasNext()) {
+                next().invoke()
+                remove()
+            }
+        }
+    }
+
     /**
      * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
-     */
-    internal fun approximateExplosionDamage(
-        world: ClientWorld,
-        pos: Vec3d,
-    ): Double {
-        val possibleVictims =
-            world
-                .getEntitiesBoxInRange(pos, 6.0) { shouldTakeIntoAccount(it) && it.boundingBox.maxY > pos.y }
-                .filterIsInstance<LivingEntity>()
+     */ // TODO by equal positions take self min damage
+    internal fun approximateExplosionDamage(pos: Vec3d): Float? {
+        val target = currentTarget ?: return null
+        val damageToTarget = target.getDamage(pos)
+        val notEnoughDamage = DamageOptions.minEnemyDamage > damageToTarget
+        if (notEnoughDamage) {
+            return null
+        }
 
-        var totalGood = 0.0
-        var totalHarm = 0.0
+        val selfDamage = player.getDamage(pos)
+        val willKill = DamageOptions.antiSuicide && player.health + player.absorptionAmount - selfDamage <= 0
+        val tooMuchDamage = DamageOptions.maxSelfDamage < selfDamage
+        if (willKill || tooMuchDamage) {
+            return null
+        }
 
-        for (possibleVictim in possibleVictims) {
-            val dmg = possibleVictim.getDamageFromExplosion(pos) * entityDamageWeight(possibleVictim)
+        // 10f is the maximum allowed by the setting
+        if (DamageOptions.maxSelfDamage < 10f) {
+            val friends =
+                world
+                    .getEntitiesBoxInRange(pos, 6.0) { FriendManager.isFriend(it) && it.boundingBox.maxY > pos.y }
+                    .filterIsInstance<LivingEntity>()
 
-            if (dmg > 0) {
-                totalGood += dmg
-            } else {
-                totalHarm += dmg
+            if (friends.any { it.getDamage(pos) > DamageOptions.maxFriendDamage }) {
+                return null
             }
         }
 
-        return totalGood + totalHarm
-    }
-
-    private fun shouldTakeIntoAccount(entity: Entity): Boolean {
-        return entity.shouldBeAttacked() || entity == player || FriendManager.isFriend(entity)
-    }
-
-    private fun entityDamageWeight(entity: Entity): Double {
-        if (!SelfPreservationOptions.enabled) {
-            return 1.0
+        if (DamageOptions.efficient && damageToTarget <= selfDamage) {
+            return null
         }
 
-        return when {
-            entity == player -> -SelfPreservationOptions.selfDamageWeight.toDouble()
-            FriendManager.isFriend(entity) -> -SelfPreservationOptions.friendDamageWeight.toDouble()
-            else -> 1.0
-        }
+        return damageToTarget
     }
+
+    private fun LivingEntity.getDamage(crystal: Vec3d): Float {
+        val damageConstellation = DamageConstellation(this, blockPos, crystal)
+        return cacheMap.computeIfAbsent(damageConstellation) { getDamageFromExplosion(crystal) }
+    }
+
+    @JvmRecord
+    data class DamageConstellation(val entity: LivingEntity, val pos: BlockPos, val crystal: Vec3d)
+
 }

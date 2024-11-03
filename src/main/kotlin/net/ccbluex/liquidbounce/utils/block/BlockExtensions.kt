@@ -217,6 +217,10 @@ fun BlockPos.getSphere(radius: Float): Sequence<DoubleObjectPair<BlockPos>> = se
     }
 }
 
+fun BlockPos.getSortedSphere(radius: Float): Array<BlockPos> {
+    return getSphere(radius).toList().sortedBy { it.firstDouble() }.map { it.second() }.toTypedArray()
+}
+
 /**
  * Basically [BlockView.raycast] but this method allows us to exclude blocks using [exclude].
  */
