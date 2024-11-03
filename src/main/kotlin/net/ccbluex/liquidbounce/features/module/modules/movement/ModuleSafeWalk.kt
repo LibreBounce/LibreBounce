@@ -50,6 +50,7 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
 
         private val eagleOnLedge by boolean("EagleOnLedge", false)
 
+        @Suppress("unused")
         val inputHandler = handler<MovementInputEvent> { event ->
             if (eagleOnLedge) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(

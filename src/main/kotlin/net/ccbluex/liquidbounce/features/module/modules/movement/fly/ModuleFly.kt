@@ -81,7 +81,7 @@ object ModuleFly : Module("Fly", Category.MOVEMENT, aliases = arrayOf("Glide", "
 
             FlyHycraftDamage
         )
-    )
+    ).apply { tagBy(this) }
 
     private object Visuals : ToggleableConfigurable(this, "Visuals", true) {
 
