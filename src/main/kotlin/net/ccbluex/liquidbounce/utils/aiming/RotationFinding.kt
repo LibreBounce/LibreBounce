@@ -516,10 +516,7 @@ val sides = arrayOf(
     Direction.DOWN
 )
 
-/**
- * Find the best spot and returns the first it finds, not the best.
- */
-fun raytracePosFast(
+fun findClosestPointOnBlock(
     eyes: Vec3d,
     range: Double,
     wallsRange: Double,
@@ -528,17 +525,21 @@ fun raytracePosFast(
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
+    var best: Pair<VecRotation, Direction>? = null
+    var bestDistance = Double.MAX_VALUE
+
     val vec = Vec3d.of(expectedTarget)
     Direction.entries.forEach {
         val vec3d = vec.offset(it, 0.9)
 
-        for (x in 0.1..0.9 step 0.1) {
+        for (x in 0.1..0.9 step 0.1) { // TODO does 0.05/0.95 or perhaps 0.0/1.0 also work?
             for (y in 0.1..0.9 step 0.1) {
                 val vec3 = pointOnSide(it, x, y, vec3d)
 
-                // skip because of out of range
                 val distance = eyes.squaredDistanceTo(vec3)
-                if (distance > rangeSquared) {
+
+                // skip if out of range or the current best is closer
+                if (distance > rangeSquared || bestDistance <= distance) {
                     continue
                 }
 
@@ -547,12 +548,13 @@ fun raytracePosFast(
                     continue
                 }
 
-                return VecRotation(RotationManager.makeRotation(vec3, eyes), vec3) to it
+                best = VecRotation(RotationManager.makeRotation(vec3, eyes), vec3) to it
+                bestDistance = distance
             }
         }
     }
 
-    return null
+    return best
 }
 
 private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {

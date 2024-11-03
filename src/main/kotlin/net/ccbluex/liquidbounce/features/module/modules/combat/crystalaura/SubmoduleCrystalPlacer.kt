@@ -95,7 +95,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 targetPos,
             )
         } else {
-            val data = raytracePosFast(
+            val data = findClosestPointOnBlock(
                 player.eyePos,
                 range.toDouble(),
                 wallsRange.toDouble(),
