@@ -73,7 +73,7 @@ private val UNBREAKABLE_BLOCKS = setOf(
     Blocks.ENDER_CHEST
 )
 
-/**`
+/**
  * HoleESP module
  *
  * Detects and displays safe spots for Crystal PvP.
