@@ -35,10 +35,15 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
         get() = this.from
 
     companion object {
+        // the Region is a closed range so this is not empty actually
         val EMPTY: Region = Region(BlockPos.ORIGIN, BlockPos.ORIGIN)
 
         fun quadAround(pos: BlockPos, xz: Int, y: Int): Region {
             return Region(pos.add(-xz, -y, -xz), pos.add(xz, y, xz))
+        }
+
+        fun from(blockPos: BlockPos): Region {
+            return Region(blockPos, blockPos)
         }
 
         fun from(chunk: Chunk): Region {
@@ -54,10 +59,6 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
                 BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
                 BlockPos(x shl 4 or 15, mc.world!!.height, z shl 4 or 15)
             )
-        }
-
-        fun from(blockPos: BlockPos): Region {
-            return Region(blockPos, blockPos)
         }
 
         fun Region.getBox(): Box {
