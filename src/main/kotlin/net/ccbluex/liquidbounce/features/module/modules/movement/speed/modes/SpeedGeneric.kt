@@ -46,6 +46,7 @@ class SpeedLegitHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
 
 open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
 
+    @Suppress("unused")
     val handleMovementInput = handler<MovementInputEvent> {
         if (!player.isOnGround || !player.moving) {
             return@handler

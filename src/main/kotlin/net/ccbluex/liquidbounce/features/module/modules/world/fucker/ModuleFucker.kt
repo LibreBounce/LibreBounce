@@ -239,18 +239,18 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
     private fun updateTarget() {
         val eyesPos = player.eyes
 
-        val possibleBlocks = searchBlocksInCuboid(range + 1, eyesPos) { pos, state ->
-            targets.contains(state.block)
+        val possibleBlocks = eyesPos.searchBlocksInCuboid(range + 1) { pos, state ->
+            state.block in targets
                 && !((state.block as? BedBlock)?.let { block ->
                     isSelfBedMode.activeChoice.isSelfBed(block, pos)
                 } ?: false)
                 && getNearestPoint(eyesPos, Box.enclosing(pos, pos.add(1, 1, 1))).distanceTo(eyesPos) <= range
-        }
+        }.mapTo(hashSetOf()) { it.first }
 
         validateCurrentTarget(possibleBlocks)
 
         // Find the nearest block
-        val (pos, _) = possibleBlocks.minByOrNull { (pos, _) -> pos.getCenterDistanceSquared() } ?: return
+        val pos = possibleBlocks.minByOrNull { pos -> pos.getCenterDistanceSquared() } ?: return
 
         val range = range.toDouble()
         var wallRange = wallRange.toDouble()
@@ -272,11 +272,11 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
         }
     }
 
-    private fun validateCurrentTarget(possibleBlocks: List<Pair<BlockPos, BlockState>>) {
+    private fun validateCurrentTarget(possibleBlocks: Set<BlockPos>) {
         val currentTarget = currentTarget
 
         if (currentTarget != null) {
-            if (possibleBlocks.none { (pos, _) -> pos == currentTarget.pos }) {
+            if (currentTarget.pos !in possibleBlocks) {
                 ModuleFucker.currentTarget = null
             }
             if (currentTarget.isTarget && currentTarget.action != action) {

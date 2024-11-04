@@ -23,7 +23,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.render.BED_BLOCKS
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedChoice
 import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedColorChoice
@@ -122,14 +121,14 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
 
         val eyesPos = player.eyes
         val rangeSq = placer.range * placer.range
-        val bedBlocks = searchBlocksInCuboid(placer.range + 1, eyesPos) { pos, state ->
+        val bedBlocks = eyesPos.searchBlocksInCuboid(placer.range + 1) { pos, state ->
             getNearestPoint(eyesPos, Box.enclosing(pos, pos.add(1, 1, 1))).squaredDistanceTo(eyesPos) <= rangeSq
             && (state.block as? BedBlock)?.let {
                 bedBlock -> isSelfBedMode.activeChoice.shouldDefend(bedBlock, pos)
             } == true
         }
 
-        if (bedBlocks.isEmpty()) {
+        if (!bedBlocks.iterator().hasNext()) {
             return@handler
         }
 

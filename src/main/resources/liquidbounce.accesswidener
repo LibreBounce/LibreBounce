@@ -177,3 +177,5 @@ accessible field net/minecraft/client/util/InputUtil$Type map Lit/unimi/dsi/fast
 
 accessible field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
 mutable field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
+
+accessible method net/minecraft/client/network/ClientPlayerInteractionManager syncSelectedSlot ()V

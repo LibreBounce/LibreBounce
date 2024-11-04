@@ -186,6 +186,16 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     }
 
     /**
+     * Hook custom sneaking multiplier
+     */
+    @ModifyArg(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(ZF)V", ordinal = 0), index = 1)
+    private float hookCustomSneakingMultiplier(float slowDownFactor) {
+        final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier(slowDownFactor);
+        EventManager.INSTANCE.callEvent(playerSneakMultiplier);
+        return playerSneakMultiplier.getMultiplier();
+    }
+
+    /**
      * Hook custom multiplier
      */
     @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))

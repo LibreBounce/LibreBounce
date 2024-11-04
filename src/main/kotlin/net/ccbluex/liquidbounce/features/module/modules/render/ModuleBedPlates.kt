@@ -29,9 +29,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.Fonts
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
-import net.ccbluex.liquidbounce.utils.block.AbstractBlockLocationTracker
-import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
@@ -43,24 +41,6 @@ import net.minecraft.util.math.Vec3d
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val BED_BLOCKS = setOf(
-    Blocks.RED_BED,
-    Blocks.BLUE_BED,
-    Blocks.GREEN_BED,
-    Blocks.BLACK_BED,
-    Blocks.WHITE_BED,
-    Blocks.YELLOW_BED,
-    Blocks.PURPLE_BED,
-    Blocks.ORANGE_BED,
-    Blocks.PINK_BED,
-    Blocks.LIGHT_BLUE_BED,
-    Blocks.LIGHT_GRAY_BED,
-    Blocks.LIME_BED,
-    Blocks.MAGENTA_BED,
-    Blocks.BROWN_BED,
-    Blocks.CYAN_BED,
-    Blocks.GRAY_BED
-)
 private const val ITEM_SIZE: Int = 16
 private const val BACKGROUND_PADDING: Int = 2
 
@@ -203,40 +183,6 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         val pos: Vec3d,
         val surroundingBlocks: Set<SurroundingBlock>,
     )
-
-    @Suppress("CognitiveComplexMethod")
-    private fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<IntObjectPair<BlockPos>> =
-        sequence {
-            val queue = ArrayDeque<IntObjectPair<BlockPos>>(layers * layers * directions.size / 2).apply {
-                add(IntObjectImmutablePair(0, this@searchLayer))
-            }
-            val visited = hashSetOf(this@searchLayer)
-
-            while (queue.isNotEmpty()) {
-                val current = queue.removeFirst()
-
-                val layer = current.keyInt()
-
-                if (layer == layers) {
-                    continue
-                }
-
-                if (layer > 0) {
-                    yield(current)
-                }
-
-                val pos = current.value()
-
-                for (direction in directions) {
-                    val newPos = pos.offset(direction)
-
-                    if (newPos !in visited && getManhattanDistance(newPos) <= layers) {
-                        visited.add(newPos)
-                        queue.add(IntObjectImmutablePair(layer + 1, newPos))
-                    }
-                }
-            }
-        }
 
     private fun getBedPlates(headState: BlockState, head: BlockPos): BedState {
         val bedDirection = headState.get(BedBlock.FACING)

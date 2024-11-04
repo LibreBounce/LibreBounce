@@ -36,19 +36,18 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
         val EMPTY: Region = Region(BlockPos.ORIGIN, BlockPos.ORIGIN)
 
         fun quadAround(pos: BlockPos, xz: Int, y: Int): Region {
-            assert(xz > 0 && y > 0)
-
-            return Region(pos.add(-xz, -y, -xz), pos.add(xz + 1, y + 1, xz + 1))
+            return Region(pos.add(-xz, -y, -xz), pos.add(xz, y, xz))
         }
 
         fun fromChunkPosition(x: Int, z: Int): Region {
-            val from = BlockPos(x shl 4, 0, z shl 4)
-
-            return Region(from, from.add(16, mc.world!!.height, 16))
+            return Region(
+                BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
+                BlockPos(x shl 4 or 15, mc.world!!.height, z shl 4 or 15)
+            )
         }
 
         fun fromBlockPos(blockPos: BlockPos): Region {
-            return Region(blockPos, blockPos.add(1, 1, 1))
+            return Region(blockPos, blockPos)
         }
     }
 
@@ -71,7 +70,7 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
 
         this.from = fixedFrom
         this.to = fixedTo
-        this.volume = (fixedTo.x - fixedFrom.x) * (fixedFrom.y - fixedTo.y) * (fixedFrom.z - fixedFrom.z)
+        this.volume = (fixedTo.x - fixedFrom.x) * (fixedTo.y - fixedFrom.y) * (fixedTo.z - fixedFrom.z)
     }
 
     private inline val xRange: IntRange
@@ -98,7 +97,9 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
     }
 
     private fun intersects(minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int): Boolean {
-        return minX..maxX in xRange && maxY..minY in yRange && minZ..maxZ in zRange
+        return !(this.to.x <= minX || this.from.x >= maxX ||
+            this.to.y <= minY || this.from.y >= maxY ||
+            this.to.z <= minZ || this.from.z >= maxZ)
     }
 
     override fun equals(other: Any?): Boolean {

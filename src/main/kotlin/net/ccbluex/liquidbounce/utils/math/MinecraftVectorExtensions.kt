@@ -26,6 +26,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import kotlin.math.min
 
 inline operator fun BlockPos.rangeTo(other: BlockPos) = Region(this, other)
 
@@ -49,6 +50,54 @@ inline operator fun Vec3d.times(scalar: Double): Vec3d {
 inline operator fun Vec3d.component1(): Double = this.x
 inline operator fun Vec3d.component2(): Double = this.y
 inline operator fun Vec3d.component3(): Double = this.z
+
+@JvmInline
+value class Double3Region private constructor(val init: Array<DoubleArray>) {
+    init {
+        for (i in 0 until 3) {
+            if (init[0][i] < init[1][i]) {
+                val temp = init[0][i]
+                init[0][i] = init[1][i]
+                init[1][i] = temp
+            }
+        }
+    }
+
+    constructor(from: Vec3d, to: Vec3d) : this(
+        arrayOf(
+            doubleArrayOf(from.x, from.y, from.z),
+            doubleArrayOf(to.x, to.y, to.z),
+        )
+    )
+
+    constructor(from: DoubleArray, to: DoubleArray) : this(arrayOf(from, to)) {
+        require(from.size == 3)
+        require(to.size == 3)
+    }
+
+    infix fun step(step: Double): Sequence<DoubleArray> = sequence {
+        val (start, end) = init
+
+        val (startX, startY, startZ) = start
+        val (endX, endY, endZ) = end
+
+        var x = startX
+        var y = startY
+        var z = startZ
+        while (x <= endX) {
+            while (y <= endY) {
+                while (z <= endZ) {
+                    yield(doubleArrayOf(x, y, z))
+                    z += step
+                }
+                y += step
+            }
+            x += step
+        }
+    }
+}
+
+operator fun Vec3d.rangeTo(other: Vec3d) = Double3Region(this, other)
 
 fun Vec3i.toVec3d(): Vec3d = Vec3d.of(this)
 fun Vec3d.toVec3() = Vec3(this.x, this.y, this.z)
