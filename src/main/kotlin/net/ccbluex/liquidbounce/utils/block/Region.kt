@@ -21,6 +21,8 @@ package net.ccbluex.liquidbounce.utils.block
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.contains
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
+import net.minecraft.world.chunk.Chunk
 import kotlin.math.max
 import kotlin.math.min
 
@@ -39,15 +41,32 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
             return Region(pos.add(-xz, -y, -xz), pos.add(xz, y, xz))
         }
 
-        fun fromChunkPosition(x: Int, z: Int): Region {
+        fun from(chunk: Chunk): Region {
+            val pos = chunk.pos
+            return Region(
+                BlockPos(pos.x shl 4, chunk.bottomY, pos.z shl 4),
+                BlockPos(pos.x shl 4 or 15, chunk.topY, pos.z shl 4 or 15)
+            )
+        }
+
+        fun fromChunkPos(x: Int, z: Int): Region {
             return Region(
                 BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
                 BlockPos(x shl 4 or 15, mc.world!!.height, z shl 4 or 15)
             )
         }
 
-        fun fromBlockPos(blockPos: BlockPos): Region {
+        fun from(blockPos: BlockPos): Region {
             return Region(blockPos, blockPos)
+        }
+
+        fun Region.getBox(): Box {
+            return Box(
+                0.0, 0.0, 0.0,
+                to.x - from.x + 1.0,
+                to.y - from.y + 1.0,
+                to.z - from.z + 1.0,
+            )
         }
     }
 
