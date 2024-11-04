@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
@@ -48,7 +48,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block", 
 
                         if (slot != -1 && slot != thePlayer.inventory.currentItem) {
                             thePlayer.inventory.currentItem = slot
-                            mc.playerController.updateController()
+                            mc.playerController.syncCurrentPlayItem()
                         }
                     }
 

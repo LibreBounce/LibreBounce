@@ -76,7 +76,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false, hideM
                         }
                         3 -> {
                             thePlayer.inventory.currentItem = nextInt(0, 9)
-                            mc.playerController.updateController()
+                            mc.playerController.syncCurrentPlayItem()
                             delayTimer.reset()
                         }
                         4 -> {

@@ -34,6 +34,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
@@ -278,6 +279,11 @@ public abstract class MixinMinecraft {
     @Redirect(method = "runGameLoop", at = @At(value = "INVOKE", target = "Ljava/util/Queue;isEmpty()Z"))
     private boolean injectTickBase(Queue instance) {
         return TickBase.INSTANCE.getDuringTickModification() || instance.isEmpty();
+    }
+
+    @Redirect(method = {"middleClickMouse", "rightClickMouse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I"))
+    private int injectSilentHotbar(InventoryPlayer instance) {
+        return SilentHotbar.INSTANCE.getCurrentSlot();
     }
 
     /**

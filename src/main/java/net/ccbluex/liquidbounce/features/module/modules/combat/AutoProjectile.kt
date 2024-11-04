@@ -57,7 +57,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
                 if (switchBack != -1 && player.inventory.currentItem != switchBack) {
                     player.inventory.currentItem = switchBack
 
-                    mc.playerController.updateController()
+                    mc.playerController.syncCurrentPlayItem()
                 } else {
                     player.stopUsingItem()
                 }
@@ -92,7 +92,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
                         switchBack = player.inventory.currentItem
 
                         player.inventory.currentItem = projectile
-                        mc.playerController.updateController()
+                        mc.playerController.syncCurrentPlayItem()
                     }
 
                     throwProjectile()
@@ -106,7 +106,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
                         switchBack = player.inventory.currentItem
 
                         player.inventory.currentItem = projectile
-                        mc.playerController.updateController()
+                        mc.playerController.syncCurrentPlayItem()
                     }
 
                     throwProjectile()
