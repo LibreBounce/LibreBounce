@@ -19,8 +19,8 @@
 package net.ccbluex.liquidbounce.utils.kotlin
 
 import kotlinx.coroutines.*
-import java.lang.Runnable
 import java.util.concurrent.Executors
+import kotlin.reflect.KProperty
 
 private val loomExecutor = Executors.newVirtualThreadPerTaskExecutor()
 
@@ -40,3 +40,7 @@ fun virtualThread(
 
     if (start) start(block) else unstarted(block)
 }
+
+operator fun <T> ThreadLocal<T>.getValue(receiver: Any?, property: KProperty<*>): T = get()
+
+operator fun <T> ThreadLocal<T>.setValue(receiver: Any?, property: KProperty<*>, value: T) = set(value)

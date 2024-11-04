@@ -117,6 +117,7 @@ object ChunkScanner : Listenable {
 
         init {
             // cyclic job, used to process tasks from channel
+            @Suppress("detekt:SwallowedException")
             scope.launch {
                 var retrying = 0
                 while (true) {
@@ -217,6 +218,7 @@ object ChunkScanner : Listenable {
         fun stopThread() {
             scope.cancel()
             chunkUpdateChannel.close()
+            logger.info("Stopped Chunk Scanner Thread!")
         }
 
         sealed interface UpdateRequest {

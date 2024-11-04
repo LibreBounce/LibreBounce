@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.MovableRegionScanner
 import net.ccbluex.liquidbounce.utils.block.Region
 import net.ccbluex.liquidbounce.utils.block.Region.Companion.getBox
+import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.ccbluex.liquidbounce.utils.kotlin.isEmpty
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.block.BlockState
@@ -88,7 +89,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     private val distanceFade by float("DistanceFade", 0.3f, 0f..1f)
 
     private val color1by1 by color("1x1", Color4b(0x19c15c))
-    private val color1by2 by color("1x2", Color4b(0x4d5ca0))
+    private val color1by2 by color("1x2", Color4b(0x35bacc))
     private val color2by2 by color("2x2", Color4b(0xf7381b))
 
     private val movableRegionScanner = MovableRegionScanner()
@@ -249,6 +250,11 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     private object HoleTracker : ChunkScanner.BlockChangeSubscriber {
         val holes = ConcurrentSkipListSet<Hole>()
 
+        /**
+         * Create a ThreadLocal<BlockPos.Mutable> for each thread of (Dispatchers.IO)
+         */
+        private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
+
         private val fullSurroundings = setOf(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)
 
         override val shouldCallRecordBlockOnChunkUpdate: Boolean
@@ -271,6 +277,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
             holes.removeIf { it.positions.intersects(region) }
         }
 
+        @Suppress("detekt:CognitiveComplexMethod")
         fun Region.cachedUpdate(chunk: Chunk? = null) {
             val buffer = Object2ByteRBTreeMap<BlockPos>()
 
@@ -286,8 +293,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                     return@forEach
                 }
 
-                val immutable = pos.toImmutable()
-                val mutable = pos.mutableCopy()
+//                val immutable = pos.toImmutable()
 
                 val surroundings = fullSurroundings.filterTo(HashSet(4)) { direction ->
                     buffer.cache(mutable.set(pos, direction)) == UNBREAKABLE
@@ -297,16 +303,29 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                     // 1*1
                     4 -> holes += Hole(
                         Hole.Type.ONE_ONE,
-                        Region(immutable, immutable),
+                        Region.from(pos),
                     )
                     // 1*2
                     3 -> {
                         val airDirection = fullSurroundings.first { it !in surroundings }
-                        val another = mutable.set(pos, airDirection)
-                        if (buffer.checkState(another, *(fullSurroundings - airDirection.opposite).toTypedArray())) {
+                        val another = pos.offset(airDirection)
+
+                        if (!buffer.checkSameXZ(another)) {
+                            return@forEach
+                        }
+
+                        val airOpposite = airDirection.opposite
+                        val checkDirections = with(fullSurroundings.iterator()) {
+                            Array(3) {
+                                val value = next()
+                                if (value == airOpposite) next() else value
+                            }
+                        }
+
+                        if (buffer.checkSurroundings(another, checkDirections)) {
                             holes += Hole(
                                 Hole.Type.ONE_TWO,
-                                Region(immutable, another),
+                                Region(pos, another),
                             )
                         }
                     }
@@ -314,21 +333,23 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                     2 -> {
                         val (direction1, direction2) = fullSurroundings.filterTo(ArrayList(2)) { it !in surroundings }
 
-                        if (!buffer.checkState(mutable.set(pos, direction1), direction1, direction2.opposite)) {
+                        val mutableLocal = BlockPos.Mutable()
+
+                        if (!buffer.checkState(mutableLocal.set(pos, direction1), direction1, direction2.opposite)) {
                             return@forEach
                         }
 
-                        if (!buffer.checkState(mutable.set(pos, direction2), direction2, direction1.opposite)) {
+                        if (!buffer.checkState(mutableLocal.set(pos, direction2), direction2, direction1.opposite)) {
                             return@forEach
                         }
 
-                        if (!buffer.checkState(mutable.move(direction1), direction1, direction2)) {
+                        if (!buffer.checkState(mutableLocal.move(direction1), direction1, direction2)) {
                             return@forEach
                         }
 
                         holes += Hole(
                             Hole.Type.TWO_TWO,
-                            Region(immutable, mutable.toImmutable()),
+                            Region(pos, mutableLocal),
                         )
                     }
                 }
@@ -350,25 +371,34 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
             }
         }
 
-        private fun Object2ByteMap<BlockPos>.checkState(blockPos: BlockPos, vararg directions: Direction): Boolean {
-            val mutable = BlockPos.Mutable(blockPos.x, blockPos.y - 1, blockPos.z)
+        private fun Object2ByteMap<BlockPos>.checkSameXZ(blockPos: BlockPos): Boolean {
+            mutable.set(blockPos.x, blockPos.y - 1, blockPos.z)
             if (cache(mutable) != UNBREAKABLE) {
                 return false
             }
-            mutable.y++
-            if (cache(mutable) != AIR) {
-                return false
-            }
-            mutable.y++
-            if (cache(mutable) != AIR) {
-                return false
-            }
-            mutable.y++
-            if (cache(mutable) != AIR) {
-                return false
+
+            repeat(3) {
+                mutable.y++
+                if (cache(mutable) != AIR) {
+                    return false
+                }
             }
 
+            return true
+        }
+
+        private fun Object2ByteMap<BlockPos>.checkSurroundings(
+            blockPos: BlockPos,
+            directions: Array<out Direction>
+        ): Boolean {
             return directions.all { cache(mutable.set(blockPos, it)) == UNBREAKABLE }
+        }
+
+        private fun Object2ByteMap<BlockPos>.checkState(
+            blockPos: BlockPos,
+            vararg directions: Direction
+        ): Boolean {
+            return checkSameXZ(blockPos) && checkSurroundings(blockPos, directions)
         }
 
         override fun chunkUpdate(x: Int, z: Int) {
