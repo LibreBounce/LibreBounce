@@ -61,6 +61,8 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT) {
     private val glide by float("Glide", -0.15f, -0.3f..0.3f)
 
     init {
+        tree(BaseSpeed)
+        tree(SprintSpeed)
         tree(Rehook)
     }
 
