@@ -194,7 +194,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         }
 
         val opposite = bedDirection.opposite
-        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers - 1) { Object2IntOpenHashMap() }
+        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers) { Object2IntOpenHashMap() }
 
         (head.searchLayer(maxLayers, bedDirection, Direction.UP, left, right) +
             head.offset(opposite).searchLayer(maxLayers, opposite, Direction.UP, left, right))
@@ -203,7 +203,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
             }
             .filterNot {
                 // Ignore empty positions
-                it.value().isAir
+                it.value().isAir || it.value().block is FluidBlock
             }
             .forEach {
                 // Count blocks

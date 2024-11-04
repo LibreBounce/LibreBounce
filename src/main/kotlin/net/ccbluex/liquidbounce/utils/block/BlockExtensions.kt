@@ -169,26 +169,25 @@ fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<In
             add(IntObjectImmutablePair(0, this@searchLayer))
         }
         val visited = hashSetOf(this@searchLayer)
+        val mutable = BlockPos.Mutable()
 
         while (queue.isNotEmpty()) {
             val current = queue.removeFirst()
 
             val layer = current.keyInt()
 
-            if (layer == layers) {
-                continue
-            }
-
-            if (layer > 0) {
-                yield(current)
+            when {
+                layer > layers -> continue
+                layer > 0 -> yield(current)
             }
 
             val pos = current.value()
 
             for (direction in directions) {
-                val newPos = pos.offset(direction)
+                mutable.set(pos, direction)
 
-                if (newPos !in visited && getManhattanDistance(newPos) <= layers) {
+                if (mutable !in visited) {
+                    val newPos = mutable.toImmutable()
                     visited.add(newPos)
                     queue.add(IntObjectImmutablePair(layer + 1, newPos))
                 }
