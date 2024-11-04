@@ -251,7 +251,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
         val holes = ConcurrentSkipListSet<Hole>()
 
         /**
-         * Create a ThreadLocal<BlockPos.Mutable> for each thread of (Dispatchers.IO)
+         * Create a ThreadLocal<BlockPos.Mutable> for each thread of Dispatchers.IO
          */
         private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
 
@@ -289,11 +289,9 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                     return@forEach
                 }
 
-                if (holes.any { pos in it } || !buffer.checkState(pos)) {
+                if (holes.any { pos in it } || !buffer.checkSameXZ(pos)) {
                     return@forEach
                 }
-
-//                val immutable = pos.toImmutable()
 
                 val surroundings = fullSurroundings.filterTo(HashSet(4)) { direction ->
                     buffer.cache(mutable.set(pos, direction)) == UNBREAKABLE
