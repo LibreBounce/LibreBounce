@@ -65,7 +65,8 @@ internal object FlyVanilla : Choice("Vanilla") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = repeatable {
         val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
         val hSpeed =
             if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed

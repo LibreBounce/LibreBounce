@@ -438,6 +438,7 @@
   "liquidbounce.module.fly.messages.vulcanGhostOldMessage": "Fly anywhere where you want to go. When you want to land, walk off a ledge or jump up and walk in any direction. If AutoDisable is disabled, disable module.",
   "liquidbounce.module.fly.messages.cubecraft20thAprBoostUsage": "Fly only works through damage abuse. Wait a few seconds until you're ready to fly on a round start!",
   "liquidbounce.module.fly.messages.cubecraft20thAprBoostMessage": "You have been hurt, boosting..",
+  "liquidbounce.module.fly.messages.setbackDetected": "You have been set back by the server! Fly has been disabled to prevent further setbacks.",
   "liquidbounce.module.focus.description": "Makes you attack only one specific enemy.",
   "liquidbounce.module.focus.messages.focused": "Focused on %s for %s seconds.",
   "liquidbounce.module.focus.messages.timeUp": "No longer focused on %s because the time is up.",

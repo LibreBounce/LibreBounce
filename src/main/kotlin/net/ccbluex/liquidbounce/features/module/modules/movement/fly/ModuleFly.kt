@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly
 
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -38,6 +39,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulca
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286MC18
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286Teleport
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.markAsError
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 
 /**
  * Fly module
@@ -99,6 +103,17 @@ object ModuleFly : Module("Fly", Category.MOVEMENT, aliases = arrayOf("Glide", "
 
     init {
         tree(Visuals)
+    }
+
+    private val disableOnSetback by boolean("DisableOnSetback", false)
+
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
+        // Setback detection
+        if (event.packet is PlayerPositionLookS2CPacket && disableOnSetback) {
+            chat(markAsError(message("setbackDetected")))
+            enabled = false
+        }
     }
 
 }

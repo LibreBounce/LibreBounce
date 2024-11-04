@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 
@@ -82,7 +82,7 @@ object ModuleNoClip : Module("NoClip", Category.MOVEMENT) {
     val packetHandler = handler<PacketEvent> { event ->
         // Setback detection
         if (event.packet is PlayerPositionLookS2CPacket && disableOnSetback && !paused()) {
-            chat(regular(this.message("setbackDetected")))
+            chat(markAsError(this.message("setbackDetected")))
             enabled = false
         }
     }
