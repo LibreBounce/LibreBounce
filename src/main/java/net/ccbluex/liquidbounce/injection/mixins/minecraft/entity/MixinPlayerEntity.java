@@ -174,13 +174,25 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         return instance.multiply(x, y, z);
     }
 
+    @SuppressWarnings("UnreachableCode")
     @WrapWithCondition(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V", ordinal = 0))
     private boolean hookSlowVelocity(PlayerEntity instance, boolean b) {
         if ((Object) this == MinecraftClient.getInstance().player) {
+            ModuleKeepSprint.INSTANCE.setSprinting(b);
             return !ModuleKeepSprint.INSTANCE.getRunning() || b;
         }
 
         return true;
+    }
+
+    @SuppressWarnings({"UnreachableCode", "ConstantValue"})
+    @ModifyExpressionValue(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;isSprinting()Z"))
+    private boolean hookSlowVelocity(boolean original) {
+        if ((Object) this == MinecraftClient.getInstance().player && ModuleKeepSprint.INSTANCE.getRunning()) {
+            return ModuleKeepSprint.INSTANCE.getSprinting();
+        }
+
+        return original;
     }
 
     @ModifyReturnValue(method = "getEntityInteractionRange", at = @At("RETURN"))
