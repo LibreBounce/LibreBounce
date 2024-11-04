@@ -29,27 +29,23 @@ class MovableRegionScanner {
     /**
      * Moves the current region; returns regions that have been newly covered
      */
-    fun moveRegion(region: Region): List<Region> {
+    fun moveRegion(region: Region): Sequence<Region> {
         val lastRegion = this.currentRegion
 
         this.currentRegion = region
 
         return when {
             // No new blocks where covered
-            lastRegion == region || region in lastRegion -> listOf()
+            lastRegion == region || region in lastRegion -> emptySequence()
             // All blocks are new
-            !lastRegion.intersects(region) -> listOf(region)
+            !lastRegion.intersects(region) -> sequenceOf(region)
             // Some of the blocks are new, we have to check...
-            else -> {
-                val candidates = getPossibleOverlaps(region, lastRegion)
-
-                candidates.filter { !it.isEmpty() && it in region }
-            }
+            else -> getPossibleOverlaps(region, lastRegion).filter { !it.isEmpty() && it in region }
         }
     }
 
-    private fun getPossibleOverlaps(region: Region, lastRegion: Region): Array<Region> {
-        return arrayOf(
+    private fun getPossibleOverlaps(region: Region, lastRegion: Region): Sequence<Region> {
+        return sequenceOf(
             Region(
                 BlockPos(min(region.to.x, lastRegion.to.x), region.from.y, region.from.z),
                 BlockPos(max(region.to.x, lastRegion.to.x), region.to.y, region.to.z)

@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import it.unimi.dsi.fastutil.objects.Object2ByteMap
+import it.unimi.dsi.fastutil.objects.Object2ByteRBTreeMap
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
@@ -27,16 +29,50 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.MovableRegionScanner
 import net.ccbluex.liquidbounce.utils.block.Region
-import net.ccbluex.liquidbounce.utils.block.WorldChangeNotifier
+import net.ccbluex.liquidbounce.utils.block.Region.Companion.getBox
+import net.ccbluex.liquidbounce.utils.kotlin.isEmpty
 import net.ccbluex.liquidbounce.utils.math.toVec3d
+import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.util.math.*
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3d
+import net.minecraft.world.chunk.Chunk
+import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.math.max
 
-/**
+private const val UNBREAKABLE = (-1).toByte()
+private const val AIR = 0.toByte()
+private const val BREAKABLE = 1.toByte()
+
+// BlockState types
+typealias State = Byte
+
+private val UNBREAKABLE_BLOCKS = setOf(
+    Blocks.BEDROCK,
+    Blocks.COMMAND_BLOCK,
+    Blocks.END_GATEWAY,
+    Blocks.END_PORTAL,
+    Blocks.END_PORTAL_FRAME,
+    Blocks.JIGSAW,
+    Blocks.STRUCTURE_BLOCK,
+
+    Blocks.ANCIENT_DEBRIS,
+    Blocks.ANVIL,
+    Blocks.NETHERITE_BLOCK,
+    Blocks.CRYING_OBSIDIAN,
+    Blocks.RESPAWN_ANCHOR,
+    Blocks.ENCHANTING_TABLE,
+    Blocks.OBSIDIAN,
+    Blocks.REINFORCED_DEEPSLATE,
+
+    Blocks.ENDER_CHEST
+)
+
+/**`
  * HoleESP module
  *
  * Detects and displays safe spots for Crystal PvP.
@@ -46,15 +82,24 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
     private val modes = choices("Mode", GlowingPlane, arrayOf(BoxChoice, GlowingPlane))
 
-    var horizontalDistance by int("HorizontalScanDistance", 16, 4..100)
-    var verticalDistance by int("VerticalScanDistance", 16, 4..100)
+    private val horizontalDistance by int("HorizontalScanDistance", 32, 4..128)
+    private val verticalDistance by int("VerticalScanDistance", 16, 4..128)
 
-    val flattenMovement by boolean("FlattenMovement", true)
+    private val distanceFade by float("DistanceFade", 0.3f, 0f..1f)
 
-    val holes = HashMap<BlockPos, HoleQuality>()
-    val movableRegionScanner = MovableRegionScanner()
+    private val movableRegionScanner = MovableRegionScanner()
 
-    val distanceFade by float("DistanceFade", 0.3f, 0f..1f)
+    override fun disable() {
+        ChunkScanner.unsubscribe(HoleTracker)
+    }
+
+    override fun enable() {
+        ChunkScanner.subscribe(HoleTracker)
+        movableRegionScanner.clearRegion()
+        if (mc.player != null) {
+            updateScanRegion()
+        }
+    }
 
     private object BoxChoice : Choice("Box") {
 
@@ -63,31 +108,32 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
         private val outline by boolean("Outline", true)
 
+        @Suppress("unused")
         val renderHandler = handler<WorldRenderEvent> { event ->
-            val matrixStack = event.matrixStack
-            val markedBlocks = holes.entries
+            renderEnvironmentForWorld(event.matrixStack) {
+                HoleTracker.holes.forEach {
+                    val (type, positions) = it
 
-            renderEnvironmentForWorld(matrixStack) {
-                for ((pos, quality) in markedBlocks) {
-                    val fade = calculateFade(pos)
-                    val baseColor = quality.baseColor.fade(fade)
-                    val outlineColor = quality.outlineColor.fade(fade)
+                    val fade = calculateFade(positions.from)
 
-                    withPositionRelativeToCamera(pos.toVec3d()) {
+                    val baseColor = type.color.alpha(50).fade(fade)
+                    val outlineColor = type.color.alpha(100).fade(fade)
+
+                    val box = positions.getBox()
+                    withPositionRelativeToCamera(positions.from.toVec3d()) {
                         withColor(baseColor) {
-                            drawSolidBox(FULL_BOX)
+                            drawSolidBox(box)
                         }
 
                         if (outline) {
                             withColor(outlineColor) {
-                                drawOutlinedBox(FULL_BOX)
+                                drawOutlinedBox(box)
                             }
                         }
                     }
                 }
             }
         }
-
     }
 
     private object GlowingPlane : Choice("GlowingPlane") {
@@ -95,37 +141,38 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
-        val outline by boolean("Outline", true)
+        private val outline by boolean("Outline", true)
 
-        val glowHeightSetting by float("GlowHeight", 0.7f, 0f..1f)
+        private val glowHeightSetting by float("GlowHeight", 0.7f, 0f..1f)
 
         @Suppress("unused")
         val renderHandler = handler<WorldRenderEvent> { event ->
-            val matrixStack = event.matrixStack
-            val markedBlocks = holes.entries
-
             val glowHeight = glowHeightSetting.toDouble()
-            renderEnvironmentForWorld(matrixStack) {
+
+            renderEnvironmentForWorld(event.matrixStack) {
                 withDisabledCull {
-                    for ((pos, quality) in markedBlocks) {
-                        val fade = calculateFade(pos)
+                    HoleTracker.holes.forEach {
+                        val (type, positions) = it
 
-                        val baseColor = quality.baseColor.fade(fade)
+                        val fade = calculateFade(positions.from)
+
+                        val baseColor = type.color.alpha(50).fade(fade)
                         val transparentColor = baseColor.alpha(0)
-                        val outlineColor = quality.outlineColor.fade(fade)
+                        val outlineColor = type.color.alpha(100).fade(fade)
 
-                        withPositionRelativeToCamera(pos.toVec3d()) {
+                        val box = positions.getBox()
+                        withPositionRelativeToCamera(positions.from.toVec3d()) {
                             withColor(baseColor) {
-                                drawSideBox(FULL_BOX, Direction.DOWN)
+                                drawSideBox(box, Direction.DOWN)
                             }
 
                             if (outline) {
                                 withColor(outlineColor) {
-                                    drawSideBox(FULL_BOX, Direction.DOWN, onlyOutline = true)
+                                    drawSideBox(box, Direction.DOWN, onlyOutline = true)
                                 }
                             }
 
-                            drawGradientSides(glowHeight, baseColor, transparentColor, FULL_BOX)
+                            drawGradientSides(glowHeight, baseColor, transparentColor, box)
                         }
                     }
                 }
@@ -134,8 +181,34 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     }
 
     @Suppress("unused")
-    val movementHandler = handler<PlayerPostTickEvent> { event ->
-        this.updateScanRegion()
+    val movementHandler = handler<PlayerPostTickEvent> {
+        updateScanRegion()
+    }
+
+    private fun updateScanRegion() {
+        val changedAreas = movableRegionScanner.moveRegion(
+            Region.quadAround(
+                player.blockPos,
+                horizontalDistance,
+                verticalDistance
+            )
+        )
+
+        if (changedAreas.isEmpty()) {
+            return
+        }
+
+        val region = movableRegionScanner.currentRegion
+
+        with(HoleTracker) {
+            // Remove blocks out of the area
+            holes.removeIf { !it.positions.intersects(region) }
+
+            // Update new area
+            changedAreas.forEach {
+                it.cachedUpdate()
+            }
+        }
     }
 
     private fun calculateFade(pos: BlockPos): Float {
@@ -151,137 +224,164 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
         return fade.coerceIn(0.0, 1.0).toFloat()
     }
 
-    private fun flatten(pos: BlockPos): BlockPos {
-        if (!this.flattenMovement) {
-            return pos
-        }
+    @JvmRecord
+    private data class Hole(
+        val type: Type,
+        val positions: Region,
+        val blockInvalidators: Region = Region(positions.from, positions.to.up(2)),
+    ) : Comparable<Hole> {
+        override fun compareTo(other: Hole): Int =
+            compareValuesBy(this, other) { it.positions.from }
 
-        val flattenXZ = this.horizontalDistance < 8
-        val flattenY = this.verticalDistance < 5
+        operator fun contains(pos: BlockPos): Boolean = pos in positions
 
-        val maskXZ = if (flattenXZ) 3.inv() else 0.inv()
-        val maskY = if (flattenY) 3.inv() else 0.inv()
-
-        return BlockPos(pos.x and maskXZ, pos.y and maskY, pos.z and maskXZ)
-    }
-
-    private fun updateScanRegion() {
-        synchronized(this.holes) {
-            val changedAreas = this.movableRegionScanner.moveRegion(
-                Region.quadAround(
-                    player.blockPos,
-                    this.horizontalDistance,
-                    this.verticalDistance
-                )
-            )
-
-            val region = this.movableRegionScanner.currentRegion
-
-            // Remove blocks out of the area
-            holes.entries.removeIf { it.key !in region }
-
-            changedAreas.forEach(this::updateRegion)
+        enum class Type(val size: Int, val color: Color4b) {
+            ONE_ONE(1, Color4b(255, 0, 0)),
+            ONE_TWO(2, Color4b(243, 122, 0)),
+            TWO_TWO(4, Color4b(80, 7, 211)),
         }
     }
 
-    private fun updateRegion(region: Region) {
-        val world = world
+    private object HoleTracker : ChunkScanner.BlockChangeSubscriber {
+        val holes = ConcurrentSkipListSet<Hole>()
 
-        region.forEach { p ->
-            val pos = p.toImmutable()
-            val blockState = world.getBlockState(pos)
+        private val fullSurroundings = setOf(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)
 
-            if (!blockState.isAir && blockState.getCollisionShape(world, pos).boundingBoxes.any { it.maxY >= 1 }) {
-                return@forEach
+        override val shouldCallRecordBlockOnChunkUpdate: Boolean
+            get() = false
+
+        override fun recordBlock(pos: BlockPos, state: BlockState, cleared: Boolean) {
+            // Invalidate old ones
+            if (state.isAir) {
+                holes.removeIf { it.positions.any { p -> p.getManhattanDistance(pos) == 1 } }
+            } else {
+                holes.removeIf { pos in it.blockInvalidators }
             }
 
-            // Can you actually go inside that hole?
-            if (arrayOf(pos.up(1), pos.up(2)).any { !world.getBlockState(it).getCollisionShape(world, it).isEmpty }) {
-                return@forEach
-            }
+            // Check new ones
+            Region(pos.add(-2, -3, -2), pos.add(2, 3, 2)).cachedUpdate()
+        }
 
-            val positionsToScan = arrayOf(p.down(), p.east(), p.west(), p.north(), p.south())
+        private fun invalidate(region: Region) {
+            holes.removeIf { it.positions.intersects(region) }
+        }
 
-            var unsafeBlocks = 0
+        fun Region.cachedUpdate(chunk: Chunk? = null) {
+            val buffer = Object2ByteRBTreeMap<BlockPos>()
 
-            for (scanPos in positionsToScan) {
-                val scanState = world.getBlockState(scanPos)
+            invalidate(this)
 
-                val isUnsafe = when (scanState.block) {
-                    Blocks.BEDROCK -> false
-                    Blocks.OBSIDIAN -> true
-                    else -> return@forEach
+            // Only check positions in this chunk (pos is BlockPos.Mutable)
+            forEach { pos ->
+                if (chunk != null && (pos.y <= chunk.bottomY || pos.y - 1 >= chunk.topY)) {
+                    return@forEach
                 }
 
-                unsafeBlocks += if (isUnsafe) 1 else 0
-            }
+                if (holes.any { pos in it } || !buffer.checkState(pos)) {
+                    return@forEach
+                }
 
-            val holeQuality = when (unsafeBlocks) {
-                0 -> HoleQuality.SAFE
-                in 1..4 -> HoleQuality.MEDIOCRE
-                else -> HoleQuality.UNSAFE
-            }
+                val immutable = pos.toImmutable()
+                val mutable = pos.mutableCopy()
 
-            this.holes[pos] = holeQuality
-        }
-    }
+                val surroundings = fullSurroundings.filterTo(HashSet(4)) { direction ->
+                    buffer.cache(mutable.set(pos, direction)) == UNBREAKABLE
+                }
 
-    override fun enable() {
-        WorldChangeNotifier.subscribe(InvalidationHook)
+                when (surroundings.size) {
+                    // 1*1
+                    4 -> holes += Hole(
+                        Hole.Type.ONE_ONE,
+                        Region(immutable, immutable),
+                    )
+                    // 1*2
+                    3 -> {
+                        val airDirection = fullSurroundings.first { it !in surroundings }
+                        val another = mutable.set(pos, airDirection)
+                        if (buffer.checkState(another, *(fullSurroundings - airDirection.opposite).toTypedArray())) {
+                            holes += Hole(
+                                Hole.Type.ONE_TWO,
+                                Region(immutable, another),
+                            )
+                        }
+                    }
+                    // 2*2
+                    2 -> {
+                        val (direction1, direction2) = fullSurroundings.filterTo(ArrayList(2)) { it !in surroundings }
 
-        this.movableRegionScanner.clearRegion()
+                        if (!buffer.checkState(mutable.set(pos, direction1), direction1, direction2.opposite)) {
+                            return@forEach
+                        }
 
-        updateScanRegion()
+                        if (!buffer.checkState(mutable.set(pos, direction2), direction2, direction1.opposite)) {
+                            return@forEach
+                        }
 
-    }
+                        if (!buffer.checkState(mutable.move(direction1), direction1, direction2)) {
+                            return@forEach
+                        }
 
-    override fun disable() {
-        WorldChangeNotifier.unsubscribe(InvalidationHook)
-        holes.clear()
-    }
-
-    object InvalidationHook : WorldChangeNotifier.WorldChangeSubscriber {
-        override fun invalidate(region: Region, rescan: Boolean) {
-            // Check if the region intersects. Otherwise, calling region.intersection would be unsafe
-            if (!region.intersects(movableRegionScanner.currentRegion)) {
-                return
-            }
-
-
-            val intersection = region.intersection(movableRegionScanner.currentRegion)
-
-            val rescanRegion = Region(
-                intersection.from.add(-1, -1, -1),
-                intersection.to.add(1, 1, 1)
-            )
-
-            synchronized(holes) {
-                holes.entries.removeIf { it.key in rescanRegion }
-
-                if (rescan) {
-                    updateRegion(rescanRegion)
+                        holes += Hole(
+                            Hole.Type.TWO_TWO,
+                            Region(immutable, mutable.toImmutable()),
+                        )
+                    }
                 }
             }
         }
 
-        override fun invalidateEverything() {
-            synchronized(movableRegionScanner) {
-                movableRegionScanner.clearRegion()
-            }
-            synchronized(holes) {
-                holes.clear()
+        private fun Object2ByteMap<BlockPos>.cache(blockPos: BlockPos): State {
+            if (containsKey(blockPos)) {
+                return getByte(blockPos)
+            } else {
+                val state = mc.world?.getBlockState(blockPos) ?: return AIR
+                val result = when {
+                    state.isAir -> AIR
+                    state.block in UNBREAKABLE_BLOCKS -> UNBREAKABLE
+                    else -> BREAKABLE
+                }
+                put(if (blockPos is BlockPos.Mutable) blockPos.toImmutable() else blockPos, result)
+                return result
             }
         }
 
-    }
+        private fun Object2ByteMap<BlockPos>.checkState(blockPos: BlockPos, vararg directions: Direction): Boolean {
+            val mutable = BlockPos.Mutable(blockPos.x, blockPos.y - 1, blockPos.z)
+            if (cache(mutable) != UNBREAKABLE) {
+                return false
+            }
+            mutable.y++
+            if (cache(mutable) != AIR) {
+                return false
+            }
+            mutable.y++
+            if (cache(mutable) != AIR) {
+                return false
+            }
+            mutable.y++
+            if (cache(mutable) != AIR) {
+                return false
+            }
 
-    enum class HoleQuality(r: Int, g: Int, b: Int) {
-        SAFE(0x20, 0xC2, 0x06),
-        MEDIOCRE(0xD5, 0x96, 0x00),
-        UNSAFE(0xD7, 0x09, 0x09);
+            return directions.all { cache(mutable.set(blockPos, it)) == UNBREAKABLE }
+        }
 
-        val baseColor: Color4b = Color4b(r, g, b, 50)
-        val outlineColor: Color4b = Color4b(r, g, b, 100)
+        override fun chunkUpdate(x: Int, z: Int) {
+            val chunk = mc.world?.getChunk(x, z) ?: return
+            val region = Region.from(chunk)
+            if (region.intersects(movableRegionScanner.currentRegion)) {
+                region.cachedUpdate(chunk)
+            }
+        }
+
+        override fun clearChunk(x: Int, z: Int) {
+            invalidate(Region.fromChunkPos(x, z))
+        }
+
+        override fun clearAllChunks() {
+            holes.clear()
+        }
+
     }
 
 }
