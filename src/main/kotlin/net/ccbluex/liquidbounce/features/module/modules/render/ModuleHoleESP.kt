@@ -41,6 +41,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.chunk.Chunk
+import java.awt.Color
 import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.math.max
 
@@ -87,6 +88,10 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
     private val distanceFade by float("DistanceFade", 0.3f, 0f..1f)
 
+    private val color1by1 by color("1x1", Color4b(0x19c15c))
+    private val color1by2 by color("1x2", Color4b(0x4d5ca0))
+    private val color2by2 by color("2x2", Color4b(0xf7381b))
+
     private val movableRegionScanner = MovableRegionScanner()
 
     override fun disable() {
@@ -116,8 +121,8 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
                     val fade = calculateFade(positions.from)
 
-                    val baseColor = type.color.alpha(50).fade(fade)
-                    val outlineColor = type.color.alpha(100).fade(fade)
+                    val baseColor = type.color().alpha(50).fade(fade)
+                    val outlineColor = type.color().alpha(100).fade(fade)
 
                     val box = positions.getBox()
                     withPositionRelativeToCamera(positions.from.toVec3d()) {
@@ -156,9 +161,9 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
                         val fade = calculateFade(positions.from)
 
-                        val baseColor = type.color.alpha(50).fade(fade)
+                        val baseColor = type.color().alpha(50).fade(fade)
                         val transparentColor = baseColor.alpha(0)
-                        val outlineColor = type.color.alpha(100).fade(fade)
+                        val outlineColor = type.color().alpha(100).fade(fade)
 
                         val box = positions.getBox()
                         withPositionRelativeToCamera(positions.from.toVec3d()) {
@@ -235,10 +240,10 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
         operator fun contains(pos: BlockPos): Boolean = pos in positions
 
-        enum class Type(val size: Int, val color: Color4b) {
-            ONE_ONE(1, Color4b(255, 0, 0)),
-            ONE_TWO(2, Color4b(243, 122, 0)),
-            TWO_TWO(4, Color4b(80, 7, 211)),
+        enum class Type(val size: Int, val color: () -> Color4b) {
+            ONE_ONE(1, { color1by1 }),
+            ONE_TWO(2, { color1by2 }),
+            TWO_TWO(4, { color2by2 }),
         }
     }
 
