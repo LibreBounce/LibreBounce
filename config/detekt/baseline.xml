@@ -65,7 +65,6 @@
     <ID>CognitiveComplexMethod:CommandScript.kt$CommandScript$fun createCommand(): Command</ID>
     <ID>CognitiveComplexMethod:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
     <ID>CognitiveComplexMethod:FailSwing.kt$FailSwing$suspend fun Sequence&lt;*>.dealWithFakeSwing(target: Entity?)</ID>
-    <ID>CognitiveComplexMethod:FloorNukerArea.kt$FloorNukerArea$override fun lookupTargets(radius: Float, count: Int?): List&lt;Pair&lt;BlockPos, BlockState>></ID>
     <ID>CognitiveComplexMethod:IpInfoApi.kt$IpInfoApi$private fun makeAsyncEndpointRequest(proxy: ProxyManager.Proxy?, endpoint: String, success: (String) -> Unit, failure: (Throwable) -> Unit)</ID>
     <ID>CognitiveComplexMethod:ItemCategorization.kt$ItemCategorization$@Suppress("CyclomaticComplexMethod", "LongMethod") fun getItemFacets(slot: ItemSlot): Array&lt;ItemFacet></ID>
     <ID>CognitiveComplexMethod:ModuleHoleESP.kt$ModuleHoleESP$private fun updateRegion(region: Region)</ID>
@@ -75,15 +74,12 @@
     <ID>CognitiveComplexMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>CognitiveComplexMethod:SimulatedArrow.kt$SimulatedArrow$private fun updateCollision(pos: Vec3d, newPos: Vec3d): HitResult?</ID>
     <ID>CognitiveComplexMethod:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
-    <ID>CognitiveComplexMethod:SupportFeature.kt$SupportFeature$fun findSupport(targetPos: BlockPos): Set&lt;BlockPos>?</ID>
     <ID>ComplexCondition:PlacementRenderHandler.kt$PlacementRenderHandler$(!direction1Present &amp;&amp; !direction2Present) || (direction1Present &amp;&amp; direction2Present &amp;&amp; !diagonalPresent)</ID>
     <ID>ComplexCondition:SimulatedArrow.kt$SimulatedArrow$!it.isSpectator &amp;&amp; it.isAlive &amp;&amp; (it.canHit() || arrowEntity != mc.player &amp;&amp; it == arrowEntity)</ID>
-    <ID>ComplexCondition:SupportFeature.kt$SupportFeature$blockedPositions.contains(neighbor) || // exclude blocks where the structure is... // this useless because we already search the shortest path under all structure blocks? placer.blocks.contains(neighbor) || neighbor.manhattanDistanceTo(targetPos) > depth || player.eyePos.squaredDistanceTo(neighbor.toCenterPos()) > rangeSq || neighbor.isBlockedByEntities()</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleAimbot.kt$ModuleAimbot$val (fromPoint, toPoint, box, cutOffBox) = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleAutoShoot.kt$ModuleAutoShoot$val (fromPoint, toPoint, _, _) = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ModuleKillAura.kt$ModuleKillAura$val (eyes, nextPoint, box, cutOffBox) = pointTracker.gatherPoint( entity, situation )</ID>
     <ID>EmptyCatchBlock:ModuleMobOwners.kt$ModuleMobOwners${ }</ID>
-    <ID>EmptyFunctionBlock:ModuleStorageESP.kt$ModuleStorageESP.StorageScanner${}</ID>
     <ID>FunctionOnlyReturningConstant:SimulatedArrow.kt$SimulatedArrow$private fun isTouchingWater(): Boolean</ID>
     <ID>LongMethod:AutoConfig.kt$AutoConfig$fun handlePossibleAutoConfig(jsonObject: JsonObject)</ID>
     <ID>LongMethod:ChatClient.kt$ChatClient$private fun handleFunctionalPacket(packet: Packet)</ID>
@@ -126,7 +122,6 @@
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>
     <ID>NestedBlockDepth:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
     <ID>NestedBlockDepth:EntityExtensions.kt$fun LivingEntity.getActualHealth(fromScoreboard: Boolean = true): Float</ID>
-    <ID>NestedBlockDepth:SupportFeature.kt$SupportFeature$fun findSupport(targetPos: BlockPos): Set&lt;BlockPos>?</ID>
     <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
     <ID>ReturnCount:AutoFarmBlockHandler.kt$AutoFarmBlockTracker$override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates?</ID>
     <ID>ReturnCount:IntegrationHandler.kt$IntegrationHandler$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
@@ -152,6 +147,7 @@
     <ID>ThrowsCount:CommandXRay.kt$CommandXRay$fun createCommand(): Command</ID>
     <ID>TooManyFunctions:AccountFunctions.kt$net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client.AccountFunctions.kt</ID>
     <ID>TooManyFunctions:AccountManager.kt$AccountManager : ConfigurableListenable</ID>
+    <ID>TooManyFunctions:ArrayExtensions.kt$net.ccbluex.liquidbounce.utils.kotlin.ArrayExtensions.kt</ID>
     <ID>TooManyFunctions:BlockExtensions.kt$net.ccbluex.liquidbounce.utils.block.BlockExtensions.kt</ID>
     <ID>TooManyFunctions:BlockPlacer.kt$BlockPlacer : ConfigurableListenable</ID>
     <ID>TooManyFunctions:ChatClient.kt$ChatClient</ID>
