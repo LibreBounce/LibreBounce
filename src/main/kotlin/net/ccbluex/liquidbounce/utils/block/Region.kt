@@ -105,7 +105,7 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
     override fun isEmpty(): Boolean = this.volume == 0
 
     operator fun contains(pos: Region): Boolean {
-        return pos.from.x..pos.to.x in xRange && pos.from.y..pos.to.y in yRange && pos.from.z..pos.to.z in zRange
+        return pos.xRange in xRange && pos.yRange in yRange && pos.zRange in zRange
     }
 
     override operator fun contains(value: BlockPos): Boolean {

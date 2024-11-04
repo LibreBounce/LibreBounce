@@ -185,13 +185,20 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
         }
     }
 
+    private val playerPos = BlockPos.Mutable()
+
     @Suppress("unused")
     val movementHandler = handler<PlayerPostTickEvent> {
-        updateScanRegion()
+        val currentPos = player.blockPos
+
+        if (playerPos.getManhattanDistance(currentPos) >= 4) {
+            playerPos.set(currentPos)
+            updateScanRegion()
+        }
     }
 
     private fun updateScanRegion() {
-        val changedAreas = movableRegionScanner.moveRegion(
+        val changedAreas = movableRegionScanner.moveTo(
             Region.quadAround(
                 player.blockPos,
                 horizontalDistance,
@@ -270,7 +277,9 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
             }
 
             // Check new ones
-            Region(pos.add(-2, -3, -2), pos.add(2, 3, 2)).cachedUpdate()
+            val region = Region(pos.add(-2, -3, -2), pos.add(2, 3, 2))
+            invalidate(region)
+            region.cachedUpdate()
         }
 
         private fun invalidate(region: Region) {
@@ -280,8 +289,6 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
         @Suppress("detekt:CognitiveComplexMethod")
         fun Region.cachedUpdate(chunk: Chunk? = null) {
             val buffer = Object2ByteRBTreeMap<BlockPos>()
-
-            invalidate(this)
 
             // Only check positions in this chunk (pos is BlockPos.Mutable)
             forEach { pos ->
@@ -403,6 +410,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
             val chunk = mc.world?.getChunk(x, z) ?: return
             val region = Region.from(chunk)
             if (region.intersects(movableRegionScanner.currentRegion)) {
+                invalidate(region)
                 region.cachedUpdate(chunk)
             }
         }
