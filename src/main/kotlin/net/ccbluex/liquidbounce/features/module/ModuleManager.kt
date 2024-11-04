@@ -333,6 +333,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleNuker,
             ModuleExtinguish,
             ModuleBedDefender,
+            ModuleSurround,
 
             // Client
             ModuleAutoConfig,

@@ -20,11 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
-import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
-import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
@@ -32,10 +28,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.towerMode
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.stat.Stats
-import java.util.*
-import kotlin.jvm.optionals.getOrNull
-import kotlin.math.truncate
 
 object ScaffoldTowerVulcan : Choice("Vulcan") {
 

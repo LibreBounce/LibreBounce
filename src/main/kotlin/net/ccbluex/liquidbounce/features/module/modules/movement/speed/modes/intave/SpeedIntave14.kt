@@ -61,7 +61,7 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         )
 
         companion object {
-            private const val BOOST_CONSTANT = 1.003
+            private const val BOOST_CONSTANT = 0.003
         }
 
         @Suppress("unused")

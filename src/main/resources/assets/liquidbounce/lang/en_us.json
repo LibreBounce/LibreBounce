@@ -603,5 +603,6 @@
   "liquidbounce.module.autoBuild.description": "Automatically builds certain structures.",
   "liquidbounce.module.autoBuild.messages.noPosition": "No possible position found, disabling...",
   "liquidbounce.module.autoBuild.messages.noObsidian": "No obsidian found, disabling...",
-  "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "No flint-and-steel found, disabling..."
+  "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "No flint-and-steel found, disabling...",
+  "liquidbounce.module.dupe.description": "Attempts to Auto-Dupe items from your inventory by using exploits."
 }

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.block
 
+import it.unimi.dsi.fastutil.booleans.BooleanObjectImmutablePair
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import it.unimi.dsi.fastutil.ints.IntObjectPair
 import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
@@ -31,6 +32,8 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.block.*
+import net.minecraft.entity.Entity
+import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.fluid.Fluids
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
@@ -544,6 +547,32 @@ fun BlockPos.isBlockedByEntities(): Boolean {
     return world.entities.any {
         it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))
     }
+}
+
+inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true }): List<Entity> {
+    return world.entities.filter {
+        it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())) &&
+            include.invoke(it)
+    }
+}
+
+/**
+ * Like [isBlockedByEntities] but it returns a blocking end crystal if present.
+ */
+fun BlockPos.isBlockedByEntitiesReturnCrystal(): BooleanObjectImmutablePair<EndCrystalEntity?> {
+    var blocked = false
+
+    world.entities.forEach {
+        if (it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))) {
+            if (it is EndCrystalEntity) {
+                return BooleanObjectImmutablePair(true, it)
+            }
+
+            blocked = true
+        }
+    }
+
+    return BooleanObjectImmutablePair(blocked, null)
 }
 
 val BED_BLOCKS = setOf(

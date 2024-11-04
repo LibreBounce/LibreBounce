@@ -101,6 +101,7 @@ accessible field net/minecraft/world/chunk/WorldChunk loadedToWorld Z
 accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;
 
 accessible field net/minecraft/client/render/WorldRenderer entityOutlinesFramebuffer Lnet/minecraft/client/gl/Framebuffer;
+accessible field net/minecraft/client/render/WorldRenderer blockBreakingProgressions Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 
 accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/world/GameRules$Key;)Lnet/minecraft/world/explosion/Explosion$DestructionType;
 
