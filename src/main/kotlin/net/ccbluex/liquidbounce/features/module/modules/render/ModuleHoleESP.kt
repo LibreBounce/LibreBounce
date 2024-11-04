@@ -36,8 +36,10 @@ import net.ccbluex.liquidbounce.utils.block.Region.Companion.getBox
 import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.ccbluex.liquidbounce.utils.kotlin.isEmpty
 import net.ccbluex.liquidbounce.utils.math.toVec3d
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
+import net.minecraft.registry.Registries
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
@@ -52,27 +54,6 @@ private const val BREAKABLE = 1.toByte()
 // BlockState types
 typealias State = Byte
 
-private val UNBREAKABLE_BLOCKS = setOf(
-    Blocks.BEDROCK,
-    Blocks.COMMAND_BLOCK,
-    Blocks.END_GATEWAY,
-    Blocks.END_PORTAL,
-    Blocks.END_PORTAL_FRAME,
-    Blocks.JIGSAW,
-    Blocks.STRUCTURE_BLOCK,
-
-    Blocks.ANCIENT_DEBRIS,
-    Blocks.ANVIL,
-    Blocks.NETHERITE_BLOCK,
-    Blocks.CRYING_OBSIDIAN,
-    Blocks.RESPAWN_ANCHOR,
-    Blocks.ENCHANTING_TABLE,
-    Blocks.OBSIDIAN,
-    Blocks.REINFORCED_DEEPSLATE,
-
-    Blocks.ENDER_CHEST
-)
-
 /**
  * HoleESP module
  *
@@ -84,7 +65,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     private val modes = choices("Mode", GlowingPlane, arrayOf(BoxChoice, GlowingPlane))
 
     private val horizontalDistance by int("HorizontalScanDistance", 32, 4..128)
-    private val verticalDistance by int("VerticalScanDistance", 16, 4..128)
+    private val verticalDistance by int("VerticalScanDistance", 8, 4..128)
 
     private val distanceFade by float("DistanceFade", 0.3f, 0f..1f)
 
@@ -94,13 +75,17 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
     private val movableRegionScanner = MovableRegionScanner()
 
+    private val UNBREAKABLE_BLOCKS: Set<Block> by lazy {
+        Registries.BLOCK.filterTo(hashSetOf()) { it.blastResistance >= 600 }
+    }
+
     override fun disable() {
         ChunkScanner.unsubscribe(HoleTracker)
+        movableRegionScanner.clearRegion()
     }
 
     override fun enable() {
         ChunkScanner.subscribe(HoleTracker)
-        movableRegionScanner.clearRegion()
         if (mc.player != null) {
             updateScanRegion()
         }
@@ -122,7 +107,6 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                     val fade = calculateFade(positions.from)
 
                     val baseColor = type.color().alpha(50).fade(fade)
-                    val outlineColor = type.color().alpha(100).fade(fade)
 
                     val box = positions.getBox()
                     withPositionRelativeToCamera(positions.from.toVec3d()) {
@@ -131,6 +115,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                         }
 
                         if (outline) {
+                            val outlineColor = type.color().alpha(100).fade(fade)
                             withColor(outlineColor) {
                                 drawOutlinedBox(box)
                             }
@@ -163,7 +148,6 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
                         val baseColor = type.color().alpha(50).fade(fade)
                         val transparentColor = baseColor.alpha(0)
-                        val outlineColor = type.color().alpha(100).fade(fade)
 
                         val box = positions.getBox()
                         withPositionRelativeToCamera(positions.from.toVec3d()) {
@@ -172,6 +156,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                             }
 
                             if (outline) {
+                                val outlineColor = type.color().alpha(100).fade(fade)
                                 withColor(outlineColor) {
                                     drawSideBox(box, Direction.DOWN, onlyOutline = true)
                                 }
@@ -200,7 +185,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     private fun updateScanRegion() {
         val changedAreas = movableRegionScanner.moveTo(
             Region.quadAround(
-                player.blockPos,
+                playerPos,
                 horizontalDistance,
                 verticalDistance
             )
