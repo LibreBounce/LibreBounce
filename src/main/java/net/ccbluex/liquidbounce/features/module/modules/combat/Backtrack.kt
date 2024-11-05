@@ -191,7 +191,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
 
             "modern" -> {
                 // Prevent cancelling packets when not needed
-                if (packetQueue.isEmpty && PacketUtils.queuedPackets.isEmpty() && !shouldBacktrack())
+                if (packetQueue.isEmpty() && PacketUtils.queuedPackets.isEmpty() && !shouldBacktrack())
                     return
 
                 when (packet) {
@@ -377,7 +377,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
             }
 
             "modern" -> {
-                if (!shouldBacktrack() || packetQueue.isEmpty || !shouldRender)
+                if (!shouldBacktrack() || packetQueue.isEmpty() || !shouldRender)
                     return
 
                 if (espMode != "Box") return
