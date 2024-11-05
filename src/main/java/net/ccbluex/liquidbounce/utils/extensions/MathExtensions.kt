@@ -141,3 +141,11 @@ fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3(
     blockBoundsMinY + (blockBoundsMaxY - blockBoundsMinY) * y,
     blockBoundsMinZ + (blockBoundsMaxZ - blockBoundsMinZ) * z
 )
+
+fun Vec3.lerpWith(other: Vec3, tickDelta: Double) = Vec3(
+    xCoord + (other.xCoord - xCoord) * tickDelta,
+    yCoord + (other.yCoord - yCoord) * tickDelta,
+    zCoord + (other.zCoord - zCoord) * tickDelta
+)
+
+fun Vec3.lerpWith(other: Vec3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())

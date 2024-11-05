@@ -29,6 +29,8 @@ object RenderUtils : MinecraftInstance() {
     private val DISPLAY_LISTS_2D = IntArray(4)
     var deltaTime = 0
 
+    fun deltaTimeNormalized(ticks: Int = 50) = (deltaTime / ticks.toDouble()).coerceAtMost(1.0)
+
     init {
         for (i in DISPLAY_LISTS_2D.indices) {
             DISPLAY_LISTS_2D[i] = glGenLists(1)
