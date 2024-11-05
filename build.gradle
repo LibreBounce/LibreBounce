@@ -112,6 +112,7 @@ dependencies {
     // ScriptAPI
     implementation 'org.graalvm.polyglot:polyglot:24.0.2'
     implementation 'org.graalvm.polyglot:js-community:24.0.2'
+    implementation 'org.graalvm.js:js-language:24.0.2'
     implementation 'org.graalvm.truffle:truffle-api:24.0.2'
 
     // https://mvnrepository.com/artifact/io.netty/netty-codec
@@ -299,7 +300,11 @@ shadowJar {
         include(dependency('net.lenni0451:Reflect'))
         include(dependency('org.graalvm.polyglot:polyglot'))
         include(dependency('org.graalvm.polyglot:js-community'))
+        include(dependency('org.graalvm.js:js-language'))
+        include(dependency('org.graalvm.regex:regex'))
+        include(dependency('org.graalvm.shadowed:icu4j'))
         include(dependency('org.graalvm.truffle:truffle-api'))
+
     }
 }
 
