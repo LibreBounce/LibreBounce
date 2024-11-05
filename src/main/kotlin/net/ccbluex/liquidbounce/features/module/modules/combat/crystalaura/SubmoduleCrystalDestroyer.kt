@@ -63,7 +63,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                 wallsRange = wallsRange,
             ) ?: return
 
-        val runnable = ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation, isFinished = {
+        ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation, isFinished = {
             facingEnemy(
                 toEntity = target,
                 rotation = RotationManager.serverRotation,
@@ -71,12 +71,15 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                 wallsRange = wallsRange
             )
         }, onFinished = {
-            ModuleCrystalAura.postMotion.add { target.attack(swing) }
+            if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
+                return@rotate
+            }
+
+            val target1 = currentTarget ?: return@rotate
+
+            target1.attack(swing)
             chronometer.reset()
         })
-
-        // if no rotation, it has to be executed right after the creation
-        runnable()
     }
 
     private fun updateTarget() {

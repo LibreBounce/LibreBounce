@@ -29,33 +29,44 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 abstract class RotationMode(
     name: String,
     private val configurable: ChoiceConfigurable<RotationMode>,
-    val module: Module
+    val module: Module,
 ) : Choice(name), QuickImports {
 
-    abstract fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit): () -> Unit
+    /**
+     * Already sends the packet on post-move.
+     * This might get us a little advantage because the packets are added a little bit earlier to the server tick queue.
+     *
+     * The downside is that it is not legit and will flag post-rotation checks on some anti-cheats.
+     */
+    val postMove by boolean("PostMove", false)
+
+    abstract fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit)
 
     override val parent: ChoiceConfigurable<*>
         get() = configurable
 
 }
 
-class NormalRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Module)
-    : RotationMode("Normal", configurable, module) {
+class NormalRotationMode(
+    configurable: ChoiceConfigurable<RotationMode>,
+    module: Module,
+    val priority: Priority = Priority.IMPORTANT_FOR_USAGE_2
+) : RotationMode("Normal", configurable, module) {
 
     val rotations = tree(RotationsConfigurable(this))
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
 
-    override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit): () -> Unit {
+    override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
         RotationManager.aimAt(
             rotation,
             considerInventory = !ignoreOpenInventory,
             configurable = rotations,
             provider = module,
-            priority = Priority.IMPORTANT_FOR_USAGE_2,
-            whenReached = RestrictedSingleUseAction(canExecute = isFinished, action = onFinished)
+            priority = priority,
+            whenReached = RestrictedSingleUseAction(canExecute = isFinished, action = {
+                PostRotationExecutor.addTask(module, postMove, task = onFinished, priority = true)
+            })
         )
-
-        return {}
     }
 
 }
@@ -65,8 +76,8 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Mod
 
     val send by boolean("SendRotationPacket", false)
 
-    override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit): () -> Unit {
-        return {
+    override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
+        PostRotationExecutor.addTask(module, postMove, task = {
             if (send) {
                 val fixedRotation = rotation.fixedSensitivity()
                 network.connection!!.send(
@@ -76,7 +87,7 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Mod
             }
 
             onFinished()
-        }
+        })
     }
 
 }

@@ -110,27 +110,6 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             placementTarget?.let { placementRenderer.addBlock(it) }
         }
 
-        val runnable = ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
-            blockHitResult = raytraceBlock(
-                max(range, wallsRange).toDouble(),
-                RotationManager.serverRotation,
-                targetPos,
-                targetPos.getState()!!
-            ) ?: return@rotate false
-
-            return@rotate blockHitResult!!.type == HitResult.Type.BLOCK && blockHitResult!!.blockPos == targetPos
-        }, onFinished = {
-            ModuleCrystalAura.postMotion.add {
-                clickBlockWithSlot(
-                    player,
-                    blockHitResult?.withSide(side) ?: return@add,
-                    crystalSlot,
-                    swingMode
-                )
-            }
-            chronometer.reset()
-        })
-
         if (ModuleCrystalAura.rotationMode.activeChoice is NoRotationMode) {
             blockHitResult = raytraceBlock(
                 max(range, wallsRange).toDouble(),
@@ -140,7 +119,29 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             ) ?: return
         }
 
-        runnable()
+        ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
+            blockHitResult = raytraceBlock(
+                max(range, wallsRange).toDouble(),
+                RotationManager.serverRotation,
+                targetPos,
+                targetPos.getState()!!
+            ) ?: return@rotate false
+
+            return@rotate blockHitResult!!.type == HitResult.Type.BLOCK && blockHitResult!!.blockPos == targetPos
+        }, onFinished = {
+            if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
+                return@rotate
+            }
+
+            clickBlockWithSlot(
+                player,
+                blockHitResult?.withSide(side) ?: return@rotate,
+                crystalSlot,
+                swingMode
+            )
+
+            chronometer.reset()
+        })
     }
 
     private fun getSlot(): Int? {

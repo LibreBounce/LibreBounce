@@ -1,12 +1,27 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2024 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.utils.block.placer
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.QuickImports
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
@@ -20,6 +35,8 @@ abstract class BlockPlacerRotationMode(
     private val configurable: ChoiceConfigurable<BlockPlacerRotationMode>,
     val placer: BlockPlacer
 ) : Choice(name), QuickImports {
+
+    val postMove by boolean("PostMove", false)
 
     abstract operator fun invoke(isSupport: Boolean, pos: BlockPos, placementTarget: BlockPlacementTarget): Boolean
 
@@ -59,9 +76,14 @@ class NormalRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMod
 
                 raytraceResult.type == HitResult.Type.BLOCK && raytraceResult.blockPos == interactedBlockPos
             }, {
-                placer.postRotateTasks.add {
+                PostRotationExecutor.addTask(placer.module, postMove, priority = true, task = {
+                    if (placer.ticksToWait > 0) {
+                        return@addTask
+                    }
+
                     placer.doPlacement(isSupport, pos, placementTarget)
-                }
+                    placer.ranAction = true
+                })
             })
         )
 
@@ -88,7 +110,11 @@ class NoRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, 
     private var placementsDone = 0
 
     override fun invoke(isSupport: Boolean, pos: BlockPos, placementTarget: BlockPlacementTarget): Boolean {
-        placer.postRotateTasks.add {
+        PostRotationExecutor.addTask(placer.module, postMove, task = {
+            if (placer.ticksToWait > 0) {
+                return@addTask
+            }
+
             if (send) {
                 val rotation = placementTarget.rotation.fixedSensitivity()
                 network.connection!!.send(
@@ -98,7 +124,8 @@ class NoRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, 
             }
 
             placer.doPlacement(isSupport, pos, placementTarget)
-        }
+            placer.ranAction = true
+        })
 
         placementsDone++
         return placementsDone == placements

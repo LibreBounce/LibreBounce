@@ -20,9 +20,7 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -85,8 +83,9 @@ class BlockPlacer(
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     val ignoreUsingItem by boolean("IgnoreUsingItem", true)
 
-    val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
+    private val slotResetDelay by int("SlotResetDelay", 5, 0..40, "ticks")
 
+    val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     })
 
@@ -124,29 +123,19 @@ class BlockPlacer(
     val blocks = Object2BooleanLinkedOpenHashMap<BlockPos>()
 
     val inaccessible = hashSetOf<BlockPos>()
-    val postRotateTasks = mutableListOf<() -> Unit>()
+    var ticksToWait = 0
+    var ranAction = false
     private var sneakTimes = 0
-    private var ticksToWait = 0
-
-    @Suppress("unused")
-    private val postMoveHandler = handler<PlayerNetworkMovementTickEvent> {
-        if (it.state == EventState.PRE) {
-            return@handler
-        }
-
-        if (ticksToWait > 0) {
-            postRotateTasks.clear()
-            ticksToWait--
-            return@handler
-        }
-
-        postRotateTasks.forEach { task -> task() }
-        postRotateTasks.clear()
-        ticksToWait = cooldown
-    }
 
     @Suppress("unused")
     private val targetUpdater = handler<SimulatedTickEvent>(priority = -20) {
+        if (ticksToWait > 0) {
+            ticksToWait--
+        } else if (ranAction) {
+            ranAction = false
+            ticksToWait = cooldown
+        }
+
         if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
             return@handler
         }

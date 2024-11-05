@@ -21,8 +21,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
@@ -36,6 +34,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationMode
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.BlockPos
@@ -62,7 +61,7 @@ object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT, disableOnQuit 
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
     val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
-        arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
+        arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
     })
 
     private val cacheMap = object : LinkedHashMap<DamageConstellation, Float>(64, 0.75f, true) {
@@ -72,11 +71,6 @@ object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT, disableOnQuit 
     }
 
     var currentTarget: LivingEntity? = null
-    val postMotion = mutableListOf<() -> Unit>() // TODO global queue that also also puts the current normal at the front
-
-    override fun enable() {
-        postMotion.clear()
-    }
 
     override fun disable() {
         SubmoduleCrystalPlacer.placementRenderer.clearSilently()
@@ -101,20 +95,6 @@ object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT, disableOnQuit 
 
         renderEnvironmentForWorld(it.matrixStack) {
             targetRenderer.render(this, target, it.partialTicks)
-        }
-    }
-
-    @Suppress("unused")
-    val networkMove = handler<PlayerNetworkMovementTickEvent> {
-        if (it.state != EventState.POST) {
-            return@handler
-        }
-
-        postMotion.iterator().apply {
-            while (hasNext()) {
-                next().invoke()
-                remove()
-            }
         }
     }
 
