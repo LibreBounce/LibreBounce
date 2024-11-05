@@ -18,8 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
+import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import it.unimi.dsi.fastutil.ints.IntObjectPair
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
@@ -66,7 +65,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         renderEnvironmentForGUI {
             fontRenderer.withBuffers { buf ->
                 BlockTracker.trackedBlockMap.map { (key, value) ->
-                    DoubleObjectImmutablePair(key.getSquaredDistance(playerPos), value)
+                    DoubleObjectPair.of(key.getSquaredDistance(playerPos), value)
                 }.filter {
                     it.keyDouble() < maxDistanceSquared
                 }.sortedBy {
@@ -96,7 +95,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                                 -BACKGROUND_PADDING,
                                 rectWidth + BACKGROUND_PADDING,
                                 rectHeight + BACKGROUND_PADDING,
-                                Color4b(0, 0, 0, 128).toRGBA()
+                                Color4b(0, 0, 0, 128).toARGB()
                             )
 
                             var itemX = 0
@@ -199,7 +198,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         (head.searchLayer(maxLayers, bedDirection, Direction.UP, left, right) +
             head.offset(opposite).searchLayer(maxLayers, opposite, Direction.UP, left, right))
             .mapNotNull {
-                IntObjectImmutablePair(it.keyInt(), it.value()?.getState() ?: return@mapNotNull null)
+                IntObjectPair.of(it.keyInt(), it.value()?.getState() ?: return@mapNotNull null)
             }
             .filterNot {
                 // Ignore empty positions

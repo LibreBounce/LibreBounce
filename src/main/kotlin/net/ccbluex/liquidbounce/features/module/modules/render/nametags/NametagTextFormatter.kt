@@ -72,7 +72,7 @@ class NametagTextFormatter(private val entity: Entity) {
                 isBot -> Formatting.DARK_AQUA.toTextColor()
                 entity.isInvisible -> Formatting.GOLD.toTextColor()
                 entity.isSneaking -> Formatting.DARK_RED.toTextColor()
-                tagColor != null -> TextColor.fromRgb(tagColor.toRGBA())
+                tagColor != null -> TextColor.fromRgb(tagColor.toARGB())
                 else -> Formatting.GRAY.toTextColor()
             }
         }

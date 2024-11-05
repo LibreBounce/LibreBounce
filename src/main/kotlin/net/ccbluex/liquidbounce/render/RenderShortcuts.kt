@@ -378,9 +378,9 @@ fun RenderEnvironment.drawTriangle(p1: Vec3, p2: Vec3, p3: Vec3) {
 }
 
 fun BufferBuilder.coloredTriangle(matrix: Matrix4f, p1: Vec3d, p2: Vec3d, p3: Vec3d, color4b: Color4b) {
-    vertex(matrix, p1.x.toFloat(), p1.y.toFloat(), p1.z.toFloat()).color(color4b.toRGBA())
-    vertex(matrix, p2.x.toFloat(), p2.y.toFloat(), p2.z.toFloat()).color(color4b.toRGBA())
-    vertex(matrix, p3.x.toFloat(), p3.y.toFloat(), p3.z.toFloat()).color(color4b.toRGBA())
+    vertex(matrix, p1.x.toFloat(), p1.y.toFloat(), p1.z.toFloat()).color(color4b.toARGB())
+    vertex(matrix, p2.x.toFloat(), p2.y.toFloat(), p2.z.toFloat()).color(color4b.toARGB())
+    vertex(matrix, p3.x.toFloat(), p3.y.toFloat(), p3.z.toFloat()).color(color4b.toARGB())
 }
 
 /**
@@ -477,7 +477,7 @@ fun RenderEnvironment.drawGradientQuad(vertices: List<Vec3>, colors: List<Color4
     with(buffer) {
         vertices.forEachIndexed { index, (x, y, z) ->
             val color4b = colors[index]
-            vertex(matrix, x, y, z).color(color4b.toRGBA())
+            vertex(matrix, x, y, z).color(color4b.toARGB())
         }
 
         // Draw the quad
@@ -523,9 +523,9 @@ fun RenderEnvironment.drawGradientCircle(
             val innerP = p * innerRadius + innerOffset
 
             vertex(matrix, outerP.x, outerP.y, outerP.z)
-                .color(outerColor4b.toRGBA())
+                .color(outerColor4b.toARGB())
             vertex(matrix, innerP.x, innerP.y, innerP.z)
-                .color(innerColor4b.toRGBA())
+                .color(innerColor4b.toARGB())
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
@@ -551,7 +551,7 @@ fun RenderEnvironment.drawCircleOutline(radius: Float, color4b: Color4b) {
             val point = p * radius
 
             vertex(matrix, point.x, point.y, point.z)
-                .color(color4b.toRGBA())
+                .color(color4b.toARGB())
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
