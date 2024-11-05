@@ -122,6 +122,9 @@ object LiquidBounce : Listenable {
             // Load mappings
             Remapper.load()
 
+            // Load translations
+            LanguageManager.loadDefault()
+
             // Initialize client features
             EventManager
 

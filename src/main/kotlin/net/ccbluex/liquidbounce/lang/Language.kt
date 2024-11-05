@@ -66,6 +66,11 @@ object LanguageManager : Configurable("lang") {
         }
     }
 
+    fun loadDefault() {
+        loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
+        loadLanguage(languageIdentifier)
+    }
+
     fun getLanguage() = loadLanguage(languageIdentifier) ?: loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
 
     fun getCommonLanguage() = loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
