@@ -24,9 +24,12 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleDerp
-import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.render.drawLineStrip
+import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.math.times
@@ -76,13 +79,19 @@ object ModuleRotations : Module("Rotations", Category.RENDER) {
     @Suppress("unused")
     private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
+        val partialTicks = event.partialTicks
 
         val drawVectorLine = vectorLine.a > 0
         val drawVectorDot = vectorDot.a > 0
 
         if (drawVectorLine || drawVectorDot) {
-            val rotation = RotationManager.currentRotation ?: return@handler
+            val currentRotation = RotationManager.currentRotation ?: return@handler
+            val previousRotation = RotationManager.previousRotation ?: currentRotation
             val camera = mc.gameRenderer.camera
+
+            val interpolatedRotationVec = previousRotation.rotationVec.lerp(currentRotation.rotationVec,
+                partialTicks.toDouble()
+            )
 
             val eyeVector = Vec3(0.0, 0.0, 1.0)
                 .rotatePitch((-Math.toRadians(camera.pitch.toDouble())).toFloat())
@@ -91,8 +100,7 @@ object ModuleRotations : Module("Rotations", Category.RENDER) {
             if (drawVectorLine) {
                 renderEnvironmentForWorld(matrixStack) {
                     withColor(vectorLine) {
-                        // todo: interpolate
-                        drawLineStrip(eyeVector, eyeVector + Vec3(rotation.rotationVec * 100.0))
+                        drawLineStrip(eyeVector, eyeVector + Vec3(interpolatedRotationVec * 100.0))
                     }
                 }
             }
@@ -100,8 +108,7 @@ object ModuleRotations : Module("Rotations", Category.RENDER) {
             if (drawVectorDot) {
                 renderEnvironmentForWorld(matrixStack) {
                     withColor(vectorDot) {
-                        // todo: interpolate
-                        val vector = eyeVector + Vec3(rotation.rotationVec * 100.0)
+                        val vector = eyeVector + Vec3(interpolatedRotationVec * 100.0)
                         drawSolidBox(Box.of(vector.toVec3d(), 2.5, 2.5, 2.5))
                     }
                 }
