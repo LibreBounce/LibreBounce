@@ -21,16 +21,18 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
 import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import java.security.SecureRandom
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 
 class PointTracker(
@@ -68,7 +70,8 @@ class PointTracker(
      */
     private val gaussianFactor by float("GaussianOffset", gaussianOffsetDefault, 0.0f..1.0f)
     private val gaussianChance by int("GaussianChance", 100, 0..100, "%")
-
+    private val gaussianSpeed by floatRange("GaussianSpeed", 0.1f..0.2f, 0.01f..1f)
+    private val gaussianTolerance by float("GaussianTolerance", gaussianOffsetDefault, 0.0f..1.0f)
     /**
      * OutOfBox will set the box offset to an unreachable position.
      */
@@ -215,16 +218,34 @@ class PointTracker(
         return Point(playerEyes, targetPoint, box, cutoffBox)
     }
 
+    private fun interpolate(start: Double, end: Double, f: Double): Double {
+        return start + (end - start) * f
+    }
+
+    private fun gaussianHasReachedTarget(vec1: Vec3d, vec2: Vec3d, tolerance: Float): Boolean {
+        return abs(vec1.x - vec2.x) < tolerance &&
+            abs(vec1.y - vec2.y) < tolerance &&
+            abs(vec1.z - vec2.z) < tolerance
+    }
+
+    private var targetOffset = Vec3d.ZERO
+
     private fun updateGaussianOffset() {
-        if (random.nextInt(100) > gaussianChance) {
-            return
+        if (gaussianHasReachedTarget(currentOffset, targetOffset, gaussianTolerance)) {
+            if (random.nextInt(100) <= gaussianChance) {
+                targetOffset = Vec3d(
+                    random.nextGaussian(MEAN_X, STDDEV_X) * gaussianFactor,
+                    random.nextGaussian(MEAN_Y, STDDEV_Y) * gaussianFactor,
+                    random.nextGaussian(MEAN_Z, STDDEV_Z) * gaussianFactor
+                )
+            }
+        } else {
+            currentOffset = Vec3d(
+                interpolate(currentOffset.x, targetOffset.x, gaussianSpeed.random()),
+                interpolate(currentOffset.y, targetOffset.y, gaussianSpeed.random()),
+                interpolate(currentOffset.z, targetOffset.z, gaussianSpeed.random())
+            )
         }
-
-        val newX = random.nextGaussian(MEAN_X, STDDEV_X) * gaussianFactor
-        val newY = random.nextGaussian(MEAN_Y, STDDEV_Y) * gaussianFactor
-        val newZ = random.nextGaussian(MEAN_Z, STDDEV_Z) * gaussianFactor
-
-        this.currentOffset = Vec3d(newX, newY, newZ)
     }
 
     data class Point(val fromPoint: Vec3d, val toPoint: Vec3d, val box: Box, val cutOffBox: Box)

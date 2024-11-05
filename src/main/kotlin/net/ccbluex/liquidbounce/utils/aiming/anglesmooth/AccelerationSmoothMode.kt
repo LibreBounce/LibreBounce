@@ -1,3 +1,24 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2024 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
+ */
+
 package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
 
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
@@ -16,8 +37,6 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
 
     private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..100f)
     private val pitchAcceleration by floatRange("PitchAcceleration", 20f..25f, 1f..100f)
-    // TODO: figure out how to implement lower accel bound
-    //private val minAcceleration by float("MinAcceleration", -25f, -100f..0f)
     private val yawAccelerationError by float("YawAccelerationError", 0.1f, 0f..1f)
     private val pitchAccelerationError by float("PitchAccelerationError", 0.1f, 0f..1f)
     private val yawConstantError by float("YawConstantError", 0.1f, 0f..10f)
