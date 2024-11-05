@@ -19,9 +19,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.antibot
 
 import com.mojang.authlib.GameProfile
+import net.ccbluex.liquidbounce.event.events.TagEntityEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.CustomAntiBotMode
+import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.CustomAntiBotMode.reset
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.HorizonAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.IntaveHeavyAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.MatrixAntiBotMode
@@ -39,7 +43,20 @@ object ModuleAntiBot : Module("AntiBot", Category.MISC) {
 
     private val literalNPC by boolean("LiteralNPC", false)
 
+    val tagHandler = handler<TagEntityEvent> {
+        if (it.entity is PlayerEntity && isBot(it.entity)) {
+           it.ignore()
+        }
+    }
+
     override fun disable() {
+        this.modes.choices.forEach {
+            (it as IAntiBotMode).reset()
+        }
+    }
+
+    @Suppress("unused")
+    private val handleWorldChange = handler<WorldChangeEvent> {
         this.modes.choices.forEach {
             (it as IAntiBotMode).reset()
         }
@@ -78,7 +95,7 @@ object ModuleAntiBot : Module("AntiBot", Category.MISC) {
     }
 
     interface IAntiBotMode {
-        fun reset() {}
+        fun reset() { }
         fun isBot(entity: PlayerEntity): Boolean
     }
 }

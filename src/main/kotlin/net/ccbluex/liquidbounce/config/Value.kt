@@ -29,12 +29,13 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApi
-import net.ccbluex.liquidbounce.utils.client.key
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
-import net.ccbluex.liquidbounce.web.socket.protocol.ProtocolExclude
+import net.minecraft.client.util.InputUtil
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -51,10 +52,12 @@ typealias ValueChangedListener<T> = (T) -> Unit
 @Suppress("TooManyFunctions")
 open class Value<T : Any>(
     @SerializedName("name") open val name: String,
-    @SerializedName("value") internal var inner: T,
+    @Exclude private var defaultValue: T,
     @Exclude val valueType: ValueType,
     @Exclude @ProtocolExclude val listType: ListValueType = ListValueType.None
 ) {
+
+    @SerializedName("value") internal var inner: T = defaultValue
 
     internal val loweredName
         get() = name.lowercase()
@@ -155,25 +158,35 @@ open class Value<T : Any>(
 
     fun get() = inner
 
-    fun set(t: T) { // temporary set value
+    fun set(t: T) {
         // Do nothing if value is the same
-        if (t == inner) return
+        if (t == inner) {
+            return
+        }
 
-        inner = t
+        set(t) { inner = it }
+    }
 
-        // check if value is really accepted
+    fun set(t: T, apply: (T) -> Unit) {
         var currT = t
         runCatching {
             listeners.forEach {
                 currT = it(t)
             }
         }.onSuccess {
-            inner = currT
+            apply(currT)
             EventManager.callEvent(ValueChangedEvent(this))
             changedListeners.forEach { it(currT) }
         }.onFailure { ex ->
             logger.error("Failed to set ${this.name} from ${this.inner} to $t", ex)
         }
+    }
+
+    /**
+     * Restore value to default value
+     */
+    open fun restore() {
+        set(defaultValue)
     }
 
     fun type() = valueType
@@ -285,7 +298,7 @@ open class Value<T : Any>(
 
             ValueType.COLOR -> {
                 if (string.startsWith("#")) {
-                    set(Color4b(Color(string.substring(1).toInt(16))) as T)
+                    set(Color4b.fromHex(string) as T)
                 } else {
                     set(Color4b(Color(string.toInt())) as T)
                 }
@@ -325,11 +338,11 @@ open class Value<T : Any>(
                 set(items as T)
             }
 
-            ValueType.KEY -> {
+            ValueType.BIND -> {
                 val newValue = try {
-                    string.toInt()
+                    InputUtil.Type.KEYSYM.createFromCode(string.toInt())
                 } catch (e: NumberFormatException) {
-                    key(string)
+                    inputByName(string)
                 }
 
                 set(newValue as T)
@@ -427,6 +440,9 @@ enum class ValueType {
     BLOCK, BLOCKS,
     ITEM, ITEMS,
     KEY,
+    BIND,
+    VECTOR_I,
+    VECTOR_D,
     CHOICE, CHOOSE,
     INVALID,
     PROXY,

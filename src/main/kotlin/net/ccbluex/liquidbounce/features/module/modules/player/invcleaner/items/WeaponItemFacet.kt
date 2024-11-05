@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.ccbluex.liquidbounce.utils.sorting.compareByCondition
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.item.SwordItem
+import net.minecraft.item.ToolItem
 import kotlin.math.ceil
 import kotlin.math.pow
 
@@ -41,7 +42,7 @@ open class WeaponItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
                 EnchantmentValueEstimator.WeightedEnchantment(Enchantments.SMITE, 2.0f * 0.1f),
                 EnchantmentValueEstimator.WeightedEnchantment(Enchantments.BANE_OF_ARTHROPODS, 2.0f * 0.1f),
                 // Knockback deals no damage, but it allows us to deal more damage because we don't get hit as often.
-                EnchantmentValueEstimator.WeightedEnchantment(Enchantments.KNOCKBACK, 0.75f),
+                EnchantmentValueEstimator.WeightedEnchantment(Enchantments.KNOCKBACK, 0.2f),
             )
         val SECONDARY_VALUE_ESTIMATOR =
             EnchantmentValueEstimator(
@@ -56,6 +57,7 @@ open class WeaponItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
                 compareBy { estimateDamage(it) },
                 compareBy { SECONDARY_VALUE_ESTIMATOR.estimateValue(it.itemStack) },
                 compareByCondition { it.itemStack.item is SwordItem },
+                PREFER_BETTER_DURABILITY,
                 compareBy { it.itemStack.item.enchantability },
                 PREFER_ITEMS_IN_HOTBAR,
                 STABILIZE_COMPARISON,
@@ -84,6 +86,9 @@ open class WeaponItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
 
     override val category: ItemCategory
         get() = ItemCategory(ItemType.WEAPON, 0)
+
+    override val providedItemFunctions: List<Pair<ItemFunction, Int>>
+        get() = arrayListOf(ItemFunction.WEAPON_LIKE to 1)
 
     override fun compareTo(other: ItemFacet): Int {
         return COMPARATOR.compare(this, other as WeaponItemFacet)

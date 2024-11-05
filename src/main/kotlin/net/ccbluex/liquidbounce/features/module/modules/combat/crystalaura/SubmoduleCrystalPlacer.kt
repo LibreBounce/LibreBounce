@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.canSeeUpperBlockSide
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.aiming.raytraceUpperBlockSide
-import net.ccbluex.liquidbounce.utils.block.forEachCollidingBlock
+import net.ccbluex.liquidbounce.utils.block.collidingRegion
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInRadius
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
@@ -117,15 +117,15 @@ object SubmoduleCrystalPlacer {
                 continue
             }
 
-            entity.boundingBox.forEachCollidingBlock { x, y, z ->
-                blockedPositions.add(BlockPos(x, y - 1, z))
+            entity.boundingBox.collidingRegion.forEach {
+                blockedPositions.add(it.down())
             }
         }
 
         // Search for blocks that are either obsidian or bedrock,
         // not disallowed and which do not have other blocks on top
         val possibleTargets =
-            searchBlocksInRadius(ModuleCrystalAura.PlaceOptions.range) { pos, state ->
+            playerPos.searchBlocksInRadius(ModuleCrystalAura.PlaceOptions.range) { pos, state ->
                 return@searchBlocksInRadius (state.block == Blocks.OBSIDIAN || state.block == Blocks.BEDROCK) &&
                         pos !in blockedPositions &&
                         pos.up().getState()?.isAir == true &&

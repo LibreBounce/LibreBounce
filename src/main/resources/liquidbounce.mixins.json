@@ -66,6 +66,7 @@
     "minecraft.network.MixinMultiplayerServerListPinger",
     "minecraft.network.MixinPacketByteBuf",
     "minecraft.network.MixinPacketWrapper",
+    "minecraft.network.MixinPlayerInteractBlockC2SPacket",
     "minecraft.network.MixinPlayerInteractItemC2SPacket",
     "minecraft.network.MixinPlayerListEntry",
     "minecraft.registry.MixinRegistries",
@@ -83,12 +84,15 @@
     "minecraft.render.MixinPostEffectPass",
     "minecraft.render.MixinRenderTickCounter",
     "minecraft.render.MixinSignText",
-    "minecraft.render.MixinSodiumBlockOcclusionCache",
+    "sodium.MixinSodiumBlockOcclusionCache",
     "minecraft.render.MixinTextRenderer",
     "minecraft.render.MixinWorldRenderer",
+    "minecraft.render.entity.feature.MixinDeadmau5FeatureRenderer",
     "minecraft.text.MixinChatHudLine",
     "minecraft.text.MixinChatHudLineVisible",
-    "minecraft.text.MixinTranslatableTextContent"
+    "minecraft.text.MixinTextColor",
+    "minecraft.text.MixinTranslatableTextContent",
+    "sodium.MixinSodiumLightDataAccessMixin"
   ],
   "server": [],
   "injectors": {

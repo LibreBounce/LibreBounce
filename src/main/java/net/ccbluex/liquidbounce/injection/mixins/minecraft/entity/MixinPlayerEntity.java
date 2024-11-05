@@ -50,10 +50,7 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -121,7 +118,8 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             ordinal = 1,
             shift = At.Shift.BEFORE))
     private void hookNoClip(CallbackInfo ci) {
-        if (!this.noClip && ModuleNoClip.INSTANCE.getEnabled()) {
+        var clip = ModuleNoClip.INSTANCE;
+        if (!this.noClip && clip.getEnabled() && !clip.paused()) {
             this.noClip = true;
         }
     }
@@ -198,16 +196,17 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         // Update pitch here
         rotations.setRotationPitch(new Pair<>(pitch.getRight(), rotation.getPitch()));
 
-        return rotations.shouldDisplayRotations() ? rotation.getYaw() : original;
+        return rotations.shouldDisplayRotations() && rotations.getBodyParts().getHead() ? rotation.getYaw() : original;
     }
 
-    @WrapWithCondition(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setVelocity(Lnet/minecraft/util/math/Vec3d;)V", ordinal = 0))
-    private boolean hookSlowVelocity(PlayerEntity instance, Vec3d vec3d) {
+    @SuppressWarnings({"UnreachableCode", "ConstantValue"})
+    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;multiply(DDD)Lnet/minecraft/util/math/Vec3d;"))
+    private Vec3d hookSlowVelocity(Vec3d instance, double x, double y, double z) {
         if ((Object) this == MinecraftClient.getInstance().player && ModuleKeepSprint.INSTANCE.getEnabled()) {
-            return false;
+            x = z = ModuleKeepSprint.INSTANCE.getMotion();
         }
 
-        return true;
+        return instance.multiply(x, y, z);
     }
 
     @WrapWithCondition(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V", ordinal = 0))

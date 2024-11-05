@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.entity.Entity
@@ -42,6 +43,7 @@ class AimPlan(
     val angleSmooth: AngleSmoothMode?,
     val slowStart: SlowStart?,
     val failFocus: FailFocus?,
+    val shortStop: ShortStop?,
     val ticksUntilReset: Int,
     /**
      * The reset threshold defines the threshold at which we are going to reset the aim plan.
@@ -54,6 +56,10 @@ class AimPlan(
     val considerInventory: Boolean,
     val applyVelocityFix: Boolean,
     val changeLook: Boolean,
+    /**
+     * What should be done if the target rotation has been reached. Can be `null`.
+      */
+    val whenReached: RestrictedSingleUseAction? = null
 ) {
 
     /**
@@ -64,6 +70,10 @@ class AimPlan(
      * We might even return null if we do not want to aim at anything yet.
      */
     fun nextRotation(fromRotation: Rotation, isResetting: Boolean): Rotation {
+        if (shortStop?.isInStopState == true) {
+            return fromRotation
+        }
+
         val angleSmooth = angleSmooth ?: return rotation
         val factorModifier = if (failFocus?.isInFailState == true) {
             failFocus.failFactor

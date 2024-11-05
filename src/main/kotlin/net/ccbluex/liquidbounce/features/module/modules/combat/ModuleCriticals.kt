@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals.VisualsConfigurable.showCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.features.module.modules.misc.debugRecorder.modes.GenericDebugRecorder
+import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -445,13 +445,13 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
     fun canCrit(ignoreOnGround: Boolean = false): Boolean {
         val blockingEffects = arrayOf(LEVITATION, BLINDNESS, SLOW_FALLING)
 
-        val blockingConditions = arrayOf(
+        val blockingConditions = booleanArrayOf(
             // Modules
             ModuleFly.enabled,
             ModuleLiquidWalk.enabled && ModuleLiquidWalk.standingOnWater(),
             player.isInLava, player.isTouchingWater, player.hasVehicle(),
             // Cobwebs
-            collideBlockIntersects(player.box, checkCollisionShape = false) { it is CobwebBlock },
+            player.box.collideBlockIntersects(checkCollisionShape = false) { it is CobwebBlock },
             // Effects
             blockingEffects.any(player::hasStatusEffect),
             // Disabling conditions

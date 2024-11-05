@@ -20,29 +20,34 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
-import net.ccbluex.liquidbounce.utils.client.MovePacketType
-import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 internal object NoFallHypixel : Choice("Hypixel") {
 
     override val parent: ChoiceConfigurable<*>
         get() = ModuleNoFall.modes
 
-    val repeatable = repeatable {
-        if (player.fallDistance >= 2.5 && !player.isFallingToVoid()) {
-            Timer.requestTimerSpeed(0.5f, Priority.IMPORTANT_FOR_PLAYER_LIFE, ModuleNoFall)
-            network.sendPacket(MovePacketType.ON_GROUND_ONLY.generatePacket().apply {
-                onGround = true
-            })
-            player.fallDistance = 0F
-            waitTicks(1)
-            Timer.requestTimerSpeed(1f, Priority.NORMAL, ModuleNoFall)
+    private var doJump = false
+
+    val packetHandler = handler<PacketEvent> { event ->
+        val packet = event.packet
+
+        if (packet is PlayerMoveC2SPacket) {
+            if (player.fallDistance >= 3.3) {
+                doJump = true
+            }
+
+            if (doJump && player.isOnGround) {
+                packet.onGround = false
+                if (!mc.options.jumpKey.isPressed) {
+                    player.setPosition(player.pos.x, player.pos.y + 0.09, player.pos.z)
+                }
+
+                doJump = false
+            }
         }
-
     }
-
 }

@@ -48,13 +48,13 @@ internal object FlyVanilla : Choice("Vanilla") {
     private val bypassVanillaCheck by boolean("BypassVanillaCheck", true)
 
     object BaseSpeed : Configurable("BaseSpeed") {
-        val horizontalSpeed by float("Horizontal", 0.44f, 0.1f..5f)
-        val verticalSpeed by float("Vertical", 0.44f, 0.1f..5f)
+        val horizontalSpeed by float("Horizontal", 0.44f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 0.44f, 0.1f..10f)
     }
 
     object SprintSpeed : ToggleableConfigurable(this, "SprintSpeed", true) {
-        val horizontalSpeed by float("Horizontal", 1f, 0.1f..5f)
-        val verticalSpeed by float("Vertical", 1f, 0.1f..5f)
+        val horizontalSpeed by float("Horizontal", 1f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 1f, 0.1f..10f)
     }
 
     init {
@@ -65,7 +65,8 @@ internal object FlyVanilla : Choice("Vanilla") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = repeatable {
         val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
         val hSpeed =
             if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed

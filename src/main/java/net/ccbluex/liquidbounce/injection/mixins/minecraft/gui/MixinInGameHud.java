@@ -23,9 +23,9 @@ import net.ccbluex.liquidbounce.event.events.OverlayMessageEvent;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.render.engine.UIRenderer;
-import net.ccbluex.liquidbounce.web.theme.component.ComponentOverlay;
-import net.ccbluex.liquidbounce.web.theme.component.FeatureTweak;
-import net.ccbluex.liquidbounce.web.theme.component.types.IntegratedComponent;
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
+import net.ccbluex.liquidbounce.integration.theme.component.FeatureTweak;
+import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -94,7 +94,7 @@ public abstract class MixinInGameHud {
             return;
         }
 
-        if (module.getPowerSnowFog() && POWDER_SNOW_OUTLINE.equals(texture)) {
+        if (module.getPowderSnowFog() && POWDER_SNOW_OUTLINE.equals(texture)) {
             callback.cancel();
         }
     }
@@ -103,6 +103,14 @@ public abstract class MixinInGameHud {
     private void hookFreeCamRenderCrosshairInThirdPerson(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if ((ModuleFreeCam.INSTANCE.getEnabled() && ModuleFreeCam.INSTANCE.shouldDisableCrosshair())
                 || ComponentOverlay.isTweakEnabled(FeatureTweak.DISABLE_CROSSHAIR)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "renderPortalOverlay", at = @At("HEAD"), cancellable = true)
+    private void hookRenderPortalOverlay(CallbackInfo ci) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getEnabled() && antiBlind.getPortalOverlay()) {
             ci.cancel();
         }
     }

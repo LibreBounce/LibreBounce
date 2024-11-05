@@ -119,7 +119,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
             val boundingBox = player.box
             val detectionBox = boundingBox.withMinY(boundingBox.minY - y)
 
-            return isBlockAtPosition(detectionBox) { it is Block }
+            return detectionBox.isBlockAtPosition { it is Block }
         }
         return false
     }

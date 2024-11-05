@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.fl
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.honey.NoSlowHoney
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.powdersnow.NoSlowPowderSnow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.slime.NoSlowSlime
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sneaking.NoSlowSneaking
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.soulsand.NoSlowSoulsand
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker
 import net.minecraft.util.UseAction
@@ -44,6 +45,7 @@ object ModuleNoSlow : Module("NoSlow", Category.MOVEMENT) {
         tree(NoSlowBlock)
         tree(NoSlowConsume)
         tree(NoSlowBow)
+        tree(NoSlowSneaking)
         tree(NoSlowSoulsand)
         tree(NoSlowSlime)
         tree(NoSlowHoney)

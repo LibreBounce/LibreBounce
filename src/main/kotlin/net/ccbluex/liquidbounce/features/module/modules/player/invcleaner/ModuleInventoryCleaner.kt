@@ -22,11 +22,12 @@ import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
+import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.PlayerInventoryConstraints
 import net.ccbluex.liquidbounce.utils.inventory.findNonEmptySlotsInInventory
 import net.minecraft.screen.slot.SlotActionType
-import java.util.HashMap
 
 /**
  * InventoryCleaner module
@@ -37,8 +38,10 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
-    private val maxBlocks by int("MaximumBlocks", 512, 0..3000)
-    private val maxArrows by int("MaximumArrows", 256, 0..3000)
+    private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
+    private val maxArrows by int("MaximumArrows", 128, 0..2500)
+    private val maxThrowables by int("MaximumThrowables", 64, 0..600)
+    private val maxFoods by int("MaximumFoodPoints", 200, 0..2000)
 
     private val isGreedy by boolean("Greedy", true)
 
@@ -78,14 +81,33 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 forbiddenSlots.add(ArmorItemSlot(armorSlot))
             }
 
-            return CleanupPlanPlacementTemplate(
-                slotTargets,
-                itemLimitPerCategory =
-                hashMapOf(
+            if (ModuleOffhand.isOperating()) {
+                // Disallow tampering with off-hand slot when AutoTotem is active
+                forbiddenSlots.add(OffHandSlot)
+            }
+
+            val forbiddenSlotsToFill = setOfNotNull(
+                // Disallow tampering with off-hand slot when AutoTotem is active
+                if (ModuleOffhand.isOperating()) OffHandSlot else null
+            )
+
+            val constraintProvider = AmountConstraintProvider(
+                maxItemsPerCategory = hashMapOf(
                     Pair(ItemSortChoice.BLOCK.category!!, maxBlocks),
+                    Pair(ItemSortChoice.THROWABLES.category!!, maxThrowables),
                     Pair(ItemCategory(ItemType.ARROW, 0), maxArrows),
                 ),
+                maxValuePerFunction = hashMapOf(
+                    Pair(ItemFunction.FOOD, maxFoods),
+                    Pair(ItemFunction.WEAPON_LIKE, 1),
+                )
+            )
+
+            return CleanupPlanPlacementTemplate(
+                slotTargets,
+                itemAmountConstraintProvider = constraintProvider::getConstraints,
                 forbiddenSlots = forbiddenSlots,
+                forbiddenSlotsToFill = forbiddenSlotsToFill,
                 isGreedy = isGreedy,
             )
         }
@@ -136,5 +158,45 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         cleanupPlan: InventoryCleanupPlan,
         itemsInInv: List<ItemSlot>,
     ) = itemsInInv.filter { it !in cleanupPlan.usefulItems }
+
+    private class AmountConstraintProvider(
+        val maxItemsPerCategory: HashMap<ItemCategory, Int>,
+        val maxValuePerFunction: HashMap<ItemFunction, Int>,
+    ) {
+        fun getConstraints(facet: ItemFacet): ArrayList<ItemConstraintInfo> {
+            val constraints = ArrayList<ItemConstraintInfo>()
+
+            if (facet.providedItemFunctions.isEmpty()) {
+                val defaultMin = if (facet.category.type.oneIsSufficient) 1 else Integer.MAX_VALUE
+                val minValue = this.maxItemsPerCategory[facet.category] ?: defaultMin
+
+                val info = ItemConstraintInfo(
+                    group = ItemCategoryConstraintGroup(
+                        minValue..Integer.MAX_VALUE,
+                        10,
+                        facet.category
+                    ),
+                    amountAddedByItem = facet.itemStack.count
+                )
+
+                constraints.add(info)
+            } else {
+                for ((function, amountAdded) in facet.providedItemFunctions) {
+                    val info = ItemConstraintInfo(
+                        group = ItemFunctionCategoryConstraintGroup(
+                            maxValuePerFunction.getOrDefault(function, 1)..Integer.MAX_VALUE,
+                            10,
+                            function
+                        ),
+                        amountAddedByItem = amountAdded
+                    )
+
+                    constraints.add(info)
+                }
+            }
+
+            return constraints
+        }
+    }
 
 }

@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.inventory.ALL_SLOTS_IN_INVENTORY
+import net.minecraft.block.Block
 import net.minecraft.command.argument.ItemStackArgument
 import net.minecraft.command.argument.ItemStringReader
 import net.minecraft.component.DataComponentTypes
@@ -43,6 +44,7 @@ import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.UseAction
+import net.minecraft.util.math.BlockPos
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -72,18 +74,26 @@ fun createSplashPotion(name: String, vararg effects: StatusEffectInstance): Item
 
 fun findHotbarSlot(item: Item): Int? = findHotbarSlot { it.item == item }
 
-fun findHotbarSlot(predicate: (ItemStack) -> Boolean): Int? {
+inline fun findHotbarSlot(predicate: (ItemStack) -> Boolean): Int? {
     return (0..8).firstOrNull { predicate(player.inventory.getStack(it)) }
 }
 
 fun findInventorySlot(item: Item): ItemSlot? = findInventorySlot { it.item == item }
 
-fun findInventorySlot(predicate: (ItemStack) -> Boolean): ItemSlot? {
+inline fun findInventorySlot(predicate: (ItemStack) -> Boolean): ItemSlot? {
     if (mc.player == null) {
         return null
     }
 
     return ALL_SLOTS_IN_INVENTORY.find { predicate(it.itemStack) }
+}
+
+inline fun findInventorySlot(slots: List<ItemSlot>,  predicate: (ItemStack) -> Boolean): ItemSlot? {
+    if (mc.player == null) {
+        return null
+    }
+
+    return slots.find { predicate(it.itemStack) }
 }
 
 /**
@@ -158,7 +168,7 @@ val ItemStack.attackDamage: Double
 val ItemStack.sharpnessLevel: Int
     get() = EnchantmentHelper.getLevel(Enchantments.SHARPNESS.toRegistryEntry(), this)
 
-fun ItemStack.getSharpnessDamage(level: Int = sharpnessLevel) = 0.5 * level + 0.5
+fun ItemStack.getSharpnessDamage(level: Int = sharpnessLevel) = if (level == 0) 0.0 else 0.5 * level + 0.5
 
 val ItemStack.attackSpeed: Float
     get() = item.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)
@@ -185,4 +195,18 @@ fun RegistryKey<Enchantment>.toRegistryEntry(): RegistryEntry<Enchantment> {
 
     val registry = world.registryManager.getWrapperOrThrow(RegistryKeys.ENCHANTMENT)
     return registry.getOptional(this).orElseThrow { IllegalArgumentException("Unknown enchantment key $this") }
+}
+
+fun ItemStack.getBlock(): Block? {
+    val item = this.item
+    if (item !is BlockItem) {
+        return null
+    }
+
+   return item.block
+}
+
+fun ItemStack.isFullBlock(): Boolean {
+    val block = this.getBlock() ?: return false
+    return block.defaultState.isFullCube(mc.world!!, BlockPos.ORIGIN)
 }

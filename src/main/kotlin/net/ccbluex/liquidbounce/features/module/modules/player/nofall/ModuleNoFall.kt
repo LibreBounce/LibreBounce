@@ -45,11 +45,16 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
             NoFallForceJump,
             NoFallBlink,
             NoFallHoplite,
+            NoFallHypixelPacket,
             NoFallHypixel,
         )
     )
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
+
+    init {
+        tagBy(this.modes)
+    }
 
     override fun handleEvents(): Boolean {
         if (!super.handleEvents()) {

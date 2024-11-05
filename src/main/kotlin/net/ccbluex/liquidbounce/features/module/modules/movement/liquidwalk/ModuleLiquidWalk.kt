@@ -47,7 +47,7 @@ object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arra
         LiquidWalkNoCheatPlus,
         LiquidWalkVerusB3901,
         LiquidWalkVulcan,
-    ))
+    )).apply { tagBy(this) }
 
     /**
      * Check if player is standing on water
@@ -56,14 +56,14 @@ object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arra
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.01)
 
-        return isBlockAtPosition(detectionBox) { it is FluidBlock }
+        return detectionBox.isBlockAtPosition { it is FluidBlock }
     }
 
     fun collidesWithAnythingElse(): Boolean {
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.5)
 
-        return collideBlockIntersects(detectionBox) { it !is FluidBlock }
+        return detectionBox.collideBlockIntersects { it !is FluidBlock }
     }
 
 }

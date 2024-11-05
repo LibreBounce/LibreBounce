@@ -37,10 +37,11 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  */
 object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases = arrayOf("WTap")) {
 
-    val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap))
+    val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap)).apply { tagBy(this) }
     val hurtTime by int("HurtTime", 10, 0..10)
     val chance by int("Chance", 100, 0..100, "%")
     val onlyOnGround by boolean("OnlyOnGround", false)
+    val notInWater by boolean("NotInWater", true)
 
     private object OnlyOnMove : ToggleableConfigurable(this, "OnlyOnMove", true) {
         val onlyForward by boolean("OnlyForward", true)
@@ -167,6 +168,10 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
 
     private fun shouldOperate(): Boolean {
         if (onlyOnGround && !player.isOnGround) {
+            return false
+        }
+
+        if (notInWater && player.isInsideWaterOrBubbleColumn) {
             return false
         }
 

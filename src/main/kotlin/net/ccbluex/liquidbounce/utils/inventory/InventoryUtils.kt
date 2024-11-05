@@ -113,7 +113,7 @@ val ALL_SLOTS_IN_INVENTORY: List<ItemSlot> =
 
 object Hotbar {
 
-    fun findClosestItem(items: Array<Item>): HotbarItemSlot? {
+    fun findClosestItem(vararg items: Item): HotbarItemSlot? {
         return HOTBAR_SLOTS.filter { it.itemStack.item in items }
             .minByOrNull { abs(player.inventory.selectedSlot - it.hotbarSlotForServer) }
     }
@@ -133,6 +133,10 @@ fun hasInventorySpace() = player.inventory.main.any { it.isEmpty }
 
 fun findEmptyStorageSlotsInInventory(): List<ItemSlot> {
     return (INVENTORY_SLOTS + HOTBAR_SLOTS).filter { it.itemStack.isEmpty }
+}
+
+fun findNonEmptyStorageSlotsInInventory(): List<ItemSlot> {
+    return (INVENTORY_SLOTS + HOTBAR_SLOTS).filter { !it.itemStack.isEmpty }
 }
 
 fun findNonEmptySlotsInInventory(): List<ItemSlot> {

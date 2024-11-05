@@ -170,7 +170,10 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
         val messageKey = if (username == null) "staffDetected" else "specificStaffDetected"
         val message = message(messageKey, username ?: "")
         notification("Staff Detected", message, NotificationEvent.Severity.INFO)
-        chat(warning(message(messageKey, username ?: "")))
+        chat(
+            warning(message(messageKey, username ?: "")),
+            metadata = MessageMetadata(id = "${this.name}#${username ?: "generic"}")
+        )
     }
 
 }

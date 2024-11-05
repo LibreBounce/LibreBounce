@@ -21,19 +21,15 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.features.module.modules.world.autoFarm.ModuleAutoFarm
+import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
+import net.ccbluex.liquidbounce.utils.kotlin.range
 import net.ccbluex.liquidbounce.utils.kotlin.step
-import net.ccbluex.liquidbounce.utils.math.minus
-import net.ccbluex.liquidbounce.utils.math.plus
-import net.ccbluex.liquidbounce.utils.math.times
-import net.ccbluex.liquidbounce.utils.math.toVec3d
+import net.ccbluex.liquidbounce.utils.math.*
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
 import net.minecraft.util.math.BlockPos
@@ -82,8 +78,10 @@ fun canSeeUpperBlockSide(
     val y = pos.y + 0.99
     val minZ = pos.z.toDouble()
 
-    for (x in 0.1..0.9 step 0.4) {
-        for (z in 0.1..0.9 step 0.4) {
+    val rangeXZ = doubleArrayOf(0.1, 0.5, 0.9)
+
+    for (x in rangeXZ) {
+        for (z in rangeXZ) {
             val vec3 = Vec3d(minX + x, y, minZ + z)
 
             // skip because of out of range
@@ -208,9 +206,7 @@ fun raytraceBlockSide(
     wallsRangeSquared: Double,
     shapeContext: ShapeContext
 ): VecRotation? {
-    chat(side.toString())
-
-    pos.getState()?.getOutlineShape(mc.world, pos, shapeContext)?.let { shape ->
+    pos.getState()?.getOutlineShape(world, pos, shapeContext)?.let { shape ->
         val sortedShapes = shape.boundingBoxes.sortedBy {
             -(it.maxX - it.minX) * (it.maxY - it.minY) * (it.maxZ - it.minZ)
         }
@@ -235,32 +231,27 @@ fun raytraceBlockSide(
 //            chat(side.toString())
 
 
-            for (a in 0.05..0.95 step 0.1) {
-                for (b in 0.05..0.95 step 0.1) {
-                    val spot = pointOnBlockSide(side, a, b, box) + pos.toVec3d()
+            range(0.05..0.95 step 0.1, 0.05..0.95 step 0.1) { a, b ->
+                val spot = pointOnBlockSide(side, a, b, box) + pos.toVec3d()
 
-                    ModuleDebug.debugGeometry(ModuleAutoFarm, "deddee", ModuleDebug.DebuggedPoint(spot, Color4b.RED))
-                    considerSpot(
-                        spot,
-                        box,
-                        eyes,
-                        visibilityPredicate,
-                        rangeSquared,
-                        wallsRangeSquared,
-                        spot,
-                        bestRotationTracker,
-                    )
-
-                }
+                ModuleDebug.debugGeometry(ModuleAutoFarm, "deddee", ModuleDebug.DebuggedPoint(spot, Color4b.RED))
+                considerSpot(
+                    spot,
+                    box,
+                    eyes,
+                    visibilityPredicate,
+                    rangeSquared,
+                    wallsRangeSquared,
+                    spot,
+                    bestRotationTracker,
+                )
             }
 
             bestRotationTracker.bestVisible?.let {
-                chat("found visible")
                 return it
             }
 
             bestRotationTracker.bestInvisible?.let {
-                chat("found invisible")
                 // if we found a point we can place a block on, on this face there is no need to look at the others
                 return it
             }
@@ -287,12 +278,9 @@ fun raytracePlaceBlock(
 ): VecRotation? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
-    val player = mc.player
     val shapeContext = ShapeContext.of(player)
     val eyeOffsetFromBlock = pos.toCenterPos() - eyes
     for (side in sidesToCheck) {
-//        chat(side.toString())
-
         // The difference between the eyes and the center of the face.
         // Using 0.45 instead of 0.5 to avoid too narrow angles
         val eyeOffsetFromFace = eyeOffsetFromBlock.offset(side, 0.45)
@@ -358,27 +346,17 @@ fun raytraceBox(
         bestRotationTracker,
     )
 
-    for (x in 0.0..1.0 step 0.1) {
-        for (y in 0.0..1.0 step 0.1) {
-            for (z in 0.0..1.0 step 0.1) {
-                val spot = Vec3d(
-                    box.minX + (box.maxX - box.minX) * x,
-                    box.minY + (box.maxY - box.minY) * y,
-                    box.minZ + (box.maxZ - box.minZ) * z,
-                )
-
-                considerSpot(
-                    spot,
-                    box,
-                    eyes,
-                    visibilityPredicate,
-                    rangeSquared,
-                    wallsRangeSquared,
-                    spot,
-                    bestRotationTracker,
-                )
-            }
-        }
+    scanPositionsInBox(box) { spot ->
+        considerSpot(
+            spot,
+            box,
+            eyes,
+            visibilityPredicate,
+            rangeSquared,
+            wallsRangeSquared,
+            spot,
+            bestRotationTracker,
+        )
     }
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
@@ -456,18 +434,14 @@ private inline fun scanPositionsInBox(
     step: Double = 0.1,
     fn: (Vec3d) -> Unit,
 ) {
-    for (x in 0.1..0.9 step step) {
-        for (y in 0.1..0.9 step step) {
-            for (z in 0.1..0.9 step step) {
-                val vec3 = Vec3d(
-                    box.minX + (box.maxX - box.minX) * x,
-                    box.minY + (box.maxY - box.minY) * y,
-                    box.minZ + (box.maxZ - box.minZ) * z,
-                )
+    for ((x, y, z) in Vec3d(0.1, 0.1, 0.1)..Vec3d(0.9, 0.9, 0.9) step step) {
+        val vec3 = Vec3d(
+            box.minX + (box.maxX - box.minX) * x,
+            box.minY + (box.maxY - box.minY) * y,
+            box.minZ + (box.maxZ - box.minZ) * z,
+        )
 
-                fn(vec3)
-            }
-        }
+        fn(vec3)
     }
 }
 
@@ -488,29 +462,27 @@ fun raytraceUpperBlockSide(
 
     val bestRotationTracker = BestRotationTracker(rotationPreference)
 
-    for (x in 0.1..0.9 step 0.1) {
-        for (z in 0.1..0.9 step 0.1) {
-            val vec3 = vec3d.add(x, 0.0, z)
+    range(0.1..0.9 step 0.1, 0.1..0.9 step 0.1) { x, z ->
+        val vec3 = vec3d.add(x, 0.0, z)
 
-            // skip because of out of range
-            val distance = eyes.squaredDistanceTo(vec3)
+        // skip because of out of range
+        val distance = eyes.squaredDistanceTo(vec3)
 
-            if (distance > rangeSquared) {
-                continue
-            }
-
-            // check if target is visible to eyes
-            val visible = facingBlock(eyes, vec3, expectedTarget, Direction.UP)
-
-            // skip because not visible in range
-            if (!visible && distance > wallsRangeSquared) {
-                continue
-            }
-
-            val rotation = RotationManager.makeRotation(vec3, eyes)
-
-            bestRotationTracker.considerRotation(VecRotation(rotation, vec3), visible)
+        if (distance > rangeSquared) {
+            return@range
         }
+
+        // check if target is visible to eyes
+        val visible = facingBlock(eyes, vec3, expectedTarget, Direction.UP)
+
+        // skip because not visible in range
+        if (!visible && distance > wallsRangeSquared) {
+            return@range
+        }
+
+        val rotation = RotationManager.makeRotation(vec3, eyes)
+
+        bestRotationTracker.considerRotation(VecRotation(rotation, vec3), visible)
     }
 
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible

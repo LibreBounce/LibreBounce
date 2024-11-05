@@ -24,28 +24,30 @@ import net.ccbluex.liquidbounce.api.oauth.ClientAccount.Companion.EMPTY_ACCOUNT
 import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient.startAuth
+import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder.Companion.BOOLEAN_VALIDATOR
+import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.destructClient
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.wipeClient
+import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.web.integration.BrowserScreen
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler.clientJcef
-import net.ccbluex.liquidbounce.web.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.web.theme.ThemeManager
-import net.ccbluex.liquidbounce.web.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.web.theme.component.components
-import net.ccbluex.liquidbounce.web.theme.component.customComponents
-import net.ccbluex.liquidbounce.web.theme.component.types.FrameComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.HtmlComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.ImageComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.TextComponent
+import net.ccbluex.liquidbounce.integration.BrowserScreen
+import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationHandler.clientJcef
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.components
+import net.ccbluex.liquidbounce.integration.theme.component.customComponents
+import net.ccbluex.liquidbounce.integration.theme.component.types.ImageComponent
+import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.util.Util
@@ -72,6 +74,8 @@ object CommandClient {
         .subcommand(prefixCommand())
         .subcommand(destructCommand())
         .subcommand(accountCommand())
+        .subcommand(cosmeticsCommand())
+        .subcommand(resetCommand())
         .build()
 
     private fun infoCommand() = CommandBuilder
@@ -299,20 +303,6 @@ object CommandClient {
                     chat("Successfully added text component.")
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("frame")
-                .parameter(
-                    ParameterBuilder.begin<String>("url")
-                        .vararg()
-                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                        .build()
-                ).handler { command, args ->
-                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
-                    customComponents += FrameComponent(arg)
-                    ComponentOverlay.fireComponentsUpdate()
-
-                    chat("Successfully added frame component.")
-                }.build()
-            )
             .subcommand(CommandBuilder.begin("image")
                 .parameter(
                     ParameterBuilder.begin<String>("url")
@@ -327,20 +317,7 @@ object CommandClient {
                     chat("Successfully added image component.")
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("html")
-                .parameter(
-                    ParameterBuilder.begin<String>("code")
-                        .vararg()
-                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                        .build()
-                ).handler { command, args ->
-                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
-                    customComponents += HtmlComponent(arg)
-                    ComponentOverlay.fireComponentsUpdate()
-
-                    chat("Successfully added html component.")
-                }.build()
-            ).build()
+            .build()
         )
         .subcommand(CommandBuilder.begin("remove")
             .parameter(
@@ -467,7 +444,7 @@ object CommandClient {
         .hub()
         .subcommand(CommandBuilder.begin("login")
             .handler { command, args ->
-                if (ClientAccountManager.account != EMPTY_ACCOUNT) {
+                if (ClientAccountManager.clientAccount != EMPTY_ACCOUNT) {
                     chat(regular("You are already logged in."))
                     return@handler
                 }
@@ -475,7 +452,7 @@ object CommandClient {
                 chat(regular("Starting OAuth authorization process..."))
                 OAuthClient.runWithScope {
                     val account = startAuth { Util.getOperatingSystem().open(it) }
-                    ClientAccountManager.account = account
+                    ClientAccountManager.clientAccount = account
                     ConfigSystem.storeConfigurable(ClientAccountManager)
                     chat(regular("Successfully authorized client."))
                 }
@@ -483,14 +460,14 @@ object CommandClient {
         )
         .subcommand(CommandBuilder.begin("logout")
             .handler { command, args ->
-                if (ClientAccountManager.account == EMPTY_ACCOUNT) {
+                if (ClientAccountManager.clientAccount == EMPTY_ACCOUNT) {
                     chat(regular("You are not logged in."))
                     return@handler
                 }
 
                 chat(regular("Logging out..."))
                 OAuthClient.runWithScope {
-                    ClientAccountManager.account = EMPTY_ACCOUNT
+                    ClientAccountManager.clientAccount = EMPTY_ACCOUNT
                     ConfigSystem.storeConfigurable(ClientAccountManager)
                     chat(regular("Successfully logged out."))
                 }
@@ -498,7 +475,7 @@ object CommandClient {
         )
         .subcommand(CommandBuilder.begin("info")
             .handler { command, args ->
-                if (ClientAccountManager.account == EMPTY_ACCOUNT) {
+                if (ClientAccountManager.clientAccount == EMPTY_ACCOUNT) {
                     chat(regular("You are not logged in."))
                     return@handler
                 }
@@ -506,7 +483,7 @@ object CommandClient {
                 chat(regular("Getting user information..."))
                 OAuthClient.runWithScope {
                     runCatching {
-                        val account = ClientAccountManager.account
+                        val account = ClientAccountManager.clientAccount
                         account.updateInfo()
                         account
                     }.onSuccess { account ->
@@ -520,6 +497,44 @@ object CommandClient {
 
                 }
             }.build()
+        )
+        .build()
+
+    private fun resetCommand() = CommandBuilder
+        .begin("reset")
+        .handler { command, _ ->
+            AutoConfig.loadingNow = true
+            ModuleManager
+                // TODO: Remove when HUD no longer contains the Element Configuration
+                .filter { module -> module !is ModuleHud  }
+                .forEach { it.restore() }
+            AutoConfig.loadingNow = false
+            chat(regular(command.result("successfullyReset")))
+        }
+        .build()
+
+    private fun cosmeticsCommand() = CommandBuilder
+        .begin("cosmetics")
+        .hub()
+        .subcommand(
+            CommandBuilder.begin("refresh")
+                .handler { command, _ ->
+                    chat(regular("Refreshing cosmetics..."))
+                    CosmeticService.carriersCosmetics.clear()
+                    ClientAccountManager.clientAccount.cosmetics = null
+
+                    CosmeticService.refreshCarriers(true) {
+                        chat(regular("Cosmetic System has been refreshed."))
+                    }
+                }
+                .build()
+        )
+        .subcommand(
+            CommandBuilder.begin("manage")
+                .handler { _, _ ->
+                    browseUrl("https://user.liquidbounce.net/cosmetics")
+                }
+                .build()
         )
         .build()
 

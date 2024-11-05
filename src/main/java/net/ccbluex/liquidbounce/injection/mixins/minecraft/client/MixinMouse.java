@@ -19,18 +19,18 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.MouseButtonEvent;
-import net.ccbluex.liquidbounce.event.events.MouseCursorEvent;
-import net.ccbluex.liquidbounce.event.events.MouseRotationEvent;
-import net.ccbluex.liquidbounce.event.events.MouseScrollEvent;
+import net.ccbluex.liquidbounce.event.events.*;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleZoom;
 import net.minecraft.client.Mouse;
-import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Mouse.class)
 public class MixinMouse {
@@ -51,6 +51,13 @@ public class MixinMouse {
         EventManager.INSTANCE.callEvent(new MouseScrollEvent(horizontal, vertical));
     }
 
+    @Inject(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z", shift = At.Shift.BEFORE), cancellable = true)
+    private void hookMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci, @Local(ordinal = 2) int k) {
+        if (EventManager.INSTANCE.callEvent(new MouseScrollInHotbarEvent(k)).isCancelled()) {
+            ci.cancel();
+        }
+    }
+
     /**
      * Hook mouse cursor event
      */
@@ -59,17 +66,31 @@ public class MixinMouse {
         EventManager.INSTANCE.callEvent(new MouseCursorEvent(x, y));
     }
 
+    @ModifyExpressionValue(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/Perspective;isFirstPerson()Z"))
+    private boolean injectZoomCondition1(boolean original) {
+        return original || ModuleZoom.INSTANCE.getEnabled();
+    }
+
+    @ModifyExpressionValue(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingSpyglass()Z"))
+    private boolean injectZoomCondition2(boolean original) {
+        return original || ModuleZoom.INSTANCE.getEnabled();
+    }
+
     /**
      * Hook mouse cursor event
      */
-    @Redirect(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"), require = 1, allow = 1)
-    private void hookUpdateMouse(ClientPlayerEntity entity, double cursorDeltaX, double cursorDeltaY) {
+    @ModifyArgs(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"), require = 1, allow = 1)
+    private void modifyMouseRotationInput(Args args) {
+        var cursorDeltaX = (double) args.get(0);
+        var cursorDeltaY = (double) args.get(1);
+
         final MouseRotationEvent event = new MouseRotationEvent(cursorDeltaX, cursorDeltaY);
         EventManager.INSTANCE.callEvent(event);
         if (event.isCancelled())
             return;
 
-        entity.changeLookDirection(event.getCursorDeltaX(), event.getCursorDeltaY());
+        args.set(0, event.getCursorDeltaX());
+        args.set(1, event.getCursorDeltaY());
     }
 
 }

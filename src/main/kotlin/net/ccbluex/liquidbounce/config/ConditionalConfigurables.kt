@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.QuickImports
 import net.ccbluex.liquidbounce.script.ScriptApi
-import net.ccbluex.liquidbounce.web.socket.protocol.ProtocolExclude
+import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 
 /**
  * Should handle events when enabled. Allows the client-user to toggle features. (like modules)
@@ -80,7 +80,8 @@ class ChoiceConfigurable<T : Choice>(
 ) : Configurable(name, valueType = ValueType.CHOICE) {
 
     var choices: MutableList<T> = choicesCallback(this).toMutableList()
-    var activeChoice: T = activeChoiceCallback(this)
+    private var defaultChoice: T = activeChoiceCallback(this)
+    var activeChoice: T = defaultChoice
 
     fun newState(state: Boolean) {
         if (state) {
@@ -104,15 +105,31 @@ class ChoiceConfigurable<T : Choice>(
         if (this.activeChoice.handleEvents()) {
             this.activeChoice.disable()
         }
-        this.activeChoice = newChoice
-        if (this.activeChoice.handleEvents()) {
-            this.activeChoice.enable()
-        }
 
         // Don't remove this! This is important. We need to call the listeners of the choice in order to update
         // the other systems accordingly. For whatever reason the conditional configurable is bypassing the value system
-        // which the other configurables use so we do it manually.
-        set(mutableListOf(this.activeChoice))
+        // which the other configurables use, so we do it manually.
+        set(mutableListOf(newChoice), apply = {
+            this.activeChoice = it[0] as T
+        })
+
+        if (this.activeChoice.handleEvents()) {
+            this.activeChoice.enable()
+        }
+    }
+
+    override fun restore() {
+        if (this.activeChoice.handleEvents()) {
+            this.activeChoice.disable()
+        }
+
+        set(mutableListOf(defaultChoice), apply = {
+            this.activeChoice = it[0] as T
+        })
+
+        if (this.activeChoice.handleEvents()) {
+            this.activeChoice.enable()
+        }
     }
 
     @ScriptApi

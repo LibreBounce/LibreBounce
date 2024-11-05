@@ -39,6 +39,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     OverlayRenderEvent::class,
     ScreenRenderEvent::class,
     WindowResizeEvent::class,
+    FrameBufferResizeEvent::class,
     MouseButtonEvent::class,
     MouseScrollEvent::class,
     MouseCursorEvent::class,
@@ -106,6 +107,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ServerConnectEvent::class,
     ServerPingedEvent::class,
     TargetChangeEvent::class,
+    BlockCountChangeEvent::class,
     GameModeChangeEvent::class,
     ComponentsUpdate::class,
     ResourceReloadEvent::class,
@@ -118,7 +120,11 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ScheduleInventoryActionEvent::class,
     SpaceSeperatedNamesChangeEvent::class,
     ClickGuiScaleChangeEvent::class,
-    BrowserUrlChangeEvent::class
+    BrowserUrlChangeEvent::class,
+    TagEntityEvent::class,
+    MouseScrollInHotbarEvent::class,
+    PlayerFluidCollisionCheckEvent::class,
+    PlayerSneakMultiplier::class,
 )
 
 /**

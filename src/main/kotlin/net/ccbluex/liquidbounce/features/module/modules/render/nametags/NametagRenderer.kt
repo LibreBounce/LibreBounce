@@ -53,18 +53,18 @@ class NametagRenderer {
         env: RenderEnvironment,
         info: NametagInfo,
         pos: Vec3,
-    ) {
+    ) = with(env) {
         val c = Fonts.DEFAULT_FONT_SIZE.toFloat()
 
         val scale = 1.0F / (c * 0.15F) * ModuleNametags.scale
 
-        env.matrixStack.push()
-        env.matrixStack.translate(pos.x, pos.y, pos.z)
-        env.matrixStack.scale(scale, scale, 1.0F)
+        matrixStack.push()
+        matrixStack.translate(pos.x, pos.y, pos.z)
+        matrixStack.scale(scale, scale, 1.0F)
 
         val x =
             ModuleNametags.fontRenderer.draw(
-                info.text,
+                ModuleNametags.fontRenderer.process(info.text),
                 0.0F,
                 0.0F,
                 shadow = true,
@@ -72,7 +72,7 @@ class NametagRenderer {
             )
 
         // Make the model view matrix center the text when rendering
-        env.matrixStack.translate(-x * 0.5F, -ModuleNametags.fontRenderer.height * 0.5F, 0.00F)
+        matrixStack.translate(-x * 0.5F, -ModuleNametags.fontRenderer.height * 0.5F, 0.00F)
 
         ModuleNametags.fontRenderer.commit(env, fontBuffers)
 
@@ -85,11 +85,11 @@ class NametagRenderer {
             lineBuffers.drawQuadOutlines(env, q1, q2)
         }
 
-        if (ModuleNametags.items) {
+        if (ModuleNametags.ShowOptions.items) {
             drawItemList(pos, info.items)
         }
 
-        env.matrixStack.pop()
+        matrixStack.pop()
     }
 
     private fun drawItemList(
@@ -101,6 +101,16 @@ class NametagRenderer {
         dc.matrices.translate(pos.x, pos.y - NAMETAG_PADDING, pos.z)
         dc.matrices.scale(ITEM_SCALE * ModuleNametags.scale, ITEM_SCALE * ModuleNametags.scale, 1.0F)
         dc.matrices.translate(-itemsToRender.size * ITEM_SIZE / 2.0F, -ITEM_SIZE.toFloat(), 0.0F)
+
+        dc.fill(
+            0,
+            0,
+            itemsToRender.size * ITEM_SIZE,
+            ITEM_SIZE,
+            Color4b.BLACK.alpha(0).toRGBA()
+        )
+
+        dc.matrices.translate(0.0F, 0.0F, 100.0F)
 
         itemsToRender.forEachIndexed { index, itemStack ->
             dc.drawItem(itemStack, index * ITEM_SIZE, 0)

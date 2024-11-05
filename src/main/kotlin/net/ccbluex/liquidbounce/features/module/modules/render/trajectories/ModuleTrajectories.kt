@@ -30,10 +30,8 @@ import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.hit.EntityHitResult
-import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
 import kotlin.math.sin
@@ -115,11 +113,13 @@ object ModuleTrajectories : Module("Trajectories", Category.RENDER) {
             cos(yawRadians) * cos(pitchRadians).toDouble()
         ).normalize() * trajectoryInfo.initialVelocity
 
-        velocity += Vec3d(
-            otherPlayer.velocity.x,
-            if (otherPlayer.isOnGround) 0.0 else otherPlayer.velocity.y,
-            otherPlayer.velocity.z
-        )
+        if (trajectoryInfo.copiesPlayerVelocity) {
+            velocity += Vec3d(
+                otherPlayer.velocity.x,
+                if (otherPlayer.isOnGround) 0.0 else otherPlayer.velocity.y,
+                otherPlayer.velocity.z
+            )
+        }
 
         val renderer = TrajectoryInfoRenderer(
             owner = otherPlayer,

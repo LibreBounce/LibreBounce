@@ -22,8 +22,8 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.web.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.web.integration.VrScreen
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.VrScreen
 import org.lwjgl.glfw.GLFW
 
 /**
@@ -39,6 +39,9 @@ object ModuleClickGui :
     private val scale by float("Scale", 1f, 0.5f..2f).onChanged {
         EventManager.callEvent(ClickGuiScaleChangeEvent(it))
     }
+
+    @Suppress("UnusedPrivateProperty")
+    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
 
     override fun enable() {
         // Pretty sure we are not in a game, so we can't open the clickgui

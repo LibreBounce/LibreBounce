@@ -18,20 +18,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleDerp
-import net.ccbluex.liquidbounce.render.drawLineStrip
+import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
-import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.util.Pair
+import net.minecraft.util.math.Box
 
 /**
  * Rotations module
@@ -41,27 +41,70 @@ import net.minecraft.util.Pair
 
 object ModuleRotations : Module("Rotations", Category.RENDER) {
 
-    val showRotationVector by boolean("ShowRotationVector", false)
-    val pov by boolean("POV", false)
+    /**
+     * Body part to modify the rotation of.
+     */
+    val bodyParts by enumChoice("BodyParts", BodyPart.BOTH)
+
+    @Suppress("unused")
+    enum class BodyPart(
+        override val choiceName: String,
+        val head: Boolean,
+        val body: Boolean
+    ) : NamedChoice {
+        BOTH("Both", true, true),
+        HEAD("Head", true, false),
+        BODY("Body", false, true)
+    }
+
+    /**
+     * Smoothes the rotation visually only.
+     */
+    private val smoothRotations by boolean("SmoothRotation", false)
+
+    /**
+     * Changes the perspective of the camera to match the Rotation Manager perspective
+     * without changing the player perspective.
+     */
+    val camera by boolean("Camera", false)
+    private val vectorLine by color("VectorLine", Color4b.WHITE.alpha(0)) // alpha 0 means OFF
+    private val vectorDot by color("VectorDot", Color4b(0x00, 0x80, 0xFF, 0x00))
 
     var rotationPitch: Pair<Float, Float> = Pair(0f, 0f)
+    private var lastRotation: Rotation? = null
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
+    @Suppress("unused")
+    private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
 
-        if (!showRotationVector)
-            return@handler
+        val drawVectorLine = vectorLine.a > 0
+        val drawVectorDot = vectorDot.a > 0
 
-        val rotation = RotationManager.currentRotation ?: return@handler
-        val camera = mc.gameRenderer.camera
+        if (drawVectorLine || drawVectorDot) {
+            val rotation = RotationManager.currentRotation ?: return@handler
+            val camera = mc.gameRenderer.camera
 
-        val eyeVector = Vec3(0.0, 0.0, 1.0)
-            .rotatePitch((-Math.toRadians(camera.pitch.toDouble())).toFloat())
-            .rotateYaw((-Math.toRadians(camera.yaw.toDouble())).toFloat())
+            val eyeVector = Vec3(0.0, 0.0, 1.0)
+                .rotatePitch((-Math.toRadians(camera.pitch.toDouble())).toFloat())
+                .rotateYaw((-Math.toRadians(camera.yaw.toDouble())).toFloat())
 
-        renderEnvironmentForWorld(matrixStack) {
-            withColor(Color4b.WHITE) {
-                drawLineStrip(eyeVector, eyeVector + Vec3(rotation.rotationVec * 100.0))
+            if (drawVectorLine) {
+                renderEnvironmentForWorld(matrixStack) {
+                    withColor(vectorLine) {
+                        // todo: interpolate
+                        drawLineStrip(eyeVector, eyeVector + Vec3(rotation.rotationVec * 100.0))
+                    }
+                }
+            }
+
+            if (drawVectorDot) {
+                renderEnvironmentForWorld(matrixStack) {
+                    withColor(vectorDot) {
+                        // todo: interpolate
+                        val vector = eyeVector + Vec3(rotation.rotationVec * 100.0)
+                        drawSolidBox(Box.of(vector.toVec3d(), 2.5, 2.5, 2.5))
+                    }
+                }
             }
         }
     }
@@ -87,7 +130,28 @@ object ModuleRotations : Module("Rotations", Category.RENDER) {
         val server = RotationManager.serverRotation
         val current = RotationManager.currentRotation
 
+        // Apply smoothing if enabled
+        if (smoothRotations && current != null && lastRotation != null) {
+            val smoothedRotation = smoothRotation(lastRotation!!, current)
+            lastRotation = smoothedRotation
+            return smoothedRotation
+        }
+
+        lastRotation = current ?: server
         return current ?: server
     }
 
+    /**
+     * Rotation Smoothing
+     */
+    private fun smoothRotation(from: Rotation, to: Rotation): Rotation {
+        val diffYaw = to.yaw - from.yaw
+        val diffPitch = to.pitch - from.pitch
+        val smoothingFactor = 0.25f
+
+        val smoothedYaw = from.yaw + diffYaw * smoothingFactor
+        val smoothedPitch = from.pitch + diffPitch * smoothingFactor
+
+        return Rotation(smoothedYaw, smoothedPitch)
+    }
 }

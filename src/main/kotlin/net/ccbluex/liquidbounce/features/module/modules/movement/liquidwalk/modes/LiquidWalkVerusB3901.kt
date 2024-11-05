@@ -54,7 +54,7 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
             return@handler
         }
 
-        if (event.state.block is FluidBlock && !isBlockAtPosition(player.box) { it is FluidBlock }) {
+        if (event.state.block is FluidBlock && !player.box.isBlockAtPosition { it is FluidBlock }) {
             event.shape = VoxelShapes.fullCube()
         }
     }

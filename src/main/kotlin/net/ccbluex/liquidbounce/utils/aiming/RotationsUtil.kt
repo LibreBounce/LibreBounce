@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -64,34 +65,39 @@ open class RotationsConfigurable(
 
     var angleSmooth = choices<AngleSmoothMode>(owner, "AngleSmooth", { it.choices[0] }, {
         arrayOf(
+            NoneAngleSmoothMode(it),
             LinearAngleSmoothMode(it),
             BezierAngleSmoothMode(it),
             SigmoidAngleSmoothMode(it),
-            ConditionalLinearAngleSmoothMode(it)
+            ConditionalLinearAngleSmoothMode(it),
+            AccelerationSmoothMode(it)
         )
     })
 
     private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
     private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
 
     var fixVelocity by boolean("FixVelocity", fixVelocity)
     val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
-    private val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
+    val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
     private val changeLook by boolean("ChangeLook", changeLook)
 
     fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
-                  considerInventory: Boolean = false) = AimPlan(
+                  considerInventory: Boolean = false, whenReached: RestrictedSingleUseAction? = null) = AimPlan(
         rotation,
         vec,
         entity,
         angleSmooth.activeChoice,
         slowStart,
         failFocus,
+        shortStop,
         ticksUntilReset,
         resetThreshold,
         considerInventory,
         fixVelocity,
         changeLook,
+        whenReached
     )
 
     fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
@@ -103,6 +109,7 @@ open class RotationsConfigurable(
             angleSmooth.activeChoice,
             slowStart,
             failFocus,
+            shortStop,
             ticksUntilReset,
             resetThreshold,
             considerInventory,
@@ -144,7 +151,11 @@ object RotationManager : Listenable {
      */
     var currentRotation: Rotation? = null
         set(value) {
-            previousRotation = field ?: mc.player?.rotation ?: Rotation.ZERO
+            if (value == null) {
+                previousRotation = null
+            } else {
+                previousRotation = field ?: mc.player?.rotation ?: Rotation.ZERO
+            }
 
             field = value
         }
@@ -197,9 +208,12 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module
+        provider: Module,
+        whenReached: RestrictedSingleUseAction? = null
     ) {
-        aimAt(configurable.toAimPlan(rotation, considerInventory = considerInventory), priority, provider)
+        aimAt(configurable.toAimPlan(
+            rotation, considerInventory = considerInventory, whenReached = whenReached
+        ), priority, provider)
     }
 
     fun aimAt(plan: AimPlan, priority: Priority, provider: Module) {
@@ -275,8 +289,9 @@ object RotationManager : Listenable {
             mc.currentScreen !is GenericContainerScreen) || !storedAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
-            storedAimPlan.nextRotation(currentRotation ?: playerRotation, aimPlan == null)
-                    .fixedSensitivity().let {
+            val nextRotation = storedAimPlan.nextRotation(currentRotation ?: playerRotation, aimPlan == null)
+
+            nextRotation.fixedSensitivity().let {
                 currentRotation = it
                 previousAimPlan = storedAimPlan
 
@@ -284,6 +299,8 @@ object RotationManager : Listenable {
                     player.applyRotation(it)
                 }
             }
+
+            aimPlan?.whenReached?.invoke()
         }
         // Update reset ticks
         aimPlanHandler.tick()
@@ -292,7 +309,7 @@ object RotationManager : Listenable {
     /**
      * Checks if it should update the server-side rotations
      */
-    private fun allowedToUpdate() = !CombatManager.shouldPauseRotation()
+    private fun allowedToUpdate() = !CombatManager.shouldPauseRotation
 
     fun rotationMatchesPreviousRotation(): Boolean {
         val player = mc.player ?: return false
@@ -443,7 +460,7 @@ class LeastDifferencePreference(
 
     companion object {
         val LEAST_DISTANCE_TO_CURRENT_ROTATION: LeastDifferencePreference
-            get() = LeastDifferencePreference(RotationManager.actualServerRotation)
+            get() = LeastDifferencePreference(RotationManager.currentRotation ?: player.rotation)
 
         fun leastDifferenceToLastPoint(eyes: Vec3d, point: Vec3d): LeastDifferencePreference {
             return LeastDifferencePreference(RotationManager.makeRotation(vec = point, eyes = eyes), point)
