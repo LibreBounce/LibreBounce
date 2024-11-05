@@ -308,7 +308,6 @@
   "liquidbounce.module.terrainSpeed.description": "Дозволяє вам рухатися швидше на певних поверхнях.",
   "liquidbounce.module.antiAfk.description": "Запобігає відключенню за AFK, імітуючи рух.",
   "liquidbounce.module.autoFish.description": "Автоматично ловить рибу, коли ви використовуєте вудку.",
-  "liquidbounce.module.autoTotem.description": "Автоматично розміщує тотем безсмертя у другу руку.",
   "liquidbounce.module.chestStealer.description": "Автоматично бере всі предмети з скрині.",
   "liquidbounce.module.regen.description": "Відновлює ваше здоров'я значно швидше.",
   "liquidbounce.module.zoot.description": "Прибирає всі погані ефекти/вогонь.",

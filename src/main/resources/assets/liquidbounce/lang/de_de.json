@@ -387,7 +387,6 @@
   "liquidbounce.module.autoPlay.description": "Fügt dich automatisch in Warteschlangen zu, um wieder z.B. SkyWars zu spielen.",
   "liquidbounce.module.autoRespawn.description": "Lässt dich nach dem Tod automatisch wieder respawnen.",
   "liquidbounce.module.autoTool.description": "Wählt automatisch das beste Werkzeug in deinem Inventar aus, um einen Block abzubauen.",
-  "liquidbounce.module.autoTotem.description": "Platziert automatisch ein Totem in der Nebenhand.",
   "liquidbounce.module.autoWalk.description": "Lässt dich automatisch in die Richtung gehen, in die du blickst.",
   "liquidbounce.module.autoWeapon.description": "Wählt automatisch die beste Waffe in deiner Hotbar aus.",
   "liquidbounce.module.avoidHazards.description": "Verhindert, dass du auf Blöcke stoßt, die sich negativ auf dich auswirken könnten.",
