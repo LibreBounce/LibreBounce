@@ -207,7 +207,7 @@ public abstract class MixinWorldRenderer {
         }
 
         if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.handleEvents() &&
-                ModuleStorageESP.Glow.INSTANCE.isActive() && ModuleStorageESP.INSTANCE.categorizeEntity(entity) != null) {
+                ModuleStorageESP.Glow.INSTANCE.isActive() && ModuleStorageESP.categorize(entity) != null) {
             return true;
         }
 
@@ -231,7 +231,7 @@ public abstract class MixinWorldRenderer {
 
         if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.handleEvents()
                 && ModuleStorageESP.Glow.INSTANCE.isActive()) {
-            var categorizedEntity = ModuleStorageESP.INSTANCE.categorizeEntity(instance);
+            var categorizedEntity = ModuleStorageESP.categorize(instance);
             if (categorizedEntity != null) {
                 return categorizedEntity.getColor().toARGB();
             }

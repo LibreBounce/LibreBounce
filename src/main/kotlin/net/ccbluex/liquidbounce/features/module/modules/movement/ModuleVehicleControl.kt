@@ -20,6 +20,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -47,12 +48,21 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT) {
         enableLock()
     }
 
-    private val speedHorizontal by float("Horizontal", 0.48f, 0.1f..15f)
-    private val speedVertical by float("Vertical", 0.32f, 0.1f..10f)
+    object BaseSpeed : Configurable("BaseSpeed") {
+        val horizontalSpeed by float("Horizontal", 0.5f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 0.35f, 0.1f..10f)
+    }
+
+    object SprintSpeed : ToggleableConfigurable(this, "SprintSpeed", true) {
+        val horizontalSpeed by float("Horizontal", 5f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 2f, 0.1f..10f)
+    }
 
     private val glide by float("Glide", -0.15f, -0.3f..0.3f)
 
     init {
+        tree(BaseSpeed)
+        tree(SprintSpeed)
         tree(Rehook)
     }
 
@@ -76,11 +86,17 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT) {
             chat(warning(message("quitHelp")))
         }
 
+        val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
+        val hSpeed =
+            if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed
+        val vSpeed =
+            if (useSprintSpeed) SprintSpeed.verticalSpeed else BaseSpeed.verticalSpeed
+
         // Control vehicle
-        val horizontalSpeed = if (player.moving) speedHorizontal.toDouble() else 0.0
+        val horizontalSpeed = if (player.moving) hSpeed.toDouble() else 0.0
         val verticalSpeed = when {
-            mc.options.jumpKey.isPressed -> speedVertical.toDouble()
-            mc.options.sneakKey.isPressed -> -speedVertical.toDouble()
+            mc.options.jumpKey.isPressed -> vSpeed.toDouble()
+            mc.options.sneakKey.isPressed -> -vSpeed.toDouble()
             // If we do not stop the vehicle from going down when touching water, it will
             // drown in water and cannot be controlled anymore
             !vehicle.isTouchingWater -> glide.toDouble()

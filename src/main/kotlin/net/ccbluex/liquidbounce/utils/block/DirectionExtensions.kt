@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.kotlin
+package net.ccbluex.liquidbounce.utils.block
 
-class MutexWithContent<T>(val inner: T) {
-    val lockObject = Any()
+import net.minecraft.util.math.Direction
 
-    inline fun lock(fn: (T) -> Unit) {
-        synchronized(this.lockObject) {
-            fn(this.inner)
-        }
-    }
-}
+val DIRECTIONS_EXCLUDING_UP = arrayOf(
+    Direction.WEST,
+    Direction.EAST,
+    Direction.NORTH,
+    Direction.SOUTH,
+    Direction.DOWN
+)

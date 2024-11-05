@@ -85,7 +85,7 @@ class NametagRenderer {
             lineBuffers.drawQuadOutlines(env, q1, q2)
         }
 
-        if (ModuleNametags.items) {
+        if (ModuleNametags.ShowOptions.items) {
             drawItemList(pos, info.items)
         }
 

@@ -32,11 +32,11 @@ import kotlin.jvm.optionals.getOrDefault
 
 object SphereNukerArea : NukerArea("Sphere") {
 
-    override fun lookupTargets(range: Float, count: Int?): List<Pair<BlockPos, BlockState>> {
-        val rangeSquared = range * range
+    override fun lookupTargets(radius: Float, count: Int?): Sequence<Pair<BlockPos, BlockState>> {
+        val rangeSquared = radius * radius
         val eyesPos = player.eyes
 
-        val positions = searchBlocksInCuboid(range, eyesPos) { pos, state ->
+        val positions = eyesPos.searchBlocksInCuboid(radius) { pos, state ->
             if (state.isNotBreakable(pos)) {
                 return@searchBlocksInCuboid false
             }

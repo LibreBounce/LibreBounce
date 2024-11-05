@@ -31,6 +31,7 @@ import net.minecraft.util.math.BlockPos
 
 object PlatformMode : ModuleAutoBuild.AutoBuildMode("Platform") {
 
+    private val disableOnYChange by boolean("DisableOnYChange", true)
     private val filter by enumChoice("Filter", Filter.WHITELIST)
     private val blocks by blocks("Blocks", hashSetOf(Blocks.OBSIDIAN))
     private val platformSize by int("Size", 3, 1..6)
@@ -43,7 +44,7 @@ object PlatformMode : ModuleAutoBuild.AutoBuildMode("Platform") {
 
     @Suppress("unused")
     private val repeatable = repeatable {
-        if (player.pos.y != startY) {
+        if (disableOnYChange && player.pos.y != startY) {
             ModuleAutoBuild.enabled = false
         }
     }

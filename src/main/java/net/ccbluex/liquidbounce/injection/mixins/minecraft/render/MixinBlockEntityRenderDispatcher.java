@@ -48,7 +48,7 @@ public class MixinBlockEntityRenderDispatcher {
                 && ModuleStorageESP.Glow.INSTANCE.isActive()) {
             var outlineVertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders()
                     .getOutlineVertexConsumers();
-            var type = ModuleStorageESP.INSTANCE.categorizeBlockEntity(blockEntity);
+            var type = ModuleStorageESP.categorize(blockEntity);
 
             if (type != null && type.shouldRender(blockEntity.getPos())) {
                 var color = type.getColor();

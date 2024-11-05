@@ -29,8 +29,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.features.module.modules.world.ModuleBedDefender.mc
-import net.ccbluex.liquidbounce.features.module.modules.world.ModuleBedDefender.player
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
@@ -41,6 +39,8 @@ import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFi
 import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
 import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -86,6 +86,7 @@ class BlockPlacer(
     val ignoreUsingItem by boolean("IgnoreUsingItem", true)
 
     val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
+
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     })
 
@@ -99,7 +100,7 @@ class BlockPlacer(
         }
     }
 
-    private val slotResetDelay by int("SlotResetDelay", 5, 0..40, "ticks")
+    val crystalDestroyer = tree(CrystalDestroyFeature(this, module))
 
     /**
      * Renders all tracked positions that are queued to be placed.
@@ -117,7 +118,8 @@ class BlockPlacer(
     ))
 
     /**
-     * Stores all block positions where blocks should be placed.
+     * Stores all block positions where blocks should be placed paired with a boolean that is `true`
+     * if the position was added by [support].
      */
     val blocks = Object2BooleanLinkedOpenHashMap<BlockPos>()
 
@@ -242,8 +244,7 @@ class BlockPlacer(
                 continue
             }
 
-            if (pos.isBlockedByEntities()) {
-                inaccessible.add(pos)
+            if (isBlocked(pos)) {
                 continue
             }
 
@@ -288,6 +289,27 @@ class BlockPlacer(
         }
 
         return hasPlaced
+    }
+
+    private fun isBlocked(pos: BlockPos): Boolean {
+        if (!pos.getState()!!.isReplaceable) {
+            inaccessible.add(pos)
+            return true
+        }
+
+        val blockedResult = pos.isBlockedByEntitiesReturnCrystal()
+        if (crystalDestroyer.enabled) {
+            blockedResult.value()?.let {
+                crystalDestroyer.currentTarget = it
+            }
+        }
+
+        if (blockedResult.keyBoolean()) {
+            inaccessible.add(pos)
+            return true
+        }
+
+        return false
     }
 
     fun doPlacement(isSupport: Boolean, pos: BlockPos, placementTarget: BlockPlacementTarget) {
@@ -344,7 +366,7 @@ class BlockPlacer(
         return null
     }
 
-    private fun canReach(pos: BlockPos, rotation: Rotation): Boolean {
+    fun canReach(pos: BlockPos, rotation: Rotation): Boolean {
         // not the exact distance but good enough
         val distance = pos.getCenterDistanceSquaredEyes()
         val wallRangeSq = wallRange.toDouble().sq()
@@ -412,6 +434,7 @@ class BlockPlacer(
      */
     fun disable() {
         reset()
+        crystalDestroyer.onDisable()
         targetRenderer.clearSilently()
         placedRenderer.clearSilently()
     }

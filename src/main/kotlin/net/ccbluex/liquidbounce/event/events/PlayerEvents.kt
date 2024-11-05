@@ -76,6 +76,9 @@ class PlayerAfterJumpEvent : Event()
 @Nameable("playerUseMultiplier")
 class PlayerUseMultiplier(var forward: Float, var sideways: Float) : Event()
 
+@Nameable("playerSneakMultiplier")
+class PlayerSneakMultiplier(var multiplier: Float) : Event()
+
 @Nameable("playerInteractedItem")
 class PlayerInteractedItem(val player: PlayerEntity, val hand: Hand, val actionResult: ActionResult) : Event()
 
