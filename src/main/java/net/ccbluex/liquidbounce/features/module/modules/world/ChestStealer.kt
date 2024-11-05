@@ -18,10 +18,10 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeSortedTo
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.isStackUseful
-import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.shuffled
@@ -433,7 +433,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
         if (chestDebug == "Off") return
 
         when (chestDebug.lowercase()) {
-            "text" -> Chat.print(message)
+            "text" -> chat(message)
             "notification" -> hud.addNotification(Notification(message, 500F))
         }
     }

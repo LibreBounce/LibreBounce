@@ -6,15 +6,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.*
-import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
+import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.ListValue
@@ -146,11 +146,11 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                         val isStaff = player in staffList
 
                         if (isStaff && spectator) {
-                            Chat.print("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
+                            chat("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
                         }
 
                         if (!isStaff && otherSpectator) {
-                            Chat.print("§d${player} §3is using the spectator menu §e(compass/left)")
+                            chat("§d${player} §3is using the spectator menu §e(compass/left)")
                         }
                         checkedSpectator.remove(player)
                     }
@@ -178,7 +178,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     autoLeave()
 
                     if (warn == "Chat") {
-                        Chat.print("§3Staff is Watching")
+                        chat("§3Staff is Watching")
                     } else {
                         hud.addNotification(Notification("§3Staff is Watching", 3000F))
                     }
@@ -198,7 +198,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (isStaff && spectator) {
             if (warn == "Chat") {
-                Chat.print("§c[STAFF] §d${player} §3is a spectators")
+                chat("§c[STAFF] §d${player} §3is a spectators")
             } else {
                 hud.addNotification(Notification("§c[STAFF] §d${player} §3is a spectators", 3000F))
             }
@@ -206,7 +206,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (!isStaff && otherSpectator) {
             if (warn == "Chat") {
-                Chat.print("§d${player} §3is a spectators")
+                chat("§d${player} §3is a spectators")
             } else {
                 hud.addNotification(Notification("§d${player} §3is a spectators", 3000F))
             }
@@ -257,7 +257,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             synchronized(checkedStaff) {
                 if (isStaff && player !in checkedStaff) {
                     if (warn == "Chat") {
-                        Chat.print(warnings)
+                        chat(warnings)
                     } else {
                         hud.addNotification(Notification(warnings, 3000F))
                     }
@@ -311,7 +311,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         synchronized(checkedStaff) {
             if (isStaff && playerName !in checkedStaff) {
                 if (warn == "Chat") {
-                    Chat.print(warnings)
+                    chat(warnings)
                 } else {
                     hud.addNotification(Notification(warnings, 3000F))
                 }
@@ -388,20 +388,20 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                         .map { it.trim() }
                         .toSet()
 
-                    Chat.print("§aSuccessfully loaded §9${staffList.size} §astaff names.")
+                    chat("§aSuccessfully loaded §9${staffList.size} §astaff names.")
                     mapOf(url to staffList)
                 }
                 404 -> {
-                    Chat.print("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
+                    chat("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
                     emptyMap()
                 }
                 else -> {
-                    Chat.print("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
+                    chat("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
                     emptyMap()
                 }
             }
         } catch (e: Exception) {
-            Chat.print("§cFailed to load staff list. §9(${e.message})")
+            chat("§cFailed to load staff list. §9(${e.message})")
             e.printStackTrace()
             emptyMap()
         }
