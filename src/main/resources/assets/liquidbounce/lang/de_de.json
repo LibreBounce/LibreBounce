@@ -603,5 +603,7 @@
   "liquidbounce.module.freeLook.description": "Ermöglicht dir, die Kamera frei um deinen Charakter herum zu bewegen.",
   "liquidbounce.module.vehicleControl.messages.quitHelp": "Um das Fahrzeug verlassen zu können, lande auf dem Boden und drücke deine Sneak Taste.",
   "liquidbounce.module.vehicleControl.messages.vehicleTooFar": "Das Fahrzeug ist zu weit entfernt, um erreicht zu werden.",
-  "liquidbounce.module.vehicleControl.messages.vehicleGone": "Das Fahrzeug ist verschwunden."
+  "liquidbounce.module.vehicleControl.messages.vehicleGone": "Das Fahrzeug ist verschwunden.",
+  "liquidbounce.module.dupe.description": "Versucht, automatisch Items aus deinem Inventar mithilfe von Exploits zu duplizieren.",
+  "liquidbounce.module.surround.description": "Baut Löcher, die dich vor Explosionsschaden schützen."
 }
