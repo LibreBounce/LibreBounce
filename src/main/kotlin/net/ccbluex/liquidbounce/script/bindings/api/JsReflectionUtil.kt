@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.api
 
-import net.ccbluex.liquidbounce.utils.mappings.Remapper
+import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 
 object JsReflectionUtil {
 
     @JvmName("classByName")
     fun classByName(name: String): Class<*> = Class.forName(
-        Remapper.remapClassName(name).replace('/', '.')
+        EnvironmentRemapper.remapClassName(name).replace('/', '.')
     )
 
     @JvmName("classByObject")
@@ -38,7 +38,7 @@ object JsReflectionUtil {
 
     @JvmName("newInstanceByName")
     fun newInstanceByName(name: String, vararg args: Any?): Any? =
-        Class.forName(Remapper.remapClassName(name).replace('/', '.'))
+        Class.forName(EnvironmentRemapper.remapClassName(name).replace('/', '.'))
             .getDeclaredConstructor(*args.map { it!!::class.java }.toTypedArray()).apply {
                 isAccessible = true
             }.newInstance(*args)
@@ -50,35 +50,37 @@ object JsReflectionUtil {
         }.newInstance(*args)
 
     @JvmName("getField")
-    fun getField(obj: Any, name: String): Any? = obj::class.java.getDeclaredField(
-        Remapper.remapField(obj::class.java, name, true)
-    ).apply {
-        isAccessible = true
-    }.get(obj)
+    fun getField(obj: Any, name: String): Any? = obj::class.java.fields
+        .find { field ->
+            field.name == EnvironmentRemapper.remapField(obj::class.java, name)
+        }?.apply {
+            isAccessible = true
+        }?.get(obj)
 
-    @JvmName("getStaticField")
-    fun getStaticField(clazz: Class<*>, name: String): Any? = clazz.getDeclaredField(
-        Remapper.remapField(clazz, name, true)
-    ).apply {
-        isAccessible = true
-    }.get(null)
+    @JvmName("getDeclaredField")
+    fun getDeclaredField(clazz: Class<*>, name: String): Any? = clazz.declaredFields
+        .find { field ->
+            field.name == EnvironmentRemapper.remapField(clazz, name)
+        }?.apply {
+            isAccessible = true
+        }?.get(null)
 
     @JvmName("invokeMethod")
     fun invokeMethod(obj: Any, name: String, vararg args: Any?): Any? =
-        obj::class.java.getDeclaredMethod(
-            Remapper.remapField(obj::class.java, name, true),
-            *args.map { it!!::class.java }.toTypedArray()
-        ).apply {
+        obj::class.java.methods.find { method ->
+            method.name == EnvironmentRemapper.remapMethod(obj::class.java, name) &&
+                method.parameterTypes.contentEquals(args.map { it!!::class.java }.toTypedArray())
+        }?.apply {
             isAccessible = true
-        }.invoke(obj, *args)
+        }?.invoke(obj, *args)
 
-    @JvmName("invokeStaticMethod")
-    fun invokeStaticMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? =
-        clazz.getDeclaredMethod(
-            Remapper.remapField(clazz, name, true),
-            *args.map { it!!::class.java }.toTypedArray()
-        ).apply {
+    @JvmName("invokeDeclaredMethod")
+    fun invokeDeclaredMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? =
+        clazz.declaredMethods.find { method ->
+            method.name == EnvironmentRemapper.remapMethod(clazz, name) &&
+                method.parameterTypes.contentEquals(args.map { it!!::class.java }.toTypedArray())
+        }?.apply {
             isAccessible = true
-        }.invoke(null, *args)
+        }?.invoke(null, *args)
 
 }

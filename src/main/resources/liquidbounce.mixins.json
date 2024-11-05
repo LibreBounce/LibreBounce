@@ -84,7 +84,6 @@
     "minecraft.render.MixinPostEffectPass",
     "minecraft.render.MixinRenderTickCounter",
     "minecraft.render.MixinSignText",
-    "sodium.MixinSodiumBlockOcclusionCache",
     "minecraft.render.MixinTextRenderer",
     "minecraft.render.MixinWorldRenderer",
     "minecraft.render.entity.feature.MixinDeadmau5FeatureRenderer",
@@ -92,7 +91,12 @@
     "minecraft.text.MixinChatHudLineVisible",
     "minecraft.text.MixinTextColor",
     "minecraft.text.MixinTranslatableTextContent",
-    "sodium.MixinSodiumLightDataAccessMixin"
+    "sodium.MixinSodiumBlockOcclusionCache",
+    "sodium.MixinSodiumLightDataAccessMixin",
+    "truffle.MixinHostClassDesc",
+    "truffle.MixinHostClassLoader",
+    "truffle.MixinHostContext",
+    "truffle.MixinTruffleLanguage"
   ],
   "server": [],
   "injectors": {
