@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.StringUtils.contains
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.realX
 import net.ccbluex.liquidbounce.utils.realY
 import net.ccbluex.liquidbounce.utils.realZ
@@ -44,18 +45,28 @@ import java.util.concurrent.ConcurrentHashMap
 object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
 
     private val nextBacktrackDelay by IntegerValue("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
-    private val delay by object : IntegerValue("Delay", 80, 0..700) {
+    private val maxDelay: IntegerValue = object : IntegerValue("MaxDelay", 80, 0..700) {
         override fun onChange(oldValue: Int, newValue: Int): Int {
-            if (mode == "Modern")
-            {
+            if (mode == "Modern") {
                 clearPackets()
                 reset()
             }
 
-            return newValue
+            return newValue.coerceIn(0, minDelay.get())
         }
     }
 
+    private val minDelay: IntegerValue = object : IntegerValue("MinDelay", 80, 0..700) {
+        override fun onChange(oldValue: Int, newValue: Int): Int {
+            if (mode == "Modern") {
+                clearPackets()
+                reset()
+            }
+
+            return newValue.coerceIn(0, maxDelay.get())
+        }
+    }
+    private val chance by IntegerValue("Chance", 100, 0..100) { mode == "Modern" }
     val mode by object : ListValue("Mode", arrayOf("Legacy", "Modern"), "Modern") {
         override fun onChanged(oldValue: String, newValue: String) {
             clearPackets()
@@ -118,6 +129,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
     private var ignoreWholeTick = false
 
     private var delayForNextBacktrack = 0L
+
+    private var delay = nextInt(minDelay.get(), maxDelay.get())
 
     // Legacy
     private val maximumCachedPositions by IntegerValue("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
@@ -626,9 +639,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         get() = if (rainbow) rainbow() else Color(red, green, blue)
 
     fun shouldBacktrack() =
-         mc.thePlayer != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
-            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick
-        } ?: false
+         mc.thePlayer != null && target != null &&
+            mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) &&
+            mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR &&
+            nextInt(endExclusive = 100) < chance &&
+            System.currentTimeMillis() >= delayForNextBacktrack &&
+            target?.let {
+                isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick
+            } ?: false
 
     private fun reset() {
         target = null
