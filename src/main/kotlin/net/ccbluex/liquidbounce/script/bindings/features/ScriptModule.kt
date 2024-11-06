@@ -22,15 +22,13 @@ import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.script.Script
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.script.PolyglotScript
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import kotlin.reflect.KClass
 
-class JsModule(val script: Script, moduleObject: Map<String, Any>) : Module(
+class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) : Module(
     name = moduleObject["name"] as String,
     category = Category.fromReadableName(moduleObject["category"] as String)!!
 ) {
@@ -89,19 +87,23 @@ class JsModule(val script: Script, moduleObject: Map<String, Any>) : Module(
         try {
             events[event]?.invoke(payload)
         } catch (throwable: Throwable) {
-            chat(
-                Text.literal("[SAPI] ").styled { it.withColor(Formatting.LIGHT_PURPLE) },
-                variable(script.scriptName),
-                regular("::"),
-                variable(name),
-                regular("::"),
-                variable(event),
-                regular(" threw ["),
-                Text.literal(throwable.javaClass.simpleName).styled { it.withColor(Formatting.DARK_PURPLE) },
-                regular("]: "),
-                variable(throwable.message ?: ""),
-                prefix = false
-            )
+
+            if (inGame) {
+                chat(
+                    variable(script.scriptName),
+                    regular("::"),
+                    variable(name),
+                    regular("::"),
+                    variable(event),
+                    regular(" threw ["),
+                    Text.literal(throwable.javaClass.simpleName).styled { it.withColor(Formatting.DARK_PURPLE) },
+                    regular("]: "),
+                    variable(throwable.message ?: ""),
+                    prefix = false
+                )
+            } else {
+                logger.error("${script.scriptName}::$name -> Event Function $event threw an error", throwable)
+            }
         }
     }
 

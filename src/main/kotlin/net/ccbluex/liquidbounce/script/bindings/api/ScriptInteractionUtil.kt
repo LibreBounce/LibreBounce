@@ -32,7 +32,7 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
-object JsInteractionUtil {
+object ScriptInteractionUtil {
 
     @JvmName("attackEntity")
     fun attackEntity(entity: Entity, swing: Boolean, keepSprint: Boolean) {

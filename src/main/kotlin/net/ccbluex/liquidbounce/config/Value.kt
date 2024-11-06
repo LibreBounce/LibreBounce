@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.ProxyManager
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
@@ -106,7 +106,7 @@ open class Value<T : Any>(
         set(t)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("getValue")
     fun getValue(): Any {
         if (this is ChoiceConfigurable<*>) {
@@ -121,7 +121,7 @@ open class Value<T : Any>(
         }
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("setValue")
     @Suppress("UNCHECKED_CAST")
     fun setValue(t: org.graalvm.polyglot.Value) = runCatching {
@@ -420,7 +420,7 @@ class ChooseListValue<T : NamedChoice>(
         set(newValue)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     fun getChoicesStrings(): Array<String> {
         return this.choices.map { it.choiceName }.toTypedArray()
     }

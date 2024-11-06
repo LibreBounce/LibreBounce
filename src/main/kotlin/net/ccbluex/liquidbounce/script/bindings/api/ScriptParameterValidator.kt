@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyObject
 
-class JsParameterValidator(val bindings: Value) {
+class ScriptParameterValidator(val bindings: Value) {
 
     private fun map(param: String, validator: ParameterVerifier<*>): Value {
         val result = validator.invoke(param)

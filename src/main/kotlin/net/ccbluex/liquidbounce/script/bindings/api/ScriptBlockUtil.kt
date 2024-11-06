@@ -18,22 +18,23 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.api
 
-import net.ccbluex.liquidbounce.utils.item.createItem
-import net.minecraft.item.ItemStack
+import net.ccbluex.liquidbounce.utils.block.getBlock
+import net.ccbluex.liquidbounce.utils.block.getState
+import net.minecraft.block.BlockState
+import net.minecraft.util.math.BlockPos
 
 /**
- * Object used by the script API to provide an easier way of creating items.
+ * Object used by the script API to provide an
  */
-object JsItemUtil {
+object ScriptBlockUtil {
 
-    /**
-     * Create [ItemStack] from [arguments]
-     */
-    fun create(arguments: String): ItemStack = createItem(arguments)
+    @JvmName("newBlockPos")
+    fun newBlockPos(x: Int, y: Int, z: Int): BlockPos = BlockPos(x, y, z)
 
-    /**
-     * Create [amount]x [ItemStack] from [arguments]
-     */
-    fun create(arguments: String, amount: Int): ItemStack = createItem(arguments, amount)
+    @JvmName("getBlock")
+    fun getBlock(blockPos: BlockPos) = blockPos.getBlock()
+
+    @JvmName("getState")
+    fun getState(blockPos: BlockPos): BlockState? = blockPos.getState()
 
 }

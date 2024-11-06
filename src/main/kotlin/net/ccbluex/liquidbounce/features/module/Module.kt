@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.minecraft.client.MinecraftClient
@@ -181,7 +181,7 @@ open class Module(
     /**
      * Allows the user to access values by typing module.settings.<valuename>
      */
-    @ScriptApi
+    @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
 
     init {

@@ -114,6 +114,11 @@ dependencies {
     includeDependency "net.fabricmc:tiny-mappings-parser:0.3.0+build.17"
     includeDependency "org.graalvm.polyglot:polyglot:24.0.2"
     includeDependency "org.graalvm.polyglot:js-community:24.0.2"
+//    includeDependency "org.graalvm.polyglot:python-community:24.0.2"
+//    includeDependency "org.graalvm.polyglot:wasm-community:24.0.2"
+//    includeDependency "org.graalvm.polyglot:java-community:24.0.2"
+//    includeDependency "org.graalvm.polyglot:ruby-community:24.0.2"
+//    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
 
     // SOCKS5 Proxy Support (to stay compatible with ViaFabricPlus)
     includeDependency "io.netty:netty-handler-proxy:4.1.114.Final"

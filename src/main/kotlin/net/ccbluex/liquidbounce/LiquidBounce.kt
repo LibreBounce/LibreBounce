@@ -162,7 +162,7 @@ object LiquidBounce : Listenable {
             ModuleManager.registerInbuilt()
 
             // Load user scripts
-            ScriptManager.loadScripts()
+            ScriptManager.loadAll()
 
             // Load theme and component overlay
             ThemeManager

@@ -16,6 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.script
+package net.ccbluex.liquidbounce.script.bindings.api
 
-annotation class ScriptApi
+import net.ccbluex.liquidbounce.utils.item.createItem
+import net.minecraft.item.ItemStack
+
+/**
+ * Object used by the script API to provide an easier way of creating items.
+ */
+object ScriptItemUtil {
+
+    /**
+     * Create [ItemStack] from [arguments]
+     */
+    fun create(arguments: String): ItemStack = createItem(arguments)
+
+    /**
+     * Create [amount]x [ItemStack] from [arguments]
+     */
+    fun create(arguments: String, amount: Int): ItemStack = createItem(arguments, amount)
+
+}

@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.script.bindings.api
 
 import kotlin.concurrent.thread
 
-object JsUnsafeThread {
+object ScriptUnsafeThread {
 
     @JvmName("run")
     fun run(callback: () -> Unit) = thread {
