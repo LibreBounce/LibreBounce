@@ -48,13 +48,13 @@ object SilentHotbar : Listenable, MinecraftInstance() {
     }
 
     fun resetSlot(requester: Any? = null, immediate: Boolean = false) {
+        val state = hotbarState ?: return
+
+        originalSlot = null
+
         if (requester == null) {
             hotbarState = null
-
-            return
-        }
-
-        if (hotbarState?.requester == requester) {
+        } else if (state.requester == requester) {
             hotbarState = null
 
             if (immediate) {
@@ -73,7 +73,7 @@ object SilentHotbar : Listenable, MinecraftInstance() {
 
         hotbarState.resetTicks?.let { ticksUntilReset ->
             if (ticksSinceLastUpdate >= ticksUntilReset) {
-                this.hotbarState = null
+                resetSlot(hotbarState.requester)
                 return
             }
         }
@@ -110,10 +110,9 @@ object SilentHotbar : Listenable, MinecraftInstance() {
          * When the user performs a slot switch and [SilentHotbarState.resetManually] is active,
          * it lets the user's slot change override [currentSlot]
          */
-        if (shouldReset(event.supposedSlot, originalSlot)) {
+        if (originalSlot != null && shouldReset(event.supposedSlot, originalSlot)) {
             resetSlot()
 
-            originalSlot = null
             event.modifiedSlot = event.supposedSlot
         }
     }
