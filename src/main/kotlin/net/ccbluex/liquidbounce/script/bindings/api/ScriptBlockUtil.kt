@@ -26,6 +26,7 @@ import net.minecraft.util.math.BlockPos
 /**
  * Object used by the script API to provide an
  */
+@Suppress("unused")
 object ScriptBlockUtil {
 
     @JvmName("newBlockPos")

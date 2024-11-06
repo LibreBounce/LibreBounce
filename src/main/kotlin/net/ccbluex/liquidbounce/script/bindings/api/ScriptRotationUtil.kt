@@ -42,6 +42,7 @@ import kotlin.math.sqrt
  * rotationUtil.aimAtRotation(rotation, true)
  * ```
  */
+@Suppress("unused")
 object ScriptRotationUtil {
 
     /**

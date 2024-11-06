@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyObject
 
+@Suppress("unused")
 class ScriptParameterValidator(val bindings: Value) {
 
     private fun map(param: String, validator: ParameterVerifier<*>): Value {

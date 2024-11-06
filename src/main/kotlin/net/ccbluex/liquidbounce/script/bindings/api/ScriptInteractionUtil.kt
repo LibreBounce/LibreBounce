@@ -32,6 +32,7 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
+@Suppress("unused")
 object ScriptInteractionUtil {
 
     @JvmName("attackEntity")

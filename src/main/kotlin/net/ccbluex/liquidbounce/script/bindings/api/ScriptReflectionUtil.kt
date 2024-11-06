@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.script.bindings.api
 
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 
+@Suppress("SpreadOperator", "unused")
 object ScriptReflectionUtil {
 
     @JvmName("classByName")

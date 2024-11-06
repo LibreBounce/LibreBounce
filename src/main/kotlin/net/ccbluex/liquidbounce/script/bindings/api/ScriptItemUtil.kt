@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack
 /**
  * Object used by the script API to provide an easier way of creating items.
  */
+@Suppress("unused")
 object ScriptItemUtil {
 
     /**
