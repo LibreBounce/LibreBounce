@@ -943,11 +943,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
                 placeRotation = compareDifferences(currPlaceRotation, placeRotation)
             } else {
-                val min = if (options.rotationMode == "Stabilized") 0.3 else 0.1
-
-                for (x in min..0.9) {
-                    for (y in min..0.9) {
-                        for (z in min..0.9) {
+                for (x in 0.1..0.9) {
+                    for (y in 0.1..0.9) {
+                        for (z in 0.1..0.9) {
                             currPlaceRotation =
                                 findTargetPlace(blockPosition, neighbor, Vec3(x, y, z), side, eyes, maxReach, raycast)
                                     ?: continue
@@ -1051,8 +1049,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         val raytrace = performBlockRaytrace(rotation, maxReach) ?: return null
 
+        val multiplier = if (options.startRotatingSlow || options.slowDownOnDirectionChange) 3 else 1
+
         if (raytrace.blockPos == offsetPos && (!raycast || raytrace.sideHit == side.opposite)
-            && canUpdateRotation(currRotation, rotation, 3)
+            && canUpdateRotation(currRotation, rotation, multiplier)
         ) {
             return PlaceRotation(
                 PlaceInfo(
