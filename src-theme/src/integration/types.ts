@@ -40,7 +40,7 @@ export interface BlocksSetting {
 export interface KeySetting {
     valueType: string;
     name: string;
-    value: number;
+    value: string;
 }
 
 export interface BindSetting {

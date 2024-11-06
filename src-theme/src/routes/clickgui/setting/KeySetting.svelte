@@ -3,20 +3,22 @@
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
     import {getPrintableKeyName} from "../../../integration/rest";
     import {createEventDispatcher} from "svelte";
+    import {listen} from "../../../integration/ws";
+    import type {KeyboardKeyEvent} from "../../../integration/events";
 
     export let setting: ModuleSetting;
 
     const cSetting = setting as KeySetting;
 
     const dispatch = createEventDispatcher();
-    const UNKNOWN_KEY = -1;
+    const UNKNOWN_KEY = "key.keyboard.unknown";
 
     let binding = false;
     let printableKeyName = "";
 
     $: {
-        if (cSetting.value !== -1) {
-            getPrintableKeyName(cSetting.value) // TODO: Implement
+        if (cSetting.value !== UNKNOWN_KEY) {
+            getPrintableKeyName(cSetting.value)
                 .then(printableKey => {
                     printableKeyName = printableKey.localized;
                 });
@@ -34,6 +36,24 @@
 
         dispatch("change");
     }
+
+    listen("keyboardKey", async (e: KeyboardKeyEvent) => {
+        if (!binding) {
+            return;
+        }
+
+        binding = false;
+
+        if (e.keyCode !== 256) {
+            cSetting.value = e.key;
+        } else {
+            cSetting.value = UNKNOWN_KEY;
+        }
+
+        setting = {...cSetting};
+
+        dispatch("change");
+    });
 </script>
 
 <div class="setting">
@@ -56,7 +76,7 @@
   @import "../../../colors.scss";
 
   .setting {
-    padding: 7px 0px;
+    padding: 7px 0;
   }
 
   .change-bind {
