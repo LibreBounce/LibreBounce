@@ -17,24 +17,21 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.injection.mixins.graaljs;
+package net.ccbluex.liquidbounce.injection.mixins.truffle;
 
-import net.ccbluex.liquidbounce.utils.mappings.Remapper;
+import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/**
- * Remaps class names to their obfuscated counterparts.
- *
- * Initial code by lit
- */
-@Mixin(targets = "com/oracle/truffle/host/HostClassLoader")
+@Pseudo
+@Mixin(targets = "com/oracle/truffle/host/HostClassLoader", remap = false)
 public class MixinHostClassLoader {
 
     @ModifyVariable(method = "findClass", at = @At("HEAD"), argsOnly = true, remap = false)
     private String remapClassName(String value) {
-        return Remapper.INSTANCE.remapClassName(value);
+        return EnvironmentRemapper.INSTANCE.remapClassName(value);
     }
 
 }

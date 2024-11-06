@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2023 CCBlueX
+ * Copyright (c) 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +15,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
 
-pluginManagement {
-    repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-        gradlePluginPortal()
-    }
+package net.ccbluex.liquidbounce.injection.mixins.truffle;
 
-    plugins {
-        id 'fabric-loom' version loom_version
-        id 'org.jetbrains.kotlin.jvm' version kotlin_version
+import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+@Pseudo
+@Mixin(targets = "com/oracle/truffle/host/HostContext", remap = false)
+public class MixinHostContext {
+
+    @ModifyVariable(method = "findClassImpl", at = @At("HEAD"), argsOnly = true, remap = false)
+    private String remapClassName(String value) {
+        return EnvironmentRemapper.INSTANCE.remapClassName(value);
     }
 
 }
