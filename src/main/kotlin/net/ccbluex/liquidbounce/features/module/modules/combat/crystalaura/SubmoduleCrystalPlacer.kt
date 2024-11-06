@@ -72,7 +72,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         sphere = BlockPos.ORIGIN.getSortedSphere(max(range, wallsRange))
     }
 
-    @Suppress("LongMethod", "ComplexCondition")
+    @Suppress("LongMethod")
     fun tick() {
         if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
             return
@@ -153,6 +153,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         }
     }
 
+    @Suppress("ComplexCondition")
     private fun updateTarget() {
         // Reset current target
         previousTarget = placementTarget

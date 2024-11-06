@@ -448,7 +448,6 @@ private inline fun scanPositionsInBox(
 /**
  * Find the best spot of the upper block side
  */
-@Suppress("NestedBlockDepth", "CognitiveComplexMethod")
 fun raytraceUpperBlockSide(
     eyes: Vec3d,
     range: Double,
@@ -498,6 +497,7 @@ val sides = arrayOf(
     Direction.DOWN
 )
 
+@Suppress("NestedBlockDepth", "CognitiveComplexMethod")
 fun findClosestPointOnBlock(
     eyes: Vec3d,
     range: Double,
