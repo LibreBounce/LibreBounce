@@ -90,7 +90,11 @@ open class Configurable(
         return configurable
     }
 
-    protected inline operator fun <T : Configurable> T.unaryPlus(): T = tree(this)
+    protected inline fun <T : Configurable> tree(supplier: () -> T): T {
+        return tree(supplier())
+    }
+
+    protected inline fun <T : Configurable> T.tree(): T = tree(this)
 
     protected fun <T : Any> value(
         name: String,

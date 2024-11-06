@@ -46,7 +46,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
 
     private val isSelfBedMode = choices("SelfBed", 0, ::isSelfBedChoices)
 
-    private val placer = +BlockPlacer("Place", this, Priority.NOT_IMPORTANT, {
+    private val placer = BlockPlacer("Place", this, Priority.NOT_IMPORTANT, {
         val selected = player.inventory.selectedSlot
         var maxHardness = Float.MIN_VALUE
         var maxCount = 0
@@ -92,7 +92,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
         }
 
         best
-    }, false)
+    }, false).tree()
 
     private val requiresSneak by boolean("RequiresSneak", false)
 
@@ -134,7 +134,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
         val placementPositions = getPlacementPositions(blockPos, state)
             // todo: sort by usefulness instead, currently it just places the block as far as possible
             //   so we prevent placing blocks in front of our face
-            .sortedBy { pos -> -pos.getSquaredDistance(playerPosition) }
+            .sortedByDescending { pos -> pos.getSquaredDistance(playerPosition) }
         if (placementPositions.isEmpty()) {
             return@handler
         }
