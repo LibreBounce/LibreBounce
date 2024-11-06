@@ -8,10 +8,10 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.hypix
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.minecraft.init.Blocks.air
@@ -130,7 +130,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 		when (val packet = event.packet) {
 			is S08PacketPlayerPosLook -> {
 				Fly.state = false
-				displayChatMessage("§8[§c§lBoostHypixel-§a§lFly§8] §cSetback detected.")
+				chat("§8[§c§lBoostHypixel-§a§lFly§8] §cSetback detected.")
 			}
 			is C03PacketPlayer -> packet.onGround = false
 		}

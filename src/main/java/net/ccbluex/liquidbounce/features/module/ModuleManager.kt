@@ -221,7 +221,8 @@ object ModuleManager : Listenable {
             RotationRecorder,
             ForwardTrack,
             FreeLook,
-            SilentHotbarModule
+            SilentHotbarModule,
+            ClickRecorder
         )
 
         InventoryManager.startCoroutine()

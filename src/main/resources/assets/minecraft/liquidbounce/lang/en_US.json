@@ -376,6 +376,8 @@
 
         "module.rotationRecorder.description": "Records and saves your rotations.",
 
-        "module.forwardTrack.description": "Reveals the actual position of an entity."
+        "module.forwardTrack.description": "Reveals the actual position of an entity.",
+
+        "module.clickRecorder.description": "Records and saves your clicks."
     }
 }

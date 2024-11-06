@@ -3,13 +3,13 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import me.liuli.elixir.account.CrackedAccount
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.ServerUtils
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.randomAccount
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
@@ -23,72 +23,76 @@ import net.minecraft.util.Session
 import java.util.*
 import kotlin.concurrent.schedule
 
-object AutoAccount : Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+object AutoAccount :
+    Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
 
     private val register by BoolValue("AutoRegister", true)
     private val login by BoolValue("AutoLogin", true)
 
-        // Gamster requires 8 chars+
-        private val passwordValue = object : TextValue("Password", "axolotlaxolotl") {
-            override fun onChange(oldValue: String, newValue: String) =
-                when {
-                    " " in newValue -> {
-                        displayChatMessage("§7[§a§lAutoAccount§7] §cPassword cannot contain a space!")
-                        oldValue
-                    }
-                    newValue.equals("reset", true) -> {
-                        displayChatMessage("§7[§a§lAutoAccount§7] §3Password reset to its default value.")
-                        "axolotlaxolotl"
-                    }
-                    newValue.length < 4 -> {
-                        displayChatMessage("§7[§a§lAutoAccount§7] §cPassword must be longer than 4 characters!")
-                        oldValue
-                    }
-                    else -> super.onChange(oldValue, newValue)
+    // Gamster requires 8 chars+
+    private val passwordValue = object : TextValue("Password", "axolotlaxolotl") {
+        override fun onChange(oldValue: String, newValue: String) =
+            when {
+                " " in newValue -> {
+                    chat("§7[§a§lAutoAccount§7] §cPassword cannot contain a space!")
+                    oldValue
                 }
 
-            override fun isSupported() = register || login
-        }
-        private val password by passwordValue
+                newValue.equals("reset", true) -> {
+                    chat("§7[§a§lAutoAccount§7] §3Password reset to its default value.")
+                    "axolotlaxolotl"
+                }
+
+                newValue.length < 4 -> {
+                    chat("§7[§a§lAutoAccount§7] §cPassword must be longer than 4 characters!")
+                    oldValue
+                }
+
+                else -> super.onChange(oldValue, newValue)
+            }
+
+        override fun isSupported() = register || login
+    }
+    private val password by passwordValue
 
     // Needed for Gamster
     private val sendDelay by IntegerValue("SendDelay", 250, 0..500) { passwordValue.isSupported() }
 
     private val autoSession by BoolValue("AutoSession", false)
-        private val startupValue = BoolValue("RandomAccountOnStart", false) { autoSession }
-        private val relogInvalidValue = BoolValue("RelogWhenPasswordInvalid", true) { autoSession }
-        private val relogKickedValue = BoolValue("RelogWhenKicked", false) { autoSession }
+    private val startupValue = BoolValue("RandomAccountOnStart", false) { autoSession }
+    private val relogInvalidValue = BoolValue("RelogWhenPasswordInvalid", true) { autoSession }
+    private val relogKickedValue = BoolValue("RelogWhenKicked", false) { autoSession }
 
-            private val reconnectDelayValue = IntegerValue("ReconnectDelay", 1000, 0..2500)
-                { relogInvalidValue.isActive() || relogKickedValue.isActive() }
-            private val reconnectDelay by reconnectDelayValue
+    private val reconnectDelayValue = IntegerValue("ReconnectDelay", 1000, 0..2500)
+    { relogInvalidValue.isActive() || relogKickedValue.isActive() }
+    private val reconnectDelay by reconnectDelayValue
 
-            private val accountModeValue = object : ListValue("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
-                override fun isSupported() = reconnectDelayValue.isSupported() || startupValue.isActive()
+    private val accountModeValue = object : ListValue("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
+        override fun isSupported() = reconnectDelayValue.isSupported() || startupValue.isActive()
 
-                override fun onChange(oldValue: String, newValue: String): String {
-                    if (newValue == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
-                        displayChatMessage("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
-                        return oldValue
-                    }
-
-                    return super.onChange(oldValue, newValue)
-                }
+        override fun onChange(oldValue: String, newValue: String): String {
+            if (newValue == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
+                chat("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
+                return oldValue
             }
-            private val accountMode by accountModeValue
 
-                private val saveValue = BoolValue("SaveToAlts", false) {
-                    accountModeValue.isSupported() && accountMode != "RandomAlt"
-                }
+            return super.onChange(oldValue, newValue)
+        }
+    }
+    private val accountMode by accountModeValue
+
+    private val saveValue = BoolValue("SaveToAlts", false) {
+        accountModeValue.isSupported() && accountMode != "RandomAlt"
+    }
 
     private var status = Status.WAITING
 
     private fun relog(info: String = "") {
         // Disconnect from server
         if (mc.currentServerData != null && mc.theWorld != null)
-             mc.netHandler.networkManager.closeChannel(
-                 ChatComponentText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
-             )
+            mc.netHandler.networkManager.closeChannel(
+                ChatComponentText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
+            )
 
         // Log in to account with a random name, optionally save it
         changeAccount()
@@ -110,6 +114,7 @@ object AutoAccount : Module("AutoAccount", Category.MISC, subjective = true, gam
             }
             true
         }
+
         login && "/log" in msg -> {
             addNotification(Notification("Trying to log in."))
             Timer().schedule(sendDelay.toLong()) {
@@ -117,6 +122,7 @@ object AutoAccount : Module("AutoAccount", Category.MISC, subjective = true, gam
             }
             true
         }
+
         else -> false
     }
 
@@ -157,6 +163,7 @@ object AutoAccount : Module("AutoAccount", Category.MISC, subjective = true, gam
                     }
                 }
             }
+
             is S40PacketDisconnect -> {
                 if (relogKickedValue.isActive() && status != Status.SENT_COMMAND) {
                     val reason = packet.reason.unformattedText

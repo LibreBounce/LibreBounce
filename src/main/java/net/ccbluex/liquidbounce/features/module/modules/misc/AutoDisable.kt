@@ -10,14 +10,14 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.*
-import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -68,7 +68,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false,
             }
 
             if (warn == "Chat") {
-                Chat.print("§eModules have been disabled due to §c$reason")
+                chat("§eModules have been disabled due to §c$reason")
             } else {
                 hud.addNotification(Notification("Modules have been disabled due to $reason", 2000F))
             }
