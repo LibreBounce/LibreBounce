@@ -70,6 +70,8 @@ class PointTracker(
      * calculate the offset.
      */
     private val gaussianFactor by floatRange("GaussianOffset", gaussianOffsetMin..gaussianOffsetMax, 0.0f..1.0f)
+    private val dynamicGaussianFactor by boolean("DynamicGaussianFactor", false)
+    private val dynamicFactorMulti by float("DynamicFactorMulti", 7f, 0.01f..7.5f)
     private val gaussianChance by int("GaussianChance", 100, 0..100, "%")
     private val gaussianSpeed by floatRange("GaussianSpeed", 0.1f..0.2f, 0.01f..1f)
     private val gaussianTolerance by float("GaussianTolerance", 0.1f, 0.01f..0.7f)
@@ -240,12 +242,17 @@ class PointTracker(
     private var targetOffset = Vec3d.ZERO
 
     private fun updateGaussianOffset() {
+        val factor =
+            if (dynamicGaussianFactor) {
+                (gaussianFactor.random() + player.sqrtSpeed * dynamicFactorMulti).coerceAtMost(1.0)
+            } else gaussianFactor.random()
+
         if (gaussianHasReachedTarget(currentOffset, targetOffset, gaussianTolerance)) {
             if (random.nextInt(100) <= gaussianChance) {
                 targetOffset = Vec3d(
-                    random.nextGaussian(MEAN_X, STDDEV_X) * gaussianFactor.random(),
-                    random.nextGaussian(MEAN_Y, STDDEV_Y) * gaussianFactor.random(),
-                    random.nextGaussian(MEAN_Z, STDDEV_Z) * gaussianFactor.random()
+                    random.nextGaussian(MEAN_X, STDDEV_X) * factor,
+                    random.nextGaussian(MEAN_Y, STDDEV_Y) * factor,
+                    random.nextGaussian(MEAN_Z, STDDEV_Z) * factor
                 )
             }
         } else {
