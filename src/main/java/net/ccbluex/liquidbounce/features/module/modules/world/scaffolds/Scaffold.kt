@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.RotationUtils.canUpdateRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.computeFactor
 import net.ccbluex.liquidbounce.utils.RotationUtils.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.rotationDifference
@@ -723,7 +724,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             stack = player.hotBarSlot(blockSlot).stack
         }
 
-        // Line 437-440
         if ((stack.item as? ItemBlock)?.canPlaceBlockOnSide(
                 world,
                 placeInfo.blockPos,
@@ -943,9 +943,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
                 placeRotation = compareDifferences(currPlaceRotation, placeRotation)
             } else {
-                for (x in 0.1..0.9) {
-                    for (y in 0.1..0.9) {
-                        for (z in 0.1..0.9) {
+                val min = if (options.rotationMode == "Stabilized") 0.3 else 0.1
+
+                for (x in min..0.9) {
+                    for (y in min..0.9) {
+                        for (z in min..0.9) {
                             currPlaceRotation =
                                 findTargetPlace(blockPosition, neighbor, Vec3(x, y, z), side, eyes, maxReach, raycast)
                                     ?: continue
@@ -1049,7 +1051,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         val raytrace = performBlockRaytrace(rotation, maxReach) ?: return null
 
-        if (raytrace.blockPos == offsetPos && (!raycast || raytrace.sideHit == side.opposite)) {
+        if (raytrace.blockPos == offsetPos && (!raycast || raytrace.sideHit == side.opposite)
+            && canUpdateRotation(currRotation, rotation, 3)
+        ) {
             return PlaceRotation(
                 PlaceInfo(
                     raytrace.blockPos,
