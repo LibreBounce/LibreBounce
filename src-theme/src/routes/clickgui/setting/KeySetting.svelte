@@ -51,3 +51,35 @@
         {/if}
     </button>
 </div>
+
+<style lang="scss">
+  @import "../../../colors.scss";
+
+  .setting {
+    padding: 7px 0px;
+  }
+
+  .change-bind {
+    background-color: transparent;
+    border: solid 2px $accent-color;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 4px;
+    font-weight: 500;
+    color: $clickgui-text-color;
+    font-size: 12px;
+    font-family: "Inter", sans-serif;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    column-gap: 5px;
+
+    .name {
+      font-weight: 500;
+    }
+
+    .none {
+      color: $clickgui-text-dimmed-color;
+    }
+  }
+</style>
