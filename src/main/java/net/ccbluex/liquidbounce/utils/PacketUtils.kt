@@ -67,7 +67,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
             }
 
             is S18PacketEntityTeleport -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ), true)
             }
         }
     }
