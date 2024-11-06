@@ -38,7 +38,8 @@ import kotlin.math.min
 class PointTracker(
     highestPointDefault: PreferredBoxPart = PreferredBoxPart.HEAD,
     lowestPointDefault: PreferredBoxPart = PreferredBoxPart.BODY,
-    gaussianOffsetDefault: Float = 0.0f,
+    gaussianOffsetMin: Float = 0.0f,
+    gaussianOffsetMax: Float = 0.0f,
     timeEnemyOffsetDefault: Float = 0.4f,
     timeEnemyOffsetScale: ClosedFloatingPointRange<Float> = -1f..1f
 ) : Configurable("PointTracker"), Listenable {
@@ -68,10 +69,11 @@ class PointTracker(
      * This introduces a layer of randomness to the point tracker. A gaussian distribution is being used to
      * calculate the offset.
      */
-    private val gaussianFactor by float("GaussianOffset", gaussianOffsetDefault, 0.0f..1.0f)
+    private val gaussianFactor by floatRange("GaussianOffset", gaussianOffsetMin..gaussianOffsetMax, 0.0f..1.0f)
     private val gaussianChance by int("GaussianChance", 100, 0..100, "%")
     private val gaussianSpeed by floatRange("GaussianSpeed", 0.1f..0.2f, 0.01f..1f)
     private val gaussianTolerance by float("GaussianTolerance", 0.1f, 0.01f..0.7f)
+
     /**
      * OutOfBox will set the box offset to an unreachable position.
      */
@@ -81,6 +83,7 @@ class PointTracker(
      * The shrink box value will shrink the cut-off box by the given amount.
      */
     private val shrinkBox by float("ShrinkBox", 0.05f, 0.0f..0.3f)
+    private val dynamicShrinkBox by boolean("DynamicShrinkBox", true)
 
     /**
      * The shrink box value will shrink the cut-off box by the given amount.
@@ -201,13 +204,19 @@ class PointTracker(
 
         val speedShrinkFactor = min(0.05, max(player.sqrtSpeed * 0.5, targetVelocity.sqrtSpeed * 0.5))
 
-        val cutoffBox = box
+        val initialCutoffBox = box
             .withMaxY(highest)
             .withMinY(lowest)
             .contract(shrinkBox.toDouble(), 0.0, shrinkBox.toDouble())
             .contract(speedShrinkFactor, abs(player.velocity.y), speedShrinkFactor)
 
-        val offset = if (gaussianFactor > 0.0) {
+        val cutoffBox = if (dynamicShrinkBox) {
+            initialCutoffBox.contract(speedShrinkFactor, abs(player.velocity.y), speedShrinkFactor)
+        } else {
+            initialCutoffBox
+        }
+
+        val offset = if (gaussianFactor.random() > 0.0) {
             updateGaussianOffset()
             currentOffset
         } else {
@@ -234,9 +243,9 @@ class PointTracker(
         if (gaussianHasReachedTarget(currentOffset, targetOffset, gaussianTolerance)) {
             if (random.nextInt(100) <= gaussianChance) {
                 targetOffset = Vec3d(
-                    random.nextGaussian(MEAN_X, STDDEV_X) * gaussianFactor,
-                    random.nextGaussian(MEAN_Y, STDDEV_Y) * gaussianFactor,
-                    random.nextGaussian(MEAN_Z, STDDEV_Z) * gaussianFactor
+                    random.nextGaussian(MEAN_X, STDDEV_X) * gaussianFactor.random(),
+                    random.nextGaussian(MEAN_Y, STDDEV_Y) * gaussianFactor.random(),
+                    random.nextGaussian(MEAN_Z, STDDEV_Z) * gaussianFactor.random()
                 )
             }
         } else {
