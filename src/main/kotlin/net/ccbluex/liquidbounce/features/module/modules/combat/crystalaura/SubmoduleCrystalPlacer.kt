@@ -169,7 +169,6 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         val playerPos = player.blockPos
         val pos = BlockPos.Mutable()
         sphere.forEach {
-            //val pos = BlockPos.Mutable()
             pos.set(playerPos).move(it)
             val state = pos.getState()!!
             val canSeeUpperBlockSide = !onlyAbove || canSeeUpperBlockSide(playerEyePos, pos, range, wallsRange)
@@ -191,7 +190,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             positions
                 .mapNotNull {
                     val damageSourceLoc = Vec3d.of(it.left()).add(0.5, 1.0, 0.5)
-                    val explosionDamage = ModuleCrystalAura.approximateExplosionDamage(damageSourceLoc) ?: return@mapNotNull null
+                    val explosionDamage = ModuleCrystalAura.approximateExplosionDamage(damageSourceLoc)
+                        ?: return@mapNotNull null
                     ObjectFloatImmutablePair(it, explosionDamage)
                 }
                 .maxByOrNull { it.secondFloat() }

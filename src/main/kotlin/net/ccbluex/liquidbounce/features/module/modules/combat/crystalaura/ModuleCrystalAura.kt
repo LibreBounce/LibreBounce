@@ -42,7 +42,7 @@ import net.minecraft.util.math.Vec3d
 
 object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT, disableOnQuit = true) {
 
-    val targetTracker = tree(TargetTracker())
+    val targetTracker = tree(TargetTracker(rangeOption = true))
 
     object DamageOptions : Configurable("Damage") {
         val maxSelfDamage by float("MaxSelfDamage", 2.0F, 0.0F..10.0F)

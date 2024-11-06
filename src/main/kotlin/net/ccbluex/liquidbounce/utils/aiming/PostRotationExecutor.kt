@@ -74,7 +74,7 @@ object PostRotationExecutor : Listenable {
         }
 
         // if the priority action doesn't run on post-move, no other action can
-        if (!priorityActionPostMove) {
+        if (!priorityActionPostMove && priorityAction != null) {
            return@handler
         }
 
@@ -107,6 +107,15 @@ object PostRotationExecutor : Listenable {
             priorityAction?.let { action ->
                 if (action.first.enabled) {
                     action.second.invoke()
+                }
+
+                // if we reach this point, the post-move queue has not been processed yet because it was waiting for
+                // the priority action
+                while (postMoveTasks.isNotEmpty()) {
+                    val next = postMoveTasks.removeFirst()
+                    if (next.first.enabled) {
+                        next.second.invoke()
+                    }
                 }
             }
 

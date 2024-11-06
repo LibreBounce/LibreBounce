@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.HostileEntity
@@ -38,9 +39,11 @@ import net.minecraft.entity.player.PlayerEntity
  * A target tracker to choose the best enemy to attack
  */
 open class TargetTracker(
-    defaultPriority: PriorityEnum = PriorityEnum.HEALTH
+    defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
+    rangeOption: Boolean = false
 ) : Configurable("Target") {
 
+    var range = Double.MAX_VALUE
     var lockedOnTarget: LivingEntity? = null
         private set
     var maximumDistance: Double = 0.0
@@ -49,15 +52,26 @@ open class TargetTracker(
     private val hurtTime by int("HurtTime", 10, 0..10)
     private val priority by enumChoice("Priority", defaultPriority)
 
+    init {
+        if (rangeOption) {
+            float("Range", 4.5f, 1f..12f).onChanged { range = it.toDouble().sq() }
+            range = 4.5.sq()
+        }
+    }
+
     /**
      * Update should be called to always pick the best target out of the current world context
      */
     fun enemies(): List<LivingEntity> {
         var entities = world.entities
+            .asSequence()
             .filterIsInstance<LivingEntity>()
             .filter(this::validate)
+            .map { it to it.boxedDistanceTo(player) }
+            .filter { it.second <= range }
             // Sort by distance (closest first) - in case of tie at priority level
-            .sortedBy { it.boxedDistanceTo(player) }
+            .sortedBy { it.second }
+            .map { it.first }
             // Sort by entity type
             .sortedBy { entity ->
                 when (entity) {
@@ -66,6 +80,7 @@ open class TargetTracker(
                     else -> 2
                 }
             }
+            .toList()
 
         entities = when (priority) {
             // Lowest health first
