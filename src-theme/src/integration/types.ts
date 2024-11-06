@@ -28,12 +28,19 @@ export type ModuleSetting =
     | TextSetting
     | TextArraySetting
     | BindSetting
-    | VectorSetting;
+    | VectorSetting
+    | KeySetting;
 
 export interface BlocksSetting {
     valueType: string;
     name: string;
     value: string[];
+}
+
+export interface KeySetting {
+    valueType: string;
+    name: string;
+    value: number;
 }
 
 export interface BindSetting {
