@@ -90,12 +90,9 @@ open class Configurable(
         return configurable
     }
 
-    protected inline fun <T : Configurable> tree(supplier: () -> T): T {
-        return tree(supplier())
+    protected fun <T : Configurable> treeAll(vararg configurable: T) {
+        configurable.forEach(inner::add)
     }
-
-    @JvmName("treeSuffix")
-    protected inline fun <T : Configurable> T.tree(): T = this@Configurable.tree(this)
 
     protected fun <T : Any> value(
         name: String,
