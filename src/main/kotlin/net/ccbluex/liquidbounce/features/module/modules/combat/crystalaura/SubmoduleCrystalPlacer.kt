@@ -73,7 +73,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     }
 
     fun tick() {
-        if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
+        if (!chronometer.hasAtLeastElapsed(delay.toLong()) || !enabled) {
             return
         }
 
@@ -106,10 +106,6 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             data.first
         } ?: return
 
-        if (placementTarget != previousTarget) {
-            placementTarget?.let { placementRenderer.addBlock(it) }
-        }
-
         if (ModuleCrystalAura.rotationMode.activeChoice is NoRotationMode) {
             blockHitResult = raytraceBlock(
                 max(range, wallsRange).toDouble(),
@@ -117,6 +113,10 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 targetPos,
                 targetPos.getState()!!
             ) ?: return
+        }
+
+        if (placementTarget != previousTarget) {
+            placementTarget?.let { placementRenderer.addBlock(it) }
         }
 
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {

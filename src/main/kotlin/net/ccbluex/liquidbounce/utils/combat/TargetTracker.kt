@@ -29,7 +29,6 @@ import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
-import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.HostileEntity
@@ -54,8 +53,8 @@ open class TargetTracker(
 
     init {
         if (rangeOption) {
-            float("Range", 4.5f, 1f..12f).onChanged { range = it.toDouble().sq() }
-            range = 4.5.sq()
+            float("Range", 4.5f, 1f..12f).onChanged { range = it.toDouble() }
+            range = 4.5
         }
     }
 
