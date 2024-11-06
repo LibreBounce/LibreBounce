@@ -30,6 +30,8 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
@@ -64,17 +66,16 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
 
         renderEnvironmentForGUI {
             fontRenderer.withBuffers { buf ->
-                BlockTracker.trackedBlockMap.map { (key, value) ->
-                    DoubleObjectPair.of(key.getSquaredDistance(playerPos), value)
-                }.filter {
-                    it.keyDouble() < maxDistanceSquared
-                }.sortedBy {
-                    it.keyDouble()
-                }.take(maxCount).forEachWithSelf { entry, i, self ->
-                    val bedState = entry.value()
+                BedBlockTracker.trackedBlockMap.map { (pos, bedState) ->
+                    DoubleObjectPair.of(pos.getSquaredDistance(playerPos), bedState)
+                }.filter { (distSq, _) ->
+                    distSq < maxDistanceSquared
+                }.sortedBy { (distSq, _) ->
+                    distSq
+                }.take(maxCount).forEachWithSelf { (distSq, bedState), i, self ->
                     val screenPos = WorldToScreen.calculateScreenPos(bedState.pos.add(0.0, renderY.toDouble(), 0.0))
                         ?: return@forEachWithSelf
-                    val distance = sqrt(entry.keyDouble())
+                    val distance = sqrt(distSq)
                     val surrounding = bedState.surroundingBlocks
 
                     val z = 1000.0F * (self.size - i - 1) / self.size
@@ -193,21 +194,28 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         }
 
         val opposite = bedDirection.opposite
-        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers) { Object2IntOpenHashMap() }
+        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers, ::Object2IntOpenHashMap)
 
         (head.searchLayer(maxLayers, bedDirection, Direction.UP, left, right) +
             head.offset(opposite).searchLayer(maxLayers, opposite, Direction.UP, left, right))
-            .mapNotNull {
-                IntObjectPair.of(it.keyInt(), it.value()?.getState() ?: return@mapNotNull null)
+            .mapNotNull { (layer, pos) ->
+                val state = pos.getState()
+
+                // Ignore empty positions and fluid
+                if (state == null || state.isAir) {
+                    return@mapNotNull null
+                }
+
+                val block = state.block
+                if (block !is FluidBlock) {
+                    IntObjectPair.of(layer, block)
+                } else {
+                    null
+                }
             }
-            .filterNot {
-                // Ignore empty positions
-                it.value().isAir || it.value().block is FluidBlock
-            }
-            .forEach {
+            .forEach { (layer, block) ->
                 // Count blocks
-                val map = layers[it.keyInt() - 1]
-                val block = it.value().block
+                val map = layers[layer - 1]
                 if (map.containsKey(block)) {
                     map.put(block, map.getInt(block) + 1)
                 } else {
@@ -225,14 +233,8 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
             sortedSetOf<SurroundingBlock>().apply {
                 // flat map
                 layers.forEachIndexed { i, map ->
-                    map.object2IntEntrySet().forEach {
-                        add(
-                            SurroundingBlock(
-                                it.key,
-                                it.intValue,
-                                i + 1,
-                            )
-                        )
+                    map.object2IntEntrySet().forEach { (block, count) ->
+                        add(SurroundingBlock(block, count, i + 1))
                     }
                 }
             },
@@ -240,14 +242,14 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     }
 
     override fun enable() {
-        ChunkScanner.subscribe(BlockTracker)
+        ChunkScanner.subscribe(BedBlockTracker)
     }
 
     override fun disable() {
-        ChunkScanner.unsubscribe(BlockTracker)
+        ChunkScanner.unsubscribe(BedBlockTracker)
     }
 
-    private object BlockTracker : AbstractBlockLocationTracker<BedState>() {
+    private object BedBlockTracker : AbstractBlockLocationTracker<BedState>() {
         override fun getStateFor(pos: BlockPos, state: BlockState): BedState? {
             return when {
                 state.block in BED_BLOCKS -> {

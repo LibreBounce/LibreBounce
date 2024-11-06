@@ -18,10 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.block
 
-import it.unimi.dsi.fastutil.booleans.BooleanObjectImmutablePair
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
+import it.unimi.dsi.fastutil.booleans.BooleanObjectPair
 import it.unimi.dsi.fastutil.ints.IntObjectPair
-import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
 import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
@@ -169,7 +167,7 @@ fun BlockPos.searchBlocksInCuboid(radius: Int): Region {
 fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<IntObjectPair<BlockPos>> =
     sequence {
         val queue = ArrayDeque<IntObjectPair<BlockPos>>(layers * layers * directions.size / 2).apply {
-            add(IntObjectImmutablePair(0, this@searchLayer))
+            add(IntObjectPair.of(0, this@searchLayer))
         }
         val visited = hashSetOf(this@searchLayer)
         val mutable = BlockPos.Mutable()
@@ -192,7 +190,7 @@ fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<In
                 if (mutable !in visited) {
                     val newPos = mutable.toImmutable()
                     visited.add(newPos)
-                    queue.add(IntObjectImmutablePair(layer + 1, newPos))
+                    queue.add(IntObjectPair.of(layer + 1, newPos))
                 }
             }
         }
@@ -207,7 +205,7 @@ fun BlockPos.getSphere(radius: Float): Sequence<DoubleObjectPair<BlockPos>> = se
     searchBlocksInCuboid(MathHelper.ceil(radius)).forEach {
         val distanceSq = getSquaredDistance(it)
         if (distanceSq <= radiusSq) {
-            yield(DoubleObjectImmutablePair(distanceSq, it.toImmutable()))
+            yield(DoubleObjectPair.of(distanceSq, it.toImmutable()))
         }
     }
 }
@@ -559,20 +557,20 @@ inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true })
 /**
  * Like [isBlockedByEntities] but it returns a blocking end crystal if present.
  */
-fun BlockPos.isBlockedByEntitiesReturnCrystal(): BooleanObjectImmutablePair<EndCrystalEntity?> {
+fun BlockPos.isBlockedByEntitiesReturnCrystal(): BooleanObjectPair<EndCrystalEntity?> {
     var blocked = false
 
     world.entities.forEach {
         if (it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))) {
             if (it is EndCrystalEntity) {
-                return BooleanObjectImmutablePair(true, it)
+                return BooleanObjectPair.of(true, it)
             }
 
             blocked = true
         }
     }
 
-    return BooleanObjectImmutablePair(blocked, null)
+    return BooleanObjectPair.of(blocked, null)
 }
 
 val BED_BLOCKS = setOf(
