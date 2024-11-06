@@ -24,8 +24,6 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.script.PolyglotScript
 import net.ccbluex.liquidbounce.utils.client.*
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import kotlin.reflect.KClass
 
 class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) : Module(
@@ -87,23 +85,29 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
         try {
             events[event]?.invoke(payload)
         } catch (throwable: Throwable) {
-
             if (inGame) {
                 chat(
-                    variable(script.scriptName),
+                    regular("["),
+                    warning(script.file.name),
+                    regular("] "),
+                    markAsError(script.scriptName),
                     regular("::"),
-                    variable(name),
+                    markAsError(name),
                     regular("::"),
-                    variable(event),
+                    markAsError(event),
                     regular(" threw ["),
-                    Text.literal(throwable.javaClass.simpleName).styled { it.withColor(Formatting.DARK_PURPLE) },
+                    highlight(throwable.javaClass.simpleName),
                     regular("]: "),
                     variable(throwable.message ?: ""),
                     prefix = false
                 )
-            } else {
-                logger.error("${script.scriptName}::$name -> Event Function $event threw an error", throwable)
+
             }
+
+            logger.error("${script.scriptName}::$name -> Event Function $event threw an error", throwable)
+
+            // Disable the module if an error occurs
+            enabled = false
         }
     }
 
