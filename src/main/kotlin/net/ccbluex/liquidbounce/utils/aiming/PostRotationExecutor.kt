@@ -36,13 +36,6 @@ object PostRotationExecutor : Listenable {
      * This should be used by actions that depend on the rotation sent in the tick movement packet.
      */
     private var priorityAction: Pair<Module, () -> Unit>? = null
-        set(value) {
-            if (field != null) {
-                // normally this should not happen!
-                print("NOT NULL! ${value?.first?.name} tried to replace ${field?.first?.name}")
-            }
-            field = value
-        }
 
     private var priorityActionPostMove = false
 
