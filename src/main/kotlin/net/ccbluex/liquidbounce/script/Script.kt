@@ -49,7 +49,7 @@ class Script(val scriptFile: File) {
         .allowNativeAccess(false) // Disable native access
         .allowExperimentalOptions(true) // Allow experimental options
         .option("js.nashorn-compat", "true") // Enable Nashorn compatibility
-        .option("js.ecmascript-version", "2022") // Enable ECMAScript 2022
+        .option("js.ecmascript-version", "2024") // Enable ECMAScript 2024
         .build().apply {
             // Global instances
             val jsBindings = getBindings("js")
