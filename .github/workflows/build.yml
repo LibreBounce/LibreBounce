@@ -62,7 +62,7 @@ jobs:
           submodules: recursive
 
       - name: Setting up JDK 21
-      - uses: actions/setup-java@v4
+        uses: actions/setup-java@v4
         with:
           distribution: 'graalvm'
           java-version: '21'
