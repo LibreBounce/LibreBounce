@@ -72,8 +72,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         sphere = BlockPos.ORIGIN.getSortedSphere(max(range, wallsRange))
     }
 
+    @Suppress("LongMethod", "ComplexCondition")
     fun tick() {
-        if (!chronometer.hasAtLeastElapsed(delay.toLong()) || !enabled) {
+        if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
             return
         }
 

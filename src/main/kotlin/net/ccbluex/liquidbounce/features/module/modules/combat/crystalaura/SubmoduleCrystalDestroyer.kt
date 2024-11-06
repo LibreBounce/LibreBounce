@@ -43,7 +43,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
     private var currentTarget: EndCrystalEntity? = null
 
     fun tick() {
-        if (!chronometer.hasAtLeastElapsed(delay.toLong()) || !enabled) {
+        if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
             return
         }
 

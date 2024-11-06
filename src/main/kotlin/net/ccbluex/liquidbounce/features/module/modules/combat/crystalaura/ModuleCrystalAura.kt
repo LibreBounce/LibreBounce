@@ -116,19 +116,20 @@ object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT, disableOnQuit 
             return null
         }
 
-        // 10f is the maximum allowed by the setting
-        if (DamageOptions.maxSelfDamage < 10f) {
+        var tooMuchDamageForFriend = false
+        if (DamageOptions.maxFriendDamage < 10f) { // 10f is the maximum allowed by the setting
             val friends =
                 world
                     .getEntitiesBoxInRange(pos, 6.0) { FriendManager.isFriend(it) && it.boundingBox.maxY > pos.y }
                     .filterIsInstance<LivingEntity>()
 
             if (friends.any { it.getDamage(pos) > DamageOptions.maxFriendDamage }) {
-                return null
+                tooMuchDamageForFriend = true
             }
         }
 
-        if (DamageOptions.efficient && damageToTarget <= selfDamage) {
+        val isNotEfficient = DamageOptions.efficient && damageToTarget <= selfDamage
+        if (tooMuchDamageForFriend || isNotEfficient) {
             return null
         }
 

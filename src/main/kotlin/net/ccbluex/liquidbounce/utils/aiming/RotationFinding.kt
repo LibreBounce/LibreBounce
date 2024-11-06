@@ -448,6 +448,7 @@ private inline fun scanPositionsInBox(
 /**
  * Find the best spot of the upper block side
  */
+@Suppress("NestedBlockDepth", "CognitiveComplexMethod")
 fun raytraceUpperBlockSide(
     eyes: Vec3d,
     range: Double,

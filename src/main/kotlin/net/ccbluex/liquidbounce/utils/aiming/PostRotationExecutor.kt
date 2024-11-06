@@ -68,7 +68,9 @@ object PostRotationExecutor : Listenable {
      * Has [EventPriorityConvention.FIRST_PRIORITY] to run before any other module can send packets.
      */
     @Suppress("unused")
-    val networkMoveHandler = handler<PlayerNetworkMovementTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
+    val networkMoveHandler = handler<PlayerNetworkMovementTickEvent>(
+        priority = EventPriorityConvention.FIRST_PRIORITY
+    ) {
         if (it.state != EventState.POST) {
             return@handler
         }
