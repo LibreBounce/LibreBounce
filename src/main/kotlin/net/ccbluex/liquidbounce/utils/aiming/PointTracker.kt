@@ -245,7 +245,9 @@ class PointTracker(
         val factor =
             if (dynamicGaussianFactor) {
                 (gaussianFactor.random() + player.sqrtSpeed * dynamicFactorMulti).coerceAtMost(1.0)
-            } else gaussianFactor.random()
+            } else {
+                gaussianFactor.random()
+            }
 
         if (gaussianHasReachedTarget(currentOffset, targetOffset, gaussianTolerance)) {
             if (random.nextInt(100) <= gaussianChance) {
