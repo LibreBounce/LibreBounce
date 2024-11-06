@@ -52,12 +52,10 @@ object SilentHotbar : Listenable, MinecraftInstance() {
 
         originalSlot = null
 
-        if (requester == null) {
-            hotbarState = null
-        } else if (state.requester == requester) {
+        if (requester == null || state.requester == requester) {
             hotbarState = null
 
-            if (immediate) {
+            if (requester != null && immediate) {
                 mc.playerController?.syncCurrentPlayItem()
             }
         }
