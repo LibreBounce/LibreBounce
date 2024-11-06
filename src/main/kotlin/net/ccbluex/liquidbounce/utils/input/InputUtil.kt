@@ -33,6 +33,10 @@ import net.minecraft.client.util.InputUtil
  * @return The corresponding InputUtil.Key object.
  */
 fun inputByName(name: String): InputUtil.Key {
+    if (name.equals("NONE", true)) {
+        return InputUtil.UNKNOWN_KEY
+    }
+
     val formattedName = name.replace('_', '.')
     val translationKey = when {
         formattedName.startsWith("key.mouse.", ignoreCase = true) ||
