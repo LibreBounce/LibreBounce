@@ -100,7 +100,7 @@ object OAuthClient {
                     val response = DefaultFullHttpResponse(
                         HttpVersion.HTTP_1_1, HttpResponseStatus.OK
                     ).apply {
-                        content().writeBytes(OAuthClient.SUCCESS_HTML.toByteArray())
+                        content().writeBytes(SUCCESS_HTML.toByteArray())
                         headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8")
                         headers().set(HttpHeaderNames.CONTENT_LENGTH, content().readableBytes())
                     }

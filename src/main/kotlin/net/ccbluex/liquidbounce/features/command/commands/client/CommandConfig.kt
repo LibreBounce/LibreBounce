@@ -162,7 +162,9 @@ object CommandConfig {
                                                 )
                                             )
                                     },
-                                    regular(" | ${it.serverAddress ?: "Global"}"), prefix = false
+                                    regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
+                                        prefix = false
+                                    )
                                 )
                             }
                         }.onFailure {

@@ -212,9 +212,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
     @WrapWithCondition(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V", ordinal = 0))
     private boolean hookSlowVelocity(PlayerEntity instance, boolean b) {
         if ((Object) this == MinecraftClient.getInstance().player) {
-            if (ModuleKeepSprint.INSTANCE.getEnabled() && !b) {
-                return false;
-            }
+            return !ModuleKeepSprint.INSTANCE.getEnabled() || b;
         }
 
         return true;

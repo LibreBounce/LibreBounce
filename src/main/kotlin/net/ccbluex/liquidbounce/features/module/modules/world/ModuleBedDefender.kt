@@ -53,7 +53,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
         IsSelfBedSpawnLocationChoice(it)
     )})
 
-    private val placer = tree(BlockPlacer("Place", this, Priority.NOT_IMPORTANT, {
+    private val placer = +BlockPlacer("Place", this, Priority.NOT_IMPORTANT, {
         val selected = player.inventory.selectedSlot
         var maxHardness = Float.MIN_VALUE
         var maxCount = 0
@@ -99,7 +99,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
         }
 
         best
-    }, false))
+    }, false)
 
     private val requiresSneak by boolean("RequiresSneak", false)
 
