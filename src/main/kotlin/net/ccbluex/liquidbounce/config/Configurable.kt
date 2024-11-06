@@ -94,7 +94,8 @@ open class Configurable(
         return tree(supplier())
     }
 
-    protected inline fun <T : Configurable> T.tree(): T = tree(this)
+    @JvmName("treeSuffix")
+    protected inline fun <T : Configurable> T.tree(): T = this@Configurable.tree(this)
 
     protected fun <T : Any> value(
         name: String,
