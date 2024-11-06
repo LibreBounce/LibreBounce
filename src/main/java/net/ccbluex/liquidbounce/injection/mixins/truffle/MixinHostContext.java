@@ -23,9 +23,11 @@ package net.ccbluex.liquidbounce.injection.mixins.truffle;
 
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+@Pseudo
 @Mixin(targets = "com/oracle/truffle/host/HostContext", remap = false)
 public class MixinHostContext {
 

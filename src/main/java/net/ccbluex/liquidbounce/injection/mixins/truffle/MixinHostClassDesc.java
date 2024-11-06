@@ -22,10 +22,7 @@ package net.ccbluex.liquidbounce.injection.mixins.truffle;
 import net.ccbluex.liquidbounce.interfaces.MemberRetriever;
 import net.ccbluex.liquidbounce.utils.client.ClientUtilsKt;
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,26 +33,27 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+@Pseudo
 @Mixin(targets = "com/oracle/truffle/host/HostClassDesc$Members")
 public abstract class MixinHostClassDesc {
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     Map<String, Object> methods;
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     Map<String, Object> fields;
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     Map<String, Object> staticFields;
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     Map<String, Object> staticMethods;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), remap = false)
     private void remapClassDesc(CallbackInfo ci) {
         remapEntries(methods, this::getMethod);
         remapEntries(fields, this::getField);
