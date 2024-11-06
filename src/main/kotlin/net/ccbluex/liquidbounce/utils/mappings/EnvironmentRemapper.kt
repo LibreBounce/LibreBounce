@@ -21,26 +21,18 @@ object EnvironmentRemapper {
     private fun probeEnvironment(): String? {
         val mappings = mappings ?: return null
 
-        val minecraftEntry = mappings.classEntries?.find {
-            it?.get("named") == "net/minecraft/client/MinecraftClient"
+        val minecraftClassEntry = mappings.classEntries?.find { entry ->
+            entry?.get("named") == "net/minecraft/client/MinecraftClient"
         }
 
-        if (minecraftEntry == null) {
+        if (minecraftClassEntry == null) {
             logger.error("Unable to probe environment. Please make sure you are using a valid environment.")
             return null
         }
 
-        val officialName = minecraftEntry.get("official")?.toDotNotation()
-        val intermediaryName = minecraftEntry.get("intermediary")?.toDotNotation()
-
-        logger.info("Probing environment... (official: $officialName, intermediary: $intermediaryName)")
-
+        logger.info("Probing environment...")
         return when {
-            isClassPresent(officialName) -> {
-                logger.info("Official environment detected.")
-                "official"
-            }
-            isClassPresent(intermediaryName) -> {
+            isClassPresent(minecraftClassEntry.get("intermediary")?.toDotNotation()) -> {
                 logger.info("Intermediary environment detected.")
                 "intermediary"
             }
