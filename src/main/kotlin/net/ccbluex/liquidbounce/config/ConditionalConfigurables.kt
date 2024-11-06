@@ -83,6 +83,8 @@ class ChoiceConfigurable<T : Choice>(
     private var defaultChoice: T = activeChoiceCallback(this)
     var activeChoice: T = defaultChoice
 
+    operator fun T.unaryPlus() = choices.add(this)
+
     fun newState(state: Boolean) {
         if (state) {
             this.activeChoice.enable()

@@ -18,15 +18,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.VelocityDexland
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.VelocityExemptGrim117
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.VelocityJumpReset
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -45,8 +45,8 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
         enableLock()
     }
 
-    val modes = choices<Choice>("Mode", { VelocityModify }) {
-        arrayOf(
+    val modes = choices(
+        "Mode", VelocityModify, arrayOf(
             VelocityModify,
             VelocityWatchdog,
             VelocityStrafe,
@@ -56,7 +56,7 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
             VelocityJumpReset,
             VelocityIntave
         )
-    }.apply { tagBy(this) }
+    ).apply(::tagBy)
 
     private val delay by intRange("Delay", 0..0, 0..40, "ticks")
     private val pauseOnFlag by int("PauseOnFlag", 0, 0..20, "ticks")
