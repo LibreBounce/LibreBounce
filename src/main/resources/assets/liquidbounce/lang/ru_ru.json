@@ -399,7 +399,6 @@
   "liquidbounce.module.autoShop.messages.loadError": "Невозможно загрузить конфигурацию",
   "liquidbounce.module.autoShop.messages.reloadSuccess": "Перезагрузка прошла успешно",
   "liquidbounce.module.autoTool.description": "Автоматически выбирает лучший инструмент для ломания блока.",
-  "liquidbounce.module.autoTotem.description": "Автоматически размещает тотем бессмертия во вторую руку.",
   "liquidbounce.module.autoTrap.description": "Автоматически поджигает цели вокруг Вас.",
   "liquidbounce.module.autoWalk.description": "Автоматически заставляет Вас идти в том направлении, куда Вы смотрите.",
   "liquidbounce.module.autoWeapon.description": "Автоматически выбирает лучшее оружие в Вашем арсенале.",

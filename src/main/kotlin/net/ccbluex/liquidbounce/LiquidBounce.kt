@@ -62,7 +62,7 @@ import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.mappings.Remapper
+import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.resource.ResourceManager
@@ -122,10 +122,10 @@ object LiquidBounce : Listenable {
             logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
 
             // Load mappings
-            Remapper.load()
+            EnvironmentRemapper
 
             // Load translations
-            LanguageManager.loadLanguages()
+            LanguageManager.loadDefault()
 
             // Initialize client features
             EventManager
@@ -162,7 +162,7 @@ object LiquidBounce : Listenable {
             ModuleManager.registerInbuilt()
 
             // Load user scripts
-            ScriptManager.loadScripts()
+            ScriptManager.loadAll()
 
             // Load theme and component overlay
             ThemeManager

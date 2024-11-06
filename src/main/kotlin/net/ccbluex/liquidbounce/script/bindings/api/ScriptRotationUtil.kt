@@ -42,7 +42,8 @@ import kotlin.math.sqrt
  * rotationUtil.aimAtRotation(rotation, true)
  * ```
  */
-object JsRotationUtil {
+@Suppress("unused")
+object ScriptRotationUtil {
 
     /**
      * Creates a new [Rotation] from [entity]'s bounding box.

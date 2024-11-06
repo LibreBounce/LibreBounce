@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.features.command.commands.utility.CommandUsernam
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.CommandScript
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -230,7 +230,7 @@ object CommandManager : Iterable<Command> {
      *
      * @param cmd The command. If there is no command in it (it is empty or only whitespaces), this method is a no op
      */
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("execute")
     fun execute(cmd: String) {
         val args = tokenizeCommand(cmd).first

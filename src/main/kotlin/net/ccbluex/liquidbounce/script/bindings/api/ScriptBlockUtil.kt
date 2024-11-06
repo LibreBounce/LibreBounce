@@ -26,7 +26,8 @@ import net.minecraft.util.math.BlockPos
 /**
  * Object used by the script API to provide an
  */
-object JsBlockUtil {
+@Suppress("unused")
+object ScriptBlockUtil {
 
     @JvmName("newBlockPos")
     fun newBlockPos(x: Int, y: Int, z: Int): BlockPos = BlockPos(x, y, z)

@@ -254,7 +254,6 @@
   "liquidbounce.module.terrainSpeed.description": "Deixa você se mover mais rapido em certos terrenos.",
   "liquidbounce.module.antiAfk.description": "Não deixa você ser removido por estar afk.",
   "liquidbounce.module.autoFish.description": "Automaticamente pega peixe em quanto pesca.",
-  "liquidbounce.module.autoTotem.description": "Automaticamente coloca um totem na outra mão.",
   "liquidbounce.module.chestStealer.description": "Automaticamente rouba itens de um bau",
   "liquidbounce.module.regen.description": "Regenera vida mais rapido.",
   "liquidbounce.module.zoot.description": "Remove efeitos ruins.",

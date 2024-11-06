@@ -290,7 +290,6 @@
   "liquidbounce.module.terrainSpeed.description": "Allows you to move faster on specific surfaces.",
   "liquidbounce.module.antiAfk.description": "Prevents you from being kicked for AFK.",
   "liquidbounce.module.autoFish.description": "Automatically catches fish when using a rod.",
-  "liquidbounce.module.autoTotem.description": "Automatically places a totem in off-hand.",
   "liquidbounce.module.chestStealer.description": "Automatically steals all items from a chest.",
   "liquidbounce.module.regen.description": "Regenerates your health much faster.",
   "liquidbounce.module.zoot.description": "Removes all bad effects/fire.",

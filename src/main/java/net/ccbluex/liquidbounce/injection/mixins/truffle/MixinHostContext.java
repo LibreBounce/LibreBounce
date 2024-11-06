@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
 
-package net.ccbluex.liquidbounce.injection.mixins.graaljs;
+package net.ccbluex.liquidbounce.injection.mixins.truffle;
 
-import net.ccbluex.liquidbounce.utils.mappings.Remapper;
+import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/**
- * Remaps class names to their obfuscated counterparts.
- *
- * Initial code by lit
- */
-@Mixin(targets = "com/oracle/truffle/host/HostClassLoader")
-public class MixinHostClassLoader {
+@Pseudo
+@Mixin(targets = "com/oracle/truffle/host/HostContext", remap = false)
+public class MixinHostContext {
 
-    @ModifyVariable(method = "findClass", at = @At("HEAD"), argsOnly = true, remap = false)
+    @ModifyVariable(method = "findClassImpl", at = @At("HEAD"), argsOnly = true, remap = false)
     private String remapClassName(String value) {
-        return Remapper.INSTANCE.remapClassName(value);
+        return EnvironmentRemapper.INSTANCE.remapClassName(value);
     }
 
 }

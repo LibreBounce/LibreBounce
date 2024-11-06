@@ -33,7 +33,7 @@ object CommandScript {
             .hub()
             .subcommand(CommandBuilder.begin("reload").handler { command, _ ->
                 runCatching {
-                    ScriptManager.reloadScripts()
+                    ScriptManager.reload()
                 }.onSuccess {
                     chat(regular(command.result("reloaded")))
                 }.onFailure {
@@ -45,7 +45,7 @@ object CommandScript {
                     .build()
             ).handler { command, args ->
                 val name = args[0] as String
-                val scriptFile = ScriptManager.scriptsRoot.resolve("$name.js")
+                val scriptFile = ScriptManager.root.resolve("$name.js")
 
                 if (!scriptFile.exists()) {
                     chat(regular(command.result("notFound", variable(name))))
@@ -53,7 +53,7 @@ object CommandScript {
                 }
 
                 // Check if script is already loaded
-                if (ScriptManager.loadedScripts.any { it.scriptFile == scriptFile }) {
+                if (ScriptManager.scripts.any { it.file == scriptFile }) {
                     chat(regular(command.result("alreadyLoaded", variable(name))))
                     return@handler
                 }
@@ -73,7 +73,7 @@ object CommandScript {
             ).handler { command, args ->
                 val name = args[0] as String
 
-                val script = ScriptManager.loadedScripts.find { it.scriptName.equals(name, true) }
+                val script = ScriptManager.scripts.find { it.scriptName.equals(name, true) }
 
                 if (script == null) {
                     chat(regular(command.result("notFound", variable(name))))
@@ -89,8 +89,8 @@ object CommandScript {
                 }
             }.build())
             .subcommand(CommandBuilder.begin("list").handler { command, _ ->
-                val scripts = ScriptManager.loadedScripts
-                val scriptNames = scripts.map { it.scriptName }
+                val scripts = ScriptManager.scripts
+                val scriptNames = scripts.map { script -> "${script.scriptName} (${script.language})" }
 
                 if (scriptNames.isEmpty()) {
                     chat(regular(command.result("noScripts")))
@@ -100,15 +100,15 @@ object CommandScript {
                 chat(regular(command.result("scripts", variable(scriptNames.joinToString(", ")))))
             }.build())
             .subcommand(CommandBuilder.begin("browse").handler { command, _ ->
-                Util.getOperatingSystem().open(ScriptManager.scriptsRoot)
-                chat(regular(command.result("browse", variable(ScriptManager.scriptsRoot.absolutePath))))
+                Util.getOperatingSystem().open(ScriptManager.root)
+                chat(regular(command.result("browse", variable(ScriptManager.root.absolutePath))))
             }.build())
             .subcommand(CommandBuilder.begin("edit").parameter(
                 ParameterBuilder.begin<String>("name").verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
                     .build()
             ).handler { command, args ->
                 val name = args[0] as String
-                val scriptFile = ScriptManager.scriptsRoot.resolve("$name.js")
+                val scriptFile = ScriptManager.root.resolve("$name.js")
 
                 if (!scriptFile.exists()) {
                     chat(regular(command.result("notFound", variable(name))))

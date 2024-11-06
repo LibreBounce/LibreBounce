@@ -23,7 +23,8 @@ import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
 
-object JsMovementUtil {
+@Suppress("unused")
+object ScriptMovementUtil {
 
     @JvmName("getSpeed")
     fun getSpeed(): Double = player.sqrtSpeed

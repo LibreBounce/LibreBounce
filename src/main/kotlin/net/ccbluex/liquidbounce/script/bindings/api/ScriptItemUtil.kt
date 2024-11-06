@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +15,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
+package net.ccbluex.liquidbounce.script.bindings.api
 
-package net.ccbluex.liquidbounce.injection.mixins.graaljs;
+import net.ccbluex.liquidbounce.utils.item.createItem
+import net.minecraft.item.ItemStack
 
-import net.ccbluex.liquidbounce.utils.mappings.Remapper;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+/**
+ * Object used by the script API to provide an easier way of creating items.
+ */
+@Suppress("unused")
+object ScriptItemUtil {
 
-@Mixin(targets = "com/oracle/truffle/host/HostContext")
-public class MixinHostContext {
+    /**
+     * Create [ItemStack] from [arguments]
+     */
+    fun create(arguments: String): ItemStack = createItem(arguments)
 
-    @ModifyVariable(method = "findClassImpl", at = @At("HEAD"), argsOnly = true, remap = false)
-    private String remapClassName(String value) {
-        return Remapper.INSTANCE.remapClassName(value);
-    }
+    /**
+     * Create [amount]x [ItemStack] from [arguments]
+     */
+    fun create(arguments: String, amount: Int): ItemStack = createItem(arguments, amount)
 
 }

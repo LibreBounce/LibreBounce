@@ -18,32 +18,49 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.features
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.script.PolyglotScript
+import net.ccbluex.liquidbounce.utils.client.*
 import kotlin.reflect.KClass
 
-class JsChoice(choiceObject: Map<String, Any>, override val parent: ChoiceConfigurable<Choice>) : Choice(
-    name = choiceObject["name"] as String,
+class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) : Module(
+    name = moduleObject["name"] as String,
+    category = Category.fromReadableName(moduleObject["category"] as String)!!
 ) {
 
     private val events = hashMapOf<String, (Any?) -> Unit>()
     private val _values = linkedMapOf<String, Value<*>>()
+    private var _tag: String? = null
+    override val tag: String?
+        get() = _tag
+
+    private var _description: String? = null
+    override val description: String
+        get() = _description ?: ""
 
     /**
      * Allows the user to access values by typing module.settings.<valuename>
      */
-    val settings by lazy { _values }
+    override val settings by lazy { _values }
 
     init {
-        if (choiceObject.containsKey("settings")) {
-            val settingsObject = choiceObject["settings"] as Map<String, Value<*>>
+        if (moduleObject.containsKey("settings")) {
+            val settingsObject = moduleObject["settings"] as Map<String, Value<*>>
 
             for ((name, value) in settingsObject) {
                 _values[name] = value(value)
             }
+        }
+
+        if (moduleObject.containsKey("tag")) {
+            _tag = moduleObject["tag"] as String
+        }
+
+        if (moduleObject.containsKey("description")) {
+            _description = moduleObject["description"] as String
         }
     }
 
@@ -68,7 +85,29 @@ class JsChoice(choiceObject: Map<String, Any>, override val parent: ChoiceConfig
         try {
             events[event]?.invoke(payload)
         } catch (throwable: Throwable) {
-            logger.error("Script caused exception in module $name on $event event!", throwable)
+            if (inGame) {
+                chat(
+                    regular("["),
+                    warning(script.file.name),
+                    regular("] "),
+                    markAsError(script.scriptName),
+                    regular("::"),
+                    markAsError(name),
+                    regular("::"),
+                    markAsError(event),
+                    regular(" threw ["),
+                    highlight(throwable.javaClass.simpleName),
+                    regular("]: "),
+                    variable(throwable.message ?: ""),
+                    prefix = false
+                )
+
+            }
+
+            logger.error("${script.scriptName}::$name -> Event Function $event threw an error", throwable)
+
+            // Disable the module if an error occurs
+            enabled = false
         }
     }
 
