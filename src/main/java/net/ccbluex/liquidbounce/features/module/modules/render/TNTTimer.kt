@@ -7,30 +7,31 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.FontValue
 import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.font
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.item.EntityTNTPrimed
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.pow
 
 object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", hideModule = false) {
 
-    private val scale by FloatValue("Scale", 3F, 1F..4F)
-    private val font by FontValue("Font", Fonts.font40)
-    private val fontShadow by BoolValue("Shadow", true)
+    private val scale by float("Scale", 3F, 1F..4F)
+    private val font by font("Font", Fonts.font40)
+    private val fontShadow by bool("Shadow", true)
 
-    private val colorRed by IntegerValue("R", 255, 0..255)
-    private val colorGreen by IntegerValue("G", 255, 0..255)
-    private val colorBlue by IntegerValue("B", 255, 0..255)
+    private val colorRed by int("R", 255, 0..255)
+    private val colorGreen by int("G", 255, 0..255)
+    private val colorBlue by int("B", 255, 0..255)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -38,8 +39,8 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
         }
     }
 
-    private val onLook by BoolValue("OnLook", false)
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
+    private val onLook by bool("OnLook", false)
+    private val maxAngleDifference by float("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
 
     private var maxRenderDistanceSq = 0.0
         set(value) {

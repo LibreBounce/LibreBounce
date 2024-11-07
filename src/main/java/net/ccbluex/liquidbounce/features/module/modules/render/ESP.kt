@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
@@ -24,10 +24,11 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.renderer.GlStateManager.enableTexture2D
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -42,22 +43,24 @@ import kotlin.math.pow
 
 object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
-    val mode by ListValue("Mode",
-        arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Outline", "Glow"), "Box")
+    val mode by choices(
+        "Mode",
+        arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Outline", "Glow"), "Box"
+    )
 
-        val outlineWidth by FloatValue("Outline-Width", 3f, 0.5f..5f) { mode == "Outline" }
+    val outlineWidth by float("Outline-Width", 3f, 0.5f..5f) { mode == "Outline" }
 
-        val wireframeWidth by FloatValue("WireFrame-Width", 2f, 0.5f..5f) { mode == "WireFrame" }
+    val wireframeWidth by float("WireFrame-Width", 2f, 0.5f..5f) { mode == "WireFrame" }
 
-        private val glowRenderScale by FloatValue("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
-        private val glowRadius by IntegerValue("Glow-Radius", 4, 1..5) { mode == "Glow" }
-        private val glowFade by IntegerValue("Glow-Fade", 10, 0..30) { mode == "Glow" }
-        private val glowTargetAlpha by FloatValue("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
+    private val glowRenderScale by float("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
+    private val glowRadius by int("Glow-Radius", 4, 1..5) { mode == "Glow" }
+    private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
+    private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val colorRainbow by BoolValue("Rainbow", false)
-        private val colorRed by IntegerValue("R", 255, 0..255) { !colorRainbow }
-        private val colorGreen by IntegerValue("G", 255, 0..255) { !colorRainbow }
-        private val colorBlue by IntegerValue("B", 255, 0..255) { !colorRainbow }
+    private val colorRainbow by bool("Rainbow", false)
+    private val colorRed by int("R", 255, 0..255) { !colorRainbow }
+    private val colorGreen by int("G", 255, 0..255) { !colorRainbow }
+    private val colorBlue by int("B", 255, 0..255) { !colorRainbow }
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -65,18 +68,18 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
         }
     }
 
-    private val onLook by BoolValue("OnLook", false)
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val onLook by bool("OnLook", false)
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by BoolValue("ThruBlocks", true)
+    private val thruBlocks by bool("ThruBlocks", true)
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val colorTeam by BoolValue("Team", false)
-    private val bot by BoolValue("Bots", true)
+    private val colorTeam by bool("Team", false)
+    private val bot by bool("Bots", true)
 
     var renderNameTags = true
 
@@ -279,6 +282,7 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
         return if (colorRainbow) rainbow() else Color(colorRed, colorGreen, colorBlue)
     }
+
     fun shouldRender(entity: EntityLivingBase): Boolean {
         return (bot || !isBot(entity))
     }

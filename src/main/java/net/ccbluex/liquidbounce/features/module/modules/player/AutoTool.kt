@@ -11,12 +11,12 @@ import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.SilentHotbar
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.bool
 
 object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDetecting = false, hideModule = false) {
 
-    private val switchBack by BoolValue("SwitchBack", false)
-    private val onlySneaking by BoolValue("OnlySneaking", false)
+    private val switchBack by bool("SwitchBack", false)
+    private val onlySneaking by bool("OnlySneaking", false)
 
     @EventTarget
     fun onGameTick(event: GameTickEvent) {

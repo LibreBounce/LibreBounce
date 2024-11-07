@@ -5,11 +5,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.value.bool
 
 object TrueSight : Module("TrueSight", Category.RENDER) {
-    val barriers by BoolValue("Barriers", true)
-    val entities by BoolValue("Entities", true)
+    val barriers by bool("Barriers", true)
+    val entities by bool("Entities", true)
 }

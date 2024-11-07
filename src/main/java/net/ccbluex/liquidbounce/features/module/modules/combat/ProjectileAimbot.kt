@@ -20,9 +20,11 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.inventory.isEmpty
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.*
@@ -30,33 +32,35 @@ import java.awt.Color
 
 object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule = false) {
 
-    private val bow by BoolValue("Bow", true, subjective = true)
-    private val egg by BoolValue("Egg", true, subjective = true)
-    private val snowball by BoolValue("Snowball", true, subjective = true)
-    private val pearl by BoolValue("EnderPearl", false, subjective = true)
-    private val otherItems by BoolValue("OtherItems", false, subjective = true)
+    private val bow by bool("Bow", true, subjective = true)
+    private val egg by bool("Egg", true, subjective = true)
+    private val snowball by bool("Snowball", true, subjective = true)
+    private val pearl by bool("EnderPearl", false, subjective = true)
+    private val otherItems by bool("OtherItems", false, subjective = true)
 
-    private val range by FloatValue("Range", 10f, 0f..30f)
-    private val throughWalls by BoolValue("ThroughWalls", false, subjective = true)
-    private val throughWallsRange by FloatValue("ThroughWallsRange", 10f, 0f..30f) { throughWalls }
+    private val range by float("Range", 10f, 0f..30f)
+    private val throughWalls by bool("ThroughWalls", false, subjective = true)
+    private val throughWallsRange by float("ThroughWallsRange", 10f, 0f..30f) { throughWalls }
 
-    private val priority by ListValue("Priority",
+    private val priority by choices(
+        "Priority",
         arrayOf("Health", "Distance", "Direction"),
         "Direction",
         subjective = true
     )
 
-    private val gravityType by ListValue("GravityType", arrayOf("None", "Projectile"), "Projectile")
+    private val gravityType by choices("GravityType", arrayOf("None", "Projectile"), "Projectile")
 
-    private val predict by BoolValue("Predict", true) { gravityType == "Projectile" }
-    private val predictSize by FloatValue("PredictSize", 2F, 0.1F..5F)
-    { predict && gravityType == "Projectile"}
+    private val predict by bool("Predict", true) { gravityType == "Projectile" }
+    private val predictSize by float("PredictSize", 2F, 0.1F..5F)
+    { predict && gravityType == "Projectile" }
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
-    private val randomizeRotations by BoolValue("RandomizeRotations", false) { options.rotationsActive }
+    private val randomizeRotations by bool("RandomizeRotations", false) { options.rotationsActive }
 
-    private val highestBodyPointToTargetValue: ListValue = object : ListValue("HighestBodyPointToTarget",
+    private val highestBodyPointToTargetValue: ListValue = object : ListValue(
+        "HighestBodyPointToTarget",
         arrayOf("Head", "Body", "Feet"),
         "Head"
     ) {
@@ -71,7 +75,8 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
     }
     private val highestBodyPointToTarget by highestBodyPointToTargetValue
 
-    private val lowestBodyPointToTargetValue: ListValue = object : ListValue("LowestBodyPointToTarget",
+    private val lowestBodyPointToTargetValue: ListValue = object : ListValue(
+        "LowestBodyPointToTarget",
         arrayOf("Head", "Body", "Feet"),
         "Body"
     ) {
@@ -99,7 +104,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
     }
 
-    private val mark by BoolValue("Mark", true, subjective = true)
+    private val mark by bool("Mark", true, subjective = true)
 
     private var target: Entity? = null
 
@@ -125,7 +130,8 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
 
             is Item -> {
                 if (!otherItems && !player.heldItem.isEmpty() ||
-                    (!egg && item is ItemEgg || !snowball && item is ItemSnowball || !pearl && item is ItemEnderPearl))
+                    (!egg && item is ItemEgg || !snowball && item is ItemSnowball || !pearl && item is ItemEnderPearl)
+                )
                     return
 
                 target = getTarget(throughWalls, priority)

@@ -15,6 +15,8 @@ import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.ccbluex.liquidbounce.value.TextValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S40PacketDisconnect
 import net.minecraft.network.play.server.S45PacketTitle
@@ -26,8 +28,8 @@ import kotlin.concurrent.schedule
 object AutoAccount :
     Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
 
-    private val register by BoolValue("AutoRegister", true)
-    private val login by BoolValue("AutoLogin", true)
+    private val register by bool("AutoRegister", true)
+    private val login by bool("AutoLogin", true)
 
     // Gamster requires 8 chars+
     private val passwordValue = object : TextValue("Password", "axolotlaxolotl") {
@@ -56,9 +58,9 @@ object AutoAccount :
     private val password by passwordValue
 
     // Needed for Gamster
-    private val sendDelay by IntegerValue("SendDelay", 250, 0..500) { passwordValue.isSupported() }
+    private val sendDelay by int("SendDelay", 250, 0..500) { passwordValue.isSupported() }
 
-    private val autoSession by BoolValue("AutoSession", false)
+    private val autoSession by bool("AutoSession", false)
     private val startupValue = BoolValue("RandomAccountOnStart", false) { autoSession }
     private val relogInvalidValue = BoolValue("RelogWhenPasswordInvalid", true) { autoSession }
     private val relogKickedValue = BoolValue("RelogWhenKicked", false) { autoSession }

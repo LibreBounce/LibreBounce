@@ -8,16 +8,15 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.stats.StatList
@@ -30,15 +29,18 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
      * OPTIONS
      */
 
-    private val mode by ListValue("Mode",
-        arrayOf("Vanilla", "Jump", "NCP", "MotionNCP", "OldNCP", "AAC", "LAAC", "AAC3.3.4", "Spartan", "Rewinside"), "NCP")
+    private val mode by choices(
+        "Mode",
+        arrayOf("Vanilla", "Jump", "NCP", "MotionNCP", "OldNCP", "AAC", "LAAC", "AAC3.3.4", "Spartan", "Rewinside"),
+        "NCP"
+    )
 
-        private val height by FloatValue("Height", 1F, 0.6F..10F)
-            { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4") }
-        private val jumpHeight by FloatValue("JumpHeight", 0.42F, 0.37F..0.42F)
-            { mode == "Jump" }
+    private val height by float("Height", 1F, 0.6F..10F)
+    { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4") }
+    private val jumpHeight by float("JumpHeight", 0.42F, 0.37F..0.42F)
+    { mode == "Jump" }
 
-    private val delay by IntegerValue("Delay", 0, 0..500)
+    private val delay by int("Delay", 0, 0..500)
 
     /**
      * VALUES
@@ -74,6 +76,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
                     fakeJump()
                     thePlayer.motionY = jumpHeight.toDouble()
                 }
+
             "LAAC" ->
                 if (thePlayer.isCollidedHorizontally && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isInLava && !thePlayer.isInWeb) {
                     if (thePlayer.onGround && timer.hasTimePassed(delay)) {
@@ -90,6 +93,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
 
                     thePlayer.onGround = true
                 } else isStep = false
+
             "AAC3.3.4" ->
                 if (thePlayer.isCollidedHorizontally && thePlayer.isMoving) {
                     if (thePlayer.onGround && couldStep()) {
@@ -147,14 +151,21 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         val thePlayer = mc.thePlayer ?: return
 
         // Phase should disable step
-        if (Phase.handleEvents()) {
+        if (handleEvents()) {
             event.stepHeight = 0F
             return
         }
 
         // Some fly modes should disable step
-        if (Fly.handleEvents() && Fly.mode in arrayOf("Hypixel", "OtherHypixel", "LatestHypixel", "Rewinside", "Mineplex")
-            && thePlayer.inventory.getCurrentItem() == null) {
+        if (handleEvents() && Fly.mode in arrayOf(
+                "Hypixel",
+                "OtherHypixel",
+                "LatestHypixel",
+                "Rewinside",
+                "Mineplex"
+            )
+            && thePlayer.inventory.getCurrentItem() == null
+        ) {
             event.stepHeight = 0F
             return
         }
@@ -163,7 +174,8 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
 
         // Set step to default in some cases
         if (!thePlayer.onGround || !timer.hasTimePassed(delay) ||
-                mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4")) {
+            mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4")
+        ) {
             thePlayer.stepHeight = 0.6F
             event.stepHeight = 0.6F
             return
@@ -203,6 +215,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
                     )
                     timer.reset()
                 }
+
                 "Spartan" -> {
                     fakeJump()
 
@@ -222,6 +235,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
                     // Reset timer
                     timer.reset()
                 }
+
                 "Rewinside" -> {
                     fakeJump()
 
@@ -268,7 +282,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         val z = cos(yaw) * 0.4
 
         return mc.theWorld.getCollisionBoxes(mc.thePlayer.entityBoundingBox.offset(x, 1.001335979112147, z))
-                .isEmpty()
+            .isEmpty()
     }
 
     override val tag

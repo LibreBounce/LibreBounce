@@ -16,8 +16,9 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
@@ -27,24 +28,28 @@ import java.util.concurrent.ConcurrentHashMap
 
 object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val staffMode by object : ListValue("StaffMode", arrayOf("BlocksMC", "CubeCraft", "Gamster",
-        "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD"), "BlocksMC") {
+    private val staffMode by object : ListValue(
+        "StaffMode", arrayOf(
+            "BlocksMC", "CubeCraft", "Gamster",
+            "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD"
+        ), "BlocksMC"
+    ) {
         override fun onUpdate(value: String) {
             loadStaffData()
         }
     }
 
-    private val tab by BoolValue("TAB", true)
-    private val packet by BoolValue("Packet", true)
-    private val velocity by BoolValue("Velocity", false)
+    private val tab by bool("TAB", true)
+    private val packet by bool("Packet", true)
+    private val velocity by bool("Velocity", false)
 
-    private val autoLeave by ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
+    private val autoLeave by choices("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
 
-    private val spectator by BoolValue("StaffSpectator", false) { tab || packet }
-    private val otherSpectator by BoolValue("OtherSpectator", false) { tab || packet }
+    private val spectator by bool("StaffSpectator", false) { tab || packet }
+    private val otherSpectator by bool("OtherSpectator", false) { tab || packet }
 
-    private val inGame by BoolValue("InGame", true) { autoLeave != "Off" }
-    private val warn by ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
+    private val inGame by bool("InGame", true) { autoLeave != "Off" }
+    private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private val checkedStaff = ConcurrentHashMap.newKeySet<String>()
     private val checkedSpectator = ConcurrentHashMap.newKeySet<String>()
@@ -301,6 +306,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     else -> "§c(Ping error)"
                 }
             }
+
             else -> ""
         }
 
@@ -391,10 +397,12 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     chat("§aSuccessfully loaded §9${staffList.size} §astaff names.")
                     mapOf(url to staffList)
                 }
+
                 404 -> {
                     chat("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
                     emptyMap()
                 }
+
                 else -> {
                     chat("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
                     emptyMap()

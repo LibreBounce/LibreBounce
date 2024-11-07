@@ -14,46 +14,46 @@ import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.util.ResourceLocation
 
 object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetecting = false, hideModule = true) {
-    val customHotbar by BoolValue("CustomHotbar", true)
+    val customHotbar by bool("CustomHotbar", true)
 
-    val smoothHotbarSlot by BoolValue("SmoothHotbarSlot", true) { customHotbar }
+    val smoothHotbarSlot by bool("SmoothHotbarSlot", true) { customHotbar }
 
-    val roundedHotbarRadius by FloatValue("RoundedHotbar-Radius", 3F, 0F..5F) { customHotbar }
+    val roundedHotbarRadius by float("RoundedHotbar-Radius", 3F, 0F..5F) { customHotbar }
 
-    val hotbarMode by ListValue("Hotbar-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom") { customHotbar }
+    val hotbarMode by choices("Hotbar-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom") { customHotbar }
     val hbHighlightColors = ColorSettingsInteger(this, "Hotbar-Highlight-Colors", applyMax = true)
     { customHotbar }.with(a = 0)
     val hbBackgroundColors = ColorSettingsInteger(this, "Hotbar-Background-Colors")
     { customHotbar && hotbarMode == "Custom" }.with(a = 190)
-    val gradientHotbarSpeed by FloatValue("Hotbar-Gradient-Speed", 1f, 0.5f..10f)
+    val gradientHotbarSpeed by float("Hotbar-Gradient-Speed", 1f, 0.5f..10f)
     { customHotbar && hotbarMode == "Gradient" }
-    val maxHotbarGradientColors by IntegerValue("Max-Hotbar-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
+    val maxHotbarGradientColors by int("Max-Hotbar-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { customHotbar && hotbarMode == "Gradient" }
     val bgGradColors = ColorSettingsFloat.create(this, "Hotbar-Gradient")
     { customHotbar && hotbarMode == "Gradient" && it <= maxHotbarGradientColors }
-    val hbHighlightBorder by FloatValue("HotbarBorder-Highlight-Width", 2F, 0.5F..5F) { customHotbar }
+    val hbHighlightBorder by float("HotbarBorder-Highlight-Width", 2F, 0.5F..5F) { customHotbar }
     val hbHighlightBorderColors = ColorSettingsInteger(this, "HotbarBorder-Highlight-Colors", zeroAlphaCheck = true)
     { customHotbar }.with(a = 255, g = 111, b = 255)
-    val hbBackgroundBorder by FloatValue("HotbarBorder-Background-Width", 0.5F, 0.5F..5F) { customHotbar }
+    val hbBackgroundBorder by float("HotbarBorder-Background-Width", 0.5F, 0.5F..5F) { customHotbar }
     val hbBackgroundBorderColors = ColorSettingsInteger(this, "HotbarBorder-Background-Colors", zeroAlphaCheck = true)
     { customHotbar }.with(a = 0)
 
-    val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
-    val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
-    val gradientX by FloatValue("Gradient-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
-    val gradientY by FloatValue("Gradient-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
+    val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
+    val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
+    val gradientX by float("Gradient-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
+    val gradientY by float("Gradient-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
 
-    val inventoryParticle by BoolValue("InventoryParticle", false)
-    private val blur by BoolValue("Blur", false)
-    val fontChat by BoolValue("FontChat", false)
+    val inventoryParticle by bool("InventoryParticle", false)
+    private val blur by bool("Blur", false)
+    val fontChat by bool("FontChat", false)
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
@@ -73,10 +73,12 @@ object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetectin
     fun onScreen(event: ScreenEvent) {
         if (mc.theWorld == null || mc.thePlayer == null) return
         if (state && blur && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
-                !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)) mc.entityRenderer.loadShader(
+            !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)
+        ) mc.entityRenderer.loadShader(
             ResourceLocation(CLIENT_NAME.lowercase() + "/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&
-            "liquidbounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName) mc.entityRenderer.stopUseShader()
+            "liquidbounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName
+        ) mc.entityRenderer.stopUseShader()
     }
 
     init {

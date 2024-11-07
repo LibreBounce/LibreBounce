@@ -8,29 +8,31 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.TextValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.value.text
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S40PacketDisconnect
-import kotlin.random.Random
 import java.util.*
+import kotlin.random.Random
 
-object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+object NameProtect :
+    Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
 
-    val allPlayers by BoolValue("AllPlayers", false)
+    val allPlayers by bool("AllPlayers", false)
 
-    val skinProtect by BoolValue("SkinProtect", true)
-    private val fakeName by TextValue("FakeName", "&cMe")
+    val skinProtect by bool("SkinProtect", true)
+    private val fakeName by text("FakeName", "&cMe")
 
-    private val randomNames by BoolValue("RandomNames", false) { allPlayers }
-    private val randomNameLength by BoolValue("RandomNameLength", false) { allPlayers && randomNames }
+    private val randomNames by bool("RandomNames", false) { allPlayers }
+    private val randomNameLength by bool("RandomNameLength", false) { allPlayers && randomNames }
 
-    private var nameLength by IntegerValue("NameLength", 6, 6..16) {
+    private var nameLength by int("NameLength", 6, 6..16) {
         randomNames && allPlayers && !randomNameLength
     }
 
@@ -45,7 +47,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
     }
 
     private val playerRandomNames = mutableMapOf<UUID, Pair<String, Int>>()
-    private val characters =  ('a'..'z') + ('0'..'9') + ('A'..'Z') + "_"
+    private val characters = ('a'..'z') + ('0'..'9') + ('A'..'Z') + "_"
 
     private var savedName = -1
     private var savedMinName = -1

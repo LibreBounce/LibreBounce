@@ -7,23 +7,23 @@ package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.player.EnumPlayerModelParts
 import kotlin.random.Random.Default.nextBoolean
 
 object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true, hideModule = false) {
 
-    private val delay by IntegerValue("Delay", 0, 0..1000)
-    private val hat by BoolValue("Hat", true)
-    private val jacket by BoolValue("Jacket", true)
-    private val leftPants by BoolValue("LeftPants", true)
-    private val rightPants by BoolValue("RightPants", true)
-    private val leftSleeve by BoolValue("LeftSleeve", true)
-    private val rightSleeve by BoolValue("RightSleeve", true)
+    private val delay by int("Delay", 0, 0..1000)
+    private val hat by bool("Hat", true)
+    private val jacket by bool("Jacket", true)
+    private val leftPants by bool("LeftPants", true)
+    private val rightPants by bool("RightPants", true)
+    private val leftSleeve by bool("LeftSleeve", true)
+    private val rightSleeve by bool("RightSleeve", true)
 
     private var prevModelParts = emptySet<EnumPlayerModelParts>()
 

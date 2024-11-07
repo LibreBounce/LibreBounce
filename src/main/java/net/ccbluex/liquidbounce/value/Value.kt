@@ -13,6 +13,8 @@ import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.minecraft.client.gui.FontRenderer
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -97,7 +99,7 @@ abstract class Value<T>(
     protected open fun onUpdate(value: T) {}
     protected open fun onChange(oldValue: T, newValue: T) = newValue
     protected open fun onChanged(oldValue: T, newValue: T) {}
-    open fun isSupported() = isSupported?.invoke() ?: true
+    open fun isSupported() = isSupported?.invoke() != false
 
     open fun setSupport(value: (Boolean) -> () -> Boolean) {
         isSupported = value(isSupported())
@@ -159,6 +161,82 @@ open class IntegerValue(
 
     val minimum = range.first
     val maximum = range.last
+}
+
+// TODO: Replace Min/Max options with this instead
+open class IntegerRangeValue(
+    name: String,
+    value: IntRange,
+    val range: IntRange = 0..Int.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null,
+) : Value<IntRange>(name, value, subjective, isSupported) {
+
+    fun setFirst(newValue: Int) = set(newValue..value.last)
+    fun setLast(newValue: Int) = set(value.first..newValue)
+
+    override fun toJsonF(): JsonElement {
+        return JsonPrimitive("${value.first}-${value.last}")
+    }
+
+    override fun fromJsonF(element: JsonElement): IntRange? {
+        return element.asJsonPrimitive?.asString?.split("-")?.takeIf { it.size == 2 }?.let {
+            val (start, end) = it
+
+            start.toIntOrNull()?.let { s ->
+                end.toIntOrNull()?.let { e ->
+                    s..e
+                }
+            }
+        }
+    }
+
+    fun isMinimal() = value.first <= minimum
+    fun isMaximal() = value.last >= maximum
+
+    val minimum = range.first
+    val maximum = range.last
+
+    val random
+        get() = nextInt(value.first, value.last)
+}
+
+// TODO: Replace Min/Max options with this instead
+open class FloatRangeValue(
+    name: String,
+    value: ClosedFloatingPointRange<Float>,
+    val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null,
+) : Value<ClosedFloatingPointRange<Float>>(name, value, subjective, isSupported) {
+
+    fun setFirst(newValue: Float) = set(newValue..value.endInclusive)
+    fun setLast(newValue: Float) = set(value.start..newValue)
+
+    override fun toJsonF(): JsonElement {
+        return JsonPrimitive("${value.start}-${value.endInclusive}")
+    }
+
+    override fun fromJsonF(element: JsonElement): ClosedFloatingPointRange<Float>? {
+        return element.asJsonPrimitive?.asString?.split("-")?.takeIf { it.size == 2 }?.let {
+            val (start, end) = it
+
+            start.toFloatOrNull()?.let { s ->
+                end.toFloatOrNull()?.let { e ->
+                    s..e
+                }
+            }
+        }
+    }
+
+    fun isMinimal() = value.start <= minimum
+    fun isMaximal() = value.endInclusive >= maximum
+
+    val minimum = range.start
+    val maximum = range.endInclusive
+
+    val random
+        get() = nextFloat(value.start, value.endInclusive)
 }
 
 /**
@@ -283,3 +361,71 @@ open class ListValue(
         values = newValues
     }
 }
+
+fun int(
+    name: String,
+    value: Int,
+    range: IntRange = 0..Int.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = IntegerValue(name, value, range, subjective, isSupported)
+
+fun float(
+    name: String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = FloatValue(name, value, range, subjective, isSupported)
+
+fun choices(
+    name: String,
+    values: Array<String>,
+    value: String,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = ListValue(name, values, value, subjective, isSupported)
+
+fun block(
+    name: String,
+    value: Int,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = BlockValue(name, value, subjective, isSupported)
+
+fun font(
+    name: String,
+    value: FontRenderer,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = FontValue(name, value, subjective, isSupported)
+
+fun text(
+    name: String,
+    value: String,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = TextValue(name, value, subjective, isSupported)
+
+fun bool(
+    name: String,
+    value: Boolean,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = BoolValue(name, value, subjective, isSupported)
+
+fun intRange(
+    name: String,
+    value: IntRange,
+    range: IntRange = 0..Int.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = IntegerRangeValue(name, value, range, subjective, isSupported)
+
+fun floatRange(
+    name: String,
+    value: ClosedFloatingPointRange<Float>,
+    range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = FloatRangeValue(name, value, range, subjective, isSupported)

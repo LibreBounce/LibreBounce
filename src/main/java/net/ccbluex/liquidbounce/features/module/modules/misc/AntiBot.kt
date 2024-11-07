@@ -19,10 +19,10 @@ import net.ccbluex.liquidbounce.utils.extensions.getFullName
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.server.S0BPacketAnimation
@@ -35,43 +35,43 @@ import kotlin.math.sqrt
 
 object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
-    private val tab by BoolValue("Tab", true)
-    private val tabMode by ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains") { tab }
+    private val tab by bool("Tab", true)
+    private val tabMode by choices("TabMode", arrayOf("Equals", "Contains"), "Contains") { tab }
 
-    private val entityID by BoolValue("EntityID", true)
-    private val invalidUUID by BoolValue("InvalidUUID", true)
-    private val color by BoolValue("Color", false)
+    private val entityID by bool("EntityID", true)
+    private val invalidUUID by bool("InvalidUUID", true)
+    private val color by bool("Color", false)
 
-    private val livingTime by BoolValue("LivingTime", false)
-    private val livingTimeTicks by IntegerValue("LivingTimeTicks", 40, 1..200) { livingTime }
+    private val livingTime by bool("LivingTime", false)
+    private val livingTimeTicks by int("LivingTimeTicks", 40, 1..200) { livingTime }
 
-    private val capabilities by BoolValue("Capabilities", true)
-    private val ground by BoolValue("Ground", true)
-    private val air by BoolValue("Air", false)
-    private val invalidGround by BoolValue("InvalidGround", true)
-    private val invalidSpeed by BoolValue("InvalidSpeed", false)
-    private val swing by BoolValue("Swing", false)
-    private val health by BoolValue("Health", false)
-    private val derp by BoolValue("Derp", true)
-    private val wasInvisible by BoolValue("WasInvisible", false)
-    private val armor by BoolValue("Armor", false)
-    private val ping by BoolValue("Ping", false)
-    private val needHit by BoolValue("NeedHit", false)
-    private val duplicateInWorld by BoolValue("DuplicateInWorld", false)
-    private val duplicateInTab by BoolValue("DuplicateInTab", false)
-    private val duplicateProfile by BoolValue("DuplicateProfile", false)
-    private val properties by BoolValue("Properties", false)
+    private val capabilities by bool("Capabilities", true)
+    private val ground by bool("Ground", true)
+    private val air by bool("Air", false)
+    private val invalidGround by bool("InvalidGround", true)
+    private val invalidSpeed by bool("InvalidSpeed", false)
+    private val swing by bool("Swing", false)
+    private val health by bool("Health", false)
+    private val derp by bool("Derp", true)
+    private val wasInvisible by bool("WasInvisible", false)
+    private val armor by bool("Armor", false)
+    private val ping by bool("Ping", false)
+    private val needHit by bool("NeedHit", false)
+    private val duplicateInWorld by bool("DuplicateInWorld", false)
+    private val duplicateInTab by bool("DuplicateInTab", false)
+    private val duplicateProfile by bool("DuplicateProfile", false)
+    private val properties by bool("Properties", false)
 
-    private val alwaysInRadius by BoolValue("AlwaysInRadius", false)
-    private val alwaysRadius by FloatValue("AlwaysInRadiusBlocks", 20f, 3f..30f)
+    private val alwaysInRadius by bool("AlwaysInRadius", false)
+    private val alwaysRadius by float("AlwaysInRadiusBlocks", 20f, 3f..30f)
     { alwaysInRadius }
-    private val alwaysRadiusTick by IntegerValue("AlwaysInRadiusTick", 50, 1..100)
+    private val alwaysRadiusTick by int("AlwaysInRadiusTick", 50, 1..100)
     { alwaysInRadius }
 
-    private val alwaysBehind by BoolValue("AlwaysBehind", false)
-    private val alwaysBehindRadius by FloatValue("AlwaysBehindInRadiusBlocks", 10f, 3f..30f)
+    private val alwaysBehind by bool("AlwaysBehind", false)
+    private val alwaysBehindRadius by float("AlwaysBehindInRadiusBlocks", 10f, 3f..30f)
     { alwaysBehind }
-    private val behindRotDiffToIgnore by FloatValue("BehindRotationDiffToIgnore", 90f, 1f..180f)
+    private val behindRotDiffToIgnore by float("BehindRotationDiffToIgnore", 90f, 1f..180f)
     { alwaysBehind }
 
     private val groundList = mutableSetOf<Int>()
@@ -132,13 +132,15 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
         if (armor) {
             if (entity.inventory.armorInventory[0] == null && entity.inventory.armorInventory[1] == null &&
-                entity.inventory.armorInventory[2] == null && entity.inventory.armorInventory[3] == null)
+                entity.inventory.armorInventory[2] == null && entity.inventory.armorInventory[3] == null
+            )
                 return true
         }
 
         if (ping) {
             if (mc.netHandler.getPlayerInfo(entity.uniqueID)?.responseTime == 0 ||
-                mc.netHandler.getPlayerInfo(entity.uniqueID)?.responseTime == null)
+                mc.netHandler.getPlayerInfo(entity.uniqueID)?.responseTime == null
+            )
                 return true
         }
 
@@ -147,7 +149,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         }
 
         if (capabilities && (entity.isSpectator || entity.capabilities.isFlying || entity.capabilities.allowFlying
-                || entity.capabilities.disableDamage || entity.capabilities.isCreativeMode))
+                    || entity.capabilities.disableDamage || entity.capabilities.isCreativeMode)
+        )
             return true
 
         if (invalidSpeed && entity.entityId in invalidSpeedList)
@@ -160,8 +163,10 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
             return true
 
         if (duplicateProfile) {
-            return mc.netHandler.playerInfoMap.count { it.gameProfile.name == entity.gameProfile.name
-                    && it.gameProfile.id != entity.gameProfile.id } == 1
+            return mc.netHandler.playerInfoMap.count {
+                it.gameProfile.name == entity.gameProfile.name
+                        && it.gameProfile.id != entity.gameProfile.id
+            } == 1
         }
 
         if (duplicateInWorld) {
@@ -297,8 +302,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
 
                     if (speed in 0.45..0.46 && (!entity.isSprinting || !entity.isMoving ||
-                                entity.getActivePotionEffect(Potion.moveSpeed) == null))
-                    {
+                                entity.getActivePotionEffect(Potion.moveSpeed) == null)
+                    ) {
                         invalidSpeedList += entity.entityId
                     }
                 }
@@ -309,7 +314,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
             val entity = mc.theWorld.getEntityByID(packet.entityID)
 
             if (entity != null && entity is EntityLivingBase && packet.animationType == 0
-                && entity.entityId !in swingList)
+                && entity.entityId !in swingList
+            )
                 swingList += entity.entityId
         }
 

@@ -45,12 +45,12 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
      * OPTIONS
      */
 
-    private val allBlocks by BoolValue("AllBlocks", true)
-    private val blocks by BlockValue("Block", 1) { !allBlocks }
+    private val allBlocks by bool("AllBlocks", true)
+    private val blocks by block("Block", 1) { !allBlocks }
 
-    private val radius by FloatValue("Radius", 5.2F, 1F..6F)
-    private val throughWalls by BoolValue("ThroughWalls", false)
-    private val priority by ListValue("Priority", arrayOf("Distance", "Hardness", "LightOpacity"), "Distance")
+    private val radius by float("Radius", 5.2F, 1F..6F)
+    private val throughWalls by bool("ThroughWalls", false)
+    private val priority by choices("Priority", arrayOf("Distance", "Hardness", "LightOpacity"), "Distance")
 
     private val options = RotationSettings(this).apply {
         immediate = true
@@ -59,20 +59,20 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
         withoutKeepRotation()
     }
 
-    private val layer by BoolValue("Layer", false)
-    private val hitDelay by IntegerValue("HitDelay", 4, 0..20)
-    private val nuke by IntegerValue("Nuke", 1, 1..20)
-    private val nukeDelay by IntegerValue("NukeDelay", 1, 1..20)
+    private val layer by bool("Layer", false)
+    private val hitDelay by int("HitDelay", 4, 0..20)
+    private val nuke by int("Nuke", 1, 1..20)
+    private val nukeDelay by int("NukeDelay", 1, 1..20)
 
-    private val blockProgress by BoolValue("BlockProgress", true)
+    private val blockProgress by bool("BlockProgress", true)
 
-    private val scale by FloatValue("Scale", 2F, 1F..6F) { blockProgress }
-    private val font by FontValue("Font", Fonts.font40) { blockProgress }
-    private val fontShadow by BoolValue("Shadow", true) { blockProgress }
+    private val scale by float("Scale", 2F, 1F..6F) { blockProgress }
+    private val font by font("Font", Fonts.font40) { blockProgress }
+    private val fontShadow by bool("Shadow", true) { blockProgress }
 
-    private val colorRed by IntegerValue("R", 200, 0..255) { blockProgress }
-    private val colorGreen by IntegerValue("G", 100, 0..255) { blockProgress }
-    private val colorBlue by IntegerValue("B", 0, 0..255) { blockProgress }
+    private val colorRed by int("R", 200, 0..255) { blockProgress }
+    private val colorGreen by int("G", 100, 0..255) { blockProgress }
+    private val colorBlue by int("B", 0, 0..255) { blockProgress }
 
     /**
      * VALUES
@@ -90,7 +90,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         // Block hit delay
-        if (blockHitDelay > 0 && !FastBreak.handleEvents()) {
+        if (blockHitDelay > 0 && !handleEvents()) {
             blockHitDelay--
             return
         }

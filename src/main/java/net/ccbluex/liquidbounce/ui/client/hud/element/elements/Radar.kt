@@ -19,10 +19,10 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.ccbluex.liquidbounce.utils.render.SafeVertexBuffer
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.renderer.GlStateManager.bindTexture
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -39,32 +39,32 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
         private val SQRT_OF_TWO = sqrt(2f)
     }
 
-    private val size by FloatValue("Size", 90f, 30f..500f)
-    private val viewDistance by FloatValue("View Distance", 4F, 0.5F..32F)
+    private val size by float("Size", 90f, 30f..500f)
+    private val viewDistance by float("View Distance", 4F, 0.5F..32F)
 
-    private val playerShape by ListValue("Player Shape", arrayOf("Triangle", "Rectangle", "Circle"), "Triangle")
-    private val playerSize by FloatValue("Player Size", 2f, 0.5f..20F)
-    private val useESPColors by BoolValue("Use ESP Colors", true)
-    private val fovSize by FloatValue("FOV Size", 10F, 0F..50F)
-    private val fovAngle by FloatValue("FOV Angle", 70F, 30F..160F)
+    private val playerShape by choices("Player Shape", arrayOf("Triangle", "Rectangle", "Circle"), "Triangle")
+    private val playerSize by float("Player Size", 2f, 0.5f..20F)
+    private val useESPColors by bool("Use ESP Colors", true)
+    private val fovSize by float("FOV Size", 10F, 0F..50F)
+    private val fovAngle by float("FOV Angle", 70F, 30F..160F)
 
-    private val minimap by BoolValue("Minimap", true)
+    private val minimap by bool("Minimap", true)
 
-    private val backgroundRed by IntegerValue("Background Red", 0, 0..255)
-    private val backgroundGreen by IntegerValue("Background Green", 0, 0..255)
-    private val backgroundBlue by IntegerValue("Background Blue", 0, 0..255)
-    private val backgroundAlpha by IntegerValue("Background Alpha", 50, 0..255)
+    private val backgroundRed by int("Background Red", 0, 0..255)
+    private val backgroundGreen by int("Background Green", 0, 0..255)
+    private val backgroundBlue by int("Background Blue", 0, 0..255)
+    private val backgroundAlpha by int("Background Alpha", 50, 0..255)
 
-    private val borderStrength by FloatValue("Border Strength", 2F, 1F..5F)
+    private val borderStrength by float("Border Strength", 2F, 1F..5F)
 
-    private val borderRainbow by BoolValue("Border Rainbow", false)
-        private val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F) { borderRainbow }
-        private val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F) { borderRainbow }
+    private val borderRainbow by bool("Border Rainbow", false)
+    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { borderRainbow }
+    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { borderRainbow }
 
-        private val borderRed by IntegerValue("Border Red", 0, 0..255) { !borderRainbow }
-        private val borderGreen by IntegerValue("Border Green", 0, 0..255) { !borderRainbow }
-        private val borderBlue by IntegerValue("Border Blue", 0, 0..255) { !borderRainbow }
-        private val borderAlpha by IntegerValue("Border Alpha", 150, 0..255) { !borderRainbow }
+    private val borderRed by int("Border Red", 0, 0..255) { !borderRainbow }
+    private val borderGreen by int("Border Green", 0, 0..255) { !borderRainbow }
+    private val borderBlue by int("Border Blue", 0, 0..255) { !borderRainbow }
+    private val borderAlpha by int("Border Alpha", 150, 0..255) { !borderRainbow }
 
     private var fovMarkerVertexBuffer: VertexBuffer? = null
     private var lastFov = 0f
@@ -117,7 +117,8 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
             for (x in -chunksToRender..chunksToRender) {
                 for (z in -chunksToRender..chunksToRender) {
-                    val currChunk = MiniMapRegister.getChunkTextureAt(floor(currX).toInt() + x, floor(currZ).toInt() + z)
+                    val currChunk =
+                        MiniMapRegister.getChunkTextureAt(floor(currX).toInt() + x, floor(currZ).toInt() + z)
 
                     if (currChunk != null) {
                         val sc = chunkSizeOnScreen.toDouble()
@@ -175,8 +176,10 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
         for (entity in mc.theWorld.loadedEntityList) {
             if (entity != mc.thePlayer && isSelected(entity, false)) {
-                val positionRelativeToPlayer = Vector2f((renderViewEntity.posX - entity.posX).toFloat(),
-                        (renderViewEntity.posZ - entity.posZ).toFloat())
+                val positionRelativeToPlayer = Vector2f(
+                    (renderViewEntity.posX - entity.posX).toFloat(),
+                    (renderViewEntity.posZ - entity.posZ).toFloat()
+                )
 
                 if (maxDisplayableDistanceSquare < positionRelativeToPlayer.lengthSquared())
                     continue
@@ -186,8 +189,10 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
                 if (transform) {
                     glPushMatrix()
 
-                    glTranslatef((positionRelativeToPlayer.x / viewDistance) * size,
-                            (positionRelativeToPlayer.y / viewDistance) * size, 0f)
+                    glTranslatef(
+                        (positionRelativeToPlayer.x / viewDistance) * size,
+                        (positionRelativeToPlayer.y / viewDistance) * size, 0f
+                    )
                     glRotatef(entity.rotationYaw, 0f, 0f, 1f)
                 }
 
@@ -233,9 +238,15 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
                 } else {
                     val color = ESP.getColor(entity)
 
-                    worldRenderer.pos(((positionRelativeToPlayer.x / viewDistance) * size).toDouble(), ((positionRelativeToPlayer.y / viewDistance) * size).toDouble(), 0.0)
-                            .color(color.red / 255f, color.green / 255f,
-                                    color.blue / 255f, 1f).endVertex()
+                    worldRenderer.pos(
+                        ((positionRelativeToPlayer.x / viewDistance) * size).toDouble(),
+                        ((positionRelativeToPlayer.y / viewDistance) * size).toDouble(),
+                        0.0
+                    )
+                        .color(
+                            color.red / 255f, color.green / 255f,
+                            color.blue / 255f, 1f
+                        ).endVertex()
                 }
 
                 if (transform) {
@@ -262,10 +273,16 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
         glPopMatrix()
 
-        RainbowShader.begin(borderRainbow, if (rainbowX == 0f) 0f else 1f / rainbowX,
-                if (rainbowY == 0f) 0f else 1f / rainbowY, System.currentTimeMillis() % 10000 / 10000F).use {
-            drawBorder(0F, 0F, size, size, borderStrength, Color(borderRed,
-                    borderGreen, borderBlue, borderAlpha).rgb)
+        RainbowShader.begin(
+            borderRainbow, if (rainbowX == 0f) 0f else 1f / rainbowX,
+            if (rainbowY == 0f) 0f else 1f / rainbowY, System.currentTimeMillis() % 10000 / 10000F
+        ).use {
+            drawBorder(
+                0F, 0F, size, size, borderStrength, Color(
+                    borderRed,
+                    borderGreen, borderBlue, borderAlpha
+                ).rgb
+            )
 
             glEnable(GL_BLEND)
             glDisable(GL_TEXTURE_2D)

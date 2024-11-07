@@ -13,13 +13,13 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.chat
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.UPDATE_LATENCY
 
 object AntiVanish : Module("AntiVanish", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val warn by ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
+    private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private var alertClearVanish = false
 

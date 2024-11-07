@@ -12,14 +12,14 @@ import net.ccbluex.liquidbounce.utils.RotationSettings
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.extensions.rotation
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.bool
 import net.minecraft.entity.player.EntityPlayer
 
 object NoRotateSet : Module("NoRotateSet", Category.MISC, gameDetecting = false, hideModule = false) {
     var savedRotation = Rotation.ZERO
 
-    private val ignoreOnSpawn by BoolValue("IgnoreOnSpawn", false)
-    val affectRotation by BoolValue("AffectRotation", true)
+    private val ignoreOnSpawn by bool("IgnoreOnSpawn", false)
+    val affectRotation by bool("AffectRotation", true)
 
     private val options = RotationSettings(this) { affectRotation }.apply {
         applyServerSideValue.excludeWithState(true)

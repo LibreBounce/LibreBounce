@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.value.bool
 
 object Chams : Module("Chams", Category.RENDER, hideModule = false) {
-    val targets by BoolValue("Targets", true)
-    val chests by BoolValue("Chests", true)
-    val items by BoolValue("Items", true)
+    val targets by bool("Targets", true)
+    val chests by bool("Chests", true)
+    val items by bool("Items", true)
 }

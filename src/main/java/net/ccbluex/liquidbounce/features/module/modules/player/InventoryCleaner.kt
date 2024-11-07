@@ -24,9 +24,10 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryC
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.BlockFalling
 import net.minecraft.block.BlockWorkbench
@@ -39,8 +40,8 @@ import net.minecraft.item.*
 import net.minecraft.potion.Potion
 
 object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule = false) {
-    private val drop by BoolValue("Drop", true, subjective = true)
-    val sort by BoolValue("Sort", true, subjective = true)
+    private val drop by bool("Drop", true, subjective = true)
+    val sort by bool("Sort", true, subjective = true)
 
     private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
@@ -50,12 +51,12 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
     }
-    private val minItemAge by IntegerValue("MinItemAge", 0, 0..2000)
+    private val minItemAge by int("MinItemAge", 0, 0..2000)
 
-    private val limitStackCounts by BoolValue("LimitStackCounts", true, subjective = true)
-    private val maxBlockStacks by IntegerValue("MaxBlockStacks", 5, 0..36, subjective = true) { limitStackCounts }
-    private val maxFoodStacks by IntegerValue("MaxFoodStacks", 5, 0..36, subjective = true) { limitStackCounts }
-    private val maxThrowableStacks by IntegerValue(
+    private val limitStackCounts by bool("LimitStackCounts", true, subjective = true)
+    private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36, subjective = true) { limitStackCounts }
+    private val maxFoodStacks by int("MaxFoodStacks", 5, 0..36, subjective = true) { limitStackCounts }
+    private val maxThrowableStacks by int(
         "MaxThrowableStacks",
         5,
         0..36,
@@ -63,11 +64,11 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     ) { limitStackCounts }
     // TODO: max potion, vehicle, ..., stacks?
 
-    private val maxFishingRodStacks by IntegerValue("MaxFishingRodStacks", 1, 1..10, subjective = true)
+    private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10, subjective = true)
 
-    private val mergeStacks by BoolValue("MergeStacks", true, subjective = true)
+    private val mergeStacks by bool("MergeStacks", true, subjective = true)
 
-    private val repairEquipment by BoolValue("RepairEquipment", true, subjective = true)
+    private val repairEquipment by bool("RepairEquipment", true, subjective = true)
 
     private val invOpen by InventoryManager.invOpenValue
     private val simulateInventory by InventoryManager.simulateInventoryValue
@@ -81,10 +82,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
-    private val randomSlot by BoolValue("RandomSlot", false)
-    private val ignoreVehicles by BoolValue("IgnoreVehicles", false, subjective = true)
+    private val randomSlot by bool("RandomSlot", false)
+    private val ignoreVehicles by bool("IgnoreVehicles", false, subjective = true)
 
-    private val onlyGoodPotions by BoolValue("OnlyGoodPotions", false, subjective = true)
+    private val onlyGoodPotions by bool("OnlyGoodPotions", false, subjective = true)
 
     val highlightSlot by InventoryManager.highlightSlotValue
 
@@ -99,7 +100,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     val borderBlue by InventoryManager.borderBlue
     val borderAlpha by InventoryManager.borderAlpha
 
-    val highlightUseful by BoolValue("HighlightUseful", true, subjective = true)
+    val highlightUseful by bool("HighlightUseful", true, subjective = true)
 
     private val slot1Value = SortValue("Slot1", "Sword")
     private val slot2Value = SortValue("Slot2", "Bow")
@@ -284,7 +285,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                     if (thePlayer.openContainer.getSlot(armorSlot).hasStack) {
                         when {
                             // Smart swap armor from crafting output to armor slot
-                            AutoArmor.handleEvents() && AutoArmor.smartSwap -> {
+                            handleEvents() && AutoArmor.smartSwap -> {
                                 // Grab repaired armor
                                 click(0, 0, 0)
 
@@ -298,7 +299,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                             }
 
                             // Drop equipped armor and continue equipping repaired armor normally
-                            drop || AutoArmor.handleEvents() -> click(armorSlot, 0, 4)
+                            drop || handleEvents() -> click(armorSlot, 0, 4)
 
                             // Can't smart swap or drop, don't equip
                             else -> equipAfterCrafting = false
@@ -470,7 +471,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             if (stacksSize != null) index.toHotbarIndex(stacksSize) ?: return false
             else index
 
-        return SORTING_TARGETS[SORTING_VALUES.getOrNull(index)?.get()]?.invoke(item) ?: false
+        return SORTING_TARGETS[SORTING_VALUES.getOrNull(index)?.get()]?.invoke(item) == true
     }
 
     // TODO: Simplify all is useful checks by a single getBetterAlternativeCount and checking if it is above 0, above stack limit, ...

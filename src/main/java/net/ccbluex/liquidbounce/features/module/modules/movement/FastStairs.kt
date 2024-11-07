@@ -7,20 +7,20 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.block.BlockStairs
 import net.minecraft.util.BlockPos
 
 object FastStairs : Module("FastStairs", Category.MOVEMENT) {
 
-    private val mode by ListValue("Mode", arrayOf("Step", "NCP", "AAC3.1.0", "AAC3.3.6", "AAC3.3.13"), "NCP")
-        private val longJump by BoolValue("LongJump", false) { mode.startsWith("AAC") }
+    private val mode by choices("Mode", arrayOf("Step", "NCP", "AAC3.1.0", "AAC3.3.6", "AAC3.3.13"), "NCP")
+    private val longJump by bool("LongJump", false) { mode.startsWith("AAC") }
 
     private var canJump = false
 
@@ -30,7 +30,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
     fun onUpdate(event: UpdateEvent) {
         val thePlayer = mc.thePlayer ?: return
 
-        if (!thePlayer.isMoving || Speed.handleEvents())
+        if (!thePlayer.isMoving || handleEvents())
             return
 
         if (thePlayer.fallDistance > 0 && !walkingDown)

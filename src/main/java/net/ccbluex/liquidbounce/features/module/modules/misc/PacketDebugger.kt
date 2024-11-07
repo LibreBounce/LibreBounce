@@ -13,14 +13,14 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 
 object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val notify by ListValue("Notify", arrayOf("Chat", "Notification"), "Chat")
-    val packetType by ListValue("PacketType", arrayOf("Both", "Server", "Client", "Custom"), "Both")
-    private val delay by IntegerValue("Delay", 100, 0..1000)
+    private val notify by choices("Notify", arrayOf("Chat", "Notification"), "Chat")
+    val packetType by choices("PacketType", arrayOf("Both", "Server", "Client", "Custom"), "Both")
+    private val delay by int("Delay", 100, 0..1000)
 
     private val timer = MSTimer()
     val selectedPackets = mutableListOf<String>()

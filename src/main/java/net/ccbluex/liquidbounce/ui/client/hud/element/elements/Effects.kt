@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FontValue
+import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.font
 import net.minecraft.client.resources.I18n
 import net.minecraft.potion.Potion
 
@@ -22,11 +22,13 @@ import net.minecraft.potion.Potion
  * Shows a list of active potion effects
  */
 @ElementInfo(name = "Effects")
-class Effects(x: Double = 2.0, y: Double = 10.0, scale: Float = 1F,
-              side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
+class Effects(
+    x: Double = 2.0, y: Double = 10.0, scale: Float = 1F,
+    side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
+) : Element(x, y, scale, side) {
 
-    private val font by FontValue("Font", Fonts.font35)
-    private val shadow by BoolValue("Shadow", true)
+    private val font by font("Font", Fonts.font35)
+    private val shadow by bool("Shadow", true)
 
     /**
      * Draw element
