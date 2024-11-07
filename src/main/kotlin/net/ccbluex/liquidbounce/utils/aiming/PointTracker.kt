@@ -74,7 +74,7 @@ class PointTracker(
     private val dynamicFactorMulti by float("DynamicFactorMulti", 7f, 0.01f..7.5f)
     private val gaussianChance by int("GaussianChance", 100, 0..100, "%")
     private val gaussianSpeed by floatRange("GaussianSpeed", 0.1f..0.2f, 0.01f..1f)
-    private val gaussianTolerance by float("GaussianTolerance", 0.1f, 0.01f..0.7f)
+    private val gaussianTolerance by float("GaussianTolerance", 0.1f, 0.01f..0.1f)
 
     /**
      * OutOfBox will set the box offset to an unreachable position.
