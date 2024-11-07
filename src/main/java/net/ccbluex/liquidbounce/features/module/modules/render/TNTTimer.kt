@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.font
 import net.ccbluex.liquidbounce.value.int
@@ -27,7 +27,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
 
     private val scale by float("Scale", 3F, 1F..4F)
     private val font by font("Font", Fonts.font40)
-    private val fontShadow by bool("Shadow", true)
+    private val fontShadow by boolean("Shadow", true)
 
     private val colorRed by int("R", 255, 0..255)
     private val colorGreen by int("G", 255, 0..255)
@@ -39,7 +39,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
         }
     }
 
-    private val onLook by bool("OnLook", false)
+    private val onLook by boolean("OnLook", false)
     private val maxAngleDifference by float("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
 
     private var maxRenderDistanceSq = 0.0

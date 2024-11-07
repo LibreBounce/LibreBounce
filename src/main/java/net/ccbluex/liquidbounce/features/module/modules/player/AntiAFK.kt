@@ -15,8 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -26,15 +25,15 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false, hideM
 
     private val mode by choices("Mode", arrayOf("Old", "Random", "Custom"), "Random")
 
-    private val rotateValue = BoolValue("Rotate", true) { mode == "Custom" }
+    private val rotateValue = boolean("Rotate", true) { mode == "Custom" }
     private val rotationDelay by int("RotationDelay", 100, 0..1000) { rotateValue.isActive() }
     private val rotationAngle by float("RotationAngle", 1f, -180F..180F) { rotateValue.isActive() }
 
-    private val swingValue = BoolValue("Swing", true) { mode == "Custom" }
+    private val swingValue = boolean("Swing", true) { mode == "Custom" }
     private val swingDelay by int("SwingDelay", 100, 0..1000) { swingValue.isActive() }
 
-    private val jump by bool("Jump", true) { mode == "Custom" }
-    private val move by bool("Move", true) { mode == "Custom" }
+    private val jump by boolean("Jump", true) { mode == "Custom" }
+    private val move by boolean("Move", true) { mode == "Custom" }
 
     private var shouldMove = false
     private var randomTimerDelay = 500L

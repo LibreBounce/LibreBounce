@@ -32,11 +32,10 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -93,11 +92,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     )
 
     // Expand
-    private val omniDirectionalExpand by bool("OmniDirectionalExpand", false) { scaffoldMode == "Expand" }
+    private val omniDirectionalExpand by boolean("OmniDirectionalExpand", false) { scaffoldMode == "Expand" }
     private val expandLength by int("ExpandLength", 1, 1..6) { scaffoldMode == "Expand" }
 
     // Placeable delay
-    private val placeDelayValue = BoolValue("PlaceDelay", true) { scaffoldMode != "GodBridge" }
+    private val placeDelayValue = boolean("PlaceDelay", true) { scaffoldMode != "GodBridge" }
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 0, 0..1000) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
         override fun isSupported() = placeDelayValue.isActive()
@@ -111,8 +110,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val minDelay by minDelayValue
 
     // Extra clicks
-    private val extraClicks by bool("DoExtraClicks", false)
-    private val simulateDoubleClicking by bool("SimulateDoubleClicking", false) { extraClicks }
+    private val extraClicks by boolean("DoExtraClicks", false)
+    private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { extraClicks }
     private val extraClickMaxCPSValue: IntegerValue = object : IntegerValue("ExtraClickMaxCPS", 7, 0..50) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(extraClickMinCPS)
         override fun isSupported() = extraClicks
@@ -132,8 +131,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
     // Autoblock
     private val autoBlock by choices("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
-    private val sortByHighestAmount by bool("SortByHighestAmount", false) { autoBlock != "Off" }
-    private val earlySwitch by bool("EarlySwitch", false) { autoBlock != "Off" && !sortByHighestAmount }
+    private val sortByHighestAmount by boolean("SortByHighestAmount", false) { autoBlock != "Off" }
+    private val earlySwitch by boolean("EarlySwitch", false) { autoBlock != "Off" && !sortByHighestAmount }
     private val amountBeforeSwitch by int(
         "SlotAmountBeforeSwitch",
         3,
@@ -141,12 +140,12 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     ) { earlySwitch && !sortByHighestAmount }
 
     // Settings
-    private val autoF5 by bool("AutoF5", false, subjective = true)
+    private val autoF5 by boolean("AutoF5", false, subjective = true)
 
     // Basic stuff
-    val sprint by bool("Sprint", false)
-    private val swing by bool("Swing", true, subjective = true)
-    private val down by bool("Down", true) { scaffoldMode !in arrayOf("GodBridge", "Telly") }
+    val sprint by boolean("Sprint", false)
+    private val swing by boolean("Swing", true, subjective = true)
+    private val down by boolean("Down", true) { scaffoldMode !in arrayOf("GodBridge", "Telly") }
 
     private val ticksUntilRotation: IntegerValue = object : IntegerValue("TicksUntilRotation", 3, 1..5) {
         override fun isSupported() = scaffoldMode == "Telly"
@@ -154,15 +153,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     // GodBridge mode sub-values
-    private val waitForRots by bool("WaitForRotations", false) { isGodBridgeEnabled }
-    private val useOptimizedPitch by bool("UseOptimizedPitch", false) { isGodBridgeEnabled }
+    private val waitForRots by boolean("WaitForRotations", false) { isGodBridgeEnabled }
+    private val useOptimizedPitch by boolean("UseOptimizedPitch", false) { isGodBridgeEnabled }
     private val customGodPitch by float(
         "GodBridgePitch",
         73.5f,
         0f..90f
     ) { isGodBridgeEnabled && !useOptimizedPitch }
 
-    val jumpAutomatically by bool("JumpAutomatically", true) { scaffoldMode == "GodBridge" }
+    val jumpAutomatically by boolean("JumpAutomatically", true) { scaffoldMode == "GodBridge" }
     private val maxBlocksToJump: IntegerValue = object : IntegerValue("MaxBlocksToJump", 4, 1..8) {
         override fun isSupported() = scaffoldMode == "GodBridge" && !jumpAutomatically
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minBlocksToJump.get())
@@ -176,7 +175,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     // Telly mode subvalues
-    private val startHorizontally by bool("StartHorizontally", true) { scaffoldMode == "Telly" }
+    private val startHorizontally by boolean("StartHorizontally", true) { scaffoldMode == "Telly" }
     private val maxHorizontalPlacements: IntegerValue = object : IntegerValue("MaxHorizontalPlacements", 1, 1..10) {
         override fun isSupported() = scaffoldMode == "Telly"
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minHorizontalPlacements.get())
@@ -204,7 +203,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxJumpTicks.get())
     }
 
-    private val allowClutching by bool("AllowClutching", true) { scaffoldMode !in arrayOf("Telly", "Expand") }
+    private val allowClutching by boolean("AllowClutching", true) { scaffoldMode !in arrayOf("Telly", "Expand") }
     private val horizontalClutchBlocks: IntegerValue = object : IntegerValue("HorizontalClutchBlocks", 3, 1..5) {
         override fun isSupported() = allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
@@ -213,15 +212,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         override fun isSupported() = allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
     }
-    private val blockSafe by bool("BlockSafe", false) { !isGodBridgeEnabled }
+    private val blockSafe by boolean("BlockSafe", false) { !isGodBridgeEnabled }
 
     // Eagle
     private val eagleValue =
         ListValue("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal") { scaffoldMode != "GodBridge" }
     val eagle by eagleValue
-    private val adjustedSneakSpeed by bool("AdjustedSneakSpeed", true) { eagle == "Silent" }
+    private val adjustedSneakSpeed by boolean("AdjustedSneakSpeed", true) { eagle == "Silent" }
     private val eagleSpeed by float("EagleSpeed", 0.3f, 0.3f..1.0f) { eagleValue.isSupported() && eagle != "Off" }
-    val eagleSprint by bool("EagleSprint", false) { eagleValue.isSupported() && eagle == "Normal" }
+    val eagleSprint by boolean("EagleSprint", false) { eagleValue.isSupported() && eagle == "Normal" }
     private val blocksToEagle by int("BlocksToEagle", 0, 0..10) { eagleValue.isSupported() && eagle != "Off" }
     private val edgeDistance by float(
         "EagleEdgeDistance",
@@ -230,7 +229,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     ) { eagleValue.isSupported() && eagle != "Off" }
 
     // Rotation Options
-    private val modeList = ListValue("Rotations", arrayOf("Off", "Normal", "Stabilized", "GodBridge"), "Normal")
+    private val modeList = choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "GodBridge"), "Normal")
 
     private val options = RotationSettingsWithRotationModes(this, modeList).apply {
         strictValue.excludeWithState()
@@ -258,19 +257,19 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
     private val minZitterTicks by minZitterTicksValue
 
-    private val useSneakMidAir by bool("UseSneakMidAir", false) { zitterMode == "Smooth" }
+    private val useSneakMidAir by boolean("UseSneakMidAir", false) { zitterMode == "Smooth" }
 
     // Game
     val timer by float("Timer", 1f, 0.1f..10f)
     private val speedModifier by float("SpeedModifier", 1f, 0f..2f)
-    private val speedLimiter by bool("SpeedLimiter", false) { !slow }
+    private val speedLimiter by boolean("SpeedLimiter", false) { !slow }
     private val speedLimit by float("SpeedLimit", 0.11f, 0.01f..0.12f) { !slow && speedLimiter }
-    private val slow by bool("Slow", false)
-    private val slowGround by bool("SlowOnlyGround", false) { slow }
+    private val slow by boolean("Slow", false)
+    private val slowGround by boolean("SlowOnlyGround", false) { slow }
     private val slowSpeed by float("SlowSpeed", 0.6f, 0.2f..0.8f) { slow }
 
     // Jump Strafe
-    private val jumpStrafe by bool("JumpStrafe", false)
+    private val jumpStrafe by boolean("JumpStrafe", false)
     private val maxJumpStraightStrafe: FloatValue = object : FloatValue("MaxStraightStrafe", 0.45f, 0.1f..1f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minJumpStraightStrafe.get())
         override fun isSupported() = jumpStrafe
@@ -292,16 +291,16 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     // Safety
-    private val sameY by bool("SameY", false) { scaffoldMode != "GodBridge" }
-    private val freezeCameraY by bool("FreezeCameraY", false)
-    private val jumpOnUserInput by bool("JumpOnUserInput", true) { sameY && scaffoldMode != "GodBridge" }
+    private val sameY by boolean("SameY", false) { scaffoldMode != "GodBridge" }
+    private val freezeCameraY by boolean("FreezeCameraY", false)
+    private val jumpOnUserInput by boolean("JumpOnUserInput", true) { sameY && scaffoldMode != "GodBridge" }
 
-    private val safeWalkValue = BoolValue("SafeWalk", true) { scaffoldMode != "GodBridge" }
-    private val airSafe by bool("AirSafe", false) { safeWalkValue.isActive() }
+    private val safeWalkValue = boolean("SafeWalk", true) { scaffoldMode != "GodBridge" }
+    private val airSafe by boolean("AirSafe", false) { safeWalkValue.isActive() }
 
     // Visuals
-    private val mark by bool("Mark", false, subjective = true)
-    private val trackCPS by bool("TrackCPS", false, subjective = true)
+    private val mark by boolean("Mark", false, subjective = true)
+    private val trackCPS by boolean("TrackCPS", false, subjective = true)
 
     // Target placement
     var placeRotation: PlaceRotation? = null

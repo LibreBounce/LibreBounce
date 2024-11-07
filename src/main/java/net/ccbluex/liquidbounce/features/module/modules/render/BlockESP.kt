@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.block
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.Block
@@ -31,7 +31,7 @@ object BlockESP : Module("BlockESP", Category.RENDER, hideModule = false) {
     private val radius by int("Radius", 40, 5..120)
     private val blockLimit by int("BlockLimit", 256, 0..2056)
 
-    private val colorRainbow by bool("Rainbow", false)
+    private val colorRainbow by boolean("Rainbow", false)
     private val colorRed by int("R", 255, 0..255) { !colorRainbow }
     private val colorGreen by int("G", 179, 0..255) { !colorRainbow }
     private val colorBlue by int("B", 72, 0..255) { !colorRainbow }

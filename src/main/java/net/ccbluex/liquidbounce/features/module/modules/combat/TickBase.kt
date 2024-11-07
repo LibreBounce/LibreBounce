@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
@@ -15,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -28,7 +29,7 @@ import java.awt.Color
 object TickBase : Module("TickBase", Category.COMBAT) {
 
     private val mode by choices("Mode", arrayOf("Past", "Future"), "Past")
-    private val onlyOnKillAura by bool("OnlyOnKillAura", true)
+    private val onlyOnKillAura by boolean("OnlyOnKillAura", true)
 
     private val change by int("Changes", 100, 0..100)
 
@@ -43,12 +44,12 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxRangeToAttack.get())
     }
 
-    private val forceGround by bool("ForceGround", false)
+    private val forceGround by boolean("ForceGround", false)
     private val pauseAfterTick by int("PauseAfterTick", 0, 0..100)
-    private val pauseOnFlag by bool("PauseOnFlag", true)
+    private val pauseOnFlag by boolean("PauseOnFlag", true)
 
-    private val line by bool("Line", true, subjective = true)
-    private val rainbow by bool("Rainbow", false, subjective = true) { line }
+    private val line by boolean("Line", true, subjective = true)
+    private val rainbow by boolean("Rainbow", false, subjective = true) { line }
     private val red by int(
         "R",
         0,
@@ -85,7 +86,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     fun onPreTick(event: PlayerTickEvent) {
         val player = mc.thePlayer ?: return
 
-        if (player.ridingEntity != null || handleEvents()) {
+        if (player.ridingEntity != null || Blink.handleEvents()) {
             return
         }
 
@@ -98,7 +99,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     fun onGameTick(event: GameTickEvent) {
         val player = mc.thePlayer ?: return
 
-        if (player.ridingEntity != null || handleEvents()) {
+        if (player.ridingEntity != null || Blink.handleEvents()) {
             return
         }
 
@@ -162,7 +163,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
     @EventTarget
     fun onMove(event: MoveEvent) {
-        if (mc.thePlayer?.ridingEntity != null || handleEvents()) {
+        if (mc.thePlayer?.ridingEntity != null || Blink.handleEvents()) {
             return
         }
 

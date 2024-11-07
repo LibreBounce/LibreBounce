@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Disabler
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.MovementUtils.isOnGround
@@ -25,9 +26,8 @@ import net.ccbluex.liquidbounce.utils.realMotionX
 import net.ccbluex.liquidbounce.utils.realMotionY
 import net.ccbluex.liquidbounce.utils.realMotionZ
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -69,7 +69,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     private val reverseStrength by float("ReverseStrength", 1F, 0.1F..1F) { mode == "Reverse" }
     private val reverse2Strength by float("SmoothReverseStrength", 0.05F, 0.02F..0.1F) { mode == "SmoothReverse" }
 
-    private val onLook by bool("onLook", false) { mode in arrayOf("Reverse", "SmoothReverse") }
+    private val onLook by boolean("onLook", false) { mode in arrayOf("Reverse", "SmoothReverse") }
     private val range by float("Range", 3.0F, 1F..5.0F) {
         onLook && mode in arrayOf("Reverse", "SmoothReverse")
     }
@@ -79,13 +79,13 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
 
     // AAC Push
     private val aacPushXZReducer by float("AACPushXZReducer", 2F, 1F..3F) { mode == "AACPush" }
-    private val aacPushYReducer by bool("AACPushYReducer", true) { mode == "AACPush" }
+    private val aacPushYReducer by boolean("AACPushYReducer", true) { mode == "AACPush" }
 
     // AAC v4
     private val aacv4MotionReducer by float("AACv4MotionReducer", 0.62F, 0F..1F) { mode == "AACv4" }
 
     // Legit
-    private val legitDisableInAir by bool("DisableInAir", true) { mode == "Legit" }
+    private val legitDisableInAir by boolean("DisableInAir", true) { mode == "Legit" }
 
     // Chance
     private val chance by int("Chance", 100, 0..100) { mode == "Jump" || mode == "Legit" }
@@ -117,12 +117,12 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     private val reduceFactor by float("Factor", 0.6f, 0.6f..1f) { mode == "IntaveReduce" }
     private val hurtTime by int("HurtTime", 9, 1..10) { mode == "IntaveReduce" }
 
-    private val pauseOnExplosion by bool("PauseOnExplosion", true)
+    private val pauseOnExplosion by boolean("PauseOnExplosion", true)
     private val ticksToPause by int("TicksToPause", 20, 1..50) { pauseOnExplosion }
 
     // TODO: Could this be useful in other modes? (Jump?)
     // Limits
-    private val limitMaxMotionValue = BoolValue("LimitMaxMotion", false) { mode == "Simple" }
+    private val limitMaxMotionValue = boolean("LimitMaxMotion", false) { mode == "Simple" }
     private val maxXZMotion by float("MaxXZMotion", 0.4f, 0f..1.9f) { limitMaxMotionValue.isActive() }
     private val maxYMotion by float("MaxYMotion", 0.36f, 0f..0.46f) { limitMaxMotionValue.isActive() }
     //0.00075 is added silently
@@ -272,7 +272,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                         thePlayer.onGround = true
 
                     // Reduce Y
-                    if (thePlayer.hurtResistantTime > 0 && aacPushYReducer && !handleEvents())
+                    if (thePlayer.hurtResistantTime > 0 && aacPushYReducer && !Speed.handleEvents())
                         thePlayer.motionY -= 0.014999993
                 }
 
@@ -516,7 +516,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
         }
 
         if (mode == "Vulcan") {
-            if (handleEvents() && (Disabler.verusCombat || Disabler.verusCombat && !Disabler.isOnCombat)) return
+            if (Disabler.handleEvents() && (Disabler.verusCombat || Disabler.verusCombat && !Disabler.isOnCombat)) return
 
             if (packet is S32PacketConfirmTransaction) {
                 event.cancelEvent()

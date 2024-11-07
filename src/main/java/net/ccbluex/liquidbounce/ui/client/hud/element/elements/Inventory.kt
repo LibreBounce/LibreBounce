@@ -29,15 +29,15 @@ class Inventory : Element(300.0, 50.0) {
 
     private val font by font("Font", Fonts.font35)
     private val title by choices("Title", arrayOf("Center", "Left", "Right", "None"), "Left")
-    private val titleRainbow by bool("TitleRainbow", false) { title != "None" }
+    private val titleRainbow by boolean("TitleRainbow", false) { title != "None" }
     private val titleRed by int("TitleRed", 255, 0..255) { title != "None" && !titleRainbow }
     private val titleGreen by int("TitleGreen", 255, 0..255) { title != "None" && !titleRainbow }
     private val titleBlue by int("TitleBlue", 255, 0..255) { title != "None" && !titleRainbow }
 
     private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
 
-    private val borderValue by bool("Border", true)
-    private val borderRainbow by bool("BorderRainbow", false) { borderValue }
+    private val borderValue by boolean("Border", true)
+    private val borderRainbow by boolean("BorderRainbow", false) { borderValue }
     private val borderRed by int("Border-R", 255, 0..255) { borderValue && !borderRainbow }
     private val borderGreen by int("Border-G", 255, 0..255) { borderValue && !borderRainbow }
     private val borderBlue by int("Border-B", 255, 0..255) { borderValue && !borderRainbow }

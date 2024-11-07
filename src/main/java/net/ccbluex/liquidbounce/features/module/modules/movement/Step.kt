@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
@@ -151,13 +152,13 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         val thePlayer = mc.thePlayer ?: return
 
         // Phase should disable step
-        if (handleEvents()) {
+        if (Phase.handleEvents()) {
             event.stepHeight = 0F
             return
         }
 
         // Some fly modes should disable step
-        if (handleEvents() && Fly.mode in arrayOf(
+        if (Fly.handleEvents() && Fly.mode in arrayOf(
                 "Hypixel",
                 "OtherHypixel",
                 "LatestHypixel",

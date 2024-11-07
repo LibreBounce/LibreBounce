@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInvento
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.ScaledResolution
@@ -52,11 +52,11 @@ import kotlin.math.sqrt
 
 object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false) {
 
-    private val smartDelay by bool("SmartDelay", false)
+    private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by int("DelayMultiplier", 120, 0..500) { smartDelay }
-    private val smartOrder by bool("SmartOrder", true) { smartDelay }
+    private val smartOrder by boolean("SmartOrder", true) { smartDelay }
 
-    private val simulateShortStop by bool("SimulateShortStop", false)
+    private val simulateShortStop by boolean("SimulateShortStop", false)
 
     private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
         override fun isSupported() = !smartDelay
@@ -74,15 +74,15 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
-    private val chestTitle by bool("ChestTitle", true)
+    private val chestTitle by boolean("ChestTitle", true)
 
-    private val randomSlot by bool("RandomSlot", true)
+    private val randomSlot by boolean("RandomSlot", true)
 
-    private val progressBar by bool("ProgressBar", true, subjective = true)
+    private val progressBar by boolean("ProgressBar", true, subjective = true)
 
-    val silentGUI by bool("SilentGUI", false, subjective = true)
+    val silentGUI by boolean("SilentGUI", false, subjective = true)
 
-    val highlightSlot by bool("Highlight-Slot", false, subjective = true) { !silentGUI }
+    val highlightSlot by boolean("Highlight-Slot", false, subjective = true) { !silentGUI }
 
     val backgroundRed by int("Background-R", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
     val backgroundGreen by int("Background-G", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
@@ -101,7 +101,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
     val borderAlpha by int("Border-Alpha", 255, 0..255, subjective = true) { highlightSlot && !silentGUI }
 
     private val chestDebug by choices("Chest-Debug", arrayOf("Off", "Text", "Notification"), "Off", subjective = true)
-    private val itemStolenDebug by bool("ItemStolen-Debug", false, subjective = true) { chestDebug != "Off" }
+    private val itemStolenDebug by boolean("ItemStolen-Debug", false, subjective = true) { chestDebug != "Off" }
 
     private var progress: Float? = null
         set(value) {
@@ -307,13 +307,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                 // If stack can be merged without occupying any additional slot, do not take stack limits into account
                 // TODO: player could theoretically already have too many stacks in inventory before opening the chest so no more should even get merged
                 // TODO: if it can get merged but would also need another slot, it could simulate 2 clicks, one which maxes out the stack in inventory and second that puts excess items back
-                if (handleEvents() && !isStackUseful(stack, stacks, noLimits = canFullyMerge))
+                if (InventoryCleaner.handleEvents() && !isStackUseful(stack, stacks, noLimits = canFullyMerge))
                     return@mapIndexedNotNull null
 
                 var sortableTo: Int? = null
 
                 // If stack can get merged, do not try to sort it, normal shift + left-click will merge it
-                if (!canMerge && handleEvents() && InventoryCleaner.sort) {
+                if (!canMerge && InventoryCleaner.handleEvents() && InventoryCleaner.sort) {
                     for (hotbarIndex in 0..8) {
                         if (sortBlacklist[hotbarIndex])
                             continue

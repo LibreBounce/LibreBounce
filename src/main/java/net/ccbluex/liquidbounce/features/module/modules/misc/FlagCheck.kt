@@ -42,11 +42,11 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
 
     private val resetFlagCounterTicks by int("ResetCounterTicks", 5000, 1000..10000)
 
-    private val ghostBlockCheck by bool("GhostBlock-Check", true)
+    private val ghostBlockCheck by boolean("GhostBlock-Check", true)
     private val ghostBlockDelay by int("GhostBlockDelay", 750, 500..1000)
     { ghostBlockCheck }
 
-    private val rubberbandCheck by bool("Rubberband-Check", false)
+    private val rubberbandCheck by boolean("Rubberband-Check", false)
     private val rubberbandThreshold by float("RubberBandThreshold", 5.0f, 0.05f..10.0f)
     { rubberbandCheck }
 
@@ -68,7 +68,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
 
     private val scale by float("Scale", 1F, 1F..6F) { renderServerPos == "Box" }
     private val font by font("Font", Fonts.font40) { renderServerPos == "Box" }
-    private val fontShadow by bool("Shadow", true) { renderServerPos == "Box" }
+    private val fontShadow by boolean("Shadow", true) { renderServerPos == "Box" }
 
     private var lastCheckTime = 0L
 
@@ -186,7 +186,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         }
 
         // GhostBlock Checks | Checks is disabled when using VerusFly Disabler, to prevent false flag.
-        if (ghostBlockCheck && (!handleEvents() || (handleEvents() && !Disabler.verusFly))) {
+        if (ghostBlockCheck && (!Disabler.handleEvents() || (Disabler.handleEvents() && !Disabler.verusFly))) {
             val currentTime = System.currentTimeMillis()
 
             if (currentTime - lastCheckTime > 2000) {

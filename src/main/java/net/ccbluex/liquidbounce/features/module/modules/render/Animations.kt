@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -52,7 +52,7 @@ object Animations : Module("Animations", Category.RENDER, gameDetecting = false,
     )
 
     private val animationMode by choices("Mode", animations.map { it.name }.toTypedArray(), "Pushdown")
-    val oddSwing by bool("OddSwing", false)
+    val oddSwing by boolean("OddSwing", false)
     val swingSpeed by int("SwingSpeed", 15, 0..20)
 
     val handItemScale by float("ItemScale", 0f, -5f..5f)

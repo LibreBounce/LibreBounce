@@ -16,9 +16,8 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyl
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.NullStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.network.play.server.S2EPacketCloseWindow
@@ -33,11 +32,11 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     var scale by float("Scale", 0.8f, 0.5f..1.5f)
     val maxElements by int("MaxElements", 15, 1..30)
     val fadeSpeed by float("FadeSpeed", 1f, 0.5f..4f)
-    val scrolls by bool("Scrolls", true)
-    val spacedModules by bool("SpacedModules", false)
-    val panelsForcedInBoundaries by bool("PanelsForcedInBoundaries", false)
+    val scrolls by boolean("Scrolls", true)
+    val spacedModules by boolean("SpacedModules", false)
+    val panelsForcedInBoundaries by boolean("PanelsForcedInBoundaries", false)
 
-    private val colorRainbowValue = BoolValue("Rainbow", false) { style !in arrayOf("Slowly", "Black") }
+    private val colorRainbowValue = boolean("Rainbow", false) { style !in arrayOf("Slowly", "Black") }
     private val colorRed by int("R", 0, 0..255) { colorRainbowValue.isSupported() && !colorRainbowValue.get() }
     private val colorGreen by int("G", 160, 0..255) { colorRainbowValue.isSupported() && !colorRainbowValue.get() }
     private val colorBlue by int("B", 255, 0..255) { colorRainbowValue.isSupported() && !colorRainbowValue.get() }

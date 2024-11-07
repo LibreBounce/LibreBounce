@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.renderNameTag
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -53,9 +53,9 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT, hideModule = false) {
     private val maxFallDistance by int("MaxFallDistance", 10, 2..255)
     private val maxDistanceWithoutGround by float("MaxDistanceToSetback", 2.5f, 1f..30f) { mode != "Blink" }
     private val blinkDelay by int("BlinkDelay", 10, 1..20) { mode == "Blink" }
-    private val onScaffold by bool("OnScaffold", false) { mode == "Blink" }
+    private val onScaffold by boolean("OnScaffold", false) { mode == "Blink" }
     private val ticksToDelay by int("TicksDelay", 5, 1..20) { mode == "Blink" && !onScaffold }
-    private val indicator by bool("Indicator", true, subjective = true)
+    private val indicator by boolean("Indicator", true, subjective = true)
 
     private var detectedLocation: BlockPos? = null
     private var lastFound = 0F
@@ -196,7 +196,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT, hideModule = false) {
             }
 
             // Check for scaffold
-            if ((handleEvents() || Tower.handleEvents()) && Scaffold.placeRotation != null) {
+            if ((Scaffold.handleEvents() || Tower.handleEvents()) && Scaffold.placeRotation != null) {
                 if (BlinkUtils.isBlinking && player.fallDistance < 1.5f) BlinkUtils.unblink()
                 if (pauseTicks < ticksToDelay) pauseTicks = ticksToDelay
             }

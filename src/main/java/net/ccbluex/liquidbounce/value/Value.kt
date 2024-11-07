@@ -407,7 +407,7 @@ fun text(
     isSupported: (() -> Boolean)? = null
 ) = TextValue(name, value, subjective, isSupported)
 
-fun bool(
+fun boolean(
     name: String,
     value: Boolean,
     subjective: Boolean = false,

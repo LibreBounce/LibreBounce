@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.BlinkUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import org.lwjgl.opengl.GL11.*
@@ -23,10 +23,10 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false, hideModul
 
     private val mode by choices("Mode", arrayOf("Sent", "Received", "Both"), "Sent")
 
-    private val pulse by bool("Pulse", false)
+    private val pulse by boolean("Pulse", false)
     private val pulseDelay by int("PulseDelay", 1000, 500..5000) { pulse }
 
-    private val fakePlayerMenu by bool("FakePlayer", true)
+    private val fakePlayerMenu by boolean("FakePlayer", true)
 
     private val pulseTimer = MSTimer()
 

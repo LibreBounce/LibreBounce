@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
@@ -62,7 +63,7 @@ object Criticals : Module("Criticals", Category.COMBAT, hideModule = false) {
 
             if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isInWeb || thePlayer.isInWater ||
                 thePlayer.isInLava || thePlayer.ridingEntity != null || entity.hurtTime > hurtTime ||
-                handleEvents() || !msTimer.hasTimePassed(delay)
+                Fly.handleEvents() || !msTimer.hasTimePassed(delay)
             )
                 return
 

@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawSelectionBoundingBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -33,12 +33,12 @@ import java.awt.Color
 
 object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = false, hideModule = false) {
     private val mode by choices("Mode", arrayOf("Box", "OtherBox", "Outline"), "Box")
-    private val depth3D by bool("Depth3D", false)
+    private val depth3D by boolean("Depth3D", false)
     private val thickness by float("Thickness", 2F, 1F..5F)
 
-    val info by bool("Info", false)
+    val info by boolean("Info", false)
 
-    private val colorRainbow by bool("Rainbow", false)
+    private val colorRainbow by boolean("Rainbow", false)
     private val colorRed by int("R", 68, 0..255) { !colorRainbow }
     private val colorGreen by int("G", 117, 0..255) { !colorRainbow }
     private val colorBlue by int("B", 255, 0..255) { !colorRainbow }

@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.CLICK_TIMER
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiInventory
@@ -30,8 +30,8 @@ object Refill : Module("Refill", Category.PLAYER, hideModule = false) {
 
     private val mode by choices("Mode", arrayOf("Swap", "Merge"), "Swap")
 
-    private val invOpen by bool("InvOpen", false)
-    private val simulateInventory by bool("SimulateInventory", false) { !invOpen }
+    private val invOpen by boolean("InvOpen", false)
+    private val simulateInventory by boolean("SimulateInventory", false) { !invOpen }
 
     private val noMove by InventoryManager.noMoveValue
     private val noMoveAir by InventoryManager.noMoveAirValue

@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
@@ -43,7 +43,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
     private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val customColor by bool("CustomColor", false)
+    private val customColor by boolean("CustomColor", false)
     private val colorRed by int("R", 255, 0..255) { customColor }
     private val colorGreen by int("G", 179, 0..255) { customColor }
     private val colorBlue by int("B", 72, 0..255) { customColor }
@@ -54,24 +54,24 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
         }
     }
 
-    private val onLook by bool("OnLook", false)
+    private val onLook by boolean("OnLook", false)
     private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by bool("ThruBlocks", true)
+    private val thruBlocks by boolean("ThruBlocks", true)
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val chest by bool("Chest", true)
-    private val enderChest by bool("EnderChest", true)
-    private val furnace by bool("Furnace", true)
-    private val dispenser by bool("Dispenser", true)
-    private val hopper by bool("Hopper", true)
-    private val enchantmentTable by bool("EnchantmentTable", false)
-    private val brewingStand by bool("BrewingStand", false)
-    private val sign by bool("Sign", false)
+    private val chest by boolean("Chest", true)
+    private val enderChest by boolean("EnderChest", true)
+    private val furnace by boolean("Furnace", true)
+    private val dispenser by boolean("Dispenser", true)
+    private val hopper by boolean("Hopper", true)
+    private val enchantmentTable by boolean("EnchantmentTable", false)
+    private val brewingStand by boolean("BrewingStand", false)
+    private val sign by boolean("Sign", false)
 
     private fun getColor(tileEntity: TileEntity): Color? {
         return if (customColor) {

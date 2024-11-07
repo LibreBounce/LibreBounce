@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
@@ -34,14 +34,14 @@ import kotlin.math.atan
 object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
 
     private val range by float("Range", 4.4F, 1F..8F)
-    private val horizontalAim by bool("HorizontalAim", true)
-    private val verticalAim by bool("VerticalAim", true)
-    private val startRotatingSlow by bool("StartRotatingSlow", true) { horizontalAim || verticalAim }
-    private val slowDownOnDirectionChange by bool(
+    private val horizontalAim by boolean("HorizontalAim", true)
+    private val verticalAim by boolean("VerticalAim", true)
+    private val startRotatingSlow by boolean("StartRotatingSlow", true) { horizontalAim || verticalAim }
+    private val slowDownOnDirectionChange by boolean(
         "SlowDownOnDirectionChange",
         false
     ) { horizontalAim || verticalAim }
-    private val useStraightLinePath by bool("UseStraightLinePath", true) { horizontalAim || verticalAim }
+    private val useStraightLinePath by boolean("UseStraightLinePath", true) { horizontalAim || verticalAim }
     private val maxAngleChange by float("MaxAngleChange", 10f, 1F..180F) { horizontalAim || verticalAim }
     private val inViewMaxAngleChange by float("InViewMaxAngleChange", 35f, 1f..180f) { horizontalAim || verticalAim }
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
@@ -98,15 +98,15 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
     ) { verticalAim || horizontalAim }
 
     private val fov by float("FOV", 180F, 1F..180F)
-    private val lock by bool("Lock", true) { horizontalAim || verticalAim }
-    private val onClick by bool("OnClick", false) { horizontalAim || verticalAim }
-    private val jitter by bool("Jitter", false)
+    private val lock by boolean("Lock", true) { horizontalAim || verticalAim }
+    private val onClick by boolean("OnClick", false) { horizontalAim || verticalAim }
+    private val jitter by boolean("Jitter", false)
     private val yawJitterMultiplier by float("JitterYawMultiplier", 1f, 0.1f..2.5f)
     private val pitchJitterMultiplier by float("JitterPitchMultiplier", 1f, 0.1f..2.5f)
-    private val center by bool("Center", false)
-    private val headLock by bool("Headlock", false) { center && lock }
+    private val center by boolean("Center", false)
+    private val headLock by boolean("Headlock", false) { center && lock }
     private val headLockBlockHeight by float("HeadBlockHeight", -1f, -2f..0f) { headLock && center && lock }
-    private val breakBlocks by bool("BreakBlocks", true)
+    private val breakBlocks by boolean("BreakBlocks", true)
 
     private val clickTimer = MSTimer()
 
@@ -120,7 +120,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         // Clicking delay
         if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
 
-        if (onClick && (clickTimer.hasTimePassed(150) || (!mc.gameSettings.keyBindAttack.isKeyDown && handleEvents()))) return
+        if (onClick && (clickTimer.hasTimePassed(150) || (!mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents()))) return
 
         // Search for the best enemy to target
         val entity = theWorld.loadedEntityList.filter {
@@ -196,7 +196,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
                 random = false,
                 predict = true,
                 lookRange = range,
-                attackRange = if (handleEvents()) Reach.combatReach else 3f,
+                attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
                 bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
                 horizontalSearch = minHorizontalBodySearch.get()..maxHorizontalBodySearch.get(),
             )

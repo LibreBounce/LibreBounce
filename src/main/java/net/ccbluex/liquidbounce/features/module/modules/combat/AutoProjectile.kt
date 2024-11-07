@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -24,7 +24,7 @@ import net.minecraft.init.Items.egg
 import net.minecraft.init.Items.snowball
 
 object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = false) {
-    private val facingEnemy by bool("FacingEnemy", true)
+    private val facingEnemy by boolean("FacingEnemy", true)
 
     private val mode by choices("Mode", arrayOf("Normal", "Smart"), "Normal")
     private val range by float("Range", 8F, 1F..20F)

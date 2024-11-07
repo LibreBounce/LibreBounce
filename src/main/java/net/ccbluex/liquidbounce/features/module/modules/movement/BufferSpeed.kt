@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.minecraft.block.BlockSlab
@@ -26,36 +26,36 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
 object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false) {
-    private val speedLimit by bool("SpeedLimit", true)
+    private val speedLimit by boolean("SpeedLimit", true)
     private val maxSpeed by float("MaxSpeed", 2f, 1f..5f) { speedLimit }
 
-    private val buffer by bool("Buffer", true)
+    private val buffer by boolean("Buffer", true)
 
-    private val stairs by bool("Stairs", true)
+    private val stairs by boolean("Stairs", true)
     private val stairsMode by choices("StairsMode", arrayOf("Old", "New"), "New") { stairs }
     private val stairsBoost by float("StairsBoost", 1.87f, 1f..2f) { stairs && stairsMode == "Old" }
 
-    private val slabs by bool("Slabs", true)
+    private val slabs by boolean("Slabs", true)
     private val slabsMode by choices("SlabsMode", arrayOf("Old", "New"), "New") { slabs }
     private val slabsBoost by float("SlabsBoost", 1.87f, 1f..2f) { slabs && slabsMode == "Old" }
 
-    private val ice by bool("Ice", false)
+    private val ice by boolean("Ice", false)
     private val iceBoost by float("IceBoost", 1.342f, 1f..2f) { ice }
 
-    private val snow by bool("Snow", true)
+    private val snow by boolean("Snow", true)
     private val snowBoost by float("SnowBoost", 1.87f, 1f..2f) { snow }
-    private val snowPort by bool("SnowPort", true) { snow }
+    private val snowPort by boolean("SnowPort", true) { snow }
 
-    private val wall by bool("Wall", true)
+    private val wall by boolean("Wall", true)
     private val wallMode by choices("WallMode", arrayOf("Old", "New"), "New") { wall }
     private val wallBoost by float("WallBoost", 1.87f, 1f..2f) { wall && wallMode == "Old" }
 
-    private val headBlock by bool("HeadBlock", true)
+    private val headBlock by boolean("HeadBlock", true)
     private val headBlockBoost by float("HeadBlockBoost", 1.87f, 1f..2f) { headBlock }
 
-    private val slime by bool("Slime", true)
-    private val airStrafe by bool("AirStrafe", false)
-    private val noHurt by bool("NoHurt", true)
+    private val slime by boolean("Slime", true)
+    private val airStrafe by boolean("AirStrafe", false)
+    private val noHurt by boolean("NoHurt", true)
 
     private var speed = 0.0
     private var down = false
@@ -68,7 +68,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
     fun onUpdate(event: UpdateEvent) {
         val thePlayer = mc.thePlayer ?: return
 
-        if (handleEvents() || noHurt && thePlayer.hurtTime > 0) {
+        if (Speed.handleEvents() || noHurt && thePlayer.hurtTime > 0) {
             reset()
             return
         }

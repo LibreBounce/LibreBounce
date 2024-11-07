@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.isRotationFaced
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -33,7 +33,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER, hideModule = false
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
-    private val fireballTickCheck by bool("FireballTickCheck", true)
+    private val fireballTickCheck by boolean("FireballTickCheck", true)
     private val minFireballTick by int("MinFireballTick", 10, 1..20) { fireballTickCheck }
 
     private var target: Entity? = null

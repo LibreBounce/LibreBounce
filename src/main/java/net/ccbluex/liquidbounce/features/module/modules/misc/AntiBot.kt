@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.extensions.getFullName
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -35,40 +35,40 @@ import kotlin.math.sqrt
 
 object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
 
-    private val tab by bool("Tab", true)
+    private val tab by boolean("Tab", true)
     private val tabMode by choices("TabMode", arrayOf("Equals", "Contains"), "Contains") { tab }
 
-    private val entityID by bool("EntityID", true)
-    private val invalidUUID by bool("InvalidUUID", true)
-    private val color by bool("Color", false)
+    private val entityID by boolean("EntityID", true)
+    private val invalidUUID by boolean("InvalidUUID", true)
+    private val color by boolean("Color", false)
 
-    private val livingTime by bool("LivingTime", false)
+    private val livingTime by boolean("LivingTime", false)
     private val livingTimeTicks by int("LivingTimeTicks", 40, 1..200) { livingTime }
 
-    private val capabilities by bool("Capabilities", true)
-    private val ground by bool("Ground", true)
-    private val air by bool("Air", false)
-    private val invalidGround by bool("InvalidGround", true)
-    private val invalidSpeed by bool("InvalidSpeed", false)
-    private val swing by bool("Swing", false)
-    private val health by bool("Health", false)
-    private val derp by bool("Derp", true)
-    private val wasInvisible by bool("WasInvisible", false)
-    private val armor by bool("Armor", false)
-    private val ping by bool("Ping", false)
-    private val needHit by bool("NeedHit", false)
-    private val duplicateInWorld by bool("DuplicateInWorld", false)
-    private val duplicateInTab by bool("DuplicateInTab", false)
-    private val duplicateProfile by bool("DuplicateProfile", false)
-    private val properties by bool("Properties", false)
+    private val capabilities by boolean("Capabilities", true)
+    private val ground by boolean("Ground", true)
+    private val air by boolean("Air", false)
+    private val invalidGround by boolean("InvalidGround", true)
+    private val invalidSpeed by boolean("InvalidSpeed", false)
+    private val swing by boolean("Swing", false)
+    private val health by boolean("Health", false)
+    private val derp by boolean("Derp", true)
+    private val wasInvisible by boolean("WasInvisible", false)
+    private val armor by boolean("Armor", false)
+    private val ping by boolean("Ping", false)
+    private val needHit by boolean("NeedHit", false)
+    private val duplicateInWorld by boolean("DuplicateInWorld", false)
+    private val duplicateInTab by boolean("DuplicateInTab", false)
+    private val duplicateProfile by boolean("DuplicateProfile", false)
+    private val properties by boolean("Properties", false)
 
-    private val alwaysInRadius by bool("AlwaysInRadius", false)
+    private val alwaysInRadius by boolean("AlwaysInRadius", false)
     private val alwaysRadius by float("AlwaysInRadiusBlocks", 20f, 3f..30f)
     { alwaysInRadius }
     private val alwaysRadiusTick by int("AlwaysInRadiusTick", 50, 1..100)
     { alwaysInRadius }
 
-    private val alwaysBehind by bool("AlwaysBehind", false)
+    private val alwaysBehind by boolean("AlwaysBehind", false)
     private val alwaysBehindRadius by float("AlwaysBehindInRadiusBlocks", 10f, 3f..30f)
     { alwaysBehind }
     private val behindRotDiffToIgnore by float("BehindRotationDiffToIgnore", 90f, 1f..180f)

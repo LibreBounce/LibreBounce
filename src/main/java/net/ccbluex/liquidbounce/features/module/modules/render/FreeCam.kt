@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -20,8 +20,8 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
 
     private val speed by float("Speed", 0.8f, 0.1f..2f)
 
-    private val allowCameraInteract by bool("AllowCameraInteract", true)
-    private val allowRotationChange by bool("AllowRotationChange", true)
+    private val allowCameraInteract by boolean("AllowCameraInteract", true)
+    private val allowRotationChange by boolean("AllowRotationChange", true)
 
     data class PositionPair(var pos: Vec3, var lastPos: Vec3, var extraPos: Vec3 = lastPos) {
         operator fun plusAssign(velocity: Vec3) {

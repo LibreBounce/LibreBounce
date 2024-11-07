@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -22,9 +22,9 @@ import net.minecraft.client.gui.GuiChat
 import net.minecraft.util.ResourceLocation
 
 object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetecting = false, hideModule = true) {
-    val customHotbar by bool("CustomHotbar", true)
+    val customHotbar by boolean("CustomHotbar", true)
 
-    val smoothHotbarSlot by bool("SmoothHotbarSlot", true) { customHotbar }
+    val smoothHotbarSlot by boolean("SmoothHotbarSlot", true) { customHotbar }
 
     val roundedHotbarRadius by float("RoundedHotbar-Radius", 3F, 0F..5F) { customHotbar }
 
@@ -51,9 +51,9 @@ object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetectin
     val gradientX by float("Gradient-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
     val gradientY by float("Gradient-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
 
-    val inventoryParticle by bool("InventoryParticle", false)
-    private val blur by bool("Blur", false)
-    val fontChat by bool("FontChat", false)
+    val inventoryParticle by boolean("InventoryParticle", false)
+    private val blur by boolean("Blur", false)
+    val fontChat by boolean("FontChat", false)
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {

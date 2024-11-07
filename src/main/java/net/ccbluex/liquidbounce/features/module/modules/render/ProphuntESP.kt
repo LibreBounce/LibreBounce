@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -37,7 +37,7 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
     private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
     private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val colorRainbow by bool("Rainbow", false)
+    private val colorRainbow by boolean("Rainbow", false)
     private val colorRed by int("R", 0, 0..255) { !colorRainbow }
     private val colorGreen by int("G", 90, 0..255) { !colorRainbow }
     private val colorBlue by int("B", 255, 0..255) { !colorRainbow }
@@ -53,10 +53,10 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val onLook by bool("OnLook", false)
+    private val onLook by boolean("OnLook", false)
     private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by bool("ThruBlocks", true)
+    private val thruBlocks by boolean("ThruBlocks", true)
 
     private val color
         get() = if (colorRainbow) rainbow() else Color(colorRed, colorGreen, colorBlue)

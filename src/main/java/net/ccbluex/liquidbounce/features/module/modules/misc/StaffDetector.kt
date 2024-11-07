@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -39,16 +39,16 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
     }
 
-    private val tab by bool("TAB", true)
-    private val packet by bool("Packet", true)
-    private val velocity by bool("Velocity", false)
+    private val tab by boolean("TAB", true)
+    private val packet by boolean("Packet", true)
+    private val velocity by boolean("Velocity", false)
 
     private val autoLeave by choices("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
 
-    private val spectator by bool("StaffSpectator", false) { tab || packet }
-    private val otherSpectator by bool("OtherSpectator", false) { tab || packet }
+    private val spectator by boolean("StaffSpectator", false) { tab || packet }
+    private val otherSpectator by boolean("OtherSpectator", false) { tab || packet }
 
-    private val inGame by bool("InGame", true) { autoLeave != "Off" }
+    private val inGame by boolean("InGame", true) { autoLeave != "Off" }
     private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private val checkedStaff = ConcurrentHashMap.newKeySet<String>()

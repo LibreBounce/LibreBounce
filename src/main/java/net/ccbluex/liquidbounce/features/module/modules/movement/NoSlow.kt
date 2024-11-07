@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -52,11 +52,11 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false, hideM
 
     private val consumeForwardMultiplier by float("ConsumeForwardMultiplier", 1f, 0.2F..1f)
     private val consumeStrafeMultiplier by float("ConsumeStrafeMultiplier", 1f, 0.2F..1f)
-    private val consumeFoodOnly by bool(
+    private val consumeFoodOnly by boolean(
         "ConsumeFoodOnly",
         true
     ) { consumeForwardMultiplier > 0.2F || consumeStrafeMultiplier > 0.2F }
-    private val consumeDrinkOnly by bool(
+    private val consumeDrinkOnly by boolean(
         "ConsumeDrinkOnly",
         true
     ) { consumeForwardMultiplier > 0.2F || consumeStrafeMultiplier > 0.2F }
@@ -71,8 +71,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false, hideM
     private val bowStrafeMultiplier by float("BowStrafeMultiplier", 1f, 0.2F..1f)
 
     // Blocks
-    val soulsand by bool("Soulsand", true)
-    val liquidPush by bool("LiquidPush", true)
+    val soulsand by boolean("Soulsand", true)
+    val liquidPush by boolean("LiquidPush", true)
 
     private var shouldSwap = false
 

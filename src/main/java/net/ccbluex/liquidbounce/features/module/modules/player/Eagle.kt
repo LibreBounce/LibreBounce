@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.Gui
@@ -22,7 +22,7 @@ import net.minecraft.util.BlockPos
 object Eagle : Module("Eagle", Category.PLAYER, hideModule = false) {
 
     private val sneakDelay by int("SneakDelay", 0, 0..100)
-    private val onlyWhenLookingDown by bool("OnlyWhenLookingDown", false)
+    private val onlyWhenLookingDown by boolean("OnlyWhenLookingDown", false)
     private val lookDownThreshold by float("LookDownThreshold", 45f, 0f..90f) { onlyWhenLookingDown }
 
     private val sneakTimer = MSTimer()

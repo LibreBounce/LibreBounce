@@ -97,8 +97,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     }
 
-    private var onScaffold by bool("ScaffoldOnly", false)
-    private var showBlock by bool("ShowBlock", false)
+    private var onScaffold by boolean("ScaffoldOnly", false)
+    private var showBlock by boolean("ShowBlock", false)
 
     private var displayString by text("DisplayText", "")
 
@@ -146,7 +146,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     private val gradientX by float("Gradient-X", -500F, -2000F..2000F) { isColorModeUsed("Gradient") }
     private val gradientY by float("Gradient-Y", -1500F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private var shadow by bool("Shadow", true)
+    private var shadow by boolean("Shadow", true)
     private val font by font("Font", Fonts.font40)
 
     private var editMode = false

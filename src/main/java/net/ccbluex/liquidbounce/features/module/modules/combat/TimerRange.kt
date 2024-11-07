@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -117,7 +117,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     }
 
     // Blink Option
-    private val blink by bool("Blink", false)
+    private val blink by boolean("Blink", false)
 
     // Prediction Settings
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
@@ -127,15 +127,15 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
     // Mark Option
     private val markMode by choices("Mark", arrayOf("Off", "Box", "Platform"), "Off") { timerBoostMode == "Modern" }
-    private val outline by bool("Outline", false) { timerBoostMode == "Modern" && markMode == "Box" }
+    private val outline by boolean("Outline", false) { timerBoostMode == "Modern" && markMode == "Box" }
 
     // Optional
-    private val onWeb by bool("OnWeb", false)
-    private val onWater by bool("OnWater", false)
-    private val resetOnlagBack by bool("ResetOnLagback", false)
-    private val resetOnKnockback by bool("ResetOnKnockback", false)
-    private val chatDebug by bool("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
-    private val notificationDebug by bool("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
+    private val onWeb by boolean("OnWeb", false)
+    private val onWater by boolean("OnWater", false)
+    private val resetOnlagBack by boolean("ResetOnLagback", false)
+    private val resetOnKnockback by boolean("ResetOnKnockback", false)
+    private val chatDebug by boolean("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
+    private val notificationDebug by boolean("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
 
     override fun onDisable() {
         shouldResetTimer()
@@ -276,7 +276,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
             random = false,
             predict = true,
             lookRange = if (timerBoostMode == "Normal") rangeValue else randomRange,
-            attackRange = if (handleEvents()) Reach.combatReach else 3f,
+            attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
         )
 
         if (distance == null) {

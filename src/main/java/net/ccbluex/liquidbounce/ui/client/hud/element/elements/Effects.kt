@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.font
 import net.minecraft.client.resources.I18n
 import net.minecraft.potion.Potion
@@ -28,7 +28,7 @@ class Effects(
 ) : Element(x, y, scale, side) {
 
     private val font by font("Font", Fonts.font35)
-    private val shadow by bool("Shadow", true)
+    private val shadow by boolean("Shadow", true)
 
     /**
      * Draw element

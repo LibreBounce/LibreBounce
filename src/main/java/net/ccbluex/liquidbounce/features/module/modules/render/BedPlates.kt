@@ -82,7 +82,7 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
     { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
     private val textFont by font("Font", Fonts.font35)
-    private val textShadow by bool("ShadowText", true)
+    private val textShadow by boolean("ShadowText", true)
 
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }

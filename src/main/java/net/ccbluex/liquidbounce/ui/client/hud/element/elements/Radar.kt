@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.ccbluex.liquidbounce.utils.render.SafeVertexBuffer
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -44,11 +44,11 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
     private val playerShape by choices("Player Shape", arrayOf("Triangle", "Rectangle", "Circle"), "Triangle")
     private val playerSize by float("Player Size", 2f, 0.5f..20F)
-    private val useESPColors by bool("Use ESP Colors", true)
+    private val useESPColors by boolean("Use ESP Colors", true)
     private val fovSize by float("FOV Size", 10F, 0F..50F)
     private val fovAngle by float("FOV Angle", 70F, 30F..160F)
 
-    private val minimap by bool("Minimap", true)
+    private val minimap by boolean("Minimap", true)
 
     private val backgroundRed by int("Background Red", 0, 0..255)
     private val backgroundGreen by int("Background Green", 0, 0..255)
@@ -57,7 +57,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
     private val borderStrength by float("Border Strength", 2F, 1F..5F)
 
-    private val borderRainbow by bool("Border Rainbow", false)
+    private val borderRainbow by boolean("Border Rainbow", false)
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { borderRainbow }
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { borderRainbow }
 

@@ -64,11 +64,11 @@ class Target : Element() {
 
     private val titleFont by font("TitleFont", Fonts.font40)
     private val bodyFont by font("BodyFont", Fonts.font35)
-    private val textShadow by bool("TextShadow", false)
+    private val textShadow by boolean("TextShadow", false)
 
     private val fadeSpeed by float("FadeSpeed", 2F, 1F..9F)
-    private val absorption by bool("Absorption", true)
-    private val healthFromScoreboard by bool("HealthFromScoreboard", true)
+    private val absorption by boolean("Absorption", true)
+    private val healthFromScoreboard by boolean("HealthFromScoreboard", true)
 
     private val animation by choices("Animation", arrayOf("Smooth", "Fade"), "Fade")
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.05F..1F)

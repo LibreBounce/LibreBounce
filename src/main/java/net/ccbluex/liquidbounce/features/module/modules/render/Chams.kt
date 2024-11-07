@@ -7,10 +7,10 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 
 object Chams : Module("Chams", Category.RENDER, hideModule = false) {
-    val targets by bool("Targets", true)
-    val chests by bool("Chests", true)
-    val items by bool("Items", true)
+    val targets by boolean("Targets", true)
+    val chests by boolean("Chests", true)
+    val items by boolean("Items", true)
 }

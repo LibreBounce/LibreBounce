@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
@@ -83,7 +83,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceIn(minimum, maxDistance)
         override fun isSupported() = mode == "Modern"
     }
-    private val smart by bool("Smart", true) { mode == "Modern" }
+    private val smart by boolean("Smart", true) { mode == "Modern" }
 
     // ESP
     val espMode by choices(
@@ -92,7 +92,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         "Box",
         subjective = true
     ) { mode == "Modern" }
-    private val rainbow by bool("Rainbow", true, subjective = true) { mode == "Modern" && espMode == "Box" }
+    private val rainbow by boolean("Rainbow", true, subjective = true) { mode == "Modern" && espMode == "Box" }
     private val red by int(
         "R",
         0,

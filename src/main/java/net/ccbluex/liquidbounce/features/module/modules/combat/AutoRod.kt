@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
@@ -25,14 +25,14 @@ import net.minecraft.init.Items
 
 object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
 
-    private val facingEnemy by bool("FacingEnemy", true)
+    private val facingEnemy by boolean("FacingEnemy", true)
 
-    private val ignoreOnEnemyLowHealth by bool("IgnoreOnEnemyLowHealth", true) { facingEnemy }
-    private val healthFromScoreboard by bool(
+    private val ignoreOnEnemyLowHealth by boolean("IgnoreOnEnemyLowHealth", true) { facingEnemy }
+    private val healthFromScoreboard by boolean(
         "HealthFromScoreboard",
         false
     ) { facingEnemy && ignoreOnEnemyLowHealth }
-    private val absorption by bool("Absorption", false) { facingEnemy && ignoreOnEnemyLowHealth }
+    private val absorption by boolean("Absorption", false) { facingEnemy && ignoreOnEnemyLowHealth }
 
     private val activationDistance by float("ActivationDistance", 8f, 1f..20f)
     private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
@@ -49,7 +49,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
     private val pushDelay by int("PushDelay", 100, 50..1000)
     private val pullbackDelay by int("PullbackDelay", 500, 50..1000)
 
-    private val onUsingItem by bool("OnUsingItem", false)
+    private val onUsingItem by boolean("OnUsingItem", false)
 
     private val pushTimer = MSTimer()
     private val rodPullTimer = MSTimer()

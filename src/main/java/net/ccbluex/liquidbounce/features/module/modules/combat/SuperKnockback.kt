@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -75,9 +75,9 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
 
     private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f)
 
-    private val onlyGround by bool("OnlyGround", false)
-    val onlyMove by bool("OnlyMove", true)
-    val onlyMoveForward by bool("OnlyMoveForward", true) { onlyMove }
+    private val onlyGround by boolean("OnlyGround", false)
+    val onlyMove by boolean("OnlyMove", true)
+    val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove }
 
     private var ticks = 0
     private var forceSprintState = 0

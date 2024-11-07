@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationSettings
@@ -28,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.realY
 import net.ccbluex.liquidbounce.utils.realZ
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.BlockChest
@@ -52,8 +53,8 @@ import kotlin.math.sqrt
 
 object ChestAura : Module("ChestAura", Category.WORLD) {
 
-    private val chest by bool("Chest", true)
-    private val enderChest by bool("EnderChest", false)
+    private val chest by boolean("Chest", true)
+    private val enderChest by boolean("EnderChest", false)
 
     private val range: Float by object : FloatValue("Range", 5F, 1F..5F) {
         override fun onUpdate(value: Float) {
@@ -63,7 +64,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     }
     private val delay by int("Delay", 200, 50..500)
 
-    private val throughWalls by bool("ThroughWalls", true)
+    private val throughWalls by boolean("ThroughWalls", true)
     private val wallsRange: Float by object : FloatValue("ThroughWallsRange", 3F, 1F..5F) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(this@ChestAura.range)
 
@@ -80,10 +81,10 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         }
     }
 
-    private val visualSwing by bool("VisualSwing", true, subjective = true)
+    private val visualSwing by boolean("VisualSwing", true, subjective = true)
 
-    private val ignoreLooted by bool("IgnoreLootedChests", true)
-    private val detectRefill by bool("DetectChestRefill", true)
+    private val ignoreLooted by boolean("IgnoreLootedChests", true)
+    private val detectRefill by boolean("DetectChestRefill", true)
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
@@ -107,7 +108,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
     @EventTarget
     fun onRotationUpdate(event: RotationUpdateEvent) {
-        if (handleEvents() || KillAura.isBlockingChestAura || !timer.hasTimePassed(delay))
+        if (Blink.handleEvents() || KillAura.isBlockingChestAura || !timer.hasTimePassed(delay))
             return
 
         val thePlayer = mc.thePlayer ?: return

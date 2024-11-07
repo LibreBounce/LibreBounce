@@ -46,7 +46,7 @@ class ScoreboardElement(
 
     private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
 
-    private val rect by bool("Rect", false)
+    private val rect by boolean("Rect", false)
     private val rectColorMode by choices("Rect-Color", arrayOf("Custom", "Rainbow"), "Custom") { rect }
     private val rectColorRed by int("Rect-R", 0, 0..255) { rect && rectColorMode == "Custom" }
     private val rectColorGreen by int("Rect-G", 111, 0..255) { rect && rectColorMode == "Custom" }
@@ -54,7 +54,7 @@ class ScoreboardElement(
     private val rectColorAlpha by int("Rect-Alpha", 255, 0..255) { rect && rectColorMode == "Custom" }
 
     private val serverIp by choices("ServerIP", arrayOf("Normal", "None", "Client", "Website"), "Normal")
-    private val shadow by bool("Shadow", false)
+    private val shadow by boolean("Shadow", false)
     private val font by font("Font", Fonts.minecraftFont)
 
     /**

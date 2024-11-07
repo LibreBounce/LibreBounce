@@ -10,21 +10,22 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.`fun`.Derp
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 
 object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false, hideModule = false) {
 
-    private val realistic by bool("Realistic", true)
-    private val body by bool("Body", true) { !realistic }
+    private val realistic by boolean("Realistic", true)
+    private val body by boolean("Body", true) { !realistic }
 
-    private val smoothRotations by bool("SmoothRotations", false)
+    private val smoothRotations by boolean("SmoothRotations", false)
     private val smoothingFactor by float("SmoothFactor", 0.15f, 0.1f..0.9f) { smoothRotations }
 
-    val debugRotations by bool("DebugRotations", false)
+    val debugRotations by boolean("DebugRotations", false)
 
     var prevHeadPitch = 0f
     var headPitch = 0f
@@ -32,7 +33,7 @@ object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false, h
     private var lastRotation: Rotation? = null
 
     private val specialCases
-        get() = arrayListOf(handleEvents(), FreeCam.shouldDisableRotations()).any { it }
+        get() = arrayListOf(Derp.handleEvents(), FreeCam.shouldDisableRotations()).any { it }
 
     @EventTarget
     fun onMotion(event: MotionEvent) {

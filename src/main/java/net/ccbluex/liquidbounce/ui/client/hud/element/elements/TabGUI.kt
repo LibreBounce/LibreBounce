@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect2
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.font
 import net.ccbluex.liquidbounce.value.int
@@ -31,7 +31,7 @@ import java.awt.Color
 @ElementInfo(name = "TabGUI")
 class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element(x = x, y = y) {
 
-    private val rectRainbow by bool("Rectangle Rainbow", false)
+    private val rectRainbow by boolean("Rectangle Rainbow", false)
     private val rectRed by int("Rectangle Red", 0, 0..255) { !rectRainbow }
     private val rectGreen by int("Rectangle Green", 148, 0..255) { !rectRainbow }
     private val rectBlue by int("Rectangle Blue", 255, 0..255) { !rectRainbow }
@@ -44,9 +44,9 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element(x = x, y = y) {
     private val backgroundBlue by int("Background Blue", 0, 0..255)
     private val backgroundAlpha by int("Background Alpha", 150, 0..255)
 
-    private val borderValue by bool("Border", false)
+    private val borderValue by boolean("Border", false)
     private val borderStrength by float("Border Strength", 2F, 1F..5F) { borderValue }
-    private val borderRainbow by bool("Border Rainbow", false) { borderValue }
+    private val borderRainbow by boolean("Border Rainbow", false) { borderValue }
     private val borderRed by int("Border Red", 0, 0..255) { borderValue && !borderRainbow }
     private val borderGreen by int("Border Green", 0, 0..255) { borderValue && !borderRainbow }
     private val borderBlue by int("Border Blue", 0, 0..255) { borderValue && !borderRainbow }
@@ -57,14 +57,14 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element(x = x, y = y) {
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F)
     { rectRainbow || (borderValue && borderRainbow) }
 
-    private val arrows by bool("Arrows", true)
+    private val arrows by boolean("Arrows", true)
     private val font by font("Font", Fonts.font35)
-    private val textShadow by bool("TextShadow", false)
-    private val textFade by bool("TextFade", true)
+    private val textShadow by boolean("TextShadow", false)
+    private val textFade by boolean("TextFade", true)
     private val textPositionY by float("TextPosition-Y", 2F, 0F..5F)
     private val width by float("Width", 60F, 55F..100F)
     private val tabHeight by float("TabHeight", 12F, 10F..15F)
-    private val upperCase by bool("UpperCase", false)
+    private val upperCase by boolean("UpperCase", false)
 
     private val tabs = mutableListOf<Tab>()
 

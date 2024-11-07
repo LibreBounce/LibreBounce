@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils.serverOnGround
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.inventory.ItemUtils.isConsumingItem
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -28,7 +28,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
     private val customSpeed by int("CustomSpeed", 2, 1..35) { mode == "Custom" }
     private val customTimer by float("CustomTimer", 1.1f, 0.5f..2f) { mode == "Custom" }
 
-    private val noMove by bool("NoMove", false)
+    private val noMove by boolean("NoMove", false)
 
     private val msTimer = MSTimer()
     private var usedTimer = false

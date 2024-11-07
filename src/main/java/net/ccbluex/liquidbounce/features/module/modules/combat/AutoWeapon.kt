@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.attackDamage
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.item.ItemSword
 import net.minecraft.item.ItemTool
@@ -22,9 +22,9 @@ import net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK
 
 object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true, hideModule = false) {
 
-    private val onlySword by bool("OnlySword", false)
+    private val onlySword by boolean("OnlySword", false)
 
-    private val spoof by bool("SpoofItem", false)
+    private val spoof by boolean("SpoofItem", false)
     private val spoofTicks by int("SpoofTicks", 10, 1..20) { spoof }
 
     private var attackEnemy = false

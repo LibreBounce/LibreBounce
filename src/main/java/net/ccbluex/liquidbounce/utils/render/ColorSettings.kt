@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.utils.render
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
-import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import java.awt.Color
 
 class ColorSettingsFloat(owner: Any, name: String, val index: Int? = null, generalApply: () -> Boolean = { true }) {
@@ -56,22 +56,22 @@ class ColorSettingsInteger(
     private val string = if (name == null) "" else "$name-"
     private val max = if (applyMax) 255 else 0
 
-    private var red = IntegerValue(
+    private var red = int(
         "${string}R${index ?: ""}",
         max,
         0..255
     ) { generalApply() && (!zeroAlphaCheck || a > 0) }
-    private var green = IntegerValue(
+    private var green = int(
         "${string}G${index ?: ""}",
         max,
         0..255
     ) { generalApply() && (!zeroAlphaCheck || a > 0) }
-    private var blue = IntegerValue(
+    private var blue = int(
         "${string}B${index ?: ""}",
         max,
         0..255
     ) { generalApply() && (!zeroAlphaCheck || a > 0) }
-    private var alpha = IntegerValue(
+    private var alpha = int(
         "${string}Alpha${index ?: ""}",
         255,
         0..255

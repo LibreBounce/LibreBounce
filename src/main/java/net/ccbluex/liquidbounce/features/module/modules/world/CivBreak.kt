@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.float
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
@@ -31,7 +31,7 @@ import java.awt.Color
 object CivBreak : Module("CivBreak", Category.WORLD) {
 
     private val range by float("Range", 5F, 1F..6F)
-    private val visualSwing by bool("VisualSwing", true, subjective = false)
+    private val visualSwing by boolean("VisualSwing", true, subjective = false)
 
     private val options = RotationSettings(this).withoutKeepRotation()
 

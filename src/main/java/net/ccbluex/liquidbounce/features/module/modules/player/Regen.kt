@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils.serverOnGround
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -28,8 +28,8 @@ object Regen : Module("Regen", Category.PLAYER) {
     private val health by int("Health", 18, 0..20)
     private val food by int("Food", 18, 0..20)
 
-    private val noAir by bool("NoAir", false)
-    private val potionEffect by bool("PotionEffect", false)
+    private val noAir by boolean("NoAir", false)
+    private val potionEffect by boolean("PotionEffect", false)
 
     private val timer = MSTimer()
 

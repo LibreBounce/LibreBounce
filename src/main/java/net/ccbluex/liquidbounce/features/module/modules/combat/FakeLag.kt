@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.player.EntityPlayer
@@ -47,13 +47,13 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         override fun isSupported(): Boolean = !maxAllowedDistToEnemy.isMinimal()
     }
 
-    private val blinkOnAction by bool("BlinkOnAction", true)
+    private val blinkOnAction by boolean("BlinkOnAction", true)
 
-    private val pauseOnNoMove by bool("PauseOnNoMove", true)
-    private val pauseOnChest by bool("PauseOnChest", false)
+    private val pauseOnNoMove by boolean("PauseOnNoMove", true)
+    private val pauseOnChest by boolean("PauseOnChest", false)
 
-    private val line by bool("Line", true, subjective = true)
-    private val rainbow by bool("Rainbow", false, subjective = true) { line }
+    private val line by boolean("Line", true, subjective = true)
+    private val rainbow by boolean("Rainbow", false, subjective = true) { line }
     private val red by int(
         "R",
         0,
@@ -120,7 +120,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         }
 
         // Flush on scaffold/tower usage
-        if (handleEvents() && Scaffold.placeRotation != null) {
+        if (Scaffold.handleEvents() && Scaffold.placeRotation != null) {
             blink()
             return
         }

@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.Block
@@ -31,10 +31,10 @@ object BedProtectionESP : Module("BedProtectionESP", Category.RENDER, hideModule
     private val radius by int("Radius", 8, 0..32)
     private val maxLayers by int("MaxProtectionLayers", 2, 1..6)
     private val blockLimit by int("BlockLimit", 256, 0..1024)
-    private val down by bool("BlocksUnderTarget", false)
-    private val renderTargetBlocks by bool("RenderTargetBlocks", true)
+    private val down by boolean("BlocksUnderTarget", false)
+    private val renderTargetBlocks by boolean("RenderTargetBlocks", true)
 
-    private val colorRainbow by bool("Rainbow", false)
+    private val colorRainbow by boolean("Rainbow", false)
     private val colorRed by int("R", 96, 0..255) { !colorRainbow }
     private val colorGreen by int("G", 96, 0..255) { !colorRainbow }
     private val colorBlue by int("B", 96, 0..255) { !colorRainbow }

@@ -99,7 +99,7 @@ class Arraylist(
     private val gradientX by float("Gradient-X", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
     private val gradientY by float("Gradient-Y", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private val tags by bool("Tags", true)
+    private val tags by boolean("Tags", true)
     private val tagsStyle by object : ListValue("TagsStyle", arrayOf("[]", "()", "<>", "-", "|", "Space"), "Space") {
         override fun isSupported() = tags
 
@@ -113,7 +113,7 @@ class Arraylist(
     }
 
     private val font by font("Font", Fonts.font40)
-    private val textShadow by bool("ShadowText", true)
+    private val textShadow by boolean("ShadowText", true)
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val space by float("Space", 0F, 0F..5F)
     private val textHeight by float("TextHeight", 11F, 1F..20F)
@@ -123,7 +123,7 @@ class Arraylist(
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
     companion object {
-        val spacedModules by bool("SpacedModules", false)
+        val spacedModules by boolean("SpacedModules", false)
         val inactiveStyle by choices("InactiveModulesStyle", arrayOf("Normal", "Color", "Hide"), "Color")
         { GameDetector.state }
     }

@@ -49,33 +49,33 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
      * SETTINGS
      */
 
-    private val hypixel by bool("Hypixel", false)
+    private val hypixel by boolean("Hypixel", false)
 
     private val block by block("Block", 26)
     private val throughWalls by choices("ThroughWalls", arrayOf("None", "Raycast", "Around"), "None") { !hypixel }
     private val range by float("Range", 5F, 1F..7F)
 
     private val action by choices("Action", arrayOf("Destroy", "Use"), "Destroy")
-    private val surroundings by bool("Surroundings", true) { !hypixel }
-    private val instant by bool("Instant", false) { (action == "Destroy" || surroundings) && !hypixel }
+    private val surroundings by boolean("Surroundings", true) { !hypixel }
+    private val instant by boolean("Instant", false) { (action == "Destroy" || surroundings) && !hypixel }
 
     private val switch by int("SwitchDelay", 250, 0..1000)
-    private val swing by bool("Swing", true)
-    val noHit by bool("NoHit", false)
+    private val swing by boolean("Swing", true)
+    val noHit by boolean("NoHit", false)
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
-    private val blockProgress by bool("BlockProgress", true)
+    private val blockProgress by boolean("BlockProgress", true)
 
     private val scale by float("Scale", 2F, 1F..6F) { blockProgress }
     private val font by font("Font", Fonts.font40) { blockProgress }
-    private val fontShadow by bool("Shadow", true) { blockProgress }
+    private val fontShadow by boolean("Shadow", true) { blockProgress }
 
     private val colorRed by int("R", 200, 0..255) { blockProgress }
     private val colorGreen by int("G", 100, 0..255) { blockProgress }
     private val colorBlue by int("B", 0, 0..255) { blockProgress }
 
-    private val ignoreOwnBed by bool("IgnoreOwnBed", true)
+    private val ignoreOwnBed by boolean("IgnoreOwnBed", true)
     private val ownBedDist by int("MaxBedDistance", 16, 1..32) { ignoreOwnBed }
 
     /**
@@ -121,7 +121,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
         val player = mc.thePlayer ?: return
         val world = mc.theWorld ?: return
 
-        if (noHit && handleEvents() && KillAura.target != null) {
+        if (noHit && KillAura.handleEvents() && KillAura.target != null) {
             return
         }
 

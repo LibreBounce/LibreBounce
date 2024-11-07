@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInLastLoop
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiIngameMenu
 import net.minecraft.client.gui.inventory.GuiChest
@@ -25,9 +25,9 @@ import org.lwjgl.input.Mouse
 
 object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting = false, hideModule = false) {
 
-    private val notInChests by bool("NotInChests", false)
-    val aacAdditionPro by bool("AACAdditionPro", false)
-    private val intave by bool("Intave", false)
+    private val notInChests by boolean("NotInChests", false)
+    val aacAdditionPro by boolean("AACAdditionPro", false)
+    private val intave by boolean("Intave", false)
 
     private val isIntave = (mc.currentScreen is GuiInventory || mc.currentScreen is GuiChest) && intave
 
@@ -37,11 +37,11 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val undetectable by InventoryManager.undetectableValue
 
     // If player violates nomove check and inventory is open, close inventory and reopen it when still
-    private val silentlyCloseAndReopen by bool("SilentlyCloseAndReopen", false)
+    private val silentlyCloseAndReopen by boolean("SilentlyCloseAndReopen", false)
     { noMove && (noMoveAir || noMoveGround) }
 
     // Reopen closed inventory just before a click (could flag for clicking too fast after opening inventory)
-    private val reopenOnClick by bool("ReopenOnClick", false)
+    private val reopenOnClick by boolean("ReopenOnClick", false)
     { silentlyCloseAndReopen && noMove && (noMoveAir || noMoveGround) }
 
     private val affectedBindings = arrayOf(
@@ -73,8 +73,8 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         }
 
         for (affectedBinding in affectedBindings)
-            affectedBinding.pressed = isButtonPressed(affectedBinding)
-                    || (affectedBinding == mc.gameSettings.keyBindSprint && handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || mc.thePlayer.isSprinting))
+            affectedBinding.pressed =
+                isButtonPressed(affectedBinding) || (affectedBinding == mc.gameSettings.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || mc.thePlayer.isSprinting))
     }
 
     @EventTarget

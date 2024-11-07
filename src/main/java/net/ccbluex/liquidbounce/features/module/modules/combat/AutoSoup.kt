@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -32,12 +32,12 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT, hideModule = false) {
     private val health by float("Health", 15f, 0f..20f)
     private val delay by int("Delay", 150, 0..500)
 
-    private val openInventory by bool("OpenInv", true)
+    private val openInventory by boolean("OpenInv", true)
     private val startDelay by int("StartDelay", 100, 0..1000) { openInventory }
-    private val autoClose by bool("AutoClose", false) { openInventory }
+    private val autoClose by boolean("AutoClose", false) { openInventory }
     private val autoCloseDelay by int("CloseDelay", 500, 0..1000) { openInventory && autoClose }
 
-    private val simulateInventory by bool("SimulateInventory", false) { !openInventory }
+    private val simulateInventory by boolean("SimulateInventory", false) { !openInventory }
 
     private val bowl by choices("Bowl", arrayOf("Drop", "Move", "Stay"), "Drop")
 

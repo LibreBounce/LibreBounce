@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.int
 import net.ccbluex.liquidbounce.value.text
 import net.minecraft.network.play.server.S01PacketJoinGame
@@ -24,13 +24,13 @@ import kotlin.random.Random
 object NameProtect :
     Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
 
-    val allPlayers by bool("AllPlayers", false)
+    val allPlayers by boolean("AllPlayers", false)
 
-    val skinProtect by bool("SkinProtect", true)
+    val skinProtect by boolean("SkinProtect", true)
     private val fakeName by text("FakeName", "&cMe")
 
-    private val randomNames by bool("RandomNames", false) { allPlayers }
-    private val randomNameLength by bool("RandomNameLength", false) { allPlayers && randomNames }
+    private val randomNames by boolean("RandomNames", false) { allPlayers }
+    private val randomNameLength by boolean("RandomNameLength", false) { allPlayers && randomNames }
 
     private var nameLength by int("NameLength", 6, 6..16) {
         randomNames && allPlayers && !randomNameLength

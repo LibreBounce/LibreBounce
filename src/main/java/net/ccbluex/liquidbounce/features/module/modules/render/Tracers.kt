@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -51,13 +51,13 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val bot by bool("Bots", true)
-    private val teams by bool("Teams", false)
+    private val bot by boolean("Bots", true)
+    private val teams by boolean("Teams", false)
 
-    private val onLook by bool("OnLook", false)
+    private val onLook by boolean("OnLook", false)
     private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by bool("ThruBlocks", true)
+    private val thruBlocks by boolean("ThruBlocks", true)
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {

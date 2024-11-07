@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
 import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.entity.EntityLiving.getArmorPosition
@@ -53,19 +53,19 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
 
     // When swapping armor pieces, it grabs the better one, drags and swaps it with equipped one and drops the equipped one (no time of having no armor piece equipped)
     // Has to make more clicks, works slower
-    val smartSwap by bool("SmartSwap", true)
+    val smartSwap by boolean("SmartSwap", true)
 
     private val noMove by InventoryManager.noMoveValue
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
-    private val hotbar by bool("Hotbar", true)
+    private val hotbar by boolean("Hotbar", true)
 
     // Sacrifices 1 tick speed for complete undetectability, needed to bypass Vulcan
-    private val delayedSlotSwitch by bool("DelayedSlotSwitch", true) { hotbar }
+    private val delayedSlotSwitch by boolean("DelayedSlotSwitch", true) { hotbar }
 
     // Prevents AutoArmor from hotbar equipping while any screen is open
-    private val notInContainers by bool("NotInContainers", false) { hotbar }
+    private val notInContainers by boolean("NotInContainers", false) { hotbar }
 
     val highlightSlot by InventoryManager.highlightSlotValue
 

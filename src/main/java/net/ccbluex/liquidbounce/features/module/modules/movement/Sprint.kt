@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.activeSettings
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
-import net.ccbluex.liquidbounce.value.bool
+import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.minecraft.network.play.client.C0BPacketEntityAction
@@ -26,26 +26,26 @@ import kotlin.math.abs
 object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideModule = false) {
     val mode by choices("Mode", arrayOf("Legit", "Vanilla"), "Vanilla")
 
-    val onlyOnSprintPress by bool("OnlyOnSprintPress", false)
-    private val alwaysCorrect by bool("AlwaysCorrectSprint", false)
+    val onlyOnSprintPress by boolean("OnlyOnSprintPress", false)
+    private val alwaysCorrect by boolean("AlwaysCorrectSprint", false)
 
-    val allDirections by bool("AllDirections", true) { mode == "Vanilla" }
-    val jumpDirections by bool("JumpDirections", false) { mode == "Vanilla" && allDirections }
+    val allDirections by boolean("AllDirections", true) { mode == "Vanilla" }
+    val jumpDirections by boolean("JumpDirections", false) { mode == "Vanilla" && allDirections }
 
     private val allDirectionsLimitSpeed by float("AllDirectionsLimitSpeed", 1f, 0.75f..1f)
     { mode == "Vanilla" && allDirections }
-    private val allDirectionsLimitSpeedGround by bool("AllDirectionsLimitSpeedOnlyGround", true)
+    private val allDirectionsLimitSpeedGround by boolean("AllDirectionsLimitSpeedOnlyGround", true)
     { mode == "Vanilla" && allDirections }
 
-    private val blindness by bool("Blindness", true) { mode == "Vanilla" }
-    private val usingItem by bool("UsingItem", false) { mode == "Vanilla" }
-    private val inventory by bool("Inventory", false) { mode == "Vanilla" }
-    private val food by bool("Food", true) { mode == "Vanilla" }
+    private val blindness by boolean("Blindness", true) { mode == "Vanilla" }
+    private val usingItem by boolean("UsingItem", false) { mode == "Vanilla" }
+    private val inventory by boolean("Inventory", false) { mode == "Vanilla" }
+    private val food by boolean("Food", true) { mode == "Vanilla" }
 
-    private val checkServerSide by bool("CheckServerSide", false) { mode == "Vanilla" }
-    private val checkServerSideGround by bool("CheckServerSideOnlyGround", false)
+    private val checkServerSide by boolean("CheckServerSide", false) { mode == "Vanilla" }
+    private val checkServerSideGround by boolean("CheckServerSideOnlyGround", false)
     { mode == "Vanilla" && checkServerSide }
-    private val noPackets by bool("NoPackets", false) { mode == "Vanilla" }
+    private val noPackets by boolean("NoPackets", false) { mode == "Vanilla" }
 
     private var isSprinting = false
 
@@ -63,7 +63,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideM
         if ((onlyOnSprintPress || !handleEvents()) && !player.isSprinting && !mc.gameSettings.keyBindSprint.isKeyDown && !SuperKnockback.startSprint() && !isSprinting)
             return
 
-        if (handleEvents()) {
+        if (Scaffold.handleEvents()) {
             if (!Scaffold.sprint) {
                 player.isSprinting = false
                 isSprinting = false
@@ -114,7 +114,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideM
             return true
         }
 
-        if ((usingItem || isLegitModeActive) && !handleEvents() && isUsingItem) {
+        if ((usingItem || isLegitModeActive) && !NoSlow.handleEvents() && isUsingItem) {
             return true
         }
 
@@ -130,7 +130,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideM
             return false
         }
 
-        val threshold = if ((!usingItem || handleEvents()) && isUsingItem) 0.2 else 0.8
+        val threshold = if ((!usingItem || NoSlow.handleEvents()) && isUsingItem) 0.2 else 0.8
         val playerForwardInput = player.movementInput.moveForward
 
         if (!checkServerSide) {
