@@ -78,7 +78,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             return
         }
 
-        val crystalSlot = getSlot() ?: return
+        getSlot() ?: return
 
         updateTarget()
         if (placementTarget != previousTarget) {
@@ -137,7 +137,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             clickBlockWithSlot(
                 player,
                 blockHitResult?.withSide(side) ?: return@rotate,
-                crystalSlot,
+                getSlot() ?: return@rotate,
                 swingMode
             )
 
