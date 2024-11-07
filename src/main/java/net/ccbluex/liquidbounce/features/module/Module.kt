@@ -28,8 +28,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import java.util.concurrent.CopyOnWriteArraySet
 
-open class Module(
-
+open class Module constructor(
     val name: String,
     val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
