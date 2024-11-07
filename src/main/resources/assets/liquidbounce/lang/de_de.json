@@ -208,8 +208,6 @@
   "liquidbounce.command.panic.result.nonRender": "Nicht-Rendern",
   "liquidbounce.command.ping.description": "Überprüft deinen Ping.",
   "liquidbounce.command.ping.result.pingCheck": "Dein aktueller Ping ist %sms.",
-  "liquidbounce.command.position.description": "Kopiert deine aktuellen Koordinaten in die Zwischenablage.",
-  "liquidbounce.command.position.result.position": "Position: %s",
   "liquidbounce.command.client.subcommand.prefix.description": "Ändert das Befehlspräfix.",
   "liquidbounce.command.client.subcommand.prefix.parameter.prefix.description": "Neues Befehlspräfix.",
   "liquidbounce.command.client.subcommand.prefix.result.prefixChanged": "Befehlspräfix erfolgreich geändert in \"%s\".",

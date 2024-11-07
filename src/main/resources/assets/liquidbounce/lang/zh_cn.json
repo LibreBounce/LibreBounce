@@ -208,8 +208,6 @@
   "liquidbounce.command.panic.result.nonRender": "非渲染",
   "liquidbounce.command.ping.description": "查看你的延迟。",
   "liquidbounce.command.ping.result.pingCheck": "你的延迟是: %sms。",
-  "liquidbounce.command.position.description": "复制当前的坐标到剪贴板上。",
-  "liquidbounce.command.position.result.position": "当前坐标: %s",
   "liquidbounce.command.client.subcommand.prefix.description": "更改命令前缀。",
   "liquidbounce.command.client.subcommand.prefix.parameter.prefix.description": "新的命令前缀。",
   "liquidbounce.command.client.subcommand.prefix.result.prefixChanged": "成功将命令前缀更改为 \"%s\"。",

@@ -120,8 +120,6 @@
   "liquidbounce.command.skull.result.mustBeCreative": "Modo criativo requirido!",
   "liquidbounce.command.skull.result.noEmptySlot": "Não espaçõs vazios no seu inventario.",
   "liquidbounce.command.skull.result.skullGiven": "Deu a cabeça de %s.",
-  "liquidbounce.command.position.description": "Copia suas coordenadas.",
-  "liquidbounce.command.position.result.position": "Posição: %s",
   "liquidbounce.command.username.description": "Copia seu nome.",
   "liquidbounce.command.username.result.username": "Nome: %s",
   "liquidbounce.command.chat.description": "Manda uma mensagem no LiquidChat.",

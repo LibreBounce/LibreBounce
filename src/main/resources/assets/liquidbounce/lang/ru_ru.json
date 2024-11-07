@@ -188,8 +188,6 @@
   "liquidbounce.command.panic.result.nonRender": "Необрабатываемый",
   "liquidbounce.command.ping.description": "Узнаёт Ваш пинг.",
   "liquidbounce.command.ping.result.pingCheck": "Ваш пинг - %sмс.",
-  "liquidbounce.command.position.description": "Копирует текущие координаты в буфер обмена.",
-  "liquidbounce.command.position.result.position": "Позиция: %s",
   "liquidbounce.command.remoteview.description": "Позволяет Вам увидеть перспективу другого игрока.",
   "liquidbounce.command.remoteview.subcommand.off.result.alreadyOff": "Вы не просматриваете ничью перспективу.",
   "liquidbounce.command.remoteview.subcommand.off.result.off": "Успешно прекращён просмотр перспективы %s.",
