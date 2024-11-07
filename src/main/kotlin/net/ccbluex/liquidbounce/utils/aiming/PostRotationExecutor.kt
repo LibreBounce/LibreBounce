@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 
 /**
- * Executes code right after the client sent the normal movement packet.
+ * Executes code right after the client sent the normal movement packet or at the start of the next tick.
  */
 object PostRotationExecutor : Listenable {
 
