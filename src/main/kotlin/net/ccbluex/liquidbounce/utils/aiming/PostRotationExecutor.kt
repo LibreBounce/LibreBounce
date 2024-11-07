@@ -69,7 +69,13 @@ object PostRotationExecutor : Listenable {
         }
 
         // if the priority action doesn't run on post-move, no other action can
-        if (!priorityActionPostMove && priorityAction != null) {
+        val preventedByAction = !priorityActionPostMove && priorityAction != null
+
+        // another module might need the rotation,
+        // then we can't run the actions on post-move because they might change the rotation with packets,
+        // but if the priority action is not null, the rotation got most likely set because of it
+        val preventedByCurrentRot = RotationManager.currentRotation != null && priorityAction == null
+        if (preventedByAction || preventedByCurrentRot) {
            return@handler
         }
 
@@ -103,18 +109,17 @@ object PostRotationExecutor : Listenable {
                 if (action.first.enabled) {
                     action.second.invoke()
                 }
-
-                // if we reach this point, the post-move queue has not been processed yet because it was waiting for
-                // the priority action
-                while (postMoveTasks.isNotEmpty()) {
-                    val next = postMoveTasks.removeFirst()
-                    if (next.first.enabled) {
-                        next.second.invoke()
-                    }
-                }
             }
 
             priorityAction = null
+        }
+
+        // if we reach this point, the post-move queue should be empty, if not it gets cleared here
+        while (postMoveTasks.isNotEmpty()) {
+            val next = postMoveTasks.removeFirst()
+            if (next.first.enabled) {
+                next.second.invoke()
+            }
         }
 
         // execute all other actions
