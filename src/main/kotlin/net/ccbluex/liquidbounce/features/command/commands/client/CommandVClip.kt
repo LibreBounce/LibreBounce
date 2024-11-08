@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.client.player
 import net.minecraft.util.function.BooleanBiFunction
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.shape.VoxelShape
 import net.minecraft.util.shape.VoxelShapes
@@ -64,7 +65,7 @@ object CommandVClip {
                                 return@handler
                             }
 
-                        ModuleTeleport.indicateTeleport(y = player.y + dy)
+                        ModuleTeleport.indicateTeleport(getX(), getY() + dy, getZ())
                     }
                     .build()
             )
@@ -102,8 +103,8 @@ object CommandVClip {
             10
         }
 
-        val blockPos = player.blockPos
-        val pos = player.pos
+        val blockPos = player.vehicle?.blockPos ?: player.blockPos
+        val pos = player.vehicle?.pos ?: player.pos
 
         var newPos = blockPos
 
@@ -113,7 +114,7 @@ object CommandVClip {
         }
 
         for (x in 1 until max) {
-            // go to the next position in direction
+            // go to the next position in the direction
             newPos = newPos.offset(direction)
 
             val shape = newPos.getCollisionShape()
@@ -132,7 +133,7 @@ object CommandVClip {
                 }
 
                 // teleport
-                ModuleTeleport.indicateTeleport(y = player.y + dy)
+                ModuleTeleport.indicateTeleport(getX(), getY() + dy, getZ())
                 return
             }
         }
@@ -141,11 +142,18 @@ object CommandVClip {
     }
 
     private fun canTpOn(pos: BlockPos, posCollisionShape: VoxelShape): Boolean {
-        val up = pos.up()
-        val up2 = up.up()
+        // check if there is enough space at the new position
+        val boundingBox = player.vehicle?.boundingBox ?: player.boundingBox
+        val shape = posCollisionShape.offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
 
-        if (!up.getCollisionShape().isEmpty || !up2.getCollisionShape().isEmpty) {
+        if (isNotEnoughSpaceAboveBlock(pos, boundingBox, posCollisionShape)) {
             return false
+        }
+
+        player.vehicle?.let {
+            if (isNotEnoughSpaceAboveBlock(pos, player.boundingBox, posCollisionShape)) {
+                return false
+            }
         }
 
         // a simple case, we can stand on the position
@@ -153,16 +161,41 @@ object CommandVClip {
             return true
         }
 
-        // even tho canStandOn returns false the block might be stair we can stand on tho
-        val shape = posCollisionShape.offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
-
-        val playerBox = player.boundingBox
-        val dy = shape.getMin(Direction.Axis.Y) - playerBox.getMin(Direction.Axis.Y)
+        // even tho canStandOn returns false the block might not be full on the upper side, but we can stand on it tho
+        val dy = shape.getMin(Direction.Axis.Y) - boundingBox.getMin(Direction.Axis.Y)
         return VoxelShapes.matchesAnywhere(
             shape,
-            VoxelShapes.cuboid(playerBox.offset(0.0, dy, 0.0)),
+            VoxelShapes.cuboid(boundingBox.offset(0.0, dy, 0.0)),
             BooleanBiFunction.AND
         )
     }
+
+    private fun isNotEnoughSpaceAboveBlock(pos: BlockPos, boundingBox: Box, posCollisionShape: VoxelShape): Boolean {
+        val requiredHeight = boundingBox.maxY - boundingBox.minY - (1.0 - posCollisionShape.getMax(Direction.Axis.Y))
+        var accumulatedHeight = 0.0
+        var newPos = pos
+
+        while (accumulatedHeight < requiredHeight) {
+            newPos = newPos.up()
+            val collisionShape = newPos.getCollisionShape()
+
+            if (!collisionShape.isEmpty) {
+                val maxAvailableHeight = collisionShape.getMin(Direction.Axis.Y)
+                if (maxAvailableHeight < requiredHeight - accumulatedHeight) {
+                    return true
+                }
+            }
+
+            accumulatedHeight += 1.0
+        }
+
+        return false
+    }
+
+    private fun getX() = player.vehicle?.x ?: player.x
+
+    private fun getY() = player.vehicle?.y ?: player.y
+
+    private fun getZ() = player.vehicle?.z ?: player.z
 
 }
