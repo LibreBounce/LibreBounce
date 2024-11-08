@@ -58,7 +58,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
             "Simple", "AAC", "AACPush", "AACZero", "AACv4",
             "Reverse", "SmoothReverse", "Jump", "Glitch", "Legit",
             "GhostBlock", "Vulcan", "S32Packet", "MatrixReduce",
-            "IntaveReduce", "Delay", "GrimC03", "Hypixel", "HypixelAir"
+            "IntaveReduce", "Delay", "GrimC03", "Hypixel", "HypixelAir", "AAC5Vertical"
         ), "Simple"
     )
 
@@ -71,7 +71,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
 
     private val onLook by boolean("onLook", false) { mode in arrayOf("Reverse", "SmoothReverse") }
     private val range by float("Range", 3.0F, 1F..5.0F) {
-        onLook && mode in arrayOf("Reverse", "SmoothReverse")
+      (onLook && mode in arrayOf("Reverse", "SmoothReverse")) || mode == "AAC5Vertical"
     }
     private val maxAngleDifference by float("MaxAngleDifference", 45.0f, 5.0f..90f) {
         onLook && mode in arrayOf("Reverse", "SmoothReverse")
@@ -192,6 +192,22 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
             return
 
         when (mode.lowercase()) {
+             "aac5vertical" -> { //Code by Xebook1
+                if (mc.thePlayer.hurtTime == 9) {
+                    repeat(12) {
+                        mc.thePlayer.sendQueue.addToSendQueue(
+                            C02PacketUseEntity(
+                                getNearestEntityInRange(),
+                                C02PacketUseEntity.Action.ATTACK
+                            )
+                        )
+                        mc.thePlayer.sendQueue.addToSendQueue(C0APacketAnimation())
+                    }
+                    mc.thePlayer.motionX *= 0.077760000
+                    mc.thePlayer.motionZ *= 0.077760000
+                }
+            }
+             
             "glitch" -> {
                 thePlayer.noClip = hasReceivedVelocity
 
