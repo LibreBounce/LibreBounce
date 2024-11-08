@@ -189,12 +189,13 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             return original;
         }
 
-        Pair<Float, Float> pitch = ModuleRotations.INSTANCE.getRotationPitch();
         ModuleRotations rotations = ModuleRotations.INSTANCE;
+        final var pitch = rotations.getRotationPitch();
         Rotation rotation = rotations.displayRotations();
 
         // Update pitch here
-        rotations.setRotationPitch(new Pair<>(pitch.getRight(), rotation.getPitch()));
+        pitch.key(pitch.valueFloat());
+        pitch.value(rotation.getPitch());
 
         return rotations.shouldDisplayRotations() && rotations.getBodyParts().getHead() ? rotation.getYaw() : original;
     }

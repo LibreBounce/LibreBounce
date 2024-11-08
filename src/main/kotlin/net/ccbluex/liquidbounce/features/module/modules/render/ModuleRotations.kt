@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import it.unimi.dsi.fastutil.floats.FloatFloatMutablePair
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -30,7 +31,6 @@ import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.math.times
-import net.minecraft.util.Pair
 import net.minecraft.util.math.Box
 
 /**
@@ -70,7 +70,7 @@ object ModuleRotations : Module("Rotations", Category.RENDER) {
     private val vectorLine by color("VectorLine", Color4b.WHITE.alpha(0)) // alpha 0 means OFF
     private val vectorDot by color("VectorDot", Color4b(0x00, 0x80, 0xFF, 0x00))
 
-    var rotationPitch: Pair<Float, Float> = Pair(0f, 0f)
+    var rotationPitch = FloatFloatMutablePair(0f, 0f)
     private var lastRotation: Rotation? = null
 
     @Suppress("unused")
