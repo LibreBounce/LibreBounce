@@ -17,7 +17,6 @@ import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
-import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
 import net.ccbluex.liquidbounce.utils.extensions.minus
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -124,7 +123,7 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
     private fun drawTraces(entity: Entity, color: Color) {
         val player = mc.thePlayer ?: return
 
-        val (x, y, z) = player.interpolatedPosition(player.lastTickPos) - Vec3(
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - Vec3(
             mc.renderManager.renderPosX,
             mc.renderManager.renderPosY,
             mc.renderManager.renderPosZ
