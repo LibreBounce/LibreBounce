@@ -171,10 +171,10 @@ operator fun EntityPlayerSP.plusAssign(value: Float) {
     fixedSensitivityPitch += value
 }
 
-fun Entity.interpolatedPosition() = Vec3(
-    prevPosX + (posX - prevPosX) * mc.timer.renderPartialTicks,
-    prevPosY + (posY - prevPosY) * mc.timer.renderPartialTicks,
-    prevPosZ + (posZ - prevPosZ) * mc.timer.renderPartialTicks
+fun Entity.interpolatedPosition(prevPos: Vec3) = Vec3(
+    prevPos.xCoord + (posX - prevPos.xCoord) * mc.timer.renderPartialTicks,
+    prevPos.yCoord + (posY - prevPos.yCoord) * mc.timer.renderPartialTicks,
+    prevPos.zCoord + (posZ - prevPos.zCoord) * mc.timer.renderPartialTicks
 )
 
 fun EntityPlayerSP.stopY() {

@@ -14,7 +14,11 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
+import net.ccbluex.liquidbounce.utils.extensions.minus
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
@@ -63,6 +67,12 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
     fun onRender3D(event: Render3DEvent) {
         val thePlayer = mc.thePlayer ?: return
 
+        val originalViewBobbing = mc.gameSettings.viewBobbing
+
+        // Temporarily disable view bobbing and re-apply camera transformation
+        mc.gameSettings.viewBobbing = false
+        mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 0)
+
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glEnable(GL_LINE_SMOOTH)
@@ -101,6 +111,8 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
         glEnd()
 
+        mc.gameSettings.viewBobbing = originalViewBobbing
+
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)
         glEnable(GL_DEPTH_TEST)
@@ -110,25 +122,22 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
     }
 
     private fun drawTraces(entity: Entity, color: Color) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
-        val x = (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.timer.renderPartialTicks
-                - mc.renderManager.renderPosX)
-        val y = (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.timer.renderPartialTicks
-                - mc.renderManager.renderPosY)
-        val z = (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.timer.renderPartialTicks
-                - mc.renderManager.renderPosZ)
+        val (x, y, z) = player.interpolatedPosition(player.lastTickPos) - Vec3(
+            mc.renderManager.renderPosX,
+            mc.renderManager.renderPosY,
+            mc.renderManager.renderPosZ
+        )
 
-        val yaw =
-            thePlayer.prevRotationYaw + (thePlayer.rotationYaw - thePlayer.prevRotationYaw) * mc.timer.renderPartialTicks
-        val pitch =
-            thePlayer.prevRotationPitch + (thePlayer.rotationPitch - thePlayer.prevRotationPitch) * mc.timer.renderPartialTicks
+        val yaw = (player.prevRotationYaw..player.rotationYaw).lerpWith(mc.timer.renderPartialTicks)
+        val pitch = (player.prevRotationPitch..player.rotationPitch).lerpWith(mc.timer.renderPartialTicks)
 
         val eyeVector = Vec3(0.0, 0.0, 1.0).rotatePitch(-pitch.toRadians()).rotateYaw(-yaw.toRadians())
 
         glColor(color)
 
-        glVertex3d(eyeVector.xCoord, thePlayer.getEyeHeight() + eyeVector.yCoord, eyeVector.zCoord)
+        glVertex3d(eyeVector.xCoord, player.getEyeHeight() + eyeVector.yCoord, eyeVector.zCoord)
         glVertex3d(x, y, z)
         glVertex3d(x, y, z)
         glVertex3d(x, y + entity.height, z)
