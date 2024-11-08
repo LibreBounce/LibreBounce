@@ -602,5 +602,7 @@
   "liquidbounce.module.vehicleControl.messages.vehicleTooFar": "Das Fahrzeug ist zu weit entfernt, um erreicht zu werden.",
   "liquidbounce.module.vehicleControl.messages.vehicleGone": "Das Fahrzeug ist verschwunden.",
   "liquidbounce.module.dupe.description": "Versucht, automatisch Items aus deinem Inventar mithilfe von Exploits zu duplizieren.",
-  "liquidbounce.module.surround.description": "Baut Löcher, die dich vor Explosionsschaden schützen."
+  "liquidbounce.module.surround.description": "Baut Löcher, die dich vor Explosionsschaden schützen.",
+  "liquidbounce.command.coordinates.description": "Zeigt deine Koordinaten an, kopiert sie in die Zwischenablage oder sendet sie an andere Spieler über /msg.",
+  "liquidbounce.command.coordinates.subcommand.copy.result.success": "Erfolgreich deine Koordinaten in die Zwischenablage kopiert."
 }
