@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.validation.HashValidator
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
-import kotlin.concurrent.thread
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 
 /**
  * Uses a modified fork of the JCEF library browser backend made for Minecraft.
@@ -63,7 +63,7 @@ class JcefBrowser : IBrowser, Listenable {
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
-                thread(name = "mcef-downloader") {
+                virtualThread(name = "mcef-downloader") {
                     runCatching {
                         resourceManager.downloadJcef()
                         RenderSystem.recordRenderCall(whenAvailable)

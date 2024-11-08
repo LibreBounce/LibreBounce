@@ -19,6 +19,8 @@
  */
 package net.ccbluex.liquidbounce
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
@@ -60,6 +62,8 @@ import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.kotlin.Render
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.resource.ReloadableResourceManagerImpl
@@ -115,86 +119,88 @@ object LiquidBounce : Listenable {
      */
     @Suppress("unused")
     val startHandler = handler<ClientStartEvent> {
-        runCatching {
-            logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
-            logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
+        virtualThread(name = "Client Initializer") {
+            runCatching {
+                logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
+                logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
+                // Load mappings
+                EnvironmentRemapper
 
-            // Load mappings
-            EnvironmentRemapper
+                // Load translations
+                LanguageManager.loadDefault()
 
-            // Load translations
-            LanguageManager.loadDefault()
+                // Initialize client features
+                EventManager
 
-            // Initialize client features
-            EventManager
+                // Config
+                ConfigSystem
+                combatTargetsConfigurable
 
-            // Config
-            ConfigSystem
-            combatTargetsConfigurable
+                ChunkScanner
+                InputTracker
 
-            ChunkScanner
-            InputTracker
+                // Features
+                ModuleManager
+                CommandManager
+                ScriptManager
+                RotationManager
+                InteractionTracker
+                CombatManager
+                FriendManager
+                ProxyManager
+                AccountManager
+                InventoryManager
+                WorldToScreen
+                Reconnect
+                ActiveServerList
+                ConfigSystem.root(ClientItemGroups)
+                ConfigSystem.root(LanguageManager)
+                ConfigSystem.root(ClientAccountManager)
+                BrowserManager
+                Fonts
+                PostRotationExecutor
 
-            // Features
-            ModuleManager
-            CommandManager
-            ScriptManager
-            RotationManager
-            InteractionTracker
-            CombatManager
-            FriendManager
-            ProxyManager
-            AccountManager
-            InventoryManager
-            WorldToScreen
-            Reconnect
-            ActiveServerList
-            ConfigSystem.root(ClientItemGroups)
-            ConfigSystem.root(LanguageManager)
-            ConfigSystem.root(ClientAccountManager)
-            BrowserManager
-            Fonts
-            PostRotationExecutor
+                // Register commands and modules
+                CommandManager.registerInbuilt()
+                ModuleManager.registerInbuilt()
 
-            // Register commands and modules
-            CommandManager.registerInbuilt()
-            ModuleManager.registerInbuilt()
+                // Load user scripts
+                ScriptManager.loadAll()
 
-            // Load user scripts
-            ScriptManager.loadAll()
+                // Load theme and component overlay
+                ThemeManager
+                mc.renderTaskQueue.add(ComponentOverlay::insertComponents)
 
-            // Load theme and component overlay
-            ThemeManager
-            ComponentOverlay.insertComponents()
+                // Load config system from disk
+                ConfigSystem.loadAll()
 
-            // Load config system from disk
-            ConfigSystem.loadAll()
+                // Netty WebSocket
+                ClientInteropServer.start()
 
-            // Netty WebSocket
-            ClientInteropServer.start()
+                // Initialize browser
+                mc.renderTaskQueue.add {
+                    logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
+                    IntegrationHandler
+                    BrowserManager.initBrowser()
+                }
 
-            // Initialize browser
-            logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
+                // Register resource reloader
+                val resourceManager = mc.resourceManager
+                val clientResourceReloader = ClientResourceReloader()
+                if (resourceManager is ReloadableResourceManagerImpl) {
+                    resourceManager.registerReloader(clientResourceReloader)
+                } else {
+                    logger.warn("Failed to register resource reloader!")
 
-            IntegrationHandler
-            BrowserManager.initBrowser()
+                    // Run resource reloader directly as fallback
+                    clientResourceReloader.reload(resourceManager)
+                }
 
-            // Register resource reloader
-            val resourceManager = mc.resourceManager
-            val clientResourceReloader = ClientResourceReloader()
-            if (resourceManager is ReloadableResourceManagerImpl) {
-                resourceManager.registerReloader(clientResourceReloader)
-            } else {
-                logger.warn("Failed to register resource reloader!")
-
-                // Run resource reloader directly as fallback
-                clientResourceReloader.reload(resourceManager)
-            }
-
-            ItemImageAtlas
-        }.onSuccess {
-            logger.info("Successfully loaded client!")
-        }.onFailure(ErrorHandler::fatal)
+                ItemImageAtlas
+            }.onSuccess {
+                logger.info("Successfully loaded client!")
+            }.onFailure(ErrorHandler::fatal)
+        }
     }
 
     /**
