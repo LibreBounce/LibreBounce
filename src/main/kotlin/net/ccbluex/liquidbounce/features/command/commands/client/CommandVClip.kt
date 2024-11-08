@@ -144,7 +144,6 @@ object CommandVClip {
     private fun canTpOn(pos: BlockPos, posCollisionShape: VoxelShape): Boolean {
         // check if there is enough space at the new position
         val boundingBox = player.vehicle?.boundingBox ?: player.boundingBox
-        val shape = posCollisionShape.offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
 
         if (isNotEnoughSpaceAboveBlock(pos, boundingBox, posCollisionShape)) {
             return false
@@ -162,6 +161,7 @@ object CommandVClip {
         }
 
         // even tho canStandOn returns false the block might not be full on the upper side, but we can stand on it tho
+        val shape = posCollisionShape.offset(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
         val dy = shape.getMin(Direction.Axis.Y) - boundingBox.getMin(Direction.Axis.Y)
         return VoxelShapes.matchesAnywhere(
             shape,
