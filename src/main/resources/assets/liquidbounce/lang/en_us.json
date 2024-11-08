@@ -64,7 +64,7 @@
   "liquidbounce.command.enchant.result.enchantedItem": "Item has been enchanted with %s enchantment on the %s level.",
   "liquidbounce.command.enchant.result.enchantmentNotExists": "Enchantment \"%s\" do not exists.",
   "liquidbounce.command.enchant.result.mustBeCreative": "Creative mode required!",
-  "liquidbounce.command.coordinates.description": "Shows your coordinates, copies them to your clipboard or sends them to ther players using /msg.",
+  "liquidbounce.command.coordinates.description": "Shows your coordinates, copies them to your clipboard or sends them to other players using /msg.",
   "liquidbounce.command.coordinates.subcommand.copy.result.success": "Successfully copied your coordinates to your clipboard.",
   "liquidbounce.command.targets.description": "Allows you to manage which entities are considered to be your target.",
   "liquidbounce.command.targets.subcommand.combat.subcommand.players.description": "Allows you to toggle if players are considered to be your enemy",
