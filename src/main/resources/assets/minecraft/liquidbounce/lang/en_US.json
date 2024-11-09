@@ -58,7 +58,7 @@
 
         "module.noFriends.description": "Allows you to attack friends.",
 
-        "module.noachievement.description": "No Achievement.",
+        "module.noAchievement.description": "No Achievement.",
 
         "module.superKnockback.description": "Increases knockback dealt to other entities.",
 

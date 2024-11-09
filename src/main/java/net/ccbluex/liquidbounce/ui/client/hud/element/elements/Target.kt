@@ -105,16 +105,10 @@ class Target : Element() {
             delayCounter++
         }
 
-        if (smoothMode) {
-            if (!shouldRender && delayCounter >= vanishDelay) {
-                width -= (animationSpeed / (debugFPS / 60)).coerceAtLeast(0F)
-                height -= (animationSpeed / (debugFPS / 60)).coerceAtLeast(0F)
-            }
-
-            if (!shouldRender && (width < 0f || height < 0f)) {
-                width = 0f
-                height = 0f
-            }
+        if (smoothMode && !shouldRender && delayCounter >= vanishDelay) {
+            val decrement = (animationSpeed / (debugFPS / 60)).coerceAtLeast(0f)
+            width -= decrement
+            height -= decrement
         }
 
         if (shouldRender || isRendered || isAlpha) {
@@ -141,10 +135,12 @@ class Target : Element() {
                     ?: 0)).coerceAtLeast(118F) else if (delayCounter >= vanishDelay) 0f else width
                 width =
                     AnimationUtil.base(width.toDouble(), targetWidth.toDouble(), animationSpeed.toDouble()).toFloat()
+                        .coerceAtLeast(0f)
 
                 val targetHeight = if (shouldRender) 40f else if (delayCounter >= vanishDelay) 0f else height
                 height =
                     AnimationUtil.base(height.toDouble(), targetHeight.toDouble(), animationSpeed.toDouble()).toFloat()
+                        .coerceAtLeast(0f)
             } else {
                 width = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
                 height = 40f
