@@ -119,7 +119,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
             return@handler
         }
 
-        placer.slotFinder() ?: return@handler
+        placer.slotFinder(null) ?: return@handler
 
         val eyesPos = player.eyes
         val rangeSq = placer.range * placer.range
