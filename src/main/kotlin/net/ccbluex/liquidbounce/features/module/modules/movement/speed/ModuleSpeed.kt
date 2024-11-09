@@ -81,7 +81,8 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
 
         SpeedNCP(configurable),
 
-        SpeedIntave14(configurable)
+        SpeedIntave14(configurable),
+        SpeedGrimLowHop(configurable)
     )
 
     val modes = choices<Choice>("Mode", { it.choices[0] }, this::initializeSpeeds).apply { tagBy(this) }
