@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.DelayData
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoShoot.targetTracker
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -55,6 +56,8 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private val delay by intRange("Delay", 100..150, 0..1000, "ms")
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
+    private val smart by boolean("Smart", true)
+    private val pauseOnHit by boolean("PauseOnHit", false)
     val renderMode = choices("RenderMode", Box, arrayOf(Box, Model, Wireframe, None))
 
     private val packetQueue = LinkedHashSet<DelayData>()
@@ -70,6 +73,15 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
         synchronized(packetQueue) {
             if (it.origin != TransferOrigin.RECEIVE || it.isCancelled) {
+                return@handler
+            }
+
+            val targetHurtTime = targetTracker.lockedOnTarget?.hurtTime ?: return@handler
+            if (pauseOnHit && targetHurtTime >= 1) {
+                return@handler
+            }
+
+            if (smart && !isCloserToTargetThanLastPosition()) {
                 return@handler
             }
 
@@ -236,6 +248,8 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         } else {
             clear()
         }
+
+        updatePlayerPosition()
     }
 
     @Suppress("unused")
@@ -299,6 +313,29 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     fun isLagging() =
         enabled && packetQueue.isNotEmpty()
+
+    private var lastPos: Vec3d? = null
+    private var currentPos: Vec3d? = null
+
+    private fun updatePlayerPosition() {
+        val player = MinecraftClient.getInstance().player ?: return
+
+        lastPos = currentPos
+        currentPos = Vec3d(player.pos.x, player.pos.y, player.pos.z)
+    }
+
+    private fun isCloserToTargetThanLastPosition(): Boolean {
+        val player = MinecraftClient.getInstance().player ?: return false
+        val targetPos = target?.trackedPosition?.pos ?: return false
+
+        val lastPosLocal = lastPos ?: return false
+        val currentPosLocal = currentPos ?: return false
+
+        val currentDistance = player.squaredDistanceTo(currentPosLocal.x, currentPosLocal.y, currentPosLocal.z)
+        val lastDistance = player.squaredDistanceTo(lastPosLocal.x, lastPosLocal.y, lastPosLocal.z)
+
+        return player.squaredDistanceTo(targetPos.x, targetPos.y, targetPos.z) >= currentDistance || currentDistance < lastDistance
+    }
 
     private fun shouldBacktrack(target: Entity) =
         target.shouldBeAttacked() &&
