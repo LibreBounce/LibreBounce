@@ -44,6 +44,8 @@
 
         "module.bedPlates.description": "Allows you to see blocks around beds.",
 
+        "module.pointerESP.description": "Allows you to see pointed entity positions.",
+
         "module.projectileAimbot.description": "Automatically aims at players when using a projectile.",
 
         "module.criticals.description": "Automatically deals critical hits.",

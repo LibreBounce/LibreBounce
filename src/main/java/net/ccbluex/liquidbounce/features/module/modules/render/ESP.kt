@@ -245,7 +245,7 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
         return mc.theWorld.loadedEntityList.asSequence()
             .filterIsInstance<EntityLivingBase>()
-            .filterNot { isBot(it) && bot }
+            .filterNot { isBot(it) && !bot }
             .filter { isSelected(it, false) }
             .filter { player.getDistanceSqToEntity(it) <= maxDistanceSquared }
             .filter { thruBlocks || RotationUtils.isVisible(Vec3(it.posX, it.posY, it.posZ)) }

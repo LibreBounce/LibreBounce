@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
@@ -119,10 +120,13 @@ class Target : Element() {
             val healthColor = when {
                 targetHealth <= 0 -> Color(255, 0, 0, if (fadeMode) alphaText else textAlpha)
                 else -> {
-                    val healthRatio = (targetHealth / maxHealth).coerceIn(0F, 1F)
-                    val red = (255 * (1 - healthRatio)).toInt()
-                    val green = (255 * healthRatio).toInt()
-                    Color(red, green, 0, if (fadeMode) alphaText else textAlpha)
+                    ColorUtils.interpolateHealthColor(
+                        target,
+                        255, 255, 0,
+                        if (fadeMode) alphaText else textAlpha,
+                        healthFromScoreboard,
+                        absorption
+                    )
                 }
             }
 
