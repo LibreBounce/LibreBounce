@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.item.isNothing
@@ -64,6 +65,7 @@ import kotlin.math.sqrt
  */
 object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
+    private val range by floatRange("Range", 3.0f..6f, 1f..500f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
     private val gravityType by enumChoice("GravityType", GravityType.AUTO)
 
@@ -152,6 +154,10 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
         // Cannot happen but we want to smart-cast
         @Suppress("USELESS_IS_CHECK")
         if (target !is LivingEntity) {
+            return@repeatable
+        }
+
+        if (target.boxedDistanceTo(player) !in range) {
             return@repeatable
         }
 
