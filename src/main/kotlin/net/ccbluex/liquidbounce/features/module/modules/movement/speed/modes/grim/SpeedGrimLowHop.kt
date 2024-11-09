@@ -31,7 +31,7 @@ class SpeedGrimLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBas
     @Suppress("unused")
     private val jumpHandler = handler<PlayerJumpEvent> { event ->
         if (lowHop) {
-            event.motion = 0.42f - 99E-5f
+            event.motion = 0.4101f
         }
     }
 }
