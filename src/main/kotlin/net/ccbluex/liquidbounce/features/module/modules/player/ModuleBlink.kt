@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
-import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import java.util.*
 
 /**

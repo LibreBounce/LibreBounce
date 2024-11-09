@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.c
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -31,7 +32,7 @@ import net.minecraft.util.math.Direction
  */
 
 internal class NoSlowConsumeIntave14(override val parent: ChoiceConfigurable<*>) : Choice("Intave14") {
-    private val release by boolean("Release", true)
+    private val mode by enumChoice("Mode", Mode.RELEASE)
 
     private fun releasePacket() {
         network.sendPacket(
@@ -46,19 +47,28 @@ internal class NoSlowConsumeIntave14(override val parent: ChoiceConfigurable<*>)
     @Suppress("unused")
     private val onNetworkTick = handler<PlayerNetworkMovementTickEvent> { event ->
         if (event.state == EventState.PRE) {
-            if (release) {
-                if (player.isUsingItem) {
-                    releasePacket()
+            when (mode) {
+                Mode.RELEASE -> {
+                    if (player.isUsingItem) {
+                        releasePacket()
+                    }
+
+                    if (player.itemUseTime == 5) {
+                        player.stopUsingItem()
+                    }
                 }
 
-                if (player.itemUseTime == 5) {
-                    player.stopUsingItem()
-                }
-            } else {
-                if (player.itemUseTime <= 2 || player.itemUseTimeLeft == 0) {
-                    releasePacket()
+                Mode.NEW -> {
+                    if (player.itemUseTime <= 2 || player.itemUseTimeLeft == 0) {
+                        releasePacket()
+                    }
                 }
             }
         }
+    }
+
+    private enum class Mode(override val choiceName: String) : NamedChoice {
+        RELEASE("Release"),
+        NEW("New")
     }
 }

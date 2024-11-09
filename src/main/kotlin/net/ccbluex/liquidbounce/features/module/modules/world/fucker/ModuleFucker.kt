@@ -41,7 +41,6 @@ import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.block.BedBlock
-import net.minecraft.block.BlockState
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
