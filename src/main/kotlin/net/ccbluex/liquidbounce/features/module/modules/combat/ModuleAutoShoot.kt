@@ -101,6 +101,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
     private val selectSlotAutomatically by boolean("SelectSlotAutomatically", true)
+    private val tickUntilSlotReset by int("TicksUntillSlotReset", 1, 0..20)
     private val considerInventory by boolean("ConsiderInventory", true)
 
     private val requiresKillAura by boolean("RequiresKillAura", false)
@@ -141,7 +142,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             if (!selectSlotAutomatically) {
                 return@handler
             }
-            SilentHotbar.selectSlotSilently(this, slot, 1)
+            SilentHotbar.selectSlotSilently(this, slot, tickUntilSlotReset)
         }
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
@@ -180,7 +181,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
-            SilentHotbar.selectSlotSilently(this, slot, 1)
+            SilentHotbar.selectSlotSilently(this, slot, tickUntilSlotReset)
 
             // If we are not holding the throwable, we can't shoot.
             if (SilentHotbar.serversideSlot != slot) {
@@ -190,7 +191,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
-            SilentHotbar.selectSlotSilently(this, slot, 1)
+            SilentHotbar.selectSlotSilently(this, slot, tickUntilSlotReset)
         }
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
