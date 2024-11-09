@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
@@ -65,7 +66,7 @@ import kotlin.math.sqrt
  */
 object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
-    private val range by floatRange("Range", 3.0f..6f, 1f..500f)
+    private val range by floatRange("Range", 3.0f..6f, 1f..50f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
     private val gravityType by enumChoice("GravityType", GravityType.AUTO)
 
@@ -102,6 +103,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
     private val selectSlotAutomatically by boolean("SelectSlotAutomatically", true)
     private val considerInventory by boolean("ConsiderInventory", true)
 
+    private val requiresKillAura by boolean("RequiresKillAura", false)
     private val notDuringCombat by boolean("NotDuringCombat", false)
     val constantLag by boolean("ConstantLag", false)
 
@@ -117,6 +119,10 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             return@handler
         }
 
+        if (requiresKillAura && !ModuleKillAura.enabled) {
+            return@handler
+        }
+
         // Check if we have a throwable, if not we can't shoot.
         val (hand, slot) = getThrowable() ?: return@handler
 
@@ -125,6 +131,10 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             // Check if we can see the enemy
             player.canSee(it)
         } ?: return@handler
+
+        if (target.boxedDistanceTo(player) !in range) {
+            return@handler
+        }
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
