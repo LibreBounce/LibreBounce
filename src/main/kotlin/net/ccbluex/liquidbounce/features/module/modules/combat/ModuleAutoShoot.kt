@@ -68,7 +68,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
     private val range by floatRange("Range", 3.0f..6f, 1f..50f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
-    private val gravityType by enumChoice("GravityType", GravityType.AUTO)
+    private val gravityType by enumChoice("GravityType", GravityType.AUTO).apply { tagBy(this) }
 
     private val clickScheduler = tree(ClickScheduler(this, showCooldown = false))
 
