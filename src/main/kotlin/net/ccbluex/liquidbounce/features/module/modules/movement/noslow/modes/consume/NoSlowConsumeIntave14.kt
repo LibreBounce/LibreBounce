@@ -23,7 +23,6 @@ import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.util.math.Direction
 
@@ -32,18 +31,33 @@ import net.minecraft.util.math.Direction
  */
 
 internal class NoSlowConsumeIntave14(override val parent: ChoiceConfigurable<*>) : Choice("Intave14") {
+    private val release by boolean("Release", true)
+
+    private fun releasePacket() {
+        network.sendPacket(
+            PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.RELEASE_USE_ITEM,
+                player.blockPos,
+                Direction.UP
+            )
+        )
+    }
 
     @Suppress("unused")
     private val onNetworkTick = handler<PlayerNetworkMovementTickEvent> { event ->
         if (event.state == EventState.PRE) {
-            if (player.moving && player.itemUseTime <= 2 || player.itemUseTimeLeft == 0) {
-                network.sendPacket(
-                    PlayerActionC2SPacket(
-                        PlayerActionC2SPacket.Action.RELEASE_USE_ITEM,
-                        player.blockPos,
-                        Direction.UP
-                    )
-                )
+            if (release) {
+                if (player.isUsingItem) {
+                    releasePacket()
+                }
+
+                if (player.itemUseTime == 5) {
+                    player.stopUsingItem()
+                }
+            } else {
+                if (player.itemUseTime <= 2 || player.itemUseTimeLeft == 0) {
+                    releasePacket()
+                }
             }
         }
     }

@@ -115,6 +115,12 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
     val simulatedTickHandler = handler<SimulatedTickEvent> {
         targetTracker.cleanup()
 
+        // Find the recommended target
+        val target = targetTracker.enemies().firstOrNull {
+            // Check if we can see the enemy
+            player.canSee(it)
+        } ?: return@handler
+
         if (notDuringCombat && CombatManager.isInCombat) {
             return@handler
         }
@@ -123,18 +129,12 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             return@handler
         }
 
-        // Check if we have a throwable, if not we can't shoot.
-        val (hand, slot) = getThrowable() ?: return@handler
-
-        // Find the recommended target
-        val target = targetTracker.enemies().firstOrNull {
-            // Check if we can see the enemy
-            player.canSee(it)
-        } ?: return@handler
-
         if (target.boxedDistanceTo(player) !in range) {
             return@handler
         }
+
+        // Check if we have a throwable, if not we can't shoot.
+        val (hand, slot) = getThrowable() ?: return@handler
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
@@ -190,7 +190,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
-            SilentHotbar.selectSlotSilently(this, slot)
+            SilentHotbar.selectSlotSilently(this, slot, 1)
         }
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
