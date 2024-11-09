@@ -53,7 +53,7 @@ internal class NoSlowConsumeIntave14(override val parent: ChoiceConfigurable<*>)
                         releasePacket()
                     }
 
-                    if (player.itemUseTime == 5) {
+                    if (player.itemUseTime == 3) {
                         player.stopUsingItem()
                     }
                 }
