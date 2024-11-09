@@ -37,7 +37,6 @@ import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -187,17 +186,9 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private fun getBedPlates(headState: BlockState, head: BlockPos): BedState {
         val bedDirection = headState.get(BedBlock.FACING)
 
-        val (left, right) = if (bedDirection.axis == Direction.Axis.X) {
-            arrayOf(Direction.SOUTH, Direction.NORTH)
-        } else {
-            arrayOf(Direction.WEST, Direction.EAST)
-        }
-
-        val opposite = bedDirection.opposite
         val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers, ::Object2IntOpenHashMap)
 
-        (head.searchLayer(maxLayers, bedDirection, Direction.UP, left, right) +
-            head.offset(opposite).searchLayer(maxLayers, opposite, Direction.UP, left, right))
+        head.searchBedLayer(headState, maxLayers)
             .mapNotNull { (layer, pos) ->
                 val state = pos.getState()
 
@@ -212,8 +203,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                 } else {
                     null
                 }
-            }
-            .forEach { (layer, block) ->
+            }.forEach { (layer, block) ->
                 // Count blocks
                 val map = layers[layer - 1]
                 if (map.containsKey(block)) {
@@ -226,9 +216,9 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         return BedState(
             headState.block,
             Vec3d(
-                head.x + (opposite.offsetX * 0.5) + 0.5,
+                head.x - (bedDirection.offsetX * 0.5) + 0.5,
                 head.y + 1.0,
-                head.z + (opposite.offsetZ * 0.5) + 0.5,
+                head.z - (bedDirection.offsetZ * 0.5) + 0.5,
             ),
             sortedSetOf<SurroundingBlock>().apply {
                 // flat map

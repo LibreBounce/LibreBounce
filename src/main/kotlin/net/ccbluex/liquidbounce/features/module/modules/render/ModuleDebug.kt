@@ -277,7 +277,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         color
     )
 
-    class DebugCollection(val geometry: List<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
+    class DebugCollection(val geometry: Collection<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
         override fun render(env: WorldRenderEnvironment) {
             this.geometry.forEach { it.render(env) }
         }

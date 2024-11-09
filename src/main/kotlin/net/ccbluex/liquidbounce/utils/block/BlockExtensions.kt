@@ -161,6 +161,28 @@ fun BlockPos.searchBlocksInCuboid(radius: Int): Region {
 }
 
 /**
+ * Scan blocks outwards from a bed
+ */
+fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectPair<BlockPos>> {
+    check(state.block in BED_BLOCKS) { "This function is only available for Beds" }
+
+    val bedDirection = state.get(BedBlock.FACING)
+
+    var left = Direction.WEST
+    var right = Direction.EAST
+
+    if (bedDirection.axis == Direction.Axis.X) {
+        left = Direction.SOUTH
+        right = Direction.NORTH
+    }
+
+    val opposite = bedDirection.opposite
+
+    return searchLayer(layers, bedDirection, Direction.UP, left, right) +
+        offset(opposite).searchLayer(layers, opposite, Direction.UP, left, right)
+}
+
+/**
  * Scan blocks outwards from center along given [directions], up to [layers]
  */
 @Suppress("detekt:CognitiveComplexMethod")
