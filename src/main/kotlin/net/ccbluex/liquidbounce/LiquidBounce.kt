@@ -19,8 +19,6 @@
  */
 package net.ccbluex.liquidbounce
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
@@ -31,6 +29,7 @@ import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -67,8 +66,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.resource.ReloadableResourceManagerImpl
-import net.minecraft.resource.ResourceManager
-import net.minecraft.resource.ResourceReloader
 import net.minecraft.resource.SynchronousResourceReloader
 import org.apache.logging.log4j.LogManager
 
@@ -115,83 +112,100 @@ object LiquidBounce : Listenable {
     val updateAvailable by lazy { hasUpdate() }
 
     /**
+     * Client Initializer Thread
+     */
+    private val initializerThread: Thread = virtualThread(
+        name = "Client Initializer",
+        start = false
+    ) {
+        logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
+        logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
+
+        // Load mappings
+        EnvironmentRemapper
+
+        // Load translations
+        LanguageManager.loadDefault()
+
+        // Initialize client features
+        EventManager
+
+        // Config
+        ConfigSystem
+        combatTargetsConfigurable
+
+        // Client Resources
+        ClientResourceReloader
+
+        ChunkScanner
+        InputTracker
+
+        // Features
+        ModuleManager
+        CommandManager
+        ScriptManager
+        RotationManager
+        InteractionTracker
+        CombatManager
+        FriendManager
+        ProxyManager
+        AccountManager
+        InventoryManager
+        WorldToScreen
+        Reconnect
+        ActiveServerList
+        ConfigSystem.root(ClientItemGroups)
+        ConfigSystem.root(LanguageManager)
+        ConfigSystem.root(ClientAccountManager)
+        BrowserManager
+        Fonts
+        PostRotationExecutor
+
+        // Load theme and component overlay
+        ThemeManager
+        mc.renderTaskQueue.add(ComponentOverlay::insertComponents)
+
+        // Netty WebSocket
+        ClientInteropServer.start()
+
+        // Initialize browser
+        mc.renderTaskQueue.add {
+            logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
+            IntegrationHandler
+            BrowserManager.initBrowser()
+        }
+
+        ItemImageAtlas
+
+        // Register commands and modules
+        CommandManager.registerInbuilt()
+        ModuleManager.registerInbuilt()
+
+        // Load user scripts
+        ScriptManager.loadAll()
+
+        // Load config system from disk
+        ConfigSystem.loadAll()
+
+        logger.info("Successfully loaded client!")
+    }.apply {
+        setUncaughtExceptionHandler { _, e -> ErrorHandler.fatal(e) }
+    }
+
+    /**
      * Should be executed to start the client.
      */
     @Suppress("unused")
     val startHandler = handler<ClientStartEvent> {
-        virtualThread(name = "Client Initializer") {
-            logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
-            logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
+        initializerThread.start()
+    }
 
-            // Load mappings
-            EnvironmentRemapper
-
-            // Load translations
-            LanguageManager.loadDefault()
-
-            // Initialize client features
-            EventManager
-
-            // Config
-            ConfigSystem
-            combatTargetsConfigurable
-
-            // Client Resources
-            ClientResourceReloader
-
-            ChunkScanner
-            InputTracker
-
-            // Features
-            ModuleManager
-            CommandManager
-            ScriptManager
-            RotationManager
-            InteractionTracker
-            CombatManager
-            FriendManager
-            ProxyManager
-            AccountManager
-            InventoryManager
-            WorldToScreen
-            Reconnect
-            ActiveServerList
-            ConfigSystem.root(ClientItemGroups)
-            ConfigSystem.root(LanguageManager)
-            ConfigSystem.root(ClientAccountManager)
-            BrowserManager
-            Fonts
-            PostRotationExecutor
-
-            // Register commands and modules
-            CommandManager.registerInbuilt()
-            ModuleManager.registerInbuilt()
-
-            // Load user scripts
-            ScriptManager.loadAll()
-
-            // Load theme and component overlay
-            ThemeManager
-
-            mc.renderTaskQueue.add(ComponentOverlay::insertComponents)
-
-            // Load config system from disk
-            ConfigSystem.loadAll()
-
-            // Netty WebSocket
-            ClientInteropServer.start()
-
-            // Initialize browser
-            mc.renderTaskQueue.add {
-                logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
-                IntegrationHandler
-                BrowserManager.initBrowser()
-            }
-
-            ItemImageAtlas
-
-            logger.info("Successfully loaded client!")
-        }.setUncaughtExceptionHandler { _, e -> ErrorHandler.fatal(e) }
+    /**
+     * Wait for initialization
+     */
+    @Suppress("unused")
+    val browserReadyHandler = handler<BrowserReadyEvent> {
+        initializerThread.join()
     }
 
     /**
