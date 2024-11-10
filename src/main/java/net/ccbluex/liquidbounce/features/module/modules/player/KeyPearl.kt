@@ -9,7 +9,8 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.value.boolean
@@ -17,7 +18,6 @@ import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.text
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
@@ -50,28 +50,33 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
         }
 
         // don't wait before and after throwing if the player is already holding an ender pearl
-        if (!delayedSlotSwitch || mc.thePlayer.inventory.currentItem == pearlInHotbar - 36) {
-            sendPackets(
-                C09PacketHeldItemChange(pearlInHotbar - 36),
-                C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem),
-                C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem)
+        if (!delayedSlotSwitch || SilentHotbar.currentSlot == pearlInHotbar) {
+            SilentHotbar.selectSlotSilently(this,
+                pearlInHotbar,
+                immediate = true,
+                render = false,
+                resetManually = true
             )
+            sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+            SilentHotbar.resetSlot(this)
             return
         }
 
-        sendPackets(
-            C09PacketHeldItemChange(pearlInHotbar - 36),
-            C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem)
+        SilentHotbar.selectSlotSilently(this,
+            pearlInHotbar,
+            immediate = true,
+            render = false,
+            resetManually = true
         )
+        sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
         hasThrown = true
     }
 
     @EventTarget
     fun onTick(event: GameTickEvent) {
         if (hasThrown) {
-            sendPackets(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+            SilentHotbar.resetSlot(this)
             hasThrown = false
-
         }
 
         if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
