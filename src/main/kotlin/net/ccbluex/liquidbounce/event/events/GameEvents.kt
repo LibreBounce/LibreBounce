@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
+import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 
 @Nameable("gameTick")
@@ -108,3 +109,9 @@ class DisconnectEvent : Event()
 @Nameable("overlayMessage")
 @WebSocketEvent
 class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event()
+
+class LoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event() {
+    fun addLore(text: String?) {
+        lore.add(Text.of(text))
+    }
+}

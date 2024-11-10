@@ -204,6 +204,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAntiBot,
             ModuleBetterChat,
             ModuleFriendClicker,
+            ModuleInventoryTracker,
             ModuleNameProtect,
             ModuleNotifier,
             ModuleSpammer,
