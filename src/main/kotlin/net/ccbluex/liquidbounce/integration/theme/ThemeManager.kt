@@ -179,7 +179,7 @@ class Theme(val name: String) {
             error("Theme $name does not contain a metadata file")
         }
 
-        decode<ThemeMetadata>(metadataFile.readText())
+        decode<ThemeMetadata>(metadataFile.inputStream())
     }
 
     val exists: Boolean

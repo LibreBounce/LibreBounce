@@ -22,6 +22,7 @@ import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.InputStream
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD)
@@ -35,4 +36,11 @@ class ExcludeStrategy : ExclusionStrategy {
 /**
  * Decode JSON content
  */
-inline fun <reified T> decode(stringJson: String): T = Gson().fromJson(stringJson, object : TypeToken<T>() {}.type)
+inline fun <reified T> decode(stringJson: String): T =
+    Gson().fromJson(stringJson, object : TypeToken<T>() {}.type)
+
+/**
+ * Decode JSON content from an Input Stream
+ */
+inline fun <reified T> decode(inputStream: InputStream): T =
+    Gson().fromJson(inputStream.reader(), object : TypeToken<T>() {}.type)

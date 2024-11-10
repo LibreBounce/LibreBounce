@@ -54,7 +54,7 @@ object LanguageManager : Configurable("lang") {
         } else {
             runCatching {
                 val languageFile = javaClass.getResourceAsStream("/assets/liquidbounce/lang/$language.json")
-                val translations = decode<HashMap<String, String>>(languageFile!!.reader().readText())
+                val translations = decode<HashMap<String, String>>(languageFile!!)
 
                 ClientLanguage(translations).also {
                     languageMap[language] = it

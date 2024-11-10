@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.utils.validation
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.config.util.decode
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import org.apache.commons.codec.digest.DigestUtils
@@ -34,15 +35,10 @@ object HashValidator {
     }
 
     private fun validateHashFile(hashFile: File) {
-        val hashExtractor: (FileInputStream) -> Map<String, String> = {
-            Gson().fromJson(
-                InputStreamReader(it),
-                object : TypeToken<Map<String, String>>() {}.type
-            )
-        }
-
         val delete = runCatching {
-            val hashes = FileInputStream(hashFile).use(hashExtractor)
+            val hashes = FileInputStream(hashFile).use {
+                decode<Map<String, String>>(it)
+            }
 
             shouldDelete(hashFile, hashes)
         }.onFailure {

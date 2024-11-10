@@ -41,6 +41,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
  *
  * @author 1zuna <marco@ccbluex.net>
  */
+@Suppress("TooManyFunctions")
 class JcefBrowser : IBrowser, Listenable {
 
     private val mcefFolder = ConfigSystem.rootFolder.resolve("mcef")
