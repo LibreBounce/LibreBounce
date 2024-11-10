@@ -81,10 +81,6 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            if (smart && !isCloserToTargetThanLastPosition()) {
-                return@handler
-            }
-
             if (packetQueue.isEmpty() && !shouldCancelPackets()) {
                 return@handler
             }
@@ -120,23 +116,25 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
             }
 
             // Update box position with these packets
-            val entityPacket = packet is EntityS2CPacket && packet.getEntity(world) == target
-            val positionPacket = packet is EntityPositionS2CPacket && packet.entityId == target?.id
-            if (entityPacket || positionPacket) {
-                val pos = if (packet is EntityS2CPacket) {
-                    position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
-                } else {
-                    (packet as EntityPositionS2CPacket).let { vec -> Vec3d(vec.x, vec.y, vec.z) }
-                }
+            if (smart) {
+                val entityPacket = packet is EntityS2CPacket && packet.getEntity(world) == target
+                val positionPacket = packet is EntityPositionS2CPacket && packet.entityId == target?.id
+                if (entityPacket || positionPacket) {
+                    val pos = if (packet is EntityS2CPacket) {
+                        position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
+                    } else {
+                        (packet as EntityPositionS2CPacket).let { vec -> Vec3d(vec.x, vec.y, vec.z) }
+                    }
 
-                position?.setPos(pos)
+                    position?.setPos(pos)
 
-                // Is the target's actual position closer than its tracked position?
-                if (target!!.squareBoxedDistanceTo(player, pos!!) < target!!.squaredBoxedDistanceTo(player)) {
-                    // Process all packets. We want to be able to hit the enemy, not the opposite.
-                    processPackets(true)
-                    // And stop right here. No need to cancel further packets.
-                    return@handler
+                    // Is the target's actual position closer than its tracked position?
+                    if (target!!.squareBoxedDistanceTo(player, pos!!) < target!!.squaredBoxedDistanceTo(player)) {
+                        // Process all packets. We want to be able to hit the enemy, not the opposite.
+                        processPackets(true)
+                        // And stop right here. No need to cancel further packets.
+                        return@handler
+                    }
                 }
             }
 
@@ -322,19 +320,6 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
         lastPos = currentPos
         currentPos = Vec3d(player.pos.x, player.pos.y, player.pos.z)
-    }
-
-    private fun isCloserToTargetThanLastPosition(): Boolean {
-        val player = MinecraftClient.getInstance().player ?: return false
-        val targetPos = target?.trackedPosition?.pos ?: return false
-
-        val lastPosLocal = lastPos ?: return false
-        val currentPosLocal = currentPos ?: return false
-
-        val currentDistance = player.squaredDistanceTo(currentPosLocal.x, currentPosLocal.y, currentPosLocal.z)
-        val lastDistance = player.squaredDistanceTo(lastPosLocal.x, lastPosLocal.y, lastPosLocal.z)
-
-        return player.squaredDistanceTo(targetPos.x, targetPos.y, targetPos.z) >= currentDistance || currentDistance < lastDistance
     }
 
     private fun shouldBacktrack(target: Entity) =
