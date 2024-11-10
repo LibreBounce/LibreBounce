@@ -92,6 +92,7 @@ object ModuleManager : Listenable {
             Breadcrumbs,
             BufferSpeed,
             CameraClip,
+            CameraView,
             Chams,
             ChestAura,
             ChestStealer,
