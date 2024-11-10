@@ -20,8 +20,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.client
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
@@ -33,6 +31,8 @@ import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
 import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.util.jsonArrayOf
+import net.ccbluex.liquidbounce.config.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -137,37 +137,37 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
         }
 
         // Check ipc client is connected and send rpc
-        if (ipcClient?.status == PipeStatus.CONNECTED) {
-            val builder = RichPresence.Builder()
+        if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
+            return@repeatable
+        }
 
+        ipcClient!!.sendRichPresence {
             // Set playing time
-            builder.setStartTimestamp(timestamp)
+            setStartTimestamp(timestamp)
 
             // Check assets contains logo and set logo
             if ("logo" in ipcConfiguration.assets) {
-                builder.setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
+                setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
             }
 
             if ("smallLogo" in ipcConfiguration.assets) {
-                builder.setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
+                setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
             }
 
-            builder.setDetails(formatText(detailsText))
-            builder.setState(formatText(stateText))
+            setDetails(formatText(detailsText))
+            setState(formatText(stateText))
 
-            builder.setButtons(JsonArray().apply {
-                add(JsonObject().apply {
-                    addProperty("label", "Download")
-                    addProperty("url", "https://liquidbounce.net/")
-                })
+            setButtons(jsonArrayOf(
+                jsonObjectOf(
+                    "label" to "Download",
+                    "url" to "https://liquidbounce.net/",
+                ),
 
-                add(JsonObject().apply {
-                    addProperty("label", "GitHub")
-                    addProperty("url", "https://github.com/CCBlueX/LiquidBounce")
-                })
-            })
-
-            ipcClient?.sendRichPresence(builder.build())
+                jsonObjectOf(
+                    "label" to "GitHub",
+                    "url" to "https://github.com/CCBlueX/LiquidBounce",
+                ),
+            ))
         }
     }
 
@@ -187,5 +187,8 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
         .replace("%server%", hideSensitiveAddress(mc.currentServerEntry?.address ?: "none"))
 
     override fun handleEvents() = true
+
+    private inline fun IPCClient.sendRichPresence(builderAction: RichPresence.Builder.() -> Unit) =
+        sendRichPresence(RichPresence.Builder().apply(builderAction).build())
 
 }
