@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.value.float
 object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false, hideModule = false) {
 
     private val customY by float("CustomY", 0f, -10f..10f)
-    private val onScaffold by boolean("OnScaffoldOnly", true)
+    private val onScaffold by boolean("OnScaffold", true)
 
     private var launchY: Double ?= null
 
