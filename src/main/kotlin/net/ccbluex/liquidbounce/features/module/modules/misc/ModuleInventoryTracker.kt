@@ -82,8 +82,7 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
         val totalSeconds = ms / 1000
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
-
-        return String.format("%02d:%02d", minutes, seconds)
+        return String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
     }
 }
 

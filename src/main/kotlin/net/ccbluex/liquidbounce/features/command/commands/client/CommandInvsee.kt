@@ -48,5 +48,6 @@ class NoInteractInventory(private var player: PlayerEntity) : InventoryScreen(pl
         )
     }
 
+    @Suppress("detekt:EmptyFunctionBlock")
     override fun onMouseClick(slot: Slot?, slotId: Int, button: Int, actionType: SlotActionType?) {}
 }
