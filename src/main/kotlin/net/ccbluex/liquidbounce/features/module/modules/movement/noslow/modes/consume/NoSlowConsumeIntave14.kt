@@ -49,12 +49,11 @@ internal class NoSlowConsumeIntave14(override val parent: ChoiceConfigurable<*>)
         if (event.state == EventState.PRE) {
             when (mode) {
                 Mode.RELEASE -> {
-                    if (player.itemUseTime == 1) {
+                    if (player.isUsingItem) {
                         releasePacket()
                     }
 
                     if (player.itemUseTime == 3) {
-                        releasePacket()
                         player.stopUsingItem()
                         releasePacket()
                     }
