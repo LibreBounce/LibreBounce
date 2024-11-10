@@ -86,9 +86,8 @@ object HashValidator {
                 }
 
                 // Read the file, hash it and compare it to the hash in the hash file
-                val data = resolveSibling.readBytes()
-
-                val sha256Hex = DigestUtils.sha256Hex(data)
+                // Use the InputStream, don't read the full file
+                val sha256Hex = DigestUtils.sha256Hex(resolveSibling.inputStream())
 
                 if (!sha256Hex.equals(checkedFile.value, ignoreCase = true)) {
                     return true
