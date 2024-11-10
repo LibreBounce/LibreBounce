@@ -32,9 +32,10 @@ class StaticGlyphPage(
          */
         fun create(chars: CharRange, font: Font): StaticGlyphPage {
             // Get information about the glyphs and sort them by their height
-            val glyphsToRender = chars.mapNotNullTo(mutableListOf()) { createCharacterCreationInfo(it, font) }.apply {
-                sortBy { it.glyphMetrics.bounds2D.height }
+            val glyphsToRender = chars.mapNotNullTo(ArrayList((chars.last - chars.first) / chars.step + 16)) {
+                createCharacterCreationInfo(it, font)
             }
+            glyphsToRender.sortBy { it.glyphMetrics.bounds2D.height }
 
             val maxTextureSize = maxTextureSize.value
 

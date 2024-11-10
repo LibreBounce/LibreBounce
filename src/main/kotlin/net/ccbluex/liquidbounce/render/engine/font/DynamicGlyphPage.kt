@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
+import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import java.awt.Dimension
@@ -13,7 +14,7 @@ class DynamicGlyphPage(val atlasSize: Dimension, fontHeight: Int) : BaseGlpyhPag
     override val fallbackGlyph: Glyph
         get() = getGlyph('?')!!
 
-    val charMap = HashMap<Char, Pair<Glyph, AtlasSliceHandle>>()
+    val charMap = Char2ObjectOpenHashMap<Pair<Glyph, AtlasSliceHandle>>()
     val dirty = ArrayList<Glyph>()
 
     private val allocator = DynamicAtlasAllocator(
@@ -23,7 +24,7 @@ class DynamicGlyphPage(val atlasSize: Dimension, fontHeight: Int) : BaseGlpyhPag
     )
 
     override fun getGlyph(char: Char): Glyph? {
-        return charMap[char]?.first
+        return charMap.get(char)?.first
     }
 
     /**
