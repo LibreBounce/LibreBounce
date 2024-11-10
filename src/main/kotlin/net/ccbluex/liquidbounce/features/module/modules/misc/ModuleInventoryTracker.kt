@@ -19,7 +19,7 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
 
     private val playerMap = HashMap<UUID, TrackedInventory>()
 
-    val entityEquipmentChangeHandler = handler<EntityEquipmentChangeEvent> { event ->
+    val playerEquipmentChangeHandler = handler<PlayerEquipmentChangeEvent> { event ->
         val player = event.entity
         if (player !is OtherClientPlayerEntity || ModuleAntiBot.isBot(player)) return@handler
 

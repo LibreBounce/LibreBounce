@@ -27,7 +27,7 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.EquipmentSlot
-import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.shape.VoxelShape
@@ -60,8 +60,8 @@ class BlockVelocityMultiplierEvent(val block: Block, var multiplier: Float) : Ev
 class BlockSlipperinessMultiplierEvent(val block: Block, var slipperiness: Float) : Event()
 
 @Nameable("entityEquipmentChange")
-class EntityEquipmentChangeEvent(
-    val entity: LivingEntity, val equipmentSlot: EquipmentSlot, val itemStack: ItemStack
+class PlayerEquipmentChangeEvent(
+    val entity: PlayerEntity, val equipmentSlot: EquipmentSlot, val itemStack: ItemStack
 ) : Event()
 
 @Nameable("fluidPush")

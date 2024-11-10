@@ -38,17 +38,14 @@ import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -56,9 +53,6 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
-
-    @Shadow
-    private ClientWorld world;
 
     protected MixinClientPlayNetworkHandler(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
         super(client, connection, connectionState);
@@ -200,16 +194,4 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         return result;
     }
 
-    @Overwrite
-    public void onEntityEquipmentUpdate(EntityEquipmentUpdateS2CPacket packet) {
-        NetworkThreadUtils.forceMainThread(packet, (ClientPlayNetworkHandler) (Object) this, client);
-        if (world.getEntityById(packet.getEntityId()) instanceof LivingEntity livingEntity) {
-            packet.getEquipmentList().forEach(pair -> {
-                var equipmentSlot = pair.getFirst();
-                var itemStack = pair.getSecond();
-                EventManager.INSTANCE.callEvent(new EntityEquipmentChangeEvent(livingEntity, equipmentSlot, itemStack));
-                livingEntity.equipStack(equipmentSlot, itemStack);
-            });
-        }
-    }
 }
