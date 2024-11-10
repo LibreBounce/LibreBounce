@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.config.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
@@ -45,6 +44,7 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 
 data class IpcConfiguration(
     val appID: Long,
@@ -67,12 +67,60 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
 
     // IPC Client
     private var ipcClient: IPCClient? = null
+
+    @Volatile
     private var timestamp = System.currentTimeMillis()
 
     private var doNotTryToConnect = false
 
     init {
         doNotIncludeAlways()
+
+        virtualThread(name = "RichPresence Updater") {
+            while (true) {
+                Thread.sleep(1000L)
+
+                if (enabled) {
+                    connectIpc()
+                } else {
+                    shutdownIpc()
+                }
+
+                // Check ipc client is connected and send rpc
+                if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
+                    continue
+                }
+
+                ipcClient!!.sendRichPresence {
+                    // Set playing time
+                    setStartTimestamp(timestamp)
+
+                    // Check assets contains logo and set logo
+                    if ("logo" in ipcConfiguration.assets) {
+                        setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
+                    }
+
+                    if ("smallLogo" in ipcConfiguration.assets) {
+                        setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
+                    }
+
+                    setDetails(formatText(detailsText))
+                    setState(formatText(stateText))
+
+                    setButtons(jsonArrayOf(
+                        jsonObjectOf(
+                            "label" to "Download",
+                            "url" to "https://liquidbounce.net/",
+                        ),
+
+                        jsonObjectOf(
+                            "label" to "GitHub",
+                            "url" to "https://github.com/CCBlueX/LiquidBounce",
+                        ),
+                    ))
+                }
+            }
+        }
     }
 
     override fun enable() {
@@ -124,51 +172,6 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
             logger.info("Successfully closed Discord RPC.")
         }
         super.disable()
-    }
-
-    @Suppress("unused")
-    val updateCycle = repeatable {
-        waitTicks(20)
-
-        if (enabled) {
-            connectIpc()
-        } else {
-            shutdownIpc()
-        }
-
-        // Check ipc client is connected and send rpc
-        if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
-            return@repeatable
-        }
-
-        ipcClient!!.sendRichPresence {
-            // Set playing time
-            setStartTimestamp(timestamp)
-
-            // Check assets contains logo and set logo
-            if ("logo" in ipcConfiguration.assets) {
-                setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
-            }
-
-            if ("smallLogo" in ipcConfiguration.assets) {
-                setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
-            }
-
-            setDetails(formatText(detailsText))
-            setState(formatText(stateText))
-
-            setButtons(jsonArrayOf(
-                jsonObjectOf(
-                    "label" to "Download",
-                    "url" to "https://liquidbounce.net/",
-                ),
-
-                jsonObjectOf(
-                    "label" to "GitHub",
-                    "url" to "https://github.com/CCBlueX/LiquidBounce",
-                ),
-            ))
-        }
     }
 
     @Suppress("unused")
