@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.DelayData
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoShoot.targetTracker
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -55,6 +56,8 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private val delay by intRange("Delay", 100..150, 0..1000, "ms")
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
+    private val smart by boolean("Smart", true)
+    private val pauseOnHit by boolean("PauseOnHit", false)
     val renderMode = choices("RenderMode", Box, arrayOf(Box, Model, Wireframe, None))
 
     private val packetQueue = LinkedHashSet<DelayData>()
@@ -70,6 +73,11 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
         synchronized(packetQueue) {
             if (it.origin != TransferOrigin.RECEIVE || it.isCancelled) {
+                return@handler
+            }
+
+            val targetHurtTime = targetTracker.lockedOnTarget?.hurtTime ?: return@handler
+            if (pauseOnHit && targetHurtTime >= 1) {
                 return@handler
             }
 
@@ -108,23 +116,25 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
             }
 
             // Update box position with these packets
-            val entityPacket = packet is EntityS2CPacket && packet.getEntity(world) == target
-            val positionPacket = packet is EntityPositionS2CPacket && packet.entityId == target?.id
-            if (entityPacket || positionPacket) {
-                val pos = if (packet is EntityS2CPacket) {
-                    position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
-                } else {
-                    (packet as EntityPositionS2CPacket).let { vec -> Vec3d(vec.x, vec.y, vec.z) }
-                }
+            if (smart) {
+                val entityPacket = packet is EntityS2CPacket && packet.getEntity(world) == target
+                val positionPacket = packet is EntityPositionS2CPacket && packet.entityId == target?.id
+                if (entityPacket || positionPacket) {
+                    val pos = if (packet is EntityS2CPacket) {
+                        position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
+                    } else {
+                        (packet as EntityPositionS2CPacket).let { vec -> Vec3d(vec.x, vec.y, vec.z) }
+                    }
 
-                position?.setPos(pos)
+                    position?.setPos(pos)
 
-                // Is the target's actual position closer than its tracked position?
-                if (target!!.squareBoxedDistanceTo(player, pos!!) < target!!.squaredBoxedDistanceTo(player)) {
-                    // Process all packets. We want to be able to hit the enemy, not the opposite.
-                    processPackets(true)
-                    // And stop right here. No need to cancel further packets.
-                    return@handler
+                    // Is the target's actual position closer than its tracked position?
+                    if (target!!.squareBoxedDistanceTo(player, pos!!) < target!!.squaredBoxedDistanceTo(player)) {
+                        // Process all packets. We want to be able to hit the enemy, not the opposite.
+                        processPackets(true)
+                        // And stop right here. No need to cancel further packets.
+                        return@handler
+                    }
                 }
             }
 
