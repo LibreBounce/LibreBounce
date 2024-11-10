@@ -1,5 +1,7 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
+import it.unimi.dsi.fastutil.chars.Char2ObjectMap
+import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.render.engine.font.BaseGlpyhPage.Companion.CharacterGenerationInfo
 import net.minecraft.client.texture.NativeImageBackedTexture
 import java.awt.Dimension
@@ -14,7 +16,7 @@ import kotlin.math.sqrt
  */
 class StaticGlyphPage(
     override val texture: NativeImageBackedTexture,
-    val glyphs: Map<Char, Glyph>,
+    val glyphs: Char2ObjectMap<Glyph>,
     val height: Float,
     val ascent: Float,
     override val fallbackGlyph: Glyph
@@ -28,11 +30,11 @@ class StaticGlyphPage(
         /**
          * Creates a bitmap based
          */
-        fun create(chars: Iterable<Char>, font: Font): StaticGlyphPage {
+        fun create(chars: CharRange, font: Font): StaticGlyphPage {
             // Get information about the glyphs and sort them by their height
-            val glyphsToRender = chars
-                .mapNotNull { createCharacterCreationInfo(it, font) }
-                .sortedBy { it.glyphMetrics.bounds2D.height }
+            val glyphsToRender = chars.mapNotNullTo(mutableListOf()) { createCharacterCreationInfo(it, font) }.apply {
+                sortBy { it.glyphMetrics.bounds2D.height }
+            }
 
             val maxTextureSize = maxTextureSize.value
 
@@ -57,12 +59,11 @@ class StaticGlyphPage(
                 font, glyphsToRender
             )
 
-            val glyphs = glyphsToRender.map { createGlyphFromGenerationInfo(it, atlasDimensions) }
+            val map = Char2ObjectOpenHashMap<Glyph>(glyphsToRender.size)
 
-            val map = HashMap<Char, Glyph>(glyphs.size)
-
-            for (glyph in glyphs) {
-                map[glyph.char] = glyph
+            glyphsToRender.forEach {
+                val glyph = createGlyphFromGenerationInfo(it, atlasDimensions)
+                map.put(glyph.char, glyph)
             }
 
             val nativeImage = atlas.toNativeImage()
@@ -76,7 +77,7 @@ class StaticGlyphPage(
                 map,
                 fontMetrics.height.toFloat(),
                 fontMetrics.ascent.toFloat(),
-                map[font.missingGlyphCode.toChar()] ?: map['?'] ?: error("No fallback glyph found")
+                map.get(font.missingGlyphCode.toChar()) ?: map.get('?') ?: error("No fallback glyph found")
             )
         }
 
@@ -135,7 +136,7 @@ class StaticGlyphPage(
     }
 
     override fun getGlyph(char: Char): Glyph? {
-        return this.glyphs.get(char)
+        return this.glyphs[char]
     }
 
 }

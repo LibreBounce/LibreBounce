@@ -82,8 +82,7 @@ object ThemeManager : Configurable("theme") {
             ModuleHud.refresh()
         }
 
-    private val takesInputHandler: () -> Boolean
-        get() = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
+    private val takesInputHandler: () -> Boolean = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
 
     init {
         ConfigSystem.root(this)
