@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
+import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
@@ -22,7 +23,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
 
-object PointerESP : Module("PointerESP", Category.RENDER, gameDetecting = false, hideModule = false) {
+object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
     private val dimension by choices("Dimension", arrayOf("2d", "3d"), "2d")
     private val mode by choices("Mode", arrayOf("Solid", "Line", "LoopLine"), "Solid")
     private val thickness by float("Thickness", 3f, 1f..5f) { mode.contains("Line") }
@@ -59,7 +60,7 @@ object PointerESP : Module("PointerESP", Category.RENDER, gameDetecting = false,
     private val arrowRadius by float("ArrowRadius", 50f, 10f..100f)
 
     private val team by boolean("Team", true)
-    private val colorTeam by boolean("TeamColor", false) { team }
+    private val colorTeam by boolean("TeamColor", false)
     private val bot by boolean("Bots", true)
 
     @EventTarget
@@ -117,7 +118,7 @@ object PointerESP : Module("PointerESP", Category.RENDER, gameDetecting = false,
 
         for (entity in mc.theWorld.loadedEntityList) {
             if (entity !is EntityLivingBase || !bot && isBot(entity)) continue
-            if (!team && ESP.getColor(entity) == ESP.getColor(player)) continue
+            if (!team && Teams.isInYourTeam(entity)) continue
 
             if (EntityUtils.isSelected(entity, false)) {
                 val interpolatedPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * ticks

@@ -147,11 +147,16 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
     val notOnVoid by boolean("NotOnVoid", true) { mode.get() == "Custom" }
 
     // TeleportCubecraft Speed
-    val cubecraftPortLength by float("CubeCraft-PortLength", 1f, 0.1f..2f) { mode.get() == "TeleportCubeCraft" }
+    val cubecraftPortLength by float("CubeCraft-PortLength", 1f, 0.1f..2f)
+    { mode.get() == "TeleportCubeCraft" }
 
     // IntaveHop14 Speed
     val boost by boolean("Boost", true) { mode.get() == "IntaveHop14" }
-    val strafeStrength by float("StrafeStrength", 0.29f, 0.1f..0.29f) { mode.get() == "IntaveHop14" }
+    val initialBoostMultiplier by float("InitialBoostMultiplier", 1f, 0.01f..10f)
+    { boost && mode.get() == "IntaveHop14" }
+    val intaveLowHop by boolean("LowHop", true) { mode.get() == "IntaveHop14" }
+    val strafeStrength by float("StrafeStrength", 0.29f, 0.1f..0.29f)
+    { mode.get() == "IntaveHop14" }
     val groundTimer by float("GroundTimer", 0.5f, 0.1f..5f) { mode.get() == "IntaveHop14" }
     val airTimer by float("AirTimer", 1.09f, 0.1f..5f) { mode.get() == "IntaveHop14" }
 
