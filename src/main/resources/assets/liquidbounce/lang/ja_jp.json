@@ -185,8 +185,6 @@
 	"liquidbounce.command.panic.result.nonRender": "非レンダリング",
 	"liquidbounce.command.ping.description": " ping をチェックします。",
 	"liquidbounce.command.ping.result.pingCheck": "あなたの ping は %sms です。",
-	"liquidbounce.command.position.description": "現在の座標をクリップボードにコピーします。",
-	"liquidbounce.command.position.result.position": "位置: %s ",
 	"liquidbounce.command.prefix.description": "コマンドのプレフィックスを変更します。",
 	"liquidbounce.command.prefix.parameter.prefix.description": "新しいコマンドプレフィックス。",
 	"liquidbounce.command.prefix.result.prefixChanged": "コマンド プレフィックスを「%s」に正常に変更しました。",

@@ -19,17 +19,14 @@
 package net.ccbluex.liquidbounce.utils.block.placer
 
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
+import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.entity.getExplosionDamageFromEntity
@@ -45,11 +42,9 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
     private val delay by int("Delay", 0, 0..1000, "ms")
     private val swing by boolean("Swing", true)
 
-    private class Rotate(parent: Listenable) : ToggleableConfigurable(parent, "Rotate", true) {
-        val rotations = tree(RotationsConfigurable(this))
-    }
-
-    private val rotate = tree(Rotate(this))
+    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+        arrayOf(NormalRotationMode(it, module, Priority.IMPORTANT_FOR_USAGE_3), NoRotationMode(it, module))
+    })
 
     private val chronometer = Chronometer()
 
@@ -68,10 +63,6 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
         }
 
     val repeatable = repeatable {
-        if (!rotate.enabled) {
-            return@repeatable
-        }
-
         val target = currentTarget ?: return@repeatable
 
         if (!chronometer.hasElapsed(delay.toLong())) {
@@ -92,45 +83,29 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
                 wallsRange = wallRange.toDouble(),
             ) ?: return@repeatable
 
-        // aim at the target
-        RotationManager.aimAt(
-            rotation,
-            configurable = rotate.rotations,
-            priority = Priority.IMPORTANT_FOR_USAGE_3,
-            provider = module
-        )
-    }
-
-    @Suppress("unused")
-    val postRotateHandler = handler<PlayerNetworkMovementTickEvent> {
-        if (it.state == EventState.PRE) {
-            // rotating is already handled by the rotation manager
-            return@handler
-        }
-
-        val target = currentTarget ?: return@handler
-
-        if (!chronometer.hasElapsed(delay.toLong())) {
-            return@handler
-        }
-
-        if (wouldKill(target)) {
-            currentTarget = null
-            return@handler
-        }
-
-        if (rotate.enabled && !facingEnemy(
+        rotationMode.activeChoice.rotate(rotation, isFinished = {
+            facingEnemy(
                 toEntity = target,
                 rotation = RotationManager.serverRotation,
                 range = range.toDouble(),
                 wallsRange = wallRange.toDouble()
-            )) {
-            return@handler
-        }
+            )
+        }, onFinished = {
+            if (!chronometer.hasElapsed(delay.toLong())) {
+                return@rotate
+            }
 
-        target.attack(swing)
-        chronometer.reset()
-        currentTarget = null
+            val target1 = currentTarget ?: return@rotate
+
+            if (wouldKill(target1)) {
+                currentTarget = null
+                return@rotate
+            }
+
+            target1.attack(swing)
+            chronometer.reset()
+            currentTarget = null
+        })
     }
 
     /**

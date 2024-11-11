@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.features.command.commands.client.*
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.CommandFakePlayer
 import net.ccbluex.liquidbounce.features.command.commands.creative.*
 import net.ccbluex.liquidbounce.features.command.commands.utility.CommandAutoAccount
-import net.ccbluex.liquidbounce.features.command.commands.utility.CommandPosition
+import net.ccbluex.liquidbounce.features.command.commands.utility.CommandCoordinates
 import net.ccbluex.liquidbounce.features.command.commands.utility.CommandUsername
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.lang.translation
@@ -160,7 +160,7 @@ object CommandManager : Iterable<Command> {
 
         // utility commands
         addCommand(CommandUsername.createCommand())
-        addCommand(CommandPosition.createCommand())
+        addCommand(CommandCoordinates.createCommand())
 
         // movement commands
         addCommand(CommandVClip.createCommand())

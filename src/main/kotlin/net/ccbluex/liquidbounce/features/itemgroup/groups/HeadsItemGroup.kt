@@ -69,11 +69,9 @@ val headsCollection by lazy {
             //  Syntax based on HeadDB (headdb.org)
             val heads: HashMap<String, Head> = decode(HttpClient.get(headService.url))
 
-            heads.map { it.value }
-                .toTypedArray()
-                .also {
-                    logger.info("Successfully loaded ${it.size} heads from the database")
-                }
+            heads.values.toTypedArray().also {
+                logger.info("Successfully loaded ${it.size} heads from the database")
+            }
         } else {
             error("Head service has been disabled")
         }

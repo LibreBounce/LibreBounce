@@ -281,6 +281,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleDamageParticles,
             ModuleESP,
             ModuleFreeCam,
+            ModuleFreeLook,
             ModuleFullBright,
             ModuleHoleESP,
             ModuleHud,

@@ -30,12 +30,12 @@ import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.fabricmc.loader.impl.FabricLoaderImpl
 import net.minecraft.SharedConstants
 import net.minecraft.client.util.Icons
 import org.lwjgl.glfw.GLFW
 import java.lang.Thread.sleep
-import kotlin.concurrent.thread
 
 /**
  * Hides client appearance
@@ -103,7 +103,7 @@ object HideAppearance : Listenable {
         ModuleManager.clear()
     }
 
-    fun wipeClient() = thread(name = "wipe-client") {
+    fun wipeClient() = virtualThread(name = "wipe-client") {
         // Wait for the client to be destructed
         sleep(1000L)
 

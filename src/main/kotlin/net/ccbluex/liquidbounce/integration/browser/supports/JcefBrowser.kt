@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.validation.HashValidator
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
-import kotlin.concurrent.thread
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 
 /**
  * Uses a modified fork of the JCEF library browser backend made for Minecraft.
@@ -41,6 +41,7 @@ import kotlin.concurrent.thread
  *
  * @author 1zuna <marco@ccbluex.net>
  */
+@Suppress("TooManyFunctions")
 class JcefBrowser : IBrowser, Listenable {
 
     private val mcefFolder = ConfigSystem.rootFolder.resolve("mcef")
@@ -63,7 +64,7 @@ class JcefBrowser : IBrowser, Listenable {
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
-                thread(name = "mcef-downloader") {
+                virtualThread(name = "mcef-downloader") {
                     runCatching {
                         resourceManager.downloadJcef()
                         RenderSystem.recordRenderCall(whenAvailable)
@@ -89,26 +90,21 @@ class JcefBrowser : IBrowser, Listenable {
     override fun isInitialized() = MCEF.INSTANCE.isInitialized
 
     override fun createTab(url: String, position: TabPosition, frameRate: Int) =
-        JcefTab(this, url, position, frameRate) { false }.apply {
-            synchronized(tabs) {
-                tabs += this
-
-                // Sort tabs by preferOnTop
-                tabs.sortBy { it.preferOnTop }
-            }
-        }
+        JcefTab(this, url, position, frameRate) { false }.apply(::addTab)
 
     override fun createInputAwareTab(url: String, position: TabPosition, frameRate: Int, takesInput: () -> Boolean) =
-        JcefTab(this, url, position, frameRate, takesInput = takesInput).apply {
-            synchronized(tabs) {
-                tabs += this
-
-                // Sort tabs by preferOnTop
-                tabs.sortBy { it.preferOnTop }
-            }
-        }
+        JcefTab(this, url, position, frameRate, takesInput = takesInput).apply(::addTab)
 
     override fun getTabs() = tabs
+
+    private fun addTab(tab: JcefTab) {
+        synchronized(tabs) {
+            tabs += tab
+
+            // Sort tabs by preferOnTop
+            tabs.sortBy { it.preferOnTop }
+        }
+    }
 
     internal fun removeTab(tab: JcefTab) {
         synchronized(tabs) {

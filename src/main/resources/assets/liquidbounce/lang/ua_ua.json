@@ -210,8 +210,6 @@
   "liquidbounce.command.skull.result.mustBeCreative": "Вимагається творчий режим!",
   "liquidbounce.command.skull.result.noEmptySlot": "Немає пустих слотів в інвентарі.",
   "liquidbounce.command.skull.result.skullGiven": "Видано голову %s.",
-  "liquidbounce.command.position.description": "Копіює поточні координати в буфер обміну.",
-  "liquidbounce.command.position.result.position": "Позиція: %s",
   "liquidbounce.command.username.description": "Копіює ваш нікнейм у буфер обміну.",
   "liquidbounce.command.username.result.username": "Нікнейм: %s",
   "liquidbounce.command.chat.description": "Відправити повідомлення в LiquidChat.",

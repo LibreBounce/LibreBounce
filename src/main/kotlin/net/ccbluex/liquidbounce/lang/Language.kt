@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.text.*
 import net.minecraft.util.Language
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 fun translation(key: String, vararg args: Any): MutableText =
     MutableText.of(LanguageText(key, args))
@@ -39,7 +40,7 @@ object LanguageManager : Configurable("lang") {
         "en_pt",
         "pt_br"
     )
-    private val languageMap = mutableMapOf<String, ClientLanguage>()
+    private val languageMap = ConcurrentHashMap<String, ClientLanguage>()
 
     /**
      * Load a specified language which are pre-defined in [knownLanguages] and stored in assets.
@@ -52,11 +53,11 @@ object LanguageManager : Configurable("lang") {
             languageMap[language]!!
         } else {
             runCatching {
-                val languageFile = javaClass.getResourceAsStream("/assets/liquidbounce/lang/$language.json")
-                val translations = decode<HashMap<String, String>>(languageFile!!.reader().readText())
+                languageMap.computeIfAbsent(language) {
+                    val languageFile = javaClass.getResourceAsStream("/assets/liquidbounce/lang/$language.json")
+                    val translations = decode<HashMap<String, String>>(languageFile!!)
 
-                ClientLanguage(translations).also {
-                    languageMap[language] = it
+                    ClientLanguage(translations)
                 }
             }.onSuccess {
                 logger.info("Loaded language $language")

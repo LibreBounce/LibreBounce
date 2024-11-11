@@ -23,6 +23,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.event.events.ScreenRenderEvent;
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent;
 import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
@@ -37,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.PostEffectProcessor;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -290,6 +292,26 @@ public abstract class MixinGameRenderer {
         }
 
         return original;
+    }
+
+    @ModifyExpressionValue(method = "renderWorld",
+            at = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnCamera(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
+    }
+
+    @ModifyExpressionValue(method = "renderHand",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnHand(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
     }
 
 }

@@ -86,9 +86,7 @@ object BrowserManager : Configurable("browser") {
 }
 
 enum class BrowserType(override val choiceName: String, val getBrowser: () -> IBrowser) : NamedChoice {
-    JCEF("jcef", {
-        JcefBrowser()
-    }),
+    JCEF("jcef", ::JcefBrowser),
     ULTRALIGHT("ultralight", {
         throw BrowserManager.BrowserException("Ultralight is not supported yet.")
     })

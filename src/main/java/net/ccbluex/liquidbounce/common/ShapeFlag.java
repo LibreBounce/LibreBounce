@@ -16,14 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.render
+package net.ccbluex.liquidbounce.common;
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.input.InputBind
-
-object ModuleQuickPerspectiveSwap : Module(
-    "QuickPerspectiveSwap", Category.RENDER, disableOnQuit = true, bindAction = InputBind.BindAction.HOLD
-) {
-    val rearView by boolean("RearView", false)
+public class ShapeFlag {
+    public static boolean noShapeChange = false;
 }

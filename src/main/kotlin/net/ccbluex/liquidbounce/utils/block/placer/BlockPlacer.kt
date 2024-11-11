@@ -20,9 +20,7 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -60,13 +58,13 @@ class BlockPlacer(
     name: String,
     val module: Module,
     val priority: Priority,
-    val slotFinder: () -> HotbarItemSlot?,
+    val slotFinder: (BlockPos?) -> HotbarItemSlot?,
     allowSupportPlacements: Boolean = true
 ) : Configurable(name), Listenable {
 
     val range by float("Range", 4.5f, 1f..6f)
     val wallRange by float("WallRange", 4.5f, 0f..6f)
-    val cooldown by int("Cooldown", 1, 0..40, "ticks")
+    val cooldown by intRange("Cooldown", 1..2, 0..40, "ticks")
     val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
 
     /**
@@ -85,9 +83,9 @@ class BlockPlacer(
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     val ignoreUsingItem by boolean("IgnoreUsingItem", true)
 
-    private val slotResetDelay by int("SlotResetDelay", 5, 0..40, "ticks")
+    val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
-    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+    val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     })
 
@@ -125,29 +123,19 @@ class BlockPlacer(
     val blocks = Object2BooleanLinkedOpenHashMap<BlockPos>()
 
     val inaccessible = hashSetOf<BlockPos>()
-    val postRotateTasks = mutableListOf<() -> Unit>()
+    var ticksToWait = 0
+    var ranAction = false
     private var sneakTimes = 0
-    private var ticksToWait = 0
-
-    @Suppress("unused")
-    private val postMoveHandler = handler<PlayerNetworkMovementTickEvent> {
-        if (it.state == EventState.PRE) {
-            return@handler
-        }
-
-        if (ticksToWait > 0) {
-            postRotateTasks.clear()
-            ticksToWait--
-            return@handler
-        }
-
-        postRotateTasks.forEach { task -> task() }
-        postRotateTasks.clear()
-        ticksToWait = cooldown
-    }
 
     @Suppress("unused")
     private val targetUpdater = handler<SimulatedTickEvent>(priority = -20) {
+        if (ticksToWait > 0) {
+            ticksToWait--
+        } else if (ranAction) {
+            ranAction = false
+            ticksToWait = cooldown.random()
+        }
+
         if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
             return@handler
         }
@@ -166,7 +154,7 @@ class BlockPlacer(
         }
 
         // return if no blocks are available
-        slotFinder() ?: return@handler
+        slotFinder(null) ?: return@handler
 
         val itemStack = ItemStack(Items.SANDSTONE)
 
@@ -320,7 +308,7 @@ class BlockPlacer(
         val slot = if (isSupport) {
             support.filter.getSlot(support.blocks)
         } else {
-            slotFinder()
+            slotFinder(pos)
         } ?: return
 
         val verificationRotation = rotationMode.activeChoice.getVerificationRotation(placementTarget.rotation)
@@ -337,7 +325,7 @@ class BlockPlacer(
             placementTarget.direction
         ) ?: return
 
-        SilentHotbar.selectSlotSilently(this, slot.hotbarSlot, slotResetDelay)
+        SilentHotbar.selectSlotSilently(this, slot.hotbarSlot, slotResetDelay.random())
 
         if (slot.itemStack.item !is BlockItem || pos.getState()!!.isReplaceable) {
             // place the block

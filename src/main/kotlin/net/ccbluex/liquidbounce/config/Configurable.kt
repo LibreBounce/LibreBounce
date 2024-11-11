@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("NOTHING_TO_INLINE")
 package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.event.Listenable
@@ -56,7 +57,7 @@ open class Configurable(
         for (currentValue in this.inner) {
             if (currentValue is ToggleableConfigurable) {
                 output.add(currentValue)
-                output.addAll(currentValue.inner.filter { it.name.equals("Enabled", true) })
+                currentValue.inner.filterTo(output) { it.name.equals("Enabled", true) }
             } else {
                 if (currentValue is Configurable) {
                     currentValue.getContainedValuesRecursivelyInternal(output)
@@ -87,6 +88,10 @@ open class Configurable(
     protected fun <T : Configurable> tree(configurable: T): T {
         inner.add(configurable)
         return configurable
+    }
+
+    protected fun <T : Configurable> treeAll(vararg configurable: T) {
+        configurable.forEach(inner::add)
     }
 
     protected fun <T : Any> value(
@@ -167,7 +172,7 @@ open class Configurable(
         name: String,
         activeCallback: (ChoiceConfigurable<T>) -> T,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = ChoiceConfigurable<T>(listenable, name, activeCallback, choicesCallback).apply {
+    ) = ChoiceConfigurable(listenable, name, activeCallback, choicesCallback).apply {
         this@Configurable.inner.add(this)
     }
 

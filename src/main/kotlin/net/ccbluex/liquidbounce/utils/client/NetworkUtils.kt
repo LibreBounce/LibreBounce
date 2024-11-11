@@ -19,6 +19,8 @@
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.network.listener.ClientPlayPacketListener
@@ -33,21 +35,29 @@ import net.minecraft.util.hit.BlockHitResult
 fun clickBlockWithSlot(
     player: ClientPlayerEntity,
     rayTraceResult: BlockHitResult,
-    slot: Int
+    slot: Int,
+    placementSwingMode: SwingMode
 ) {
+    val hand = if (slot == OFFHAND_SLOT.hotbarSlotForServer) {
+        Hand.OFF_HAND
+    } else {
+        Hand.MAIN_HAND
+    }
+
     val prevHotbarSlot = player.inventory.selectedSlot
+    if (hand == Hand.MAIN_HAND) {
+        player.inventory.selectedSlot = slot
 
-    player.inventory.selectedSlot = slot
-
-    if (slot != prevHotbarSlot) {
-        player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(slot))
+        if (slot != prevHotbarSlot) {
+            player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(slot))
+        }
     }
 
     interaction.sendSequencedPacket(world) { sequence ->
-        PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, rayTraceResult, sequence)
+        PlayerInteractBlockC2SPacket(hand, rayTraceResult, sequence)
     }
 
-    val itemUsageContext = ItemUsageContext(player, Hand.MAIN_HAND, rayTraceResult)
+    val itemUsageContext = ItemUsageContext(player, hand, rayTraceResult)
 
     val itemStack = player.inventory.getStack(slot)
 
@@ -62,10 +72,10 @@ fun clickBlockWithSlot(
     }
 
     if (actionResult.shouldSwingHand()) {
-        player.swingHand(Hand.MAIN_HAND)
+        placementSwingMode.swing(hand)
     }
 
-    if (slot != prevHotbarSlot) {
+    if (slot != prevHotbarSlot && hand == Hand.MAIN_HAND) {
         player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(prevHotbarSlot))
     }
 

@@ -62,14 +62,14 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
         enableLock()
     }
 
-    val modes = choices<Choice>("Mode", { PacketCrit }) {
+    val modes = choices("Mode", 1) {
         arrayOf(
             NoneChoice(it),
             PacketCrit,
             NoGroundCrit,
             JumpCrit
         )
-    }.apply { tagBy(this) }
+    }.apply(::tagBy)
 
     private object PacketCrit : Choice("Packet") {
 
