@@ -27,8 +27,9 @@ object NoWeb : Module("NoWeb", Category.MOVEMENT, hideModule = false) {
         IntaveOld,
         IntaveNew,
 
-        // Other
-        Rewi
+         // Other
+        Rewi,
+        Grim
     )
 
     private val modes = noWebModes.map { it.modeName }.toTypedArray()
