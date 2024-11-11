@@ -175,6 +175,8 @@ class StepConfirmEvent : Event()
  */
 class GameTickEvent : Event()
 
+class TickEndEvent : Event()
+
 /**
  * tick tack for player
  */

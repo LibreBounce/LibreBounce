@@ -22,13 +22,13 @@ import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.Value
+import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import java.util.concurrent.CopyOnWriteArraySet
 
 open class Module constructor(
-
     val name: String,
     val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
@@ -45,7 +45,7 @@ open class Module constructor(
     ) : MinecraftInstance(), Listenable {
 
     // Value that determines whether the module should depend on GameDetector
-    private val onlyInGameValue = BoolValue("OnlyInGame", true, subjective = true) { GameDetector.state }
+    private val onlyInGameValue = boolean("OnlyInGame", true, subjective = true) { GameDetector.state }
 
     protected val TickScheduler = TickScheduler(this)
 

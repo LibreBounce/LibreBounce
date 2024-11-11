@@ -34,9 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
-
 @Mixin(EntityRenderer.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinEntityRenderer {
@@ -78,20 +75,6 @@ public abstract class MixinEntityRenderer {
     private void injectCameraRestorations(float p_updateCameraAndRender_1_, long p_updateCameraAndRender_2_, CallbackInfo ci) {
         FreeLook.INSTANCE.restoreOriginalRotation();
         FreeCam.INSTANCE.restoreOriginalPosition();
-    }
-
-    @Inject(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;setupViewBobbing(F)V", shift = At.Shift.BEFORE))
-    private void setupCameraViewBobbingBefore(final CallbackInfo callbackInfo) {
-        if (Tracers.INSTANCE.handleEvents()) {
-            glPushMatrix();
-        }
-    }
-
-    @Inject(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;setupViewBobbing(F)V", shift = At.Shift.AFTER))
-    private void setupCameraViewBobbingAfter(final CallbackInfo callbackInfo) {
-        if (Tracers.INSTANCE.handleEvents()) {
-            glPopMatrix();
-        }
     }
 
     /**

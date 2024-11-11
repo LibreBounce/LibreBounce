@@ -44,6 +44,8 @@
 
         "module.bedPlates.description": "Allows you to see blocks around beds.",
 
+        "module.pointerESP.description": "Allows you to see pointed entity positions.",
+
         "module.projectileAimbot.description": "Automatically aims at players when using a projectile.",
 
         "module.criticals.description": "Automatically deals critical hits.",
@@ -58,7 +60,7 @@
 
         "module.noFriends.description": "Allows you to attack friends.",
 
-        "module.noachievement.description": "No Achievement.",
+        "module.noAchievement.description": "No Achievement.",
 
         "module.superKnockback.description": "Increases knockback dealt to other entities.",
 
@@ -141,6 +143,8 @@
         "module.bufferSpeed.description": "Allows you to walk faster on slabs and stairs.",
         
         "module.cameraClip.description": "Allows you to see through walls in third person view.",
+
+        "module.cameraView.description": "Allows you to modify your camera-Y position.",
         
         "module.chams.description": "Allows you to see targets through blocks.",
         
@@ -376,6 +380,8 @@
 
         "module.rotationRecorder.description": "Records and saves your rotations.",
 
-        "module.forwardTrack.description": "Reveals the actual position of an entity."
+        "module.forwardTrack.description": "Reveals the actual position of an entity.",
+
+        "module.clickRecorder.description": "Records and saves your clicks."
     }
 }

@@ -15,10 +15,10 @@ import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.item.*
 import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.client.*
@@ -33,41 +33,46 @@ import net.minecraft.util.EnumFacing
 
 object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false, hideModule = false) {
 
-    private val swordMode by ListValue("SwordMode",
+    private val swordMode by choices(
+        "SwordMode",
         arrayOf("None", "NCP", "UpdatedNCP", "AAC5", "SwitchItem", "InvalidC08", "Blink"),
         "None"
     )
 
-    private val reblinkTicks by IntegerValue("ReblinkTicks", 10, 1..20) { swordMode == "Blink" }
+    private val reblinkTicks by int("ReblinkTicks", 10, 1..20) { swordMode == "Blink" }
 
-    private val blockForwardMultiplier by FloatValue("BlockForwardMultiplier", 1f, 0.2F..1f)
-    private val blockStrafeMultiplier by FloatValue("BlockStrafeMultiplier", 1f, 0.2F..1f)
+    private val blockForwardMultiplier by float("BlockForwardMultiplier", 1f, 0.2F..1f)
+    private val blockStrafeMultiplier by float("BlockStrafeMultiplier", 1f, 0.2F..1f)
 
-    private val consumePacket by ListValue("ConsumeMode",
+    private val consumePacket by choices(
+        "ConsumeMode",
         arrayOf("None", "UpdatedNCP", "AAC5", "SwitchItem", "InvalidC08", "Intave"),
         "None"
     )
 
-    private val consumeForwardMultiplier by FloatValue("ConsumeForwardMultiplier", 1f, 0.2F..1f)
-    private val consumeStrafeMultiplier by FloatValue("ConsumeStrafeMultiplier", 1f, 0.2F..1f)
-    private val consumeFoodOnly by BoolValue("ConsumeFoodOnly",
+    private val consumeForwardMultiplier by float("ConsumeForwardMultiplier", 1f, 0.2F..1f)
+    private val consumeStrafeMultiplier by float("ConsumeStrafeMultiplier", 1f, 0.2F..1f)
+    private val consumeFoodOnly by boolean(
+        "ConsumeFoodOnly",
         true
     ) { consumeForwardMultiplier > 0.2F || consumeStrafeMultiplier > 0.2F }
-    private val consumeDrinkOnly by BoolValue("ConsumeDrinkOnly",
+    private val consumeDrinkOnly by boolean(
+        "ConsumeDrinkOnly",
         true
     ) { consumeForwardMultiplier > 0.2F || consumeStrafeMultiplier > 0.2F }
 
-    private val bowPacket by ListValue("BowMode",
+    private val bowPacket by choices(
+        "BowMode",
         arrayOf("None", "UpdatedNCP", "AAC5", "SwitchItem", "InvalidC08"),
         "None"
     )
 
-    private val bowForwardMultiplier by FloatValue("BowForwardMultiplier", 1f, 0.2F..1f)
-    private val bowStrafeMultiplier by FloatValue("BowStrafeMultiplier", 1f, 0.2F..1f)
+    private val bowForwardMultiplier by float("BowForwardMultiplier", 1f, 0.2F..1f)
+    private val bowStrafeMultiplier by float("BowStrafeMultiplier", 1f, 0.2F..1f)
 
     // Blocks
-    val soulsand by BoolValue("Soulsand", true)
-    val liquidPush by BoolValue("LiquidPush", true)
+    val soulsand by boolean("Soulsand", true)
+    val liquidPush by boolean("LiquidPush", true)
 
     private var shouldSwap = false
 

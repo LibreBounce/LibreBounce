@@ -90,7 +90,13 @@ object RaycastUtils : MinecraftInstance() {
     /**
      * Modified mouse object pickup
      */
-    fun runWithModifiedRaycastResult(rotation: Rotation, range: Double, wallRange: Double, action: (MovingObjectPosition) -> Unit) {
+    fun runWithModifiedRaycastResult(
+        rotation: Rotation,
+        range: Double,
+        wallRange: Double,
+        action: (MovingObjectPosition) -> Unit
+    ) {
+
         val entity = mc.renderViewEntity
 
         val prevPointedEntity = mc.pointedEntity
@@ -182,7 +188,8 @@ object RaycastUtils : MinecraftInstance() {
 
             if (pointedEntity != null && flag && vec3.distanceTo(vec33) > range) {
                 pointedEntity = null
-                mc.objectMouseOver = MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS,
+                mc.objectMouseOver = MovingObjectPosition(
+                    MovingObjectPosition.MovingObjectType.MISS,
                     Objects.requireNonNull(vec33),
                     null,
                     BlockPos(vec33)

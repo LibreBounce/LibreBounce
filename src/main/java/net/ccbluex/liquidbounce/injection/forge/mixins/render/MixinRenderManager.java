@@ -10,11 +10,13 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.ForwardTrack;
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam;
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
+import net.ccbluex.liquidbounce.utils.PacketUtilsKt;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
@@ -61,6 +63,14 @@ public abstract class MixinRenderManager {
         if (entity instanceof EntityPlayerSP)
             return;
 
+        if (entity instanceof EntityLivingBase) {
+            IMixinEntity iEntity = (IMixinEntity) entity;
+
+            if (iEntity.getTruePos()) {
+                PacketUtilsKt.interpolatePosition(iEntity);
+            }
+        }
+
         Backtrack backtrack = Backtrack.INSTANCE;
         IMixinEntity targetEntity = (IMixinEntity) backtrack.getTarget();
 
@@ -75,9 +85,9 @@ public abstract class MixinRenderManager {
                     entity.lastTickPosZ = entity.posZ;
                 }
 
-                double d0 = targetEntity.getTrueX();
-                double d1 = targetEntity.getTrueY();
-                double d2 = targetEntity.getTrueZ();
+                double d0 = targetEntity.getLerpX();
+                double d1 = targetEntity.getLerpY();
+                double d2 = targetEntity.getLerpZ();
                 float f = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * tickDelta;
                 int i = entity.getBrightnessForRender(tickDelta);
                 if (entity.isBurning()) {

@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeRepairedWithOther
 import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -25,13 +24,13 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInvento
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
 import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.network.play.client.C09PacketHeldItemChange
 
 object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
     private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
@@ -42,7 +41,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
 
         override fun isSupported() = maxDelay > 0
     }
-    private val minItemAge by IntegerValue("MinItemAge", 0, 0..2000)
+    private val minItemAge by int("MinItemAge", 0, 0..2000)
 
     private val invOpen by InventoryManager.invOpenValue
     private val simulateInventory by InventoryManager.simulateInventoryValue
@@ -54,19 +53,19 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
 
     // When swapping armor pieces, it grabs the better one, drags and swaps it with equipped one and drops the equipped one (no time of having no armor piece equipped)
     // Has to make more clicks, works slower
-    val smartSwap by BoolValue("SmartSwap", true)
+    val smartSwap by boolean("SmartSwap", true)
 
     private val noMove by InventoryManager.noMoveValue
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
-    private val hotbar by BoolValue("Hotbar", true)
+    private val hotbar by boolean("Hotbar", true)
 
     // Sacrifices 1 tick speed for complete undetectability, needed to bypass Vulcan
-    private val delayedSlotSwitch by BoolValue("DelayedSlotSwitch", true) { hotbar }
+    private val delayedSlotSwitch by boolean("DelayedSlotSwitch", true) { hotbar }
 
     // Prevents AutoArmor from hotbar equipping while any screen is open
-    private val notInContainers by BoolValue("NotInContainers", false) { hotbar }
+    private val notInContainers by boolean("NotInContainers", false) { hotbar }
 
     val highlightSlot by InventoryManager.highlightSlotValue
 
@@ -120,11 +119,16 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
                 // Set current slot being stolen for highlighting
                 autoArmorCurrentSlot = hotbarIndex
 
-                // Switch selected hotbar slot, right click to equip
-                sendPackets(
-                    C09PacketHeldItemChange(hotbarIndex),
-                    C08PacketPlayerBlockPlacement(stack)
+                SilentHotbar.selectSlotSilently(
+                    this,
+                    hotbarIndex,
+                    immediate = true,
+                    render = false,
+                    resetManually = true
                 )
+
+                // Switch selected hotbar slot, right click to equip
+                sendPacket(C08PacketPlayerBlockPlacement(stack))
 
                 // Instantly update inventory on client-side to prevent repetitive clicking because of ping
                 thePlayer.inventory.armorInventory[armorPos] = stack
@@ -146,7 +150,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
 
         // Sync selected slot next tick
         if (hasClickedHotbar)
-            TickScheduler += { sendPacket(C09PacketHeldItemChange(SilentHotbar.currentSlot)) }
+            TickScheduler += { SilentHotbar.resetSlot(this) }
     }
 
     suspend fun equipFromInventory() {
@@ -244,10 +248,9 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
         // Set current slot being stolen for highlighting
         autoArmorCurrentSlot = hotbarIndex
 
-        sendPackets(
-            C09PacketHeldItemChange(hotbarIndex),
-            C08PacketPlayerBlockPlacement(stack)
-        )
+        SilentHotbar.selectSlotSilently(this, hotbarIndex, immediate = true, render = false, resetManually = true)
+
+        sendPacket(C08PacketPlayerBlockPlacement(stack))
     }
 
     fun canEquipFromChest() = handleEvents() && hotbar && !notInContainers

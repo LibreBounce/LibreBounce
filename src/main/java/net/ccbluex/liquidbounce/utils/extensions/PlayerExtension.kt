@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.utils.extensions
 
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
+import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
@@ -15,7 +16,6 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.entity.monster.EntityGhast
@@ -128,8 +128,8 @@ val Entity.currPos: Vec3
 val Entity.lastTickPos: Vec3
     get() = Vec3(lastTickPosX, lastTickPosY, lastTickPosZ)
 
-val EntityLivingBase.isMoving: Boolean
-    get() = this.run { moveForward != 0F || moveStrafing != 0F }
+val EntityLivingBase?.isMoving: Boolean
+    get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
 
 fun Entity.setPosAndPrevPos(currPos: Vec3, prevPos: Vec3 = currPos, lastTickPos: Vec3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
@@ -162,16 +162,19 @@ var EntityPlayerSP.fixedSensitivityPitch
         rotationPitch = getFixedSensitivityAngle(pitch.coerceIn(-90f, 90f), rotationPitch)
     }
 
+val IMixinEntity.interpolatedPosition
+    get() = Vec3(lerpX, lerpY, lerpZ)
+
 // Makes fixedSensitivityYaw, ... += work
 operator fun EntityPlayerSP.plusAssign(value: Float) {
     fixedSensitivityYaw += value
     fixedSensitivityPitch += value
 }
 
-fun Entity.interpolatedPosition() = Vec3(
-    prevPosX + (posX - prevPosX) * mc.timer.renderPartialTicks,
-    prevPosY + (posY - prevPosY) * mc.timer.renderPartialTicks,
-    prevPosZ + (posZ - prevPosZ) * mc.timer.renderPartialTicks
+fun Entity.interpolatedPosition(start: Vec3) = Vec3(
+    start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
+    start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks,
+    start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
 )
 
 fun EntityPlayerSP.stopY() {
@@ -193,10 +196,12 @@ fun EntityPlayerSP.onPlayerRightClick(
     clickPos: BlockPos, side: EnumFacing, clickVec: Vec3,
     stack: ItemStack? = inventory.mainInventory[SilentHotbar.currentSlot],
 ): Boolean {
+    val controller = mc.playerController ?: return false
+
+    controller.syncCurrentPlayItem()
+
     if (clickPos !in worldObj.worldBorder)
         return false
-
-    mc.playerController?.updateController()
 
     val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatTriple()
 
@@ -206,7 +211,7 @@ fun EntityPlayerSP.onPlayerRightClick(
     }
 
     // If player is a spectator, send click and return true
-    if (mc.playerController.isSpectator)
+    if (controller.isSpectator)
         return sendClick()
 
     val item = stack?.item
@@ -241,7 +246,7 @@ fun EntityPlayerSP.onPlayerRightClick(
     val prevSize = stack.stackSize
 
     return stack.onItemUse(this, worldObj, clickPos, side, facingX, facingY, facingZ).also {
-        if (mc.playerController.isInCreativeMode) {
+        if (controller.isInCreativeMode) {
             stack.itemDamage = prevMetadata
             stack.stackSize = prevSize
         } else if (stack.stackSize <= 0) {
@@ -255,7 +260,7 @@ fun EntityPlayerSP.sendUseItem(stack: ItemStack): Boolean {
     if (mc.playerController.isSpectator)
         return false
 
-    mc.playerController?.updateController()
+    mc.playerController?.syncCurrentPlayItem()
 
     sendPacket(C08PacketPlayerBlockPlacement(stack))
 

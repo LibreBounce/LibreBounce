@@ -6,9 +6,8 @@
 package net.ccbluex.liquidbounce.api
 
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
+import net.ccbluex.liquidbounce.utils.chat
 import java.text.SimpleDateFormat
-
 import kotlin.concurrent.thread
 
 // Define a loadingLock object to synchronize access to the settings loading code
@@ -54,7 +53,7 @@ fun loadSettings(useCached: Boolean, join: Long? = null, callback: (Array<AutoSe
                 LOGGER.error("Failed to fetch auto settings list.", e)
 
                 // If an error occurs, display an error message to the user
-                displayChatMessage("Failed to fetch auto settings list.")
+                chat("Failed to fetch auto settings list.")
             }
         }
     }

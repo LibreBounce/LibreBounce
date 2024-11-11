@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
@@ -47,7 +46,7 @@ object TacoCommand : Command("taco"), Listenable {
      */
     override fun execute(args: Array<String>) {
         tacoToggle = !tacoToggle
-        displayChatMessage(if (tacoToggle) "§aTACO TACO TACO. :)" else "§cYou made the little taco sad! :(")
+        chat(if (tacoToggle) "§aTACO TACO TACO. :)" else "§cYou made the little taco sad! :(")
     }
 
     @EventTarget
@@ -73,7 +72,6 @@ object TacoCommand : Command("taco"), Listenable {
         if (image >= tacoTextures.size) image = 0
     }
 
-    
 
     override fun tabComplete(args: Array<String>) = listOf("TACO")
 }
