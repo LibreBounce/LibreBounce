@@ -53,7 +53,7 @@ object AutoConfig {
 
     var configsCache: Array<AutoSettings>? = null
     val configs
-        get() = (configsCache ?: ClientApi.requestSettingsList()).apply {
+        get() = configsCache ?: ClientApi.requestSettingsList().apply {
             configsCache = this
         }
 
