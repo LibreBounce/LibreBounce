@@ -124,7 +124,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     TagEntityEvent::class,
     MouseScrollInHotbarEvent::class,
     PlayerFluidCollisionCheckEvent::class,
-    PlayerSneakMultiplier::class,
+    PlayerSneakMultiplier::class,    
+    PerspectiveEvent::class,
     LoreQueryEvent::class,
     PlayerEquipmentChangeEvent::class
 )
@@ -152,9 +153,12 @@ object EventManager {
         val hook = eventHook as EventHook<in Event>
 
         if (!handlers.contains(hook)) {
-            handlers.add(hook)
+            // `handlers` is sorted descending by EventHook.priority
+            val insertIndex = handlers.binarySearchBy(-hook.priority) { -it.priority }.let {
+                if (it >= 0) it else it.inv()
+            }
 
-            handlers.sortByDescending { it.priority }
+            handlers.add(insertIndex, hook)
         }
     }
 
@@ -168,8 +172,8 @@ object EventManager {
     /**
      * Unregisters event handlers.
      */
-    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: ArrayList<EventHook<in Event>>) {
-        registry[eventClass]?.removeAll(hooks.toSet())
+    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: Collection<EventHook<in Event>>) {
+        registry[eventClass]?.removeAll(hooks.toHashSet())
     }
 
     fun unregisterEventHandler(eventHandler: Listenable) {

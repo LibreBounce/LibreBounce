@@ -37,9 +37,7 @@ object ModuleFastBreak : Module("FastBreak", Category.WORLD) {
 
     private val breakDamage by float("BreakDamage", 0.8f, 0.1f..1f)
 
-    private val modeChoice = choices<Choice>("Mode", { it.choices[0] }, { arrayOf(NoneChoice(it), AbortAnother) }
-    ).apply { tagBy(this) }
-
+    private val modeChoice = choices("Mode", 0) { arrayOf(NoneChoice(it), AbortAnother) }.apply(::tagBy)
 
     val repeatable = repeatable {
         interaction.blockBreakingCooldown = 0

@@ -24,10 +24,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedColorChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedNoneChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedSpawnLocationChoice
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.isSelfBedChoices
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
@@ -49,11 +46,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
 
     private val maxLayers by int("MaxLayers", 1, 1..5)
 
-    private val isSelfBedMode = choices<IsSelfBedChoice>("SelfBed", { it.choices[0] }, { arrayOf(
-        IsSelfBedNoneChoice(it),
-        IsSelfBedColorChoice(it),
-        IsSelfBedSpawnLocationChoice(it)
-    )})
+    private val isSelfBedMode = choices("SelfBed", 0, ::isSelfBedChoices)
 
     private val placer = tree(BlockPlacer("Place", this, Priority.NOT_IMPORTANT, {
         val selected = player.inventory.selectedSlot
@@ -119,7 +112,7 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
             return@handler
         }
 
-        placer.slotFinder() ?: return@handler
+        placer.slotFinder(null) ?: return@handler
 
         val eyesPos = player.eyes
         val rangeSq = placer.range * placer.range

@@ -22,34 +22,48 @@ package net.ccbluex.liquidbounce.integration.interop.persistant
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.Configurable
 
-object PersistentLocalStorage : Configurable("storage") {
+object PersistentLocalStorage : Configurable("storage"), MutableMap<String, String> {
 
-    var map by value("map", mutableMapOf<String, String>())
+    private val map by value("map", mutableMapOf<String, String>())
 
     init {
         ConfigSystem.root(this)
     }
 
-    fun setItem(name: String, value: Boolean) {
-        setItem(name, value.toString())
+    operator fun set(name: String, value: Boolean) {
+        map[name] = value.toString()
     }
 
-    fun setItem(name: String, value: Int) {
-        setItem(name, value.toString())
+    operator fun set(name: String, value: Int) {
+        map[name] = value.toString()
     }
 
-    fun setItem(name: String, value: String) {
-        map[name] = value
-    }
+    override val size: Int
+        get() = map.size
 
-    fun getItem(name: String): String? = map[name]
+    override fun containsKey(key: String): Boolean = map.containsKey(key)
 
-    fun removeItem(name: String) {
-        map.remove(name)
-    }
+    override fun containsValue(value: String): Boolean = map.containsValue(value)
 
-    fun clear() {
-        map.clear()
-    }
+    override fun get(key: String): String? = map[key]
+
+    override fun isEmpty(): Boolean = map.isEmpty()
+
+    override val entries: MutableSet<MutableMap.MutableEntry<String, String>>
+        get() = map.entries
+
+    override val keys: MutableSet<String>
+        get() = map.keys
+
+    override val values: MutableCollection<String>
+        get() = map.values
+
+    override fun clear() = map.clear()
+
+    override fun put(key: String, value: String): String? = map.put(key, value)
+
+    override fun putAll(from: Map<out String, String>) = map.putAll(from)
+
+    override fun remove(key: String): String? = map.remove(key)
 
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,32 +15,46 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
-import net.minecraft.client.gui.screen.ingame.InventoryScreen
-import net.minecraft.client.option.Perspective
+import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.minecraft.client.option.Perspective.THIRD_PERSON_BACK
 
-/**
- * Automatically goes into F5 mode when opening the inventory
- */
-object ModuleAutoF5 : Module("AutoF5", Category.RENDER) {
+object ModuleFreeLook : Module(
+    "FreeLook", Category.RENDER, disableOnQuit = true, bindAction = InputBind.BindAction.HOLD
+) {
 
-    @Suppress("unused")
-    private val perspectiveHandler = handler<PerspectiveEvent> { event ->
-        val screen = mc.currentScreen
+    private val noPitchLimit by boolean("NoPitchLimit", true)
 
-        if (screen is GenericContainerScreen || screen is InventoryScreen) {
-            event.perspective = Perspective.THIRD_PERSON_BACK
-        }
+    var cameraYaw = 0f
+    var cameraPitch = 0f
+
+    override fun enable() {
+        cameraYaw = player.yaw
+        cameraPitch = player.pitch
     }
 
+    @Suppress("unused")
+    private val handlePerspective = handler<PerspectiveEvent> { event ->
+        event.perspective = THIRD_PERSON_BACK
+    }
+
+    @Suppress("unused")
+    private val mouseRotationInputHandler = handler<MouseRotationEvent> { event ->
+        cameraYaw += event.cursorDeltaX.toFloat() * 0.15f
+        cameraPitch += event.cursorDeltaY.toFloat() * 0.15f
+
+        if (!noPitchLimit) {
+            cameraPitch = cameraPitch.coerceIn(-90f..90f)
+        }
+
+        event.cancelEvent()
+    }
 }

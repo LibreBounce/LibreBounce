@@ -45,17 +45,13 @@ import java.awt.Color
 
 object ModuleTracers : Module("Tracers", Category.RENDER) {
 
-    private val modes = choices<GenericColorMode<LivingEntity>>(
-        "ColorMode",
-        { DistanceColor },
-        {
-            arrayOf(
-                DistanceColor,
-                GenericStaticColorMode(it, Color4b(0, 160, 255, 255)),
-                GenericRainbowColorMode(it)
-            )
-        }
-    )
+    private val modes = choices("ColorMode", 0) {
+        arrayOf(
+            DistanceColor,
+            GenericStaticColorMode(it, Color4b(0, 160, 255, 255)),
+            GenericRainbowColorMode(it)
+        )
+    }
 
     private object DistanceColor : GenericColorMode<LivingEntity>("Distance") {
         override val parent: ChoiceConfigurable<*>

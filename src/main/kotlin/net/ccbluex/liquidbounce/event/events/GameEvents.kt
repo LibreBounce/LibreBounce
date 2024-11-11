@@ -22,10 +22,11 @@ package net.ccbluex.liquidbounce.event.events
 
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
+import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
-import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.option.Perspective
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.ItemStack
@@ -109,6 +110,9 @@ class DisconnectEvent : Event()
 @Nameable("overlayMessage")
 @WebSocketEvent
 class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event()
+
+@Nameable("perspective")
+class PerspectiveEvent(var perspective: Perspective) : Event()
 
 class LoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event() {
     fun addLore(text: String?) {
