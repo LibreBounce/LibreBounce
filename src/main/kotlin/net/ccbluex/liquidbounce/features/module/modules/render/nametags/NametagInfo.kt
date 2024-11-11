@@ -65,7 +65,7 @@ data class NametagInfo(
                     listOf(firstHandItem, secondHandItem)
                 }
 
-            return heldItems + armorItems
+            return (heldItems + armorItems).filterNotNull().filterNot{ it.isEmpty }
         }
     }
 }
