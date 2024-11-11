@@ -186,13 +186,13 @@ public abstract class MixinMinecraftClient {
             titleBuilder.append(" - ");
             ServerInfo serverInfo = this.getCurrentServerEntry();
             if (this.server != null && !this.server.isRemote()) {
-                titleBuilder.append(I18n.translate("title.singleplayer", new Object[0]));
+                titleBuilder.append(I18n.translate("title.singleplayer"));
             } else if (serverInfo != null && serverInfo.isRealm()) {
-                titleBuilder.append(I18n.translate("title.multiplayer.realms", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.realms"));
             } else if (this.server == null && (serverInfo == null || !serverInfo.isLocal())) {
-                titleBuilder.append(I18n.translate("title.multiplayer.other", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.other"));
             } else {
-                titleBuilder.append(I18n.translate("title.multiplayer.lan", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.lan"));
             }
         }
 

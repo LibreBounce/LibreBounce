@@ -39,12 +39,16 @@ import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
 
     @Suppress("UnusedPrivateProperty")
-    private val modes = choices("Mode", {
-        it.choices[1] // Safe mode
-    }, this::createChoices)
+    private val modes = choices("Mode", 1, ::safeWalkChoices) // Default safe mode
 
-    fun createChoices(it: ChoiceConfigurable<Choice>) =
-        arrayOf(NoneChoice(it), Safe(it), Simulate(it), OnEdge(it))
+    fun safeWalkChoices(choice: ChoiceConfigurable<Choice>): Array<Choice> {
+        return arrayOf(
+            NoneChoice(choice),
+            Safe(choice),
+            Simulate(choice),
+            OnEdge(choice)
+        )
+    }
 
     class Safe(override val parent: ChoiceConfigurable<Choice>) : Choice("Safe") {
 
@@ -59,7 +63,8 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                         event.jumping,
                         player.isSprinting,
                         true
-                    ))
+                    )
+                )
                 simulatedPlayer.tick()
 
                 if (simulatedPlayer.clipLedged) {
@@ -91,7 +96,8 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                         event.jumping,
                         player.isSprinting,
                         true
-                    ))
+                    )
+                )
 
                 // TODO: Calculate the required ticks early that prevent the player from falling off the edge
                 //  instead of relying on the static predict value.

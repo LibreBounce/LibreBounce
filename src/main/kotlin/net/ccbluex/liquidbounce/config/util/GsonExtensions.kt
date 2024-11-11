@@ -18,10 +18,9 @@
  */
 package net.ccbluex.liquidbounce.config.util
 
-import com.google.gson.ExclusionStrategy
-import com.google.gson.FieldAttributes
-import com.google.gson.Gson
+import com.google.gson.*
 import com.google.gson.reflect.TypeToken
+import java.io.InputStream
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD)
@@ -35,4 +34,55 @@ class ExcludeStrategy : ExclusionStrategy {
 /**
  * Decode JSON content
  */
-inline fun <reified T> decode(stringJson: String): T = Gson().fromJson(stringJson, object : TypeToken<T>() {}.type)
+inline fun <reified T> decode(stringJson: String): T =
+    Gson().fromJson(stringJson, object : TypeToken<T>() {}.type)
+
+/**
+ * Decode JSON content from an Input Stream
+ */
+inline fun <reified T> decode(inputStream: InputStream): T =
+    Gson().fromJson(inputStream.reader(), object : TypeToken<T>() {}.type)
+
+fun String.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
+fun Char.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
+fun Number.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
+fun Boolean.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
+
+fun jsonArrayOf(vararg values: JsonElement?): JsonArray = JsonArray(values.size).apply {
+    values.forEach(::add)
+}
+
+@JvmName("jsonArrayOfAny")
+fun jsonArrayOf(vararg values: Any?): JsonArray = JsonArray(values.size).apply {
+    values.forEach {
+        when (it) {
+            null -> add(JsonNull.INSTANCE)
+            is JsonElement -> add(it)
+            is Boolean -> add(it)
+            is Number -> add(it)
+            is String -> add(it)
+            is Char -> add(it)
+            else -> throw IllegalArgumentException("Unsupported type: " + it.javaClass)
+        }
+    }
+}
+
+fun jsonObjectOf(vararg entries: Pair<String, JsonElement?>): JsonObject = JsonObject().apply {
+    entries.forEach { add(it.first, it.second) }
+}
+
+@JvmName("jsonObjectOfAny")
+fun jsonObjectOf(vararg entries: Pair<String, Any?>): JsonObject = JsonObject().apply {
+    entries.forEach {
+        val (key, value) = it
+        when (value) {
+            null -> add(key, JsonNull.INSTANCE)
+            is JsonElement -> add(key, value)
+            is Boolean -> add(key, JsonPrimitive(value))
+            is Number -> add(key, JsonPrimitive(value))
+            is String -> add(key, JsonPrimitive(value))
+            is Char -> add(key, JsonPrimitive(value))
+            else -> throw IllegalArgumentException("Unsupported type: " + it.javaClass)
+        }
+    }
+}

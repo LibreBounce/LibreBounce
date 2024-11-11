@@ -100,7 +100,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         tree(ScaffoldMovementPrediction)
     }
 
-    internal val technique = choices<ScaffoldTechnique>(
+    internal val technique = choices(
         "Technique",
         ScaffoldNormalTechnique,
         arrayOf(
@@ -109,7 +109,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
             ScaffoldGodBridgeTechnique,
             ScaffoldBreezilyTechnique
         )
-    ).apply { tagBy(this) }
+    ).apply(::tagBy)
 
     private val sameYMode by enumChoice("SameY", SameYMode.OFF)
 
@@ -149,9 +149,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     }
 
     @Suppress("UnusedPrivateProperty")
-    val towerMode = choices<Choice>("Tower", {
-        it.choices[0] // None
-    }) {
+    val towerMode = choices("Tower", 0) {
         arrayOf(NoneChoice(it), ScaffoldTowerMotion, ScaffoldTowerPulldown, ScaffoldTowerKarhu, ScaffoldTowerVulcan)
     }
 
@@ -160,9 +158,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
 
     // SafeWalk feature - uses the SafeWalk module as a base
     @Suppress("unused")
-    private val safeWalkMode = choices("SafeWalk", {
-        it.choices[1] // Safe mode
-    }, ModuleSafeWalk::createChoices)
+    private val safeWalkMode = choices("SafeWalk", 1, ModuleSafeWalk::safeWalkChoices)
 
     internal object ScaffoldRotationConfigurable : RotationsConfigurable(this) {
 

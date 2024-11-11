@@ -33,7 +33,7 @@ object OAuthClient {
     private var authCodeContinuation: Continuation<String>? = null
 
     fun runWithScope(block: suspend CoroutineScope.() -> Unit) {
-        scope.launch { block() }
+        scope.launch(block = block)
     }
 
     suspend fun startAuth(onUrl: (String) -> Unit): ClientAccount {
@@ -100,7 +100,7 @@ object OAuthClient {
                     val response = DefaultFullHttpResponse(
                         HttpVersion.HTTP_1_1, HttpResponseStatus.OK
                     ).apply {
-                        content().writeBytes(OAuthClient.SUCCESS_HTML.toByteArray())
+                        content().writeBytes(SUCCESS_HTML.toByteArray())
                         headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8")
                         headers().set(HttpHeaderNames.CONTENT_LENGTH, content().readableBytes())
                     }
