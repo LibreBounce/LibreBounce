@@ -187,9 +187,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private fun getBedPlates(headState: BlockState, head: BlockPos): BedState {
         val bedDirection = headState.get(BedBlock.FACING)
 
-        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers) { i ->
-            Object2IntOpenHashMap((i + 2).sq() shl 2) // excepted count: 8/18/32/...
-        }
+        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers, ::Object2IntOpenHashMap)
 
         head.searchBedLayer(headState, maxLayers)
             .mapNotNull { (layer, pos) ->
