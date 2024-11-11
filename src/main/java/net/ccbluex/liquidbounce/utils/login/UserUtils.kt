@@ -12,7 +12,6 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.util.EntityUtils
@@ -33,7 +32,6 @@ object UserUtils {
                 defaultMaxPerRoute = 100
             }).build()
     }
-
 
     /**
      * Check if token is valid
@@ -71,11 +69,8 @@ object UserUtils {
         client.execute(request).use { response ->
             if (response.statusLine.statusCode != 200) return null
             return try {
-                val name = JsonParser().parse(EntityUtils.toString(response.entity))
-                    .asJsonArray
-                    .last()
-                    .asJsonObject["name"]
-                    .asString
+                val jsonObject = JsonParser().parse(EntityUtils.toString(response.entity)).asJsonObject
+                val name = jsonObject["name"].asString
                 uuidCache[uuid] = name
                 name
             } catch (e: Exception) {
@@ -97,7 +92,7 @@ object UserUtils {
                 connectTimeout = 2000
                 readTimeout = 2000
                 requestMethod = "GET"
-                setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0")
+                setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0")
                 doOutput = false
             }.inputStream.use {
                 val jsonElement = JsonParser().parse(InputStreamReader(it))

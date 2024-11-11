@@ -149,7 +149,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     randomNameButton.enabled = false
 
                     login(it, {
-                        status = "§aLogged into ${mc.session.username}."
+                        status = "§aLogged into §f§l${mc.session.username}§a."
                     }, { exception ->
                         status = "§cLogin failed due to '${exception.message}'."
                     }, {
@@ -169,7 +169,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     randomNameButton.enabled = false
 
                     login(it, {
-                        status = "§aLogged into ${mc.session.username}."
+                        status = "§aLogged into §f§l${mc.session.username}§a."
                     }, { exception ->
                         status = "§cLogin failed due to '${exception.message}'."
                     }, {
@@ -183,7 +183,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
             }
 
             5 -> { // Random name button
-                status = "§aLogged into ${randomAccount().name}."
+                status = "§aLogged into §f§l${randomAccount().name}§a."
                 altService.switchService(AltService.EnumAltService.MOJANG)
             }
 
@@ -374,7 +374,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     randomNameButton.enabled = false
 
                     login(it, {
-                        status = "§aLogged into ${mc.session.username}."
+                        status = "§aLogged into §f§l${mc.session.username}§a."
                     }, { exception ->
                         status = "§cLogin failed due to '${exception.message}'."
                     }, {
