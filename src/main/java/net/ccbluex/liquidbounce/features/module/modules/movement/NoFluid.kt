@@ -24,6 +24,7 @@ object NoFluid : Module("NoFluid", Category.MOVEMENT) {
             val searchBlocks = BlockUtils.searchBlocks(2, setOf(water, lava))
             for (block in searchBlocks){
                 val blockpos = block.key
+                //TODO:only do this for blocks that player touched
                 PacketUtils.sendPacket(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,blockpos, EnumFacing.DOWN))
             }
         }
