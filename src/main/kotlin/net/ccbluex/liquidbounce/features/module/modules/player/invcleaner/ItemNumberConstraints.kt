@@ -40,9 +40,7 @@ class ItemCategoryConstraintGroup(
 
         other as ItemCategoryConstraintGroup
 
-        if (category != other.category) return false
-
-        return true
+        return category == other.category
     }
 
     override fun hashCode(): Int {
@@ -61,9 +59,7 @@ class ItemFunctionCategoryConstraintGroup(
 
         other as ItemFunctionCategoryConstraintGroup
 
-        if (function != other.function) return false
-
-        return true
+        return function == other.function
     }
 
     override fun hashCode(): Int {

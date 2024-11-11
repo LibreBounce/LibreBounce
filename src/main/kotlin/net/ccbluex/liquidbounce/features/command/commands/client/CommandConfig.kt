@@ -27,15 +27,14 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
-import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.io.HttpClient.get
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
-import kotlin.concurrent.thread
 
 /**
  * Config Command
@@ -74,7 +73,7 @@ object CommandConfig {
                         val modules = ModuleManager.parseModulesFromParameter(moduleNames)
 
                         // Load the config in a separate thread to prevent the client from freezing
-                        thread(name = "config-loader") {
+                        virtualThread(name = "config-loader") {
                             runCatching {
                                 if(name.startsWith("http")) {
                                     // Load the config from the specified URL
@@ -162,7 +161,9 @@ object CommandConfig {
                                                 )
                                             )
                                     },
-                                    regular(" | ${it.serverAddress ?: "Global"}"), prefix = false
+                                    regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
+                                        prefix = false
+                                    )
                                 )
                             }
                         }.onFailure {

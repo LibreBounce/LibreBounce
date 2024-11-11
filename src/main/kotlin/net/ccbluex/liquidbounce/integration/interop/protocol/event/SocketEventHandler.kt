@@ -28,10 +28,9 @@ import kotlin.reflect.KClass
 
 class SocketEventHandler : Listenable {
 
-    private val events
-        get() = ALL_EVENT_CLASSES
-            .filter { it.java.isAnnotationPresent(WebSocketEvent::class.java) }
-            .associateBy { it.eventName }
+    private val events = ALL_EVENT_CLASSES
+        .filter { it.java.isAnnotationPresent(WebSocketEvent::class.java) }
+        .associateBy { it.eventName }
 
     /**
      * Contains all events that are registered in the current context

@@ -27,11 +27,15 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedColorChoice
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedNoneChoice
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedSpawnLocationChoice
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.network.ClientPlayerEntity
@@ -247,14 +251,14 @@ open class Module(
         }
     }
 
-    protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
+    protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
     protected fun <T : Choice> choices(
         name: String,
-        activeCallback: (ChoiceConfigurable<T>) -> T,
+        activeIndex: Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(this, name, activeCallback, choicesCallback)
+    ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
 
     fun message(key: String, vararg args: Any) = translation("$translationBaseKey.messages.$key", *args)
 

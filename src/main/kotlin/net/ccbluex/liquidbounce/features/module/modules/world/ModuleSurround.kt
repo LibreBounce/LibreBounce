@@ -97,12 +97,12 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
     /**
      * Disables the module when the player has moved at least 0.5 blocks away from the original center.
      */
-    private val disableOnXZMove by boolean("disableOnXZMove", false)
+    private val disableOnXZMove by boolean("DisableOnXZMove", false)
 
     /**
      * Disables the module when the player has a speed that is faster than or equal to 5 m/s.
      */
-    private val disableOnXZSpeed by boolean("disableOnXZSpeed", false)
+    private val disableOnXZSpeed by boolean("DisableOnXZSpeed", false)
 
     /**
      * Replaces broken blocks instantly.

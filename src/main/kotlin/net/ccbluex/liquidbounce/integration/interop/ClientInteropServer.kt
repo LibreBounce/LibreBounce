@@ -26,12 +26,12 @@ import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventHandler
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.registerInteropFunctions
+import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.ccbluex.netty.http.HttpServer
 import net.ccbluex.netty.http.middleware.CorsMiddleware
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import java.net.Socket
-import kotlin.concurrent.thread
 
 /**
  * A client server implementation.
@@ -73,7 +73,7 @@ object ClientInteropServer {
         }.onFailure(ErrorHandler::fatal)
 
         // Start the HTTP server
-        thread(name = "netty-websocket") {
+        virtualThread(name = "netty-websocket") {
             runCatching {
                 httpServer.start(port)
             }.onFailure(ErrorHandler::fatal)

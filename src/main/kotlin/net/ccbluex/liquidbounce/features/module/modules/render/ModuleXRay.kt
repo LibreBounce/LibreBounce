@@ -38,7 +38,7 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     val fullBright by boolean("FullBright", true)
 
     // Only render blocks with non-solid blocks around
-    private val onlyExposure by boolean("OnlyExposure", false)
+    private val exposedOnly by boolean("ExposedOnly", false)
 
     private val deafultBlocks = mutableSetOf(
         // Overworld ores
@@ -178,7 +178,7 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     fun shouldRender(blockState: BlockState, blockPos: BlockPos) = when {
         blockState.block !in blocks -> false
 
-        onlyExposure -> Direction.entries.any {
+        exposedOnly -> Direction.entries.any {
             blockPos.add(it.vector)?.let { pos -> pos.getState()?.isSolidBlock(world, pos) } == false
         }
 

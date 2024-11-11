@@ -27,7 +27,9 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
@@ -62,12 +64,8 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
 
     private var angleSmooth = choices<AngleSmoothMode>(this, "AngleSmooth", { it.choices[0] }, {
         arrayOf(
-            NoneAngleSmoothMode(it),
             LinearAngleSmoothMode(it),
-            BezierAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it),
-            ConditionalLinearAngleSmoothMode(it),
-            AccelerationSmoothMode(it)
+            SigmoidAngleSmoothMode(it)
         )
     })
 

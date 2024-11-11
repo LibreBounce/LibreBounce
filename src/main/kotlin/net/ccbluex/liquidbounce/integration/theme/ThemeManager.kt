@@ -82,8 +82,7 @@ object ThemeManager : Configurable("theme") {
             ModuleHud.refresh()
         }
 
-    private val takesInputHandler: () -> Boolean
-        get() = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
+    private val takesInputHandler: () -> Boolean = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
 
     init {
         ConfigSystem.root(this)
@@ -180,7 +179,7 @@ class Theme(val name: String) {
             error("Theme $name does not contain a metadata file")
         }
 
-        decode<ThemeMetadata>(metadataFile.readText())
+        decode<ThemeMetadata>(metadataFile.inputStream())
     }
 
     val exists: Boolean

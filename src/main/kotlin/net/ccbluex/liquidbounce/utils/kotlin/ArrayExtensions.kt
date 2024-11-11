@@ -114,3 +114,7 @@ inline fun Sequence<*>.isNotEmpty(): Boolean {
 inline fun Sequence<*>.isEmpty(): Boolean {
     return !isNotEmpty()
 }
+
+inline fun <T, reified R> Array<T>.mapArray(transform: (T) -> R): Array<R> = Array(this.size) { idx ->
+    transform(this[idx])
+}

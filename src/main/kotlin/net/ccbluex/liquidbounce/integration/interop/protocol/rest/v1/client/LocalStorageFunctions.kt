@@ -41,7 +41,7 @@ import net.ccbluex.netty.http.util.httpOk
 // GET /api/v1/client/localStorage
 fun getLocalStorage(requestObject: RequestObject) = with(requestObject) {
     val key = queryParams["key"] ?: return@with httpForbidden("No key")
-    val value = PersistentLocalStorage.getItem(key) ?: return@with httpForbidden("No value for key $key")
+    val value = PersistentLocalStorage[key] ?: return@with httpForbidden("No value for key $key")
 
     httpOk(JsonObject().apply {
         addProperty("value", value)
@@ -54,14 +54,14 @@ fun putLocalStorage(requestObject: RequestObject) = with(requestObject) {
     val key = body["key"]?.asString ?: return@with httpForbidden("No key")
     val value = body["value"]?.asString ?: return@with httpForbidden("No value")
 
-    PersistentLocalStorage.setItem(key, value)
+    PersistentLocalStorage[key] = value
     httpOk(JsonObject())
 }
 
 // DELETE /api/v1/client/localStorage
 fun deleteLocalStorage(requestObject: RequestObject) = with(requestObject) {
     val key = queryParams["key"] ?: return@with httpForbidden("No key")
-    PersistentLocalStorage.removeItem(key)
+    PersistentLocalStorage.remove(key)
     httpOk(JsonObject())
 }
 
@@ -70,7 +70,7 @@ fun getAllLocalStorage(requestObject: RequestObject) = with(requestObject) {
     httpOk(JsonObject().apply {
         val jsonArray = JsonArray()
 
-        PersistentLocalStorage.map.forEach { (key, value) ->
+        PersistentLocalStorage.forEach { (key, value) ->
             jsonArray.add(JsonObject().apply {
                 addProperty("key", key)
                 addProperty("value", value)
@@ -90,7 +90,7 @@ fun putAllLocalStorage(requestObject: RequestObject) = with(requestObject) {
 
     PersistentLocalStorage.clear()
     body.items.forEach { item ->
-        PersistentLocalStorage.setItem(item.key, item.value)
+        PersistentLocalStorage[item.key] = item.value
     }
 
     httpOk(JsonObject())

@@ -58,14 +58,14 @@ class BlockPlacer(
     name: String,
     val module: Module,
     val priority: Priority,
-    val slotFinder: () -> HotbarItemSlot?,
+    val slotFinder: (BlockPos?) -> HotbarItemSlot?,
     allowSupportPlacements: Boolean = true
 ) : Configurable(name), Listenable {
 
     val range by float("Range", 4.5f, 1f..6f)
     val wallRange by float("WallRange", 4.5f, 0f..6f)
-    private val cooldown by intRange("Cooldown", 1..2, 0..40, "ticks")
-    private val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
+    val cooldown by intRange("Cooldown", 1..2, 0..40, "ticks")
+    val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
 
     /**
      * Construct a center hit result when the raytrace result is invalid.
@@ -83,7 +83,7 @@ class BlockPlacer(
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     val ignoreUsingItem by boolean("IgnoreUsingItem", true)
 
-    private val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
+    val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
     val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
@@ -154,7 +154,7 @@ class BlockPlacer(
         }
 
         // return if no blocks are available
-        slotFinder() ?: return@handler
+        slotFinder(null) ?: return@handler
 
         val itemStack = ItemStack(Items.SANDSTONE)
 
@@ -308,7 +308,7 @@ class BlockPlacer(
         val slot = if (isSupport) {
             support.filter.getSlot(support.blocks)
         } else {
-            slotFinder()
+            slotFinder(pos)
         } ?: return
 
         val verificationRotation = rotationMode.activeChoice.getVerificationRotation(placementTarget.rotation)
