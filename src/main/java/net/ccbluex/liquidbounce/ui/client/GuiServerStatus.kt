@@ -19,7 +19,6 @@ import kotlin.concurrent.thread
 class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
     private val status = hashMapOf<String, String?>(
         "https://api.mojang.com" to null,
-        "https://authserver.mojang.com" to null,
         "http://session.minecraft.net" to null,
         "https://textures.minecraft.net" to null,
         "http://minecraft.net" to null,
