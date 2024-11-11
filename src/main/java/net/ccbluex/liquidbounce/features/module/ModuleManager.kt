@@ -87,10 +87,12 @@ object ModuleManager : Listenable {
             Blink,
             BlockESP,
             BlockOverlay,
+            PointerESP,
             ProjectileAimbot,
             Breadcrumbs,
             BufferSpeed,
             CameraClip,
+            CameraView,
             Chams,
             ChestAura,
             ChestStealer,
@@ -221,7 +223,8 @@ object ModuleManager : Listenable {
             RotationRecorder,
             ForwardTrack,
             FreeLook,
-            SilentHotbarModule
+            SilentHotbarModule,
+            ClickRecorder
         )
 
         InventoryManager.startCoroutine()

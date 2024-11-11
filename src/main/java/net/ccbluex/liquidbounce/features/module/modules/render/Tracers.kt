@@ -7,21 +7,25 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
+import net.ccbluex.liquidbounce.utils.extensions.minus
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -32,12 +36,12 @@ import kotlin.math.pow
 
 object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
-    private val colorMode by ListValue("Color", arrayOf("Custom", "DistanceColor", "Rainbow"), "Custom")
-    private val colorRed by IntegerValue("R", 0, 0..255) { colorMode == "Custom" }
-    private val colorGreen by IntegerValue("G", 160, 0..255) { colorMode == "Custom" }
-    private val colorBlue by IntegerValue("B", 255, 0..255) { colorMode == "Custom" }
+    private val colorMode by choices("Color", arrayOf("Custom", "DistanceColor", "Rainbow"), "Custom")
+    private val colorRed by int("R", 0, 0..255) { colorMode == "Custom" }
+    private val colorGreen by int("G", 160, 0..255) { colorMode == "Custom" }
+    private val colorBlue by int("B", 255, 0..255) { colorMode == "Custom" }
 
-    private val thickness by FloatValue("Thickness", 2F, 1F..5F)
+    private val thickness by float("Thickness", 2F, 1F..5F)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -50,17 +54,23 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val bot by BoolValue("Bots", true)
-    private val teams by BoolValue("Teams", false)
+    private val bot by boolean("Bots", true)
+    private val teams by boolean("Teams", false)
 
-    private val onLook by BoolValue("OnLook", false)
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val onLook by boolean("OnLook", false)
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by BoolValue("ThruBlocks", true)
+    private val thruBlocks by boolean("ThruBlocks", true)
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
         val thePlayer = mc.thePlayer ?: return
+
+        val originalViewBobbing = mc.gameSettings.viewBobbing
+
+        // Temporarily disable view bobbing and re-apply camera transformation
+        mc.gameSettings.viewBobbing = false
+        mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 0)
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
@@ -86,7 +96,7 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
                     val colorMode = colorMode.lowercase()
                     val color = when {
                         entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
-                        teams && Teams.state && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
+                        teams && state && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
                         colorMode == "custom" -> Color(colorRed, colorGreen, colorBlue, 150)
                         colorMode == "distancecolor" -> Color(255 - dist, dist, 0, 150)
                         colorMode == "rainbow" -> ColorUtils.rainbow()
@@ -100,6 +110,8 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
         glEnd()
 
+        mc.gameSettings.viewBobbing = originalViewBobbing
+
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)
         glEnable(GL_DEPTH_TEST)
@@ -109,23 +121,22 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
     }
 
     private fun drawTraces(entity: Entity, color: Color) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
-        val x = (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.timer.renderPartialTicks
-            - mc.renderManager.renderPosX)
-        val y = (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.timer.renderPartialTicks
-            - mc.renderManager.renderPosY)
-        val z = (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.timer.renderPartialTicks
-            - mc.renderManager.renderPosZ)
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - Vec3(
+            mc.renderManager.renderPosX,
+            mc.renderManager.renderPosY,
+            mc.renderManager.renderPosZ
+        )
 
-        val yaw = thePlayer.prevRotationYaw + (thePlayer.rotationYaw - thePlayer.prevRotationYaw) * mc.timer.renderPartialTicks
-        val pitch = thePlayer.prevRotationPitch + (thePlayer.rotationPitch - thePlayer.prevRotationPitch) * mc.timer.renderPartialTicks
+        val yaw = (player.prevRotationYaw..player.rotationYaw).lerpWith(mc.timer.renderPartialTicks)
+        val pitch = (player.prevRotationPitch..player.rotationPitch).lerpWith(mc.timer.renderPartialTicks)
 
         val eyeVector = Vec3(0.0, 0.0, 1.0).rotatePitch(-pitch.toRadians()).rotateYaw(-yaw.toRadians())
 
         glColor(color)
 
-        glVertex3d(eyeVector.xCoord, thePlayer.getEyeHeight() + eyeVector.yCoord, eyeVector.zCoord)
+        glVertex3d(eyeVector.xCoord, player.getEyeHeight() + eyeVector.yCoord, eyeVector.zCoord)
         glVertex3d(x, y, z)
         glVertex3d(x, y, z)
         glVertex3d(x, y + entity.height, z)

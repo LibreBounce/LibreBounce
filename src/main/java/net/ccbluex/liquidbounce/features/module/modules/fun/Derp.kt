@@ -12,14 +12,14 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.syncSpecialModuleRotations
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.float
 
 object Derp : Module("Derp", Category.FUN, subjective = true, hideModule = false) {
 
-    private val headless by BoolValue("Headless", false)
-    private val spinny by BoolValue("Spinny", false)
-    private val increment by FloatValue("Increment", 1F, 0F..50F) { spinny }
+    private val headless by boolean("Headless", false)
+    private val spinny by boolean("Spinny", false)
+    private val increment by float("Increment", 1F, 0F..50F) { spinny }
 
     override fun onDisable() {
         syncSpecialModuleRotations()

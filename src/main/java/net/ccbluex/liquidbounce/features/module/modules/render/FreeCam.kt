@@ -10,21 +10,22 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.float
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.Vec3
 
 object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideModule = false) {
 
-    private val speed by FloatValue("Speed", 0.8f, 0.1f..2f)
+    private val speed by float("Speed", 0.8f, 0.1f..2f)
 
-    private val allowCameraInteract by BoolValue("AllowCameraInteract", true)
-    private val allowRotationChange by BoolValue("AllowRotationChange", true)
+    private val allowCameraInteract by boolean("AllowCameraInteract", true)
+    private val allowRotationChange by boolean("AllowRotationChange", true)
 
     data class PositionPair(var pos: Vec3, var lastPos: Vec3, var extraPos: Vec3 = lastPos) {
         operator fun plusAssign(velocity: Vec3) {
+            extraPos = pos
             lastPos = pos
             pos += velocity
         }
@@ -57,7 +58,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
         }
 
         val velocity = Vec3_ZERO.apply {
-            strafe(speed = speed, moveCheck = !mc.thePlayer.isMoving)
+            strafe(speed = speed, moveCheck = !event.originalInput.isMoving)
 
             this.yCoord = yAxisMovement * speed
         }
@@ -91,7 +92,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
 
         val data = pos ?: return
 
-        player.setPosAndPrevPos(data.pos, data.lastPos, data.lastPos)
+        player.setPosAndPrevPos(data.pos, data.lastPos, data.extraPos)
     }
 
     fun restoreOriginalPosition() {
@@ -101,17 +102,17 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
     }
 
     fun renderPlayerFromAllPerspectives(entity: EntityLivingBase) =
-        state && entity == mc.thePlayer || entity.isPlayerSleeping
+        handleEvents() && entity == mc.thePlayer || entity.isPlayerSleeping
 
     fun modifyRaycast(original: Vec3, entity: Entity, tickDelta: Float): Vec3 {
-        if (!state || entity != mc.thePlayer || !allowCameraInteract) {
+        if (!handleEvents() || entity != mc.thePlayer || !allowCameraInteract) {
             return original
         }
 
         return pos?.interpolate(tickDelta)?.apply { yCoord += entity.eyeHeight } ?: original
     }
 
-    fun shouldDisableRotations() = state && !allowRotationChange
+    fun shouldDisableRotations() = handleEvents() && !allowRotationChange
 
     @EventTarget
     fun onWorldChange(event: WorldEvent) {

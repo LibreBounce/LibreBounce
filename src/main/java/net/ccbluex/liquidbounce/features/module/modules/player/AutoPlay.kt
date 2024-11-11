@@ -12,27 +12,27 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
 object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hideModule = false) {
 
-    private val mode by ListValue("Mode", arrayOf("Paper", "Hypixel"), "Paper")
+    private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 
     // Hypixel Settings
-    private val hypixelMode by ListValue("HypixelMode", arrayOf("Skywars", "Bedwars"), "Skywars") {
+    private val hypixelMode by choices("HypixelMode", arrayOf("Skywars", "Bedwars"), "Skywars") {
         mode == "Hypixel"
     }
-    private val skywarsMode by ListValue("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
+    private val skywarsMode by choices("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
         hypixelMode == "Skywars"
     }
-    private val bedwarsMode by ListValue("BedwarsMode", arrayOf("Solo", "Double", "Trio", "Quad"), "Solo") {
+    private val bedwarsMode by choices("BedwarsMode", arrayOf("Solo", "Double", "Trio", "Quad"), "Solo") {
         hypixelMode == "Bedwars"
     }
 
-    private val delay by IntegerValue("Delay", 50, 0..200)
+    private val delay by int("Delay", 50, 0..200)
 
     private var delayTick = 0
 
@@ -92,9 +92,9 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hid
         val player = mc.thePlayer ?: return false
 
         return player.ticksExisted >= 20
-            && (player.capabilities.isFlying
-            || player.capabilities.allowFlying
-            || player.capabilities.disableDamage)
+                && (player.capabilities.isFlying
+                || player.capabilities.allowFlying
+                || player.capabilities.disableDamage)
     }
 
     /**

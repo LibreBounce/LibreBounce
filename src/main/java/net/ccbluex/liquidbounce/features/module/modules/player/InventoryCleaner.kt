@@ -9,9 +9,9 @@ import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isFullBlock
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.shuffled
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
@@ -24,9 +24,10 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryC
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.BlockFalling
 import net.minecraft.block.BlockWorkbench
@@ -39,8 +40,8 @@ import net.minecraft.item.*
 import net.minecraft.potion.Potion
 
 object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule = false) {
-    private val drop by BoolValue("Drop", true, subjective = true)
-    val sort by BoolValue("Sort", true, subjective = true)
+    private val drop by boolean("Drop", true, subjective = true)
+    val sort by boolean("Sort", true, subjective = true)
 
     private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
@@ -50,23 +51,24 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
     }
-    private val minItemAge by IntegerValue("MinItemAge", 0, 0..2000)
+    private val minItemAge by int("MinItemAge", 0, 0..2000)
 
-    private val limitStackCounts by BoolValue("LimitStackCounts", true, subjective = true)
-    private val maxBlockStacks by IntegerValue("MaxBlockStacks", 5, 0..36, subjective = true) { limitStackCounts }
-    private val maxFoodStacks by IntegerValue("MaxFoodStacks", 5, 0..36, subjective = true) { limitStackCounts }
-    private val maxThrowableStacks by IntegerValue("MaxThrowableStacks",
+    private val limitStackCounts by boolean("LimitStackCounts", true, subjective = true)
+    private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36, subjective = true) { limitStackCounts }
+    private val maxFoodStacks by int("MaxFoodStacks", 5, 0..36, subjective = true) { limitStackCounts }
+    private val maxThrowableStacks by int(
+        "MaxThrowableStacks",
         5,
         0..36,
         subjective = true
     ) { limitStackCounts }
     // TODO: max potion, vehicle, ..., stacks?
 
-    private val maxFishingRodStacks by IntegerValue("MaxFishingRodStacks", 1, 1..10, subjective = true)
+    private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10, subjective = true)
 
-    private val mergeStacks by BoolValue("MergeStacks", true, subjective = true)
+    private val mergeStacks by boolean("MergeStacks", true, subjective = true)
 
-    private val repairEquipment by BoolValue("RepairEquipment", true, subjective = true)
+    private val repairEquipment by boolean("RepairEquipment", true, subjective = true)
 
     private val invOpen by InventoryManager.invOpenValue
     private val simulateInventory by InventoryManager.simulateInventoryValue
@@ -80,10 +82,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
-    private val randomSlot by BoolValue("RandomSlot", false)
-    private val ignoreVehicles by BoolValue("IgnoreVehicles", false, subjective = true)
+    private val randomSlot by boolean("RandomSlot", false)
+    private val ignoreVehicles by boolean("IgnoreVehicles", false, subjective = true)
 
-    private val onlyGoodPotions by BoolValue("OnlyGoodPotions", false, subjective = true)
+    private val onlyGoodPotions by boolean("OnlyGoodPotions", false, subjective = true)
 
     val highlightSlot by InventoryManager.highlightSlotValue
 
@@ -98,7 +100,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     val borderBlue by InventoryManager.borderBlue
     val borderAlpha by InventoryManager.borderAlpha
 
-    val highlightUseful by BoolValue("HighlightUseful", true, subjective = true)
+    val highlightUseful by boolean("HighlightUseful", true, subjective = true)
 
     private val slot1Value = SortValue("Slot1", "Sword")
     private val slot2Value = SortValue("Slot2", "Bow")
@@ -164,7 +166,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                         // Only try to merge non-full stacks, without limiting stack counts in isStackUseful
                         .filter {
                             it.value.hasItemAgePassed(minItemAge) &&
-                                it.value.stackSize != it.value.maxStackSize && isStackUseful(it.value,
+                                    it.value.stackSize != it.value.maxStackSize && isStackUseful(
+                                it.value,
                                 stacks,
                                 noLimits = true
                             )
@@ -178,10 +181,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                     sortedStacks.firstOrNull { (_, clickedStack) ->
                         sortedStacks.any { (_, stackToMerge) ->
                             clickedStack != stackToMerge
-                                && clickedStack.stackSize + stackToMerge.stackSize <= clickedStack.maxStackSize
-                                // Check if stacks have the same NBT data and are actually mergeable
-                                && clickedStack.isItemEqual(stackToMerge)
-                                && ItemStack.areItemStackTagsEqual(clickedStack, stackToMerge)
+                                    && clickedStack.stackSize + stackToMerge.stackSize <= clickedStack.maxStackSize
+                                    // Check if stacks have the same NBT data and are actually mergeable
+                                    && clickedStack.isItemEqual(stackToMerge)
+                                    && ItemStack.areItemStackTagsEqual(clickedStack, stackToMerge)
                         }
                     }?.index
                 }
@@ -323,7 +326,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
 
                         // If occupied hotbar slot isn't already sorted or isn't strictly best, sort to it
                         if (!canBeSortedTo(hotbarIndex, hotbarStack?.item)
-                            || !isStackUseful(hotbarStack, stacks, strictlyBest = true)) {
+                            || !isStackUseful(hotbarStack, stacks, strictlyBest = true)
+                        ) {
                             // Sort repaired item to hotbar right after repairing
                             click(0, hotbarIndex, 2)
                             continue@repair
@@ -376,10 +380,12 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                     val otherItem = otherStack?.item
 
                     // Check if an item is the correct type, isn't bad and isn't already sorted to a different slot
-                    if (isRightType(otherItem) && isStackUseful(otherStack,
+                    if (isRightType(otherItem) && isStackUseful(
+                            otherStack,
                             stacks,
                             strictlyBest = strictlyBest
-                        ) && !canBeSortedTo(otherIndex, otherItem, stacks.size)) {
+                        ) && !canBeSortedTo(otherIndex, otherItem, stacks.size)
+                    ) {
                         // If best item to sort was found, but its item age hasn't yet passed, skip search for this hotbar slot
                         if (otherStack.hasItemAgePassed(minItemAge))
                             click(otherIndex, hotbarIndex, 2)
@@ -465,7 +471,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             if (stacksSize != null) index.toHotbarIndex(stacksSize) ?: return false
             else index
 
-        return SORTING_TARGETS[SORTING_VALUES.getOrNull(index)?.get()]?.invoke(item) ?: false
+        return SORTING_TARGETS[SORTING_VALUES.getOrNull(index)?.get()]?.invoke(item) == true
     }
 
     // TODO: Simplify all is useful checks by a single getBetterAlternativeCount and checking if it is above 0, above stack limit, ...
@@ -483,7 +489,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             is ItemFood -> isUsefulFood(stack, stacks, entityStacksMap, noLimits, strictlyBest)
             is ItemBlock -> isUsefulBlock(stack, stacks, entityStacksMap, noLimits, strictlyBest)
 
-            is ItemArmor, is ItemTool, is ItemSword, is ItemBow, is ItemFishingRod -> isUsefulEquipment(stack,
+            is ItemArmor, is ItemTool, is ItemSword, is ItemBow, is ItemFishingRod -> isUsefulEquipment(
+                stack,
                 stacks,
                 entityStacksMap
             )
@@ -602,7 +609,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             }
 
             canBeSortedTo(otherIndex, otherItem, stacks.size)
-                || otherStack.totalDurability > stack.totalDurability || otherIndex > index
+                    || otherStack.totalDurability > stack.totalDurability || otherIndex > index
         }
     }
 
@@ -927,7 +934,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             val block = item.block
 
             return isFullBlock(block) && !block.hasTileEntity()
-                && block !is BlockWorkbench && block !is BlockContainer && block !is BlockFalling
+                    && block !is BlockWorkbench && block !is BlockContainer && block !is BlockFalling
         }
 
         return false
@@ -952,8 +959,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     // Check if stack is repairable and either has no enchantments or just unbreaking.
     private fun shouldBeRepaired(stack: ItemStack?) =
         !stack.isEmpty() && stack.item.isRepairable && (
-            !stack.isItemEnchanted || (stack.enchantmentCount == 1 && Enchantment.unbreaking in stack.enchantments)
-            )
+                !stack.isItemEnchanted || (stack.enchantmentCount == 1 && Enchantment.unbreaking in stack.enchantments)
+                )
 
     fun canBeRepairedWithOther(stack: ItemStack?, stacks: List<ItemStack?>): Boolean {
         if (!handleEvents() || !repairEquipment)
@@ -983,7 +990,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                     value.set(oldValue)
                     value.openList = true
 
-                    displayChatMessage("§8[§9§lInventoryCleaner§8] §3Value §a${value.name}§3 was changed to §a$oldValue§3 to prevent conflicts.")
+                    chat("§8[§9§lInventoryCleaner§8] §3Value §a${value.name}§3 was changed to §a$oldValue§3 to prevent conflicts.")
                 }
             }
     }

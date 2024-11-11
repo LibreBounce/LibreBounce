@@ -52,7 +52,8 @@ import java.text.SimpleDateFormat
  * Allows to draw custom text
  */
 @ElementInfo(name = "Text")
-class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = Side.default()) : Element(x,
+class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = Side.default()) : Element(
+    x,
     y,
     scale,
     side
@@ -96,56 +97,57 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     }
 
-    private var onScaffold by BoolValue("ScaffoldOnly", false)
-    private var showBlock by BoolValue("ShowBlock", false)
+    private var onScaffold by boolean("ScaffoldOnly", false)
+    private var showBlock by boolean("ShowBlock", false)
 
-    private var displayString by TextValue("DisplayText", "")
+    private var displayString by text("DisplayText", "")
 
-    private val textColorMode by ListValue("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val textColorMode by choices("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
 
-    private val colors = ColorSettingsInteger(this,
+    private val colors = ColorSettingsInteger(
+        this,
         zeroAlphaCheck = true,
         alphaApply = textColorMode != "Rainbow",
         applyMax = true
     ) { textColorMode == "Custom" }
 
-    private val gradientTextSpeed by FloatValue("Text-Gradient-Speed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
+    private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
 
-    private val maxTextGradientColors by IntegerValue("Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
+    private val maxTextGradientColors by int("Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { textColorMode == "Gradient" }
     private val textGradColors = ColorSettingsFloat.create(this, "Text-Gradient")
     { textColorMode == "Gradient" && it <= maxTextGradientColors }
 
-    private val roundedBackgroundRadius by FloatValue("RoundedBackGround-Radius", 3F, 0F..5F)
+    private val roundedBackgroundRadius by float("RoundedBackGround-Radius", 3F, 0F..5F)
 
-    private var backgroundScale by FloatValue("Background-Scale", 1F, 1F..3F)
+    private var backgroundScale by float("Background-Scale", 1F, 1F..3F)
 
-    private val backgroundMode by ListValue("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val backgroundMode by choices("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
 
     private val bgColors = ColorSettingsInteger(this, "Background", zeroAlphaCheck = true)
     { backgroundMode == "Custom" }.with(a = 0)
 
-    private val gradientBackgroundSpeed by FloatValue("Background-Gradient-Speed", 1f, 0.5f..10f)
+    private val gradientBackgroundSpeed by float("Background-Gradient-Speed", 1f, 0.5f..10f)
     { backgroundMode == "Gradient" }
 
-    private val maxBackgroundGradientColors by IntegerValue("Max-Background-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
+    private val maxBackgroundGradientColors by int("Max-Background-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { backgroundMode == "Gradient" }
     private val bgGradColors = ColorSettingsFloat.create(this, "Background-Gradient")
     { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
-    private val backgroundBorder by FloatValue("BackgroundBorder-Width", 0.5F, 0.5F..5F)
+    private val backgroundBorder by float("BackgroundBorder-Width", 0.5F, 0.5F..5F)
 
     private val bgBorderColors = ColorSettingsInteger(this, "BackgroundBorder", zeroAlphaCheck = true).with(a = 0)
 
     private fun isColorModeUsed(value: String) = textColorMode == value || backgroundMode == value
 
-    private val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
-    private val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
-    private val gradientX by FloatValue("Gradient-X", -500F, -2000F..2000F) { isColorModeUsed("Gradient") }
-    private val gradientY by FloatValue("Gradient-Y", -1500F, -2000F..2000F) { isColorModeUsed("Gradient") }
+    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
+    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
+    private val gradientX by float("Gradient-X", -500F, -2000F..2000F) { isColorModeUsed("Gradient") }
+    private val gradientY by float("Gradient-Y", -1500F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private var shadow by BoolValue("Shadow", true)
-    private val font by FontValue("Font", Fonts.font40)
+    private var shadow by boolean("Shadow", true)
+    private val font by font("Font", Fonts.font40)
 
     private var editMode = false
     private var editTicks = 0
@@ -330,14 +332,16 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 glPopMatrix()
             }
 
-            GradientFontShader.begin(gradient,
+            GradientFontShader.begin(
+                gradient,
                 gradientX,
                 gradientY,
                 textGradColors.toColorArray(maxTextGradientColors),
                 gradientTextSpeed,
                 gradientOffset
             ).use {
-                RainbowFontShader.begin(rainbow,
+                RainbowFontShader.begin(
+                    rainbow,
                     if (rainbowX == 0f) 0f else 1f / rainbowX,
                     if (rainbowY == 0f) 0f else 1f / rainbowY,
                     rainbowOffset
@@ -345,7 +349,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                     font.drawString(displayText, 0F, 0F, if (rainbow) 0 else if (gradient) 0 else color.rgb, shadow)
 
                     if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                        font.drawString("_",
+                        font.drawString(
+                            "_",
                             font.getStringWidth(displayText) + 2F,
                             0F,
                             if (rainbow) ColorUtils.rainbow(400000000L).rgb else if (gradient) 0 else color.rgb,
@@ -366,7 +371,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
             (-2F * (1F + backgroundScale)) * showBlockScale,
             ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
             (font.FONT_HEIGHT * backgroundScale.coerceIn(1.2F, 2F)) * showBlockScale,
-            )
+        )
     }
 
     override fun updateElement() {

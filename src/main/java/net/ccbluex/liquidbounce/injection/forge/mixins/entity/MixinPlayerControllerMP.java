@@ -21,7 +21,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -32,9 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @SideOnly(Side.CLIENT)
 public class MixinPlayerControllerMP {
 
-    @Shadow
-    public int currentPlayerItem;
-
     @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;syncCurrentPlayItem()V"))
     private void attackEntity(EntityPlayer entityPlayer, Entity targetEntity, CallbackInfo callbackInfo) {
         EventManager.INSTANCE.callEvent(new AttackEvent(targetEntity));
@@ -43,8 +39,7 @@ public class MixinPlayerControllerMP {
 
     @Inject(method = "getIsHittingBlock", at = @At("HEAD"), cancellable = true)
     private void getIsHittingBlock(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        if (AbortBreaking.INSTANCE.handleEvents())
-            callbackInfoReturnable.setReturnValue(false);
+        if (AbortBreaking.INSTANCE.handleEvents()) callbackInfoReturnable.setReturnValue(false);
     }
 
     @Inject(method = "windowClick", at = @At("HEAD"), cancellable = true)
@@ -62,7 +57,7 @@ public class MixinPlayerControllerMP {
     }
 
     @Redirect(method = "syncCurrentPlayItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I"))
-    private int hookSilentHotbar(InventoryPlayer instance) {
+    private int hookSilentHotbarA(InventoryPlayer instance) {
         SilentHotbar silentHotbar = SilentHotbar.INSTANCE;
 
         int prevSlot = instance.currentItem;
@@ -72,5 +67,10 @@ public class MixinPlayerControllerMP {
         EventManager.INSTANCE.callEvent(event);
 
         return event.getModifiedSlot();
+    }
+
+    @Redirect(method = "sendUseItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I"))
+    private int hookSilentHotbarB(InventoryPlayer instance) {
+        return SilentHotbar.INSTANCE.getCurrentSlot();
     }
 }

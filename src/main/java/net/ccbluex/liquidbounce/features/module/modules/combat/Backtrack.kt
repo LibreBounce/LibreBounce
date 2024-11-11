@@ -21,10 +21,12 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -43,11 +45,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
 
-    private val nextBacktrackDelay by IntegerValue("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
+    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
     private val delay by object : IntegerValue("Delay", 80, 0..700) {
         override fun onChange(oldValue: Int, newValue: Int): Int {
-            if (mode == "Modern")
-            {
+            if (mode == "Modern") {
                 clearPackets()
                 reset()
             }
@@ -64,13 +65,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
     }
 
     // Legacy
-    private val legacyPos by ListValue("Caching mode",
+    private val legacyPos by choices(
+        "Caching mode",
         arrayOf("ClientPos", "ServerPos"),
         "ClientPos"
     ) { mode == "Legacy" }
 
     // Modern
-    private val style by ListValue("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
+    private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
 
     private val maxDistanceValue: FloatValue = object : FloatValue("MaxDistance", 3.0f, 0.0f..3.5f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minDistance)
@@ -81,26 +83,30 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceIn(minimum, maxDistance)
         override fun isSupported() = mode == "Modern"
     }
-    private val smart by BoolValue("Smart", true) { mode == "Modern" }
+    private val smart by boolean("Smart", true) { mode == "Modern" }
 
     // ESP
-    val espMode by ListValue("ESP-Mode",
+    val espMode by choices(
+        "ESP-Mode",
         arrayOf("None", "Box", "Model"),
         "Box",
         subjective = true
     ) { mode == "Modern" }
-    private val rainbow by BoolValue("Rainbow", true, subjective = true) { mode == "Modern" && espMode == "Box" }
-    private val red by IntegerValue("R",
+    private val rainbow by boolean("Rainbow", true, subjective = true) { mode == "Modern" && espMode == "Box" }
+    private val red by int(
+        "R",
         0,
         0..255,
         subjective = true
     ) { !rainbow && mode == "Modern" && espMode == "Box" }
-    private val green by IntegerValue("G",
+    private val green by int(
+        "G",
         255,
         0..255,
         subjective = true
     ) { !rainbow && mode == "Modern" && espMode == "Box" }
-    private val blue by IntegerValue("B",
+    private val blue by int(
+        "B",
         0,
         0..255,
         subjective = true
@@ -120,7 +126,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
     private var delayForNextBacktrack = 0L
 
     // Legacy
-    private val maximumCachedPositions by IntegerValue("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
+    private val maximumCachedPositions by int("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
 
     private val backtrackedPlayer = ConcurrentHashMap<UUID, MutableList<BacktrackData>>()
 
@@ -284,19 +290,20 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
             }
         }
 
-        val target = target as? EntityLivingBase
+        val target = target
         val targetMixin = target as? IMixinEntity
-        if (mode == "Modern")
-        {
-            if (targetMixin != null)
-            {
+        if (mode == "Modern") {
+            if (targetMixin != null) {
                 if (!Blink.blinkingReceive() && shouldBacktrack() && targetMixin.truePos) {
                     val trueDist = mc.thePlayer.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
                     val dist = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
-        
-                    if (trueDist <= 6f && (!smart || trueDist >= dist) && (style == "Smooth" || !globalTimer.hasTimePassed(delay))) {
+
+                    if (trueDist <= 6f && (!smart || trueDist >= dist) && (style == "Smooth" || !globalTimer.hasTimePassed(
+                            delay
+                        ))
+                    ) {
                         shouldRender = true
-        
+
                         if (mc.thePlayer.getDistanceToEntityBox(target) in minDistance..maxDistance)
                             handlePackets()
                         else
@@ -306,9 +313,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
                         globalTimer.reset()
                     }
                 }
-            }
-            else
-            {
+            } else {
                 clearPackets()
                 globalTimer.reset()
             }
@@ -385,12 +390,11 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
                     val targetEntity = target as IMixinEntity
 
                     if (targetEntity.truePos) {
-                        val x =
-                            targetEntity.trueX - renderManager.renderPosX
-                        val y =
-                            targetEntity.trueY - renderManager.renderPosY
-                        val z =
-                            targetEntity.trueZ - renderManager.renderPosZ
+                        val (x, y, z) = targetEntity.interpolatedPosition - Vec3(
+                            renderManager.renderPosX,
+                            renderManager.renderPosY,
+                            renderManager.renderPosZ
+                        )
 
                         val axisAlignedBB = entityBoundingBox.offset(-posX, -posY, -posZ).offset(x, y, z)
 
@@ -558,7 +562,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
      * This function will loop through the backtrack data of an entity.
      */
     fun loopThroughBacktrackData(entity: Entity, action: () -> Boolean) {
-        if (!Backtrack.state || entity !is EntityPlayer || mode == "Modern")
+        if (!state || entity !is EntityPlayer || mode == "Modern")
             return
 
         val backtrackDataArray = getBacktrackData(entity.uniqueID) ?: return
@@ -626,9 +630,9 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         get() = if (rainbow) rainbow() else Color(red, green, blue)
 
     fun shouldBacktrack() =
-         mc.thePlayer != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
+        mc.thePlayer != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
             isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick
-        } ?: false
+        } == true
 
     private fun reset() {
         target = null
