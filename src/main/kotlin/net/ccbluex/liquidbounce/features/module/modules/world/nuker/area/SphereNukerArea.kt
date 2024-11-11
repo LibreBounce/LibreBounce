@@ -58,8 +58,7 @@ object SphereNukerArea : NukerArea("Sphere") {
 
         val boundingBox = player.box.offset(0.0, -1.0, 0.0)
         val nonStandingPositions = positions.filter { (pos, _) ->
-            val blockBox = Box.enclosing(pos, pos.add(1, 1, 1))
-            !boundingBox.intersects(blockBox)
+            !boundingBox.intersects(Box(pos))
         }
 
         // If there are more than one target, we should remove blocks that we are standing on

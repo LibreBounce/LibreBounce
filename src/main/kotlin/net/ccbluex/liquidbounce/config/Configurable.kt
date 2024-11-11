@@ -129,6 +129,8 @@ open class Configurable(
 
     protected fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
 
+    protected fun key(name: String, default: InputUtil.Key) = value(name, default, ValueType.KEY)
+
     protected fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
 

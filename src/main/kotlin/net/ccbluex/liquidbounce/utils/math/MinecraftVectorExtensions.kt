@@ -26,7 +26,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
-import kotlin.math.min
 
 inline operator fun BlockPos.rangeTo(other: BlockPos) = Region(this, other)
 
@@ -55,7 +54,7 @@ inline operator fun Vec3d.component3(): Double = this.z
 value class Double3Region private constructor(val init: Array<DoubleArray>) {
     init {
         for (i in 0 until 3) {
-            if (init[0][i] < init[1][i]) {
+            if (init[0][i] > init[1][i]) {
                 val temp = init[0][i]
                 init[0][i] = init[1][i]
                 init[1][i] = temp
@@ -82,10 +81,10 @@ value class Double3Region private constructor(val init: Array<DoubleArray>) {
         val (endX, endY, endZ) = end
 
         var x = startX
-        var y = startY
-        var z = startZ
         while (x <= endX) {
+            var y = startY
             while (y <= endY) {
+                var z = startZ
                 while (z <= endZ) {
                     yield(doubleArrayOf(x, y, z))
                     z += step

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.block;
 
+import net.ccbluex.liquidbounce.common.ShapeFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent;
 import net.minecraft.block.BlockState;
@@ -39,9 +40,11 @@ public abstract class MixinCactusBlock {
      */
     @Inject(method = "getCollisionShape", at = @At("RETURN"), cancellable = true)
     private void hookCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> callback) {
-        final BlockShapeEvent shapeEvent = new BlockShapeEvent(state, pos, callback.getReturnValue());
-        EventManager.INSTANCE.callEvent(shapeEvent);
-        callback.setReturnValue(shapeEvent.getShape());
+        if (!ShapeFlag.noShapeChange) {
+            final BlockShapeEvent shapeEvent = new BlockShapeEvent(state, pos, callback.getReturnValue());
+            EventManager.INSTANCE.callEvent(shapeEvent);
+            callback.setReturnValue(shapeEvent.getShape());
+        }
     }
 
 }

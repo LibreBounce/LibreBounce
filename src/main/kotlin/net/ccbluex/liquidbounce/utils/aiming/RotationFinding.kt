@@ -487,3 +487,63 @@ fun raytraceUpperBlockSide(
 
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
+
+val sides = arrayOf(
+    Direction.UP,
+    Direction.NORTH,
+    Direction.SOUTH,
+    Direction.WEST,
+    Direction.EAST,
+    Direction.DOWN
+)
+
+@Suppress("NestedBlockDepth", "CognitiveComplexMethod")
+fun findClosestPointOnBlock(
+    eyes: Vec3d,
+    range: Double,
+    wallsRange: Double,
+    expectedTarget: BlockPos
+): Pair<VecRotation, Direction>? {
+    val rangeSquared = range * range
+    val wallsRangeSquared = wallsRange * wallsRange
+
+    var best: Pair<VecRotation, Direction>? = null
+    var bestDistance = Double.MAX_VALUE
+
+    val vec = Vec3d.of(expectedTarget)
+    Direction.entries.forEach {
+        val vec3d = vec.offset(it, 0.9)
+
+        for (x in 0.1..0.9 step 0.1) { // TODO does 0.05/0.95 or perhaps 0.0/1.0 also work?
+            for (y in 0.1..0.9 step 0.1) {
+                val vec3 = pointOnSide(it, x, y, vec3d)
+
+                val distance = eyes.squaredDistanceTo(vec3)
+
+                // skip if out of range or the current best is closer
+                if (distance > rangeSquared || bestDistance <= distance) {
+                    continue
+                }
+
+                // skip because not visible in range
+                if (distance > wallsRangeSquared && !facingBlock(eyes, vec3, expectedTarget, it)) {
+                    continue
+                }
+
+                best = VecRotation(RotationManager.makeRotation(vec3, eyes), vec3) to it
+                bestDistance = distance
+            }
+        }
+    }
+
+    return best
+}
+
+private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {
+    return when (side) {
+        Direction.DOWN, Direction.UP -> vec.add(x, 0.0, y)
+        Direction.NORTH, Direction.SOUTH -> Vec3d(x, y, 0.0)
+        Direction.WEST, Direction.EAST -> Vec3d(0.0, x, y)
+    }
+}
+

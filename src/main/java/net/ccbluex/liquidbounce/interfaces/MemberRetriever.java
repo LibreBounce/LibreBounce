@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2023 CCBlueX
+ * Copyright (c) 2015 - 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +17,11 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-pluginManagement {
-    repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-        gradlePluginPortal()
-    }
+package net.ccbluex.liquidbounce.interfaces;
 
-    plugins {
-        id 'fabric-loom' version loom_version
-        id 'org.jetbrains.kotlin.jvm' version kotlin_version
-    }
+import java.lang.reflect.Member;
 
+@FunctionalInterface
+public interface MemberRetriever {
+    Member getMember(Object o) throws ReflectiveOperationException;
 }

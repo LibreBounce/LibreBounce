@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.api
 
-import net.ccbluex.liquidbounce.script.bindings.features.JsSetting
+import net.ccbluex.liquidbounce.script.bindings.features.ScriptSetting
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.util.Hand
 import net.minecraft.util.math.*
@@ -27,12 +27,12 @@ import org.graalvm.polyglot.Value
 /**
  * The main hub of the ScriptAPI that provides access to a useful set of members.
  */
-object JsContextProvider {
+object ScriptContextProvider {
 
-    internal fun setupUsefulContext(bindings: Value) = bindings.apply {
+    internal fun setupContext(bindings: Value) = bindings.apply {
         // Class bindings
         // -> Client API
-        putMember("Setting", JsSetting)
+        putMember("Setting", ScriptSetting)
 
         // -> Minecraft API
         putMember("Vec3i", Vec3i::class.java)
@@ -44,18 +44,18 @@ object JsContextProvider {
 
         // Variable bindings
         putMember("mc", mc)
-        putMember("Client", JsClient)
+        putMember("Client", ScriptClient)
 
         // Register utilities
-        putMember("RotationUtil", JsRotationUtil)
-        putMember("ItemUtil", JsItemUtil)
-        putMember("NetworkUtil", JsNetworkUtil)
-        putMember("InteractionUtil", JsInteractionUtil)
-        putMember("BlockUtil", JsBlockUtil)
-        putMember("MovementUtil", JsMovementUtil)
-        putMember("ReflectionUtil", JsReflectionUtil)
-        putMember("ParameterValidator", JsParameterValidator(bindings))
-        putMember("UnsafeThread", JsUnsafeThread)
+        putMember("RotationUtil", ScriptRotationUtil)
+        putMember("ItemUtil", ScriptItemUtil)
+        putMember("NetworkUtil", ScriptNetworkUtil)
+        putMember("InteractionUtil", ScriptInteractionUtil)
+        putMember("BlockUtil", ScriptBlockUtil)
+        putMember("MovementUtil", ScriptMovementUtil)
+        putMember("ReflectionUtil", ScriptReflectionUtil)
+        putMember("ParameterValidator", ScriptParameterValidator(bindings))
+        putMember("UnsafeThread", ScriptUnsafeThread)
     }
 
 }

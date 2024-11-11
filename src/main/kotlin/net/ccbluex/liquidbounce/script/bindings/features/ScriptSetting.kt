@@ -19,12 +19,15 @@
 package net.ccbluex.liquidbounce.script.bindings.features
 
 import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.utils.input.inputByName
+import net.minecraft.client.util.InputUtil
 import org.graalvm.polyglot.Value as PolyglotValue;
 
 /**
  * Object used by the script API to provide an idiomatic way of creating module values.
  */
-object JsSetting {
+@Suppress("unused")
+object ScriptSetting {
 
     @JvmName("boolean")
     fun boolean(value: PolyglotValue): Value<Boolean> {
@@ -99,9 +102,9 @@ object JsSetting {
     }
 
     @JvmName("key")
-    fun key(value: PolyglotValue): Value<Int> {
+    fun key(value: PolyglotValue): Value<InputUtil.Key> {
         val name = value.getMember("name").asString()
-        val default = value.getMember("default").asInt()
+        val default = inputByName(value.getMember("default").asString())
 
         return value(name, default, ValueType.KEY)
     }

@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedNo
 import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedSpawnLocationChoice
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -185,7 +185,7 @@ open class Module(
     /**
      * Allows the user to access values by typing module.settings.<valuename>
      */
-    @ScriptApi
+    @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
 
     init {

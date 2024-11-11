@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.block;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import net.ccbluex.liquidbounce.common.ShapeFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent;
 import net.minecraft.block.AbstractBlock;
@@ -45,7 +46,7 @@ public class MixinAbstractBlock {
      */
     @ModifyReturnValue(method = "getCollisionShape", at = @At("RETURN"))
     private VoxelShape hookCollisionShape(VoxelShape original, BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (pos == null) {
+        if (pos == null || ShapeFlag.noShapeChange) {
             return original;
         }
 

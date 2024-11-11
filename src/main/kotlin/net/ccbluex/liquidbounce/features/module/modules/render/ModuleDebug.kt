@@ -187,21 +187,21 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         val directionWidth = biggestWidth / 2
         context.fill(
             width / 2 - directionWidth, 20, width / 2 + directionWidth,
-            50 + (mc.textRenderer.fontHeight * textList.size), Color4b(0, 0, 0, 128).toRGBA()
+            50 + (mc.textRenderer.fontHeight * textList.size), Color4b(0, 0, 0, 128).toARGB()
         )
 
         context.drawCenteredTextWithShadow(mc.textRenderer, Text.literal("Debugging").styled {
             it.withColor(Formatting.LIGHT_PURPLE).withBold(true)
-        }.asOrderedText(), width / 2, 22, Color4b.WHITE.toRGBA())
+        }.asOrderedText(), width / 2, 22, Color4b.WHITE.toARGB())
 
         // Draw white line below Debugging text
-        context.fill(width / 2 - directionWidth, 32, width / 2 + directionWidth, 33, Color4b.WHITE.toRGBA())
+        context.fill(width / 2 - directionWidth, 32, width / 2 + directionWidth, 33, Color4b.WHITE.toARGB())
 
         // Draw text line one by one
         textList.forEachIndexed { index, text ->
             context.drawCenteredTextWithShadow(
                 mc.textRenderer, text, width / 2, 40 +
-                    (mc.textRenderer.fontHeight * index), Color4b.WHITE.toRGBA()
+                        (mc.textRenderer.fontHeight * index), Color4b.WHITE.toARGB()
             )
         }
     }
@@ -277,7 +277,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         color
     )
 
-    class DebugCollection(val geometry: List<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
+    class DebugCollection(val geometry: Collection<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
         override fun render(env: WorldRenderEnvironment) {
             this.geometry.forEach { it.render(env) }
         }

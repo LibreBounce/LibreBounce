@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
 import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.block.BedBlock
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -230,12 +231,15 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
     private fun updateTarget() {
         val eyesPos = player.eyes
 
+        val rangeSq = range.sq()
+
         val possibleBlocks = eyesPos.searchBlocksInCuboid(range + 1) { pos, state ->
-            state.block in targets
-                && !((state.block as? BedBlock)?.let { block ->
-                    isSelfBedMode.activeChoice.isSelfBed(block, pos)
-                } ?: false)
-                && getNearestPoint(eyesPos, Box.enclosing(pos, pos.add(1, 1, 1))).distanceTo(eyesPos) <= range
+            val block = state.block
+            when {
+                block !in targets -> false
+                block is BedBlock && isSelfBedMode.activeChoice.isSelfBed(block, pos) -> false
+                else -> getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= rangeSq
+            }
         }.mapTo(hashSetOf()) { it.first }
 
         validateCurrentTarget(possibleBlocks)

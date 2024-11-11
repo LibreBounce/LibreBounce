@@ -22,8 +22,8 @@ package net.ccbluex.liquidbounce.config
 import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.QuickImports
-import net.ccbluex.liquidbounce.script.ScriptApi
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 
 /**
  * Should handle events when enabled. Allows the client-user to toggle features. (like modules)
@@ -64,7 +64,7 @@ abstract class ToggleableConfigurable(
 
     override fun parent() = parent
 
-    @ScriptApi
+    @ScriptApiRequired
     @Suppress("unused")
     fun getEnabledValue(): Value<*> = this.inner[0]
 }
@@ -134,7 +134,7 @@ class ChoiceConfigurable<T : Choice>(
         }
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     fun getChoicesStrings(): Array<String> = this.choices.map { it.name }.toTypedArray()
 
 }

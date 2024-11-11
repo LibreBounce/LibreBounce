@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder.Companion.STRING_VALIDATOR
 import org.graalvm.polyglot.Value
 
-class JsCommandBuilder(private val commandObject: Value) {
+class ScriptCommandBuilder(private val commandObject: Value) {
 
     private fun createCommand(commandObject: Value): Command {
         val aliases = if (commandObject.hasMember("aliases")) {

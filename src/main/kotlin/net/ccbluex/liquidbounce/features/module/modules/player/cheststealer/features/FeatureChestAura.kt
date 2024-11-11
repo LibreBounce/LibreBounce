@@ -93,8 +93,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
         // Select blocks for processing within the search radius
         val nearbyStorageBlocks = playerEyesPosition.searchBlocksInCuboid(searchRadius) { pos, state ->
             state.block in validStorageBlocks && pos !in interactedBlocksSet && getNearestPoint(
-                playerEyesPosition,
-                Box.enclosing(pos, pos.add(1, 1, 1))
+                playerEyesPosition, Box(pos)
             ).squaredDistanceTo(playerEyesPosition) <= searchRadiusSquared
         }.sortedBy { it.first.getCenterDistanceSquared() }
 
