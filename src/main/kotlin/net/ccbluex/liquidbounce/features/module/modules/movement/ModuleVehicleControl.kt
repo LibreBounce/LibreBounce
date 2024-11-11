@@ -42,7 +42,7 @@ import net.minecraft.util.math.Vec3d
  *
  * Move with your vehicle however you want.
  */
-object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT) {
+object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT, aliases = arrayOf("BoatFly")) {
 
     init {
         enableLock()

@@ -38,7 +38,8 @@ import net.ccbluex.liquidbounce.utils.combat.CombatManager
  *
  * @since 1.0
  */
-object JsClient {
+@Suppress("unused")
+object ScriptClient {
 
     val eventManager = EventManager
     val configSystem = ConfigSystem

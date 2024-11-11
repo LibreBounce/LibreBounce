@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.entity
 
+import net.ccbluex.liquidbounce.common.ShapeFlag
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
@@ -399,27 +400,33 @@ fun LivingEntity.getDamageFromExplosion(
         return 0f
     }
 
-    val distanceDecay = 1.0 - (sqrt(this.squaredDistanceTo(pos)) / explosionRange.toDouble())
-    val exposure = exclude?.let { getExposureToExplosion(pos, it) } ?: Explosion.getExposure(pos, this)
-    val pre1 = exposure.toDouble() * distanceDecay
+    try {
+        ShapeFlag.noShapeChange = true
 
-    val preprocessedDamage = (pre1 * pre1 + pre1) / 2.0 * 7.0 * explosionRange.toDouble() + 1.0
-    if (preprocessedDamage == 0.0) {
-        return 0f
+        val distanceDecay = 1.0 - (sqrt(this.squaredDistanceTo(pos)) / explosionRange.toDouble())
+        val exposure = exclude?.let { getExposureToExplosion(pos, it) } ?: Explosion.getExposure(pos, this)
+        val pre1 = exposure.toDouble() * distanceDecay
+
+        val preprocessedDamage = (pre1 * pre1 + pre1) / 2.0 * 7.0 * explosionRange.toDouble() + 1.0
+        if (preprocessedDamage == 0.0) {
+            return 0f
+        }
+
+        val explosion = Explosion(
+            world,
+            exploding,
+            pos.x,
+            pos.y,
+            pos.z,
+            power,
+            false,
+            world.getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY)
+        )
+
+        return getEffectiveDamage(world.damageSources.explosion(explosion), preprocessedDamage.toFloat())
+    } finally {
+        ShapeFlag.noShapeChange = false
     }
-
-    val explosion = Explosion(
-        world,
-        exploding,
-        pos.x,
-        pos.y,
-        pos.z,
-        power,
-        false,
-        world.getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY)
-    )
-
-    return getEffectiveDamage(world.damageSources.explosion(explosion), preprocessedDamage.toFloat())
 }
 
 /**

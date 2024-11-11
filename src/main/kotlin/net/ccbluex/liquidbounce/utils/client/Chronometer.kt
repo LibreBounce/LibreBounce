@@ -19,10 +19,13 @@
 package net.ccbluex.liquidbounce.utils.client
 
 class Chronometer(private var lastUpdate: Long = 0) {
+
     val elapsed: Long
         get() = System.currentTimeMillis() - lastUpdate
 
     fun hasElapsed(ms: Long = 0) = lastUpdate + ms < System.currentTimeMillis()
+
+    fun hasAtLeastElapsed(ms: Long = 0) = lastUpdate + ms <= System.currentTimeMillis()
 
     fun reset() {
         this.lastUpdate = System.currentTimeMillis()

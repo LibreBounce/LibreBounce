@@ -43,7 +43,8 @@ open class PlacementRenderer(
     enabled: Boolean,
     val module: Listenable,
     val keep: Boolean = true,
-    clump: Boolean = true
+    clump: Boolean = true,
+    defaultColor: Color4b = Color4b(0, 255, 0, 90)
 ) : ToggleableConfigurable(module, name, enabled) {
 
     val clump by boolean("Clump", clump)
@@ -60,8 +61,8 @@ open class PlacementRenderer(
     val inTime by int("InTime", 500, 0..5000, "ms")
     val outTime by int("OutTime", 500, 0..5000, "ms")
 
-    private val colorSetting by color("Color", Color4b(0, 255, 0, 90))
-    private val outlineColorSetting by color("OutlineColor", Color4b(0, 255, 0, 255))
+    private val colorSetting by color("Color", defaultColor)
+    private val outlineColorSetting by color("OutlineColor", defaultColor.alpha(255))
 
     /**
      * The [PlacementRenderHandler]s managed by this renderer.

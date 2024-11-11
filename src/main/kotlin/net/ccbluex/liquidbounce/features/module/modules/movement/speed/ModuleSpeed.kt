@@ -84,7 +84,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         SpeedIntave14(configurable)
     )
 
-    val modes = choices<Choice>("Mode", { it.choices[0] }, this::initializeSpeeds).apply { tagBy(this) }
+    val modes = choices("Mode", 0, this::initializeSpeeds).apply(::tagBy)
 
     private val notDuringScaffold by boolean("NotDuringScaffold", true)
     private val notDuringFly by boolean("NotDuringFly", true)
@@ -98,7 +98,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
             arrayOf(SpeedPotionEffectChoice, SlownessPotionEffectChoice, BothEffectsChoice)
         )
 
-        val modes = choices<Choice>(this, "Mode", { it.choices[0] }, ModuleSpeed::initializeSpeeds)
+        val modes = choices(this, "Mode", { it.choices[0] }, ModuleSpeed::initializeSpeeds)
 
         override fun handleEvents(): Boolean {
             // We cannot use our parent super.handleEvents() here, because it has been turned false

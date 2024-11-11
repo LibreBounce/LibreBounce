@@ -21,7 +21,9 @@
 package net.ccbluex.liquidbounce.utils.kotlin
 
 import kotlinx.coroutines.*
+import net.ccbluex.liquidbounce.utils.client.mc
 import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KProperty
 
 private val loomExecutor = Executors.newVirtualThreadPerTaskExecutor()
@@ -42,6 +44,15 @@ fun virtualThread(
 
     if (start) start(block) else unstarted(block)
 }
+
+private object RenderDispatcher : CoroutineDispatcher() {
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        mc.renderTaskQueue.add(block)
+    }
+}
+
+val Dispatchers.Render: CoroutineDispatcher
+    get() = RenderDispatcher
 
 inline operator fun <T> ThreadLocal<T>.getValue(receiver: Any?, property: KProperty<*>): T = get()
 

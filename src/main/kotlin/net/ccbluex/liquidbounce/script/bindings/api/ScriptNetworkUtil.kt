@@ -21,7 +21,8 @@ package net.ccbluex.liquidbounce.script.bindings.api
 import net.ccbluex.liquidbounce.utils.client.network
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
-object JsNetworkUtil {
+@Suppress("unused")
+object ScriptNetworkUtil {
 
     @JvmName("movePlayerGround")
     fun movePlayerGround(onGround: Boolean) = network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(onGround))

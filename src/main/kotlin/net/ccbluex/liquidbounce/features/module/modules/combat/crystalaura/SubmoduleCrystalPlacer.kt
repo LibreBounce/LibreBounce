@@ -20,132 +20,188 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.canSeeUpperBlockSide
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
-import net.ccbluex.liquidbounce.utils.aiming.raytraceUpperBlockSide
-import net.ccbluex.liquidbounce.utils.block.collidingRegion
+import it.unimi.dsi.fastutil.objects.ObjectFloatImmutablePair
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair
+import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.block.getSortedSphere
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.searchBlocksInRadius
+import net.ccbluex.liquidbounce.utils.block.isBlockedByEntitiesReturnCrystal
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
-import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.client.world
-import net.ccbluex.liquidbounce.utils.combat.getEntitiesInCuboid
+import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.block.Blocks
-import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.item.Items
+import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
+import kotlin.math.max
 
-object SubmoduleCrystalPlacer {
-    private var currentTarget: BlockPos? = null
+object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place", true) {
 
+    private var swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
+    private val delay by int("Delay", 0, 0..1000, "ms")
+    private val range by float("Range", 4.5F, 1.0F..5.0F).onChanged { updateSphere() }
+    private val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F).onChanged {
+        updateSphere()
+    }
+
+    private val onlyAbove by boolean("OnlyAbove", false)
+
+    val placementRenderer = tree(PlacementRenderer( // TODO slide
+        "TargetRendering",
+        true,
+        ModuleCrystalAura,
+        clump = false,
+        defaultColor = Color4b.WHITE.alpha(90)
+    ))
+
+    private val chronometer = Chronometer()
+    private var sphere: Array<BlockPos> = BlockPos.ORIGIN.getSortedSphere(4.5f)
+    private var placementTarget: BlockPos? = null
+    private var previousTarget: BlockPos? = null
+    private var blockHitResult: BlockHitResult? = null
+
+    private fun updateSphere() {
+        sphere = BlockPos.ORIGIN.getSortedSphere(max(range, wallsRange))
+    }
+
+    @Suppress("LongMethod", "CognitiveComplexMethod")
     fun tick() {
-        val crystalSlot = findHotbarSlot(Items.END_CRYSTAL) ?: return
+        if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
+            return
+        }
+
+        getSlot() ?: return
 
         updateTarget()
+        if (placementTarget != previousTarget) {
+            previousTarget?.let { placementRenderer.removeBlock(it) }
+        }
 
-        val target = currentTarget ?: return
+        val targetPos = placementTarget ?: return
 
-        val rotation =
+        var side = Direction.UP
+        val rotation = if (onlyAbove) {
             raytraceUpperBlockSide(
                 player.eyePos,
-                ModuleCrystalAura.PlaceOptions.range.toDouble(),
-                wallsRange = 0.0,
-                target,
-            ) ?: return
-
-        RotationManager.aimAt(
-            rotation.rotation,
-            configurable = ModuleCrystalAura.rotations,
-            priority = Priority.IMPORTANT_FOR_USER_SAFETY,
-            provider = ModuleCrystalAura
-        )
-
-        val serverRotation = RotationManager.serverRotation
-
-        val rayTraceResult =
-            raytraceBlock(
-                ModuleCrystalAura.PlaceOptions.range.toDouble(),
-                serverRotation,
-                target,
-                target.getState() ?: return,
+                range.toDouble(),
+                wallsRange.toDouble(),
+                targetPos,
             )
+        } else {
+            val data = findClosestPointOnBlock(
+                player.eyePos,
+                range.toDouble(),
+                wallsRange.toDouble(),
+                targetPos,
+            ) ?: return
+            side = data.second
 
-        if (rayTraceResult?.type != HitResult.Type.BLOCK || rayTraceResult.blockPos != target) {
-            return
+            data.first
+        } ?: return
+
+        if (ModuleCrystalAura.rotationMode.activeChoice is NoRotationMode) {
+            blockHitResult = raytraceBlock(
+                max(range, wallsRange).toDouble(),
+                rotation.rotation,
+                targetPos,
+                targetPos.getState()!!
+            ) ?: return
         }
 
-        clickBlockWithSlot(player, rayTraceResult, crystalSlot)
+        if (placementTarget != previousTarget) {
+            placementTarget?.let { placementRenderer.addBlock(it) }
+        }
+
+        ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
+            blockHitResult = raytraceBlock(
+                max(range, wallsRange).toDouble(),
+                RotationManager.serverRotation,
+                targetPos,
+                targetPos.getState()!!
+            ) ?: return@rotate false
+
+            return@rotate blockHitResult!!.type == HitResult.Type.BLOCK && blockHitResult!!.blockPos == targetPos
+        }, onFinished = {
+            if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
+                return@rotate
+            }
+
+            clickBlockWithSlot(
+                player,
+                blockHitResult?.withSide(side) ?: return@rotate,
+                getSlot() ?: return@rotate,
+                swingMode
+            )
+
+            chronometer.reset()
+        })
     }
 
+    private fun getSlot(): Int? {
+        return if (OFFHAND_SLOT.itemStack.item == Items.END_CRYSTAL) {
+            OFFHAND_SLOT.hotbarSlotForServer
+        } else {
+            findHotbarSlot(Items.END_CRYSTAL)
+        }
+    }
+
+    @Suppress("ComplexCondition")
     private fun updateTarget() {
         // Reset current target
-        currentTarget = null
+        previousTarget = placementTarget
+        placementTarget = null
 
         val playerEyePos = player.eyePos
-        val playerPos = Vec3d.of(player.blockPos)
-        val range = ModuleCrystalAura.PlaceOptions.range.toDouble()
+        val range = range.toDouble()
+        val wallsRange = wallsRange.toDouble()
 
-        val entitiesInRange = world.getEntitiesInCuboid(playerPos, range + 6.0)
+        val target = ModuleCrystalAura.currentTarget ?: return
+        val maxX = target.boundingBox.maxX
 
-        // No targets to consider? Why bother?
-        if (entitiesInRange.isEmpty()) {
-            return
-        }
+        val positions = mutableListOf<ObjectObjectImmutablePair<BlockPos, Boolean>>()
 
-        if (entitiesInRange.any { it is EndCrystalEntity }) {
-            return
-        }
+        val playerPos = player.blockPos
+        val pos = BlockPos.Mutable()
+        sphere.forEach {
+            pos.set(playerPos).move(it)
+            val state = pos.getState()!!
+            val canSeeUpperBlockSide = !onlyAbove || canSeeUpperBlockSide(playerEyePos, pos, range, wallsRange)
+            if ((state.block == Blocks.OBSIDIAN || state.block == Blocks.BEDROCK) &&
+                pos.up().getState()!!.isAir &&
+                canSeeUpperBlockSide &&
+                pos.x.toDouble() + 1.0 < maxX
+            ) {
+                val blocked = pos.up().isBlockedByEntitiesReturnCrystal()
 
-        // The bounding box where entities are in that might body block a crystal placement
-        val bodyBlockingBoundingBox =
-            Box(
-                playerPos.subtract(range + 0.1, range + 0.1, range + 0.1),
-                playerPos.add(range + 0.1, range + 0.1, range + 0.1),
-            )
-
-        val blockedPositions = HashSet<BlockPos>()
-
-        // Disallow all positions where entities body-block them
-        for (entity in entitiesInRange) {
-            if (!entity.boundingBox.intersects(bodyBlockingBoundingBox)) {
-                continue
-            }
-
-            entity.boundingBox.collidingRegion.forEach {
-                blockedPositions.add(it.down())
+                val crystal = blocked.value() != null
+                if (!blocked.keyBoolean() || crystal) {
+                    positions.add(ObjectObjectImmutablePair(pos.toImmutable(), !crystal))
+                }
             }
         }
-
-        // Search for blocks that are either obsidian or bedrock,
-        // not disallowed and which do not have other blocks on top
-        val possibleTargets =
-            playerPos.searchBlocksInRadius(ModuleCrystalAura.PlaceOptions.range) { pos, state ->
-                return@searchBlocksInRadius (state.block == Blocks.OBSIDIAN || state.block == Blocks.BEDROCK) &&
-                        pos !in blockedPositions &&
-                        pos.up().getState()?.isAir == true &&
-                        canSeeUpperBlockSide(playerEyePos, pos, range, 0.0)
-            }
 
         val bestTarget =
-            possibleTargets
-                .map {
-                    val damageSourceLoc = Vec3d.of(it.first).add(0.5, 1.0, 0.5)
-
-                    Pair(it, ModuleCrystalAura.approximateExplosionDamage(world, damageSourceLoc))
+            positions
+                .mapNotNull {
+                    val damageSourceLoc = Vec3d.of(it.left()).add(0.5, 1.0, 0.5)
+                    val explosionDamage = ModuleCrystalAura.approximateExplosionDamage(damageSourceLoc)
+                        ?: return@mapNotNull null
+                    ObjectFloatImmutablePair(it, explosionDamage)
                 }
-                .maxByOrNull { it.second }
+                .maxByOrNull { it.secondFloat() }
 
-        // Is the target good enough?
-        if (bestTarget == null || bestTarget.second < ModuleCrystalAura.PlaceOptions.minEfficiency) {
-            return
+
+        if (bestTarget != null && bestTarget.left().second()) {
+            placementTarget = bestTarget.first().first()
         }
-
-        currentTarget = bestTarget.first.first
     }
+
 }

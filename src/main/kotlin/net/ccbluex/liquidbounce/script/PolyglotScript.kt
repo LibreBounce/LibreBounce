@@ -24,10 +24,10 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.script.bindings.api.JsContextProvider
-import net.ccbluex.liquidbounce.script.bindings.features.JsChoice
-import net.ccbluex.liquidbounce.script.bindings.features.JsCommandBuilder
-import net.ccbluex.liquidbounce.script.bindings.features.JsModule
+import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider
+import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
+import net.ccbluex.liquidbounce.script.bindings.features.ScriptCommandBuilder
+import net.ccbluex.liquidbounce.script.bindings.features.ScriptModule
 import net.ccbluex.liquidbounce.utils.client.logger
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
@@ -37,30 +37,30 @@ import org.graalvm.polyglot.io.IOAccess
 import java.io.File
 import java.util.function.Function
 
-class Script(val scriptFile: File) {
+class PolyglotScript(val language: String, val file: File) {
 
-    private val context: Context = Context.newBuilder("js")
+    private val context: Context = Context.newBuilder(language)
         .allowHostAccess(HostAccess.ALL) // Allow access to all Java classes
         .allowHostClassLookup { true }
-        .currentWorkingDirectory(scriptFile.parentFile.toPath())
+        .currentWorkingDirectory(file.parentFile.toPath())
         .allowIO(IOAccess.ALL) // Allow access to all IO operations
         .allowCreateProcess(false) // Disable process creation
         .allowCreateThread(true) // Disable thread creation
         .allowNativeAccess(false) // Disable native access
         .allowExperimentalOptions(true) // Allow experimental options
         .option("js.nashorn-compat", "true") // Enable Nashorn compatibility
-        .option("js.ecmascript-version", "2022") // Enable ECMAScript 2022
+        .option("js.ecmascript-version", "2023") // Enable ECMAScript 2023
         .build().apply {
             // Global instances
-            val jsBindings = getBindings("js")
+            val bindings = getBindings(language)
 
-            JsContextProvider.setupUsefulContext(jsBindings)
+            ScriptContextProvider.setupContext(bindings)
 
             // Global functions
-            jsBindings.putMember("registerScript", RegisterScript())
+            bindings.putMember("registerScript", RegisterScript())
         }
 
-    private val scriptText: String = scriptFile.readText()
+    private val scriptText: String = file.readText()
 
     // Script information
     lateinit var scriptName: String
@@ -86,29 +86,28 @@ class Script(val scriptFile: File) {
      */
     fun initScript() {
         // Evaluate script
-        val language = Source.findLanguage(scriptFile) ?: error("Unknown language")
-        context.eval(Source.newBuilder(language, scriptText, scriptFile.name).build())
+        context.eval(Source.newBuilder(language, scriptText, file.name).build())
 
         // Call load event
         callGlobalEvent("load")
 
         if (!::scriptName.isInitialized || !::scriptVersion.isInitialized || !::scriptAuthors.isInitialized) {
-            logger.error("[ScriptAPI] Script '${scriptFile.name}' is missing required information!")
-            error("Script '${scriptFile.name}' is missing required information!")
+            logger.error("[ScriptAPI] Script '${file.name}' is missing required information!")
+            error("Script '${file.name}' is missing required information!")
         }
 
-        logger.info("[ScriptAPI] Successfully loaded script '${scriptFile.name}'.")
+        logger.info("[ScriptAPI] Successfully loaded script '${file.name}'.")
     }
 
     @Suppress("UNCHECKED_CAST")
-    inner class RegisterScript : Function<Map<String, Any>, Script> {
+    inner class RegisterScript : Function<Map<String, Any>, PolyglotScript> {
 
         /**
          * Global function 'registerScript' which is called to register a script.
          * @param scriptObject JavaScript object containing information about the script.
          * @return The instance of this script.
          */
-        override fun apply(scriptObject: Map<String, Any>): Script {
+        override fun apply(scriptObject: Map<String, Any>): PolyglotScript {
             scriptName = scriptObject["name"] as String
             scriptVersion = scriptObject["version"] as String
 
@@ -120,7 +119,7 @@ class Script(val scriptFile: File) {
                 else -> error("Not valid authors type")
             }
 
-            return this@Script
+            return this@PolyglotScript
         }
 
     }
@@ -129,12 +128,12 @@ class Script(val scriptFile: File) {
      * Registers a new script module
      *
      * @param moduleObject JavaScript object containing information about the module.
-     * @param callback JavaScript function to which the corresponding instance of [JsModule] is passed.
-     * @see JsModule
+     * @param callback JavaScript function to which the corresponding instance of [ScriptModule] is passed.
+     * @see ScriptModule
      */
     @Suppress("unused")
     fun registerModule(moduleObject: Map<String, Any>, callback: (Module) -> Unit) {
-        val module = JsModule(this, moduleObject)
+        val module = ScriptModule(this, moduleObject)
         registeredModules += module
         callback(module)
     }
@@ -146,7 +145,7 @@ class Script(val scriptFile: File) {
      */
     @Suppress("unused")
     fun registerCommand(commandObject: Value) {
-        val commandBuilder = JsCommandBuilder(commandObject)
+        val commandBuilder = ScriptCommandBuilder(commandObject)
         registeredCommands += commandBuilder.build()
     }
 
@@ -156,9 +155,9 @@ class Script(val scriptFile: File) {
      *
      * @param choiceConfigurable The choice configurable to add the choice to.
      * @param choiceObject JavaScript object containing information about the choice.
-     * @param callback JavaScript function to which the corresponding instance of [JsChoice] is passed.
+     * @param callback JavaScript function to which the corresponding instance of [ScriptChoice] is passed.
      *
-     * @see JsChoice
+     * @see ScriptChoice
      * @see ChoiceConfigurable
      */
     @Suppress("unused")
@@ -166,7 +165,7 @@ class Script(val scriptFile: File) {
         choiceConfigurable: ChoiceConfigurable<Choice>, choiceObject: Map<String, Any>,
         callback: (Choice) -> Unit
     ) {
-        JsChoice(choiceObject, choiceConfigurable).apply {
+        ScriptChoice(choiceObject, choiceConfigurable).apply {
             callback(this)
             registeredChoices += this
         }
@@ -224,7 +223,7 @@ class Script(val scriptFile: File) {
         try {
             globalEvents[eventName]?.invoke()
         } catch (throwable: Throwable) {
-            logger.error("${scriptFile.name}::$scriptName -> Event Function $eventName threw an error",
+            logger.error("${file.name}::$scriptName -> Event Function $eventName threw an error",
                 throwable)
         }
     }

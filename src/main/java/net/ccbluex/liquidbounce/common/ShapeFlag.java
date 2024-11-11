@@ -16,25 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+package net.ccbluex.liquidbounce.common;
 
-package net.ccbluex.liquidbounce.injection.mixins.graaljs;
-
-import net.ccbluex.liquidbounce.utils.mappings.Remapper;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-
-/**
- * Remaps class names to their obfuscated counterparts.
- *
- * Initial code by lit
- */
-@Mixin(targets = "com/oracle/truffle/host/HostClassLoader")
-public class MixinHostClassLoader {
-
-    @ModifyVariable(method = "findClass", at = @At("HEAD"), argsOnly = true, remap = false)
-    private String remapClassName(String value) {
-        return Remapper.INSTANCE.remapClassName(value);
-    }
-
+public class ShapeFlag {
+    public static boolean noShapeChange = false;
 }

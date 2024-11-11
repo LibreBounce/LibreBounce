@@ -189,12 +189,9 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
     // Searches for any blocks within the radius that need to be destroyed, such as crops.
     private fun updateTargetToBreakable(radius: Float, radiusSquared: Float, eyesPos: Vec3d): Boolean {
         val blocksToBreak = eyesPos.searchBlocksInCuboid(radius) { pos, state ->
-            !state.isAir && isTargeted(state, pos) && getNearestPoint(
-                eyesPos,
-                Box.enclosing(pos, pos.add(1, 1, 1))
-            ).squaredDistanceTo(eyesPos) <= radiusSquared
+            !state.isAir && isTargeted(state, pos) &&
+                getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
         }.sortedBy { it.first.getCenterDistanceSquared() }
-
 
         for ((pos, state) in blocksToBreak) {
             val (rotation, _) = raytraceBlock(
@@ -233,10 +230,7 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
         val blocksToPlace =
             eyesPos.searchBlocksInCuboid(radius) { pos, state ->
                 !state.isAir && isFarmBlockWithAir(state, pos, allowFarmland, allowSoulsand)
-                        && getNearestPoint(
-                    eyesPos,
-                    Box.enclosing(pos, pos.add(1, 1, 1))
-                ).squaredDistanceTo(eyesPos) <= radiusSquared
+                        && getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
             }.map { it.first }.sortedBy { it.getCenterDistanceSquared() }
 
         for (pos in blocksToPlace) {

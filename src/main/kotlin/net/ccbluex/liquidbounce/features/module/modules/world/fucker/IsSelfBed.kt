@@ -29,7 +29,15 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 
-abstract class IsSelfBedChoice(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
+fun isSelfBedChoices(choice: ChoiceConfigurable<IsSelfBedChoice>): Array<IsSelfBedChoice> {
+    return arrayOf(
+        IsSelfBedNoneChoice(choice),
+        IsSelfBedColorChoice(choice),
+        IsSelfBedSpawnLocationChoice(choice)
+    )
+}
+
+sealed class IsSelfBedChoice(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
     abstract fun isSelfBed(block: BedBlock, pos: BlockPos): Boolean
     abstract fun shouldDefend(block: BedBlock, pos: BlockPos): Boolean
 }

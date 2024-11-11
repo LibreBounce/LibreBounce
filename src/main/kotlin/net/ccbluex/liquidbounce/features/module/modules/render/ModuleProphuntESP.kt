@@ -33,17 +33,13 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
         )
     )
 
-    private val colorMode = choices<GenericColorMode<Any>>(
-        "ColorMode",
-        { it.choices[0] },
-        {
-            arrayOf(
-                ExpirationColor,
-                GenericStaticColorMode(it, Color4b(255, 179, 72, 150)),
-                GenericRainbowColorMode(it)
-            )
-        }
-    )
+    private val colorMode = choices("ColorMode", 0) {
+        arrayOf(
+            ExpirationColor,
+            GenericStaticColorMode(it, Color4b(255, 179, 72, 150)),
+            GenericRainbowColorMode(it)
+        )
+    }
 
     private object ExpirationColor : GenericColorMode<Any>("Expiration") {
         private val freshColor by color("FreshColor", Color4b(50, 200, 50, 255))

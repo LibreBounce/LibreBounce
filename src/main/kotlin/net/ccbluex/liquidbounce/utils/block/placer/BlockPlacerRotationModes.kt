@@ -1,12 +1,27 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2024 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.utils.block.placer
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.QuickImports
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
@@ -15,11 +30,13 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import kotlin.math.max
 
-abstract class RotationMode(
+abstract class BlockPlacerRotationMode(
     name: String,
-    private val configurable: ChoiceConfigurable<RotationMode>,
+    private val configurable: ChoiceConfigurable<BlockPlacerRotationMode>,
     val placer: BlockPlacer
 ) : Choice(name), QuickImports {
+
+    val postMove by boolean("PostMove", false)
 
     abstract operator fun invoke(isSupport: Boolean, pos: BlockPos, placementTarget: BlockPlacementTarget): Boolean
 
@@ -36,8 +53,8 @@ abstract class RotationMode(
  * Normal rotations.
  * Only one placement per tick is possible, possible less because rotating takes some time.
  */
-class NormalRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer: BlockPlacer)
-    : RotationMode("Normal", configurable, placer) {
+class NormalRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, placer: BlockPlacer)
+    : BlockPlacerRotationMode("Normal", configurable, placer) {
 
     val rotations = tree(RotationsConfigurable(this))
 
@@ -59,9 +76,14 @@ class NormalRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer:
 
                 raytraceResult.type == HitResult.Type.BLOCK && raytraceResult.blockPos == interactedBlockPos
             }, {
-                placer.postRotateTasks.add {
+                PostRotationExecutor.addTask(placer.module, postMove, priority = true, task = {
+                    if (placer.ticksToWait > 0) {
+                        return@addTask
+                    }
+
                     placer.doPlacement(isSupport, pos, placementTarget)
-                }
+                    placer.ranAction = true
+                })
             })
         )
 
@@ -75,8 +97,8 @@ class NormalRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer:
 /**
  * No rotations, or just a packet containing the rotation target.
  */
-class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer: BlockPlacer)
-    : RotationMode("None", configurable, placer) {
+class NoRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, placer: BlockPlacer)
+    : BlockPlacerRotationMode("None", configurable, placer) {
 
     val send by boolean("SendRotationPacket", false)
 
@@ -88,7 +110,11 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer: Blo
     private var placementsDone = 0
 
     override fun invoke(isSupport: Boolean, pos: BlockPos, placementTarget: BlockPlacementTarget): Boolean {
-        placer.postRotateTasks.add {
+        PostRotationExecutor.addTask(placer.module, postMove, task = {
+            if (placer.ticksToWait > 0) {
+                return@addTask
+            }
+
             if (send) {
                 val rotation = placementTarget.rotation.fixedSensitivity()
                 network.connection!!.send(
@@ -98,7 +124,8 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, placer: Blo
             }
 
             placer.doPlacement(isSupport, pos, placementTarget)
-        }
+            placer.ranAction = true
+        })
 
         placementsDone++
         return placementsDone == placements

@@ -34,7 +34,7 @@ import net.minecraft.client.option.Perspective
  */
 object ModuleAutoF5 : Module("AutoF5", Category.RENDER) {
 
-    var previousPerspective: Perspective? = null
+    private var previousPerspective: Perspective? = null
 
     val screenHandler = handler<ScreenEvent> {
         val screen = it.screen

@@ -256,7 +256,8 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
 
     private object StorageScanner : AbstractBlockLocationTracker<ChestType>() {
         override fun getStateFor(pos: BlockPos, state: BlockState): ChestType? {
-            return world.getBlockEntity(pos)?.categorize()
+            val chunk = mc.world?.getChunk(pos) ?: return null
+            return chunk.getBlockEntity(pos)?.categorize()
         }
     }
 

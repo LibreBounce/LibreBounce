@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import it.unimi.dsi.fastutil.floats.FloatFloatPair;
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticCategory;
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
@@ -31,10 +32,11 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
+import org.apache.commons.lang3.function.Suppliers;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -43,19 +45,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntityRenderer.class)
 public class MixinLivingEntityRenderer<T extends LivingEntity> {
 
-    private final ThreadLocal<Pair<Float, Float>> rotationPitch = ThreadLocal.withInitial(() -> null);
+    @Unique
+    private final ThreadLocal<@Nullable FloatFloatPair> rotationPitch = ThreadLocal.withInitial(Suppliers.nul());
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"))
     private void injectRender(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        Pair<Float, Float> rotationPitch = ModuleRotations.INSTANCE.getRotationPitch();
+        final var rotationPitch = ModuleRotations.INSTANCE.getRotationPitch();
 
-        this.rotationPitch.set(null);
+        this.rotationPitch.remove();
 
         if (livingEntity != MinecraftClient.getInstance().player || !ModuleRotations.INSTANCE.shouldDisplayRotations() || !ModuleRotations.INSTANCE.getBodyParts().getHead()) {
             return;
         }
 
-        this.rotationPitch.set(new Pair<>(rotationPitch.getLeft(), rotationPitch.getRight()));
+        this.rotationPitch.set(FloatFloatPair.of(rotationPitch.keyFloat(), rotationPitch.valueFloat()));
     }
 
     /**
@@ -63,9 +66,9 @@ public class MixinLivingEntityRenderer<T extends LivingEntity> {
      */
     @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerp(FFF)F", ordinal = 0))
     private float injectRotationPitch(float g, float f, float s) {
-        Pair<Float, Float> rot = this.rotationPitch.get();
+        final var rot = this.rotationPitch.get();
         if (rot != null) {
-            return MathHelper.lerp(g, rot.getLeft(), rot.getRight());
+            return MathHelper.lerp(g, rot.keyFloat(), rot.valueFloat());
         } else {
             return MathHelper.lerp(g, f, s);
         }

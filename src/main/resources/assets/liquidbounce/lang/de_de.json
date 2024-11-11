@@ -208,8 +208,6 @@
   "liquidbounce.command.panic.result.nonRender": "Nicht-Rendern",
   "liquidbounce.command.ping.description": "Überprüft deinen Ping.",
   "liquidbounce.command.ping.result.pingCheck": "Dein aktueller Ping ist %sms.",
-  "liquidbounce.command.position.description": "Kopiert deine aktuellen Koordinaten in die Zwischenablage.",
-  "liquidbounce.command.position.result.position": "Position: %s",
   "liquidbounce.command.client.subcommand.prefix.description": "Ändert das Befehlspräfix.",
   "liquidbounce.command.client.subcommand.prefix.parameter.prefix.description": "Neues Befehlspräfix.",
   "liquidbounce.command.client.subcommand.prefix.result.prefixChanged": "Befehlspräfix erfolgreich geändert in \"%s\".",
@@ -387,7 +385,6 @@
   "liquidbounce.module.autoPlay.description": "Fügt dich automatisch in Warteschlangen zu, um wieder z.B. SkyWars zu spielen.",
   "liquidbounce.module.autoRespawn.description": "Lässt dich nach dem Tod automatisch wieder respawnen.",
   "liquidbounce.module.autoTool.description": "Wählt automatisch das beste Werkzeug in deinem Inventar aus, um einen Block abzubauen.",
-  "liquidbounce.module.autoTotem.description": "Platziert automatisch ein Totem in der Nebenhand.",
   "liquidbounce.module.autoWalk.description": "Lässt dich automatisch in die Richtung gehen, in die du blickst.",
   "liquidbounce.module.autoWeapon.description": "Wählt automatisch die beste Waffe in deiner Hotbar aus.",
   "liquidbounce.module.avoidHazards.description": "Verhindert, dass du auf Blöcke stoßt, die sich negativ auf dich auswirken könnten.",
@@ -603,5 +600,9 @@
   "liquidbounce.module.freeLook.description": "Ermöglicht dir, die Kamera frei um deinen Charakter herum zu bewegen.",
   "liquidbounce.module.vehicleControl.messages.quitHelp": "Um das Fahrzeug verlassen zu können, lande auf dem Boden und drücke deine Sneak Taste.",
   "liquidbounce.module.vehicleControl.messages.vehicleTooFar": "Das Fahrzeug ist zu weit entfernt, um erreicht zu werden.",
-  "liquidbounce.module.vehicleControl.messages.vehicleGone": "Das Fahrzeug ist verschwunden."
+  "liquidbounce.module.vehicleControl.messages.vehicleGone": "Das Fahrzeug ist verschwunden.",
+  "liquidbounce.module.dupe.description": "Versucht, automatisch Items aus deinem Inventar mithilfe von Exploits zu duplizieren.",
+  "liquidbounce.module.surround.description": "Baut Löcher, die dich vor Explosionsschaden schützen.",
+  "liquidbounce.command.coordinates.description": "Zeigt deine Koordinaten an, kopiert sie in die Zwischenablage oder sendet sie an andere Spieler über /msg.",
+  "liquidbounce.command.coordinates.subcommand.copy.result.success": "Erfolgreich deine Koordinaten in die Zwischenablage kopiert."
 }

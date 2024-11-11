@@ -16,24 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.script.bindings.api
 
-import net.ccbluex.liquidbounce.utils.item.createItem
-import net.minecraft.item.ItemStack
+package net.ccbluex.liquidbounce.injection.mixins.truffle;
 
-/**
- * Object used by the script API to provide an easier way of creating items.
- */
-object JsItemUtil {
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Pseudo;
 
-    /**
-     * Create [ItemStack] from [arguments]
-     */
-    fun create(arguments: String): ItemStack = createItem(arguments)
+@Pseudo
+@Mixin(targets = "com/oracle/truffle/api/TruffleLanguage", remap = false)
+public class MixinTruffleLanguage {
 
     /**
-     * Create [amount]x [ItemStack] from [arguments]
+     * @author Senk Ju
+     * @reason Prevent GraalVM from blocking multithreaded access to resources
      */
-    fun create(arguments: String, amount: Int): ItemStack = createItem(arguments, amount)
-
+    @Overwrite(remap = false)
+    protected boolean isThreadAccessAllowed(Thread thread, boolean singleThreaded) {
+        return true;
+    }
 }

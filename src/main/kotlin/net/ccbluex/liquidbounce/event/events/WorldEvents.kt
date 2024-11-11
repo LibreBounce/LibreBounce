@@ -45,7 +45,7 @@ class ChunkDeltaUpdateEvent(val x: Int, val z: Int) : Event()
 class BlockChangeEvent(val blockPos: BlockPos, val newState: BlockState) : Event()
 
 @Nameable("blockShape")
-class BlockShapeEvent(val state: BlockState, val pos: BlockPos, var shape: VoxelShape) : Event()
+class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: VoxelShape) : Event()
 
 @Nameable("blockBreakingProgress")
 class BlockBreakingProgressEvent(val pos: BlockPos) : Event()

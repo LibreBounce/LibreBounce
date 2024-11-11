@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold
 
+import it.unimi.dsi.fastutil.ints.IntObjectPair
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.config.NoneChoice
@@ -63,6 +64,8 @@ import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.item.*
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.toVec3d
@@ -97,7 +100,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         tree(ScaffoldMovementPrediction)
     }
 
-    internal val technique = choices<ScaffoldTechnique>(
+    internal val technique = choices(
         "Technique",
         ScaffoldNormalTechnique,
         arrayOf(
@@ -106,7 +109,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
             ScaffoldGodBridgeTechnique,
             ScaffoldBreezilyTechnique
         )
-    ).apply { tagBy(this) }
+    ).apply(::tagBy)
 
     private val sameYMode by enumChoice("SameY", SameYMode.OFF)
 
@@ -146,9 +149,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     }
 
     @Suppress("UnusedPrivateProperty")
-    val towerMode = choices<Choice>("Tower", {
-        it.choices[0] // None
-    }) {
+    val towerMode = choices("Tower", 0) {
         arrayOf(NoneChoice(it), ScaffoldTowerMotion, ScaffoldTowerPulldown, ScaffoldTowerKarhu, ScaffoldTowerVulcan)
     }
 
@@ -157,9 +158,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
 
     // SafeWalk feature - uses the SafeWalk module as a base
     @Suppress("unused")
-    private val safeWalkMode = choices("SafeWalk", {
-        it.choices[1] // Safe mode
-    }, ModuleSafeWalk::createChoices)
+    private val safeWalkMode = choices("SafeWalk", 1, ModuleSafeWalk::safeWalkChoices)
 
     internal object ScaffoldRotationConfigurable : RotationsConfigurable(this) {
 
@@ -220,17 +219,13 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
             val blockInMainHand = player.inventory.getStack(player.inventory.selectedSlot)
             val blockInOffHand = player.offHandStack
 
-            val blocksInHotbar = if (ScaffoldAutoBlockFeature.enabled) {
-                findPlaceableSlots()
-            } else {
-                emptyList()
+            val blocks = hashSetOf(blockInMainHand, blockInOffHand)
+
+            if (ScaffoldAutoBlockFeature.enabled) {
+                findPlaceableSlots().mapTo(blocks) { it.value() }
             }
 
-            return arrayOf(blockInMainHand, blockInOffHand, *blocksInHotbar.map { it.second }.toTypedArray())
-                .distinct()
-                .filterNotNull()
-                .filter { isValidBlock(it) }
-                .sumOf { it.count }
+            return blocks.sumOf { if (isValidBlock(it)) it.count else 0 }
         }
 
     val isBlockBelow: Boolean
@@ -514,7 +509,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
 
         if (rotationTiming == ON_TICK && RotationManager.serverRotation != player.rotation) {
             network.sendPacket(
-               Full(
+                Full(
                     player.x, player.y, player.z, player.withFixedYaw(currentRotation),
                     player.pitch, player.isOnGround
                 )
@@ -530,13 +525,13 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         }
     }
 
-    private fun findPlaceableSlots() = (0..8).mapNotNull {
-        val stack = player.inventory.getStack(it)
+    private fun findPlaceableSlots() = buildList<IntObjectPair<ItemStack>> {
+        for (i in 0..8) {
+            val stack = player.inventory.getStack(i)
 
-        if (isValidBlock(stack)) {
-            it to stack
-        } else {
-            null
+            if (isValidBlock(stack)) {
+                add(IntObjectPair.of(i, stack))
+            }
         }
     }
 
@@ -546,8 +541,8 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
 
         val (slot, _) = placeableSlots
             .filter { (_, stack) -> stack.count > doNotUseBelowCount }
-            .maxWithOrNull { o1, o2 -> BLOCK_COMPARATOR_FOR_HOTBAR.compare(o1.second, o2.second) }
-            ?: placeableSlots.maxWithOrNull { o1, o2 -> BLOCK_COMPARATOR_FOR_HOTBAR.compare(o1.second, o2.second) }
+            .maxWithOrNull { o1, o2 -> BLOCK_COMPARATOR_FOR_HOTBAR.compare(o1.value(), o2.value()) }
+            ?: placeableSlots.maxWithOrNull { o1, o2 -> BLOCK_COMPARATOR_FOR_HOTBAR.compare(o1.value(), o2.value()) }
             ?: return null
 
         return slot
