@@ -29,7 +29,7 @@ object NoWeb : Module("NoWeb", Category.MOVEMENT, hideModule = false) {
 
          // Other
         Rewi,
-        Grim
+        OldGrim
     )
 
     private val modes = noWebModes.map { it.modeName }.toTypedArray()
