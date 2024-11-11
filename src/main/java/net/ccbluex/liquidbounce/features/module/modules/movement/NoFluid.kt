@@ -16,11 +16,11 @@ object NoFluid : Module("NoFluid", Category.MOVEMENT) {
 
     val waterValue by boolean("Water", true)
     val lavaValue by boolean("Lava", true)
-    private val grim by boolean("OldGrim",false)
+    private val oldGrim by boolean("OldGrim",false)
 
     @EventTarget
     fun onUpdate(event: UpdateEvent){
-        if ((waterValue || lavaValue) && grim){
+        if ((waterValue || lavaValue) && oldGrim){
             val searchBlocks = BlockUtils.searchBlocks(2, setOf(water, lava))
             for (block in searchBlocks){
                 val blockpos = block.key
