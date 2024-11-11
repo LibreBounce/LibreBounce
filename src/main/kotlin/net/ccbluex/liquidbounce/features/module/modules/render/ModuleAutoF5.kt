@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.events.ScreenEvent
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -34,16 +34,12 @@ import net.minecraft.client.option.Perspective
  */
 object ModuleAutoF5 : Module("AutoF5", Category.RENDER) {
 
-    private var previousPerspective: Perspective? = null
-
-    val screenHandler = handler<ScreenEvent> {
-        val screen = it.screen
+    @Suppress("unused")
+    private val perspectiveHandler = handler<PerspectiveEvent> { event ->
+        val screen = mc.currentScreen
 
         if (screen is GenericContainerScreen || screen is InventoryScreen) {
-            previousPerspective = mc.options.perspective
-            mc.options.perspective = Perspective.THIRD_PERSON_BACK
-        } else if (previousPerspective != null) {
-            mc.options.perspective = previousPerspective
+            event.perspective = Perspective.THIRD_PERSON_BACK
         }
     }
 

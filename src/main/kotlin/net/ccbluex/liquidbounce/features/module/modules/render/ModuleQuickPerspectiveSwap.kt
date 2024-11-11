@@ -25,6 +25,5 @@ import net.ccbluex.liquidbounce.utils.input.InputBind
 object ModuleQuickPerspectiveSwap : Module(
     "QuickPerspectiveSwap", Category.RENDER, disableOnQuit = true, bindAction = InputBind.BindAction.HOLD
 ) {
-
     val rearView by boolean("RearView", false)
 }
