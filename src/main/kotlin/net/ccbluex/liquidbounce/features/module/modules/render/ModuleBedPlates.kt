@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
 import net.minecraft.client.gui.DrawContext
@@ -186,7 +187,9 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private fun getBedPlates(headState: BlockState, head: BlockPos): BedState {
         val bedDirection = headState.get(BedBlock.FACING)
 
-        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers, ::Object2IntOpenHashMap)
+        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers) { i ->
+            Object2IntOpenHashMap((i + 2).sq() shl 2) // excepted count: 8/18/32/...
+        }
 
         head.searchBedLayer(headState, maxLayers)
             .mapNotNull { (layer, pos) ->
@@ -205,11 +208,8 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                 }
             }.forEach { (layer, block) ->
                 // Count blocks
-                val map = layers[layer - 1]
-                if (map.containsKey(block)) {
-                    map.put(block, map.getInt(block) + 1)
-                } else {
-                    map.put(block, 1)
+                with(layers[layer - 1]) {
+                    put(block, if (containsKey(block)) getInt(block) + 1 else 1)
                 }
             }
 

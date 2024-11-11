@@ -87,26 +87,25 @@ object ChunkRenderer {
             }
         }
 
+        private val offsetsToCheck = arrayOf(
+            Vec2i(-1, 0),
+            Vec2i(1, 0),
+            Vec2i(0, -1),
+            Vec2i(0, 1),
+            Vec2i(-1, 1),
+            Vec2i(1, 1),
+            Vec2i(-1, -1),
+            Vec2i(1, -1),
+        )
+
         private fun getColor(x: Int, z: Int): Int {
             val world = mc.world!!
 
             val height = heightmapManager.getHeight(x, z)
-            val offsetsToCheck =
-                arrayOf(
-                    Vec2i(-1, 0),
-                    Vec2i(1, 0),
-                    Vec2i(0, -1),
-                    Vec2i(0, 1),
-                    Vec2i(-1, 1),
-                    Vec2i(1, 1),
-                    Vec2i(-1, -1),
-                    Vec2i(1, -1),
-                )
 
-            val higherOffsets =
-                offsetsToCheck.filter { offset ->
-                    heightmapManager.getHeight(x + offset.x, z + offset.y) > height
-                }
+            val higherOffsets = offsetsToCheck.filter { offset ->
+                heightmapManager.getHeight(x + offset.x, z + offset.y) > height
+            }
 
             val higherOffsetVec = higherOffsets.fold(Vec2i(0, 0)) { acc, vec -> acc.add(vec) }
 

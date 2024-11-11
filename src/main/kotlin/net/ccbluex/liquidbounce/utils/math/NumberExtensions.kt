@@ -31,3 +31,12 @@ inline fun Float.sq(): Float {
 inline fun Double.sq(): Double {
     return this * this
 }
+
+inline fun Float.toFixed(digits: Int): String {
+    return "%.${digits}f".format(this)
+}
+
+inline fun Double.toFixed(digits: Int): String {
+    return "%.${digits}f".format(this)
+}
+
