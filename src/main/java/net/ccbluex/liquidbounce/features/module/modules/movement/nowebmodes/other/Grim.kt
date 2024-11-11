@@ -12,7 +12,7 @@ import net.minecraft.init.Blocks.web
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.util.EnumFacing
 
-object Grim : NoWebMode("Grim") {
+object Grim : NoWebMode("OldGrim") {
     override fun onUpdate() {
         val searchBlocks = BlockUtils.searchBlocks(2, setOf(web))
         mc.thePlayer.isInWeb = false
