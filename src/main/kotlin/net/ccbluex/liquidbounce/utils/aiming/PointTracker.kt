@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
@@ -38,8 +39,6 @@ import kotlin.math.min
 class PointTracker(
     highestPointDefault: PreferredBoxPart = PreferredBoxPart.HEAD,
     lowestPointDefault: PreferredBoxPart = PreferredBoxPart.BODY,
-    gaussianOffsetMin: Float = 0.0f,
-    gaussianOffsetMax: Float = 0.0f,
     timeEnemyOffsetDefault: Float = 0.4f,
     timeEnemyOffsetScale: ClosedFloatingPointRange<Float> = -1f..1f
 ) : Configurable("PointTracker"), Listenable {
@@ -65,16 +64,59 @@ class PointTracker(
      */
     private val timeEnemyOffset by float("TimeEnemyOffset", timeEnemyOffsetDefault, timeEnemyOffsetScale)
 
+    private inner class Gaussian : ToggleableConfigurable(this, "Gaussian", false) {
+
+        var currentOffset: Vec3d = Vec3d.ZERO
+        private var targetOffset: Vec3d = Vec3d.ZERO
+
+        val factor by floatRange("Offset", 0f..0f, 0.0f..1.0f)
+        val dynamicFactor by float("DynamicFactor", 0f, 0f..7.5f)
+        val chance by int("Chance", 100, 0..100, "%")
+        val speed by floatRange("Speed", 0.1f..0.2f, 0.01f..1f)
+        val tolerance by float("Tolerance", 0.1f, 0.01f..0.1f)
+
+        private val random = SecureRandom()
+
+        private fun interpolate(start: Double, end: Double, f: Double) = start + (end - start) * f
+
+        private fun gaussianHasReachedTarget(vec1: Vec3d, vec2: Vec3d, tolerance: Float): Boolean {
+            return abs(vec1.x - vec2.x) < tolerance &&
+                abs(vec1.y - vec2.y) < tolerance &&
+                abs(vec1.z - vec2.z) < tolerance
+        }
+
+        fun updateGaussianOffset() {
+            val factor =
+                if (dynamicFactor > 0f) {
+                    (factor.random() + player.sqrtSpeed * dynamicFactor).coerceAtMost(1.0)
+                } else {
+                    factor.random()
+                }
+
+            if (gaussianHasReachedTarget(currentOffset, targetOffset, tolerance)) {
+                if (random.nextInt(100) <= chance) {
+                    targetOffset = Vec3d(
+                        random.nextGaussian(MEAN_X, STDDEV_X) * factor,
+                        random.nextGaussian(MEAN_Y, STDDEV_Y) * factor,
+                        random.nextGaussian(MEAN_Z, STDDEV_Z) * factor
+                    )
+                }
+            } else {
+                currentOffset = Vec3d(
+                    interpolate(currentOffset.x, targetOffset.x, speed.random()),
+                    interpolate(currentOffset.y, targetOffset.y, speed.random()),
+                    interpolate(currentOffset.z, targetOffset.z, speed.random())
+                )
+            }
+        }
+
+    }
+
     /**
      * This introduces a layer of randomness to the point tracker. A gaussian distribution is being used to
      * calculate the offset.
      */
-    private val gaussianFactor by floatRange("GaussianOffset", gaussianOffsetMin..gaussianOffsetMax, 0.0f..1.0f)
-    private val dynamicGaussianFactor by boolean("DynamicGaussianFactor", false)
-    private val dynamicFactorMulti by float("DynamicFactorMulti", 7f, 0.01f..7.5f)
-    private val gaussianChance by int("GaussianChance", 100, 0..100, "%")
-    private val gaussianSpeed by floatRange("GaussianSpeed", 0.1f..0.2f, 0.01f..1f)
-    private val gaussianTolerance by float("GaussianTolerance", 0.1f, 0.01f..0.1f)
+    private val gaussian = tree(Gaussian())
 
     /**
      * OutOfBox will set the box offset to an unreachable position.
@@ -175,12 +217,6 @@ class PointTracker(
     }
 
     /**
-     * The current offset of the point tracker.
-     */
-    private val random = SecureRandom()
-    private var currentOffset = Vec3d.ZERO
-
-    /**
      * The point tracker is being used to track a certain point of an entity.
      *
      * @param entity The entity we want to track.
@@ -224,52 +260,15 @@ class PointTracker(
             initialCutoffBox
         }
 
-        val offset = if (gaussianFactor.random() > 0.0) {
-            updateGaussianOffset()
-            currentOffset
+        val offset = if (gaussian.enabled && gaussian.factor.random() > 0.0) {
+            gaussian.updateGaussianOffset()
+            gaussian.currentOffset
         } else {
             Vec3d.ZERO
         }
 
         val targetPoint = preferredBoxPoint.point(cutoffBox, playerEyes) + offset
         return Point(playerEyes, targetPoint, box, cutoffBox)
-    }
-
-    private fun interpolate(start: Double, end: Double, f: Double): Double {
-        return start + (end - start) * f
-    }
-
-    private fun gaussianHasReachedTarget(vec1: Vec3d, vec2: Vec3d, tolerance: Float): Boolean {
-        return abs(vec1.x - vec2.x) < tolerance &&
-            abs(vec1.y - vec2.y) < tolerance &&
-            abs(vec1.z - vec2.z) < tolerance
-    }
-
-    private var targetOffset = Vec3d.ZERO
-
-    private fun updateGaussianOffset() {
-        val factor =
-            if (dynamicGaussianFactor) {
-                (gaussianFactor.random() + player.sqrtSpeed * dynamicFactorMulti).coerceAtMost(1.0)
-            } else {
-                gaussianFactor.random()
-            }
-
-        if (gaussianHasReachedTarget(currentOffset, targetOffset, gaussianTolerance)) {
-            if (random.nextInt(100) <= gaussianChance) {
-                targetOffset = Vec3d(
-                    random.nextGaussian(MEAN_X, STDDEV_X) * factor,
-                    random.nextGaussian(MEAN_Y, STDDEV_Y) * factor,
-                    random.nextGaussian(MEAN_Z, STDDEV_Z) * factor
-                )
-            }
-        } else {
-            currentOffset = Vec3d(
-                interpolate(currentOffset.x, targetOffset.x, gaussianSpeed.random()),
-                interpolate(currentOffset.y, targetOffset.y, gaussianSpeed.random()),
-                interpolate(currentOffset.z, targetOffset.z, gaussianSpeed.random())
-            )
-        }
     }
 
     data class Point(val fromPoint: Vec3d, val toPoint: Vec3d, val box: Box, val cutOffBox: Box)
