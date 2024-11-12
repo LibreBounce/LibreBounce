@@ -167,7 +167,13 @@ fun BlockPos.searchBlocksInCuboid(radius: Int): Region {
 fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectPair<BlockPos>> {
     check(state.block in BED_BLOCKS) { "This function is only available for Beds" }
 
-    val bedDirection = state.get(BedBlock.FACING)
+    var bedDirection = state.get(BedBlock.FACING)
+    var opposite = bedDirection.opposite
+
+    if (BedBlock.getBedPart(state) != DoubleBlockProperties.Type.FIRST) {
+        opposite = bedDirection
+        bedDirection = bedDirection.opposite
+    }
 
     var left = Direction.WEST
     var right = Direction.EAST
@@ -176,8 +182,6 @@ fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectP
         left = Direction.SOUTH
         right = Direction.NORTH
     }
-
-    val opposite = bedDirection.opposite
 
     return searchLayer(layers, bedDirection, Direction.UP, left, right) +
         offset(opposite).searchLayer(layers, opposite, Direction.UP, left, right)

@@ -39,6 +39,11 @@ object ChunkScanner : Listenable {
 
     private val loadedChunks = hashSetOf<ChunkLocation>()
 
+    private fun clearAllChunks() {
+        subscribers.forEach(BlockChangeSubscriber::clearAllChunks)
+        loadedChunks.clear()
+    }
+
     @Suppress("unused")
     val chunkLoadHandler = handler<ChunkLoadEvent> { event ->
         val chunk = mc.world!!.getChunk(event.x, event.z)
@@ -72,9 +77,13 @@ object ChunkScanner : Listenable {
     }
 
     @Suppress("unused")
+    val worldChangeHandler = handler<WorldChangeEvent> { event ->
+        clearAllChunks()
+    }
+
+    @Suppress("unused")
     val disconnectHandler = handler<DisconnectEvent> {
-        subscribers.forEach(BlockChangeSubscriber::clearAllChunks)
-        loadedChunks.clear()
+        clearAllChunks()
     }
 
     fun subscribe(newSubscriber: BlockChangeSubscriber) {
