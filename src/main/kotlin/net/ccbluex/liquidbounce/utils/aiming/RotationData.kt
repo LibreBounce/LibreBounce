@@ -18,13 +18,16 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
+import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.roundToInt
 
 data class Rotation(
     var yaw: Float,
-    var pitch: Float
+    var pitch: Float,
+    var isNormalized: Boolean = false
 ) {
 
     companion object {
@@ -41,42 +44,32 @@ data class Rotation(
         }
 
     /**
-     * Fix rotation based on sensitivity
+     * Fixes GCD and Modulo 360° at yaw
+     *
+     * @return [Rotation] with fixed yaw and pitch
      */
-    fun fixedSensitivity(): Rotation {
+    fun normalize(): Rotation {
+        if (isNormalized) return this
+
         val gcd = RotationManager.gcd
 
-        // get previous rotation
-        val rotation = RotationManager.serverRotation
+        // We use the [currentRotation] to calculate the normalized rotation, if it's null, we use
+        // the player's rotation
+        val currentRotation = RotationManager.currentRotation ?: player.rotation
 
         // get rotation differences
-        val (deltaYaw, deltaPitch) = Rotation(yaw - rotation.yaw, pitch - rotation.pitch)
+        val yawDifference = RotationManager.angleDifference(yaw, currentRotation.yaw)
+        val pitchDifference = RotationManager.angleDifference(pitch, currentRotation.pitch)
 
         // proper rounding
-        val g1 = (deltaYaw / gcd).roundToInt() * gcd
-        val g2 = (deltaPitch / gcd).roundToInt() * gcd
+        val g1 = (yawDifference / gcd).roundToInt() * gcd
+        val g2 = (pitchDifference / gcd).roundToInt() * gcd
 
         // fix rotation
-        val yaw = rotation.yaw + g1.toFloat()
-        val pitch = rotation.pitch + g2.toFloat()
+        val yaw = currentRotation.yaw + g1.toFloat()
+        val pitch = currentRotation.pitch + g2.toFloat()
 
-        return Rotation(yaw, pitch.coerceIn(-90f, 90f))
-    }
-
-    operator fun minus(prevRotation: Rotation): Rotation {
-        return Rotation(yaw - prevRotation.yaw, pitch - prevRotation.pitch)
-    }
-
-    operator fun plus(prevRotation: Rotation): Rotation {
-        return Rotation(yaw + prevRotation.yaw, pitch + prevRotation.pitch)
-    }
-
-    operator fun times(value: Float): Rotation {
-        return Rotation(yaw * value, pitch * value)
-    }
-
-    operator fun div(value: Float): Rotation {
-        return Rotation(yaw / value, pitch / value)
+        return Rotation(yaw, pitch.coerceIn(-90f, 90f), isNormalized = true)
     }
 
 }

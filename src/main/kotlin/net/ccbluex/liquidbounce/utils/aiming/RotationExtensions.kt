@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.minecraft.entity.player.PlayerEntity
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager.angleDifference
+import net.minecraft.entity.player.PlayerEntity
 
 fun PlayerEntity?.applyRotation(rotation: Rotation) {
     this ?: return
 
-    rotation.fixedSensitivity().let {
+    rotation.normalize().let {
         prevPitch = pitch
         prevYaw = yaw
 
