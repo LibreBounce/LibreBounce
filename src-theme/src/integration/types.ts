@@ -323,6 +323,7 @@ export interface Proxy {
     id: number;
     host: string;
     port: number;
+    forwardAuthentication: boolean;
     favorite: boolean;
     credentials: {
         username: string;
