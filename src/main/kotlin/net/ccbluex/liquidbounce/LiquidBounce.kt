@@ -61,7 +61,6 @@ import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.kotlin.Render
 import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
@@ -127,15 +126,15 @@ object LiquidBounce : Listenable {
         // Load translations
         LanguageManager.loadDefault()
 
+        // Client Resources
+        ClientResourceReloader
+
         // Initialize client features
         EventManager
 
         // Config
         ConfigSystem
         combatTargetsConfigurable
-
-        // Client Resources
-        ClientResourceReloader
 
         ChunkScanner
         InputTracker
@@ -223,7 +222,7 @@ object LiquidBounce : Listenable {
             if (resourceManager is ReloadableResourceManagerImpl) {
                 // Register resource reloader
                 val reloader = SynchronousResourceReloader {
-                    virtualThread(name = "Client Resource Reloader", block = ::reload)
+                    reload()
                 }
                 resourceManager.registerReloader(reloader)
             } else {
