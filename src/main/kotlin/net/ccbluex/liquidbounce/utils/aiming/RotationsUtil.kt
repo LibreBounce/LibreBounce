@@ -290,10 +290,6 @@ object RotationManager : Listenable {
                 currentRotation = rotation
                 previousAimPlan = workingAimPlan
 
-                if (workingAimPlan.changeLook) {
-                    player.applyRotation(rotation)
-                }
-
                 aimPlan?.whenReached?.invoke()
             }
         }
