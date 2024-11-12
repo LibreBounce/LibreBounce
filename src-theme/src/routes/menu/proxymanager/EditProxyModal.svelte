@@ -13,6 +13,7 @@
     export let username: string;
     export let password: string;
     export let requiresAuthentication: boolean;
+    export let forwardAuthentication: boolean;
 
     let hostPort = "";
 
@@ -47,7 +48,7 @@
 
         const [host, port] = hostPort.split(":");
 
-        await editProxyRest(id, host, parseInt(port), username, password);
+        await editProxyRest(id, host, parseInt(port), username, password, forwardAuthentication);
         dispatch("proxyEdit")
         visible = false;
     }
@@ -60,5 +61,6 @@
         <IconTextInput title="Username" icon="user" bind:value={username}/>
         <IconTextInput title="Password" icon="lock" type="password" bind:value={password}/>
     {/if}
+    <SwitchSetting title="Forward Authentication" bind:value={forwardAuthentication}/>
     <ButtonSetting title="Edit Proxy" {disabled} on:click={editProxy} listenForEnter={true}/>
 </Modal>

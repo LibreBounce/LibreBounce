@@ -6,6 +6,7 @@
   "priority": 1337,
   "mixinPriority": 1337,
   "client": [
+    "authlib.MixinMinecraftClient",
     "minecraft.block.MixinAbstractBlock",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockView",

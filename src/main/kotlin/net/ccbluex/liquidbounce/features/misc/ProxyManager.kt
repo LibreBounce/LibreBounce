@@ -59,8 +59,9 @@ object ProxyManager : Configurable("proxy"), Listenable {
         ConfigSystem.root(this)
     }
 
-    fun addProxy(host: String, port: Int, username: String = "", password: String = "") {
-        Proxy(host, port, credentialsFromUserInput(username, password)).checkProxy(
+    fun addProxy(host: String, port: Int, username: String = "", password: String = "",
+                 forwardAuthentication: Boolean = false) {
+        Proxy(host, port, credentialsFromUserInput(username, password), forwardAuthentication).checkProxy(
             success = { proxy ->
                 LiquidBounce.logger.info("Added proxy [${proxy.host}:${proxy.port}]")
                 proxies.add(proxy)
@@ -76,8 +77,9 @@ object ProxyManager : Configurable("proxy"), Listenable {
         )
     }
 
-    fun editProxy(index: Int, host: String, port: Int, username: String = "", password: String = "") {
-        Proxy(host, port, credentialsFromUserInput(username, password)).checkProxy(
+    fun editProxy(index: Int, host: String, port: Int, username: String = "", password: String = "",
+                  forwardAuthentication: Boolean = false) {
+        Proxy(host, port, credentialsFromUserInput(username, password), forwardAuthentication).checkProxy(
             success = { newProxy ->
                 val isConnected = proxy == proxies[index]
 
@@ -187,6 +189,7 @@ object ProxyManager : Configurable("proxy"), Listenable {
         val host: String,
         val port: Int,
         val credentials: ProxyCredentials?,
+        var forwardAuthentication: Boolean = false,
         var ipInfo: IpInfo? = null,
         var favorite: Boolean = false
     ) {
