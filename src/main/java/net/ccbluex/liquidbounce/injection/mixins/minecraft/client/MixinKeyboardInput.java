@@ -101,7 +101,7 @@ public class MixinKeyboardInput extends MixinInput {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();
-        AimPlan configurable = rotationManager.getStoredAimPlan();
+        AimPlan configurable = rotationManager.getWorkingAimPlan();
 
         float z = this.movementForward;
         float x = this.movementSideways;

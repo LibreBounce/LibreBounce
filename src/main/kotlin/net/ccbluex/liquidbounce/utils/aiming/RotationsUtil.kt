@@ -135,15 +135,17 @@ open class RotationsConfigurable(
  */
 object RotationManager : Listenable {
 
-    private var previousAimPlan: AimPlan? = null
-
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.
      */
     private val aimPlan
         get() = aimPlanHandler.getActiveRequestValue()
-
     private var aimPlanHandler = RequestHandler<AimPlan>()
+
+    val workingAimPlan: AimPlan?
+        get() = aimPlan ?: previousAimPlan
+    private var previousAimPlan: AimPlan? = null
+
 
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
@@ -177,9 +179,6 @@ object RotationManager : Listenable {
         private set
 
     private var theoreticalServerRotation = Rotation.ZERO
-
-    val storedAimPlan: AimPlan?
-        get() = aimPlan ?: previousAimPlan
 
     private var triggerNoDifference = false
 
@@ -252,54 +251,51 @@ object RotationManager : Listenable {
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     fun update() {
-        val storedAimPlan = this.storedAimPlan ?: return
+        val workingAimPlan = this.workingAimPlan ?: return
         val playerRotation = player.rotation
 
-        aimPlan.let { aimPlan ->
-            if (aimPlan == null) {
-                val differenceFromCurrentToPlayer = rotationDifference(serverRotation, playerRotation)
+        val aimPlan = this.aimPlan
+        if (aimPlan != null) {
+            val enemyChange = aimPlan.entity != null && aimPlan.entity != previousAimPlan?.entity &&
+                aimPlan.slowStart?.onEnemyChange == true
+            val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
 
-                if (differenceFromCurrentToPlayer < storedAimPlan.resetThreshold || storedAimPlan.changeLook) {
-                    currentRotation?.let { (yaw, _) ->
-                        player.let { player ->
-                            player.yaw = yaw + angleDifference(player.yaw, yaw)
-                            player.renderYaw = player.yaw
-                            player.lastRenderYaw = player.yaw
-                        }
-                    }
-                    currentRotation = null
-                    previousAimPlan = null
-                    return
-                }
-            } else {
-                val enemyChange = aimPlan.entity != null && aimPlan.entity != previousAimPlan?.entity &&
-                    aimPlan.slowStart?.onEnemyChange == true
-                val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
-
-                if (triggerNoChange || enemyChange) {
-                    aimPlan.slowStart?.onTrigger()
-                }
+            if (triggerNoChange || enemyChange) {
+                aimPlan.slowStart?.onTrigger()
             }
         }
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
-            mc.currentScreen !is GenericContainerScreen) || !storedAimPlan.considerInventory) && allowedToUpdate()
+            mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
             val fromRotation = currentRotation ?: playerRotation
-            val rotation = storedAimPlan.nextRotation(fromRotation, aimPlan == null)
+            val rotation = workingAimPlan.nextRotation(fromRotation, aimPlan == null)
                 // After generating the next rotation, we need to normalize it
                 .normalize()
 
-            currentRotation = rotation
-            previousAimPlan = storedAimPlan
+            val diff = abs(rotationDifference(rotation, playerRotation))
+            if (workingAimPlan.changeLook || aimPlan == null && diff <= workingAimPlan.resetThreshold) {
+                currentRotation?.let { currentRotation ->
+                    player.yaw = player.withFixedYaw(currentRotation)
+                    player.renderYaw = player.yaw
+                    player.lastRenderYaw = player.yaw
+                }
 
-            if (storedAimPlan.changeLook) {
-                player.applyRotation(rotation)
+                currentRotation = null
+                previousAimPlan = null
+                return
+            } else {
+                currentRotation = rotation
+                previousAimPlan = workingAimPlan
+
+                if (workingAimPlan.changeLook) {
+                    player.applyRotation(rotation)
+                }
+
+                aimPlan?.whenReached?.invoke()
             }
-
-            aimPlan?.whenReached?.invoke()
         }
 
         // Update reset ticks
@@ -344,7 +340,7 @@ object RotationManager : Listenable {
 
     @Suppress("unused")
     val velocityHandler = handler<PlayerVelocityStrafe> { event ->
-        if (storedAimPlan?.applyVelocityFix == true) {
+        if (workingAimPlan?.applyVelocityFix == true) {
             event.velocity = fixVelocity(event.velocity, event.movementInput, event.speed)
         }
     }
@@ -383,8 +379,8 @@ object RotationManager : Listenable {
      * sometimes we update the rotation off chain (e.g. on interactItem)
      * and the player.lastYaw and player.lastPitch are not updated.
      */
-    val packetHandler = handler<PacketEvent>(priority = -1000) {
-        val packet = it.packet
+    val packetHandler = handler<PacketEvent>(priority = -1000) { event ->
+        val packet = event.packet
 
         val rotation = when (packet) {
             is PlayerMoveC2SPacket -> {
@@ -404,7 +400,7 @@ object RotationManager : Listenable {
         }
 
         // This normally applies to Modules like Blink, BadWifi, etc.
-        if (!it.isCancelled) {
+        if (!event.isCancelled) {
             actualServerRotation = rotation
         }
 
