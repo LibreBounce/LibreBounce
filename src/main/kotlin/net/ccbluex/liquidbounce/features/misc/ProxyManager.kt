@@ -77,6 +77,7 @@ object ProxyManager : Configurable("proxy"), Listenable {
         )
     }
 
+    @Suppress("LongParameterList")
     fun editProxy(index: Int, host: String, port: Int, username: String = "", password: String = "",
                   forwardAuthentication: Boolean = false) {
         Proxy(host, port, credentialsFromUserInput(username, password), forwardAuthentication).checkProxy(
