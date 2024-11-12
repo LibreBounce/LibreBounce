@@ -130,11 +130,6 @@ class PointTracker(
     private val dynamicShrinkBox by boolean("DynamicShrinkBox", true)
 
     /**
-     * The box expand value will enlarge the aim box by the given amount. Works well with dynamic gaussian factor.
-     */
-    private val boxExpand by float("BoxExpand", 0.0f, 0.0f..0.5f)
-
-    /**
      * The shrink box value will shrink the cut-off box by the given amount.
      */
     private val intersectsBox by boolean("Intersects", true)
@@ -252,7 +247,6 @@ class PointTracker(
             .withMinY(lowest)
             .contract(shrinkBox.toDouble(), 0.0, shrinkBox.toDouble())
             .contract(speedShrinkFactor, abs(player.velocity.y), speedShrinkFactor)
-            .expand(boxExpand.toDouble(), 0.0, boxExpand.toDouble())
 
         val cutoffBox = if (dynamicShrinkBox) {
             initialCutoffBox.contract(speedShrinkFactor, abs(player.velocity.y), speedShrinkFactor)
