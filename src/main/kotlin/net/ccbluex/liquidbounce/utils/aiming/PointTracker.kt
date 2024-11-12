@@ -70,7 +70,7 @@ class PointTracker(
         private var targetOffset: Vec3d = Vec3d.ZERO
 
         val factor by floatRange("Offset", 0f..0f, 0.0f..1.0f)
-        val dynamicFactor by float("DynamicFactor", 0f, 0f..7.5f)
+        val dynamicFactor by float("DynamicFactor", 0f, 0f..10f, "x")
         val chance by int("Chance", 100, 0..100, "%")
         val speed by floatRange("Speed", 0.1f..0.2f, 0.01f..1f)
         val tolerance by float("Tolerance", 0.1f, 0.01f..0.1f)
@@ -88,7 +88,7 @@ class PointTracker(
         fun updateGaussianOffset() {
             val factor =
                 if (dynamicFactor > 0f) {
-                    (factor.random() + player.sqrtSpeed * dynamicFactor).coerceAtMost(1.0)
+                    (factor.random() + player.sqrtSpeed * dynamicFactor)
                 } else {
                     factor.random()
                 }
@@ -268,7 +268,17 @@ class PointTracker(
         }
 
         val targetPoint = preferredBoxPoint.point(cutoffBox, playerEyes) + offset
-        return Point(playerEyes, targetPoint, box, cutoffBox)
+
+        val finalCutoffBox = Box(
+            min(targetPoint.x, cutoffBox.minX),
+            min(targetPoint.y, cutoffBox.minY),
+            min(targetPoint.z, cutoffBox.minZ),
+            max(targetPoint.x, cutoffBox.maxX),
+            max(targetPoint.y, cutoffBox.maxY),
+            max(targetPoint.z, cutoffBox.maxZ)
+        )
+
+        return Point(playerEyes, targetPoint, box, finalCutoffBox)
     }
 
     data class Point(val fromPoint: Vec3d, val toPoint: Vec3d, val box: Box, val cutOffBox: Box)
