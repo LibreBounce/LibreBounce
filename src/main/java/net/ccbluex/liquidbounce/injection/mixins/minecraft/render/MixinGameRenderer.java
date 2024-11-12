@@ -117,7 +117,7 @@ public abstract class MixinGameRenderer {
                 RotationManager.INSTANCE.getCurrentRotation() :
                 ModuleFreeCam.INSTANCE.getEnabled() ?
                         RotationManager.INSTANCE.getServerRotation() :
-                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta));
+                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta), true);
 
         return RaytracingExtensionsKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
                 ModuleLiquidPlace.INSTANCE.getEnabled(), tickDelta);

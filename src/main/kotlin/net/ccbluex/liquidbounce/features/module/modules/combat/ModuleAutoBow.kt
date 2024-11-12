@@ -138,7 +138,7 @@ object ModuleAutoBow : Module("AutoBow", Category.COMBAT, aliases = arrayOf("Bow
                     return@handler
                 }
 
-                val targetRotation = RotationManager.storedAimPlan ?: return@handler
+                val targetRotation = RotationManager.workingAimPlan ?: return@handler
 
                 val aimDifference = RotationManager.rotationDifference(
                     RotationManager.serverRotation, targetRotation.rotation

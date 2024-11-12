@@ -62,7 +62,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.AxeItem
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
-import kotlin.math.max
 
 /**
  * KillAura module
@@ -217,7 +216,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                 ?: RotationManager.currentRotation ?: player.rotation
         } else {
             RotationManager.currentRotation ?: player.rotation
-        }
+        }.normalize()
         val chosenEntity: Entity
 
         if (raycast != TRACE_NONE) {

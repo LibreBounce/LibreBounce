@@ -79,10 +79,14 @@ class FailFocus(owner: Listenable? = null)
     fun shiftRotation(rotation: Rotation): Rotation {
         val prevRotation = RotationManager.previousRotation ?: return rotation
         val serverRotation = RotationManager.serverRotation
-        val delta = prevRotation - serverRotation
-        val nonSenseRotation = rotation + (delta * failFactor) + shiftRotation
 
-        return nonSenseRotation
+        val deltaYaw = (prevRotation.yaw - serverRotation.yaw) * failFactor
+        val deltaPitch = (prevRotation.pitch - serverRotation.pitch) * failFactor
+
+        return Rotation(
+            rotation.yaw + deltaYaw + shiftRotation.yaw,
+            rotation.pitch + deltaPitch + shiftRotation.pitch
+        )
     }
 
 }

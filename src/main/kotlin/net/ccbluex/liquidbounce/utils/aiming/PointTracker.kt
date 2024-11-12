@@ -20,23 +20,25 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
 import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import java.security.SecureRandom
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 
 class PointTracker(
     highestPointDefault: PreferredBoxPart = PreferredBoxPart.HEAD,
     lowestPointDefault: PreferredBoxPart = PreferredBoxPart.BODY,
-    gaussianOffsetDefault: Float = 0.0f,
     timeEnemyOffsetDefault: Float = 0.4f,
     timeEnemyOffsetScale: ClosedFloatingPointRange<Float> = -1f..1f
 ) : Configurable("PointTracker"), Listenable {
@@ -62,12 +64,59 @@ class PointTracker(
      */
     private val timeEnemyOffset by float("TimeEnemyOffset", timeEnemyOffsetDefault, timeEnemyOffsetScale)
 
+    private inner class Gaussian : ToggleableConfigurable(this, "Gaussian", false) {
+
+        var currentOffset: Vec3d = Vec3d.ZERO
+        private var targetOffset: Vec3d = Vec3d.ZERO
+
+        val factor by floatRange("Offset", 0f..0f, 0.0f..1.0f)
+        val dynamicFactor by float("DynamicFactor", 0f, 0f..10f, "x")
+        val chance by int("Chance", 100, 0..100, "%")
+        val speed by floatRange("Speed", 0.1f..0.2f, 0.01f..1f)
+        val tolerance by float("Tolerance", 0.1f, 0.01f..0.1f)
+
+        private val random = SecureRandom()
+
+        private fun interpolate(start: Double, end: Double, f: Double) = start + (end - start) * f
+
+        private fun gaussianHasReachedTarget(vec1: Vec3d, vec2: Vec3d, tolerance: Float): Boolean {
+            return abs(vec1.x - vec2.x) < tolerance &&
+                abs(vec1.y - vec2.y) < tolerance &&
+                abs(vec1.z - vec2.z) < tolerance
+        }
+
+        fun updateGaussianOffset() {
+            val factor =
+                if (dynamicFactor > 0f) {
+                    (factor.random() + player.sqrtSpeed * dynamicFactor)
+                } else {
+                    factor.random()
+                }
+
+            if (gaussianHasReachedTarget(currentOffset, targetOffset, tolerance)) {
+                if (random.nextInt(100) <= chance) {
+                    targetOffset = Vec3d(
+                        random.nextGaussian(MEAN_X, STDDEV_X) * factor,
+                        random.nextGaussian(MEAN_Y, STDDEV_Y) * factor,
+                        random.nextGaussian(MEAN_Z, STDDEV_Z) * factor
+                    )
+                }
+            } else {
+                currentOffset = Vec3d(
+                    interpolate(currentOffset.x, targetOffset.x, speed.random()),
+                    interpolate(currentOffset.y, targetOffset.y, speed.random()),
+                    interpolate(currentOffset.z, targetOffset.z, speed.random())
+                )
+            }
+        }
+
+    }
+
     /**
      * This introduces a layer of randomness to the point tracker. A gaussian distribution is being used to
      * calculate the offset.
      */
-    private val gaussianFactor by float("GaussianOffset", gaussianOffsetDefault, 0.0f..1.0f)
-    private val gaussianChance by int("GaussianChance", 100, 0..100, "%")
+    private val gaussian = tree(Gaussian())
 
     /**
      * OutOfBox will set the box offset to an unreachable position.
@@ -78,6 +127,7 @@ class PointTracker(
      * The shrink box value will shrink the cut-off box by the given amount.
      */
     private val shrinkBox by float("ShrinkBox", 0.05f, 0.0f..0.3f)
+    private val dynamicShrinkBox by boolean("DynamicShrinkBox", true)
 
     /**
      * The shrink box value will shrink the cut-off box by the given amount.
@@ -162,12 +212,6 @@ class PointTracker(
     }
 
     /**
-     * The current offset of the point tracker.
-     */
-    private val random = SecureRandom()
-    private var currentOffset = Vec3d.ZERO
-
-    /**
      * The point tracker is being used to track a certain point of an entity.
      *
      * @param entity The entity we want to track.
@@ -198,33 +242,37 @@ class PointTracker(
 
         val speedShrinkFactor = min(0.05, max(player.sqrtSpeed * 0.5, targetVelocity.sqrtSpeed * 0.5))
 
-        val cutoffBox = box
+        val initialCutoffBox = box
             .withMaxY(highest)
             .withMinY(lowest)
             .contract(shrinkBox.toDouble(), 0.0, shrinkBox.toDouble())
             .contract(speedShrinkFactor, abs(player.velocity.y), speedShrinkFactor)
 
-        val offset = if (gaussianFactor > 0.0) {
-            updateGaussianOffset()
-            currentOffset
+        val cutoffBox = if (dynamicShrinkBox) {
+            initialCutoffBox.contract(speedShrinkFactor, abs(player.velocity.y), speedShrinkFactor)
+        } else {
+            initialCutoffBox
+        }
+
+        val offset = if (gaussian.enabled && gaussian.factor.random() > 0.0) {
+            gaussian.updateGaussianOffset()
+            gaussian.currentOffset
         } else {
             Vec3d.ZERO
         }
 
         val targetPoint = preferredBoxPoint.point(cutoffBox, playerEyes) + offset
-        return Point(playerEyes, targetPoint, box, cutoffBox)
-    }
 
-    private fun updateGaussianOffset() {
-        if (random.nextInt(100) > gaussianChance) {
-            return
-        }
+        val finalCutoffBox = Box(
+            min(targetPoint.x, cutoffBox.minX),
+            min(targetPoint.y, cutoffBox.minY),
+            min(targetPoint.z, cutoffBox.minZ),
+            max(targetPoint.x, cutoffBox.maxX),
+            max(targetPoint.y, cutoffBox.maxY),
+            max(targetPoint.z, cutoffBox.maxZ)
+        )
 
-        val newX = random.nextGaussian(MEAN_X, STDDEV_X) * gaussianFactor
-        val newY = random.nextGaussian(MEAN_Y, STDDEV_Y) * gaussianFactor
-        val newZ = random.nextGaussian(MEAN_Z, STDDEV_Z) * gaussianFactor
-
-        this.currentOffset = Vec3d(newX, newY, newZ)
+        return Point(playerEyes, targetPoint, box, finalCutoffBox)
     }
 
     data class Point(val fromPoint: Vec3d, val toPoint: Vec3d, val box: Box, val cutOffBox: Box)

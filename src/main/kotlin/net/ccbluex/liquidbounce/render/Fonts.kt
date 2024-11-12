@@ -132,7 +132,6 @@ object Fonts {
                             .createFont(Font.TRUETYPE_FONT, basePath.resolve("$name-$it.ttf"))
                             .deriveFont(DEFAULT_FONT_SIZE.toFloat())
 
-
                         FontGlyphPageManager(font)
                     }.toTypedArray(),
                     DEFAULT_FONT_SIZE.toFloat()

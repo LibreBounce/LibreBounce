@@ -144,9 +144,11 @@ object ModuleBedDefender : Module("BedDefender", category = Category.WORLD) {
             sortWith(compareBy({ it.keyInt() }, { -it.value().getSquaredDistance(eyesPos) }))
         }
 
-        ModuleDebug.debugGeometry(this, "PlacementPosition", ModuleDebug.DebugCollection(
-            updatePositions.map { (_, pos) -> ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.RED.alpha(100)) }
-        ))
+        ModuleDebug.debugGeometry(this, "PlacementPosition") {
+            ModuleDebug.DebugCollection(
+                updatePositions.map { (_, pos) -> ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.RED.alpha(100)) }
+            )
+        }
 
         // Need ordered set (like TreeSet/LinkedHashSet)
         placer.update(updatePositions.mapTo(linkedSetOf()) { it.value() })

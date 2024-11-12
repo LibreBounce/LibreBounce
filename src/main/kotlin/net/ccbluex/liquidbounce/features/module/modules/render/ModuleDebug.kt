@@ -146,7 +146,6 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         val width = mc.window.scaledWidth
 
-        //
         /**
          * Separate the debugged owner from its parameter
          * Structure should be like this:
@@ -159,13 +158,11 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         val debuggedOwners = debugParameters.keys.groupBy { it.owner }
 
-        debuggedOwners.onEachIndexed { index, (owner, parameter) ->
-            val ownerName = if (owner is Module) {
-                owner.name
-            } else if (owner is Listenable) {
-                "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
-            } else {
-                owner.javaClass.simpleName
+        debuggedOwners.onEach { (owner, parameter) ->
+            val ownerName = when (owner) {
+                is Module -> owner.name
+                is Listenable -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
+                else -> owner.javaClass.simpleName
             }
 
             textList += Text.literal(ownerName).styled {
@@ -206,6 +203,14 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         }
     }
 
+    inline fun debugGeometry(owner: Any, name: String, lazyGeometry: () -> DebuggedGeometry) {
+        if (!enabled) {
+            return
+        }
+
+        debugGeometry(owner, name, lazyGeometry.invoke())
+    }
+
     fun debugGeometry(owner: Any, name: String, geometry: DebuggedGeometry) {
         // Do not take any new debugging while the module is off
         if (!enabled) {
@@ -215,11 +220,19 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         debuggedGeometry[DebuggedGeometryOwner(owner, name)] = geometry
     }
 
-    data class DebuggedGeometryOwner(val owner: Any, val name: String)
+    private data class DebuggedGeometryOwner(val owner: Any, val name: String)
 
-    data class DebuggedParameter(val owner: Any, val name: String)
+    private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private var debugParameters = hashMapOf<DebuggedParameter, Any>()
+    private val debugParameters = hashMapOf<DebuggedParameter, Any>()
+
+    inline fun debugParameter(owner: Any, name: String, lazyValue: () -> Any) {
+        if (!enabled) {
+            return
+        }
+
+        debugParameter(owner, name, lazyValue.invoke())
+    }
 
     fun debugParameter(owner: Any, name: String, value: Any) {
         if (!enabled) {
@@ -234,7 +247,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         return Color4b(Color.getHSBColor(hue, 1f, 1f)).alpha(32)
     }
 
-    abstract class DebuggedGeometry(val color: Color4b) {
+    sealed class DebuggedGeometry(val color: Color4b) {
         abstract fun render(env: WorldRenderEnvironment)
     }
 
