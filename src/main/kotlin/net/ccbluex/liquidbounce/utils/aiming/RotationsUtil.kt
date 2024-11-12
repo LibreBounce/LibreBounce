@@ -276,7 +276,7 @@ object RotationManager : Listenable {
                 .normalize()
 
             val diff = abs(rotationDifference(rotation, playerRotation))
-            if (workingAimPlan.changeLook || aimPlan == null && diff <= workingAimPlan.resetThreshold) {
+            if (aimPlan == null && (workingAimPlan.changeLook || diff <= workingAimPlan.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
                     player.renderYaw = player.yaw
@@ -285,8 +285,11 @@ object RotationManager : Listenable {
 
                 currentRotation = null
                 previousAimPlan = null
-                return
             } else {
+                if (workingAimPlan.changeLook) {
+                    player.setRotation(rotation)
+                }
+
                 currentRotation = rotation
                 previousAimPlan = workingAimPlan
 
