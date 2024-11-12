@@ -114,7 +114,8 @@ class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event()
 @Nameable("perspective")
 class PerspectiveEvent(var perspective: Perspective) : Event()
 
-class LoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event() {
+@Nameable("itemLoreQuery")
+class ItemLoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event() {
     fun addLore(text: String?) {
         lore.add(Text.of(text))
     }

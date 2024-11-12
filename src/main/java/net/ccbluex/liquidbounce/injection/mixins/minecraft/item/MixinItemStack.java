@@ -20,7 +20,7 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.item;
 
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.LoreQueryEvent;
+import net.ccbluex.liquidbounce.event.events.ItemLoreQueryEvent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.item.Item.TooltipContext;
@@ -40,7 +40,7 @@ public class MixinItemStack {
     void injectLoreQueryEvent(TooltipContext context, @Nullable PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir) {
         List<Text> lore = cir.getReturnValue();
         if (!(lore instanceof ArrayList<Text>)) return;
-        LoreQueryEvent event = new LoreQueryEvent((ItemStack) (Object) this, (ArrayList<Text>) lore);
+        ItemLoreQueryEvent event = new ItemLoreQueryEvent((ItemStack) (Object) this, (ArrayList<Text>) lore);
         EventManager.INSTANCE.callEvent(event);
         cir.setReturnValue(event.getLore());
     }

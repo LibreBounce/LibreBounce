@@ -70,7 +70,7 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
         playerMap.clear()
     }
 
-    val loreQueryHandler = handler<LoreQueryEvent> { event ->
+    val itemLoreQueryHandler = handler<ItemLoreQueryEvent> { event ->
         if (!enabled || mc.currentScreen !is NoInteractInventory) return@handler
         val player = CommandInvsee.viewedPlayer
         val timeStamp = playerMap[player?.uuid]?.timeMap?.get(event.itemStack) ?: return@handler
