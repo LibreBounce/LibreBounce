@@ -1,3 +1,7 @@
+/*
+ * Original shader from: https://www.shadertoy.com/view/ddKSDd
+ * Slightly modified to match the client's atmosphere.
+ */
 #version 120
 
 #ifdef GL_ES
