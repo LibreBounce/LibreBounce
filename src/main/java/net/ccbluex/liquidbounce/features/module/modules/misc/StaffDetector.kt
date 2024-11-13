@@ -31,7 +31,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     private val staffMode by object : ListValue(
         "StaffMode", arrayOf(
             "BlocksMC", "CubeCraft", "Gamster",
-            "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD"
+            "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD", "CoralMC"
         ), "BlocksMC"
     ) {
         override fun onUpdate(value: String) {
@@ -92,7 +92,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             "hypixel" to "hypixel.net",
             "supercraft" to "supercraft.es",
             "pikanetwork" to "pika-network.net",
-            "gommehd" to "gommehd.net"
+            "gommehd" to "gommehd.net",
+            "coralmc" to "coralmc.it"
         )
 
         serverIp = serverIpMap[staffMode.lowercase()] ?: return
