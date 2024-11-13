@@ -47,6 +47,7 @@
         hostPort = "";
         username = "";
         password = "";
+        forwardAuthentication = false;
     }
 </script>
 
