@@ -426,6 +426,7 @@
   "liquidbounce.module.disabler.messages.grimSpectateMessage": "You were flagged! You should disable disabler.",
   "liquidbounce.module.disabler.messages.grimSpectateEnableMessage": "Enable this Disabler during Respawning - when you have Fly abilities. You should be able to fly around and break blocks, but cannot attack other players during this. Disable it as soon as possible, otherwise you will being timed out.",
   "liquidbounce.module.eagle.description": "Automatically sneaks at the edge of a block",
+  "liquidbounce.module.elytraRecast.description": "Recasts elytra while holding jump key.",
   "liquidbounce.module.elytraFly.description": "Makes controlling an elytra easier.",
   "liquidbounce.module.targets.description": "Allows you to manage which entities are considered to be your target.",
   "liquidbounce.module.esp.description": "Highlights all targets allowing you to see them through walls.",

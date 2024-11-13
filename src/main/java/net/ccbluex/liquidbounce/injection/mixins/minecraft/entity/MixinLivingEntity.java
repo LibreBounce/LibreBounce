@@ -27,10 +27,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.event.events.TransferOrigin;
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAirJump;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiLevitation;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoJumpDelay;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
+import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
@@ -43,12 +40,16 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -84,6 +85,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Shadow
     public abstract boolean addStatusEffect(StatusEffectInstance effect);
+
+    @Shadow
+    public abstract boolean isFallFlying();
+
 
     /**
      * Hook anti levitation module
@@ -169,7 +174,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
                 .getActiveChoice() instanceof NoneChoice) && ModuleScaffold.INSTANCE.getTowerMode()
                 .getActiveChoice().isActive();
 
-        if (noJumpDelay || towerActive) {
+        //Elytra recast requires no jumping cooldown
+        var elytraRecast = ModuleElytraRecast.INSTANCE.getEnabled();
+
+        if (noJumpDelay || towerActive || elytraRecast) {
             jumpingCooldown = 0;
         }
     }
@@ -179,6 +187,38 @@ public abstract class MixinLivingEntity extends MixinEntity {
         if (ModuleAirJump.INSTANCE.getAllowJump() && jumping && jumpingCooldown == 0) {
             this.jump();
             jumpingCooldown = 10;
+        }
+    }
+
+    private ClientPlayerEntity player() {
+        return MinecraftClient.getInstance().player;
+    }
+
+    @Unique
+    private boolean previousElytra = false;
+    @Unique
+    private boolean awaitingElytra = false;
+
+    @Inject(method = "tickFallFlying", at = @At("TAIL"))
+    public void recastIfLanded(CallbackInfo callbackInfo) {
+        if (ModuleElytraRecast.INSTANCE.getEnabled()) {
+            if (player() == null || !((Object) this instanceof ClientPlayerEntity)) {
+                return;
+            }
+            
+            boolean elytra = isFallFlying();
+            
+            if (awaitingElytra) {
+                if (elytra) {
+                    awaitingElytra = false;
+                }
+            } else if (!elytra && previousElytra) {
+                MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.getId(),
+                        SoundCategory.PLAYERS);
+                ModuleElytraRecast.INSTANCE.castElytra(player());
+                awaitingElytra = ModuleElytraRecast.INSTANCE.checkElytra(player());
+            }
+            previousElytra = elytra;
         }
     }
 
