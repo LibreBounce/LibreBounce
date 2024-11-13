@@ -216,7 +216,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                 ?: RotationManager.currentRotation ?: player.rotation
         } else {
             RotationManager.currentRotation ?: player.rotation
-        }
+        }.normalize()
         val chosenEntity: Entity
 
         if (raycast != TRACE_NONE) {

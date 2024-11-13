@@ -93,7 +93,7 @@ object ModuleTrajectories : Module("Trajectories", Category.RENDER) {
             TrajectoryData.getRenderedTrajectoryInfo(otherPlayer, it.item, this.alwaysShowBow)
         } ?: return
 
-        val rotation = RotationManager.storedAimPlan?.rotation ?: otherPlayer.rotation
+        val rotation = RotationManager.workingAimPlan?.rotation ?: otherPlayer.rotation
 
         val yawRadians = rotation.yaw / 180f * Math.PI.toFloat()
         val pitchRadians = rotation.pitch / 180f * Math.PI.toFloat()

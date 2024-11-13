@@ -82,8 +82,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             highestPointDefault = PointTracker.PreferredBoxPart.HEAD,
             // The lag on Hypixel is massive
             timeEnemyOffsetDefault = 3f,
-            timeEnemyOffsetScale = 0f..7f,
-            gaussianOffsetDefault = 0f
+            timeEnemyOffsetScale = 0f..7f
         )
     )
 

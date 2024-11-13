@@ -79,7 +79,7 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Mod
     override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
         PostRotationExecutor.addTask(module, postMove, task = {
             if (send) {
-                val fixedRotation = rotation.fixedSensitivity()
+                val fixedRotation = rotation.normalize()
                 network.connection!!.send(
                     PlayerMoveC2SPacket.LookAndOnGround(fixedRotation.yaw, fixedRotation.pitch, player.isOnGround, player.horizontalCollision),
                     null

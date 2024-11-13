@@ -54,7 +54,10 @@ import net.minecraft.world.Difficulty
 import net.minecraft.world.RaycastContext
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
@@ -210,10 +213,10 @@ val Entity.prevPos: Vec3d
     get() = Vec3d(this.prevX, this.prevY, this.prevZ)
 
 val Entity.rotation: Rotation
-    get() = Rotation(this.yaw, this.pitch)
+    get() = Rotation(this.yaw, this.pitch, true)
 
 val ClientPlayerEntity.lastRotation: Rotation
-    get() = Rotation(this.lastYaw, this.lastPitch)
+    get() = Rotation(this.lastYaw, this.lastPitch, true)
 
 val Entity.box: Box
     get() = boundingBox.expand(targetingMargin.toDouble())

@@ -46,6 +46,7 @@ import net.minecraft.network.packet.s2c.play.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -188,13 +189,12 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
             // Changes your server side rotation and then resets it with provided settings
             var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(
-                    new Rotation(yaw, pitch),
+                    new Rotation(yaw, pitch, true),
                     null,
                     null,
                     true,
                     null
             );
-
             RotationManager.INSTANCE.aimAt(aimPlan, Priority.NOT_IMPORTANT, ModuleNoRotateSet.INSTANCE);
         } else {
             // Increase yaw and pitch by a value so small that the difference cannot be seen,

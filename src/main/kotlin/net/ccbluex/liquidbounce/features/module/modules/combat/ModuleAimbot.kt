@@ -122,7 +122,7 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
                 currentRotation.pitch + (rotation.pitch - currentRotation.pitch) * (timerSpeed * partialTicks)
             )
 
-            player.applyRotation(interpolatedRotation)
+            player.setRotation(interpolatedRotation)
         }
     }
 

@@ -135,25 +135,27 @@ open class RotationsConfigurable(
  */
 object RotationManager : Listenable {
 
-    private var previousAimPlan: AimPlan? = null
-
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.
      */
     private val aimPlan
         get() = aimPlanHandler.getActiveRequestValue()
-
     private var aimPlanHandler = RequestHandler<AimPlan>()
+
+    val workingAimPlan: AimPlan?
+        get() = aimPlan ?: previousAimPlan
+    private var previousAimPlan: AimPlan? = null
+
 
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
      */
     var currentRotation: Rotation? = null
         set(value) {
-            if (value == null) {
-                previousRotation = null
+            previousRotation = if (value == null) {
+                null
             } else {
-                previousRotation = field ?: mc.player?.rotation ?: Rotation.ZERO
+                field ?: mc.player?.rotation ?: Rotation.ZERO
             }
 
             field = value
@@ -177,9 +179,6 @@ object RotationManager : Listenable {
         private set
 
     private var theoreticalServerRotation = Rotation.ZERO
-
-    val storedAimPlan: AimPlan?
-        get() = aimPlan ?: previousAimPlan
 
     private var triggerNoDifference = false
 
@@ -252,28 +251,11 @@ object RotationManager : Listenable {
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     fun update() {
-        val player = mc.player ?: return
-        val aimPlan = aimPlan
-        val storedAimPlan = this.storedAimPlan ?: return
-
+        val workingAimPlan = this.workingAimPlan ?: return
         val playerRotation = player.rotation
 
-        if (aimPlan == null) {
-            val differenceFromCurrentToPlayer = rotationDifference(serverRotation, playerRotation)
-
-            if (differenceFromCurrentToPlayer < storedAimPlan.resetThreshold || storedAimPlan.changeLook) {
-                currentRotation?.let { (yaw, _) ->
-                    player.let { player ->
-                        player.yaw = yaw + angleDifference(player.yaw, yaw)
-                        player.renderYaw = player.yaw
-                        player.lastRenderYaw = player.yaw
-                    }
-                }
-                currentRotation = null
-                previousAimPlan = null
-                return
-            }
-        } else {
+        val aimPlan = this.aimPlan
+        if (aimPlan != null) {
             val enemyChange = aimPlan.entity != null && aimPlan.entity != previousAimPlan?.entity &&
                 aimPlan.slowStart?.onEnemyChange == true
             val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
@@ -285,22 +267,36 @@ object RotationManager : Listenable {
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
-            mc.currentScreen !is GenericContainerScreen) || !storedAimPlan.considerInventory) && allowedToUpdate()
+            mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
-            val nextRotation = storedAimPlan.nextRotation(currentRotation ?: playerRotation, aimPlan == null)
+            val fromRotation = currentRotation ?: playerRotation
+            val rotation = workingAimPlan.nextRotation(fromRotation, aimPlan == null)
+                // After generating the next rotation, we need to normalize it
+                .normalize()
 
-            nextRotation.fixedSensitivity().let {
-                currentRotation = it
-                previousAimPlan = storedAimPlan
-
-                if (storedAimPlan.changeLook) {
-                    player.applyRotation(it)
+            val diff = abs(rotationDifference(rotation, playerRotation))
+            if (aimPlan == null && (workingAimPlan.changeLook || diff <= workingAimPlan.resetThreshold)) {
+                currentRotation?.let { currentRotation ->
+                    player.yaw = player.withFixedYaw(currentRotation)
+                    player.renderYaw = player.yaw
+                    player.lastRenderYaw = player.yaw
                 }
-            }
 
-            aimPlan?.whenReached?.invoke()
+                currentRotation = null
+                previousAimPlan = null
+            } else {
+                if (workingAimPlan.changeLook) {
+                    player.setRotation(rotation)
+                }
+
+                currentRotation = rotation
+                previousAimPlan = workingAimPlan
+
+                aimPlan?.whenReached?.invoke()
+            }
         }
+
         // Update reset ticks
         aimPlanHandler.tick()
     }
@@ -343,7 +339,7 @@ object RotationManager : Listenable {
 
     @Suppress("unused")
     val velocityHandler = handler<PlayerVelocityStrafe> { event ->
-        if (storedAimPlan?.applyVelocityFix == true) {
+        if (workingAimPlan?.applyVelocityFix == true) {
             event.velocity = fixVelocity(event.velocity, event.movementInput, event.speed)
         }
     }
@@ -379,8 +375,8 @@ object RotationManager : Listenable {
      * sometimes we update the rotation off chain (e.g. on interactItem)
      * and the player.lastYaw and player.lastPitch are not updated.
      */
-    val packetHandler = handler<PacketEvent>(priority = -1000) {
-        val packet = it.packet
+    val packetHandler = handler<PacketEvent>(priority = -1000) { event ->
+        val packet = event.packet
 
         val rotation = when (packet) {
             is PlayerMoveC2SPacket -> {
@@ -391,7 +387,8 @@ object RotationManager : Listenable {
                     return@handler
                 }
 
-                Rotation(packet.yaw, packet.pitch)
+                // We trust that we have sent a normalized rotation, if not, ... why?
+                Rotation(packet.yaw, packet.pitch, isNormalized = true)
             }
             is PlayerPositionLookS2CPacket -> Rotation(packet.change.yaw, packet.change.pitch)
             is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch)
@@ -399,7 +396,7 @@ object RotationManager : Listenable {
         }
 
         // This normally applies to Modules like Blink, BadWifi, etc.
-        if (!it.isCancelled) {
+        if (!event.isCancelled) {
             actualServerRotation = rotation
         }
 
