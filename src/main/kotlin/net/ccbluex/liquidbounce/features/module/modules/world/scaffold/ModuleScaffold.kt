@@ -572,6 +572,10 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
             return blockPos.add(0, -2, 0)
         }
 
+        if (ScaffoldCeilingFeature.canConstructCeiling() && ScaffoldCeilingFeature.enabled) {
+            return blockPos.add(0, 3, 0)
+        }
+
         if (!isTowering) {
             sameYMode.getTargetedBlockPos(blockPos)?.let { return it }
         } else if (towerMode.activeChoice == ScaffoldTowerMotion &&
