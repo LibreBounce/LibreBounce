@@ -120,14 +120,11 @@ object LiquidBounce : Listenable {
         logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
         logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
 
-        // Load mappings
-        EnvironmentRemapper
-
         // Load translations
         LanguageManager.loadDefault()
 
-        // Client Resources
-        ClientResourceReloader
+        // Load mappings
+        EnvironmentRemapper
 
         // Initialize client features
         EventManager
@@ -197,6 +194,9 @@ object LiquidBounce : Listenable {
     @Suppress("unused")
     val startHandler = handler<ClientStartEvent> {
         initializerThread.start()
+
+        // Client Resources
+        ClientResourceReloader.initThread.start()
     }
 
     /**
@@ -205,6 +205,7 @@ object LiquidBounce : Listenable {
     @Suppress("unused")
     val browserReadyHandler = handler<BrowserReadyEvent> {
         initializerThread.join()
+        ClientResourceReloader.initThread.join()
     }
 
     /**
@@ -217,18 +218,24 @@ object LiquidBounce : Listenable {
      * @see ResourceReloader
      */
     private object ClientResourceReloader {
-        init {
+        /**
+         * Reload async for the first time (client initializing)
+         */
+        val initThread = virtualThread(
+            name = "Client Resource Reloader",
+            start = false
+        ) {
+            reload()
+
             val resourceManager = mc.resourceManager
             if (resourceManager is ReloadableResourceManagerImpl) {
-                // Register resource reloader
+                // Register resource reloader (initial reload callback)
                 val reloader = SynchronousResourceReloader {
                     reload()
                 }
                 resourceManager.registerReloader(reloader)
             } else {
-                // Run resource reloader directly as fallback
                 logger.warn("Failed to register resource reloader!")
-                reload()
             }
         }
 
