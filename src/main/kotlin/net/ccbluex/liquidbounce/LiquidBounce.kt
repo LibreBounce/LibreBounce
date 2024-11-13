@@ -19,6 +19,7 @@
  */
 package net.ccbluex.liquidbounce
 
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
@@ -61,7 +62,6 @@ import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.resource.ReloadableResourceManagerImpl
@@ -111,81 +111,87 @@ object LiquidBounce : Listenable {
     val updateAvailable by lazy { hasUpdate() }
 
     /**
-     * Client Initializer Thread
+     * Client Initializer Scope
      */
-    private val initializerThread: Thread = virtualThread(
-        name = "Client Initializer",
-        start = false
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val initializerJob = scope.launch(
+        start = CoroutineStart.LAZY
     ) {
-        logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
-        logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
+        try {
+            logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
+            logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
 
-        // Load translations
-        LanguageManager.loadDefault()
+            // Client Resources
+            launch {
+                ClientResourceReloader.reload()
+            }
 
-        // Load mappings
-        EnvironmentRemapper
+            // Load translations
+            LanguageManager.loadDefault()
 
-        // Initialize client features
-        EventManager
+            // Load mappings
+            EnvironmentRemapper
 
-        // Config
-        ConfigSystem
-        combatTargetsConfigurable
+            // Initialize client features
+            EventManager
 
-        ChunkScanner
-        InputTracker
+            // Config
+            ConfigSystem
+            combatTargetsConfigurable
 
-        // Features
-        ModuleManager
-        CommandManager
-        ScriptManager
-        RotationManager
-        InteractionTracker
-        CombatManager
-        FriendManager
-        ProxyManager
-        AccountManager
-        InventoryManager
-        WorldToScreen
-        Reconnect
-        ActiveServerList
-        ConfigSystem.root(ClientItemGroups)
-        ConfigSystem.root(LanguageManager)
-        ConfigSystem.root(ClientAccountManager)
-        BrowserManager
-        Fonts
-        PostRotationExecutor
+            ChunkScanner
+            InputTracker
 
-        // Load theme and component overlay
-        ThemeManager
-        mc.renderTaskQueue.add(ComponentOverlay::insertComponents)
+            // Features
+            ModuleManager
+            CommandManager
+            ScriptManager
+            RotationManager
+            InteractionTracker
+            CombatManager
+            FriendManager
+            ProxyManager
+            AccountManager
+            InventoryManager
+            WorldToScreen
+            Reconnect
+            ActiveServerList
+            ConfigSystem.root(ClientItemGroups)
+            ConfigSystem.root(LanguageManager)
+            ConfigSystem.root(ClientAccountManager)
+            BrowserManager
+            Fonts
+            PostRotationExecutor
 
-        // Netty WebSocket
-        ClientInteropServer.start()
+            // Load theme and component overlay
+            ThemeManager
+            mc.renderTaskQueue.add(ComponentOverlay::insertComponents)
 
-        // Initialize browser
-        mc.renderTaskQueue.add {
-            logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
-            IntegrationHandler
-            BrowserManager.initBrowser()
+            // Netty WebSocket
+            ClientInteropServer.start()
+
+            // Initialize browser
+            mc.renderTaskQueue.add {
+                logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
+                IntegrationHandler
+                BrowserManager.initBrowser()
+            }
+
+            ItemImageAtlas
+
+            // Register commands and modules
+            CommandManager.registerInbuilt()
+            ModuleManager.registerInbuilt()
+
+            // Load user scripts
+            ScriptManager.loadAll()
+
+            // Load config system from disk
+            ConfigSystem.loadAll()
+        } catch (e: Throwable) {
+            ErrorHandler.fatal(e)
         }
-
-        ItemImageAtlas
-
-        // Register commands and modules
-        CommandManager.registerInbuilt()
-        ModuleManager.registerInbuilt()
-
-        // Load user scripts
-        ScriptManager.loadAll()
-
-        // Load config system from disk
-        ConfigSystem.loadAll()
-
-        logger.info("Successfully loaded client!")
-    }.apply {
-        setUncaughtExceptionHandler { _, e -> ErrorHandler.fatal(e) }
     }
 
     /**
@@ -193,10 +199,7 @@ object LiquidBounce : Listenable {
      */
     @Suppress("unused")
     val startHandler = handler<ClientStartEvent> {
-        initializerThread.start()
-
-        // Client Resources
-        ClientResourceReloader.initThread.start()
+        initializerJob.start()
     }
 
     /**
@@ -204,8 +207,10 @@ object LiquidBounce : Listenable {
      */
     @Suppress("unused")
     val browserReadyHandler = handler<BrowserReadyEvent> {
-        initializerThread.join()
-        ClientResourceReloader.initThread.join()
+        runBlocking {
+            initializerJob.join()
+            logger.info("Successfully loaded client!")
+        }
     }
 
     /**
@@ -218,26 +223,6 @@ object LiquidBounce : Listenable {
      * @see ResourceReloader
      */
     private object ClientResourceReloader {
-        /**
-         * Reload async for the first time (client initializing)
-         */
-        val initThread = virtualThread(
-            name = "Client Resource Reloader",
-            start = false
-        ) {
-            reload()
-
-            val resourceManager = mc.resourceManager
-            if (resourceManager is ReloadableResourceManagerImpl) {
-                // Register resource reloader (initial reload callback)
-                val reloader = SynchronousResourceReloader {
-                    reload()
-                }
-                resourceManager.registerReloader(reloader)
-            } else {
-                logger.warn("Failed to register resource reloader!")
-            }
-        }
 
         fun reload() {
             // Load fonts on the Render thread
