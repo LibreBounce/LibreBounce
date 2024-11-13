@@ -26,6 +26,14 @@ import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.util.decode
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
+import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.browser.BrowserManager
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
+import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
+import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
 import net.ccbluex.liquidbounce.render.shader.Shader
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -33,14 +41,6 @@ import net.ccbluex.liquidbounce.utils.io.extractZip
 import net.ccbluex.liquidbounce.utils.io.resource
 import net.ccbluex.liquidbounce.utils.io.resourceToString
 import net.ccbluex.liquidbounce.utils.render.refreshRate
-import net.ccbluex.liquidbounce.integration.browser.BrowserManager
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
-import net.ccbluex.liquidbounce.integration.theme.component.Component
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.texture.NativeImage
@@ -139,7 +139,7 @@ object ThemeManager : Configurable("theme") {
             val shader = activeTheme.compiledShaderBackground ?: defaultTheme.compiledShaderBackground
 
             if (shader != null) {
-                shader.draw(mouseX, mouseY, width, height, delta)
+                shader.draw(mouseX, mouseY, delta)
                 return true
             }
         }
