@@ -44,7 +44,7 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
 import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
+import kotlin.concurrent.thread
 
 data class IpcConfiguration(
     val appID: Long,
@@ -76,7 +76,7 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
     init {
         doNotIncludeAlways()
 
-        virtualThread(name = "RichPresence Updater") {
+        thread(name = "Rich Presence Updater") {
             while (true) {
                 Thread.sleep(1000L)
 

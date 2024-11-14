@@ -31,10 +31,10 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.io.HttpClient.get
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import kotlin.concurrent.thread
 
 /**
  * Config Command
@@ -73,7 +73,7 @@ object CommandConfig {
                         val modules = ModuleManager.parseModulesFromParameter(moduleNames)
 
                         // Load the config in a separate thread to prevent the client from freezing
-                        virtualThread(name = "config-loader") {
+                        thread(name = "config-loader") {
                             runCatching {
                                 if(name.startsWith("http")) {
                                     // Load the config from the specified URL
