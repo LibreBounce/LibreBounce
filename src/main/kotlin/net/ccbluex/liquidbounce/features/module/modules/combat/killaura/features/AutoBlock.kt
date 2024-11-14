@@ -94,7 +94,7 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
     /**
      * Starts blocking.
      */
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
         if (SecureRandom().nextFloat() * 100 <= chance) {
             if (!enabled || (player.isBlockAction && blockMode != BlockMode.WATCHDOG)) {
