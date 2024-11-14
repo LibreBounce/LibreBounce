@@ -23,6 +23,7 @@
     "entity.MixinEntityPlayerSP",
     "entity.MixinInventoryPlayer",
     "entity.MixinPlayerControllerMP",
+    "gui.MixinGui",
     "gui.MixinGuiButton",
     "gui.MixinGuiButtonExt",
     "gui.MixinGuiChat",
@@ -37,6 +38,7 @@
     "gui.MixinGuiNewChat",
     "gui.MixinGuiOptionSlider",
     "gui.MixinGuiScreen",
+    "gui.MixinGuiScreenOptionsSoundsButton",
     "gui.MixinGuiSlider",
     "gui.MixinGuiSlot",
     "gui.MixinGuiSpectator",
@@ -67,8 +69,7 @@
     "tweaks.MixinMinecraftServer",
     "world.MixinChunk",
     "world.MixinWorld",
-    "world.MixinWorldClient",
-    "gui.MixinGuiScreenOptionsSoundsButton"
+    "world.MixinWorldClient"
   ],
   "client": [
     "block.MixinBlockSlime",

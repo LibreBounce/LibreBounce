@@ -57,8 +57,15 @@ public abstract class MixinGuiButton extends Gui {
 
     @Shadow
     public int id;
+
     @Unique
-    private float progress;
+    private long startTime = -1L;
+
+    @Unique
+    private boolean lastHover = false;
+
+    @Unique
+    private float progress = xPosition;
 
     /**
      * @author CCBlueX
@@ -67,8 +74,6 @@ public abstract class MixinGuiButton extends Gui {
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
         if (visible) {
             hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height;
-
-            final float deltaTime = RenderUtils.INSTANCE.getDeltaTime();
 
             float supposedWidth = width;
 
@@ -82,17 +87,28 @@ public abstract class MixinGuiButton extends Gui {
                 hovered = true;
             }
 
-            progress += (enabled && hovered ? 0.85f : -0.85f) * deltaTime;
-            progress = MathHelper.clamp_float(progress, 0f, supposedWidth);
+            if (hovered != lastHover) {
+                if (System.currentTimeMillis() - startTime > 200L) {
+                    startTime = System.currentTimeMillis();
+                }
+                lastHover = hovered;
+            }
+
+            long elapsed = System.currentTimeMillis() - startTime;
+
+            float startingPos = enabled && hovered ? xPosition : progress;
+            float endingPos = enabled && hovered ? xPosition + supposedWidth : xPosition;
+
+            progress = (int) (startingPos + (endingPos - startingPos) * MathHelper.clamp_float(elapsed / 200f, 0f, 1f));
 
             float radius = 2.5F;
 
             // Draw original
             RenderUtils.INSTANCE.drawRoundedRect(xPosition, yPosition, xPosition + width, yPosition + height, enabled ? new Color(0F, 0F, 0F, 120 / 255f).getRGB() : new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB(), radius);
 
-            if (enabled && progress != 0f) {
+            if (enabled && progress != xPosition) {
                 // Draw blue overlay
-                RenderUtils.INSTANCE.drawRoundedRect(xPosition, yPosition, xPosition + (int) progress, yPosition + height, new Color(0F, 0F, 1F, 1F).getRGB(), radius);
+                RenderUtils.INSTANCE.drawRoundedRect(xPosition, yPosition, progress, yPosition + height, new Color(0F, 0F, 1F, 1F).getRGB(), radius);
             }
 
             mc.getTextureManager().bindTexture(buttonTextures);
