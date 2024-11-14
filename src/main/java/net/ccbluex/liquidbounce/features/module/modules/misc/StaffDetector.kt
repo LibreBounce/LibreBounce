@@ -31,7 +31,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     private val staffMode by object : ListValue(
         "StaffMode", arrayOf(
             "BlocksMC", "CubeCraft", "Gamster",
-            "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD", "CoralMC"
+            "AgeraPvP", "HypeMC", "Hypixel",
+            "SuperCraft", "PikaNetwork", "GommeHD", "CoralMC"
         ), "BlocksMC"
     ) {
         override fun onUpdate(value: String) {

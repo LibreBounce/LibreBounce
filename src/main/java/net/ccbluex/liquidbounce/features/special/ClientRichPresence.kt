@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.ServerUtils
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
+import net.minecraft.client.gui.GuiMainMenu
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -110,7 +111,8 @@ object ClientRichPresence : MinecraftInstance() {
                 // Set server info
                 if (showRPCServerIP) {
                     setDetails(customRPCText.ifEmpty {
-                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
+                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" 
+                        else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
                     })
                 }
 

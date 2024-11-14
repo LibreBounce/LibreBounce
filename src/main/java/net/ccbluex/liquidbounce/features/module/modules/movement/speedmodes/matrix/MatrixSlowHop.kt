@@ -5,11 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix
 
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
+import net.ccbluex.liquidbounce.utils.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
 
+/*
+* Working on Matrix: 7.11.8
+* Tested on: eu.loyisa.cn & anticheat.com
+* Credit: @EclipsesDev
+*/
 object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
     
     override fun onUpdate() {
@@ -24,9 +30,9 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
             }
 
             if (player.onGround) {
-                player.tryJump()
+                player.motionY = 0.42 - if (Speed.matrixLowHop) 3E-3 else 0.0
                 mc.timer.timerSpeed = 0.5195f
-                strafe()
+                strafe(speed + Speed.extraGroundBoost)
             } else {
                 mc.timer.timerSpeed = 1.0973f
             }

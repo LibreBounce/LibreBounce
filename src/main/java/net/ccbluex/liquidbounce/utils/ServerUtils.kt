@@ -68,7 +68,7 @@ object ServerUtils : MinecraftInstance() {
         } else if (address.contains(".liquidproxy.net")) {
             "<redacted>.liquidproxy.net"
         } else {
-            address
+            address.split(":")[0]
         }
     }
 
