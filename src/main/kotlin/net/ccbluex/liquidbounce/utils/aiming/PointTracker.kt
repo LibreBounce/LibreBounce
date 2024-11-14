@@ -97,7 +97,7 @@ class PointTracker(
                 if (random.nextInt(100) <= chance) {
                     targetOffset = Vec3d(
                         random.nextGaussian(MEAN_X, STDDEV_X) * factor,
-                        random.nextGaussian(MEAN_Y, STDDEV_Y) * factor,
+                        random.nextGaussian(MEAN_Y, STDDEV_Y) * factor.coerceAtMost(1.0),
                         random.nextGaussian(MEAN_Z, STDDEV_Z) * factor
                     )
                 }
