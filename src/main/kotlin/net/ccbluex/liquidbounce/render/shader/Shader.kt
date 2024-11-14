@@ -29,11 +29,6 @@ class Shader(vertex: String, fragment: String) : Closeable {
     private var canvas: ScalableCanvas
 
     private var program = 0
-
-    inner class UniformPointer(val name: String) {
-        val pointer = GlUniform.getUniformLocation(program, name)
-    }
-
     private val timeLocation: Int
     private val mouseLocation: Int
     private val resolutionLocation: Int
