@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gl.GlUniform
 import net.minecraft.client.gl.GlUsage
 import net.minecraft.client.gl.VertexBuffer
@@ -15,8 +16,6 @@ import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import org.lwjgl.opengl.GL30
 import java.io.Closeable
-
-const val QUALITY = 1f
 
 /**
  * A GLSL shader renderer. Takes a vertex and fragment shader and renders it to the canvas.
@@ -99,10 +98,10 @@ class Shader(vertex: String, fragment: String) : Closeable {
         return shader
     }
 
-    fun draw(mouseX: Int, mouseY: Int, width: Int, height: Int, delta: Float) {
+    fun draw(mouseX: Int, mouseY: Int, delta: Float) {
         GlStateManager._glUseProgram(this.program)
 
-        canvas.resize((width * QUALITY).toInt(), (height * QUALITY).toInt())
+        canvas.resize(mc.window.framebufferWidth, mc.window.framebufferHeight)
         canvas.write()
 
         // update uniforms

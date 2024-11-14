@@ -140,7 +140,7 @@ object ThemeManager : Configurable("theme") {
             val shader = activeTheme.compiledShaderBackground ?: defaultTheme.compiledShaderBackground
 
             if (shader != null) {
-                shader.draw(mouseX, mouseY, width, height, delta)
+                shader.draw(mouseX, mouseY, delta)
                 return true
             }
         }
