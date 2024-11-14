@@ -20,21 +20,7 @@
 
 package net.ccbluex.liquidbounce.utils.kotlin
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import net.ccbluex.liquidbounce.utils.client.mc
-import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KProperty
-
-private object RenderDispatcher : CoroutineDispatcher() {
-    override fun dispatch(context: CoroutineContext, block: Runnable) {
-        mc.renderTaskQueue.add(block)
-    }
-}
-
-val Dispatchers.Render: CoroutineDispatcher
-    get() = RenderDispatcher
 
 inline operator fun <T> ThreadLocal<T>.getValue(receiver: Any?, property: KProperty<*>): T = get()
 
