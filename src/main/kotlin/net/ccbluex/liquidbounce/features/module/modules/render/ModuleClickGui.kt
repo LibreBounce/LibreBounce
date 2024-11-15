@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
 import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
@@ -50,10 +51,16 @@ object ModuleClickGui :
     }
 
     private val cache by boolean("Cache", true).onChanged { cache ->
-        if (cache) {
-            createView()
-        } else {
-            closeView()
+        RenderSystem.recordRenderCall {
+            if (cache) {
+                createView()
+            } else {
+                closeView()
+            }
+
+            if (mc.currentScreen is VrScreen || mc.currentScreen is ClickScreen) {
+                enable()
+            }
         }
     }
 
