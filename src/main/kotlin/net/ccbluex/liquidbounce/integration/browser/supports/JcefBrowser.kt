@@ -21,15 +21,15 @@ package net.ccbluex.liquidbounce.integration.browser.supports
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.integration.browser.BrowserType
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
 import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.validation.HashValidator
-import net.ccbluex.liquidbounce.integration.browser.BrowserType
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
+import kotlin.concurrent.thread
 
 /**
  * Uses a modified fork of the JCEF library browser backend made for Minecraft.
@@ -64,7 +64,7 @@ class JcefBrowser : IBrowser, Listenable {
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
-                virtualThread(name = "mcef-downloader") {
+                thread(name = "mcef-downloader") {
                     runCatching {
                         resourceManager.downloadJcef()
                         RenderSystem.recordRenderCall(whenAvailable)

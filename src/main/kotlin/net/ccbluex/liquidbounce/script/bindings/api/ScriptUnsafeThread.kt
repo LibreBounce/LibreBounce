@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.api
 
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
+import kotlin.concurrent.thread
 
 @Suppress("unused")
 object ScriptUnsafeThread {
 
     @JvmName("run")
-    fun run(callback: () -> Unit) = virtualThread {
+    fun run(callback: () -> Unit) = thread {
         callback()
     }
 }
