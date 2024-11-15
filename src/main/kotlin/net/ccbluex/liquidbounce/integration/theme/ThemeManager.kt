@@ -100,9 +100,15 @@ object ThemeManager : Configurable("theme") {
      * Open [ITab] with the given [VirtualScreenType] and mark as static if [markAsStatic] is true.
      * This tab will be locked to the highest refresh rate since it is input aware.
      */
-    fun openInputAwareImmediate(virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false): ITab =
-        BrowserManager.browser?.createInputAwareTab(route(virtualScreenType, markAsStatic).url, frameRate = refreshRate,
-            takesInput = takesInputHandler) ?: error("Browser is not initialized")
+    fun openInputAwareImmediate(
+        virtualScreenType: VirtualScreenType? = null,
+        markAsStatic: Boolean = false,
+        takesInput: () -> Boolean = takesInputHandler
+    ): ITab = BrowserManager.browser?.createInputAwareTab(
+        route(virtualScreenType, markAsStatic).url,
+        frameRate = refreshRate,
+        takesInput = takesInput
+    ) ?: error("Browser is not initialized")
 
     fun updateImmediate(tab: ITab?, virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false) =
         tab?.loadUrl(route(virtualScreenType, markAsStatic).url)
