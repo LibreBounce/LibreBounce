@@ -54,7 +54,7 @@ import kotlin.jvm.optionals.getOrNull
  * responds to query requests with the client's IP address.
  */
 private const val PING_SERVER = "ping.liquidproxy.net"
-private const val PING_TIMEOUT = 10
+private const val PING_TIMEOUT = 5
 
 class ClientConnectionTicker(private val clientConnection: ClientConnection) : Listenable {
     @Suppress("unused")
