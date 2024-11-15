@@ -61,7 +61,7 @@ class BlockSlipperinessMultiplierEvent(val block: Block, var slipperiness: Float
 
 @Nameable("entityEquipmentChange")
 class PlayerEquipmentChangeEvent(
-    val entity: PlayerEntity, val equipmentSlot: EquipmentSlot, val itemStack: ItemStack
+    val player: PlayerEntity, val equipmentSlot: EquipmentSlot, val itemStack: ItemStack
 ) : Event()
 
 @Nameable("fluidPush")

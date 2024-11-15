@@ -32,7 +32,6 @@ object CommandInvsee {
                 mc.setScreen(NoInteractInventory(player))
             }
             viewedPlayer = player
-            return@handler
         }
         .build()
 }
