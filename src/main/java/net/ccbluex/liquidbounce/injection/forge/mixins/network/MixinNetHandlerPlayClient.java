@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 import io.netty.buffer.Unpooled;
 import net.ccbluex.liquidbounce.event.EntityMovementEvent;
 import net.ccbluex.liquidbounce.event.EventManager;
+import net.ccbluex.liquidbounce.event.PostVelocityEvent;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiExploit;
 import net.ccbluex.liquidbounce.features.module.modules.misc.NoRotateSet;
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink;
@@ -218,5 +219,14 @@ public abstract class MixinNetHandlerPlayClient {
         player.rotationYaw = (rotation.getYaw() + 0.000001f * sign) % 360.0F;
         player.rotationPitch = (rotation.getPitch() + 0.000001f * sign) % 360.0F;
         RotationUtils.INSTANCE.syncRotations();
+    }
+
+    @Inject(method = "handleEntityVelocity", at = @At("RETURN"))
+    public void onPostHandleEntityVelocity(S12PacketEntityVelocity packet, CallbackInfo ci) {
+        if (mc.theWorld == null || mc.thePlayer == null) return;
+
+        if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
+            EventManager.INSTANCE.callEvent(new PostVelocityEvent());
+        }
     }
 }
