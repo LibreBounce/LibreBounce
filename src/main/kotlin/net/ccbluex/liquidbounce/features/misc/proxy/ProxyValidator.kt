@@ -54,6 +54,7 @@ import kotlin.jvm.optionals.getOrNull
  * responds to query requests with the client's IP address.
  */
 private const val PING_SERVER = "ping.liquidproxy.net"
+private const val PING_TIMEOUT = 5
 
 class ClientConnectionTicker(private val clientConnection: ClientConnection) : Listenable {
     @Suppress("unused")
@@ -77,7 +78,8 @@ fun Proxy.check(success: (Proxy) -> Unit, failure: (Throwable) -> Unit) = runCat
     logger.info("Resolved ping server [$PING_SERVER]: $socketAddress")
 
     val clientConnection = ClientConnection(NetworkSide.CLIENTBOUND)
-    connect(socketAddress, false, clientConnection)
+    val channelFuture = connect(socketAddress, false, clientConnection)
+    channelFuture.syncUninterruptibly()
 
     val ticker = ClientConnectionTicker(clientConnection)
 
@@ -155,7 +157,7 @@ private fun Proxy.connect(
             } catch (_: ChannelException) {
             }
 
-            val channelPipeline = channel.pipeline().addLast("timeout", ReadTimeoutHandler(30))
+            val channelPipeline = channel.pipeline().addLast("timeout", ReadTimeoutHandler(PING_TIMEOUT))
             // Assign proxy before [ClientConnection.addHandlers] to avoid overriding the proxy
             channelPipeline.addFirst("proxy", handler())
             ClientConnection.addHandlers(channelPipeline, NetworkSide.CLIENTBOUND, false, null)
