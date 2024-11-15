@@ -223,8 +223,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                         entity = result
                 }
 
-                if (unReduceTimes > 0 &&
-                    mc.thePlayer.hurtTime > 0
+                if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0
                     && !(onlyMove && !MovementUtils.hasMotion)
                     && !(notWhileEating && mc.thePlayer.isUsingItem && mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemFood)
                     && entity != null
@@ -236,9 +235,15 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                         mc.thePlayer.serverSprintState = true
                     }
 
-                    EventManager.callEvent(AttackEvent(entity))
-
-                    doReduce()
+                    repeat(clicks.random()) {
+                        EventManager.callEvent(AttackEvent(entity))
+                        sendPacket(C0APacketAnimation())
+                        sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit, C02PacketUseEntity.Action.ATTACK))
+                        if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+                            mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
+                        }
+                    }
+                    
                     if (debug) ClientUtils.displayChatMessage(String.format("%d Reduced %.3f %.3f", reduceTimes - unReduceTimes,  mc.thePlayer.motionX, mc.thePlayer.motionZ))
 
                     unReduceTimes--
@@ -910,16 +915,6 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
         return mc.theWorld.loadedEntityList.asSequence().filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) <= range
         }.minByOrNull { player.getDistanceToEntityBox(it) }
-    }
-
-    private fun doReduce() {
-        repeat(clicks.random()) {
-            sendPacket(C0APacketAnimation())
-            sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit, C02PacketUseEntity.Action.ATTACK))
-            if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                mc.thePlayer.attackTargetEntityWithCurrentItem(mc.objectMouseOver.entityHit)
-            }
-        }
     }
 
 }
