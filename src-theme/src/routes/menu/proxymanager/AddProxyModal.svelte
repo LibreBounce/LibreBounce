@@ -65,6 +65,6 @@
         <IconTextInput title="Username" icon="user" bind:value={username}/>
         <IconTextInput title="Password" icon="lock" type="password" bind:value={password}/>
     {/if}
-    <SwitchSetting title="Forward Authentication" bind:value={forwardAuthentication}/>
+    <SwitchSetting title="Forward Microsoft Authentication" bind:value={forwardAuthentication}/>
     <ButtonSetting title="Add Proxy" {disabled} on:click={addProxy} listenForEnter={true} {loading}/>
 </Modal>
