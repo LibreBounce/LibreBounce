@@ -217,3 +217,5 @@ class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicke
  * Called when LiquidBounce finishes starting up
  */
 class StartupEvent : Event()
+
+class PostVelocityEvent : Event()
