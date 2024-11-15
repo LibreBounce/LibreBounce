@@ -438,6 +438,10 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
 
         if (mode != "IntaveReduce") return
 
+        if (!hasReceivedVelocity || pauseTicks > 0) {
+            return
+        }
+
         if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
             player.motionX *= reduceFactor
             player.motionZ *= reduceFactor
