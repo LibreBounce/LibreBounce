@@ -4,6 +4,7 @@
     import SwitchSetting from "../common/setting/SwitchSetting.svelte";
     import ButtonSetting from "../common/setting/ButtonSetting.svelte";
     import {addProxy as addProxyRest} from "../../../integration/rest";
+    import {listen} from "../../../integration/ws";
 
     export let visible: boolean;
 
@@ -40,10 +41,13 @@
 
         loading = true;
         await addProxyRest(host, parseInt(port), username, password, forwardAuthentication);
+    }
+
+    listen("proxyAdditionResult", () => {
         loading = false;
         visible = false;
         cleanup();
-    }
+    });
 
     function cleanup() {
         requiresAuthentication = false;

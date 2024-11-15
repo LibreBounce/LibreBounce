@@ -209,8 +209,7 @@
                     forwardAuthentication={currentEditProxy.forwardAuthentication}
                     username={currentEditProxy.credentials?.username ?? ""}
                     password={currentEditProxy.credentials?.password ?? ""}
-                    requiresAuthentication={currentEditProxy.credentials !== undefined}
-                    on:proxyEdit={refreshProxies}/>
+                    requiresAuthentication={currentEditProxy.credentials !== undefined}/>
 {/if}
 <Menu>
     <OptionBar>
