@@ -39,7 +39,7 @@ import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
 import net.ccbluex.liquidbounce.features.itemgroup.groups.headsCollection
 import net.ccbluex.liquidbounce.features.misc.AccountManager
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
 import net.ccbluex.liquidbounce.integration.IntegrationHandler
@@ -234,7 +234,7 @@ object LiquidBounce : Listenable {
 
             // Refresh local IP info
             logger.info("Refreshing local IP info...")
-            IpInfoApi.refreshLocalIpInfo()
+            IpInfoApi
 
             // Check if client account is available
             if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
