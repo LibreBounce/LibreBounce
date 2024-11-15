@@ -137,7 +137,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" || mode == "GrimAC" }
     private val swingMode by choices("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
 
-    private val clicksPerTick by int("ClicksPerTick", 10, 0..10) { mode == "GrimAC" }
+    private val clicksPerTick by int("ClicksPerTick", 10, 1..10) { mode == "GrimAC" }
     private val reduceTimes by int("ReduceTimes", 5, 1..9) { mode == "GrimAC" }
     private val onlyMove by boolean("OnlyMove", false) { mode == "GrimAC" }
     private val notWhileEating by boolean("NotWhileEating",false) { mode == "GrimAC" }
