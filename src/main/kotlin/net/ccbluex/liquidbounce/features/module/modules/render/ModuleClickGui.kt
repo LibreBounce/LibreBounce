@@ -49,6 +49,14 @@ object ModuleClickGui :
         EventManager.callEvent(ClickGuiScaleChangeEvent(it))
     }
 
+    private val cache by boolean("Cache", true).onChanged { cache ->
+        if (cache) {
+            createView()
+        } else {
+            closeView()
+        }
+    }
+
     @Suppress("UnusedPrivateProperty")
     private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
 
@@ -73,9 +81,24 @@ object ModuleClickGui :
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
         ignoreCondition = true
     ) {
+        if (cache) {
+            createView()
+        }
+    }
+
+    private fun createView() {
+        if (clickGuiTab != null) {
+            return
+        }
+
         clickGuiTab = ThemeManager.openInputAwareImmediate(VirtualScreenType.CLICK_GUI, true) {
             mc.currentScreen is ClickScreen
         }.preferOnTop()
+    }
+
+    private fun closeView() {
+        clickGuiTab?.closeTab()
+        clickGuiTab = null
     }
 
     @Suppress("unused")
