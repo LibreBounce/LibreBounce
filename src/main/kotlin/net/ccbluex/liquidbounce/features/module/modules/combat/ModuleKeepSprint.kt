@@ -42,7 +42,7 @@ object ModuleKeepSprint : ClientModule("KeepSprint", Category.COMBAT) {
 
     @Suppress("unused")
     private val postTickHandler = handler<PlayerPostTickEvent> {
-        sprinting = mc.player?.isSprinting ?: false
+        sprinting = player.isSprinting
     }
 
     fun getMotion(): Double {
@@ -51,7 +51,7 @@ object ModuleKeepSprint : ClientModule("KeepSprint", Category.COMBAT) {
         }
 
         return when {
-            mc.player?.hurtTime in hurtTicks -> motionWhenHurt
+            player.hurtTime in hurtTicks -> motionWhenHurt
             else -> motion
         }.random() / 100.0
     }
