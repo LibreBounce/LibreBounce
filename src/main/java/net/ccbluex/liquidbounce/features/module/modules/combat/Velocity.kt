@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Disabler
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
-import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
@@ -27,7 +26,6 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemFood
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
@@ -38,7 +36,6 @@ import net.minecraft.network.play.server.S32PacketConfirmTransaction
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing.DOWN
-import net.minecraft.util.MovingObjectPosition
 import net.minecraft.world.WorldSettings
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -133,13 +130,14 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     // Vanilla Y limits
     // 0.36075 (no sprint), 0.46075 (sprint)
 
-    private val clicks by intRange("Clicks", 3..5, 1..20) { mode == "Click" || mode == "GrimAC" }
+    private val clicks by intRange("Clicks", 3..5, 1..20) { mode == "Click" }
     private val hurtTimeToClick by int("HurtTimeToClick", 10, 0..10) { mode == "Click" }
     private val whenFacingEnemyOnly by boolean("WhenFacingEnemyOnly", true) { mode == "Click" }
     private val ignoreBlocking by boolean("IgnoreBlocking", false) { mode == "Click" }
-    private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" || mode == "GrimAC"}
+    private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" || mode == "GrimAC" }
     private val swingMode by choices("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
 
+    private val clicksPerTick by int("ClicksPerTick", 10, 0..10) { mode == "GrimAC" }
     private val reduceTimes by int("ReduceTimes", 5, 1..9) { mode == "GrimAC" }
     private val onlyMove by boolean("OnlyMove", false) { mode == "GrimAC" }
     private val notWhileEating by boolean("NotWhileEating",false) { mode == "GrimAC" }
@@ -235,15 +233,15 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                         mc.thePlayer.serverSprintState = true
                     }
 
-                    repeat(clicks.random()) {
+                    repeat(clicksPerTick) {
                         EventManager.callEvent(AttackEvent(entity))
                         sendPacket(C0APacketAnimation())
-                        sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit, C02PacketUseEntity.Action.ATTACK))
+                        sendPacket(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
                         if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
                             mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
                         }
                     }
-                    
+
                     if (debug) ClientUtils.displayChatMessage(String.format("%d Reduced %.3f %.3f", reduceTimes - unReduceTimes,  mc.thePlayer.motionX, mc.thePlayer.motionZ))
 
                     unReduceTimes--
