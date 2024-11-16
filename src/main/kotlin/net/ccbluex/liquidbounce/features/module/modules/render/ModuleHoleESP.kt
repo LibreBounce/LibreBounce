@@ -240,9 +240,6 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     private object HoleTracker : ChunkScanner.BlockChangeSubscriber {
         val holes = ConcurrentSkipListSet<Hole>()
 
-        /**
-         * Create a ThreadLocal<BlockPos.Mutable> for each thread of Dispatchers.IO
-         */
         private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
 
         private val fullSurroundings = setOf(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)
