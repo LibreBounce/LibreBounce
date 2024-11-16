@@ -15,7 +15,9 @@ import net.ccbluex.liquidbounce.value.float
 object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false, hideModule = false) {
 
     private val customY by float("CustomY", 0f, -10f..10f)
+    private val saveLastGroundY by boolean("SaveLastGroundY", true)
     private val onScaffold by boolean("OnScaffold", true)
+    private val onF5 by boolean("OnF5", true)
 
     private var launchY: Double ?= null
 
@@ -30,7 +32,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false,
         if (event.eventState != EventState.POST) return
 
         mc.thePlayer?.run {
-            if (onGround || ticksExisted == 1) {
+            if (!saveLastGroundY || (onGround || ticksExisted == 1)) {
                 launchY = posY
             }
         }
@@ -41,6 +43,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false,
         mc.thePlayer?.run {
             val currentLaunchY = launchY ?: return
             if (onScaffold && !Scaffold.handleEvents()) return
+            if (onF5 && mc.gameSettings.thirdPersonView == 0) return
 
             event.withY(currentLaunchY + customY)
         }
