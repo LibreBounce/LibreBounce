@@ -108,6 +108,14 @@ object ModuleClickGui :
         clickGuiTab = null
     }
 
+    /**
+     * Synchronizes the clickgui with the module values until there is a better solution
+     * for updating setting changes
+     */
+    fun sync() {
+        clickGuiTab?.reload()
+    }
+
     @Suppress("unused")
     private val gameRenderHandler = handler<GameRenderEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
