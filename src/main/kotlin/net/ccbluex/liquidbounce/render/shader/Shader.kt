@@ -23,29 +23,18 @@ import java.io.Closeable
  * Inspired from the GLSL Panorama Shader Mod
  * https://github.com/magistermaks/mod-glsl
  */
-class Shader(vertex: String, fragment: String) : Closeable {
+open class Shader(vertex: String, fragment: String) : Closeable {
 
-    private var buffer: VertexBuffer
-    private var canvas: ScalableCanvas
-
-    private var program = 0
+    protected var program = 0
 
     inner class UniformPointer(val name: String) {
         val pointer = GlUniform.getUniformLocation(program, name)
     }
 
-    private val timeLocation: Int
-    private val mouseLocation: Int
-    private val resolutionLocation: Int
-
-    private var time = 0f
-
     init {
         val vertProgram = compileShader(vertex, GlConst.GL_VERTEX_SHADER)
         val fragProgram = compileShader(fragment, GlConst.GL_FRAGMENT_SHADER)
 
-        this.canvas = ScalableCanvas()
-        this.buffer = VertexBuffer(VertexBuffer.Usage.DYNAMIC)
         this.program = GlStateManager.glCreateProgram()
 
         GlStateManager.glAttachShader(program, vertProgram)
@@ -61,7 +50,50 @@ class Shader(vertex: String, fragment: String) : Closeable {
         // cleanup
         GlStateManager.glDeleteShader(vertProgram)
         GlStateManager.glDeleteShader(fragProgram)
+    }
 
+    private fun compileShader(source: String, type: Int): Int {
+        val shader = GlStateManager.glCreateShader(type)
+        GlStateManager.glShaderSource(shader, listOf(source))
+        GlStateManager.glCompileShader(shader)
+
+        // check compilation status
+        if (GlStateManager.glGetShaderi(shader, GlConst.GL_COMPILE_STATUS) == GlConst.GL_FALSE) {
+            val log = GlStateManager.glGetShaderInfoLog(shader, 1024)
+            error("Filed to compile shader! Caused by: $log")
+        }
+
+        return shader
+    }
+
+    open fun use() {
+        GlProgramManager.useProgram(this.program)
+    }
+
+    override fun close() {
+        GlStateManager.glDeleteProgram(this.program)
+    }
+
+}
+
+/**
+ * A GLSL shader renderer. Takes a vertex and fragment shader and renders it to the canvas.
+ *
+ * Inspired from the GLSL Panorama Shader Mod
+ * https://github.com/magistermaks/mod-glsl
+ */
+class CanvasShader(vertex: String, fragment: String) : Shader(vertex, fragment) {
+
+    private var buffer = VertexBuffer(VertexBuffer.Usage.DYNAMIC)
+    private var canvas = ScalableCanvas()
+
+    private val timeLocation: Int
+    private val mouseLocation: Int
+    private val resolutionLocation: Int
+
+    private var time = 0f
+
+    init {
         // bake buffer data
         val builder = Tessellator.getInstance()
         val buffer = builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
@@ -84,22 +116,8 @@ class Shader(vertex: String, fragment: String) : Closeable {
         resolutionLocation = GlUniform.getUniformLocation(program, "resolution")
     }
 
-    private fun compileShader(source: String, type: Int): Int {
-        val shader = GlStateManager.glCreateShader(type)
-        GlStateManager.glShaderSource(shader, listOf(source))
-        GlStateManager.glCompileShader(shader)
-
-        // check compilation status
-        if (GlStateManager.glGetShaderi(shader, GlConst.GL_COMPILE_STATUS) == GlConst.GL_FALSE) {
-            val log = GlStateManager.glGetShaderInfoLog(shader, 1024)
-            error("Filed to compile shader! Caused by: $log")
-        }
-
-        return shader
-    }
-
     fun draw(mouseX: Int, mouseY: Int, delta: Float) {
-        GlProgramManager.useProgram(this.program)
+        use()
 
         canvas.resize(mc.window.framebufferWidth, mc.window.framebufferHeight)
         canvas.write()
@@ -117,7 +135,7 @@ class Shader(vertex: String, fragment: String) : Closeable {
     }
 
     override fun close() {
-        GlStateManager.glDeleteProgram(this.program)
+        super.close()
         buffer.close()
         canvas.close()
     }

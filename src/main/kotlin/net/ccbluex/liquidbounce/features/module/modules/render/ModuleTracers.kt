@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.render.shader.shaders.LineShader
 import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
@@ -42,7 +43,6 @@ import java.awt.Color
  *
  * Draws a line to every entity a certain radius.
  */
-
 object ModuleTracers : Module("Tracers", Category.RENDER) {
 
     private val modes = choices("ColorMode", 0) {
@@ -52,6 +52,9 @@ object ModuleTracers : Module("Tracers", Category.RENDER) {
             GenericRainbowColorMode(it)
         )
     }
+
+    private val lineWidth by float("Width", 1f, 0.5f..5f)
+    private val blendFactor by float("blendFactor", 1f, 0f..5f) // TODO remove
 
     private object DistanceColor : GenericColorMode<LivingEntity>("Distance") {
         override val parent: ChoiceConfigurable<*>
@@ -110,7 +113,11 @@ object ModuleTracers : Module("Tracers", Category.RENDER) {
                 val pos = relativeToCamera(entity.interpolateCurrentPosition(event.partialTicks)).toVec3()
 
                 withColor(color) {
-                    drawLines(eyeVector, pos, pos, pos + Vec3(0f, entity.height, 0f))
+                    LineShader.blendFactor = blendFactor
+                    withLineWidth(lineWidth) {
+                        drawLines(eyeVector, pos, pos, pos + Vec3(0f, entity.height, 0f))
+                    }
+                    LineShader.blendFactor = 1.5f
                 }
             }
         }
@@ -118,5 +125,6 @@ object ModuleTracers : Module("Tracers", Category.RENDER) {
     }
 
     @JvmStatic
-    fun shouldRenderTrace(entity: Entity) = entity.shouldBeShown()
+    fun shouldRenderTrace(entity: Entity) = entity.shouldBeShown() && (entity != player || ModuleFreeCam.enabled)
+
 }

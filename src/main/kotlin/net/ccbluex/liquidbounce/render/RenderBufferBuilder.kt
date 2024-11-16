@@ -24,11 +24,15 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.UV2f
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.render.shader.shaders.LineShader
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
 import net.minecraft.client.render.VertexFormat.DrawMode
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
+import org.lwjgl.opengl.GL11C
+import kotlin.math.ceil
 
 const val FACE_DOWN = (1 shl 0) or (1 shl 1) or (1 shl 2) or (1 shl 3)
 const val FACE_UP = (1 shl 4) or (1 shl 5) or (1 shl 6) or (1 shl 7)
@@ -106,9 +110,19 @@ class RenderBufferBuilder<I : VertexInputType>(
     fun draw() {
         val built = buffer.endNullable() ?: return
 
-        RenderSystem.setShader { vertexFormat.shaderProgram }
+        if (tesselator == TESSELATOR_B) {
+            GL11C.glLineWidth(ceil((LineShader.lineWidth + LineShader.lineWidth) * MathHelper.SQUARE_ROOT_OF_TWO))
+            LineShader.use() // TODO use color
 
-        BufferRenderer.drawWithGlobalProgram(built)
+            BufferRenderer.draw(built)
+
+            GL11C.glLineWidth(1f)
+        } else {
+            RenderSystem.setShader { vertexFormat.shaderProgram }
+
+            BufferRenderer.drawWithGlobalProgram(built)
+        }
+
         tesselator.clear()
     }
 

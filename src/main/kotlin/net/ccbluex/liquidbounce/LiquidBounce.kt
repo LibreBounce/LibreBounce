@@ -50,6 +50,7 @@ import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.shader.shaders.LineShader
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
@@ -195,6 +196,7 @@ object LiquidBounce : Listenable {
             }
 
             ItemImageAtlas
+            LineShader
         }.onSuccess {
             logger.info("Successfully loaded client!")
         }.onFailure(ErrorHandler::fatal)

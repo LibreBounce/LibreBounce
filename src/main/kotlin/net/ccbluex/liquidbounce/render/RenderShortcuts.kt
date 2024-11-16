@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
 import net.ccbluex.liquidbounce.render.engine.font.FontRendererBuffers
+import net.ccbluex.liquidbounce.render.shader.shaders.LineShader
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
@@ -33,12 +34,14 @@ import net.minecraft.client.render.VertexFormat.DrawMode
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11C
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.PI
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -106,7 +109,7 @@ inline fun renderEnvironmentForWorld(matrixStack: MatrixStack, draw: WorldRender
     RenderSystem.enableBlend()
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
     RenderSystem.disableDepthTest()
-    GL11C.glEnable(GL11C.GL_LINE_SMOOTH)
+    GL11C.glDisable(GL11C.GL_LINE_SMOOTH)
 
     val environment = WorldRenderEnvironment(matrixStack, camera)
     draw(environment)
@@ -115,7 +118,6 @@ inline fun renderEnvironmentForWorld(matrixStack: MatrixStack, draw: WorldRender
     RenderSystem.disableBlend()
     RenderSystem.enableDepthTest()
     RenderSystem.enableCull()
-    GL11C.glDisable(GL11C.GL_LINE_SMOOTH)
 }
 
 inline fun renderEnvironmentForGUI(matrixStack: MatrixStack = MatrixStack(), draw: GUIRenderEnvironment.() -> Unit) {
@@ -180,8 +182,27 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
  */
 inline fun RenderEnvironment.withColor(color4b: Color4b, draw: RenderEnvironment.() -> Unit) {
     RenderSystem.setShaderColor(color4b.r / 255f, color4b.g / 255f, color4b.b / 255f, color4b.a / 255f)
+    LineShader.color = color4b
     try { draw() }
-    finally { RenderSystem.setShaderColor(1f, 1f, 1f, 1f) }
+    finally {
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
+        LineShader.color = Color4b.WHITE
+    }
+}
+
+/**
+ * Extension function to set the line width in the current rendering environment.
+ *
+ * @param color4b The color transformation.
+ * @param draw The block of code to be executed in the transformed environment.
+ */
+inline fun RenderEnvironment.withLineWidth(lineWidth: Float, draw: RenderEnvironment.() -> Unit) {
+    LineShader.lineWidth = lineWidth
+    try {
+        draw()
+    } finally {
+        LineShader.lineWidth = 1f
+    }
 }
 
 /**
@@ -235,8 +256,9 @@ private fun RenderEnvironment.drawLines(vararg lines: Vec3, mode: DrawMode = Dra
     val tessellator = RenderSystem.renderThreadTesselator()
     // Begin drawing lines with position format
     val buffer = tessellator.begin(mode, VertexFormats.POSITION)
-    // Set the shader to the position program
-    RenderSystem.setShader { GameRenderer.getPositionProgram() }
+
+    GL11C.glLineWidth(ceil((LineShader.lineWidth + LineShader.lineWidth) * MathHelper.SQUARE_ROOT_OF_TWO))
+    LineShader.use()
 
     // Draw the vertices of the box
     with(buffer) {
@@ -246,8 +268,10 @@ private fun RenderEnvironment.drawLines(vararg lines: Vec3, mode: DrawMode = Dra
         }
 
         // Draw the outlined box
-        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+        BufferRenderer.draw(buffer.endNullable() ?: return)
     }
+
+    GL11C.glLineWidth(1f)
 }
 
 /**
@@ -334,9 +358,10 @@ fun RenderEnvironment.drawQuadOutlines(pos1: Vec3, pos2: Vec3) {
     // Begin drawing lines with position format
     val buffer = tessellator.begin(DrawMode.DEBUG_LINES, VertexFormats.POSITION)
 
-    RenderSystem.setShader { GameRenderer.getPositionProgram() }
-
     val matrix = matrixStack.peek().positionMatrix
+
+    GL11C.glLineWidth(ceil((LineShader.lineWidth + LineShader.lineWidth) * MathHelper.SQUARE_ROOT_OF_TWO))
+    LineShader.use()
 
     // Draw the vertices of the box
     with(buffer) {
@@ -353,8 +378,10 @@ fun RenderEnvironment.drawQuadOutlines(pos1: Vec3, pos2: Vec3) {
         vertex(matrix, pos1.x, pos1.y, pos1.z)
         vertex(matrix, pos2.x, pos1.y, pos1.z)
 
-        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+        BufferRenderer.draw(buffer.endNullable() ?: return)
     }
+
+    GL11C.glLineWidth(1f) // TODO move to finalize block
 }
 
 fun RenderEnvironment.drawTriangle(p1: Vec3, p2: Vec3, p3: Vec3) {
@@ -569,8 +596,8 @@ fun RenderEnvironment.drawOutlinedBox(box: Box) {
     // Begin drawing lines with position format
     val buffer = tessellator.begin(DrawMode.DEBUG_LINES, VertexFormats.POSITION)
 
-    // Set the shader to the position program
-    RenderSystem.setShader { GameRenderer.getPositionProgram() }
+    GL11C.glLineWidth(ceil((LineShader.lineWidth + LineShader.lineWidth) * MathHelper.SQUARE_ROOT_OF_TWO))
+    LineShader.use()
 
     // Draw the vertices of the box
     with(buffer) {
@@ -607,8 +634,10 @@ fun RenderEnvironment.drawOutlinedBox(box: Box) {
         }
 
         // Draw the outlined box
-        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+        BufferRenderer.draw(buffer.endNullable() ?: return)
     }
+
+    GL11C.glLineWidth(1f)
 }
 
 /**
