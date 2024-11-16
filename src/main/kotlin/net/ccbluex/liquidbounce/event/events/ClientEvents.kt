@@ -83,6 +83,19 @@ class TargetChangeEvent(val target: PlayerData?) : Event()
 @WebSocketEvent
 class BlockCountChangeEvent(val count: Int?) : Event()
 
+@Nameable("pointerInfo")
+@WebSocketEvent
+class PointerInfoEvent(
+    val pointers: Array<Pointer>?
+) : Event() {
+    class Pointer(
+        val radius: Int,
+        val color: String,
+        val rotateX: Float,
+        val rotateZ: Float
+    )
+}
+
 @Nameable("clientChatStateChange")
 @WebSocketEvent
 class ClientChatStateChange(val state: State) : Event() {

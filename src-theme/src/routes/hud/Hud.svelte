@@ -15,6 +15,7 @@
     import Keystrokes from "./elements/keystrokes/Keystrokes.svelte";
     import Effects from "./elements/Effects.svelte";
     import BlockCounter from "./elements/BlockCounter.svelte";
+    import PointerESP from "./elements/pointeresp/PointerESP.svelte";
     import Text from "./elements/Text.svelte";
 
     let zoom = 100;
@@ -54,6 +55,8 @@
                     <TargetHud/>
                 {:else if c.name === "BlockCounter"}
                     <BlockCounter/>
+                {:else if c.name === "PointerESP"}
+                    <PointerESP/>
                 {:else if c.name === "Hotbar"}
                     <HotBar/>
                 {:else if c.name === "Scoreboard"}

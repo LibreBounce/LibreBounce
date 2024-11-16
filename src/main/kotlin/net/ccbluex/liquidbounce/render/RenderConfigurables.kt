@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.render
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleTeams
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.utils.rainbow
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
@@ -44,6 +45,17 @@ class MapColorMode(
 
 }
 
+class GenericEntityTeamColorMode(
+    override val parent: ChoiceConfigurable<*>,
+    fallbackColor: Color4b
+) : GenericColorMode<LivingEntity>("Team") {
+
+    private val fallback by color("FallbackColor", fallbackColor)
+
+    override fun getColor(param: LivingEntity): Color4b {
+        return ModuleTeams.getTeamColor(param) ?: fallback
+    }
+}
 
 class GenericEntityHealthColorMode(
     override val parent: ChoiceConfigurable<*>
