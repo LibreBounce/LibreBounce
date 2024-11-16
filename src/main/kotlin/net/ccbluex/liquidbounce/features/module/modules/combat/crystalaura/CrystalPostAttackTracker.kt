@@ -38,7 +38,7 @@ abstract class CrystalPostAttackTracker : Listenable {
 
     val repeatable = repeatable {
         val currentTime = System.currentTimeMillis()
-        val attackTime = currentTime - timeOutAfter() // 5 seconds
+        val attackTime = currentTime - timeOutAfter()
         attackedIds.entries.iterator().apply {
             while (hasNext()) {
                 val entry = next()
