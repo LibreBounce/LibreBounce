@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
  * Counts how many crystals the crystal aura places.
- * Cps stands for crystals per second.
+ * "CPS" stands for crystals per second.
  */
 object CrystalAuraSpeedDebugger : CrystalPostAttackTracker() {
 
