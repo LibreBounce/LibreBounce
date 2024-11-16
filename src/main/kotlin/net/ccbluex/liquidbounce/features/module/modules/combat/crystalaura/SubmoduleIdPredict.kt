@@ -65,7 +65,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
         var yaw = 0f
         var pitch = 0f
 
-        fun rotate(rotation: Rotation) {
+        fun sendRotation(rotation: Rotation) {
             if (!enabled) {
                 return
             }
@@ -113,7 +113,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 wallsRange = SubmoduleCrystalDestroyer.wallsRange.toDouble(),
             ) ?: return
 
-        Rotate.rotate(rotation)
+        Rotate.sendRotation(rotation)
 
         val swing = SubmoduleCrystalDestroyer.swing
         if (swing && !swingAlways) {
