@@ -19,8 +19,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
-import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -39,6 +38,14 @@ object ModuleFreeLook : Module(
     override fun enable() {
         cameraYaw = player.yaw
         cameraPitch = player.pitch
+        mc.options.perspective = THIRD_PERSON_BACK
+    }
+
+    @Suppress("unused")
+    private val inputHandler = handler<InputHandleEvent> {
+        if (mc.options.togglePerspectiveKey.isPressed) {
+            enabled = false
+        }
     }
 
     @Suppress("unused")

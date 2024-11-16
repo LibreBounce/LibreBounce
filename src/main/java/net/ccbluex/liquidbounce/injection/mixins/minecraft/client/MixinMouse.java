@@ -80,12 +80,7 @@ public class MixinMouse {
     private boolean modifyMouseRotationInput(ClientPlayerEntity instance, double cursorDeltaX, double cursorDeltaY) {
         final MouseRotationEvent event = new MouseRotationEvent(cursorDeltaX, cursorDeltaY);
         EventManager.INSTANCE.callEvent(event);
-        if (event.isCancelled()) {
-            return false;
-        }
-
-        instance.changeLookDirection(event.getCursorDeltaX(), event.getCursorDeltaY());
-        return false;
+        return !event.isCancelled();
     }
 
 }
