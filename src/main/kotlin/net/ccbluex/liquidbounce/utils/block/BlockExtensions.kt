@@ -60,12 +60,14 @@ fun BlockPos.getCenterDistanceSquaredEyes() = player.eyes.squaredDistanceTo(this
 /**
  * Returns the block box outline of the block at the position. If the block is air, it will return an empty box.
  * Outline Box should be used for rendering purposes only.
+ *
+ * Returns [FULL_BOX] when block is air or does not exist.
  */
 val BlockPos.outlineBox: Box
     get() {
-        val blockState = getState() ?: return EMPTY_BOX
+        val blockState = getState() ?: return FULL_BOX
         if (blockState.isAir) {
-            return EMPTY_BOX
+            return FULL_BOX
         }
 
         val outlineShape = blockState.getOutlineShape(world, this)
@@ -75,6 +77,9 @@ val BlockPos.outlineBox: Box
             outlineShape.boundingBox
         }
     }
+
+val BlockPos.collisionShape: VoxelShape
+    get() = this.getState()!!.getCollisionShape(world, this)
 
 /**
  * Some blocks like slabs or stairs must be placed on upper side in order to be placed correctly.
@@ -579,20 +584,6 @@ fun Block?.isInteractable(blockState: BlockState?): Boolean {
         || this is ShulkerBoxBlock || this is StonecutterBlock
         || this is SweetBerryBushBlock && (blockState?.get(SweetBerryBushBlock.AGE) ?: 2) > 1 || this is TrapdoorBlock
 }
-
-/**
- * Returns the shape of the block as box, if it can't get the actual shape, it will return a [FULL_BOX].
- */
-fun BlockPos.getShape(): Box {
-    val outlineShape = this.getState()?.getOutlineShape(world, this) ?: return FULL_BOX
-    if (outlineShape.isEmpty) {
-        return EMPTY_BOX
-    }
-
-    return outlineShape.boundingBox
-}
-
-fun BlockPos.getCollisionShape(): VoxelShape = this.getState()!!.getCollisionShape(world, this)
 
 fun BlockPos.isBlockedByEntities(): Boolean {
     return world.entities.any {
