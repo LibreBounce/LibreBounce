@@ -7,7 +7,10 @@ import net.ccbluex.liquidbounce.event.events.PointerInfoEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.render.GenericColorMode
+import net.ccbluex.liquidbounce.render.GenericEntityHealthColorMode
+import net.ccbluex.liquidbounce.render.GenericEntityTeamColorMode
+import net.ccbluex.liquidbounce.render.GenericStaticColorMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.toDegrees
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -39,7 +42,8 @@ object ModulePointerESP : Module("PointerESP", Category.RENDER) {
         private val brightness by float("Brightness", 1f, 0f..1f)
 
         override fun getColor(param: LivingEntity): Color4b {
-            val hue = (param.distanceTo(player).coerceIn(gradientRange) - gradientRange.start) / (gradientRange.endInclusive - gradientRange.start) / 3f
+            val length = gradientRange.endInclusive - gradientRange.start
+            val hue = (param.distanceTo(player).coerceIn(gradientRange) - gradientRange.start) / length / 3f
             return Color4b(Color.getHSBColor(hue, saturation, brightness)) // Red to Green
         }
     }
@@ -67,8 +71,11 @@ object ModulePointerESP : Module("PointerESP", Category.RENDER) {
             val diff = it.pos - player.pos
 
             val angle = (player.yaw - 90f - atan2(diff.z, diff.x).toFloat().toDegrees()).let { theta ->
-                if (mc.options.perspective.isFrontView) -theta
-                else theta
+                if (mc.options.perspective.isFrontView) {
+                    -theta
+                } else {
+                    theta
+                }
             }
 
             PointerInfoEvent.Pointer(
