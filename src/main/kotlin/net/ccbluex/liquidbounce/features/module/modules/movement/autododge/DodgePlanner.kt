@@ -150,7 +150,7 @@ class DodgePlanner(
             RotationManager.makeRotation(
                 player.pos + optimalDodgePosRelativeToPlayer,
                 player.eyes,
-            ).fixedSensitivity()
+            ).normalize()
 
         return DodgePlan(
             directionalInput = DirectionalInput.FORWARDS,

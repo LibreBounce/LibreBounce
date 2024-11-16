@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.utils.block
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.event.Listenable
@@ -27,6 +28,7 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.minecraft.block.BlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.chunk.WorldChunk
@@ -37,6 +39,11 @@ object ChunkScanner : Listenable {
     private val subscribers = CopyOnWriteArrayList<BlockChangeSubscriber>()
 
     private val loadedChunks = hashSetOf<ChunkLocation>()
+
+    private fun clearAllChunks() {
+        subscribers.forEach(BlockChangeSubscriber::clearAllChunks)
+        loadedChunks.clear()
+    }
 
     @Suppress("unused")
     val chunkLoadHandler = handler<ChunkLoadEvent> { event ->
@@ -71,9 +78,13 @@ object ChunkScanner : Listenable {
     }
 
     @Suppress("unused")
+    val worldChangeHandler = handler<WorldChangeEvent> { event ->
+        clearAllChunks()
+    }
+
+    @Suppress("unused")
     val disconnectHandler = handler<DisconnectEvent> {
-        subscribers.forEach(BlockChangeSubscriber::clearAllChunks)
-        loadedChunks.clear()
+        clearAllChunks()
     }
 
     fun subscribe(newSubscriber: BlockChangeSubscriber) {
@@ -108,6 +119,11 @@ object ChunkScanner : Listenable {
     object ChunkScannerThread {
         private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
+        /**
+         * Shared cache for CoroutineScope
+         */
+        private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
+
         private const val CHANNEL_CAPACITY = 800
 
         private var chunkUpdateChannel = Channel<UpdateRequest>(capacity = CHANNEL_CAPACITY)
@@ -115,6 +131,8 @@ object ChunkScanner : Listenable {
         private val channelRestartMutex = Mutex()
 
         init {
+            // cyclic job, used to process tasks from channel
+            @Suppress("detekt:SwallowedException")
             scope.launch {
                 var retrying = 0
                 while (true) {
@@ -122,7 +140,7 @@ object ChunkScanner : Listenable {
                         val chunkUpdate = chunkUpdateChannel.receive()
 
                         if (mc.world == null) {
-                            // reset Channel
+                            // reset Channel (prevent sending)
                             channelRestartMutex.withLock {
                                 chunkUpdateChannel.cancel()
                                 chunkUpdateChannel = Channel(capacity = CHANNEL_CAPACITY)
@@ -134,12 +152,14 @@ object ChunkScanner : Listenable {
 
                         retrying = 0
 
+                        // process the update request
+                        // TODO: may need to start a new job
                         when (chunkUpdate) {
                             is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
-                            is UpdateRequest.ChunkUnloadRequest -> removeMarkedBlocksFromChunk(
-                                chunkUpdate.x,
-                                chunkUpdate.z
-                            )
+
+                            is UpdateRequest.ChunkUnloadRequest -> subscribers.forEach {
+                                it.clearChunk(chunkUpdate.x, chunkUpdate.z)
+                            }
 
                             is UpdateRequest.BlockUpdateEvent -> subscribers.forEach {
                                 it.recordBlock(chunkUpdate.blockPos, chunkUpdate.newState, cleared = false)
@@ -147,6 +167,8 @@ object ChunkScanner : Listenable {
                         }
                     } catch (e: CancellationException) {
                         break // end loop if job has been canceled
+                    } catch (e: ClosedReceiveChannelException) {
+                        break // the channel is closed from outside (stopThread)
                     } catch (e: Throwable) {
                         retrying++
                         logger.warn("Chunk update error", e)
@@ -190,17 +212,16 @@ object ChunkScanner : Listenable {
 
             val start = System.nanoTime()
 
-            (0 until chunk.height).map { y ->
+            (chunk.bottomY..chunk.topY).map { y ->
                 scope.launch {
-                    val pos = BlockPos.Mutable(chunk.pos.startX, y + chunk.bottomY, chunk.pos.startZ)
-                    repeat(16) {
-                        repeat(16) {
+                    val startX = chunk.pos.startX
+                    val startZ = chunk.pos.startZ
+                    for (x in 0..15) {
+                        for (z in 0..15) {
+                            val pos = mutable.set(startX or x, y, startZ or z)
                             val blockState = chunk.getBlockState(pos)
                             subscribersForRecordBlock.forEach { it.recordBlock(pos, blockState, cleared = true) }
-                            pos.z++
                         }
-                        pos.z = chunk.pos.startZ
-                        pos.x++
                     }
                 }
             }.joinAll()
@@ -208,13 +229,10 @@ object ChunkScanner : Listenable {
             logger.debug("Scanning chunk (${chunk.pos.x}, ${chunk.pos.z}) took ${(System.nanoTime() - start) / 1000}us")
         }
 
-        private fun removeMarkedBlocksFromChunk(x: Int, z: Int) {
-            subscribers.forEach { it.clearChunk(x, z) }
-        }
-
         fun stopThread() {
             scope.cancel()
             chunkUpdateChannel.close()
+            logger.info("Stopped Chunk Scanner Thread!")
         }
 
         sealed interface UpdateRequest {

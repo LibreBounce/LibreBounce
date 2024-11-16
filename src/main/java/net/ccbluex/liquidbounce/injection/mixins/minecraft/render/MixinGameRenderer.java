@@ -23,6 +23,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.event.events.ScreenRenderEvent;
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent;
 import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
@@ -36,6 +37,8 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.PostEffectProcessor;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -114,7 +117,7 @@ public abstract class MixinGameRenderer {
                 RotationManager.INSTANCE.getCurrentRotation() :
                 ModuleFreeCam.INSTANCE.getEnabled() ?
                         RotationManager.INSTANCE.getServerRotation() :
-                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta));
+                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta), true);
 
         return RaytracingExtensionsKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
                 ModuleLiquidPlace.INSTANCE.getEnabled(), tickDelta);
@@ -271,6 +274,44 @@ public abstract class MixinGameRenderer {
         }
 
         return result;
+    }
+
+    @Inject(method = "renderNausea", at = @At("HEAD"), cancellable = true)
+    private void hookNauseaOverlay(DrawContext context, float distortionStrength, CallbackInfo ci) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getEnabled() && antiBlind.getAntiNausea()) {
+            ci.cancel();
+        }
+    }
+
+    @ModifyExpressionValue(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerp(FFF)F"))
+    private float hookNausea(float original) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getEnabled() && antiBlind.getAntiNausea()) {
+            return 0f;
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "renderWorld",
+            at = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnCamera(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
+    }
+
+    @ModifyExpressionValue(method = "renderHand",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnHand(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
     }
 
 }

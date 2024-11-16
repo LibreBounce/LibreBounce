@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -41,23 +41,24 @@ import net.minecraft.entity.Entity
  */
 
 object ModuleNametags : Module("Nametags", Category.RENDER) {
-    val items by boolean("Items", true)
 
-    object Health : ToggleableConfigurable(this, "Health", true) {
-        val fromScoreboard by boolean("FromScoreboard", false)
+    /**
+     * Contains the list of toggleable options for the [NametagTextFormatter]
+     */
+    object ShowOptions : Configurable("Show") {
+        val health by boolean("Health", true)
+        val distance by boolean("Distance", true)
+        val ping by boolean("Ping", true)
+        val items by boolean("Items", true)
     }
 
     init {
-        tree(Health)
+        tree(ShowOptions)
     }
-
-    val ping by boolean("Ping", true)
-    val distance by boolean("Distance", false)
 
     val border by boolean("Border", true)
     val scale by float("Scale", 2F, 0.25F..4F)
-
-    val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
+    private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
 
     val fontRenderer by lazy {
         Fonts.DEFAULT_FONT.get()

@@ -48,13 +48,9 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
             NoFallHypixelPacket,
             NoFallHypixel,
         )
-    )
+    ).apply(::tagBy)
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
-
-    init {
-        tagBy(this.modes)
-    }
 
     override fun handleEvents(): Boolean {
         if (!super.handleEvents()) {

@@ -7,6 +7,7 @@ import type {
     Component,
     ConfigurableSetting,
     GameWindow,
+    HitResult,
     MinecraftKeybind,
     Module,
     PersistentStorageItem,
@@ -101,6 +102,13 @@ export async function confirmVirtualScreen(name: string) {
 export async function getPlayerData(): Promise<PlayerData> {
     const response = await fetch(`${API_BASE}/client/player`);
     const data: PlayerData = await response.json();
+
+    return data;
+}
+
+export async function getCrosshairData(): Promise<HitResult> {
+    const response = await fetch(`${API_BASE}/client/crosshair`);
+    const data: HitResult = await response.json();
 
     return data;
 }
@@ -455,23 +463,23 @@ export async function setProxyFavorite(id: number, favorite: boolean) {
     }
 }
 
-export async function addProxy(host: string, port: number, username: string, password: string) {
+export async function addProxy(host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({host, port, username, password})
+        body: JSON.stringify({host, port, username, password,forwardAuthentication})
     });
 }
 
-export async function editProxy(id: number, host: string, port: number, username: string, password: string) {
+export async function editProxy(id: number, host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/edit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({id, host, port, username, password})
+        body: JSON.stringify({id, host, port, username, password, forwardAuthentication})
     })
 }
 

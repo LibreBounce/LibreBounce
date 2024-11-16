@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.utils.render.placement
 
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.render.*
-import net.ccbluex.liquidbounce.utils.block.scanBlocksInCuboid
+import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
@@ -126,16 +126,16 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
             return
         }
 
-        scanBlocksInCuboid(2, pos) { // TODO in theory a one block radius should be enough
-            inList.computeIfPresent(it) { _, value ->
-                Triple(value.first, getCullData(it), value.third)
-            }?.let { return@scanBlocksInCuboid false }
+        // TODO in theory a one block radius should be enough
+        pos.searchBlocksInCuboid(2).forEach {
+            val blockPos = it.toImmutable()
+            inList.computeIfPresent(blockPos) { _, value ->
+                Triple(value.first, getCullData(blockPos), value.third)
+            }?.let { return@forEach }
 
-            currentList.computeIfPresent(it) { _, value ->
-                getCullData(it) to value.second
-            }?.let { return@scanBlocksInCuboid false }
-
-            return@scanBlocksInCuboid false
+            currentList.computeIfPresent(blockPos) { _, value ->
+                getCullData(blockPos) to value.second
+            }?.let { return@forEach }
         }
     }
 

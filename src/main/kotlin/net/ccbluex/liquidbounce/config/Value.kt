@@ -28,14 +28,14 @@ import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
+import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
-import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
-import net.minecraft.client.util.InputUtil
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -106,7 +106,7 @@ open class Value<T : Any>(
         set(t)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("getValue")
     fun getValue(): Any {
         if (this is ChoiceConfigurable<*>) {
@@ -121,7 +121,7 @@ open class Value<T : Any>(
         }
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("setValue")
     @Suppress("UNCHECKED_CAST")
     fun setValue(t: org.graalvm.polyglot.Value) = runCatching {
@@ -338,14 +338,12 @@ open class Value<T : Any>(
                 set(items as T)
             }
 
-            ValueType.BIND -> {
-                val newValue = try {
-                    InputUtil.Type.KEYSYM.createFromCode(string.toInt())
-                } catch (e: NumberFormatException) {
-                    inputByName(string)
-                }
+            ValueType.KEY -> {
+                set(inputByName(string) as T)
+            }
 
-                set(newValue as T)
+            ValueType.BIND -> {
+                (get() as InputBind).bind(string)
             }
 
             else -> error("unsupported value type")
@@ -420,7 +418,7 @@ class ChooseListValue<T : NamedChoice>(
         set(newValue)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     fun getChoicesStrings(): Array<String> {
         return this.choices.map { it.choiceName }.toTypedArray()
     }
@@ -441,6 +439,8 @@ enum class ValueType {
     ITEM, ITEMS,
     KEY,
     BIND,
+    VECTOR_I,
+    VECTOR_D,
     CHOICE, CHOOSE,
     INVALID,
     PROXY,
@@ -453,7 +453,7 @@ enum class ListValueType(val type: Class<*>?) {
     Item(net.minecraft.item.Item::class.java),
     String(kotlin.String::class.java),
     Friend(FriendManager.Friend::class.java),
-    Proxy(ProxyManager.Proxy::class.java),
+    Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
     None(null)
 }

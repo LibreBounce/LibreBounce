@@ -49,13 +49,13 @@ object ModuleESP : Module("ESP", Category.RENDER) {
         get() = "liquidbounce.module.esp"
 
     private val modes = choices("Mode", GlowMode, arrayOf(BoxMode, OutlineMode, GlowMode))
-    private val colorModes = choices<GenericColorMode<LivingEntity>>("ColorMode", { it.choices[0] },
-        { arrayOf(
+    private val colorModes = choices("ColorMode", 0) {
+        arrayOf(
             GenericEntityHealthColorMode(it),
             GenericStaticColorMode(it, Color4b.WHITE.alpha(100)),
             GenericRainbowColorMode(it)
-        ) }
-    )
+        )
+    }
 
     private val friendColor by color("Friends", Color4b(0, 0, 255))
 

@@ -29,12 +29,13 @@ import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.Modu
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features.FeatureChestAura
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.block.Region
-import net.ccbluex.liquidbounce.utils.block.WorldChangeNotifier
+import net.ccbluex.liquidbounce.utils.block.AbstractBlockLocationTracker
+import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.block.BlockRenderType
+import net.minecraft.block.BlockState
 import net.minecraft.block.entity.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.AbstractDonkeyEntity
@@ -45,7 +46,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * StorageESP module
@@ -66,14 +66,12 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
 
     private val requiresChestStealer by boolean("RequiresChestStealer", false)
 
-    private val locations = ConcurrentHashMap<BlockPos, ChestType>()
-
     override fun enable() {
-        WorldChangeNotifier.subscribe(StorageScanner)
+        ChunkScanner.subscribe(StorageScanner)
     }
 
     override fun disable() {
-        WorldChangeNotifier.unsubscribe(StorageScanner)
+        ChunkScanner.unsubscribe(StorageScanner)
     }
 
     private object BoxMode : Choice("Box") {
@@ -106,7 +104,7 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         private fun collectBoxesToDraw(event: WorldRenderEvent): List<Triple<Vec3d, Box, Color4b>> {
             val queuedBoxes = mutableListOf<Triple<Vec3d, Box, Color4b>>()
 
-            for ((pos, type) in locations) {
+            for ((pos, type) in StorageScanner.trackedBlockMap) {
                 val color = type.color
 
                 if (color.a <= 0 || !type.shouldRender(pos)) {
@@ -130,7 +128,7 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
             }
 
             for (entity in world.entities) {
-                val type = categorizeEntity(entity) ?: continue
+                val type = entity.categorize() ?: continue
 
                 val pos = entity.interpolateCurrentPosition(event.partialTicks)
 
@@ -154,13 +152,14 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
 
         @Suppress("unused")
         val glowRenderHandler = handler<DrawOutlinesEvent> { event ->
-            if (event.type != DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW || locations.isEmpty()) {
+            if (event.type != DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW
+                || StorageScanner.trackedBlockMap.isEmpty()) {
                 return@handler
             }
 
             renderEnvironmentForWorld(event.matrixStack) {
                 BoxRenderer.drawWith(this) {
-                    for ((pos, type) in locations) {
+                    for ((pos, type) in StorageScanner.trackedBlockMap) {
                         val state = pos.getState() ?: continue
 
                         // non-model blocks are already processed by WorldRenderer where we injected code which renders
@@ -192,19 +191,21 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         }
     }
 
-    fun categorizeEntity(entity: Entity): ChestType? {
-        return when (entity) {
+    @JvmStatic
+    fun Entity.categorize(): ChestType? {
+        return when (this) {
             // This includes any storage type minecart entity including ChestMinecartEntity
             is HopperMinecartEntity -> ChestType.HOPPER
             is StorageMinecartEntity -> ChestType.CHEST
             is ChestBoatEntity -> ChestType.CHEST
-            is AbstractDonkeyEntity -> ChestType.CHEST.takeIf { entity.hasChest() }
+            is AbstractDonkeyEntity -> ChestType.CHEST.takeIf { hasChest() }
             else -> null
         }
     }
 
-    fun categorizeBlockEntity(block: BlockEntity): ChestType? {
-        return when (block) {
+    @JvmStatic
+    fun BlockEntity.categorize(): ChestType? {
+        return when (this) {
             is ChestBlockEntity -> ChestType.CHEST
             is EnderChestBlockEntity -> ChestType.ENDER_CHEST
             is AbstractFurnaceBlockEntity -> ChestType.FURNACE
@@ -253,36 +254,11 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         open fun shouldRender(pos: BlockPos): Boolean = true
     }
 
-    object StorageScanner : WorldChangeNotifier.WorldChangeSubscriber {
-        override fun invalidate(region: Region, rescan: Boolean) {}
-
-        override fun invalidateChunk(x: Int, z: Int, rescan: Boolean) {
-            // Clean up all chests in this chunk
-            locations.entries.removeIf { it.key.x shr 4 == x && it.key.z shr 4 == z }
-
-            // Chunk was unloaded? Don't rescan then
-            if (!rescan) {
-                return
-            }
-
-            val chunk = world.getChunk(x, z)
-
-            // Don't scan empty chunks (might be a noop)
-            if (chunk.isEmpty) {
-                return
-            }
-
-            for ((pos, blockEntity) in chunk.blockEntities) {
-                val type = categorizeBlockEntity(blockEntity) ?: continue
-
-                locations[pos] = type
-            }
+    private object StorageScanner : AbstractBlockLocationTracker<ChestType>() {
+        override fun getStateFor(pos: BlockPos, state: BlockState): ChestType? {
+            val chunk = mc.world?.getChunk(pos) ?: return null
+            return chunk.getBlockEntity(pos)?.categorize()
         }
-
-        override fun invalidateEverything() {
-            locations.clear()
-        }
-
     }
 
     override fun handleEvents(): Boolean {

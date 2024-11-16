@@ -111,7 +111,7 @@ object ModuleItemTags : Module("ItemTags", Category.RENDER) {
             -BACKGROUND_PADDING,
             width + BACKGROUND_PADDING,
             height + BACKGROUND_PADDING,
-            Color4b(0, 0, 0, 128).toRGBA()
+            Color4b(0, 0, 0, 128).toARGB()
         )
 
         val c = fontRenderer.size

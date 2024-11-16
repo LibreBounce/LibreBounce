@@ -56,6 +56,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
     private val pauseAfterTick by int("PauseAfterTick", 0, 0..100, "ticks")
     private val forceGround by boolean("ForceGround", false)
     private val lineColor by color("Line", Color4b.WHITE)
+        .doNotIncludeAlways()
 
     private val requiresKillAura by boolean("RequiresKillAura", true)
 

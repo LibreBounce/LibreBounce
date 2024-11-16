@@ -23,9 +23,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
-import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent;
-import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent;
+import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleKeepSprint;
@@ -41,19 +39,17 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -100,7 +96,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();
-        AimPlan configurable = rotationManager.getStoredAimPlan();
+        AimPlan configurable = rotationManager.getWorkingAimPlan();
 
         if (configurable == null || !configurable.getApplyVelocityFix() || rotation == null) {
             return original;
@@ -121,7 +117,8 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             ordinal = 1,
             shift = At.Shift.BEFORE))
     private void hookNoClip(CallbackInfo ci) {
-        if (!this.noClip && ModuleNoClip.INSTANCE.getEnabled()) {
+        var clip = ModuleNoClip.INSTANCE;
+        if (!this.noClip && clip.getEnabled() && !clip.paused()) {
             this.noClip = true;
         }
     }
@@ -191,31 +188,31 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             return original;
         }
 
-        Pair<Float, Float> pitch = ModuleRotations.INSTANCE.getRotationPitch();
         ModuleRotations rotations = ModuleRotations.INSTANCE;
+        final var pitch = rotations.getRotationPitch();
         Rotation rotation = rotations.displayRotations();
 
         // Update pitch here
-        rotations.setRotationPitch(new Pair<>(pitch.getRight(), rotation.getPitch()));
+        pitch.key(pitch.valueFloat());
+        pitch.value(rotation.getPitch());
 
         return rotations.shouldDisplayRotations() && rotations.getBodyParts().getHead() ? rotation.getYaw() : original;
     }
 
-    @WrapWithCondition(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setVelocity(Lnet/minecraft/util/math/Vec3d;)V", ordinal = 0))
-    private boolean hookSlowVelocity(PlayerEntity instance, Vec3d vec3d) {
+    @SuppressWarnings({"UnreachableCode", "ConstantValue"})
+    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;multiply(DDD)Lnet/minecraft/util/math/Vec3d;"))
+    private Vec3d hookSlowVelocity(Vec3d instance, double x, double y, double z) {
         if ((Object) this == MinecraftClient.getInstance().player && ModuleKeepSprint.INSTANCE.getEnabled()) {
-            return false;
+            x = z = ModuleKeepSprint.INSTANCE.getMotion();
         }
 
-        return true;
+        return instance.multiply(x, y, z);
     }
 
     @WrapWithCondition(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V", ordinal = 0))
     private boolean hookSlowVelocity(PlayerEntity instance, boolean b) {
         if ((Object) this == MinecraftClient.getInstance().player) {
-            if (ModuleKeepSprint.INSTANCE.getEnabled() && !b) {
-                return false;
-            }
+            return !ModuleKeepSprint.INSTANCE.getEnabled() || b;
         }
 
         return true;
@@ -237,6 +234,11 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         }
 
         return original;
+    }
+
+    @Inject(method = "equipStack", at = @At("HEAD"))
+    private void hookPlayerEquipmentChange(EquipmentSlot slot, ItemStack stack, CallbackInfo ci) {
+        EventManager.INSTANCE.callEvent(new PlayerEquipmentChangeEvent((PlayerEntity) (Object) this, slot, stack));
     }
 
     /*

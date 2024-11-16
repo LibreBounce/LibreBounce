@@ -16,15 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("NOTHING_TO_INLINE")
 package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.math.Easing
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 
 open class Configurable(
     name: String,
@@ -54,7 +57,7 @@ open class Configurable(
         for (currentValue in this.inner) {
             if (currentValue is ToggleableConfigurable) {
                 output.add(currentValue)
-                output.addAll(currentValue.inner.filter { it.name.equals("Enabled", true) })
+                currentValue.inner.filterTo(output) { it.name.equals("Enabled", true) }
             } else {
                 if (currentValue is Configurable) {
                     currentValue.getContainedValuesRecursivelyInternal(output)
@@ -87,8 +90,8 @@ open class Configurable(
         return configurable
     }
 
-    protected fun trees(vararg configurable: Configurable) {
-        configurable.forEach { inner.add(it) }
+    protected fun <T : Configurable> treeAll(vararg configurable: T) {
+        configurable.forEach(inner::add)
     }
 
     protected fun <T : Any> value(
@@ -126,6 +129,8 @@ open class Configurable(
 
     protected fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
 
+    protected fun key(name: String, default: InputUtil.Key) = value(name, default, ValueType.KEY)
+
     protected fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
 
@@ -139,6 +144,10 @@ open class Configurable(
     protected fun color(name: String, default: Color4b) = value(name, default, ValueType.COLOR)
 
     protected fun block(name: String, default: Block) = value(name, default, ValueType.BLOCK)
+
+    protected fun vec3i(name: String, default: Vec3i) = value(name, default, ValueType.VECTOR_I)
+
+    protected fun vec3d(name: String, default: Vec3d) = value(name, default, ValueType.VECTOR_D)
 
     protected fun blocks(name: String, default: MutableSet<Block>) =
         value(name, default, ValueType.BLOCKS, ListValueType.Block)
@@ -163,7 +172,7 @@ open class Configurable(
         name: String,
         activeCallback: (ChoiceConfigurable<T>) -> T,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = ChoiceConfigurable<T>(listenable, name, activeCallback, choicesCallback).apply {
+    ) = ChoiceConfigurable(listenable, name, activeCallback, choicesCallback).apply {
         this@Configurable.inner.add(this)
     }
 

@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 
@@ -79,6 +80,7 @@ object CommandValue {
 
                 try {
                     value.setByString(valueString)
+                    ModuleClickGui.sync()
                 } catch (e: Exception) {
                     throw CommandException(command.result("valueError", valueName, e.message ?: ""))
                 }

@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.api.IpInfoApi;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
-import net.ccbluex.liquidbounce.features.misc.ProxyManager;
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager;
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.gui.MixinScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -105,7 +105,7 @@ public abstract class MixinConnectScreen extends MixinScreen {
                 hideSensitiveAddress(serverAddress.getAddress()),
                 serverAddress.getPort()
         );
-        var ipInfo = IpInfoApi.INSTANCE.getLocalIpInfo();
+        var ipInfo = IpInfoApi.INSTANCE.getCurrent();
 
         var client = Text.literal("Client").formatted(Formatting.BLUE);
         if (ipInfo != null) {

@@ -29,12 +29,12 @@ import net.ccbluex.liquidbounce.features.command.commands.client.*
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.CommandFakePlayer
 import net.ccbluex.liquidbounce.features.command.commands.creative.*
 import net.ccbluex.liquidbounce.features.command.commands.utility.CommandAutoAccount
-import net.ccbluex.liquidbounce.features.command.commands.utility.CommandPosition
+import net.ccbluex.liquidbounce.features.command.commands.utility.CommandCoordinates
 import net.ccbluex.liquidbounce.features.command.commands.utility.CommandUsername
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.CommandScript
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -129,10 +129,12 @@ object CommandManager : Iterable<Command> {
         addCommand(CommandFriend.createCommand())
         addCommand(CommandToggle.createCommand())
         addCommand(CommandBind.createCommand())
+        addCommand(CommandCenter.createCommand())
         addCommand(CommandHelp.createCommand())
         addCommand(CommandBinds.createCommand())
         addCommand(CommandClear.createCommand())
         addCommand(CommandHide.createCommand())
+        addCommand(CommandInvsee.createCommand())
         addCommand(CommandItems.createCommand())
         addCommand(CommandPanic.createCommand())
         addCommand(CommandValue.createCommand())
@@ -159,7 +161,7 @@ object CommandManager : Iterable<Command> {
 
         // utility commands
         addCommand(CommandUsername.createCommand())
-        addCommand(CommandPosition.createCommand())
+        addCommand(CommandCoordinates.createCommand())
 
         // movement commands
         addCommand(CommandVClip.createCommand())
@@ -229,7 +231,7 @@ object CommandManager : Iterable<Command> {
      *
      * @param cmd The command. If there is no command in it (it is empty or only whitespaces), this method is a no op
      */
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("execute")
     fun execute(cmd: String) {
         val args = tokenizeCommand(cmd).first

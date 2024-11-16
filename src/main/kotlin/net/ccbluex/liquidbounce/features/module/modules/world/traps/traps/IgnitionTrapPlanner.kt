@@ -1,12 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.traps.traps
 
+import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
+import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeInfo
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeIntent
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.IntentTiming
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
-import net.ccbluex.liquidbounce.utils.block.forEachBlockPosBetween
+import net.ccbluex.liquidbounce.utils.block.collidingRegion
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
@@ -20,7 +22,6 @@ import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.math.size
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
-import net.ccbluex.liquidbounce.utils.math.toVec3i
 import net.minecraft.block.Blocks
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityPose
@@ -31,7 +32,6 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.Vec3i
 
 class IgnitionTrapPlanner(parent: Listenable) : TrapPlanner<IgnitionTrapPlanner.IgnitionIntentData>(
     parent,
@@ -66,7 +66,7 @@ class IgnitionTrapPlanner(parent: Listenable) : TrapPlanner<IgnitionTrapPlanner.
 
             targetTracker.lock(target)
 
-            return BlockChangeIntent<IgnitionIntentData>(
+            return BlockChangeIntent(
                 BlockChangeInfo.PlaceBlock(placementTarget ),
                 slot,
                 IntentTiming.NEXT_PROPITIOUS_MOMENT,
@@ -116,7 +116,7 @@ class IgnitionTrapPlanner(parent: Listenable) : TrapPlanner<IgnitionTrapPlanner.
         dims: EntityDimensions,
         velocity: Vec3d,
         mustBeOnGround: Boolean
-    ): List<Vec3i> {
+    ): List<BlockPos> {
         val ticksToLookAhead = 5
         val blockPos = pos.toBlockPos()
         val normalizedStartBB =
@@ -130,7 +130,7 @@ class IgnitionTrapPlanner(parent: Listenable) : TrapPlanner<IgnitionTrapPlanner.
         val searchBB = normalizedEnddBB
 
         if (searchBB.size > 30) {
-            return listOf(Vec3i(0, 0, 0))
+            return listOf(BlockPos.ORIGIN)
         }
 
         return findOffsetsBetween(normalizedStartBB, normalizedEnddBB, blockPos, mustBeOnGround)
@@ -141,38 +141,37 @@ class IgnitionTrapPlanner(parent: Listenable) : TrapPlanner<IgnitionTrapPlanner.
         endBox: Box,
         offsetPos: BlockPos,
         mustBeOnGround: Boolean
-    ): List<Vec3i> {
-        val offsets = mutableListOf<Pair<Vec3i, Double>>()
+    ): List<BlockPos> {
+        val offsets = mutableListOf<DoubleObjectPair<BlockPos>>()
 
-        forEachBlockPosBetween(startBox.minPos.toVec3i(), startBox.maxPos.toVec3i()) { offset ->
+        startBox.collidingRegion.forEach { offset ->
             val bp = offsetPos.add(offset)
 
-            val bb = Box(BlockPos(offset))
+            val bb = Box(offset)
 
             if (!startBox.intersects(bb) && !endBox.intersects(bb)) {
-                return@forEachBlockPosBetween
+                return@forEach
             }
 
             val currentState = bp.getState()?.block
 
             if (currentState in trapWorthyBlocks || currentState != Blocks.AIR) {
-                return@forEachBlockPosBetween
+                return@forEach
             }
 
             // !(x == true)? I need it for null checking purposes
-            if (mustBeOnGround && ((bp.down().getState()?.isAir ?: true) == true)) {
-                return@forEachBlockPosBetween
+            if (mustBeOnGround && (bp.down().getState()?.isAir != false)) {
+                return@forEach
             }
 
-            val intersect =
-                startBox.intersection(bb).size + endBox.intersection(bb).size * 0.5
+            val intersect = startBox.intersection(bb).size + endBox.intersection(bb).size * 0.5
 
-            offsets.add(offset to intersect)
+            offsets.add(DoubleObjectImmutablePair(intersect, offset.toImmutable()))
         }
 
-        offsets.sortByDescending { it.second }
+        offsets.sortByDescending { it.keyDouble() }
 
-        return offsets.map { it.first }
+        return offsets.map { it.value() }
     }
 
     override fun validate(plan: BlockChangeIntent<IgnitionIntentData>, raycast: BlockHitResult): Boolean {

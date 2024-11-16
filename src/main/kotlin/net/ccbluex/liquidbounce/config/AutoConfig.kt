@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.authlib.utils.int
 import net.ccbluex.liquidbounce.authlib.utils.string
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.util.Formatting
 import java.io.Writer
@@ -49,11 +50,19 @@ data class IncludeConfiguration(
 object AutoConfig {
 
     var loadingNow = false
+        set(value) {
+            field = value
+
+            // After completion of loading, sync ClickGUI
+            if (!value) {
+                ModuleClickGui.sync()
+            }
+        }
     var includeConfiguration = IncludeConfiguration.DEFAULT
 
     var configsCache: Array<AutoSettings>? = null
     val configs
-        get() = (configsCache ?: ClientApi.requestSettingsList()).apply {
+        get() = configsCache ?: ClientApi.requestSettingsList().apply {
             configsCache = this
         }
 

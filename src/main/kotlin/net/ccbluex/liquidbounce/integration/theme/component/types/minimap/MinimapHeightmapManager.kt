@@ -40,7 +40,7 @@ class MinimapHeightmapManager {
     }
 
     private fun getHeightmap(chunkPos: ChunkPos): HeightmapForChunk {
-        return heightmaps.getOrPut(chunkPos) { HeightmapForChunk() }
+        return heightmaps.getOrPut(chunkPos, ::HeightmapForChunk)
     }
 
     fun updateChunk(chunkPos: ChunkPos) {

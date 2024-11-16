@@ -144,12 +144,12 @@ object CommandDebug {
         })
 
         add("scripts", JsonArray().apply {
-            ScriptManager.loadedScripts.forEach { script ->
+            ScriptManager.scripts.forEach { script ->
                 add(JsonObject().apply {
                     addProperty("name", script.scriptName)
                     addProperty("version", script.scriptVersion)
                     addProperty("author", script.scriptAuthors.joinToString(", "))
-                    addProperty("path", script.scriptFile.path)
+                    addProperty("path", script.file.path)
                 })
             }
         })

@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.Spe
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedLegitHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedSpeedYPort
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.grim.SpeedGrimCollide
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.intave.SpeedIntave14
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.ncp.SpeedNCP
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.sentinel.SpeedSentinelDamage
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.spartan.SpeedSpartan524
@@ -78,10 +79,12 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         SpeedVulcanGround286(configurable),
         SpeedGrimCollide(configurable),
 
-        SpeedNCP(configurable)
+        SpeedNCP(configurable),
+
+        SpeedIntave14(configurable)
     )
 
-    val modes = choices<Choice>("Mode", { it.choices[0] }, this::initializeSpeeds).apply { tagBy(this) }
+    val modes = choices("Mode", 0, this::initializeSpeeds).apply(::tagBy)
 
     private val notDuringScaffold by boolean("NotDuringScaffold", true)
     private val notDuringFly by boolean("NotDuringFly", true)
@@ -95,7 +98,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
             arrayOf(SpeedPotionEffectChoice, SlownessPotionEffectChoice, BothEffectsChoice)
         )
 
-        val modes = choices<Choice>(this, "Mode", { it.choices[0] }, ModuleSpeed::initializeSpeeds)
+        val modes = choices(this, "Mode", { it.choices[0] }, ModuleSpeed::initializeSpeeds)
 
         override fun handleEvents(): Boolean {
             // We cannot use our parent super.handleEvents() here, because it has been turned false

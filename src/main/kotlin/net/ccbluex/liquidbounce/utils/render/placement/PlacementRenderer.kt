@@ -20,14 +20,14 @@ package net.ccbluex.liquidbounce.utils.render.placement
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
-import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
@@ -41,9 +41,10 @@ import net.minecraft.util.math.Box
 open class PlacementRenderer(
     name: String,
     enabled: Boolean,
-    val module: Module,
+    val module: Listenable,
     val keep: Boolean = true,
-    clump: Boolean = true
+    clump: Boolean = true,
+    defaultColor: Color4b = Color4b(0, 255, 0, 90)
 ) : ToggleableConfigurable(module, name, enabled) {
 
     val clump by boolean("Clump", clump)
@@ -60,8 +61,8 @@ open class PlacementRenderer(
     val inTime by int("InTime", 500, 0..5000, "ms")
     val outTime by int("OutTime", 500, 0..5000, "ms")
 
-    private val colorSetting by color("Color", Color4b(0, 255, 0, 90))
-    private val outlineColorSetting by color("OutlineColor", Color4b(0, 255, 0, 255))
+    private val colorSetting by color("Color", defaultColor)
+    private val outlineColorSetting by color("OutlineColor", defaultColor.alpha(255))
 
     /**
      * The [PlacementRenderHandler]s managed by this renderer.
@@ -73,6 +74,8 @@ open class PlacementRenderer(
     var placementRenderHandlers = Int2ObjectOpenHashMap<PlacementRenderHandler>()
 
     init {
+        doNotIncludeAlways()
+
         placementRenderHandlers.put(0, PlacementRenderHandler(this))
     }
 
@@ -96,7 +99,7 @@ open class PlacementRenderer(
      *
      * @param handlerId To which handler the block should be added.
      */
-    fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = FULL_BOX, handlerId: Int = 0) {
+    fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = pos.outlineBox, handlerId: Int = 0) {
         // return if the renderer is deactivated or the box is empty, as there wouldn't be anything to render
         if (!enabled || box == EMPTY_BOX) {
             return

@@ -85,7 +85,7 @@ class NametagRenderer {
             lineBuffers.drawQuadOutlines(env, q1, q2)
         }
 
-        if (ModuleNametags.items) {
+        if (ModuleNametags.ShowOptions.items) {
             drawItemList(pos, info.items)
         }
 
@@ -107,7 +107,7 @@ class NametagRenderer {
             0,
             itemsToRender.size * ITEM_SIZE,
             ITEM_SIZE,
-            Color4b.BLACK.alpha(0).toRGBA()
+            Color4b.BLACK.alpha(0).toARGB()
         )
 
         dc.matrices.translate(0.0F, 0.0F, 100.0F)

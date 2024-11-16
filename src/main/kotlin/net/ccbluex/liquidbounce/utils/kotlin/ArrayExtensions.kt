@@ -16,27 +16,62 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("NOTHING_TO_INLINE", "detekt:TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.kotlin
 
-infix operator fun ClosedRange<Int>.contains(range: ClosedRange<Int>): Boolean {
-    return this.start in range && this.endInclusive in range
+import it.unimi.dsi.fastutil.doubles.DoubleIterable
+import it.unimi.dsi.fastutil.doubles.DoubleIterator
+import it.unimi.dsi.fastutil.doubles.DoubleIterators
+
+inline infix operator fun IntRange.contains(range: IntRange): Boolean {
+    return this.first <= range.first && this.last >= range.last
 }
 
 // https://stackoverflow.com/questions/44315977/ranges-in-kotlin-using-data-type-double
-infix fun ClosedRange<Double>.step(step: Double): Iterable<Double> {
+infix fun ClosedRange<Double>.step(step: Double): DoubleIterable {
     require(start.isFinite())
     require(endInclusive.isFinite())
-    require(step >= 0.0) { "Step must be positive, was: $step." }
 
-    if (step == 0.0) {
-        return listOf(start)
-    } else {
-        val sequence = generateSequence(start) { previous ->
-            if (previous == Double.POSITIVE_INFINITY) return@generateSequence null
-            val next = previous + step
-            if (next > endInclusive) null else next
+    return DoubleIterable {
+        if (step == 0.0) {
+            DoubleIterators.singleton(this.start)
+        } else {
+            object : DoubleIterator {
+                private var current = start
+                private var hasNextValue = current <= endInclusive
+
+                override fun hasNext(): Boolean = hasNextValue
+
+                override fun nextDouble(): Double {
+                    if (!hasNextValue) throw NoSuchElementException()
+                    val nextValue = current
+                    current += step
+                    if (current > endInclusive) hasNextValue = false
+                    return nextValue
+                }
+
+                override fun remove() {
+                    throw UnsupportedOperationException("This iterator is read-only")
+                }
+            }
         }
-        return sequence.asIterable()
+    }
+}
+
+inline fun range(iterable: DoubleIterable, operation: (Double) -> Unit) {
+    iterable.doubleIterator().apply {
+        while (hasNext()) {
+            operation(nextDouble())
+        }
+    }
+}
+
+inline fun range(iterable1: DoubleIterable, iterable2: DoubleIterable, operation: (Double, Double) -> Unit) {
+    range(iterable1) { d1 ->
+        range(iterable2) { d2 ->
+            operation(d1, d2)
+        }
     }
 }
 
@@ -71,3 +106,23 @@ inline fun <T, C : Collection<T>> C.forEachWithSelf(action: (T, index: Int, self
         action(item, i, this)
     }
 }
+
+inline fun Sequence<*>.isNotEmpty(): Boolean {
+    return iterator().hasNext()
+}
+
+inline fun Sequence<*>.isEmpty(): Boolean {
+    return !isNotEmpty()
+}
+
+inline fun <T, reified R> Array<T>.mapArray(transform: (T) -> R): Array<R> = Array(this.size) { idx ->
+    transform(this[idx])
+}
+
+
+inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> = with(iterator()) {
+    return Array(size) {
+        transform(next())
+    }
+}
+
