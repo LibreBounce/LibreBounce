@@ -11,8 +11,6 @@ uniform float blendFactor; // [1.5, 2.5]
 varying vec2 lineCenter;
 
 void main(void) {
-    float alpha = 0.0;
-
     float distance = length(lineCenter - gl_FragCoord.xy);
     float width = lineWidth;
 
@@ -22,7 +20,7 @@ void main(void) {
         //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // TODO remove debug color
     } else {
         // apply the blend factor
-        alpha = color.w * pow((width - distance) / width, blendFactor); // TODO pow is slow... maybe use exp() or smoothstep()
+        float alpha = color.w * pow((width - distance) / width, blendFactor); // TODO pow is slow... maybe use exp() or smoothstep()
         gl_FragColor = vec4(color.x, color.y, color.z, alpha);
     }
 }
