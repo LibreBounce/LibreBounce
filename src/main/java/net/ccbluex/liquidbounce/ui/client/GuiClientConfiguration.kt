@@ -96,7 +96,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
             // AltManager configuration buttons
             // Location > 3rd row
             add(GuiButton(
-                7,
+                6,
                 width / 2 - 100,
                 height / 4 + 25 + 185,
                 "Random alts mode (${if (stylisedAlts) "Stylised" else "Legacy"})"
@@ -118,7 +118,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
                 altsLength = it.valueInt
             }.also { altsSlider = it })
             add(GuiButton(
-                6,
+                5,
                 width / 2 - 100,
                 height / 4 + 235 + 25,
                 "Unformatted alt names (${if (unformattedAlts) "On" else "Off"})"
@@ -194,7 +194,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
                     // Load new background
                     try {
                         background = Background.createBackground(destFile)
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         background = null
                         if (backgroundImageFile.exists()) backgroundImageFile.deleteRecursively()
                         if (backgroundShaderFile.exists()) backgroundShaderFile.deleteRecursively()
