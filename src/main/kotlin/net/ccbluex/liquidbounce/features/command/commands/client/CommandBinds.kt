@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.input.keyList
@@ -73,7 +74,8 @@ object CommandBinds {
                             throw CommandException(command.result("unknownKey"))
                         }
 
-                        module.bind.boundKey = bindKey
+                        module.bind.bind(bindKey)
+                        ModuleClickGui.sync()
                         chat(regular(command.result("moduleBound", variable(module.name),
                             variable(module.bind.keyName))))
                     }
@@ -97,6 +99,7 @@ object CommandBinds {
                         }
 
                         module.bind.unbind()
+                        ModuleClickGui.sync()
                         chat(regular(command.result("bindRemoved", variable(module.name))))
                     }
                     .build()
