@@ -116,6 +116,11 @@ object ModuleClickGui :
         clickGuiTab?.reload()
     }
 
+    fun refresh() {
+        closeView()
+        createView()
+    }
+
     @Suppress("unused")
     private val gameRenderHandler = handler<GameRenderEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
