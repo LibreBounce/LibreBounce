@@ -62,26 +62,38 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
 
         val back by boolean("Back", false)
 
-        var yaw = 0f
-        var pitch = 0f
+        var oldRotation: Rotation? = null
 
         fun sendRotation(rotation: Rotation) {
             if (!enabled) {
                 return
             }
 
-            val serverRot = RotationManager.serverRotation
-            yaw = serverRot.yaw
-            pitch = serverRot.pitch
-            network.sendPacket(PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround))
+            oldRotation = RotationManager.serverRotation
+            network.sendPacket(PlayerMoveC2SPacket.Full(
+                player.x,
+                player.y,
+                player.z,
+                rotation.yaw,
+                rotation.pitch,
+                player.isOnGround
+            ))
         }
 
         fun rotateBack() {
-            if (!enabled || !back) {
+            if (!enabled || !back || oldRotation == null) {
                 return
             }
 
-            network.sendPacket(PlayerMoveC2SPacket.LookAndOnGround(yaw, pitch, player.isOnGround))
+            val rotation = oldRotation!!.normalize()
+            network.sendPacket(PlayerMoveC2SPacket.Full(
+                player.x,
+                player.y,
+                player.z,
+                rotation.yaw,
+                rotation.pitch,
+                player.isOnGround
+            ))
         }
 
     }
