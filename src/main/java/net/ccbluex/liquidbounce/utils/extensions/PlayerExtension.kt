@@ -5,8 +5,11 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
+import net.ccbluex.liquidbounce.event.AttackEvent
+import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.CPSCounter
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
@@ -29,11 +32,13 @@ import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
+import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
+import net.minecraft.world.WorldSettings
 import net.minecraftforge.event.ForgeEventFactory
 
 /**
@@ -283,4 +288,24 @@ fun EntityPlayerSP.tryJump() {
     if (!mc.gameSettings.keyBindJump.isKeyDown) {
         jump()
     }
+}
+
+fun EntityPlayerSP.attackEntityWithModifiedSprint(entity: Entity, new: Boolean, swing: () -> Unit) {
+    EventManager.callEvent(AttackEvent(entity))
+
+    val wasSprinting = this.isSprinting
+
+    (this as Entity).isSprinting = new
+
+    swing()
+
+    sendPacket(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+
+    if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+        this.attackTargetEntityWithCurrentItem(entity)
+    }
+
+    (this as Entity).isSprinting = wasSprinting
+
+    CPSCounter.registerClick(CPSCounter.MouseButton.LEFT)
 }
