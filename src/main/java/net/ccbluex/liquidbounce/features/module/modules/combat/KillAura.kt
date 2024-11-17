@@ -714,26 +714,24 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
             var currentValue: Double? = null
 
-            when (priority.lowercase()) {
-                "distance" -> currentValue = distance
-                "direction" -> currentValue = entityFov.toDouble()
-                "health" -> currentValue = entity.health.toDouble()
-                "livingtime" -> currentValue = -entity.ticksExisted.toDouble()
-                "armor" -> currentValue = entity.totalArmorValue.toDouble()
-                "hurtresistance" -> currentValue = entity.hurtResistantTime.toDouble()
-                "hurttime" -> currentValue = entity.hurtTime.toDouble()
-                "healthabsorption" -> currentValue = (entity.health + entity.absorptionAmount).toDouble()
-                "regenamplifier" -> currentValue = if (entity.isPotionActive(Potion.regeneration)) {
+            currentValue = when (priority.lowercase()) {
+                "distance" -> distance
+                "direction" -> entityFov.toDouble()
+                "health" -> entity.health.toDouble()
+                "livingtime" -> -entity.ticksExisted.toDouble()
+                "armor" -> entity.totalArmorValue.toDouble()
+                "hurtresistance" -> entity.hurtResistantTime.toDouble()
+                "hurttime" -> entity.hurtTime.toDouble()
+                "healthabsorption" -> (entity.health + entity.absorptionAmount).toDouble()
+                "regenamplifier" -> if (entity.isPotionActive(Potion.regeneration)) {
                     entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
-                "inweb" -> currentValue = if (entity.isInWeb) -1.0 else Double.MAX_VALUE
-                "onladder" -> currentValue = if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
-                "inliquid" -> currentValue = if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
-            }
-
-            if (currentValue == null)
-                continue
+                "inweb" -> if (entity.isInWeb) -1.0 else Double.MAX_VALUE
+                "onladder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
+                "inliquid" -> if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
+                else -> null
+            } ?: continue
 
             if (bestValue == null || currentValue < bestValue) {
                 bestValue = currentValue
