@@ -45,18 +45,6 @@ class MapColorMode(
 
 }
 
-class GenericEntityTeamColorMode(
-    override val parent: ChoiceConfigurable<*>,
-    fallbackColor: Color4b
-) : GenericColorMode<LivingEntity>("Team") {
-
-    private val fallback by color("FallbackColor", fallbackColor)
-
-    override fun getColor(param: LivingEntity): Color4b {
-        return ModuleTeams.getTeamColor(param) ?: fallback
-    }
-}
-
 class GenericEntityHealthColorMode(
     override val parent: ChoiceConfigurable<*>
 ) : GenericColorMode<LivingEntity>("Health") {

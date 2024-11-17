@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.GenericColorMode
 import net.ccbluex.liquidbounce.render.GenericEntityHealthColorMode
-import net.ccbluex.liquidbounce.render.GenericEntityTeamColorMode
 import net.ccbluex.liquidbounce.render.GenericStaticColorMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.toDegrees
@@ -28,7 +27,6 @@ object ModulePointerESP : Module("PointerESP", Category.RENDER) {
         arrayOf(
             DistanceColor,
             GenericEntityHealthColorMode(it),
-            GenericEntityTeamColorMode(it, Color4b.WHITE),
             GenericStaticColorMode(it, Color4b.WHITE),
         )
     }
