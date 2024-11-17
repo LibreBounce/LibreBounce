@@ -85,13 +85,12 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 return
             }
 
-            val rotation = oldRotation!!.normalize()
             network.sendPacket(PlayerMoveC2SPacket.Full(
                 player.x,
                 player.y,
                 player.z,
-                rotation.yaw,
-                rotation.pitch,
+                oldRotation!!.yaw,
+                oldRotation!!.pitch,
                 player.isOnGround
             ))
         }
@@ -125,7 +124,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 wallsRange = SubmoduleCrystalDestroyer.wallsRange.toDouble(),
             ) ?: return
 
-        Rotate.sendRotation(rotation)
+        Rotate.sendRotation(rotation.normalize())
 
         val swing = SubmoduleCrystalDestroyer.swing
         if (swing && !swingAlways) {
