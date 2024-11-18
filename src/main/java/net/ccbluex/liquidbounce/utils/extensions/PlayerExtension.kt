@@ -5,12 +5,11 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
-import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.CPSCounter
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedSensitivityAngle
@@ -32,13 +31,11 @@ import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
-import net.minecraft.world.WorldSettings
 import net.minecraftforge.event.ForgeEventFactory
 
 /**
@@ -81,16 +78,16 @@ fun EntityPlayer.getPing() = mc.netHandler.getPlayerInfo(uniqueID)?.responseTime
 
 fun Entity.isAnimal() =
     this is EntityAnimal
-        || this is EntitySquid
-        || this is EntityGolem
-        || this is EntityBat
+            || this is EntitySquid
+            || this is EntityGolem
+            || this is EntityBat
 
 fun Entity.isMob() =
     this is EntityMob
-        || this is EntityVillager
-        || this is EntitySlime
-        || this is EntityGhast
-        || this is EntityDragon
+            || this is EntityVillager
+            || this is EntitySlime
+            || this is EntityGhast
+            || this is EntityDragon
 
 fun EntityPlayer.isClientFriend(): Boolean {
     val entityName = name ?: return false
@@ -148,7 +145,7 @@ fun Entity.setPosAndPrevPos(currPos: Vec3, prevPos: Vec3 = currPos, lastTickPos:
         this.lastTickPosZ = it.zCoord
     }
 }
-        
+
 fun EntityPlayerSP.setFixedSensitivityAngles(yaw: Float? = null, pitch: Float? = null) {
     if (yaw != null) fixedSensitivityYaw = yaw
 
@@ -228,7 +225,8 @@ fun EntityPlayerSP.onPlayerRightClick(
 
     // If click had activated a block, send click and return true
     if ((!isSneaking || item == null || item.doesSneakBypassUse(worldObj, clickPos, this))
-        && blockState?.block?.onBlockActivated(worldObj,
+        && blockState?.block?.onBlockActivated(
+            worldObj,
             clickPos,
             blockState,
             this,
@@ -236,7 +234,8 @@ fun EntityPlayerSP.onPlayerRightClick(
             facingX,
             facingY,
             facingZ
-        ) == true)
+        ) == true
+    )
         return sendClick()
 
     if (item is ItemBlock && !item.canPlaceBlockOnSide(worldObj, clickPos, side, this, stack))
@@ -290,22 +289,21 @@ fun EntityPlayerSP.tryJump() {
     }
 }
 
-fun EntityPlayerSP.attackEntityWithModifiedSprint(entity: Entity, new: Boolean, swing: () -> Unit) {
-    EventManager.callEvent(AttackEvent(entity))
-
-    val wasSprinting = this.isSprinting
-
-    (this as Entity).isSprinting = new
-
+fun EntityPlayerSP.attackEntityWithModifiedSprint(
+    entity: Entity, affectMovementBySprint: Boolean? = null, swing: () -> Unit
+) {
     swing()
 
-    sendPacket(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+    MovementUtils.affectSprintOnAttack = affectMovementBySprint
 
-    if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-        this.attackTargetEntityWithCurrentItem(entity)
+    try {
+        mc.playerController?.attackEntity(this, entity)
+    } catch (any: Exception) {
+        // Unlikely to happen, but if it does, we just want to make sure affectSprintOnAttack is null.
+        any.printStackTrace()
     }
 
-    (this as Entity).isSprinting = wasSprinting
+    MovementUtils.affectSprintOnAttack = null
 
     CPSCounter.registerClick(CPSCounter.MouseButton.LEFT)
 }

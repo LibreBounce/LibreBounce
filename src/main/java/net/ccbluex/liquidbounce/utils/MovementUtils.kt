@@ -18,6 +18,8 @@ import kotlin.math.sqrt
 
 object MovementUtils : MinecraftInstance(), Listenable {
 
+    var affectSprintOnAttack: Boolean? = null
+
     var speed
         get() = mc.thePlayer?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
         set(value) {
@@ -25,7 +27,7 @@ object MovementUtils : MinecraftInstance(), Listenable {
         }
 
     val hasMotion
-        get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } ?: false
+        get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } == true
 
     var airTicks = 0
 
