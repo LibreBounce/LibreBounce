@@ -27,26 +27,21 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.minecraft.client.util.InputUtil
 
 @Nameable("windowResize")
-@WebSocketEvent
 class WindowResizeEvent(val width: Int, val height: Int) : Event()
 
 @Nameable("frameBufferResize")
-@WebSocketEvent
 class FrameBufferResizeEvent(val width: Int, val height: Int) : Event()
 
 @Nameable("mouseButton")
-@WebSocketEvent
 class MouseButtonEvent(val button: Int, val action: Int, val mods: Int) : Event()
 
 @Nameable("mouseScroll")
-@WebSocketEvent
 class MouseScrollEvent(val horizontal: Double, val vertical: Double) : Event()
 
 @Nameable("mouseScrollInHotbar")
 class MouseScrollInHotbarEvent(val speed: Int) : CancellableEvent()
 
 @Nameable("mouseCursor")
-@WebSocketEvent
 class MouseCursorEvent(val x: Double, val y: Double) : Event()
 
 @Nameable("keyboardKey")
