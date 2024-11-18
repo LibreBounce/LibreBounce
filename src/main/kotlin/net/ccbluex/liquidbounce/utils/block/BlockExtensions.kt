@@ -24,7 +24,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
-import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.eyes
@@ -269,13 +268,41 @@ fun BlockPos.getSortedSphere(radius: Float): Array<BlockPos> {
  * Basically [BlockView.raycast] but this method allows us to exclude blocks using [exclude].
  */
 @Suppress("SpellCheckingInspection")
-fun BlockView.raycast(context: RaycastContext, exclude: Array<BlockPos>): BlockHitResult {
+fun BlockView.raycast(
+    context: RaycastContext,
+    exclude: Array<BlockPos>?,
+    include: BlockPos?,
+    maxBlastResistance: Float?
+): BlockHitResult {
     return BlockView.raycast(context.start, context.end, context,
         { raycastContext, pos ->
-            val excluded = pos in exclude
+            val excluded = exclude?.let { pos in it } ?: false
 
-            val blockState = if (excluded) Blocks.VOID_AIR.defaultState else getBlockState(pos)
-            val fluidState = if (excluded) Fluids.EMPTY.defaultState else getFluidState(pos)
+            val blockState = if (excluded) {
+                Blocks.VOID_AIR.defaultState
+            } else if (include != null && pos == include) {
+                Blocks.OBSIDIAN.defaultState
+            } else {
+                var state = getBlockState(pos)
+                maxBlastResistance?.let {
+                    if (state.block.blastResistance < it) {
+                        state = Blocks.VOID_AIR.defaultState
+                    }
+                }
+                state
+            }
+
+            val fluidState = if (excluded) {
+                Fluids.EMPTY.defaultState
+            } else {
+                var state = getFluidState(pos)
+                maxBlastResistance?.let {
+                    if (state.blastResistance < it) {
+                        state = Fluids.EMPTY.defaultState
+                    }
+                }
+                state
+            }
 
             val vec = raycastContext.start
             val vec2 = raycastContext.end
@@ -586,14 +613,16 @@ fun Block?.isInteractable(blockState: BlockState?): Boolean {
 }
 
 fun BlockPos.isBlockedByEntities(): Boolean {
+    val posBox = FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
     return world.entities.any {
-        it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))
+        it.boundingBox.intersects(posBox)
     }
 }
 
 inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true }): List<Entity> {
+    val posBox = FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
     return world.entities.filter {
-        it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())) &&
+        it.boundingBox.intersects(posBox) &&
             include.invoke(it)
     }
 }
@@ -601,11 +630,12 @@ inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true })
 /**
  * Like [isBlockedByEntities] but it returns a blocking end crystal if present.
  */
-fun BlockPos.isBlockedByEntitiesReturnCrystal(): BooleanObjectPair<EndCrystalEntity?> {
+fun BlockPos.isBlockedByEntitiesReturnCrystal(box: Box = FULL_BOX): BooleanObjectPair<EndCrystalEntity?> {
     var blocked = false
 
+    val posBox = box.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
     world.entities.forEach {
-        if (it.boundingBox.intersects(FULL_BOX.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()))) {
+        if (it.boundingBox.intersects(posBox)) {
             if (it is EndCrystalEntity) {
                 return BooleanObjectPair.of(true, it)
             }

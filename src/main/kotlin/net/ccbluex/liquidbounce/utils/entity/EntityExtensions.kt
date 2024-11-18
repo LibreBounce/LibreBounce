@@ -396,7 +396,9 @@ fun LivingEntity.getDamageFromExplosion(
     power: Float = 6f,
     explosionRange: Float = power * 2f, // allows setting precomputed values
     damageDistance: Float = explosionRange * explosionRange,
-    exclude: Array<BlockPos>? = null
+    exclude: Array<BlockPos>? = null,
+    include: BlockPos? = null,
+    maxBlastResistance: Float? = null
 ): Float {
     // no damage will be dealt if the entity is outside the explosion range or when the difficulty is peaceful
     if (this.squaredDistanceTo(pos) > damageDistance || world.difficulty == Difficulty.PEACEFUL) {
@@ -406,8 +408,13 @@ fun LivingEntity.getDamageFromExplosion(
     try {
         ShapeFlag.noShapeChange = true
 
+        val exposure = if (exclude != null || maxBlastResistance != null || include != null) {
+            getExposureToExplosion(pos, exclude, include, maxBlastResistance)
+        } else {
+            Explosion.getExposure(pos, this)
+        }
+
         val distanceDecay = 1.0 - (sqrt(this.squaredDistanceTo(pos)) / explosionRange.toDouble())
-        val exposure = exclude?.let { getExposureToExplosion(pos, it) } ?: Explosion.getExposure(pos, this)
         val pre1 = exposure.toDouble() * distanceDecay
 
         val preprocessedDamage = (pre1 * pre1 + pre1) / 2.0 * 7.0 * explosionRange.toDouble() + 1.0
@@ -436,7 +443,12 @@ fun LivingEntity.getDamageFromExplosion(
  * Basically [Explosion.getExposure] but this method allows us to exclude blocks using [exclude].
  */
 @Suppress("NestedBlockDepth")
-fun LivingEntity.getExposureToExplosion(source: Vec3d, exclude: Array<BlockPos>): Float {
+fun LivingEntity.getExposureToExplosion(
+    source: Vec3d,
+    exclude: Array<BlockPos>?,
+    include: BlockPos?,
+    maxBlastResistance: Float?
+): Float {
     val entityBoundingBox = boundingBox
 
     val stepX = 1.0 / ((entityBoundingBox.maxX - entityBoundingBox.minX) * 2.0 + 1.0)
@@ -471,7 +483,10 @@ fun LivingEntity.getExposureToExplosion(source: Vec3d, exclude: Array<BlockPos>)
                         RaycastContext.ShapeType.COLLIDER,
                         RaycastContext.FluidHandling.NONE,
                         this
-                    ), exclude
+                    ),
+                    exclude,
+                    include,
+                    maxBlastResistance
                 )
 
                 if (hitResult.type == HitResult.Type.MISS) {
