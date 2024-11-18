@@ -21,13 +21,16 @@ package net.ccbluex.liquidbounce.utils.block
 import it.unimi.dsi.fastutil.booleans.BooleanObjectPair
 import it.unimi.dsi.fastutil.ints.IntObjectPair
 import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
-import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.block.*
 import net.minecraft.entity.Entity
@@ -217,31 +220,34 @@ fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectP
 @Suppress("detekt:CognitiveComplexMethod")
 fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<IntObjectPair<BlockPos>> =
     sequence {
-        val queue = ArrayDeque<IntObjectPair<BlockPos>>(layers * layers * directions.size / 2).apply {
-            add(IntObjectPair.of(0, this@searchLayer))
-        }
-        val visited = hashSetOf(this@searchLayer)
+        val longValueOfThis = this@searchLayer.asLong()
+        val initialCapacity = layers * layers * directions.size / 2
+
+        val layerQueue = IntArrayFIFOQueue().apply { enqueue(0) }
+        val longValueQueue = LongArrayFIFOQueue().apply { enqueue(longValueOfThis) }
+        val visited = LongOpenHashSet(initialCapacity).apply { add(longValueOfThis) }
+
         val mutable = BlockPos.Mutable()
 
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
+        while (!longValueQueue.isEmpty) {
+            val layer = layerQueue.dequeueInt()
+            val pos = longValueQueue.dequeueLong()
 
-            val layer = current.keyInt()
-
-            when {
-                layer > layers -> continue
-                layer > 0 -> yield(current)
+            if (layer > 0) {
+                yield(IntObjectPair.of(layer, BlockPos.fromLong(pos)))
             }
 
-            val pos = current.value()
+            // Search next layer
+            if (layer < layers) {
+                for (direction in directions) {
+                    mutable.set(pos)
+                    mutable.move(direction)
 
-            for (direction in directions) {
-                mutable.set(pos, direction)
-
-                if (mutable !in visited) {
-                    val newPos = mutable.toImmutable()
-                    visited.add(newPos)
-                    queue.add(IntObjectPair.of(layer + 1, newPos))
+                    val newLong = mutable.asLong()
+                    if (visited.add(newLong)) {
+                        layerQueue.enqueue(layer + 1)
+                        longValueQueue.enqueue(newLong)
+                    }
                 }
             }
         }
@@ -262,7 +268,7 @@ fun BlockPos.getSphere(radius: Float): Sequence<DoubleObjectPair<BlockPos>> = se
 }
 
 fun BlockPos.getSortedSphere(radius: Float): Array<BlockPos> {
-    return getSphere(radius).toList().sortedBy { it.firstDouble() }.map { it.second() }.toTypedArray()
+    return getSphere(radius).toList().sortedBy { it.firstDouble() }.mapArray { it.second() }
 }
 
 /**
