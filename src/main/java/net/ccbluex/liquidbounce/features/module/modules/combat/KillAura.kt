@@ -1008,7 +1008,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         if (!onScaffold && Scaffold.handleEvents() && Scaffold.placeRotation != null)
             return
 
-        if (!onDestroyBlock && (Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null))
+        if (!onDestroyBlock && ((Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null) || Nuker.handleEvents()))
             return
 
         if (mc.thePlayer.isBlocking) {
