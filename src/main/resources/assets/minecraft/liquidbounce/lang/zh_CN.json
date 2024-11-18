@@ -42,6 +42,8 @@
 
         "module.bedPlates.description": "允许您看到床周围的方块。",
 
+        "module.pointerESP.description": "允许您pointed实体的位置。",
+
         "module.projectileAimbot.description": "拉弓时自动瞄准玩家。",
 
         "module.criticals.description": "攻击生物时自动暴击。",
@@ -139,6 +141,8 @@
         "module.bufferSpeed.description": "允许你在台阶和楼梯上走得更快。",
 
         "module.cameraClip.description": "允许你在第三人称视角中透过墙壁看到另一边。",
+
+        "module.cameraView.description": "允许您修改视角 Y 轴的位置。",
         
         "module.chams.description": "允许你透过方块看到目标。",
         
@@ -182,7 +186,7 @@
         
         "module.freeCam.description": "允许你离开身体。(灵魂出窍)",
 
-        "module.freeLook.description": "UNTRANSLATED: Allows you to see around in third person view.",
+        "module.freeLook.description": "允许您以第三人称视角观察周围环境。",
         
         "module.freeze.description": "允许你停留在空中。",
         
@@ -374,6 +378,8 @@
 
         "module.rotationRecorder.description": "记录并保存您的旋转。",
 
-        "module.forwardTrack.description": "显示实体的实际位置。"
+        "module.forwardTrack.description": "显示实体的实际位置。",
+
+        "module.clickRecorder.description": "记录并保存您的点击。"
     }
 }
