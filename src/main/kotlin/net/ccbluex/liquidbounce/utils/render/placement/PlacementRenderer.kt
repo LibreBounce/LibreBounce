@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
-import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
@@ -74,6 +74,8 @@ open class PlacementRenderer(
     var placementRenderHandlers = Int2ObjectOpenHashMap<PlacementRenderHandler>()
 
     init {
+        doNotIncludeAlways()
+
         placementRenderHandlers.put(0, PlacementRenderHandler(this))
     }
 
@@ -97,7 +99,7 @@ open class PlacementRenderer(
      *
      * @param handlerId To which handler the block should be added.
      */
-    fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = FULL_BOX, handlerId: Int = 0) {
+    fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = pos.outlineBox, handlerId: Int = 0) {
         // return if the renderer is deactivated or the box is empty, as there wouldn't be anything to render
         if (!enabled || box == EMPTY_BOX) {
             return

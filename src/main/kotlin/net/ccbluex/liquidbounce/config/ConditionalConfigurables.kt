@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.QuickImports
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 
 /**
  * Should handle events when enabled. Allows the client-user to toggle features. (like modules)
@@ -135,7 +136,7 @@ class ChoiceConfigurable<T : Choice>(
     }
 
     @ScriptApiRequired
-    fun getChoicesStrings(): Array<String> = this.choices.map { it.name }.toTypedArray()
+    fun getChoicesStrings(): Array<String> = this.choices.mapArray { it.name }
 
 }
 

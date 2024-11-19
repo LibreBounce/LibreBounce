@@ -21,6 +21,7 @@
 
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
@@ -28,13 +29,12 @@ import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.integration.interop.protocol.ResourcePolicy
 import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.pingThemAll
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.serverList
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpInternalServerError
@@ -52,6 +52,8 @@ import net.minecraft.screen.ScreenTexts
 import net.minecraft.text.Text
 import net.minecraft.util.Colors
 import java.net.UnknownHostException
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.ThreadPoolExecutor
 
 // GET /api/v1/client/servers
 @Suppress("UNUSED_PARAMETER")
@@ -179,6 +181,12 @@ object ActiveServerList : Listenable {
     internal var serverList = ServerList(mc).apply { loadFile() }
 
     private val serverListPinger = MultiplayerServerListPinger()
+    private val serverPingerThreadPool: ThreadPoolExecutor = ScheduledThreadPoolExecutor(
+        10,
+        ThreadFactoryBuilder().setNameFormat("Server Pinger #%d")
+            .setDaemon(true)
+            .build()
+    )
     private val cannotConnectText = Text.translatable("multiplayer.status.cannot_connect")
         .withColor(Colors.RED)
     private val cannotResolveText = Text.translatable("multiplayer.status.cannot_resolve")
@@ -196,7 +204,7 @@ object ActiveServerList : Listenable {
             serverEntry.label = ScreenTexts.EMPTY
             serverEntry.playerCountLabel = ScreenTexts.EMPTY
 
-            virtualThread(name = "ServerPinger-${serverEntry.address}") {
+            serverPingerThreadPool.submit {
                 try {
                     serverListPinger.add(serverEntry, { mc.execute(serverList::saveFile) }) {
                         serverEntry.status =

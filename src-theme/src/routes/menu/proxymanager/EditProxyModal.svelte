@@ -4,7 +4,8 @@
     import SwitchSetting from "../common/setting/SwitchSetting.svelte";
     import ButtonSetting from "../common/setting/ButtonSetting.svelte";
     import {editProxy as editProxyRest} from "../../../integration/rest";
-    import {afterUpdate, createEventDispatcher} from "svelte";
+    import {afterUpdate} from "svelte";
+    import {listen} from "../../../integration/ws";
 
     export let visible: boolean;
     export let id: number;
@@ -16,8 +17,7 @@
     export let forwardAuthentication: boolean;
 
     let hostPort = "";
-
-    const dispatch = createEventDispatcher();
+    let loading = false;
 
     $: disabled = validateInput(requiresAuthentication, hostPort, username, password);
     $: {
@@ -48,10 +48,14 @@
 
         const [host, port] = hostPort.split(":");
 
+        loading = true;
         await editProxyRest(id, host, parseInt(port), username, password, forwardAuthentication);
-        dispatch("proxyEdit")
-        visible = false;
     }
+
+    listen("proxyEditResult", () => {
+        visible = false;
+        loading = false;
+    });
 </script>
 
 <Modal title="Edit Proxy" bind:visible={visible}>
@@ -61,6 +65,6 @@
         <IconTextInput title="Username" icon="user" bind:value={username}/>
         <IconTextInput title="Password" icon="lock" type="password" bind:value={password}/>
     {/if}
-    <SwitchSetting title="Forward Authentication" bind:value={forwardAuthentication}/>
-    <ButtonSetting title="Edit Proxy" {disabled} on:click={editProxy} listenForEnter={true}/>
+    <SwitchSetting title="Forward Microsoft Authentication" bind:value={forwardAuthentication}/>
+    <ButtonSetting title="Edit Proxy" {disabled} on:click={editProxy} listenForEnter={true} {loading}/>
 </Modal>

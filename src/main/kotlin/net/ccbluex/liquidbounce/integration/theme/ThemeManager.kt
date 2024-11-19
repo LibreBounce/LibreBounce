@@ -25,6 +25,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
 import net.ccbluex.liquidbounce.integration.IntegrationHandler
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
@@ -80,6 +81,7 @@ object ThemeManager : Configurable("theme") {
             // Update integration browser
             IntegrationHandler.updateIntegrationBrowser()
             ModuleHud.refresh()
+            ModuleClickGui.restartView()
         }
 
     private val takesInputHandler: () -> Boolean = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
@@ -100,9 +102,15 @@ object ThemeManager : Configurable("theme") {
      * Open [ITab] with the given [VirtualScreenType] and mark as static if [markAsStatic] is true.
      * This tab will be locked to the highest refresh rate since it is input aware.
      */
-    fun openInputAwareImmediate(virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false): ITab =
-        BrowserManager.browser?.createInputAwareTab(route(virtualScreenType, markAsStatic).url, frameRate = refreshRate,
-            takesInput = takesInputHandler) ?: error("Browser is not initialized")
+    fun openInputAwareImmediate(
+        virtualScreenType: VirtualScreenType? = null,
+        markAsStatic: Boolean = false,
+        takesInput: () -> Boolean = takesInputHandler
+    ): ITab = BrowserManager.browser?.createInputAwareTab(
+        route(virtualScreenType, markAsStatic).url,
+        frameRate = refreshRate,
+        takesInput = takesInput
+    ) ?: error("Browser is not initialized")
 
     fun updateImmediate(tab: ITab?, virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false) =
         tab?.loadUrl(route(virtualScreenType, markAsStatic).url)
@@ -155,6 +163,8 @@ object ThemeManager : Configurable("theme") {
 
     fun chooseTheme(name: String) {
         activeTheme = Theme(name)
+
+
     }
 
     fun themes() = themesFolder.listFiles()?.filter { it.isDirectory }?.mapNotNull { it.name } ?: emptyList()

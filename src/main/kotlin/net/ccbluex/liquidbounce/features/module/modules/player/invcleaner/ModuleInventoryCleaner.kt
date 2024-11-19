@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOff
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.PlayerInventoryConstraints
 import net.ccbluex.liquidbounce.utils.inventory.findNonEmptySlotsInInventory
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.screen.slot.SlotActionType
 
 /**
@@ -92,12 +93,12 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             )
 
             val constraintProvider = AmountConstraintProvider(
-                maxItemsPerCategory = hashMapOf(
+                desiredItemsPerCategory = hashMapOf(
                     Pair(ItemSortChoice.BLOCK.category!!, maxBlocks),
                     Pair(ItemSortChoice.THROWABLES.category!!, maxThrowables),
                     Pair(ItemCategory(ItemType.ARROW, 0), maxArrows),
                 ),
-                maxValuePerFunction = hashMapOf(
+                desiredValuePerFunction = hashMapOf(
                     Pair(ItemFunction.FOOD, maxFoods),
                     Pair(ItemFunction.WEAPON_LIKE, 1),
                 )
@@ -150,7 +151,11 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         val itemsToThrowOut = findItemsToThrowOut(cleanupPlan, findNonEmptySlotsInInventory())
 
         for (slot in itemsToThrowOut) {
-            event.schedule(inventoryConstraints, ClickInventoryAction.performThrow(screen = null, slot))
+            event.schedule(
+                inventoryConstraints,
+                ClickInventoryAction.performThrow(screen = null, slot),
+                Priority.NOT_IMPORTANT
+            )
         }
     }
 
@@ -160,19 +165,19 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     ) = itemsInInv.filter { it !in cleanupPlan.usefulItems }
 
     private class AmountConstraintProvider(
-        val maxItemsPerCategory: HashMap<ItemCategory, Int>,
-        val maxValuePerFunction: HashMap<ItemFunction, Int>,
+        val desiredItemsPerCategory: HashMap<ItemCategory, Int>,
+        val desiredValuePerFunction: HashMap<ItemFunction, Int>,
     ) {
         fun getConstraints(facet: ItemFacet): ArrayList<ItemConstraintInfo> {
             val constraints = ArrayList<ItemConstraintInfo>()
 
             if (facet.providedItemFunctions.isEmpty()) {
-                val defaultMin = if (facet.category.type.oneIsSufficient) 1 else Integer.MAX_VALUE
-                val minValue = this.maxItemsPerCategory[facet.category] ?: defaultMin
+                val defaultDesiredAmount = if (facet.category.type.oneIsSufficient) 1 else Integer.MAX_VALUE
+                val desiredAmount = this.desiredItemsPerCategory[facet.category] ?: defaultDesiredAmount
 
                 val info = ItemConstraintInfo(
                     group = ItemCategoryConstraintGroup(
-                        minValue..Integer.MAX_VALUE,
+                        desiredAmount..Integer.MAX_VALUE,
                         10,
                         facet.category
                     ),
@@ -184,7 +189,7 @@ object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 for ((function, amountAdded) in facet.providedItemFunctions) {
                     val info = ItemConstraintInfo(
                         group = ItemFunctionCategoryConstraintGroup(
-                            maxValuePerFunction.getOrDefault(function, 1)..Integer.MAX_VALUE,
+                            desiredValuePerFunction.getOrDefault(function, 1)..Integer.MAX_VALUE,
                             10,
                             function
                         ),

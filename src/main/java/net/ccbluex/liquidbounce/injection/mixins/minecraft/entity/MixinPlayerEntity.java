@@ -23,9 +23,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
-import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent;
-import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent;
+import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleKeepSprint;
@@ -41,7 +39,9 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -234,6 +234,11 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         }
 
         return original;
+    }
+
+    @Inject(method = "equipStack", at = @At("HEAD"))
+    private void hookPlayerEquipmentChange(EquipmentSlot slot, ItemStack stack, CallbackInfo ci) {
+        EventManager.INSTANCE.callEvent(new PlayerEquipmentChangeEvent((PlayerEntity) (Object) this, slot, stack));
     }
 
     /*
