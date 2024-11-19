@@ -20,15 +20,22 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.intave
 
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.directionYaw
 import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.MovementType
 
 /**
@@ -37,6 +44,7 @@ import net.minecraft.entity.MovementType
  * @author larryngton
  */
 class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Intave14", parent) {
+    private val yawOffsetMode by enumChoice("YawOffsetMode", YawOffsetMode.AIR)
 
     private class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
 
@@ -83,10 +91,58 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
      */
     private val lowHop by boolean("LowHop", true)
 
+    private enum class YawOffsetMode(override val choiceName: String) : NamedChoice {
+        GROUND("Ground"),
+        AIR("Air"),
+        NONE("None")
+    }
+
+    private val rotationsConfigurable = RotationsConfigurable(this)
+
     @Suppress("unused")
     private val jumpHandler = handler<PlayerJumpEvent> { event ->
         if (lowHop) {
             event.motion = 0.42f - 1.7E-14f
         }
+    }
+
+    private var yaw = 0f
+
+    @Suppress("unused")
+    private val yawOffsetHandler = handler<GameTickEvent> {
+        when (yawOffsetMode) {
+            YawOffsetMode.GROUND -> groundYawOffset()
+            YawOffsetMode.AIR -> airYawOffset()
+            YawOffsetMode.NONE -> return@handler
+        }
+
+        val rotation = Rotation(player.yaw - yaw, player.pitch)
+
+        RotationManager.aimAt(
+            rotationsConfigurable.toAimPlan(rotation), Priority.NOT_IMPORTANT,
+            ModuleSpeed
+        )
+    }
+
+    private fun groundYawOffset(): Float {
+        if (player.isOnGround) {
+            return when {
+                mc.options.forwardKey.isPressed && mc.options.leftKey.isPressed -> 45f
+                mc.options.forwardKey.isPressed && mc.options.rightKey.isPressed -> -45f
+                mc.options.backKey.isPressed && mc.options.leftKey.isPressed -> 135f
+                mc.options.backKey.isPressed && mc.options.rightKey.isPressed -> -135f
+                mc.options.backKey.isPressed -> 180f
+                mc.options.leftKey.isPressed -> 90f
+                mc.options.rightKey.isPressed -> -90f
+                else -> 0f
+            }
+        }
+        return 0f
+    }
+
+    private fun airYawOffset(): Float {
+        return if (!player.isOnGround && mc.options.forwardKey.isPressed &&
+            !mc.options.leftKey.isPressed && !mc.options.rightKey.isPressed
+        ) -45f else 0f
     }
 }
