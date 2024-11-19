@@ -111,8 +111,8 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
     @Suppress("unused")
     private val yawOffsetHandler = handler<GameTickEvent> {
         when (yawOffsetMode) {
-            YawOffsetMode.GROUND -> groundYawOffset()
-            YawOffsetMode.AIR -> airYawOffset()
+            YawOffsetMode.GROUND -> groundYawOffset() // makes you strafe more on ground
+            YawOffsetMode.AIR -> airYawOffset() // 45deg strafe on air
             YawOffsetMode.NONE -> return@handler
         }
 
