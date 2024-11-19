@@ -81,7 +81,7 @@ object ThemeManager : Configurable("theme") {
             // Update integration browser
             IntegrationHandler.updateIntegrationBrowser()
             ModuleHud.refresh()
-            ModuleClickGui.refresh()
+            ModuleClickGui.restartView()
         }
 
     private val takesInputHandler: () -> Boolean = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }

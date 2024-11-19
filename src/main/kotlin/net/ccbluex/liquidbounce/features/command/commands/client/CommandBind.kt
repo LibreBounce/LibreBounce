@@ -59,14 +59,14 @@ object CommandBind {
 
                 if (keyName.equals("none", true)) {
                     module.bind.unbind()
-                    ModuleClickGui.sync()
+                    ModuleClickGui.reloadView()
                     chat(regular(command.result("moduleUnbound", variable(module.name))))
                     return@handler
                 }
 
                 runCatching {
                     module.bind.bind(keyName)
-                    ModuleClickGui.sync()
+                    ModuleClickGui.reloadView()
                 }.onSuccess {
                     chat(regular(command.result("moduleBound", variable(module.name), variable(module.bind.keyName))))
                 }.onFailure {

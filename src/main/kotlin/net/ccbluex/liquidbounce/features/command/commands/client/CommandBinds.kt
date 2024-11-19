@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.utils.input.keyList
 import net.ccbluex.liquidbounce.utils.input.mouseList
 import net.minecraft.client.util.InputUtil
 import net.minecraft.util.Formatting
-import org.lwjgl.glfw.GLFW
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -75,7 +74,7 @@ object CommandBinds {
                         }
 
                         module.bind.bind(bindKey)
-                        ModuleClickGui.sync()
+                        ModuleClickGui.reloadView()
                         chat(regular(command.result("moduleBound", variable(module.name),
                             variable(module.bind.keyName))))
                     }
@@ -99,7 +98,7 @@ object CommandBinds {
                         }
 
                         module.bind.unbind()
-                        ModuleClickGui.sync()
+                        ModuleClickGui.reloadView()
                         chat(regular(command.result("bindRemoved", variable(module.name))))
                     }
                     .build()

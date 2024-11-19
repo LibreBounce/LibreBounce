@@ -55,7 +55,7 @@ object AutoConfig {
 
             // After completion of loading, sync ClickGUI
             if (!value) {
-                ModuleClickGui.sync()
+                ModuleClickGui.reloadView()
             }
         }
     var includeConfiguration = IncludeConfiguration.DEFAULT

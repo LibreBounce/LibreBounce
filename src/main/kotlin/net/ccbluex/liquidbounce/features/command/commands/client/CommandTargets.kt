@@ -79,7 +79,7 @@ object CommandTargets {
                         }
                         chat(regular(command.result(localizedState)))
 
-                        ModuleClickGui.sync()
+                        ModuleClickGui.reloadView()
                         ConfigSystem.storeConfigurable(combatTargetsConfigurable)
                     }
                     .build()

@@ -80,7 +80,7 @@ object CommandValue {
 
                 try {
                     value.setByString(valueString)
-                    ModuleClickGui.sync()
+                    ModuleClickGui.reloadView()
                 } catch (e: Exception) {
                     throw CommandException(command.result("valueError", valueName, e.message ?: ""))
                 }
