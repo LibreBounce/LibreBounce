@@ -80,9 +80,13 @@ import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import org.lwjgl.glfw.GLFW
 
-private val modules = mutableListOf<Module>()
+/**
+ * Should be sorted by Module::name
+ */
+private val modules = ArrayList<Module>(256)
 
 /**
  * A fairly simple module manager
@@ -351,16 +355,13 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             builtin += ModuleDebugRecorder
         }
 
-        builtin.apply {
-            sortBy { it.name }
-            forEach(::addModule)
-        }
+        builtin.forEach(::addModule)
     }
 
     private fun addModule(module: Module) {
         module.initConfigurable()
         module.init()
-        modules += module
+        modules.sortedInsert(module, Module::name)
     }
 
     private fun removeModule(module: Module) {
@@ -378,7 +379,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
         addModule(module)
     }
 
-    operator fun plusAssign(modules: MutableList<Module>) {
+    operator fun plusAssign(modules: Iterable<Module>) {
         modules.forEach(this::addModule)
     }
 
@@ -386,7 +387,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
         removeModule(module)
     }
 
-    operator fun minusAssign(modules: MutableList<Module>) {
+    operator fun minusAssign(modules: Iterable<Module>) {
         modules.forEach(this::removeModule)
     }
 
@@ -421,7 +422,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
     fun getCategories() = Category.entries.mapArray { it.readableName }
 
     @JvmName("getModules")
-    fun getModules() = modules
+    fun getModules(): Iterable<Module> = modules
 
     @JvmName("getModuleByName")
     @ScriptApiRequired

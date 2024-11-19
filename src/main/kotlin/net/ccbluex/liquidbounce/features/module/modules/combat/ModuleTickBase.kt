@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Vec3d
@@ -186,9 +187,9 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
         if (lineColor.a > 0) {
             renderEnvironmentForWorld(event.matrixStack) {
                 withColor(lineColor) {
-                    drawLineStrip(positions = tickBuffer.map { tick ->
+                    drawLineStrip(positions = tickBuffer.mapArray { tick ->
                         relativeToCamera(tick.position).toVec3()
-                    }.toTypedArray())
+                    })
                 }
             }
         }

@@ -115,14 +115,29 @@ inline fun Sequence<*>.isEmpty(): Boolean {
     return !isNotEmpty()
 }
 
+/**
+ * Directly map to a typed array
+ */
 inline fun <T, reified R> Array<T>.mapArray(transform: (T) -> R): Array<R> = Array(this.size) { idx ->
     transform(this[idx])
 }
 
-
+/**
+ * Directly map to a typed array
+ */
 inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> = with(iterator()) {
     return Array(size) {
         transform(next())
     }
 }
 
+/**
+ * Inserts a new element into a sorted list while maintaining the order.
+ */
+inline fun <T, K : Comparable<K>> MutableList<T>.sortedInsert(item: T, crossinline selector: (T) -> K?) {
+    val insertIndex = binarySearchBy(selector(item), selector = selector).let {
+        if (it >= 0) it else it.inv()
+    }
+
+    add(insertIndex, item)
+}
