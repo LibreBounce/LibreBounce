@@ -78,6 +78,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTr
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import org.lwjgl.glfw.GLFW
 
 private val modules = mutableListOf<Module>()
@@ -416,7 +417,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
      */
     @JvmName("getCategories")
     @ScriptApiRequired
-    fun getCategories() = Category.entries.map { it.readableName }.toTypedArray()
+    fun getCategories() = Category.entries.mapArray { it.readableName }
 
     @JvmName("getModules")
     fun getModules() = modules
