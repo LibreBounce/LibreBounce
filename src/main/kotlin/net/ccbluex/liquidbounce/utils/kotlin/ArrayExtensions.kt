@@ -116,14 +116,14 @@ inline fun Sequence<*>.isEmpty(): Boolean {
 }
 
 /**
- * Directly map to an typed array
+ * Directly map to a typed array
  */
 inline fun <T, reified R> Array<T>.mapArray(transform: (T) -> R): Array<R> = Array(this.size) { idx ->
     transform(this[idx])
 }
 
 /**
- * Directly map to an typed array
+ * Directly map to a typed array
  */
 inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> = with(iterator()) {
     return Array(size) {
