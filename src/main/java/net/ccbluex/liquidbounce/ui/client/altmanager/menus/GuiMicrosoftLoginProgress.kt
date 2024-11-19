@@ -9,6 +9,7 @@ import me.liuli.elixir.account.MicrosoftAccount
 import me.liuli.elixir.compat.OAuthServer
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
@@ -80,9 +81,14 @@ class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: ()
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawDefaultBackground()
         drawLoadingCircle(width / 2f, height / 4f + 70)
         Fonts.font40.drawCenteredString("Logging into account...", width / 2f, height / 2 - 60f, 0xffffff)
+
+        assumeNonVolatile = false
+
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 

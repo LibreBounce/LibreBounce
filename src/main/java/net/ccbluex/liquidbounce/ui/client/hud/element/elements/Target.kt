@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
@@ -95,6 +96,8 @@ class Target : Element() {
     private var delayCounter = 0
 
     override fun drawElement(): Border {
+        assumeNonVolatile = true
+
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
         val shouldRender = (KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat)
         val smoothMode = animation == "Smooth"
@@ -256,6 +259,8 @@ class Target : Element() {
 
             glPopAttrib()
         }
+
+        assumeNonVolatile = false
 
         lastTarget = target
         return Border(0F, 0F, 116F, 40F)

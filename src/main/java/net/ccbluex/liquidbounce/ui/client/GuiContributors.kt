@@ -10,6 +10,7 @@ import com.google.gson.annotations.SerializedName
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.injection.implementations.IMixinGuiSlot
 import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
@@ -50,6 +51,8 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         list.drawScreen(mouseX, mouseY, partialTicks)
@@ -134,6 +137,8 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
                 drawLoadingCircle(width / 8f, height / 2f - 40)
             }
         }
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

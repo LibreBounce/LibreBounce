@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.ui.client
 
 import net.ccbluex.liquidbounce.LiquidBounce.IN_DEV
 import net.ccbluex.liquidbounce.api.ClientUpdate
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.minecraft.client.gui.GuiButton
@@ -27,6 +28,8 @@ class GuiUpdate : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         if (!IN_DEV) {
@@ -42,6 +45,8 @@ class GuiUpdate : GuiScreen() {
         // Title
         glScalef(2F, 2F, 2F)
         Fonts.font35.drawCenteredString("New update available!", width / 4f, height / 16f + 20, Color(255, 0, 0).rgb)
+
+        assumeNonVolatile = false
     }
 
     override fun actionPerformed(button: GuiButton) {

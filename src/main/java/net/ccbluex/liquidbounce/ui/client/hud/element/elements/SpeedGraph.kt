@@ -9,6 +9,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -40,6 +42,8 @@ class SpeedGraph(
     private var lastTick = -1
 
     override fun drawElement(): Border {
+        AWTFontRenderer.Companion.assumeNonVolatile = true
+
         val width = width
 
         val player = mc.thePlayer
@@ -88,6 +92,9 @@ class SpeedGraph(
         glEnable(GL_DEPTH_TEST)
         glDepthMask(true)
         glDisable(GL_BLEND)
+
+        assumeNonVolatile = false
+
         resetColor()
 
         return Border(0F, 0F, width.toFloat(), height.toFloat() + 2)

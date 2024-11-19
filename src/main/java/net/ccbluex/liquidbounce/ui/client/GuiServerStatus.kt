@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client
 
 import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.responseCode
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
@@ -34,6 +35,8 @@ class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         var i = height / 4 + 40
@@ -66,6 +69,8 @@ class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
         }
 
         Fonts.fontBold180.drawCenteredString(translationMenu("serverStatus"), width / 2F, height / 8f + 5F, 4673984, true)
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

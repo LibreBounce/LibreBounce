@@ -103,6 +103,8 @@ public abstract class MixinGuiInGame extends Gui {
                 boolean isGradient = hud.getHotbarMode().equals("Gradient");
                 boolean isRainbow = hud.getHotbarMode().equals("Rainbow");
 
+                AWTFontRenderer.Companion.setAssumeNonVolatile(true);
+
                 if (isGradient) {
                     GradientShader.begin(
                             true,
@@ -173,6 +175,8 @@ public abstract class MixinGuiInGame extends Gui {
                 RenderHelper.disableStandardItemLighting();
                 disableRescaleNormal();
                 disableBlend();
+
+                AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 
                 ci.cancel();
             }

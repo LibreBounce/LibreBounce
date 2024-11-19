@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.tools
 
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
@@ -27,8 +28,12 @@ class GuiTools(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
         Fonts.fontBold180.drawCenteredString("Tools", width / 2F, height / 8F + 5F, 4673984, true)
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

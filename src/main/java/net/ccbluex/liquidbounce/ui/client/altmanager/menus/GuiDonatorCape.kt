@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.cape.CapeService
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.elements.GuiPasswordField
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
@@ -69,6 +70,8 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : GuiScreen() {
      * Draw screen
      */
     override fun drawScreen(mouseX : Int, mouseY : Int, partialTicks : Float) {
+        assumeNonVolatile = true
+
         // Draw background to screen
         drawBackground(0)
         drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
@@ -101,6 +104,8 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : GuiScreen() {
             "Enable visibility"
 
         lowerButton.displayString = if (loggedIntoAccount) "Logout" else "Donate to get Cape"
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

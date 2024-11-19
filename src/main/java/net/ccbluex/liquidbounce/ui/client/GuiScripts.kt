@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.file.FileManager.loadConfigs
 import net.ccbluex.liquidbounce.script.ScriptManager.reloadScripts
 import net.ccbluex.liquidbounce.script.ScriptManager.scripts
 import net.ccbluex.liquidbounce.script.ScriptManager.scriptsFolder
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
@@ -49,11 +50,15 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         list.drawScreen(mouseX, mouseY, partialTicks)
 
         Fonts.font40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiDonatorCape
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginIntoAccount
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiSessionLogin
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
@@ -97,6 +98,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
         altsList.drawScreen(mouseX, mouseY, partialTicks)
         Fonts.font40.drawCenteredString(translationMenu("altManager"), width / 2f, 6f, 0xffffff)
@@ -122,6 +125,9 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
         if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
             "§7Search...", searchField.xPosition + 4f, 17f, 0xffffff
         )
+
+        assumeNonVolatile = false
+
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
