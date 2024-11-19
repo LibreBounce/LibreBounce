@@ -509,7 +509,6 @@
   "liquidbounce.module.nameCollector.description": "收集服务器上所有玩家的名称。",
   "liquidbounce.module.nameProtect.description": "在客户端隐藏玩家的真实用户名（对制作视频很有用）。",
   "liquidbounce.module.nametags.description": "改善玩家名称标签的可见性并显示额外信息。",
-  "liquidbounce.module.itemTags.description": "显示掉落物品的图标和数量标签。",
   "liquidbounce.module.noBob.description": "禁用视角摇晃效果。",
   "liquidbounce.module.noClip.description": "允许你穿过方块（先让沙子落在你的头上）。",
   "liquidbounce.module.noClip.messages.setbackDetected": "检测到回弹，请确保你已经站在一个方块里面。",
