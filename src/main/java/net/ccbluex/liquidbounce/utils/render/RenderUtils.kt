@@ -653,7 +653,7 @@ object RenderUtils : MinecraftInstance() {
         glEnable(GL_BLEND)
         glDepthMask(false)
         GL14.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
-        resetColor()
+        glColor4f(1f, 1f, 1f, 1f)
         mc.textureManager.bindTexture(image)
         drawModalRectWithCustomSizedTexture(
             x.toFloat(),

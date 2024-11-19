@@ -5,12 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.botList
 import net.ccbluex.liquidbounce.utils.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
@@ -30,6 +28,7 @@ import net.minecraft.network.play.server.S13PacketDestroyEntities
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.network.play.server.S20PacketEntityProperties
 import net.minecraft.potion.Potion
+import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -89,6 +88,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
     private val tabPlayerNames = mutableSetOf<String>()
     private val tabDuplicateNames = mutableSetOf<String>()
     private val entityTickMap = mutableMapOf<Int, Int>()
+
+    val botList = mutableSetOf<UUID>()
 
     fun isBot(entity: EntityLivingBase): Boolean {
         // Check if entity is a player
@@ -225,6 +226,27 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         return entity.name.isEmpty() || entity.name == mc.thePlayer.name
     }
 
+    @EventTarget(ignoreCondition = true)
+    fun onUpdate(event: UpdateEvent) {
+        val world = mc.theWorld ?: return
+
+        for (entity in world.loadedEntityList) {
+            if (entity !is EntityPlayer) continue
+            val profile = entity.gameProfile ?: continue
+
+            if (isBot(entity)) {
+                if (profile.id !in botList) {
+                    botList += profile.id
+                }
+            } else {
+                if (profile.id in botList) {
+                    botList -= profile.id
+                }
+            }
+        }
+    }
+
+    // Alternative for isBot() check.
     @EventTarget(ignoreCondition = true)
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null || mc.theWorld == null)
@@ -364,6 +386,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         tabDuplicateNames.clear()
         alwaysBehindList.clear()
         entityTickMap.clear()
+        botList.clear()
     }
 
 }

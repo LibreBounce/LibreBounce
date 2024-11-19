@@ -279,6 +279,8 @@
         "module.noSlowBreak.description": "Automatically adjusts breaking speed when using modules that influence it.",
         
         "module.noSwing.description": "Disabled swing effect when hitting an entity/mining a block.",
+
+        "module.notifier.description": "Notifies you about all events.",
         
         "module.noWeb.description": "Prevents you from getting slowed down in webs.",
         

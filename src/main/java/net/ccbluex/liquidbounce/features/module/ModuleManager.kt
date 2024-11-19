@@ -167,6 +167,7 @@ object ModuleManager : Listenable {
             NoSlow,
             NoSlowBreak,
             NoSwing,
+            Notifier,
             NoWeb,
             Nuker,
             PacketDebugger,
