@@ -176,7 +176,7 @@ class ItemCategorization(
             is CrossbowItem -> arrayOf(CrossbowItemFacet(slot))
             is ArrowItem -> arrayOf(ArrowItemFacet(slot))
             is ToolItem -> arrayOf(ToolItemFacet(slot))
-            is FishingRodItem -> arrayOf(RodItemFacet(slot), ThrowableItemFacet(slot))
+            is FishingRodItem -> arrayOf(RodItemFacet(slot))
             is ShieldItem -> arrayOf(ShieldItemFacet(slot))
             is BlockItem -> {
                 if (ScaffoldBlockItemSelection.isValidBlock(slot.itemStack)
