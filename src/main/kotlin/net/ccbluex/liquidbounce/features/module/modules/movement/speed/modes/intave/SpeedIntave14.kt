@@ -142,8 +142,11 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
 
     private fun airYawOffset(): Float {
         return if (!player.isOnGround &&
-            mc.options.forwardKey.isPressed && !mc.options.leftKey.isPressed && !mc.options.rightKey.isPressed) {
+            mc.options.forwardKey.isPressed && !mc.options.leftKey.isPressed && !mc.options.rightKey.isPressed
+        ) {
             -45f
-        } else 0f
+        } else {
+            0f
+        }
     }
 }
