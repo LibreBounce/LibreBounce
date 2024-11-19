@@ -40,7 +40,7 @@ import kotlin.math.max
 object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place", true) {
 
     private var swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
-    private val oldVersion by boolean("1_12_2", false)
+    val oldVersion by boolean("1_12_2", false)
     private val delay by int("Delay", 0, 0..1000, "ms")
     private val range by float("Range", 4.5F, 1.0F..5.0F).onChanged { updateSphere() }
     private val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F).onChanged {
@@ -167,9 +167,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         val oldVersionBox = if (oldVersion) FULL_BOX.withMaxX(2.0) else null
 
-        val support = SubmoduleBasePlace.shouldSupportRun()
-        val currentSupportTarget = if (support) null else SubmoduleBasePlace.currentTarget
-        val supportLayers = if (support) SubmoduleBasePlace.getSupportLayers(target.y) else IntOpenHashSet()
+        val basePlace = SubmoduleBasePlace.shouldBasePlaceRun()
+        val currentBasePlaceTarget = if (basePlace) null else SubmoduleBasePlace.currentTarget
+        val basePlaceLayers = if (basePlace) SubmoduleBasePlace.getBasePlaceLayers(target.y) else IntOpenHashSet()
 
         val playerPos = player.blockPos
         val pos = BlockPos.Mutable()
@@ -178,18 +178,12 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             val state = pos.getState()!!
             val canSeeUpperBlockSide = !onlyAbove || canSeeUpperBlockSide(playerEyePos, pos, range, wallsRange)
             val canPlace = state.block == Blocks.OBSIDIAN || state.block == Blocks.BEDROCK
-            val canSupport = support && // TODO move this to the submodule or its own class
-                pos.y in supportLayers &&
-                pos.getCenterDistanceSquared() < SubmoduleBasePlace.getMaxRange() && // TODO better range check for support
-                state.isReplaceable &&
-                !pos.isBlockedByEntities() && // TODO move check down so we don't waste time here, improve entity checks in general
-                SubmoduleBasePlace.playerWillNotRunIn(pos)
-            // TODO check that  base place won't trap us
-            if ((canPlace || canSupport) &&
-                pos.up().getState()!!.isAir &&
+
+            if (pos.up().getState()!!.isAir &&
                 (!oldVersion || pos.up(2).getState()!!.isAir) &&
                 canSeeUpperBlockSide &&
-                pos.y.toDouble() + 1.0 < maxY
+                pos.y.toDouble() + 1.0 < maxY &&
+                (canPlace || SubmoduleBasePlace.canBasePlace(basePlace, pos, basePlaceLayers, state))
             ) {
                 val blocked = pos.up().isBlockedByEntitiesReturnCrystal(
                     box = if (oldVersion) oldVersionBox!! else FULL_BOX
@@ -213,7 +207,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             }
         }
 
-        currentSupportTarget?.let {
+        currentBasePlaceTarget?.let {
             it.calculate()
             if (it.isNotInvalid() &&
                 it.explosionDamage!! - bestTarget.explosionDamage!! >= SubmoduleBasePlace.minAdvantage) {
@@ -221,9 +215,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             }
         }
 
-        if (bestTarget.requiresSupport && bestTarget != currentSupportTarget) {
+        if (bestTarget.requiresSupport && bestTarget != currentBasePlaceTarget) {
             SubmoduleBasePlace.currentTarget = bestTarget
-        } else if (bestTarget != currentSupportTarget) {
+        } else if (bestTarget != currentBasePlaceTarget) {
             SubmoduleBasePlace.currentTarget = null
         }
 

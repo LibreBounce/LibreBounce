@@ -22,11 +22,15 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.render.FULL_BOX
+import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
+import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.block.isBlockedByEntities
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.block.BlockState
 import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import kotlin.math.ceil
@@ -34,7 +38,6 @@ import kotlin.math.floor
 import kotlin.math.max
 
 // TODO enemy predict to get positions that damage a long time (optimal ticks = cps / 20)
-// TODO placer -> support -> exclude above blocks to not block crystals
 /**
  * Tries to build improved placement spots.
  */
@@ -56,7 +59,14 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     private val platformOnly by boolean("PlatformOnly", false)
 
     /**
-     * Excludes terrain for support placements. This can make the ca very inefficient in scuffed landscapes.
+     * Only places above our y level to not help the enemy.
+     * This is only useful if the enemy is using crystals too, and we're fighting on normal terrain (not bedrock).
+     */
+    private val onlyAboveSelf by boolean("OnlyAboveSelf", false)
+
+    /**
+     * Excludes terrain for base place placements.
+     * This can make the ca very inefficient in scuffed landscapes.
      *
      * Only has an effect if [ModuleCrystalAura.DamageOptions.terrain] is enabled.
      */
@@ -65,10 +75,39 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     /**
      * Makes sure we don't run into the placement. This does not mean the damage will be predicted at the simulated
      * position.
-     *
-     * A value of 0 indicates it should not be checked. // TODO higher default and down error or anti self platform (pos y >= self y)?
      */
-    private val simulateMovement by int("SimulateMovement", 3, 0..20, "ticks")
+    private object SimulateMovement : ToggleableConfigurable(this, "SimulateMovement", true) {
+
+        /**
+         * How many ticks the player movement is simulated.
+         */
+        val ticks by int("Ticks", 3, 1..20)
+
+        /**
+         * How much the players bounding box should grow with each simulated tick.
+         */
+        val error by float("Error", 0.1f, 0f..2f)
+
+        /**
+         * How much the error increases with each tick.
+         */
+        val errorStep by float("ErrorStep", 0.05f, 0f..1f)
+
+        /**
+         * Should the bounding box also extend downwards?
+         */
+        val downError by boolean("DownError", false)
+
+        /**
+         * Exclude y levels we might enter to not help enemies.
+         */
+        val antiPlatform by boolean("AntiPlatformSimulate", true)
+
+    }
+
+    init {
+        tree(SimulateMovement)
+    }
 
     val minAdvantage by float("MinAdvantage", 2.0f, 0.1f..10f)
 
@@ -79,7 +118,15 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     var currentTarget: PlacementPositionCandidate? = null
         set(value) {
             field = value
+            val blockedPositions = placer.support.blockedPositions
+            blockedPositions.clear()
             value?.let {
+                // make sure the placer won't build up the position
+                blockedPositions.add(it.pos)
+                if (SubmoduleCrystalPlacer.oldVersion) {
+                    blockedPositions.add(it.pos.up())
+                }
+
                 placer.update(setOf(it.pos))
                 trying.reset()
             } ?: run { placer.clear() }
@@ -101,9 +148,9 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     }
 
     /**
-     * Returns whether support should be calculated.
+     * Returns whether base place should be calculated.
      */
-    fun shouldSupportRun(): Boolean {
+    fun shouldBasePlaceRun(): Boolean {
         if (!enabled) {
             return false
         }
@@ -117,9 +164,9 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     }
 
     /**
-     * Returns a set of y levels the support blocks can be placed in.
+     * Returns a set of y levels the  base place can be placed in.
      */
-    fun getSupportLayers(targetY: Double): IntOpenHashSet {
+    fun getBasePlaceLayers(targetY: Double): IntOpenHashSet {
         var down = 3
         var maxY = if (targetY % 1 > 0.2) {
             down++
@@ -142,27 +189,126 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
         return result
     }
 
-    fun playerWillNotRunIn(pos: BlockPos): Boolean {
-        if (simulateMovement == 0) {
+    /**
+     * Returns `true` if we can place a crystal base at the [pos] currently.
+     */
+    fun canBasePlace(
+        running: Boolean,
+        pos: BlockPos.Mutable,
+        layers: IntOpenHashSet,
+        state: BlockState
+    ): Boolean {
+        return running &&
+            (!onlyAboveSelf || pos.y >= player.blockPos.y) &&
+            pos.y in layers &&
+            pos.getCenterDistanceSquared() + 1.0 < max(placer.range, placer.wallRange) &&
+            state.isReplaceable &&
+            !pos.isBlockedByEntities() &&
+            playerWillNotRunIn(pos) &&
+            willNotTrap(pos)
+    }
+
+    /**
+     * Simulates player movement, so that we won't run into the position.
+     */
+    private fun playerWillNotRunIn(pos: BlockPos): Boolean {
+        if (SimulateMovement.enabled) {
             return true
         }
 
         val snapShots = PlayerSimulationCache
             .getSimulationForLocalPlayer()
-            .getSnapshotsBetween(1..simulateMovement)
+            .getSnapshotsBetween(1..SimulateMovement.ticks)
+
+        val posBB = FULL_BOX.offset(pos)
+        val y = pos.y.toDouble()
+        val errorStep = SimulateMovement.errorStep.toDouble()
+        val errorDown = SimulateMovement.downError
+        var errorOffset = SimulateMovement.error.toDouble()
 
         // check if the pos will intersect at any expected position
-        // 0.1 as error offset // TODO offset might be too low?
-        return snapShots.any { FULL_BOX.offset(pos).intersects(
-            pos.x.toDouble() - 0.1,
-            pos.y.toDouble(),
-            pos.z.toDouble() - 0.1,
-            pos.x.toDouble() + 1.1,
-            pos.y.toDouble() + 1.9,
-            pos.z.toDouble() + 1.1
-        ) }
+        return snapShots.none {
+            val simulatedPos = it.pos
+            val result = posBB.intersects(
+                simulatedPos.x - errorStep,
+                simulatedPos.y - if (errorDown) errorOffset else 0.0,
+                simulatedPos.z - errorStep,
+                simulatedPos.x + 1.0 + errorStep,
+                simulatedPos.y + 1.8 + errorStep,
+                simulatedPos.z + 1.0 + errorStep
+            )
+            errorOffset += errorStep
+            val isPlatform = SimulateMovement.antiPlatform && floor(simulatedPos.y) == y
+            val isBellow = onlyAboveSelf && y < simulatedPos.y
+            result || isPlatform || isBellow
+        }
     }
 
-    fun getMaxRange(): Float = max(placer.range, placer.wallRange)
+    /**
+     * Checks if the position traps the player.
+     */
+    private fun willNotTrap(pos: BlockPos): Boolean {
+        val bb = player.boundingBox
+        val yA = ceil(bb.minY)
+        val yB = floor(bb.maxX)
+
+        val positions = listOf(
+            Pair(bb.minX, bb.minZ),
+            Pair(bb.minX, bb.maxZ),
+            Pair(bb.maxX, bb.minZ),
+            Pair(bb.maxX, bb.maxZ)
+        )
+
+        // the block layer bellow the player, if the player is clipped in the ground block a bit, it doesn't matter
+        val floor = positions.map { BlockPos.ofFloored(it.first, yA - 1.0, it.second) }.toSet()
+
+        // the first wall layer
+        val layerA = positions.map { BlockPos.ofFloored(it.first, yA, it.second) }.toSet()
+
+        // the second wall layer
+        val layerB = positions.map { BlockPos.ofFloored(it.first, yB, it.second) }.toSet()
+
+        // the blocks above the player
+        val ceiling = positions.map { BlockPos.ofFloored(it.first, yA + 1.0, it.second) }.toSet()
+
+        val isInFloorOrCeiling = pos in floor || pos in ceiling
+        if (isInFloorOrCeiling) {
+            // Do we find and escape side?
+            layerA.forEachIndexed { index, pos1 ->
+                if (!pos1.getState()!!.isSolid && !layerB.elementAt(index).getState()!!.isSolid) {
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        val isInWall = pos in layerA || pos in layerB
+        @Suppress("GrazieInspection")
+        if (isInWall) {
+            // Can we escape through the ceiling?
+            ceiling.forEach { pos1 ->
+                if (!pos1.getState()!!.isSolid && !pos1.up().getState()!!.isSolid) {
+                    return true
+                }
+            }
+
+            // Can we escape through the floor?
+            // For example, with this floor:
+            // o = air, x = a solid block
+            // o x
+            // x x
+            // we could escape
+            floor.forEach { pos1 ->
+                if (!pos1.getState()!!.isSolid && !pos1.down().getState()!!.isSolid) {
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        return true
+    }
 
 }
