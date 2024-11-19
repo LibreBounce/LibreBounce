@@ -24,7 +24,9 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.minecraft.client.option.Perspective.THIRD_PERSON_BACK
+import net.ccbluex.liquidbounce.utils.input.InputBind.BindAction.TOGGLE
+import net.minecraft.client.option.Perspective
+import net.minecraft.client.option.Perspective.*
 
 object ModuleFreeLook : Module(
     "FreeLook", Category.RENDER, disableOnQuit = true, bindAction = InputBind.BindAction.HOLD
@@ -34,17 +36,24 @@ object ModuleFreeLook : Module(
 
     var cameraYaw = 0f
     var cameraPitch = 0f
+    private var previousPerspective: Perspective = FIRST_PERSON
 
     override fun enable() {
         cameraYaw = player.yaw
         cameraPitch = player.pitch
+        previousPerspective = mc.options.perspective
         mc.options.perspective = THIRD_PERSON_BACK
+    }
+
+    override fun disable() {
+        mc.options.perspective = previousPerspective
     }
 
     @Suppress("unused")
     private val inputHandler = handler<InputHandleEvent> {
-        if (mc.options.togglePerspectiveKey.isPressed) {
+        if (mc.options.togglePerspectiveKey.isPressed && bind.action == TOGGLE) {
             enabled = false
+            mc.options.perspective = THIRD_PERSON_FRONT
         }
     }
 
