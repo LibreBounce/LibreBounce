@@ -108,6 +108,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         return findBestBlockPlacementTarget(getTargetedPosition(predictedPos.toBlockPos()), searchOptions)
     }
 
+    @Suppress("ReturnCount")
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
         val dirInput = DirectionalInput(player.input)
 
