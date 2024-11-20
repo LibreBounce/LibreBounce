@@ -46,9 +46,8 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.RigidPlayerSimulation
-import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
-import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
@@ -254,7 +253,13 @@ object FakeLag : Listenable {
         }
 
         synchronized(positions) {
-            positions.removeAll(positions.take(count).toSet())
+            with(positions.iterator()) {
+                var counter = 0
+                while (hasNext() && counter < count) {
+                    remove()
+                    counter++
+                }
+            }
         }
     }
 
@@ -291,7 +296,7 @@ object FakeLag : Listenable {
             renderEnvironmentForWorld(matrixStack) {
                 withColor(color) {
                     @Suppress("SpreadOperator")
-                    drawLineStrip(*positions.map { Vec3(relativeToCamera(it.vec)) }.toTypedArray())
+                    drawLineStrip(*positions.mapArray { Vec3(relativeToCamera(it.vec)) })
                 }
             }
         }
