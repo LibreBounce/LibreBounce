@@ -235,7 +235,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
             realisticTurnSpeed.toFloat(),
             legitimize = legitimize,
             minRotationDiff = minRotationDifference,
-            smootherMode = "Linear"
         )
 
         rotation.toPlayer(player, horizontalAim, verticalAim)

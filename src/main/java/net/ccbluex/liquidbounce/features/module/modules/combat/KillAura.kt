@@ -585,19 +585,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                     }
 
                     if (!shouldDelayClick(it.typeOfHit)) {
+                        attackTickTimes += it to runTimeTicks
+
                         if (it.typeOfHit.isEntity) {
                             val entity = it.entityHit
 
                             // Use own function instead of clickMouse() to maintain keep sprint, auto block, etc
-                            if (entity is EntityLivingBase) {
+                            if (entity is EntityLivingBase && isSelected(entity, true)) {
                                 attackEntity(entity, isLastClick)
-                            }
+                            } else attackTickTimes -= it to runTimeTicks
                         } else {
                             // Imitate game click
                             mc.clickMouse()
                         }
-
-                        attackTickTimes += it to runTimeTicks
                     }
 
                     if (shouldEnterBlockBreakProgress && isLastClick) {

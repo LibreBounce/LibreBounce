@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.int
 import net.ccbluex.liquidbounce.value.intRange
 
@@ -19,10 +18,6 @@ import net.ccbluex.liquidbounce.value.intRange
 open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true }) {
 
     open val rotationsValue = boolean("Rotations", true) { generalApply() }
-
-    open val smootherModeValue = choices(
-        "SmootherMode", arrayOf("Linear", "Relative"), "Relative"
-    ) { rotationsActive && generalApply() }
     open val applyServerSideValue = boolean("ApplyServerSide", true) { rotationsActive && generalApply() }
     open val simulateShortStopValue = boolean("SimulateShortStop", false) { rotationsActive && generalApply() }
     open val shortStopChanceValue = int("ShortStopChance", 3, 1..25) { simulateShortStop }
@@ -73,7 +68,6 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
 
     // Variables for easier access
     val rotations by rotationsValue
-    val smootherMode by smootherModeValue
     val applyServerSide by applyServerSideValue
     val simulateShortStop by simulateShortStopValue
     val shortStopChance by shortStopChanceValue
