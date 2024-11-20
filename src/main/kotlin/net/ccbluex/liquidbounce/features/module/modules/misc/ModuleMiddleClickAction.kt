@@ -143,6 +143,7 @@ object ModuleMiddleClickAction : Module(
 
             clicked = pickup
         }
+
         override val parent: ChoiceConfigurable<*>
             get() = mode
 
