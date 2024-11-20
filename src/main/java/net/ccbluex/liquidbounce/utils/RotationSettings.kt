@@ -120,7 +120,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     }
 
     fun shouldPerformShortStop(): Boolean {
-        if (abs(rotDiffBuildUp) < rotationDiffBuildUpToStop)
+        if (abs(rotDiffBuildUp) < rotationDiffBuildUpToStop || !simulateShortStop)
             return false
 
         if (maxThresholdReachAttempts < maxThresholdAttemptsToStop) {

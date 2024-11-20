@@ -217,7 +217,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * @return center
      */
     fun searchCenter(
-        bb: AxisAlignedBB, outborder: Boolean, random: Boolean, predict: Boolean,
+        bb: AxisAlignedBB, outborder: Boolean, randomization: RandomizationSettings? = null, predict: Boolean,
         lookRange: Float, attackRange: Float, throughWallsRange: Float = 0f,
         bodyPoints: List<String> = listOf("Head", "Feet"), horizontalSearch: ClosedFloatingPointRange<Float> = 0f..1f,
     ): Rotation? {
@@ -234,16 +234,25 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         val eyes = mc.thePlayer.eyes
 
-        var currRotation = currentRotation ?: mc.thePlayer.rotation
+        var currRotation = Rotation.ZERO.plus(currentRotation ?: mc.thePlayer.rotation)
 
         var attackRotation: Pair<Rotation, Float>? = null
         var lookRotation: Pair<Rotation, Float>? = null
 
-        if (random) {
-            currRotation += Rotation(
-                if (Math.random() > 0.25) nextFloat(-15f, 15f) else 0f,
-                if (Math.random() > 0.25) nextFloat(-10f, 10f) else 0f
-            )
+        randomization?.takeIf { it.randomize }?.run {
+            val yawMovement = angleDifference(currRotation.yaw, serverRotation.yaw).sign.takeIf { it != 0f }
+                ?: arrayOf(-1f, 1f).random()
+            val pitchMovement = angleDifference(currRotation.pitch, serverRotation.pitch).sign.takeIf { it != 0f }
+                ?: arrayOf(-1f, 1f).random()
+
+            currRotation.yaw += if (Math.random() > yawRandomizationChance.random()) {
+                yawRandomizationRange.random() * yawMovement
+            } else 0f
+            currRotation.pitch += if (Math.random() > pitchRandomizationChance.random()) {
+                pitchRandomizationRange.random() * pitchMovement
+            } else 0f
+
+            currRotation.fixedSensitivity()
         }
 
         val (hMin, hMax) = horizontalSearch.start.toDouble() to horizontalSearch.endInclusive.toDouble()
