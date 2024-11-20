@@ -91,7 +91,12 @@ fun clickBlockWithSlot(
 /**
  * [ClientPlayerInteractionManager.interactItem] but with custom rotations.
  */
-fun ClientPlayerInteractionManager.interactItem(player: PlayerEntity, hand: Hand, yaw: Float, pitch: Float): ActionResult {
+fun ClientPlayerInteractionManager.interactItem(
+    player: PlayerEntity,
+    hand: Hand,
+    yaw: Float,
+    pitch: Float
+): ActionResult {
     if (gameMode == GameMode.SPECTATOR) {
         return ActionResult.PASS
     }
