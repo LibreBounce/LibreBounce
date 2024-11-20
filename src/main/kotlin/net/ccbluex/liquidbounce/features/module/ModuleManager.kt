@@ -209,7 +209,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             // Misc
             ModuleAntiBot,
             ModuleBetterChat,
-            ModuleFriendClicker,
+            ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
             ModuleNotifier,
