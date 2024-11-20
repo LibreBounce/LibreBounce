@@ -22,6 +22,9 @@
     let moving = false;
     let prevX = 0;
     let prevY = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+    const GRID_SIZE = 20;
     const panelConfig = loadPanelConfig();
 
     interface PanelConfig {
@@ -81,27 +84,30 @@
         panelConfig.top = clamp(panelConfig.top, 0, document.documentElement.clientHeight * (2 / $scaleFactor) - panelElement.offsetHeight);
     }
 
-    function onMouseDown() {
+    function onMouseDown(e: MouseEvent) {
         moving = true;
-
+        offsetX = e.clientX - panelConfig.left;
+        offsetY = e.clientY - panelConfig.top;
         panelConfig.zIndex = ++$maxPanelZIndex;
+        document.body.classList.add('moving-panel');
     }
 
     function onMouseMove(e: MouseEvent) {
         if (moving) {
-            panelConfig.left += (e.screenX - prevX) * (2 / $scaleFactor);
-            panelConfig.top += (e.screenY - prevY) * (2 / $scaleFactor);
+            const newLeft = (e.clientX - offsetX) * (2 / $scaleFactor);
+            const newTop = (e.clientY - offsetY) * (2 / $scaleFactor);
+            
+            panelConfig.left = snapToGrid(newLeft);
+            panelConfig.top = snapToGrid(newTop);
+            
+            fixPosition();
+            savePanelConfig();
         }
-
-        prevX = e.screenX;
-        prevY = e.screenY;
-
-        fixPosition();
-        savePanelConfig();
     }
 
     function onMouseUp() {
         moving = false;
+        document.body.classList.remove('moving-panel');
     }
 
     function toggleExpanded() {
@@ -162,6 +168,10 @@
             })
         }, 500);
     });
+
+    function snapToGrid(value: number): number {
+        return Math.round(value / GRID_SIZE) * GRID_SIZE;
+    }
 </script>
 
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove}/>
@@ -201,6 +211,15 @@
 <style lang="scss">
   @import "../../colors.scss";
 
+  $GRID_SIZE: 20px;
+
+  :global(.moving-panel) {
+    background-image: 
+      linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
+    background-size: $GRID_SIZE $GRID_SIZE;
+  }
+
   .panel {
     border-radius: 5px;
     width: 250px;
@@ -208,6 +227,8 @@
     overflow: hidden;
     box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
     will-change: transform;
+    transition: none;
+    user-select: none;
   }
 
   .title {
