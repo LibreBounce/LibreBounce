@@ -268,7 +268,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
         val layerB = positions.map { BlockPos.ofFloored(it.first, yB, it.second) }.toSet()
 
         // the blocks above the player
-        val ceiling = positions.map { BlockPos.ofFloored(it.first, yA + 1.0, it.second) }.toSet()
+        val ceiling = positions.map { BlockPos.ofFloored(it.first, yB + 1.0, it.second) }.toSet()
 
         val isInFloorOrCeiling = pos in floor || pos in ceiling
         if (isInFloorOrCeiling) {
