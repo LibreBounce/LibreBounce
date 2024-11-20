@@ -34,7 +34,7 @@ object ModuleCustomAmbience : Module("CustomAmbience", Category.RENDER) {
     val weather = enumChoice("Weather", WeatherType.SUNNY)
     private val time = enumChoice("Time", TimeType.NOON)
 
-    private object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", false) {
+    object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", false) {
 
         private val lightColor by color("LightColor", Color4b(70, 119, 255, 255))
 
