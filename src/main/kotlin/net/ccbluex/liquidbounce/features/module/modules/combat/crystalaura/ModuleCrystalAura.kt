@@ -22,7 +22,6 @@ import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -30,13 +29,9 @@ import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.RotationMode
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
-import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
 
 object ModuleCrystalAura : Module(
     "CrystalAura",
@@ -47,36 +42,22 @@ object ModuleCrystalAura : Module(
 
     val targetTracker = tree(TargetTracker(maxRange = 12f))
 
-    object DamageOptions : Configurable("Damage") {
-
-        val maxSelfDamage by float("MaxSelfDamage", 2.0F, 0.0F..10.0F)
-        val maxFriendDamage by float("MaxFriendDamage", 1.0F, 0.0F..10.0F)
-        val minEnemyDamage by float("MinEnemyDamage", 3.0F, 0.0F..10.0F)
-
-        /**
-         * Won't place / break crystals that would kill us.
-         */
-        val antiSuicide by boolean("AntiSuicide", true)
-
-        /**
-         * Only places / breaks crystals that deal more damage to the enemy than to us.
-         */
-        val efficient by boolean("Efficient", true)
-
-        /**
-         * Doesn't include blocks that will get blown away in the exposure calculation used for the damage calculation.
-         */
-        val terrain by boolean("Terrain", true)
-
+    object PredictFeature : Configurable("Predict") {
+        init {
+            treeAll(SelfPredict, TargetPredict)
+        }
     }
 
     init {
-        tree(SubmoduleCrystalPlacer)
-        tree(SubmoduleCrystalDestroyer)
-        tree(DamageOptions)
-        tree(SubmoduleIdPredict)
-        tree(SubmoduleSetDead)
-        tree(SubmoduleBasePlace)
+        treeAll(
+            SubmoduleCrystalPlacer,
+            SubmoduleCrystalDestroyer,
+            CrystalAuraDamageOptions,
+            PredictFeature,
+            SubmoduleIdPredict,
+            SubmoduleSetDead,
+            SubmoduleBasePlace
+        )
     }
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
@@ -85,18 +66,13 @@ object ModuleCrystalAura : Module(
         arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
     })
 
-    private val cacheMap = object : LinkedHashMap<DamageConstellation, Float>(64, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<DamageConstellation, Float>): Boolean {
-            return size > 64
-        }
-    }
-
     var currentTarget: LivingEntity? = null
 
     override fun disable() {
         SubmoduleCrystalPlacer.placementRenderer.clearSilently()
         SubmoduleCrystalDestroyer.postAttackHandlers.forEach(CrystalPostAttackTracker::onToggle)
         SubmoduleBasePlace.disable()
+        CrystalAuraDamageOptions.cacheMap.clear()
     }
 
     override fun enable() {
@@ -105,7 +81,7 @@ object ModuleCrystalAura : Module(
 
     @Suppress("unused")
     val simulatedTickHandler = handler<SimulatedTickEvent> {
-        cacheMap.clear()
+        CrystalAuraDamageOptions.cacheMap.clear()
         currentTarget = targetTracker.enemies().firstOrNull()
         currentTarget ?: return@handler
         // Make the crystal destroyer run
@@ -126,58 +102,5 @@ object ModuleCrystalAura : Module(
             targetRenderer.render(this, target, it.partialTicks)
         }
     }
-
-    /**
-     * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
-     */ // TODO by equal positions take self min damage
-    internal fun approximateExplosionDamage(pos: Vec3d, requiresSupport: Boolean = false): Float? {
-        val target = currentTarget ?: return null
-        val damageToTarget = target.getDamage(pos, requiresSupport)
-        val notEnoughDamage = DamageOptions.minEnemyDamage > damageToTarget
-        if (notEnoughDamage) {
-            return null
-        }
-
-        val selfDamage = player.getDamage(pos, requiresSupport)
-        val willKill = DamageOptions.antiSuicide && player.health + player.absorptionAmount - selfDamage <= 0
-        val tooMuchDamage = DamageOptions.maxSelfDamage < selfDamage
-        if (willKill || tooMuchDamage) {
-            return null
-        }
-
-        var tooMuchDamageForFriend = false
-        if (DamageOptions.maxFriendDamage < 10f) { // 10f is the maximum allowed by the setting
-            val friends =
-                world
-                    .getEntitiesBoxInRange(pos, 6.0) { FriendManager.isFriend(it) && it.boundingBox.maxY > pos.y }
-                    .filterIsInstance<LivingEntity>()
-
-            if (friends.any { it.getDamage(pos, requiresSupport) > DamageOptions.maxFriendDamage }) {
-                tooMuchDamageForFriend = true
-            }
-        }
-
-        val isNotEfficient = DamageOptions.efficient && damageToTarget <= selfDamage
-        if (tooMuchDamageForFriend || isNotEfficient) {
-            return null
-        }
-
-        return damageToTarget
-    }
-
-    private fun LivingEntity.getDamage(crystal: Vec3d, requiresSupport: Boolean): Float {
-        val damageConstellation = DamageConstellation(this, blockPos, crystal)
-        return cacheMap.computeIfAbsent(damageConstellation) {
-            val excludeNotBlastResistant = DamageOptions.terrain && (!requiresSupport || SubmoduleBasePlace.terrain)
-            getDamageFromExplosion(
-                crystal,
-                maxBlastResistance = if (excludeNotBlastResistant) 9f else null,
-                include = if (requiresSupport) BlockPos.ofFloored(crystal).down() else null
-            )
-        }
-    }
-
-    @JvmRecord
-    data class DamageConstellation(val entity: LivingEntity, val pos: BlockPos, val crystal: Vec3d)
 
 }

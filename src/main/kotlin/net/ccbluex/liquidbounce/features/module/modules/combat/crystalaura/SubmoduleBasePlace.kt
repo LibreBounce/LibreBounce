@@ -37,7 +37,6 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 
-// TODO enemy predict to get positions that damage a long time (optimal ticks = cps / 20)
 /**
  * Tries to build improved placement spots.
  */
@@ -68,7 +67,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
      * Excludes terrain for base place placements.
      * This can make the ca very inefficient in scuffed landscapes.
      *
-     * Only has an effect if [ModuleCrystalAura.DamageOptions.terrain] is enabled.
+     * Only has an effect if [CrystalAuraDamageOptions.terrain] is enabled.
      */
     val terrain by boolean("Terrain", true)
 

@@ -39,7 +39,8 @@ import kotlin.math.max
 
 object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place", true) {
 
-    private var swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
+    private val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
+    private val switchMode by enumChoice("Switch", SwitchMode.SILENT)
     val oldVersion by boolean("1_12_2", false)
     private val delay by int("Delay", 0, 0..1000, "ms")
     private val range by float("Range", 4.5F, 1.0F..5.0F).onChanged { updateSphere() }
@@ -133,7 +134,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 player,
                 blockHitResult?.withSide(side) ?: return@rotate,
                 getSlot() ?: return@rotate,
-                swingMode
+                swingMode,
+                switchMode
             )
 
             SubmoduleIdPredict.run(targetPos)
@@ -165,7 +167,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         val positions = mutableListOf<PlacementPositionCandidate>()
 
-        val oldVersionBox = if (oldVersion) FULL_BOX.withMaxX(2.0) else null
+        val box = if (oldVersion) FULL_BOX.withMaxX(2.0) else FULL_BOX
 
         val basePlace = SubmoduleBasePlace.shouldBasePlaceRun()
         val currentBasePlaceTarget = if (basePlace) null else SubmoduleBasePlace.currentTarget
@@ -185,8 +187,17 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 pos.y.toDouble() + 1.0 < maxY &&
                 (canPlace || SubmoduleBasePlace.canBasePlace(basePlace, pos, basePlaceLayers, state))
             ) {
-                val blocked = pos.up().isBlockedByEntitiesReturnCrystal(
-                    box = if (oldVersion) oldVersionBox!! else FULL_BOX
+                val up = pos.up()
+                if (PredictFeature.willBeBlocked(
+                    box.offset(up.x.toDouble(), up.y.toDouble(), up.z.toDouble()),
+                    target,
+                    !canPlace
+                )) {
+                    return@forEach
+                }
+
+                val blocked = up.isBlockedByEntitiesReturnCrystal(
+                    box = box
                 )
 
                 val crystal = blocked.value() != null
@@ -199,8 +210,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         val finalPositions = positions.filter(PlacementPositionCandidate::isNotInvalid)
         var bestTarget = finalPositions.maxByOrNull { it.explosionDamage!! } ?: return
 
-        if (bestTarget.requiresSupport) {
-            finalPositions.filterNot { it.requiresSupport }.maxByOrNull { it.explosionDamage!! }?.let {
+        if (bestTarget.requiresBasePlace) {
+            finalPositions.filterNot { it.requiresBasePlace }.maxByOrNull { it.explosionDamage!! }?.let {
                 if (it.explosionDamage!! - bestTarget.explosionDamage!! >= SubmoduleBasePlace.minAdvantage) {
                     bestTarget = it
                 }
@@ -215,13 +226,13 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             }
         }
 
-        if (bestTarget.requiresSupport && bestTarget != currentBasePlaceTarget) {
+        if (bestTarget.requiresBasePlace && bestTarget != currentBasePlaceTarget) {
             SubmoduleBasePlace.currentTarget = bestTarget
         } else if (bestTarget != currentBasePlaceTarget) {
             SubmoduleBasePlace.currentTarget = null
         }
 
-        if (bestTarget.notBlockedByCrystal && !bestTarget.requiresSupport) {
+        if (bestTarget.notBlockedByCrystal && !bestTarget.requiresBasePlace) {
             placementTarget = bestTarget.pos
         }
     }

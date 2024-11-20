@@ -31,6 +31,8 @@ import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.ccbluex.liquidbounce.utils.movement.findEdgeCollision
+import net.minecraft.block.EntityShapeContext
+import net.minecraft.block.ShapeContext
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -54,6 +56,7 @@ import net.minecraft.world.GameRules
 import net.minecraft.world.RaycastContext
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
+import java.util.function.Predicate
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -398,7 +401,8 @@ fun LivingEntity.getDamageFromExplosion(
     damageDistance: Float = explosionRange * explosionRange,
     exclude: Array<BlockPos>? = null,
     include: BlockPos? = null,
-    maxBlastResistance: Float? = null
+    maxBlastResistance: Float? = null,
+    entityBoundingBox: Box? = null
 ): Float {
     // no damage will be dealt if the entity is outside the explosion range or when the difficulty is peaceful
     if (this.squaredDistanceTo(pos) > damageDistance || world.difficulty == Difficulty.PEACEFUL) {
@@ -408,8 +412,13 @@ fun LivingEntity.getDamageFromExplosion(
     try {
         ShapeFlag.noShapeChange = true
 
-        val exposure = if (exclude != null || maxBlastResistance != null || include != null) {
-            getExposureToExplosion(pos, exclude, include, maxBlastResistance)
+        val useTweakedMethod = exclude != null ||
+            maxBlastResistance != null ||
+            include != null ||
+            entityBoundingBox != null
+
+        val exposure = if (useTweakedMethod) {
+            getExposureToExplosion(pos, exclude, include, maxBlastResistance, entityBoundingBox)
         } else {
             Explosion.getExposure(pos, this)
         }
@@ -447,13 +456,23 @@ fun LivingEntity.getExposureToExplosion(
     source: Vec3d,
     exclude: Array<BlockPos>?,
     include: BlockPos?,
-    maxBlastResistance: Float?
+    maxBlastResistance: Float?,
+    entityBoundingBox: Box?
 ): Float {
-    val entityBoundingBox = boundingBox
+    val entityBoundingBox1 = entityBoundingBox ?: boundingBox
+    val shapeContext = entityBoundingBox1?.let {
+        EntityShapeContext(
+            isDescending,
+            entityBoundingBox1.minY,
+            mainHandStack,
+            Predicate { state -> canWalkOnFluid(state) },
+            this
+        ) // TODO does this work?
+    } ?: ShapeContext.of(this)
 
-    val stepX = 1.0 / ((entityBoundingBox.maxX - entityBoundingBox.minX) * 2.0 + 1.0)
-    val stepY = 1.0 / ((entityBoundingBox.maxY - entityBoundingBox.minY) * 2.0 + 1.0)
-    val stepZ = 1.0 / ((entityBoundingBox.maxZ - entityBoundingBox.minZ) * 2.0 + 1.0)
+    val stepX = 1.0 / ((entityBoundingBox1.maxX - entityBoundingBox1.minX) * 2.0 + 1.0)
+    val stepY = 1.0 / ((entityBoundingBox1.maxY - entityBoundingBox1.minY) * 2.0 + 1.0)
+    val stepZ = 1.0 / ((entityBoundingBox1.maxZ - entityBoundingBox1.minZ) * 2.0 + 1.0)
 
     val offsetX = (1.0 - floor(1.0 / stepX) * stepX) / 2.0
     val offsetZ = (1.0 - floor(1.0 / stepZ) * stepZ) / 2.0
@@ -471,9 +490,9 @@ fun LivingEntity.getExposureToExplosion(
         while (currentYStep <= 1.0) {
             var currentZStep = 0.0
             while (currentZStep <= 1.0) {
-                val sampleX = MathHelper.lerp(currentXStep, entityBoundingBox.minX, entityBoundingBox.maxX)
-                val sampleY = MathHelper.lerp(currentYStep, entityBoundingBox.minY, entityBoundingBox.maxY)
-                val sampleZ = MathHelper.lerp(currentZStep, entityBoundingBox.minZ, entityBoundingBox.maxZ)
+                val sampleX = MathHelper.lerp(currentXStep, entityBoundingBox1.minX, entityBoundingBox1.maxX)
+                val sampleY = MathHelper.lerp(currentYStep, entityBoundingBox1.minY, entityBoundingBox1.maxY)
+                val sampleZ = MathHelper.lerp(currentZStep, entityBoundingBox1.minZ, entityBoundingBox1.maxZ)
 
                 val samplePoint = Vec3d(sampleX + offsetX, sampleY, sampleZ + offsetZ)
                 val hitResult = world.raycast(
@@ -482,7 +501,7 @@ fun LivingEntity.getExposureToExplosion(
                         source,
                         RaycastContext.ShapeType.COLLIDER,
                         RaycastContext.FluidHandling.NONE,
-                        this
+                        shapeContext
                     ),
                     exclude,
                     include,

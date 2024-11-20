@@ -24,7 +24,7 @@ import net.minecraft.util.math.Vec3d
 class PlacementPositionCandidate(
     val pos: BlockPos, // the block the crystal should be placed on
     val notBlockedByCrystal: Boolean,
-    val requiresSupport: Boolean
+    val requiresBasePlace: Boolean
 ) {
 
     /**
@@ -41,7 +41,14 @@ class PlacementPositionCandidate(
      */
     fun calculate() {
         val damageSourceLoc = Vec3d.of(pos).add(0.5, 1.0, 0.5)
-        explosionDamage = ModuleCrystalAura.approximateExplosionDamage(damageSourceLoc, requiresSupport)
+        explosionDamage = CrystalAuraDamageOptions.approximateExplosionDamage(
+            damageSourceLoc,
+            if (requiresBasePlace) {
+                CrystalAuraDamageOptions.RequestingSubmodule.BASE_PLACE
+            } else {
+                CrystalAuraDamageOptions.RequestingSubmodule.PLACE
+            }
+        )
     }
 
     fun isNotInvalid() = explosionDamage != null
@@ -53,14 +60,14 @@ class PlacementPositionCandidate(
         other as PlacementPositionCandidate
 
         if (pos != other.pos) return false
-        if (requiresSupport != other.requiresSupport) return false
+        if (requiresBasePlace != other.requiresBasePlace) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = pos.hashCode()
-        result = 31 * result + requiresSupport.hashCode()
+        result = 31 * result + requiresBasePlace.hashCode()
         return result
     }
 

@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.minecraft.client.network.ClientPlayerEntity
@@ -36,7 +37,8 @@ fun clickBlockWithSlot(
     player: ClientPlayerEntity,
     rayTraceResult: BlockHitResult,
     slot: Int,
-    placementSwingMode: SwingMode
+    placementSwingMode: SwingMode,
+    switchMode: SwitchMode = SwitchMode.SILENT
 ) {
     val hand = if (slot == OFFHAND_SLOT.hotbarSlotForServer) {
         Hand.OFF_HAND
@@ -46,6 +48,11 @@ fun clickBlockWithSlot(
 
     val prevHotbarSlot = player.inventory.selectedSlot
     if (hand == Hand.MAIN_HAND) {
+        if (switchMode == SwitchMode.NONE && slot != prevHotbarSlot) {
+            // the slot is not selected and we can't switch
+            return
+        }
+
         player.inventory.selectedSlot = slot
 
         if (slot != prevHotbarSlot) {
@@ -75,7 +82,7 @@ fun clickBlockWithSlot(
         placementSwingMode.swing(hand)
     }
 
-    if (slot != prevHotbarSlot && hand == Hand.MAIN_HAND) {
+    if (slot != prevHotbarSlot && hand == Hand.MAIN_HAND && switchMode == SwitchMode.SILENT) {
         player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(prevHotbarSlot))
     }
 
