@@ -152,7 +152,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         }
     }
 
-    @Suppress("ComplexCondition")
+    @Suppress("ComplexCondition", "LongMethod", "CognitiveComplexMethod")
     private fun updateTarget() {
         // Reset current target
         previousTarget = placementTarget

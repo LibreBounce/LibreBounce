@@ -267,7 +267,7 @@ fun BlockPos.getSortedSphere(radius: Float): Array<BlockPos> {
 /**
  * Basically [BlockView.raycast] but this method allows us to exclude blocks using [exclude].
  */
-@Suppress("SpellCheckingInspection")
+@Suppress("SpellCheckingInspection", "CognitiveComplexMethod")
 fun BlockView.raycast(
     context: RaycastContext,
     exclude: Array<BlockPos>?,
@@ -509,13 +509,17 @@ private inline fun handlePass(
 /**
  * Breaks the block
  */
-fun doBreak(rayTraceResult: BlockHitResult, immediate: Boolean = false) {
+fun doBreak(
+    rayTraceResult: BlockHitResult,
+    immediate: Boolean = false,
+    swingMode: SwingMode = SwingMode.DO_NOT_HIDE
+) {
     val direction = rayTraceResult.side
     val blockPos = rayTraceResult.blockPos
 
     if (player.isCreative) {
         if (interaction.attackBlock(blockPos, rayTraceResult.side)) {
-            player.swingHand(Hand.MAIN_HAND)
+            swingMode.swing(Hand.MAIN_HAND)
             return
         }
     }
@@ -528,7 +532,7 @@ fun doBreak(rayTraceResult: BlockHitResult, immediate: Boolean = false) {
                 PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction
             )
         )
-        player.swingHand(Hand.MAIN_HAND)
+        swingMode.swing(Hand.MAIN_HAND)
         network.sendPacket(
             PlayerActionC2SPacket(
                 PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, direction
@@ -538,7 +542,7 @@ fun doBreak(rayTraceResult: BlockHitResult, immediate: Boolean = false) {
     }
 
     if (interaction.updateBlockBreakingProgress(blockPos, direction)) {
-        player.swingHand(Hand.MAIN_HAND)
+        swingMode.swing(Hand.MAIN_HAND)
         mc.particleManager.addBlockBreakingParticles(blockPos, direction)
     }
 }

@@ -393,6 +393,7 @@ fun LivingEntity.getExplosionDamageFromEntity(entity: Entity): Float {
 /**
  * See [ExplosionBehavior.calculateDamage].
  */
+@Suppress("LongParameterList")
 fun LivingEntity.getDamageFromExplosion(
     pos: Vec3d,
     exploding: Entity? = null,

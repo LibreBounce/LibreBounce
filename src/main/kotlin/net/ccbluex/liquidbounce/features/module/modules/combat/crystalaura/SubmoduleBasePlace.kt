@@ -275,42 +275,53 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
 
         val isInFloorOrCeiling = pos in floor || pos in ceiling
         if (isInFloorOrCeiling) {
-            // Do we find and escape side?
-            layerA.forEachIndexed { index, pos1 ->
-                if (!pos1.getState()!!.isSolid && !layerB.elementAt(index).getState()!!.isSolid) {
-                    return true
-                }
-            }
-
-            return false
+            return canEscapeThroughSides(layerA, layerB)
         }
 
         val isInWall = pos in layerA || pos in layerB
-        @Suppress("GrazieInspection")
         if (isInWall) {
-            // Can we escape through the ceiling?
-            ceiling.forEach { pos1 ->
-                if (!pos1.getState()!!.isSolid && !pos1.up().getState()!!.isSolid) {
-                    return true
-                }
-            }
-
-            // Can we escape through the floor?
-            // For example, with this floor:
-            // o = air, x = a solid block
-            // o x
-            // x x
-            // we could escape
-            floor.forEach { pos1 ->
-                if (!pos1.getState()!!.isSolid && !pos1.down().getState()!!.isSolid) {
-                    return true
-                }
-            }
-
-            return false
+            return canEscapeThroughFloorOrCeiling(ceiling, floor)
         }
 
         return true
+    }
+
+    @Suppress("GrazieInspection")
+    private fun canEscapeThroughFloorOrCeiling(
+        ceiling: Set<BlockPos>,
+        floor: Set<BlockPos>
+    ): Boolean {
+        // Can we escape through the ceiling?
+        ceiling.forEach { pos1 ->
+            if (!pos1.getState()!!.isSolid && !pos1.up().getState()!!.isSolid) {
+                return true
+            }
+        }
+
+        // Can we escape through the floor?
+        // For example, with this floor:
+        // o = air, x = a solid block
+        // o x
+        // x x
+        // we could escape
+        floor.forEach { pos1 ->
+            if (!pos1.getState()!!.isSolid && !pos1.down().getState()!!.isSolid) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun canEscapeThroughSides(layerA: Set<BlockPos>, layerB: Set<BlockPos>): Boolean {
+        // Do we find and escape side?
+        layerA.forEachIndexed { index, pos1 ->
+            if (!pos1.getState()!!.isSolid && !layerB.elementAt(index).getState()!!.isSolid) {
+                return true
+            }
+        }
+
+        return false
     }
 
 }
