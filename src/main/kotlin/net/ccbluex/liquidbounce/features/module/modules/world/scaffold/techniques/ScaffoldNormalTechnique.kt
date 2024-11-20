@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniqu
 
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.getTargetedPosition
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldCeilingFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldHeadHitterFeature
@@ -88,7 +89,9 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
     }
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
-        if (ScaffoldTellyFeature.enabled && ScaffoldTellyFeature.doNotAim) {
+        if (ScaffoldTellyFeature.enabled &&
+            ScaffoldTellyFeature.doNotAim &&
+            ModuleScaffold.technique.activeChoice == ScaffoldNormalTechnique) {
             return null
         }
 
