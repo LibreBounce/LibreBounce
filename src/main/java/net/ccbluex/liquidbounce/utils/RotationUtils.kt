@@ -13,7 +13,6 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextDouble
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.Entity
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -349,16 +348,15 @@ object RotationUtils : MinecraftInstance(), Listenable {
         if (rotationDifference <= getFixedAngleDelta())
             return currentRotation.plusDiff(targetRotation)
 
-        val shortStopChance = activeSettings?.shortStopChance ?: 0
         val isShortStopActive = WaitTickUtils.hasScheduled(this)
 
-        if (isShortStopActive || activeSettings?.simulateShortStop == true &&
-            shortStopChance > 0 && nextInt(endExclusive = 100) <= shortStopChance
-        ) {
+        if (isShortStopActive || activeSettings?.shouldPerformShortStop() == true) {
             // Use the tick scheduling to our advantage as we can check if short stop is still active.
             if (!isShortStopActive) {
                 WaitTickUtils.schedule(activeSettings?.shortStopDuration?.random()?.plus(1) ?: 0, this)
             }
+
+            activeSettings?.resetSimulateShortStopData()
 
             yawDiff = 0f
             pitchDiff = 0f
@@ -689,20 +687,24 @@ object RotationUtils : MinecraftInstance(), Listenable {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (packet !is C03PacketPlayer || !packet.rotating) {
+        if (packet !is C03PacketPlayer) {
             return
         }
 
-        currentRotation?.let {
-            packet.rotation = it
-
-            val yawDiff = angleDifference(packet.yaw, serverRotation.yaw)
-            val pitchDiff = angleDifference(packet.pitch, serverRotation.pitch)
-
-            if (Rotations.debugRotations) {
-                chat("PREV YAW: $yawDiff, PREV PITCH: $pitchDiff")
-            }
+        if (!packet.rotating) {
+            activeSettings?.resetSimulateShortStopData()
+            return
         }
+
+        currentRotation?.let { packet.rotation = it }
+
+        val diffs = angleDifferences(packet.rotation, serverRotation)
+
+        if (Rotations.debugRotations && currentRotation != null) {
+            chat("PREV YAW: ${diffs.x}, PREV PITCH: ${diffs.y}")
+        }
+
+        activeSettings?.updateSimulateShortStopData(diffs.x)
     }
 
     enum class BodyPoint(val rank: Int, val range: ClosedFloatingPointRange<Double>) {
