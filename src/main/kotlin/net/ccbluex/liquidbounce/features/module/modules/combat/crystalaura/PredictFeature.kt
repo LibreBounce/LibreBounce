@@ -48,7 +48,7 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
     /**
      * Should be higher than the place ticks. Normally about one to two tick.
      */
-    val basePlaceTicks by int("BreakTicks", 4, 0..20)
+    val basePlaceTicks by int("BasePlaceTicks", 4, 0..20)
 
     /**
      * How the predicted data will be used. For damage prediction only.
