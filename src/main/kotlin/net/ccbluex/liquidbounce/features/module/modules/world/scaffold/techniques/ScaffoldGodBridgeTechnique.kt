@@ -99,7 +99,12 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         val searchOptions = BlockPlacementTargetFindingOptions(
             NORMAL_INVESTIGATION_OFFSETS,
             bestStack,
-            CenterTargetPositionFactory,
+            NearestRotationTargetPositionFactory(
+                PositionFactoryConfiguration(
+                    predictedPos.add(0.0, player.getEyeHeight(predictedPose).toDouble(), 0.0),
+                    0.0,
+                )
+            ),
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
             predictedPos,
             predictedPose
@@ -129,16 +134,20 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
             getRotationForDiagonalInput(movingYaw)
         }
 
-        val inputBasedRaycast = raycast(inputBasedRotation)
-        if (inputBasedRaycast?.blockPos == target?.interactedBlockPos) {
-            return inputBasedRotation
-        }
+        if (prediction && target != null) {
+            val predictedAirRotation = Rotation(round(target.rotation.yaw / 25) * 25, target.rotation.pitch)
+            val predictedGroundRotation = Rotation(round(target.rotation.yaw / 45) * 45, target.rotation.pitch)
+            val inputBasedRaycast = raycast(inputBasedRotation)
 
-        if (prediction) {
-            return target?.rotation
+            return if (inputBasedRaycast?.blockPos == target.interactedBlockPos) {
+                inputBasedRotation
+            } else if (player.isOnGround) {
+                predictedGroundRotation
+            } else {
+                predictedAirRotation
+            }
         }
-
-        return null
+        return inputBasedRotation
     }
 
     private fun getRotationForStraightInput(movingYaw: Float): Rotation {
