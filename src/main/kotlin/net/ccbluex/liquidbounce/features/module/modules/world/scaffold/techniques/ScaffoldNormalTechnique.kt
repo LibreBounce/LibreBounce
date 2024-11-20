@@ -44,7 +44,6 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
 
     private val aimMode by enumChoice("RotationMode", AimMode.STABILIZED)
     private val requiresSight by boolean("RequiresSight", false)
-    private val randomise by boolean("Randomise", true)
 
     init {
         tree(ScaffoldEagleFeature)
@@ -58,8 +57,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
     private val INVESTIGATE_DOWN_OFFSETS: List<Vec3i> = commonOffsetToInvestigate(listOf(0, -1, 1, -2, 2))
     internal val NORMAL_INVESTIGATION_OFFSETS: List<Vec3i> = commonOffsetToInvestigate(listOf(0, -1, 1))
 
-    private var randomization =
-        if (randomise) Random.nextDouble(-0.02, 0.02) else 0.0
+    private var randomization = Random.nextDouble(-0.02, 0.02)
 
     override fun findPlacementTarget(
         predictedPos: Vec3d,
@@ -124,7 +122,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
 
     @Suppress("unused")
     val afterJumpEvent = handler<PlayerAfterJumpEvent>(priority = EventPriorityConvention.SAFETY_FEATURE) {
-        randomization = if (randomise) Random.nextDouble(-0.01, 0.01) else 0.0
+        randomization = Random.nextDouble(-0.01, 0.01)
     }
 
     private fun commonOffsetToInvestigate(xzOffsets: List<Int>): List<Vec3i> {

@@ -27,10 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.technique
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
@@ -38,12 +35,8 @@ import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
-import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Vec3d
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.round
-import kotlin.math.sin
+import net.minecraft.util.math.*
+import kotlin.math.*
 
 object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedgeExtension {
 
@@ -55,6 +48,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
     private var mode by enumChoice("Mode", Mode.JUMP)
     private var forceSneakBelowCount by int("ForceSneakBelowCount", 3, 0..10)
     private var sneakTime by int("SneakTime", 1, 1..10)
+    private val prediction by boolean("Prediction", false)
 
     override fun ledge(
         ledge: Boolean,
@@ -77,11 +71,13 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         } else if (ledge) {
             // Does the crosshair target meet the requirements?
             if (!target.doesCrosshairTargetFullFillRequirements(currentCrosshairTarget)
-                || !ModuleScaffold.isValidCrosshairTarget(currentCrosshairTarget)) {
+                || !ModuleScaffold.isValidCrosshairTarget(currentCrosshairTarget)
+            ) {
                 return when {
                     ModuleScaffold.blockCount < forceSneakBelowCount -> {
                         LedgeState(requiresJump = false, requiresSneak = sneakTime)
                     }
+
                     mode == Mode.JUMP -> LedgeState(requiresJump = true, requiresSneak = 0)
                     mode == Mode.SNEAK -> LedgeState(requiresJump = false, requiresSneak = sneakTime)
                     else -> LedgeState.NO_LEDGE
@@ -117,7 +113,6 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
 
         if (dirInput == DirectionalInput.NONE) {
             target ?: return null
-
             return getRotationForNoInput(target)
         }
 
@@ -127,12 +122,22 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         val movingYaw = round(direction / 45) * 45
         val isMovingStraight = movingYaw % 90 == 0f
 
-        return if (isMovingStraight) {
+        val calculatedRotation = if (isMovingStraight) {
             getRotationForStraightInput(movingYaw)
         } else {
             getRotationForDiagonalInput(movingYaw)
         }
 
+        val raycastResult = raycast(calculatedRotation)
+        if (raycastResult?.blockPos == target?.interactedBlockPos) {
+            return calculatedRotation
+        }
+
+        if (prediction) {
+            return ScaffoldNormalTechnique.getRotations(target)
+        }
+
+        return null
     }
 
     private fun getRotationForStraightInput(movingYaw: Float): Rotation {
