@@ -53,7 +53,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     private val timeOut by int("TimeOut", 160, 0..5000, "ms")
 
     /**
-     * Only places bellow the enemy when this is true.
+     * Only places below the enemy when this is true.
      */
     private val platformOnly by boolean("PlatformOnly", false)
 
@@ -110,9 +110,12 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
 
     val minAdvantage by float("MinAdvantage", 2.0f, 0.1f..10f)
 
-    private val placer = tree(BlockPlacer("Placing", ModuleCrystalAura, Priority.IMPORTANT_FOR_USAGE_2, slotFinder = { _ ->
-        findHotbarItemSlot(Items.OBSIDIAN) ?: findHotbarItemSlot(Items.BEDROCK)
-    }))
+    private val placer = tree(BlockPlacer(
+        "Placing",
+        ModuleCrystalAura,
+        Priority.IMPORTANT_FOR_USAGE_2,
+        slotFinder = { _ -> findHotbarItemSlot(Items.OBSIDIAN) ?: findHotbarItemSlot(Items.BEDROCK) }
+    ))
 
     var currentTarget: PlacementPositionCandidate? = null
         set(value) {
@@ -238,8 +241,8 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
             )
             errorOffset += errorStep
             val isPlatform = SimulateMovement.antiPlatform && floor(simulatedPos.y) == y
-            val isBellow = onlyAboveSelf && y < simulatedPos.y
-            result || isPlatform || isBellow
+            val isBelow = onlyAboveSelf && y < simulatedPos.y
+            result || isPlatform || isBelow
         }
     }
 
@@ -258,7 +261,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
             Pair(bb.maxX, bb.maxZ)
         )
 
-        // the block layer bellow the player, if the player is clipped in the ground block a bit, it doesn't matter
+        // the block layer below the player, if the player is clipped in the ground block a bit, it doesn't matter
         val floor = positions.map { BlockPos.ofFloored(it.first, yA - 1.0, it.second) }.toSet()
 
         // the first wall layer
