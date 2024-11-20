@@ -60,7 +60,7 @@ object ModuleFastExp : Module(
     }
 
     private val noWaste by boolean("NoWaste", true)
-    private val packets by int("Packets", 5, 1..32)
+    private val itemsPerTick by int("ItemsPerTick", 5, 1..32)
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
 
@@ -89,7 +89,7 @@ object ModuleFastExp : Module(
         }
 
         val pitch = if (Rotate.enabled) RotationManager.serverRotation.pitch else 90f
-        repeat(packets) {
+        repeat(itemsPerTick) {
             useHotbarSlotOrOffhand(
                 slot,
                 slotResetDelay.random(),
