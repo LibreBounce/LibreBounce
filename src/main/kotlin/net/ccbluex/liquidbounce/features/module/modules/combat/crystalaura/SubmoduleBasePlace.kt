@@ -45,12 +45,12 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     /**
      * How long to wait before starting a new calculation.
      */
-    private val delay by int("CalcDelay", 80, 0..1000, "ms")
+    private val delay by int("CalcDelay", 120, 0..1000, "ms")
 
     /**
      * After how many ms the placer get cleared.
      */
-    private val timeOut by int("TimeOut", 160, 0..5000, "ms")
+    private val timeOut by int("TimeOut", 240, 0..5000, "ms")
 
     /**
      * Only places below the enemy when this is true.

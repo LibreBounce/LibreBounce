@@ -41,7 +41,7 @@ import kotlin.math.max
  * Allows the crystal aura to send a break packet right when a crystal is placed by predicting the
  * expected entity id.
  */
-object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict", true) {
+object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict", false) {
 
     /**
      * Sends a packet for all included offsets.
