@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.RotationMode
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
@@ -82,6 +83,10 @@ object ModuleCrystalAura : Module(
     @Suppress("unused")
     val simulatedTickHandler = handler<SimulatedTickEvent> {
         CrystalAuraDamageOptions.cacheMap.clear()
+        if (CombatManager.shouldPauseCombat) {
+            return@handler
+        }
+
         currentTarget = targetTracker.enemies().firstOrNull()
         currentTarget ?: return@handler
         // Make the crystal destroyer run

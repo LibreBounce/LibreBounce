@@ -124,9 +124,9 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
             blockedPositions.clear()
             value?.let {
                 // make sure the placer won't build up the position
-                blockedPositions.add(it.pos)
+                blockedPositions.add(it.pos.up())
                 if (SubmoduleCrystalPlacer.oldVersion) {
-                    blockedPositions.add(it.pos.up())
+                    blockedPositions.add(it.pos.up(2))
                 }
 
                 placer.update(setOf(it.pos))
