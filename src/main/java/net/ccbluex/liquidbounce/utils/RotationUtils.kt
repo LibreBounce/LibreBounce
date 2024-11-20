@@ -414,8 +414,14 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         val range = when {
             diffAbs <= 3f -> 0.4f..0.8f + (0.2f * (1 - diffAbs / 3f)).coerceIn(0f, 1f)
-            diffAbs > 50f -> 0.3f..0.6f
-            else -> 0.1f..0.5f
+            diffAbs > 50f -> 0.2f..0.55f
+            // This modifies how fast the rotations will slow down to switch direction.
+            // The less/higher the progression, the slower/faster the slow-down.
+            // This when applied with pitch automatically performs a curve, but we are not looking for too much slow-down.
+            // Have a curve applied while still trying to focus on target. (0.4f - 0.7f) seems to work fine.
+            // Could be an option if needed.
+            diff.sign != lastTick1.sign && lastTick1.sign != 0f && diff.sign != 0f -> 0.4f..0.7f
+            else -> 0.1f..0.4f
         }
 
         action((lastTick1..diff).lerpWith(range.random()))
