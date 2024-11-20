@@ -49,7 +49,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
     /**
      * Doesn't include blocks that will get blown away in the exposure calculation used for the damage calculation.
      */
-    private val terrain by boolean("Terrain", true)
+    val terrain by boolean("Terrain", true)
 
     val cacheMap = object : LinkedHashMap<DamageConstellation, DamageProvider>(
         64,

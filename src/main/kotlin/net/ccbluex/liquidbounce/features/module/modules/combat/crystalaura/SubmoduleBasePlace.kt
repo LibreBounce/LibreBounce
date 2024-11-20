@@ -45,7 +45,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     /**
      * How long to wait before starting a new calculation.
      */
-    private val delay by int("CalcDelay", 80, 0..1000, "ms") // TODO separate place delay
+    private val delay by int("CalcDelay", 80, 0..1000, "ms")
 
     /**
      * After how many ms the placer get cleared.
