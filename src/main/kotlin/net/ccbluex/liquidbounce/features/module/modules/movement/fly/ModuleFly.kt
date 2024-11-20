@@ -88,7 +88,6 @@ object ModuleFly : Module("Fly", Category.MOVEMENT, aliases = arrayOf("Glide", "
             
             FlyMospixelDamageJump,
             FlyMospixelDamageTimer,
-            FlyMospixelDamageJump,
             FlyMospixelZoom,
 
             FlyHycraftDamage
