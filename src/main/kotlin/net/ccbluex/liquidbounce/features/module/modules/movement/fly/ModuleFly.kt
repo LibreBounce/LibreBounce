@@ -35,7 +35,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.spart
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyNcpClip
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyMospixelDamageJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyMospixelDamageTimer
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyMospixelDoubleJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyMospixelZoom
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.verus.FlyVerusB3869Flat
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.verus.FlyVerusB3896Damage
