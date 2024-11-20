@@ -72,7 +72,7 @@ object ModuleCustomAmbience : Module("CustomAmbience", Category.RENDER) {
                 TimeType.DAWN -> 23041L
                 TimeType.DAY -> 1000L
                 TimeType.NOON -> 6000L
-                TimeType.DUSK -> 12610
+                TimeType.DUSK -> 12610L
                 TimeType.NIGHT -> 13000L
                 TimeType.MID_NIGHT -> 18000L
             }
