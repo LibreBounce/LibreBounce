@@ -183,5 +183,3 @@ accessible field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket snea
 mutable field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
 
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager syncSelectedSlot ()V
-
-accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V
