@@ -19,20 +19,22 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.sodium;
 
+import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockRenderView;
 import org.spongepowered.asm.mixin.*;
 
 @Pseudo
-@Mixin(targets = "me.jellysquid.mods.sodium.client.model.light.data.LightDataAccess", remap = false)
+@Mixin(value = LightDataAccess.class, remap = false)
 public class MixinSodiumLightDataAccessMixin {
-
-    @Shadow
-    protected BlockRenderView world;
 
     @Shadow
     @Final
     private BlockPos.Mutable pos;
+
+    @Shadow
+    protected BlockRenderView level;
 
     /**
      * Maximum light level for all color channels.
@@ -47,9 +49,9 @@ public class MixinSodiumLightDataAccessMixin {
 //    private int modifyLightLevel(int original) {
 //        var xray = ModuleXRay.INSTANCE;
 //        if (xray.getEnabled() && xray.getFullBright()) {
-//            var blockState = world.getBlockState(pos);
+//            var blockState = level.getBlockState(pos);
 //
-//            if (xray.allowDrawingSide(blockState, pos)) {
+//            if (xray.shouldRender(blockState, pos)) {
 //                // Ensures that the brightness is on max for all color channels
 //                return MAX_LIGHT_LEVEL;
 //            }

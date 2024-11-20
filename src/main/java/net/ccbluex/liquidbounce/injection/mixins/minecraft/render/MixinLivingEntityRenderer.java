@@ -23,6 +23,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import it.unimi.dsi.fastutil.floats.FloatFloatPair;
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticCategory;
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -79,12 +80,14 @@ public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingE
 
     // todo: fix this
 //    @ModifyExpressionValue(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isInvisibleTo(Lnet/minecraft/entity/player/PlayerEntity;)Z"))
-//    private boolean injectTrueSight(boolean original) {
-//        if (!ModuleTrueSight.INSTANCE.getEnabled() || !ModuleTrueSight.INSTANCE.getEntities()) {
-//            return original;
+//    private boolean injectTrueSight(boolean original, T livingEntity) {
+//        // Check if TrueSight is enabled and entities are enabled or ESP is enabled and in glow mode
+//        if (ModuleTrueSight.INSTANCE.getEnabled() && ModuleTrueSight.INSTANCE.getEntities() ||
+//                ModuleESP.INSTANCE.getEnabled() && ModuleESP.INSTANCE.requiresTrueSight(livingEntity)) {
+//            return false;
 //        }
 //
-//        return false;
+//        return original;
 //    }
 
     @ModifyReturnValue(method = "shouldFlipUpsideDown", at = @At("RETURN"))

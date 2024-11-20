@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.block.BlockState
@@ -38,8 +39,9 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
 
     // Only render blocks with non-solid blocks around
     private val exposedOnly by boolean("ExposedOnly", false)
+        .onChanged(::valueChangedReload)
 
-    private val deafultBlocks = mutableSetOf(
+    private val defaultBlocks = setOf(
         // Overworld ores
         COAL_ORE,
         COPPER_ORE,
@@ -171,11 +173,13 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     // Set of blocks that will not be excluded
     val blocks by blocks(
         "Blocks",
-        deafultBlocks
-    )
+        defaultBlocks.toMutableSet()
+    ).onChanged(::valueChangedReload)
 
     /**
-     * Check if the block should be drawn
+     * Checks if the block should be rendered or not.
+     * This can be used to exclude blocks that should not be rendered.
+     * Also features an option to only render blocks that are exposed to air.
      */
     fun allowDrawingSide(state: BlockState, otherState: BlockState, side: Direction): Boolean {
         // Check if the block is in the list, if not, we don't want to render it
@@ -193,9 +197,12 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
             otherState.block != state.block || !otherState.isOpaque
     }
 
-    fun resetBlocks() {
+    /**
+     * Resets the block list to the default values
+     */
+    fun applyDefaults() {
         blocks.clear()
-        blocks.addAll(deafultBlocks)
+        blocks.addAll(defaultBlocks)
     }
 
     override fun enable() {
@@ -205,4 +212,13 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     override fun disable() {
         mc.worldRenderer.reload()
     }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun valueChangedReload(it: Any) {
+        RenderSystem.recordRenderCall {
+            // Reload world renderer on block list change
+            mc.worldRenderer.reload()
+        }
+    }
+
 }

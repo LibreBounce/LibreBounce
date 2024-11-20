@@ -16,14 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.misc
+package net.ccbluex.liquidbounce.features.misc.proxy
 
-import io.netty.channel.ChannelPipeline
 import io.netty.handler.proxy.Socks5ProxyHandler
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.IpInfo
-import net.ccbluex.liquidbounce.api.IpInfoApi
-import net.ccbluex.liquidbounce.api.IpInfoApi.requestIpInfo
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.ListValueType
@@ -35,9 +31,7 @@ import net.ccbluex.liquidbounce.event.events.ProxyAdditionResultEvent
 import net.ccbluex.liquidbounce.event.events.ProxyCheckResultEvent
 import net.ccbluex.liquidbounce.event.events.ProxyEditResultEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.ProxyManager.Proxy.Companion.NO_PROXY
-import net.ccbluex.liquidbounce.features.misc.ProxyManager.ProxyCredentials.Companion.credentialsFromUserInput
-import java.net.InetSocketAddress
+import net.ccbluex.liquidbounce.features.misc.proxy.Proxy.Credentials.Companion.credentials
 
 /**
  * Proxy Manager
@@ -46,8 +40,10 @@ import java.net.InetSocketAddress
  */
 object ProxyManager : Configurable("proxy"), Listenable {
 
-    var proxy by value("selectedProxy", NO_PROXY, valueType = ValueType.PROXY)
-    val proxies by value(name, mutableListOf<Proxy>(), listType = ListValueType.Proxy)
+    private val NO_PROXY = Proxy("", 0, null)
+
+    private var proxy by value("selectedProxy", NO_PROXY, valueType = ValueType.PROXY)
+    internal val proxies by value(name, mutableListOf<Proxy>(), listType = ListValueType.Proxy)
 
     /**
      * The proxy that is set in the current session and used for all server connections
@@ -61,7 +57,7 @@ object ProxyManager : Configurable("proxy"), Listenable {
 
     fun addProxy(host: String, port: Int, username: String = "", password: String = "",
                  forwardAuthentication: Boolean = false) {
-        Proxy(host, port, credentialsFromUserInput(username, password), forwardAuthentication).checkProxy(
+        Proxy(host, port, credentials(username, password), forwardAuthentication).check(
             success = { proxy ->
                 LiquidBounce.logger.info("Added proxy [${proxy.host}:${proxy.port}]")
                 proxies.add(proxy)
@@ -80,7 +76,7 @@ object ProxyManager : Configurable("proxy"), Listenable {
     @Suppress("LongParameterList")
     fun editProxy(index: Int, host: String, port: Int, username: String = "", password: String = "",
                   forwardAuthentication: Boolean = false) {
-        Proxy(host, port, credentialsFromUserInput(username, password), forwardAuthentication).checkProxy(
+        Proxy(host, port, credentials(username, password), forwardAuthentication).check(
             success = { newProxy ->
                 val isConnected = proxy == proxies[index]
 
@@ -104,7 +100,7 @@ object ProxyManager : Configurable("proxy"), Listenable {
 
     fun checkProxy(index: Int) {
         val proxy = proxies.getOrNull(index) ?: error("Invalid proxy index")
-        proxy.checkProxy(
+        proxy.check(
             success = { proxy ->
                 LiquidBounce.logger.info("Checked proxy [${proxy.host}:${proxy.port}]")
                 ConfigSystem.storeConfigurable(this)
@@ -129,12 +125,12 @@ object ProxyManager : Configurable("proxy"), Listenable {
 
     fun setProxy(index: Int) {
         proxy = proxies[index]
-        sync()
+        ConfigSystem.storeConfigurable(this)
     }
 
     fun unsetProxy() {
         proxy = NO_PROXY
-        sync()
+        ConfigSystem.storeConfigurable(this)
     }
 
     fun favoriteProxy(index: Int) {
@@ -149,78 +145,25 @@ object ProxyManager : Configurable("proxy"), Listenable {
         ConfigSystem.storeConfigurable(this)
     }
 
-    private fun sync() {
-        ConfigSystem.storeConfigurable(this)
-        IpInfoApi.refreshLocalIpInfo()
-    }
-
     /**
      * Adds a SOCKS5 netty proxy handler to the pipeline when a proxy is set
      *
      * @see Socks5ProxyHandler
      * @see PipelineEvent
      */
-    val pipelineHandler = handler<PipelineEvent> {
-        val pipeline = it.channelPipeline
-
-        if (it.local) {
+    @Suppress("unused")
+    private val pipelineHandler = handler<PipelineEvent> { event ->
+        // If we are connecting to a local server, we don't need a proxy, as this would cause a connection error.
+        if (event.local) {
             return@handler
         }
 
-        insertProxyHandler(currentProxy, pipeline)
-    }
+        val pipeline = event.channelPipeline
 
-    fun insertProxyHandler(proxy: Proxy? = currentProxy, pipeline: ChannelPipeline) {
-        proxy?.run {
-            pipeline.addFirst(
-                "proxy",
-                if (credentials != null) {
-                    Socks5ProxyHandler(address, credentials.username, credentials.password)
-                } else {
-                    Socks5ProxyHandler(address)
-                }
-            )
-        }
-    }
-
-    /**
-     * Contains serializable proxy data
-     */
-    data class Proxy(
-        val host: String,
-        val port: Int,
-        val credentials: ProxyCredentials?,
-        var forwardAuthentication: Boolean = false,
-        var ipInfo: IpInfo? = null,
-        var favorite: Boolean = false
-    ) {
-        val address
-            get() = InetSocketAddress(host, port)
-
-        companion object {
-            val NO_PROXY = Proxy("", 0, null)
-        }
-
-        fun checkProxy(success: (Proxy) -> Unit, failure: (Throwable) -> Unit) =
-            requestIpInfo(proxy = this, success = { ipInfo ->
-                LiquidBounce.logger.info("IP Info [${ipInfo.country}, ${ipInfo.org}]")
-                this.ipInfo = ipInfo
-
-                success(this)
-            }, failure = failure)
-
-    }
-
-    /**
-     * Contains serializable proxy credentials
-     */
-    data class ProxyCredentials(val username: String, val password: String) {
-        companion object {
-            fun credentialsFromUserInput(username: String, password: String) =
-                if (username.isNotBlank() && password.isNotBlank())
-                    ProxyCredentials(username, password)
-                else
-                    null
+        // Only add the proxy handler if it's not already in the pipeline. If there is already a proxy handler,
+        // it is likely from [ProxyValidator] and we don't want to override it.
+        if (pipeline.get("proxy") == null) {
+            pipeline.addFirst("proxy", currentProxy?.handler() ?: return@handler)
         }
     }
 

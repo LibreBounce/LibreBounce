@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import it.unimi.dsi.fastutil.objects.Object2ByteMap
-import it.unimi.dsi.fastutil.objects.Object2ByteRBTreeMap
+import it.unimi.dsi.fastutil.longs.Long2ByteMap
+import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
@@ -43,7 +43,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.chunk.Chunk
-import java.util.NavigableSet
 import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.math.max
 
@@ -86,9 +85,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
     override fun enable() {
         ChunkScanner.subscribe(HoleTracker)
-        if (mc.player != null) {
-            updateScanRegion()
-        }
+        mc.player?.blockPos?.let(::updateScanRegion)
     }
 
     private object BoxChoice : Choice("Box") {
@@ -177,12 +174,13 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
         val currentPos = player.blockPos
 
         if (playerPos.getManhattanDistance(currentPos) >= 4) {
-            playerPos.set(currentPos)
-            updateScanRegion()
+            updateScanRegion(currentPos)
         }
     }
 
-    private fun updateScanRegion() {
+    private fun updateScanRegion(newPlayerPos: BlockPos) {
+        playerPos.set(newPlayerPos)
+
         val changedAreas = movableRegionScanner.moveTo(
             Region.quadAround(
                 playerPos,
@@ -242,9 +240,6 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
     private object HoleTracker : ChunkScanner.BlockChangeSubscriber {
         val holes = ConcurrentSkipListSet<Hole>()
 
-        /**
-         * Create a ThreadLocal<BlockPos.Mutable> for each thread of Dispatchers.IO
-         */
         private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
 
         private val fullSurroundings = setOf(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)
@@ -273,7 +268,7 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
 
         @Suppress("detekt:CognitiveComplexMethod")
         fun Region.cachedUpdate(chunk: Chunk? = null) {
-            val buffer = Object2ByteRBTreeMap<BlockPos>()
+            val buffer = Long2ByteOpenHashMap(volume)
 
             // Only check positions in this chunk (pos is BlockPos.Mutable)
             forEach { pos ->
@@ -347,9 +342,10 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
             }
         }
 
-        private fun Object2ByteMap<BlockPos>.cache(blockPos: BlockPos): State {
-            if (containsKey(blockPos)) {
-                return getByte(blockPos)
+        private fun Long2ByteMap.cache(blockPos: BlockPos): State {
+            val longValue = blockPos.asLong()
+            if (containsKey(longValue)) {
+                return get(longValue)
             } else {
                 val state = mc.world?.getBlockState(blockPos) ?: return AIR
                 val result = when {
@@ -357,12 +353,12 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
                     state.block in UNBREAKABLE_BLOCKS -> UNBREAKABLE
                     else -> BREAKABLE
                 }
-                put(if (blockPos is BlockPos.Mutable) blockPos.toImmutable() else blockPos, result)
+                put(longValue, result)
                 return result
             }
         }
 
-        private fun Object2ByteMap<BlockPos>.checkSameXZ(blockPos: BlockPos): Boolean {
+        private fun Long2ByteMap.checkSameXZ(blockPos: BlockPos): Boolean {
             mutable.set(blockPos.x, blockPos.y - 1, blockPos.z)
             if (cache(mutable) != UNBREAKABLE) {
                 return false
@@ -378,14 +374,14 @@ object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
             return true
         }
 
-        private fun Object2ByteMap<BlockPos>.checkSurroundings(
+        private fun Long2ByteMap.checkSurroundings(
             blockPos: BlockPos,
             directions: Array<out Direction>
         ): Boolean {
             return directions.all { cache(mutable.set(blockPos, it)) == UNBREAKABLE }
         }
 
-        private fun Object2ByteMap<BlockPos>.checkState(
+        private fun Long2ByteMap.checkState(
             blockPos: BlockPos,
             vararg directions: Direction
         ): Boolean {

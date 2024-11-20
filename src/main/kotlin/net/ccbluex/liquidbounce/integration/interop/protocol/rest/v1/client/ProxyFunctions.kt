@@ -23,7 +23,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject

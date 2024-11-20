@@ -64,7 +64,7 @@ object ModuleMobOwners : Module("MobOwners", Category.RENDER) {
 
     private fun getFromMojangApi(ownerId: UUID): OrderedText {
         return uuidNameCache.computeIfAbsent(ownerId) {
-            Util.getDownloadWorkerExecutor().service.submit {
+            Util.getDownloadWorkerExecutor().execute {
                 try {
                     val uuidAsString = it.toString().replace("-", "")
                     val url = "https://api.mojang.com/user/profiles/$uuidAsString/names"

@@ -138,7 +138,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Cancelled demo GUI (just annoying thing)", false);
             return null;
         }
-        
+
         return original;
     }
 

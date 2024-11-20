@@ -213,12 +213,12 @@ fun findBlocksEndingWith(vararg targets: String) =
 /**
  * Get the color of the armor on the player
  */
-fun getArmorColor() = ARMOR_SLOTS.mapNotNull { slot ->
+fun getArmorColor() = ARMOR_SLOTS.firstNotNullOfOrNull { slot ->
     val itemStack = slot.itemStack
-    val color = itemStack.getArmorColor() ?: return@mapNotNull null
+    val color = itemStack.getArmorColor() ?: return@firstNotNullOfOrNull null
 
     Pair(slot, color)
-}.firstOrNull()
+}
 
 /**
  * Get the color of the armor on the item stack
@@ -227,7 +227,7 @@ fun getArmorColor() = ARMOR_SLOTS.mapNotNull { slot ->
  */
 fun ItemStack.getArmorColor(): Int? {
     return if (isIn(ItemTags.DYEABLE)) {
-        DyedColorComponent.getColor(this, -6265536)
+        DyedColorComponent.getColor(this, -6265536) // #FFA06540
     } else {
         null
     }

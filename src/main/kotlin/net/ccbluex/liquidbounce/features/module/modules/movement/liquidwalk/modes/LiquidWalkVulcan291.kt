@@ -24,29 +24,33 @@ import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
-/*
-    * Bypasses Vulcan 285
-    * Tested on eu.loyisa.cn
-    * Note: May cause occasional step flags if player is in a 1x1 water hole.
+/**
+ * LiquidWalk Vulcan 2.8.5 - 2.9.1(+?)
+ *
+ * @tested eu.loyisa.cn
+ * @note May cause occasional step flags if player is in a 1x1 water hole.
  */
-
-internal object LiquidWalkVulcan : Choice("Vulcan285") {
+internal object LiquidWalkVulcan291 : Choice("Vulcan291") {
 
     private val motion by float("Motion", 0.8f, 0.2f..1.4f)
 
     override val parent: ChoiceConfigurable<Choice>
         get() = ModuleLiquidWalk.modes
 
-    val repeatable = repeatable {
-        if (player.isSubmergedInWater) {
-            Timer.requestTimerSpeed(1.125f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed)
+    @Suppress("unused")
+    private val tickHandler = repeatable {
+        // It DOES NOT bypass with Lava - do not use [player.isInFluid].
+        if (player.isInsideWaterOrBubbleColumn) {
+            // One tick speed-up for extra speed
+            Timer.requestTimerSpeed(1.125f, Priority.IMPORTANT_FOR_USAGE_1, ModuleLiquidWalk)
+
+            // Acts as a high-jump
             player.velocity.y = motion.toDouble()
         } else {
-            Timer.requestTimerSpeed(1.0f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed)
+            Timer.requestTimerSpeed(1.0f, Priority.IMPORTANT_FOR_USAGE_1, ModuleLiquidWalk)
         }
     }
 

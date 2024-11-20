@@ -86,7 +86,13 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
                     ClickInventoryAction.performPickup(screen, slot),
                     ClickInventoryAction.performPickup(screen, emptySlot),
                 )
-            })
+            },
+                /**
+                 * we prioritize item based on how important it is
+                 * for example we should prioritize armor over apples
+                 */
+                ItemCategorization(listOf()).getItemFacets(slot).maxOf { it.category.type.allocationPriority }
+            )
         }
 
         // Check if stealing the chest was completed
@@ -133,8 +139,10 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
     private fun isScreenTitleChest(screen: GenericContainerScreen): Boolean {
         val titleString = screen.title.string
 
-        return sequenceOf("container.chest", "container.chestDouble", "container.enderchest", "container.shulkerBox",
-            "container.barrel")
+        return sequenceOf(
+            "container.chest", "container.chestDouble", "container.enderchest", "container.shulkerBox",
+            "container.barrel"
+        )
             .map { Text.translatable(it) }
             .any { it.string == titleString }
     }
@@ -160,8 +168,16 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
                 continue
             }
 
-            event.schedule(inventoryConstrains,
-                ClickInventoryAction.performSwap(screen, hotbarSwap.from, hotbarSwap.to))
+            event.schedule(
+                inventoryConstrains,
+                ClickInventoryAction.performSwap(screen, hotbarSwap.from, hotbarSwap.to),
+                /**
+                 * we prioritize item based on how important it is
+                 * for example we should prioritize armor over apples
+                 */
+                ItemCategorization(listOf()).getItemFacets(hotbarSwap.from)
+                    .maxOf { it.category.type.allocationPriority }
+            )
 
             // todo: hook to schedule and check if swap was successful
             cleanupPlan.remapSlots(
@@ -210,7 +226,7 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
             }
         }),
         INDEX("Index", { list -> list.sortedBy { it.slotInContainer } }),
-        RANDOM("Random", List<ContainerItemSlot>::shuffled ),
+        RANDOM("Random", List<ContainerItemSlot>::shuffled),
     }
 
     /**

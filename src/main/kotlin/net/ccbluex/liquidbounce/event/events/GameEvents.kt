@@ -28,6 +28,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.option.Perspective
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
+import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 import net.minecraft.util.PlayerInput
 
@@ -112,3 +113,10 @@ class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event()
 
 @Nameable("perspective")
 class PerspectiveEvent(var perspective: Perspective) : Event()
+
+@Nameable("itemLoreQuery")
+class ItemLoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event() {
+    fun addLore(text: String?) {
+        lore.add(Text.of(text))
+    }
+}
