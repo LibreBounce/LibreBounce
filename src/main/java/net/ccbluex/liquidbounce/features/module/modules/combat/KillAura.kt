@@ -141,13 +141,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val onDestroyBlock by boolean("OnDestroyBlock", false)
 
     // AutoBlock
-    val autoBlock by choices("AutoBlock", arrayOf("Off", "Packet", "Fake"), "Packet")
-    private val blockMaxRange by float("BlockMaxRange", 3f, 0f..8f) { autoBlock != "Off" }
+   val autoBlock by choices("AutoBlock", arrayOf("Off", "Packet", "Fake"), "Packet")
+    private val blockMaxRange by float("BlockMaxRange", 3f, 0f..8f) { autoBlock == "Packet" }
     private val unblockMode by choices(
         "UnblockMode",
         arrayOf("Stop", "Switch", "Empty"),
         "Stop"
-    ) { autoBlock != "Off" }
+    ) { autoBlock == "Packet" }
     private val releaseAutoBlock by boolean("ReleaseAutoBlock", true)
     { autoBlock !in arrayOf("Off", "Fake") }
     val forceBlockRender by boolean("ForceBlockRender", true)
@@ -173,7 +173,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     { autoBlock !in arrayOf("Off", "Fake") && blinkAutoBlock }
 
     // AutoBlock conditions
-    private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock != "Off" }
+  private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock == "Packet" }
 
     // Ignore all blocking conditions, except for block rate, when standing still
     private val forceBlock by boolean("ForceBlockWhenStill", true)
