@@ -89,9 +89,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
     }
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
-        if (ScaffoldTellyFeature.enabled &&
-            ScaffoldTellyFeature.doNotAim &&
-            ModuleScaffold.technique.activeChoice == ScaffoldNormalTechnique) {
+        if (ScaffoldTellyFeature.enabled && ScaffoldTellyFeature.doNotAim) {
             return null
         }
 

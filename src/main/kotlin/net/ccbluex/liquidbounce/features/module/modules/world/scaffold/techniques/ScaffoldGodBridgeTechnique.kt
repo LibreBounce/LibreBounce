@@ -123,19 +123,19 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         val movingYaw = round(direction / 45) * 45
         val isMovingStraight = movingYaw % 90 == 0f
 
-        val calculatedRotation = if (isMovingStraight) {
+        val inputBasedRotation = if (isMovingStraight) {
             getRotationForStraightInput(movingYaw)
         } else {
             getRotationForDiagonalInput(movingYaw)
         }
 
-        val raycastResult = raycast(calculatedRotation)
-        if (raycastResult?.blockPos == target?.interactedBlockPos) {
-            return calculatedRotation
+        val inputBasedRaycast = raycast(inputBasedRotation)
+        if (inputBasedRaycast?.blockPos == target?.interactedBlockPos) {
+            return inputBasedRotation
         }
 
         if (prediction) {
-            return ScaffoldNormalTechnique.getRotations(target)
+            return target?.rotation
         }
 
         return null
