@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
@@ -46,7 +47,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -174,10 +174,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
                 .getActiveChoice() instanceof NoneChoice) && ModuleScaffold.INSTANCE.getTowerMode()
                 .getActiveChoice().isActive();
 
-        //Elytra recast requires no jumping cooldown
-        var elytraRecast = ModuleElytraRecast.INSTANCE.getEnabled();
-
-        if (noJumpDelay || towerActive || elytraRecast) {
+        if (noJumpDelay || towerActive) {
             jumpingCooldown = 0;
         }
     }
@@ -190,36 +187,22 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
     }
 
-    private ClientPlayerEntity player() {
-        return MinecraftClient.getInstance().player;
-    }
-
     @Unique
     private boolean previousElytra = false;
-    @Unique
-    private boolean awaitingElytra = false;
 
     @Inject(method = "tickFallFlying", at = @At("TAIL"))
     public void recastIfLanded(CallbackInfo callbackInfo) {
-        if (ModuleElytraRecast.INSTANCE.getEnabled()) {
-            if (player() == null || !((Object) this instanceof ClientPlayerEntity)) {
-                return;
-            }
-            
-            boolean elytra = isFallFlying();
-            
-            if (awaitingElytra) {
-                if (elytra) {
-                    awaitingElytra = false;
-                }
-            } else if (!elytra && previousElytra) {
-                MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.getId(),
-                        SoundCategory.PLAYERS);
-                ModuleElytraRecast.INSTANCE.castElytra(player());
-                awaitingElytra = ModuleElytraRecast.INSTANCE.checkElytra(player());
-            }
-            previousElytra = elytra;
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
         }
+        boolean elytra = isFallFlying();
+        if (ModuleElytraRecast.INSTANCE.getEnabled() &&  previousElytra && !elytra) {
+            MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.getId(),
+                    SoundCategory.PLAYERS);
+            ModuleElytraRecast.INSTANCE.recastElytra((ClientPlayerEntity) (Object) this);
+            jumpingCooldown = 0;
+        }
+        previousElytra = elytra;
     }
 
     /**

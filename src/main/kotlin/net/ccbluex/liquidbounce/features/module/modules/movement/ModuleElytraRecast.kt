@@ -23,23 +23,20 @@ object ModuleElytraRecast : Module("ElytraRecast", Category.MOVEMENT) {
         enableLock()
     }
 
-    fun castElytra(player: ClientPlayerEntity): Boolean {
-        return if (checkElytra(player) && checkFallFlyingIgnoreGround(player)) {
-            player.networkHandler?.sendPacket(
-                ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING)
-            )
-            true
-        } else {
-            false
-        }
-    }
-
-    fun checkElytra(player: ClientPlayerEntity): Boolean {
-        if (player.input.jumping && !player.abilities.flying && !player.hasVehicle() && !player.isClimbing) {
-            val itemStack = player.getEquippedStack(EquipmentSlot.CHEST)
-            return itemStack.isOf(Items.ELYTRA) && ElytraItem.isUsable(itemStack)
+    fun recastElytra(player: ClientPlayerEntity): Boolean {
+        if (checkElytra(player) && checkFallFlyingIgnoreGround(player)) {
+            network.sendPacket(
+                ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING
+                ))
+            return true
         }
         return false
+    }
+    fun checkElytra(player: ClientPlayerEntity): Boolean {
+        val itemStack = player.getEquippedStack(EquipmentSlot.CHEST)
+        return (!player.abilities.flying && !player.hasVehicle()
+            && !player.isClimbing && itemStack.isOf(Items.ELYTRA)
+            && ElytraItem.isUsable(itemStack) && player.input.jumping)
     }
 
     fun checkFallFlyingIgnoreGround(player: ClientPlayerEntity): Boolean {
