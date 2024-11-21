@@ -65,12 +65,16 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Inject(method = "handleExplosion", at = @At("HEAD"), cancellable = true)
     private void cancelExplosionMotion(S27PacketExplosion packetExplosion, CallbackInfo ci) {
-        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getCancelExplosionMotion()) {
-            double motionX = packetExplosion.field_149159_h;
-            double motionY = packetExplosion.func_149144_d();
-            double motionZ = packetExplosion.func_149147_e();
+        double motionX = packetExplosion.field_149159_h;
+        double motionY = packetExplosion.func_149144_d();
+        double motionZ = packetExplosion.func_149147_e();
 
-            if (motionX > 50 || motionY > 50 || motionZ > 50) {
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getCancelExplosionMotion()) {
+            double x = MathHelper.clamp_double(motionX, -50.0, 50.0);
+            double y = MathHelper.clamp_double(motionY, -50.0, 50.0);
+            double z = MathHelper.clamp_double(motionZ, -50.0, 50.0);
+
+            if (x != motionX || y != motionY || z != motionZ) {
                 chat("Cancelled too strong TNT explosion motion");
                 ci.cancel();
             }
@@ -81,7 +85,7 @@ public abstract class MixinNetHandlerPlayClient {
     private void cancelExplosionStrength(S27PacketExplosion packetExplosion, CallbackInfo ci) {
         if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getCancelExplosionStrength()) {
             float originalStrength = packetExplosion.getStrength();
-            float strength = MathHelper.clamp_float(originalStrength, -1000.0f, 1000.0f);
+            float strength = MathHelper.clamp_float(originalStrength, -100f, 100f);
 
             if (strength != originalStrength) {
                 chat("Cancelled too strong TNT explosion strength");
@@ -94,7 +98,7 @@ public abstract class MixinNetHandlerPlayClient {
     private void cancelExplosionRadius(S27PacketExplosion packetExplosion, CallbackInfo ci) {
         if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getCancelExplosionRadius()) {
             float originalRadius = packetExplosion.func_149149_c();
-            float radius = MathHelper.clamp_float(originalRadius, -1000.0f, 1000.0f);
+            float radius = MathHelper.clamp_float(originalRadius, -100f, 100f);
 
             if (radius != originalRadius) {
                 chat("Cancelled too big TNT explosion radius");
@@ -123,12 +127,24 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Redirect(method = "handleSpawnObject", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S0EPacketSpawnObject;getType()I"))
     private int onSpawnObjectType(S0EPacketSpawnObject packet) {
-        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getLimitedArrowsSpawned() && packet.getType() == 60) {
-            int arrows = AntiExploit.INSTANCE.getArrowMax();
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getLimitedEntitySpawn()) {
+            if (packet.getType() == 60) {
+                int arrows = AntiExploit.INSTANCE.getArrowMax();
+                AntiExploit.INSTANCE.setArrowMax(arrows + 1);
 
-            if (++arrows >= AntiExploit.INSTANCE.getMaxArrowsSpawned()) {
-                chat("Limited too many arrows spawned");
-                return 5;
+                if (arrows >= AntiExploit.INSTANCE.getMaxArrowsSpawned()) {
+                    chat("Limited too many arrows spawned");
+                    return -1;
+                }
+            }
+            if (packet.getType() == 2) {
+                int items = AntiExploit.INSTANCE.getItemMax();
+                AntiExploit.INSTANCE.setItemMax(items + 1);
+
+                if (items >= AntiExploit.INSTANCE.getMaxItemDropped()) {
+                    chat("Limited too many items dropped");
+                    return -1;
+                }
             }
         }
         return packet.getType();
