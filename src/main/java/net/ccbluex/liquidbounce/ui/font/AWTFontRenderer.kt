@@ -55,7 +55,7 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255, p
             }
         }
 
-        keysToRemove.forEach { cachedStrings.remove(it) }
+        keysToRemove.forEach { cachedStrings -= it }
     }
 
     private var fontHeight = -1
