@@ -82,9 +82,11 @@ class MinimapTextureAtlasManager {
     }
 
     fun deallocate(chunkPos: ChunkPos) {
-        val atlasPosition = chunkPosAtlasPosMap.remove(chunkPos) ?: return
+        lock.withLock {
+            val atlasPosition = chunkPosAtlasPosMap.remove(chunkPos) ?: return
 
-        availableAtlasPositions.add(atlasPosition)
+            availableAtlasPositions.add(atlasPosition)
+        }
     }
 
     fun deallocateAll() {
