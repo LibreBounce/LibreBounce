@@ -115,21 +115,15 @@ object CommandManager {
                 tabCompletions?.toTypedArray()
             } else {
                 val rawInput = input.substring(1)
-                commands
-                    .filter {
-                        it.command.startsWith(rawInput, true)
-                            || it.alias.any { alias -> alias.startsWith(rawInput, true) }
-                    }
-                    .map {
-                        val alias = if (it.command.startsWith(rawInput, true))
-                            it.command
-                        else {
-                            it.alias.first { alias -> alias.startsWith(rawInput, true) }
-                        }
 
-                        prefix + alias
-                    }
-                    .toTypedArray()
+                commands.mapNotNull { command ->
+                    val alias = when {
+                        command.command.startsWith(rawInput, true) -> command.command
+                        else -> command.alias.firstOrNull { alias -> alias.startsWith(rawInput, true) }
+                    } ?: return@mapNotNull null
+
+                    prefix + alias
+                }.toTypedArray()
             }
         }
         return null
@@ -138,11 +132,9 @@ object CommandManager {
     /**
      * Get command instance by given [name]
      */
-    fun getCommand(name: String) =
-        commands.find {
-            it.command.equals(name, ignoreCase = true)
-                || it.alias.any { alias -> alias.equals(name, true) }
-        }
+    fun getCommand(name: String) = commands.find {
+        it.command.equals(name, ignoreCase = true) || it.alias.any { alias -> alias.equals(name, true) }
+    }
 
     /**
      * Register [command] by just adding it to the commands registry
