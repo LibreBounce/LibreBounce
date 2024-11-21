@@ -136,11 +136,8 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
 
         if (prediction && target != null) {
             val predictedGroundRotation =
-                Rotation(
-                    round(target.rotation.yaw / 45) * 45,
-                    target.rotation.pitch.coerceAtMost(75.7f)
-                )
-            val predictedAirRotation = Rotation(round(target.rotation.yaw / 25) * 25, target.rotation.pitch)
+                Rotation(round(target.rotation.yaw / 45) * 45, target.rotation.yaw.coerceIn(74f, 78f))
+            val predictedAirRotation = Rotation(round(target.rotation.yaw / 25f) * 25f, target.rotation.pitch)
             val inputBasedRaycast = raycast(inputBasedRotation)
 
             return if (inputBasedRaycast?.blockPos == target.interactedBlockPos) {
