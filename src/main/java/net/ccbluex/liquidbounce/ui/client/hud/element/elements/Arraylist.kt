@@ -355,7 +355,7 @@ class Arraylist(
                                         drawRect(xPos - 3, yPos, xPos - 2, yPos + textSpacer, rectColor)
 
                                         if (module == modules.first()) {
-                                            drawRect(xPos - 3, yPos, 0F, yPos - 1, rectColor)
+                                            drawRect(xPos - 3, yPos - 1F, 0F, yPos, rectColor)
                                         }
 
                                         drawRect(
