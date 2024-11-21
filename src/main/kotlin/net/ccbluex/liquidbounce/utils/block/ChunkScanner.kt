@@ -26,7 +26,6 @@ import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.client.ModuleChunkScanner
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.getValue
@@ -127,7 +126,7 @@ object ChunkScanner : Listenable {
          */
         @OptIn(ExperimentalCoroutinesApi::class)
         private val dispatcher = Util.getMainWorkerExecutor().asCoroutineDispatcher()
-            .limitedParallelism(ModuleChunkScanner.parallelism)
+            .limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
 
         private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

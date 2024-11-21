@@ -344,7 +344,6 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAutoConfig,
             ModuleRichPresence,
             ModuleTargets,
-            ModuleChunkScanner,
             ModuleLiquidChat
         )
 
