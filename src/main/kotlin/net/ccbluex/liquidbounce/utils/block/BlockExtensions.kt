@@ -21,13 +21,16 @@ package net.ccbluex.liquidbounce.utils.block
 import it.unimi.dsi.fastutil.booleans.BooleanObjectPair
 import it.unimi.dsi.fastutil.ints.IntObjectPair
 import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.ccbluex.liquidbounce.config.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
-import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.block.*
 import net.minecraft.entity.Entity
@@ -56,6 +59,30 @@ fun BlockPos.getBlock() = getState()?.block
 fun BlockPos.getCenterDistanceSquared() = player.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
 
 fun BlockPos.getCenterDistanceSquaredEyes() = player.eyes.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
+
+/**
+ * Returns the block box outline of the block at the position. If the block is air, it will return an empty box.
+ * Outline Box should be used for rendering purposes only.
+ *
+ * Returns [FULL_BOX] when block is air or does not exist.
+ */
+val BlockPos.outlineBox: Box
+    get() {
+        val blockState = getState() ?: return FULL_BOX
+        if (blockState.isAir) {
+            return FULL_BOX
+        }
+
+        val outlineShape = blockState.getOutlineShape(world, this)
+        return if (outlineShape.isEmpty) {
+            FULL_BOX
+        } else {
+            outlineShape.boundingBox
+        }
+    }
+
+val BlockPos.collisionShape: VoxelShape
+    get() = this.getState()!!.getCollisionShape(world, this)
 
 /**
  * Some blocks like slabs or stairs must be placed on upper side in order to be placed correctly.
@@ -167,7 +194,13 @@ fun BlockPos.searchBlocksInCuboid(radius: Int): Region {
 fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectPair<BlockPos>> {
     check(state.block in BED_BLOCKS) { "This function is only available for Beds" }
 
-    val bedDirection = state.get(BedBlock.FACING)
+    var bedDirection = state.get(BedBlock.FACING)
+    var opposite = bedDirection.opposite
+
+    if (BedBlock.getBedPart(state) != DoubleBlockProperties.Type.FIRST) {
+        opposite = bedDirection
+        bedDirection = bedDirection.opposite
+    }
 
     var left = Direction.WEST
     var right = Direction.EAST
@@ -176,8 +209,6 @@ fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectP
         left = Direction.SOUTH
         right = Direction.NORTH
     }
-
-    val opposite = bedDirection.opposite
 
     return searchLayer(layers, bedDirection, Direction.UP, left, right) +
         offset(opposite).searchLayer(layers, opposite, Direction.UP, left, right)
@@ -189,31 +220,34 @@ fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectP
 @Suppress("detekt:CognitiveComplexMethod")
 fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<IntObjectPair<BlockPos>> =
     sequence {
-        val queue = ArrayDeque<IntObjectPair<BlockPos>>(layers * layers * directions.size / 2).apply {
-            add(IntObjectPair.of(0, this@searchLayer))
-        }
-        val visited = hashSetOf(this@searchLayer)
+        val longValueOfThis = this@searchLayer.asLong()
+        val initialCapacity = layers * layers * directions.size / 2
+
+        val layerQueue = IntArrayFIFOQueue().apply { enqueue(0) }
+        val longValueQueue = LongArrayFIFOQueue().apply { enqueue(longValueOfThis) }
+        val visited = LongOpenHashSet(initialCapacity).apply { add(longValueOfThis) }
+
         val mutable = BlockPos.Mutable()
 
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
+        while (!longValueQueue.isEmpty) {
+            val layer = layerQueue.dequeueInt()
+            val pos = longValueQueue.dequeueLong()
 
-            val layer = current.keyInt()
-
-            when {
-                layer > layers -> continue
-                layer > 0 -> yield(current)
+            if (layer > 0) {
+                yield(IntObjectPair.of(layer, BlockPos.fromLong(pos)))
             }
 
-            val pos = current.value()
+            // Search next layer
+            if (layer < layers) {
+                for (direction in directions) {
+                    mutable.set(pos)
+                    mutable.move(direction)
 
-            for (direction in directions) {
-                mutable.set(pos, direction)
-
-                if (mutable !in visited) {
-                    val newPos = mutable.toImmutable()
-                    visited.add(newPos)
-                    queue.add(IntObjectPair.of(layer + 1, newPos))
+                    val newLong = mutable.asLong()
+                    if (visited.add(newLong)) {
+                        layerQueue.enqueue(layer + 1)
+                        longValueQueue.enqueue(newLong)
+                    }
                 }
             }
         }
@@ -234,7 +268,7 @@ fun BlockPos.getSphere(radius: Float): Sequence<DoubleObjectPair<BlockPos>> = se
 }
 
 fun BlockPos.getSortedSphere(radius: Float): Array<BlockPos> {
-    return getSphere(radius).toList().sortedBy { it.firstDouble() }.map { it.second() }.toTypedArray()
+    return getSphere(radius).toList().sortedBy { it.firstDouble() }.mapArray { it.second() }
 }
 
 /**
@@ -556,20 +590,6 @@ fun Block?.isInteractable(blockState: BlockState?): Boolean {
         || this is ShulkerBoxBlock || this is StonecutterBlock
         || this is SweetBerryBushBlock && (blockState?.get(SweetBerryBushBlock.AGE) ?: 2) > 1 || this is TrapdoorBlock
 }
-
-/**
- * Returns the shape of the block as box, if it can't get the actual shape, it will return a [FULL_BOX].
- */
-fun BlockPos.getShape(): Box {
-    val outlineShape = this.getState()?.getOutlineShape(world, this) ?: return FULL_BOX
-    if (outlineShape.isEmpty) {
-        return EMPTY_BOX
-    }
-
-    return outlineShape.boundingBox
-}
-
-fun BlockPos.getCollisionShape(): VoxelShape = this.getState()!!.getCollisionShape(world, this)
 
 fun BlockPos.isBlockedByEntities(): Boolean {
     return world.entities.any {

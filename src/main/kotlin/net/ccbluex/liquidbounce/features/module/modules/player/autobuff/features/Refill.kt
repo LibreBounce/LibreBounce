@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.INVENTORY_SLOTS
 import net.ccbluex.liquidbounce.utils.inventory.PlayerInventoryConstraints
 import net.ccbluex.liquidbounce.utils.item.isNothing
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
 object Refill : ToggleableConfigurable(ModuleAutoBuff, "Refill", true) {
 
@@ -44,9 +45,9 @@ object Refill : ToggleableConfigurable(ModuleAutoBuff, "Refill", true) {
 
         // Find valid items in the inventory
         val validItems = INVENTORY_SLOTS.filter {
-            it.itemStack.let {
-                itemStack -> features.any {
-                    f -> f.isValidItem(itemStack, false)
+            it.itemStack.let { itemStack ->
+                features.any { f ->
+                    f.isValidItem(itemStack, false)
                 }
             }
         }
@@ -58,7 +59,10 @@ object Refill : ToggleableConfigurable(ModuleAutoBuff, "Refill", true) {
 
         // Sort the items by the order of the features
         for (slot in validItems) {
-            event.schedule(inventoryConstraints, ClickInventoryAction.performQuickMove(slot = slot))
+            event.schedule(
+                inventoryConstraints, ClickInventoryAction.performQuickMove(slot = slot),
+                Priority.IMPORTANT_FOR_USAGE_1
+            )
         }
     }
 

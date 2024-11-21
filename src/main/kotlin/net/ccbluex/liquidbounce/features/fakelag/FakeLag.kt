@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleFakeLag
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleClickTp
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerVerusExperimental
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze
@@ -34,8 +35,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.Modul
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyNcpClip
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.verus.FlyVerusB3869Flat
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlockingBlink
-import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
+import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidBlinkMode
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallBlink
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldBlinkFeature
 import net.ccbluex.liquidbounce.render.drawLineStrip
@@ -43,12 +44,11 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.client.sendPacketSilently
-import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.RigidPlayerSimulation
+import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
@@ -61,6 +61,7 @@ import net.minecraft.network.packet.s2c.play.HealthUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.sound.SoundEvents
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 
 /**
@@ -92,9 +93,11 @@ object FakeLag : Listenable {
         }
 
         @Suppress("ComplexCondition")
-        if (ModuleBlink.enabled || ModuleAntiVoid.needsArtificialLag || ModuleFakeLag.shouldLag(packet)
+        if (ModuleBlink.enabled || AntiVoidBlinkMode.requiresLag || ModuleFakeLag.shouldLag(packet)
             || NoFallBlink.shouldLag() || ModuleInventoryMove.Blink.shouldLag() || ModuleClickTp.requiresLag
-            || FlyNcpClip.shouldLag || ScaffoldBlinkFeature.shouldBlink || FlyVerusB3869Flat.requiresLag) {
+            || FlyNcpClip.shouldLag || ScaffoldBlinkFeature.shouldBlink || FlyVerusB3869Flat.requiresLag
+            || AutoBlock.shouldBlink
+        ) {
             return LagResult.QUEUE
         }
 
@@ -190,8 +193,12 @@ object FakeLag : Listenable {
 
             if (packet is PlayerMoveC2SPacket && packet.changePosition) {
                 synchronized(positions) {
-                    positions.add(PositionData(Vec3d(packet.x, packet.y, packet.z), player.velocity,
-                        System.currentTimeMillis()))
+                    positions.add(
+                        PositionData(
+                            Vec3d(packet.x, packet.y, packet.z), player.velocity,
+                            System.currentTimeMillis()
+                        )
+                    )
                 }
             }
         }
@@ -253,25 +260,21 @@ object FakeLag : Listenable {
     }
 
     fun cancel() {
-        val (playerPosition, velocity, _) = firstPosition() ?: return
-
-        player.setPosition(playerPosition)
-        player.velocity = velocity
+        firstPosition()?.let { (vec, velocity, _) ->
+            player.setPosition(vec)
+            player.velocity = velocity
+        }
 
         synchronized(packetQueue) {
-            packetQueue.removeIf {
-                if (it.packet is PlayerMoveC2SPacket) {
-                    return@removeIf true
+            for (data in packetQueue) {
+                when (val packet = data.packet) {
+                    is PlayerMoveC2SPacket -> continue
+                    else -> sendPacketSilently(packet)
                 }
-
-                sendPacketSilently(it.packet)
-                true
             }
         }
 
-        synchronized(positions) {
-            positions.clear()
-        }
+        clear()
     }
 
     fun clear() {

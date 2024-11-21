@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
@@ -453,7 +453,7 @@ enum class ListValueType(val type: Class<*>?) {
     Item(net.minecraft.item.Item::class.java),
     String(kotlin.String::class.java),
     Friend(FriendManager.Friend::class.java),
-    Proxy(ProxyManager.Proxy::class.java),
+    Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
     None(null)
 }

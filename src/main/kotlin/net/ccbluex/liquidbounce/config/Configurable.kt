@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-@file:Suppress("NOTHING_TO_INLINE")
 package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.event.Listenable
@@ -129,7 +128,10 @@ open class Configurable(
 
     protected fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
 
-    protected fun key(name: String, default: InputUtil.Key) = value(name, default, ValueType.KEY)
+    protected fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
+
+    protected fun key(name: String, default: InputUtil.Key = InputUtil.UNKNOWN_KEY) =
+        value(name, default, ValueType.KEY)
 
     protected fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
