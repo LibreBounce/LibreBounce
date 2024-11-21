@@ -20,13 +20,14 @@
  */
 package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
 
+import kotlinx.atomicfu.locks.ReentrantLock
+import kotlinx.atomicfu.locks.withLock
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f
 import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.math.ChunkPos
-import java.util.concurrent.ConcurrentSkipListSet
 
 /**
  * Size of the texture atlas in chunks (size x size)
@@ -43,8 +44,10 @@ private val NOT_LOADED_ATLAS_POSITION = MinimapTextureAtlasManager.AtlasPosition
 class MinimapTextureAtlasManager {
     private val texture = NativeImageBackedTexture(ATLAS_SIZE * 16, ATLAS_SIZE * 16, false)
     private val availableAtlasPositions = ArrayList<AtlasPosition>(ATLAS_SIZE * ATLAS_SIZE - 1)
-    private val dirtyAtlasPositions = ConcurrentSkipListSet<AtlasPosition>()
+    private val dirtyAtlasPositions = hashSetOf<AtlasPosition>()
     private val chunkPosAtlasPosMap = hashMapOf<ChunkPos, AtlasPosition>()
+
+    private val lock = ReentrantLock()
 
     private var allocated = false
 
@@ -106,9 +109,9 @@ class MinimapTextureAtlasManager {
         chunkPos: ChunkPos,
         editor: (NativeImageBackedTexture, AtlasPosition) -> Unit,
     ) {
-        val atlasPosition = getOrAllocate(chunkPos)
-
-        dirtyAtlasPositions.add(atlasPosition)
+        val atlasPosition = lock.withLock {
+            getOrAllocate(chunkPos).apply(dirtyAtlasPositions::add)
+        }
 
         editor(texture, atlasPosition)
     }
@@ -119,22 +122,24 @@ class MinimapTextureAtlasManager {
      * @return the GLid of the texture
      */
     fun prepareRendering(): Int {
-        if (this.dirtyAtlasPositions.isEmpty()) {
+        lock.withLock {
+            if (this.dirtyAtlasPositions.isEmpty()) {
+                return this.texture.glId
+            }
+
+            this.texture.bindTexture()
+
+            val dirtyChunks = this.dirtyAtlasPositions.size
+
+            when {
+                !this.allocated || dirtyChunks >= FULL_UPLOAD_THRESHOLD -> uploadFullTexture()
+                else -> uploadOnlyDirtyPositions()
+            }
+
+            this.dirtyAtlasPositions.clear()
+
             return this.texture.glId
         }
-
-        this.texture.bindTexture()
-
-        val dirtyChunks = this.dirtyAtlasPositions.size
-
-        when {
-            !this.allocated || dirtyChunks >= FULL_UPLOAD_THRESHOLD -> uploadFullTexture()
-            else -> uploadOnlyDirtyPositions()
-        }
-
-        this.dirtyAtlasPositions.clear()
-
-        return this.texture.glId
     }
 
     private fun uploadFullTexture() {
@@ -169,7 +174,7 @@ class MinimapTextureAtlasManager {
         }
     }
 
-    data class AtlasPosition(private val x: Int, private val y: Int) : Comparable<AtlasPosition> {
+    data class AtlasPosition(private val x: Int, private val y: Int) {
         val baseXOnAtlas: Int = x shl 4
         val baseYOnAtlas: Int = y shl 4
 
@@ -189,14 +194,8 @@ class MinimapTextureAtlasManager {
          * @param chunkX x coordinate in the chunk (0-15)
          * @param chunkY y coordinate in the chunk (0-15)
          */
-        fun getPosOnAtlas(
-            chunkX: Int,
-            chunkY: Int,
-        ): Vec2i {
-            return Vec2i(baseXOnAtlas + chunkX, baseYOnAtlas + chunkY)
+        fun getPosOnAtlas(chunkX: Int, chunkY: Int): Vec2i {
+            return Vec2i(baseXOnAtlas or chunkX, baseYOnAtlas or chunkY)
         }
-
-        override fun compareTo(other: AtlasPosition): Int =
-            compareValuesBy(this, other, AtlasPosition::x, AtlasPosition::y)
     }
 }
