@@ -64,11 +64,8 @@ object ModuleFastExp : Module(
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
 
-    override fun disable() {
-        mc.options.useKey.isPressed = false
-    }
-
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val repeatable = repeatable {
         val slot = getSlot()
         if (slot == null || player.isDead || InventoryManager.isInventoryOpenServerSide || isRepaired(slot)) {
             return@repeatable
@@ -103,7 +100,7 @@ object ModuleFastExp : Module(
             return false
         }
 
-        // an item in the other hand, not holding the exp bottle could also get repeared
+        // an item in the other hand, not holding the exp bottle could also get repaired
         val possibleSlot = if (slot == OffHandSlot) {
             player.mainHandStack
         } else {
