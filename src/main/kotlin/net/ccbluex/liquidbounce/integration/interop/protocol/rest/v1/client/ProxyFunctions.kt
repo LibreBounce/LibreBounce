@@ -155,8 +155,9 @@ fun postImportClipboardProxy(_requestObject: RequestObject): FullHttpResponse {
         runCatching {
             // Get clipboard content via GLFW
             val clipboard = GLFW.glfwGetClipboardString(mc.window.handle)?: ""
-            if (!clipboard.isNotBlank())
+            if (!clipboard.isNotBlank()) {
                 return@recordRenderCall
+            }
 
             importProxies(clipboard)
         }
