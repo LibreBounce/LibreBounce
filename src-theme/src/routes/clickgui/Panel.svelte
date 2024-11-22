@@ -27,6 +27,8 @@
     const GRID_SIZE = 25;
     const panelConfig = loadPanelConfig();
 
+    let ignoreGrid = false;
+
     interface PanelConfig {
         top: number;
         left: number;
@@ -169,12 +171,25 @@
         }, 500);
     });
 
+    function handleKeydown(e: KeyboardEvent) {
+        if (e.key === 'Shift') {
+            ignoreGrid = true;
+        }
+    }
+
+    function handleKeyup(e: KeyboardEvent) {
+        if (e.key === 'Shift') {
+            ignoreGrid = false;
+        }
+    }
+
     function snapToGrid(value: number): number {
+        if (ignoreGrid) return value;
         return Math.round(value / GRID_SIZE) * GRID_SIZE;
     }
 </script>
 
-<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove}/>
+<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} on:keydown={handleKeydown} on:keyup={handleKeyup}/>
 
 <div
         class="panel"
