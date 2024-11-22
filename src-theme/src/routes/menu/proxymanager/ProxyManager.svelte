@@ -34,6 +34,7 @@
         ProxyCheckResultEvent,
         ProxyEditResultEvent
     } from "../../../integration/events.js";
+    import ImportProxyModal from "./ImportProxyModal.svelte";
 
     $: {
         let filteredProxies = proxies;
@@ -51,6 +52,7 @@
 
     let addProxyModalVisible = false;
     let editProxyModalVisible = false;
+    let importProxyModalVisible = false;
     let allCountries: string[] = [];
 
     let searchQuery = "";
@@ -202,6 +204,7 @@
 </script>
 
 <AddProxyModal bind:visible={addProxyModalVisible}/>
+<ImportProxyModal bind:visible={importProxyModalVisible} />
 {#if currentEditProxy}
     <EditProxyModal bind:visible={editProxyModalVisible} id={currentEditProxy.id}
                     host={currentEditProxy.host}
@@ -252,6 +255,11 @@
         <ButtonContainer>
             <IconTextButton icon="icon-plus-circle.svg" title="Add" on:click={() => addProxyModalVisible = true}/>
             <IconTextButton icon="icon-clipboard.svg" title="Add Clipboard" on:click={() => addProxyFromClipboard()}/>
+            <IconTextButton
+                icon="icon-plus-circle.svg"
+                title="Import..."
+                on:click={() => importProxyModalVisible = true}
+            />
             <IconTextButton icon="icon-random.svg" disabled={renderedProxies.length === 0} title="Random"
                             on:click={connectToRandomProxy}/>
             <IconTextButton icon="icon-disconnect.svg" disabled={!isConnectedToProxy} title="Disconnect"
