@@ -24,7 +24,7 @@
     let prevY = 0;
     let offsetX = 0;
     let offsetY = 0;
-    const GRID_SIZE = 20;
+    const GRID_SIZE = 25;
     const panelConfig = loadPanelConfig();
 
     interface PanelConfig {
@@ -211,7 +211,7 @@
 <style lang="scss">
   @import "../../colors.scss";
 
-  $GRID_SIZE: 20px;
+  $GRID_SIZE: 25px;
 
   :global(.moving-panel) {
     background-image: 
