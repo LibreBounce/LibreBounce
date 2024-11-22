@@ -13,3 +13,11 @@ export const maxPanelZIndex: Writable<number> = writable(0);
 export const highlightModuleName: Writable<string | null> = writable(null);
 
 export const scaleFactor: Writable<number> = writable(2);
+
+export interface PanelConfig {
+    left: number;
+    top: number;
+    zIndex: number;
+    expanded: boolean;
+    locked: boolean;
+}

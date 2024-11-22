@@ -28,6 +28,7 @@
     const panelConfig = loadPanelConfig();
 
     let ignoreGrid = false;
+    let locked = panelConfig.locked ?? false;
 
     interface PanelConfig {
         top: number;
@@ -35,6 +36,7 @@
         expanded: boolean;
         scrollTop: number;
         zIndex: number;
+        locked: boolean;
     }
 
     function clamp(number: number, min: number, max: number) {
@@ -52,7 +54,8 @@
                 left: 20,
                 expanded: false,
                 scrollTop: 0,
-                zIndex: 0
+                zIndex: 0,
+                locked: false
             };
         } else {
             const config: PanelConfig = JSON.parse(localStorageItem);
@@ -87,6 +90,7 @@
     }
 
     function onMouseDown(e: MouseEvent) {
+        if (panelConfig.locked) return;
         moving = true;
         offsetX = e.clientX - panelConfig.left;
         offsetY = e.clientY - panelConfig.top;
@@ -169,6 +173,7 @@
                 behavior: "smooth"
             })
         }, 500);
+        locked = panelConfig.locked ?? false;
     });
 
     function handleKeydown(e: KeyboardEvent) {
@@ -186,6 +191,12 @@
     function snapToGrid(value: number): number {
         if (ignoreGrid) return value;
         return Math.round(value / GRID_SIZE) * GRID_SIZE;
+    }
+
+    function toggleLock() {
+        locked = !locked;
+        panelConfig.locked = locked;
+        savePanelConfig();
     }
 </script>
 
@@ -211,9 +222,21 @@
         />
         <span class="category">{category}</span>
 
-        <button class="expand-toggle" on:click={toggleExpanded}>
-            <div class="icon" class:expanded={panelConfig.expanded}></div>
-        </button>
+        <div class="buttons">
+            <button class="lock-toggle" class:locked={panelConfig.locked} on:click={() => {
+                panelConfig.locked = !panelConfig.locked;
+                savePanelConfig();
+            }}>
+                <img 
+                    class="lock-icon" 
+                    src="img/clickgui/icon-{panelConfig.locked ? 'lock' : 'unlock'}.svg" 
+                    alt="lock"
+                />
+            </button>
+            <button class="expand-toggle" on:click={toggleExpanded}>
+                <div class="icon" class:expanded={panelConfig.expanded}></div>
+            </button>
+        </div>
     </div>
 
     <div class="modules" on:scroll={handleModulesScroll} bind:this={modulesElement}>
@@ -317,6 +340,36 @@
           transform: rotate(180deg);
         }
       }
+    }
+  }
+
+  .buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .lock-toggle {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    
+    .lock-icon {
+        width: 14px;
+        height: 15px;
+        opacity: 0.5;
+        transition: all 0.2s ease;
+        
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    &.locked .lock-icon {
+        opacity: 1;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)) brightness(1.2);
     }
   }
 </style>
