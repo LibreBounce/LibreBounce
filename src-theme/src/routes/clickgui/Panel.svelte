@@ -6,7 +6,7 @@
     import type {ToggleModuleEvent} from "../../integration/events";
     import {fly} from "svelte/transition";
     import {quintOut} from "svelte/easing";
-    import {highlightModuleName, maxPanelZIndex, showGrid, snappingEnabled} from "./clickgui_store";
+    import {gridSize, highlightModuleName, maxPanelZIndex, showGrid, snappingEnabled} from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
     import {scaleFactor} from "./clickgui_store";
 
@@ -22,7 +22,7 @@
     let moving = false;
     let offsetX = 0;
     let offsetY = 0;
-    const GRID_SIZE = 10;
+
     const panelConfig = loadPanelConfig();
 
     let ignoreGrid = false;
@@ -184,7 +184,7 @@
     function snapToGrid(value: number): number {
         if (ignoreGrid || !$snappingEnabled) return value;
 
-        return Math.round(value / GRID_SIZE) * GRID_SIZE;
+        return Math.round(value / $gridSize) * $gridSize;
     }
 </script>
 

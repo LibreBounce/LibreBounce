@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ClickGuiValueChangeEvent
 import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
@@ -71,12 +72,25 @@ object ModuleClickGui :
     @Suppress("UnusedPrivateProperty")
     private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
 
-    @Suppress("UnusedPrivateProperty")
-    private val snapping by boolean("Snapping", true).onChanged {
-        EventManager.callEvent(ClickGuiValueChangeEvent(this))
+    object Snapping : ToggleableConfigurable(this, "Snapping", true) {
+
+        @Suppress("UnusedPrivateProperty")
+        private val gridSize by int("GridSize", 10, 1..100, "px").onChanged {
+            EventManager.callEvent(ClickGuiValueChangeEvent(ModuleClickGui))
+        }
+
+        init {
+            inner.find { it.name == "Enabled" }?.onChanged {
+                EventManager.callEvent(ClickGuiValueChangeEvent(ModuleClickGui))
+            }
+        }
     }
 
     private var clickGuiTab: ITab? = null
+
+    init {
+        tree(Snapping)
+    }
 
     override fun enable() {
         // Pretty sure we are not in a game, so we can't open the clickgui

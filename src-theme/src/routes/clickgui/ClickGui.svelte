@@ -2,7 +2,7 @@
     import {onMount} from "svelte";
     import {getGameWindow, getModules, getModuleSettings} from "../../integration/rest";
     import {groupByCategory} from "../../integration/util";
-    import type {ConfigurableSetting, GroupedModules, Module} from "../../integration/types";
+    import type {ConfigurableSetting, GroupedModules, Module, TogglableSetting} from "../../integration/types";
     import Panel from "./Panel.svelte";
     import Search from "./Search.svelte";
     import Description from "./Description.svelte";
@@ -13,7 +13,7 @@
         ClickGuiValueChangeEvent,
         ScaleFactorChangeEvent
     } from "../../integration/events";
-    import {scaleFactor, showGrid, snappingEnabled} from "./clickgui_store";
+    import {gridSize, scaleFactor, showGrid, snappingEnabled} from "./clickgui_store";
 
     let categories: GroupedModules = {};
     let modules: Module[] = [];
@@ -25,7 +25,11 @@
 
     function applyValues(configurable: ConfigurableSetting) {
         clickGuiScaleFactor = configurable.value.find(v => v.name === "Scale")?.value as number ?? 1;
-        $snappingEnabled = configurable.value.find(v => v.name === "Snapping")?.value as boolean ?? true;
+
+        const snappingValue = configurable.value.find(v => v.name === "Snapping") as TogglableSetting;
+
+        $snappingEnabled = snappingValue?.value.find(v => v.name === "Enabled")?.value as boolean ?? true;
+        $gridSize = snappingValue?.value.find(v => v.name === "GridSize")?.value as number ?? 10;
     }
 
     onMount(async () => {
@@ -49,7 +53,8 @@
 </script>
 
 <div class="clickgui" class:grid={$showGrid} transition:fade|global={{duration: 200}}
-     style="transform: scale({$scaleFactor * 50}%); width: {2 / $scaleFactor * 100}vw; height: {2 / $scaleFactor * 100}vh;">
+     style="transform: scale({$scaleFactor * 50}%); width: {2 / $scaleFactor * 100}vw; height: {2 / $scaleFactor * 100}vh;
+     background-size: {$gridSize}px {$gridSize}px;">
     <Description/>
     <Search modules={structuredClone(modules)}/>
 
@@ -75,7 +80,6 @@
     &.grid {
       background-image: linear-gradient(to right, $clickgui-grid-color 1px, transparent 1px),
       linear-gradient(to bottom, $clickgui-grid-color 1px, transparent 1px);
-      background-size: $GRID_SIZE $GRID_SIZE;
     }
   }
 </style>
