@@ -40,6 +40,7 @@ import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
+import net.minecraft.registry.tag.BlockTags
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -59,6 +60,9 @@ fun BlockPos.getBlock() = getState()?.block
 fun BlockPos.getCenterDistanceSquared() = player.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
 
 fun BlockPos.getCenterDistanceSquaredEyes() = player.eyes.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
+
+val BlockState.isBed: Boolean
+    get() = isIn(BlockTags.BEDS)
 
 /**
  * Returns the block box outline of the block at the position. If the block is air, it will return an empty box.
@@ -192,7 +196,7 @@ fun BlockPos.searchBlocksInCuboid(radius: Int): Region {
  * Scan blocks outwards from a bed
  */
 fun BlockPos.searchBedLayer(state: BlockState, layers: Int): Sequence<IntObjectPair<BlockPos>> {
-    check(state.block in BED_BLOCKS) { "This function is only available for Beds" }
+    check(state.isBed) { "This function is only available for Beds" }
 
     var bedDirection = state.get(BedBlock.FACING)
     var opposite = bedDirection.opposite
@@ -622,22 +626,3 @@ fun BlockPos.isBlockedByEntitiesReturnCrystal(): BooleanObjectPair<EndCrystalEnt
 
     return BooleanObjectPair.of(blocked, null)
 }
-
-val BED_BLOCKS = setOf(
-    Blocks.RED_BED,
-    Blocks.BLUE_BED,
-    Blocks.GREEN_BED,
-    Blocks.BLACK_BED,
-    Blocks.WHITE_BED,
-    Blocks.YELLOW_BED,
-    Blocks.PURPLE_BED,
-    Blocks.ORANGE_BED,
-    Blocks.PINK_BED,
-    Blocks.LIGHT_BLUE_BED,
-    Blocks.LIGHT_GRAY_BED,
-    Blocks.LIME_BED,
-    Blocks.MAGENTA_BED,
-    Blocks.BROWN_BED,
-    Blocks.CYAN_BED,
-    Blocks.GRAY_BED
-)
