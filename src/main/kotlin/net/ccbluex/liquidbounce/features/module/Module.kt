@@ -231,8 +231,6 @@ open class Module(
         }
     }
 
-    protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
-
     protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
