@@ -18,8 +18,9 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.utils.aiming.angleSmooth.AngleSmoothMode
-import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
+import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
@@ -31,11 +32,18 @@ import net.minecraft.util.math.Vec3d
  * @param rotation The rotation we want to aim at.
  * @param angleSmooth The mode of the smoother.
  */
+@Suppress("LongParameterList")
 class AimPlan(
     val rotation: Rotation,
     val vec3d: Vec3d? = null,
     val entity: Entity? = null,
-    val angleSmooth: AngleSmoothMode,
+    /**
+     * If we do not want to smooth the angle, we can set this to null.
+     */
+    val angleSmooth: AngleSmoothMode?,
+    val slowStart: SlowStart?,
+    val failFocus: FailFocus?,
+    val shortStop: ShortStop?,
     val ticksUntilReset: Int,
     /**
      * The reset threshold defines the threshold at which we are going to reset the aim plan.
@@ -47,7 +55,11 @@ class AimPlan(
      */
     val considerInventory: Boolean,
     val applyVelocityFix: Boolean,
-    val changeLook: Boolean
+    val changeLook: Boolean,
+    /**
+     * What should be done if the target rotation has been reached. Can be `null`.
+      */
+    val whenReached: RestrictedSingleUseAction? = null
 ) {
 
     /**
@@ -58,12 +70,28 @@ class AimPlan(
      * We might even return null if we do not want to aim at anything yet.
      */
     fun nextRotation(fromRotation: Rotation, isResetting: Boolean): Rotation {
-        if (isResetting) {
-            return angleSmooth.limitAngleChange(fromRotation, mc.player!!.rotation)
+        if (shortStop?.isInStopState == true) {
+            return fromRotation
         }
 
-        return angleSmooth.limitAngleChange(fromRotation, rotation, vec3d, entity)
+        val angleSmooth = angleSmooth ?: return rotation
+        val factorModifier = if (failFocus?.isInFailState == true) {
+            failFocus.failFactor
+        } else {
+            slowStart?.rotationFactor ?: 1f
+        }
+
+        if (isResetting) {
+            return angleSmooth.limitAngleChange(factorModifier, fromRotation, player.rotation)
+        }
+
+        val rotation = if (failFocus?.isInFailState == true) {
+            failFocus.shiftRotation(rotation)
+        } else {
+            rotation
+        }
+
+        return angleSmooth.limitAngleChange(factorModifier, fromRotation, rotation, vec3d, entity)
     }
 
 }
-

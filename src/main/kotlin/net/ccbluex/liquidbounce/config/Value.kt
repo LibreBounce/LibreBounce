@@ -28,15 +28,16 @@ import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
 import net.ccbluex.liquidbounce.lang.translation
+import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.convertToString
-import net.ccbluex.liquidbounce.utils.client.key
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
-import net.ccbluex.liquidbounce.web.socket.protocol.ProtocolExclude
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -53,7 +54,7 @@ typealias ValueChangedListener<T> = (T) -> Unit
 @Suppress("TooManyFunctions")
 open class Value<T : Any>(
     @SerializedName("name") open val name: String,
-    @SerializedName("value") internal var inner: T,
+    @Exclude private var defaultValue: T,
     @Exclude val valueType: ValueType,
     @Exclude @ProtocolExclude val listType: ListValueType = ListValueType.None,
 
@@ -62,6 +63,8 @@ open class Value<T : Any>(
      */
     @Exclude @ProtocolExclude var independentDescription: Boolean = false
 ) {
+
+    @SerializedName("value") internal var inner: T = defaultValue
 
     internal val loweredName
         get() = name.lowercase()
@@ -81,7 +84,7 @@ open class Value<T : Any>(
      */
     @Exclude
     @ProtocolExclude
-    var doNotInclude = false
+    var doNotInclude = { false }
         private set
 
     /**
@@ -117,9 +120,13 @@ open class Value<T : Any>(
         set(t)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("getValue")
     fun getValue(): Any {
+        if (this is ChoiceConfigurable<*>) {
+            return this.activeChoice.name
+        }
+
         return when (val v = get()) {
             is ClosedFloatingPointRange<*> -> arrayOf(v.start, v.endInclusive)
             is IntRange -> arrayOf(v.first, v.last)
@@ -128,7 +135,7 @@ open class Value<T : Any>(
         }
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("setValue")
     @Suppress("UNCHECKED_CAST")
     fun setValue(t: org.graalvm.polyglot.Value) = runCatching {
@@ -165,25 +172,35 @@ open class Value<T : Any>(
 
     fun get() = inner
 
-    fun set(t: T) { // temporary set value
+    fun set(t: T) {
         // Do nothing if value is the same
-        if (t == inner) return
+        if (t == inner) {
+            return
+        }
 
-        inner = t
+        set(t) { inner = it }
+    }
 
-        // check if value is really accepted
+    fun set(t: T, apply: (T) -> Unit) {
         var currT = t
         runCatching {
             listeners.forEach {
                 currT = it(t)
             }
         }.onSuccess {
-            inner = currT
+            apply(currT)
             EventManager.callEvent(ValueChangedEvent(this))
             changedListeners.forEach { it(currT) }
         }.onFailure { ex ->
             logger.error("Failed to set ${this.name} from ${this.inner} to $t", ex)
         }
+    }
+
+    /**
+     * Restore value to default value
+     */
+    open fun restore() {
+        set(defaultValue)
     }
 
     fun type() = valueType
@@ -198,8 +215,13 @@ open class Value<T : Any>(
         return this
     }
 
-    fun doNotInclude(): Value<T> {
-        doNotInclude = true
+    fun doNotIncludeAlways(): Value<T> {
+        doNotInclude = { true }
+        return this
+    }
+
+    fun doNotIncludeWhen(condition: () -> Boolean): Value<T> {
+        doNotInclude = condition
         return this
     }
 
@@ -295,7 +317,7 @@ open class Value<T : Any>(
 
             ValueType.COLOR -> {
                 if (string.startsWith("#")) {
-                    set(Color4b(Color(string.substring(1).toInt(16))) as T)
+                    set(Color4b.fromHex(string) as T)
                 } else {
                     set(Color4b(Color(string.toInt())) as T)
                 }
@@ -336,13 +358,11 @@ open class Value<T : Any>(
             }
 
             ValueType.KEY -> {
-                val newValue = try {
-                    string.toInt()
-                } catch (e: NumberFormatException) {
-                    key(string)
-                }
+                set(inputByName(string) as T)
+            }
 
-                set(newValue as T)
+            ValueType.BIND -> {
+                (get() as InputBind).bind(string)
             }
 
             else -> error("unsupported value type")
@@ -417,7 +437,7 @@ class ChooseListValue<T : NamedChoice>(
         set(newValue)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     fun getChoicesStrings(): Array<String> {
         return this.choices.map { it.choiceName }.toTypedArray()
     }
@@ -437,6 +457,9 @@ enum class ValueType {
     BLOCK, BLOCKS,
     ITEM, ITEMS,
     KEY,
+    BIND,
+    VECTOR_I,
+    VECTOR_D,
     CHOICE, CHOOSE,
     INVALID,
     PROXY,
@@ -449,7 +472,7 @@ enum class ListValueType(val type: Class<*>?) {
     Item(net.minecraft.item.Item::class.java),
     String(kotlin.String::class.java),
     Friend(FriendManager.Friend::class.java),
-    Proxy(ProxyManager.Proxy::class.java),
+    Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
     None(null)
 }

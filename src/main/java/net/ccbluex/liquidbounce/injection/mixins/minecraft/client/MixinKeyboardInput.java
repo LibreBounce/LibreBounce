@@ -24,11 +24,10 @@ import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.utils.client.KeybindExtensionsKt;
+import net.ccbluex.liquidbounce.utils.input.InputTracker;
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.KeyboardInput;
@@ -43,7 +42,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(KeyboardInput.class)
 public class MixinKeyboardInput extends MixinInput {
@@ -58,13 +56,13 @@ public class MixinKeyboardInput extends MixinInput {
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
     private boolean hookInventoryMove(KeyBinding keyBinding) {
         return ModuleInventoryMove.INSTANCE.shouldHandleInputs(keyBinding)
-                ? KeybindExtensionsKt.getPressedOnKeyboard(keyBinding) : keyBinding.isPressed();
+                ? InputTracker.INSTANCE.isPressedOnAny(keyBinding) : keyBinding.isPressed();
     }
 
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;pressingBack:Z", ordinal = 0))
     private void hookInventoryMoveSprint(boolean slowDown, float f, CallbackInfo ci) {
         if (ModuleInventoryMove.INSTANCE.shouldHandleInputs(this.settings.sprintKey)) {
-            this.settings.sprintKey.setPressed(KeybindExtensionsKt.getPressedOnKeyboard(this.settings.sprintKey));
+            this.settings.sprintKey.setPressed(InputTracker.INSTANCE.isPressedOnAny(this.settings.sprintKey));
         }
     }
 
@@ -90,7 +88,7 @@ public class MixinKeyboardInput extends MixinInput {
 
             ModuleSprint sprint = ModuleSprint.INSTANCE;
 
-            if (sprint.getEnabled() && sprint.getAllDirections()) {
+            if (sprint.shouldSprintOmnidirectionally()) {
                 this.movementSideways = 0f;
             }
         }
@@ -103,7 +101,7 @@ public class MixinKeyboardInput extends MixinInput {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();
-        AimPlan configurable = rotationManager.getStoredAimPlan();
+        AimPlan configurable = rotationManager.getWorkingAimPlan();
 
         float z = this.movementForward;
         float x = this.movementSideways;

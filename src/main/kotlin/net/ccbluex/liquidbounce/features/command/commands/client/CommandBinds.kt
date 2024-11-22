@@ -25,9 +25,13 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.input.inputByName
+import net.ccbluex.liquidbounce.utils.input.keyList
+import net.ccbluex.liquidbounce.utils.input.mouseList
+import net.minecraft.client.util.InputUtil
 import net.minecraft.util.Formatting
-import org.lwjgl.glfw.GLFW
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -54,6 +58,7 @@ object CommandBinds {
                         ParameterBuilder
                             .begin<String>("key")
                             .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                            .autocompletedWith { begin -> (keyList + mouseList).filter { it.startsWith(begin) } }
                             .required()
                             .build()
                     )
@@ -63,13 +68,15 @@ object CommandBinds {
                         val module = ModuleManager.find { it.name.equals(name, true) }
                             ?: throw CommandException(command.result("moduleNotFound", name))
 
-                        val bindKey = key(keyName)
-                        if (bindKey == GLFW.GLFW_KEY_UNKNOWN) {
+                        val bindKey = inputByName(keyName)
+                        if (bindKey == InputUtil.UNKNOWN_KEY) {
                             throw CommandException(command.result("unknownKey"))
                         }
 
-                        module.bind = bindKey
-                        chat(regular(command.result("moduleBound", variable(module.name), variable(keyName(bindKey)))))
+                        module.bind.bind(bindKey)
+                        ModuleClickGui.reloadView()
+                        chat(regular(command.result("moduleBound", variable(module.name),
+                            variable(module.bind.keyName))))
                     }
                     .build()
             )
@@ -77,7 +84,7 @@ object CommandBinds {
                 CommandBuilder
                     .begin("remove")
                     .parameter(
-                        moduleParameter { mod -> mod.bind != -1 }
+                        moduleParameter { mod -> !mod.bind.isUnbound }
                             .required()
                             .build()
                     )
@@ -86,11 +93,12 @@ object CommandBinds {
                         val module = ModuleManager.find { it.name.equals(name, true) }
                             ?: throw CommandException(command.result("moduleNotFound", name))
 
-                        if (module.bind == GLFW.GLFW_KEY_UNKNOWN) {
+                        if (module.bind.isUnbound) {
                             throw CommandException(command.result("moduleNotBound"))
                         }
 
-                        module.bind = GLFW.GLFW_KEY_UNKNOWN
+                        module.bind.unbind()
+                        ModuleClickGui.reloadView()
                         chat(regular(command.result("bindRemoved", variable(module.name))))
                     }
                     .build()
@@ -112,7 +120,7 @@ object CommandBinds {
                         }.coerceAtLeast(1)
 
                         val bindings = ModuleManager.sortedBy { it.name }
-                            .filter { it.bind != GLFW.GLFW_KEY_UNKNOWN }
+                            .filter { !it.bind.isUnbound }
 
                         if (bindings.isEmpty()) {
                             throw CommandException(command.result("noBindings"))
@@ -136,7 +144,7 @@ object CommandBinds {
                                     .append(module.name + " (")
                                     .styled { it.withColor(Formatting.GRAY) }
                                     .append(
-                                        keyName(module.bind).asText()
+                                        module.bind.keyName.asText()
                                             .styled { it.withColor(Formatting.DARK_GRAY).withBold(true) }
                                     )
                                     .append(")")
@@ -150,7 +158,7 @@ object CommandBinds {
                 CommandBuilder
                     .begin("clear")
                     .handler { command, _ ->
-                        ModuleManager.forEach { it.bind = GLFW.GLFW_KEY_UNKNOWN }
+                        ModuleManager.forEach { it.bind.unbind() }
                         chat(command.result("bindsCleared"))
                     }
                     .build()

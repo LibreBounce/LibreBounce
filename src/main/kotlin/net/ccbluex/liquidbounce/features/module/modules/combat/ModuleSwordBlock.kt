@@ -31,9 +31,15 @@ import net.minecraft.util.Hand
 /**
  * This module allows the user to block with swords. This makes sense to be used on servers with ViaVersion.
  */
-object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT) {
+object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayOf("OldBlocking")) {
+
+    val onlyVisual by boolean("OnlyVisual", false)
 
     val onPacket = sequenceHandler<PacketEvent> {
+        if (onlyVisual) {
+            return@sequenceHandler
+        }
+
         // If we are already on the old combat protocol, we don't need to do anything
         if (isOlderThanOrEqual1_8) {
             return@sequenceHandler
@@ -51,12 +57,15 @@ object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT) {
                     // Until "now" we should get a shield from the server
                     waitTicks(1)
                     interaction.sendSequencedPacket(world) { sequence ->
-                        PlayerInteractItemC2SPacket(Hand.OFF_HAND, sequence) // This time we use a new sequence
+                        // This time we use a new sequence
+                        PlayerInteractItemC2SPacket(Hand.OFF_HAND, sequence,
+                            player.yaw, player.pitch)
                     }
                 } else {
                     it.cancelEvent()
                     // We use the old sequence
-                    network.sendPacket(PlayerInteractItemC2SPacket(Hand.OFF_HAND, packet.sequence))
+                    network.sendPacket(PlayerInteractItemC2SPacket(Hand.OFF_HAND, packet.sequence,
+                        player.yaw, player.pitch))
                 }
             }
         }

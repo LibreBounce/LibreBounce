@@ -45,6 +45,8 @@ import kotlin.concurrent.thread
  */
 object CommandConfig {
 
+    private const val CONFIGS_URL = "https://github.com/CCBlueX/LiquidCloud/tree/main/LiquidBounce/settings/nextgen"
+
     fun createCommand(): Command {
         return CommandBuilder
             .begin("config")
@@ -159,12 +161,22 @@ object CommandConfig {
                                                 )
                                             )
                                     },
-                                    regular(" | ${it.serverAddress ?: "Global"}"), prefix = false
+                                    regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
+                                        prefix = false
+                                    )
                                 )
                             }
                         }.onFailure {
                             chat(regular("§cFailed to load settings list from API"))
                         }
+                    }
+                    .build()
+            )
+            .subcommand(
+                CommandBuilder
+                    .begin("browse")
+                    .handler { _, _ ->
+                        browseUrl(CONFIGS_URL)
                     }
                     .build()
             )

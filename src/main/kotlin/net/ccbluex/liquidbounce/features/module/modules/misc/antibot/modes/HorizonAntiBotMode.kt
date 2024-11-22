@@ -32,7 +32,7 @@ object HorizonAntiBotMode : Choice("Horizon"), ModuleAntiBot.IAntiBotMode {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleAntiBot.modes
 
-    private val botList = HashSet<UUID>()
+    private val botList = hashSetOf<UUID>()
 
     val packetHandler = handler<PacketEvent> {
         when (val packet = it.packet) {
@@ -49,11 +49,7 @@ object HorizonAntiBotMode : Choice("Horizon"), ModuleAntiBot.IAntiBotMode {
             }
 
             is PlayerRemoveS2CPacket -> {
-                for (id in packet.profileIds) {
-                    if (botList.contains(id)) {
-                        botList.remove(id)
-                    }
-                }
+                packet.profileIds.forEach(botList::remove)
             }
         }
     }

@@ -20,11 +20,15 @@ package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.client.Curves
+import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.math.Easing
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.minecraft.block.Block
+import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 
 open class Configurable(
     name: String,
@@ -42,7 +46,7 @@ open class Configurable(
     independentDescription: Boolean = false
 ) : Value<MutableList<Value<*>>>(
     name,
-    inner = value,
+    defaultValue = value,
     valueType,
     independentDescription = independentDescription
 ) {
@@ -140,7 +144,7 @@ open class Configurable(
         for (currentValue in this.inner) {
             if (currentValue is ToggleableConfigurable) {
                 output.add(currentValue)
-                output.addAll(currentValue.inner.filter { it.name.equals("Enabled", true) })
+                currentValue.inner.filterTo(output) { it.name.equals("Enabled", true) }
             } else {
                 if (currentValue is Configurable) {
                     currentValue.getContainedValuesRecursivelyInternal(output)
@@ -159,6 +163,13 @@ open class Configurable(
         }
     }
 
+    /**
+     * Restore all values to their default values
+     */
+    override fun restore() {
+        inner.forEach(Value<*>::restore)
+    }
+
     // Common value types
 
     protected fun <T : Configurable> tree(configurable: T): T {
@@ -167,13 +178,20 @@ open class Configurable(
         return configurable
     }
 
+    protected fun <T : Configurable> treeAll(vararg configurable: T) {
+        configurable.forEach(this::tree)
+    }
+
     protected fun <T : Any> value(
-        name: String, default: T, valueType: ValueType = ValueType.INVALID, listType: ListValueType = ListValueType.None
+        name: String,
+        default: T,
+        valueType: ValueType = ValueType.INVALID,
+        listType: ListValueType = ListValueType.None
     ) = Value(name, default, valueType, listType).apply { this@Configurable.inner.add(this) }
 
-    private fun <T : Any> rangedValue(
-        name: String, default: T, range: ClosedRange<*>, suffix: String, valueType: ValueType
-    ) = RangedValue(name, default, range, suffix, valueType).apply { this@Configurable.inner.add(this) }
+    private fun <T : Any> rangedValue(name: String, default: T, range: ClosedRange<*>, suffix: String,
+                                      valueType: ValueType) =
+        RangedValue(name, default, range, suffix, valueType).apply { this@Configurable.inner.add(this) }
 
     // Fixed data types
 
@@ -192,7 +210,17 @@ open class Configurable(
     protected fun int(name: String, default: Int, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT)
 
-    protected fun key(name: String, default: Int) = value(name, default, ValueType.KEY)
+    protected fun bind(name: String, default: Int) = bind(
+        name,
+        InputBind(InputUtil.Type.KEYSYM, default, InputBind.BindAction.TOGGLE)
+    )
+
+    protected fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
+
+    protected fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
+
+    protected fun key(name: String, default: InputUtil.Key = InputUtil.UNKNOWN_KEY) =
+        value(name, default, ValueType.KEY)
 
     protected fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
@@ -202,11 +230,15 @@ open class Configurable(
     protected fun textArray(name: String, default: MutableList<String>) =
         value(name, default, ValueType.TEXT_ARRAY, ListValueType.String)
 
-    protected fun curve(name: String, default: Curves) = enumChoice(name, default)
+    protected fun curve(name: String, default: Easing) = enumChoice(name, default)
 
     protected fun color(name: String, default: Color4b) = value(name, default, ValueType.COLOR)
 
     protected fun block(name: String, default: Block) = value(name, default, ValueType.BLOCK)
+
+    protected fun vec3i(name: String, default: Vec3i) = value(name, default, ValueType.VECTOR_I)
+
+    protected fun vec3d(name: String, default: Vec3d) = value(name, default, ValueType.VECTOR_D)
 
     protected fun blocks(name: String, default: MutableSet<Block>) =
         value(name, default, ValueType.BLOCKS, ListValueType.Block)
@@ -241,7 +273,7 @@ open class Configurable(
         activeCallback: (ChoiceConfigurable<T>) -> T,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ): ChoiceConfigurable<T> {
-        return ChoiceConfigurable<T>(listenable, name, activeCallback, choicesCallback).apply {
+        return ChoiceConfigurable(listenable, name, activeCallback, choicesCallback).apply {
             this@Configurable.inner.add(this)
             this.base = this@Configurable
         }

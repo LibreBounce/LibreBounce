@@ -22,7 +22,6 @@
   "custom": {
     "modmenu": {
       "links": {
-        "liquidbounce.generic.guilded": "https://guilded.gg/CCBlueX",
         "liquidbounce.generic.forum": "https://forums.ccbluex.net/"
       }
     }
@@ -31,15 +30,13 @@
     "liquidbounce.mixins.json"
   ],
   "depends": {
-    "minecraft": "1.20.6",
-    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "fabricloader": ">=${min_loader_version}",
     "fabric-language-kotlin": ">=${fabric_kotlin_version}"
   },
   "suggests": {
-    "fabric": ">=${fabric_version}"
-  },
-  "breaks": {
-    "viafabricplus": "<${viafabricplus_version}"
+    "fabric": ">=${fabric_version}",
+    "viafabricplus": ">=${viafabricplus_version}"
   },
   "accessWidener": "liquidbounce.accesswidener"
 }

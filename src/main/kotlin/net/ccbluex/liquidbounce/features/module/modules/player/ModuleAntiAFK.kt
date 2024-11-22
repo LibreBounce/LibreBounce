@@ -35,9 +35,9 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.util.Hand
-import org.apache.commons.lang3.RandomUtils
 import kotlin.random.Random
 
 /**
@@ -83,7 +83,7 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
 
         @Suppress("unused")
         val repeatable = repeatable {
-            when (RandomUtils.nextInt(0, 6)) {
+            when (Random.nextInt(0, 6)) {
                 0 -> {
                     EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
                         it.jumping = true
@@ -109,15 +109,15 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
                 }
 
                 3 -> {
-                    player.inventory.selectedSlot = RandomUtils.nextInt(0, 9)
+                    player.inventory.selectedSlot = Random.nextInt(0, 9)
                 }
 
                 4 -> {
-                    player.yaw += RandomUtils.nextFloat(0f, 360f) - 180f
+                    player.yaw += (-180f..180f).random().toFloat()
                 }
 
                 5 -> {
-                    player.pitch = (RandomUtils.nextFloat(0f, 10f) - 5f + player.pitch).coerceIn(-90f, 90f)
+                    player.pitch = ((-5f..5f).random().toFloat() + player.pitch).coerceIn(-90f, 90f)
                 }
             }
             waitTicks((4..7).random())

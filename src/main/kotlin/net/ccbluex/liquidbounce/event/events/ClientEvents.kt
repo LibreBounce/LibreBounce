@@ -21,25 +21,36 @@
 package net.ccbluex.liquidbounce.event.events
 
 import com.google.gson.annotations.SerializedName
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.features.chat.packet.User
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
+import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
+import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
+import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.inventory.InventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.InventoryActionChain
 import net.ccbluex.liquidbounce.utils.inventory.InventoryConstraints
-import net.ccbluex.liquidbounce.web.browser.supports.IBrowser
-import net.ccbluex.liquidbounce.web.socket.protocol.event.WebSocketEvent
-import net.ccbluex.liquidbounce.web.socket.protocol.rest.game.PlayerData
-import net.ccbluex.liquidbounce.web.theme.component.Component
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.network.ServerInfo
 import net.minecraft.world.GameMode
 
+@Deprecated(
+    "The `clickGuiScaleChange` event has been deprecated.",
+    ReplaceWith("ClickGuiScaleChangeEvent"),
+    DeprecationLevel.WARNING
+)
 @Nameable("clickGuiScaleChange")
 @WebSocketEvent
-class ClickGuiScaleChangeEvent(val value: Float): Event()
+class ClickGuiScaleChangeEvent(val value: Float) : Event()
+
+@Nameable("clickGuiValueChange")
+@WebSocketEvent
+class ClickGuiValueChangeEvent(val configurable: Configurable) : Event()
 
 @Nameable("spaceSeperatedNamesChange")
 @WebSocketEvent
@@ -78,20 +89,29 @@ class GameModeChangeEvent(val gameMode: GameMode) : Event()
 @WebSocketEvent
 class TargetChangeEvent(val target: PlayerData?) : Event()
 
+@Nameable("blockCountChange")
+@WebSocketEvent
+class BlockCountChangeEvent(val count: Int?) : Event()
+
 @Nameable("clientChatStateChange")
 @WebSocketEvent
 class ClientChatStateChange(val state: State) : Event() {
     enum class State {
         @SerializedName("connecting")
         CONNECTING,
+
         @SerializedName("connected")
         CONNECTED,
+
         @SerializedName("logon")
         LOGGING_IN,
+
         @SerializedName("loggedIn")
         LOGGED_IN,
+
         @SerializedName("disconnected")
         DISCONNECTED,
+
         @SerializedName("authenticationFailed")
         AUTHENTICATION_FAILED,
     }
@@ -103,6 +123,7 @@ class ClientChatMessageEvent(val user: User, val message: String, val chatGroup:
     enum class ChatGroup {
         @SerializedName("public")
         PUBLIC_CHAT,
+
         @SerializedName("private")
         PRIVATE_CHAT
     }
@@ -130,11 +151,15 @@ class AccountManagerAdditionResultEvent(val username: String? = null, val error:
 
 @Nameable("proxyAdditionResult")
 @WebSocketEvent
-class ProxyAdditionResultEvent(val proxy: ProxyManager.Proxy? = null, val error: String? = null) : Event()
+class ProxyAdditionResultEvent(val proxy: Proxy? = null, val error: String? = null) : Event()
 
 @Nameable("proxyCheckResult")
 @WebSocketEvent
-class ProxyCheckResultEvent(val proxy: ProxyManager.Proxy, val error: String? = null) : Event()
+class ProxyCheckResultEvent(val proxy: Proxy, val error: String? = null) : Event()
+
+@Nameable("proxyEditResult")
+@WebSocketEvent
+class ProxyEditResultEvent(val proxy: Proxy? = null, val error: String? = null) : Event()
 
 @Nameable("browserReady")
 class BrowserReadyEvent(val browser: IBrowser) : Event()
@@ -146,6 +171,7 @@ class VirtualScreenEvent(val screenName: String, val action: Action) : Event() {
     enum class Action {
         @SerializedName("open")
         OPEN,
+
         @SerializedName("close")
         CLOSE
     }
@@ -181,11 +207,31 @@ class ScheduleInventoryActionEvent(
     val schedule: MutableList<InventoryActionChain> = mutableListOf()
 ) : Event() {
 
-    fun schedule(constrains: InventoryConstraints, action: InventoryAction) =
-        schedule.add(InventoryActionChain(constrains, arrayOf(action)))
-    fun schedule(constrains: InventoryConstraints, vararg actions: InventoryAction) =
-        this.schedule.add(InventoryActionChain(constrains, actions))
-    fun schedule(constrains: InventoryConstraints, actions: List<InventoryAction>) =
-        this.schedule.add(InventoryActionChain(constrains, actions.toTypedArray()))
+    fun schedule(
+        constrains: InventoryConstraints,
+        action: InventoryAction,
+        priority: Priority = Priority.NORMAL
+    ) {
+        schedule.add(InventoryActionChain(constrains, arrayOf(action), priority))
+    }
 
+    fun schedule(
+        constrains: InventoryConstraints,
+        vararg actions: InventoryAction,
+        priority: Priority = Priority.NORMAL
+    ) {
+        this.schedule.add(InventoryActionChain(constrains, actions, priority))
+    }
+
+    fun schedule(
+        constrains: InventoryConstraints,
+        actions: List<InventoryAction>,
+        priority: Priority = Priority.NORMAL
+    ) {
+        this.schedule.add(InventoryActionChain(constrains, actions.toTypedArray(), priority))
+    }
 }
+
+@Nameable("browserUrlChange")
+@WebSocketEvent
+class BrowserUrlChangeEvent(val index: Int, val url: String) : Event()

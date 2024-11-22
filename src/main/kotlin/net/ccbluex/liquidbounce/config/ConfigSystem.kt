@@ -30,10 +30,12 @@ import net.ccbluex.liquidbounce.render.Fonts
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.minecraft.block.Block
+import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
-import net.minecraft.registry.DynamicRegistryManager
-import net.minecraft.text.Text
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 import java.io.File
 import java.io.Reader
 import java.io.Writer
@@ -85,7 +87,7 @@ object ConfigSystem {
 
     // Gson
     private val confType = TypeToken.get(Configurable::class.java).type
-    private val clientGson: Gson = GsonBuilder()
+    val clientGson: Gson = GsonBuilder()
         .addSerializationExclusionStrategy(ExcludeStrategy())
         .registerCommonTypeAdapters()
         .registerTypeHierarchyAdapter(Configurable::class.javaObjectType, ConfigurableSerializer)
@@ -112,7 +114,11 @@ object ConfigSystem {
             .registerTypeAdapter(IntRange::class.javaObjectType, IntRangeSerializer)
             .registerTypeHierarchyAdapter(Item::class.javaObjectType, ItemValueSerializer)
             .registerTypeAdapter(Color4b::class.javaObjectType, ColorSerializer)
+            .registerTypeHierarchyAdapter(Vec3d::class.javaObjectType, Vec3dSerializer)
+            .registerTypeHierarchyAdapter(Vec3i::class.javaObjectType, Vec3iSerializer)
             .registerTypeHierarchyAdapter(Block::class.javaObjectType, BlockValueSerializer)
+            .registerTypeHierarchyAdapter(InputUtil.Key::class.javaObjectType, InputUtilKeySerializer)
+            .registerTypeHierarchyAdapter(InputBind::class.javaObjectType, InputBindSerializer)
             .registerTypeAdapter(Fonts.FontInfo::class.javaObjectType, FontDetailSerializer)
             .registerTypeAdapter(ChoiceConfigurable::class.javaObjectType, ChoiceConfigurableSerializer)
             .registerTypeHierarchyAdapter(NamedChoice::class.javaObjectType, EnumChoiceSerializer)

@@ -27,11 +27,21 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedColorChoice
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedNoneChoice
+import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedSpawnLocationChoice
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.*
-import org.lwjgl.glfw.GLFW
+import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.network.ClientPlayNetworkHandler
+import net.minecraft.client.network.ClientPlayerEntity
+import net.minecraft.client.network.ClientPlayerInteractionManager
+import net.minecraft.client.util.InputUtil
+import net.minecraft.client.world.ClientWorld
 
 /**
  * A module also called 'hack' can be enabled and handle events
@@ -40,7 +50,8 @@ import org.lwjgl.glfw.GLFW
 open class Module(
     name: String, // name parameter in configurable
     @Exclude val category: Category, // module category
-    bind: Int = GLFW.GLFW_KEY_UNKNOWN, // default bind
+    bind: Int = InputUtil.UNKNOWN_KEY.code, // default bind
+    bindAction: InputBind.BindAction = InputBind.BindAction.TOGGLE, // default action
     state: Boolean = false, // default state
     @Exclude val disableActivation: Boolean = false, // disable activation
     hide: Boolean = false, // default hide
@@ -55,7 +66,7 @@ open class Module(
                 return@also
             }
 
-            it.doNotInclude()
+            it.doNotIncludeAlways()
         }
     }.notAnOption()
 
@@ -121,11 +132,11 @@ open class Module(
         new
     }
 
-    var bind by key("Bind", bind)
-        .doNotInclude()
+    val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
+        .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
         .independentDescription()
     var hidden by boolean("Hidden", hide)
-        .doNotInclude()
+        .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
         .independentDescription()
         .onChange {
             EventManager.callEvent(RefreshArrayListEvent())
@@ -142,12 +153,14 @@ open class Module(
 
     // Tag to be displayed on the HUD
     open val tag: String?
-        get() = null
+        get() = this.tagValue?.getValue()?.toString()
+
+    private var tagValue: Value<*>? = null
 
     /**
      * Allows the user to access values by typing module.settings.<valuename>
      */
-    @ScriptApi
+    @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
 
     /**
@@ -196,6 +209,17 @@ open class Module(
         this.locked = boolean("Locked", false)
     }
 
+    fun tagBy(setting: Value<*>) {
+        check(this.tagValue == null) { "Tag already set" }
+
+        this.tagValue = setting
+
+        // Refresh arraylist on tag change
+        setting.onChanged {
+            EventManager.callEvent(RefreshArrayListEvent())
+        }
+    }
+
     /**
      * Warns when no module description is set in the main translation file.
      *
@@ -207,14 +231,16 @@ open class Module(
         }
     }
 
+    protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
+
     protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
     protected fun <T : Choice> choices(
         name: String,
-        activeCallback: (ChoiceConfigurable<T>) -> T,
+        activeIndex: Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(this, name, activeCallback, choicesCallback)
+    ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
 
     fun message(key: String, vararg args: Any) = translation("$translationBaseKey.messages.$key", *args)
 

@@ -28,12 +28,6 @@ closely as possible, and we expect outside developers to do the same when workin
 * Read the Wikipedia article on [Java's Syntax](https://en.wikipedia.org/wiki/Java_syntax).
 * Look at Oracle's [Java Tutorial](https://docs.oracle.com/javase/tutorial/java/).
 
-# Rewriting
-
-If parts of the codebase that are currently still written in Java can be ported to Kotlin without changing its
-behaviour, you are welcome to do so. However, please do not simply rely on IntelliJ's auto-conversion feature, but
-improve the generated code if necessary.
-
 # Files
 
 ### Generation

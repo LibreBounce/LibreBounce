@@ -86,7 +86,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
 
                 waitTicks(2)
                 interaction.sendSequencedPacket(world) { sequence ->
-                    PlayerInteractItemC2SPacket(Hand.MAIN_HAND, sequence)
+                    PlayerInteractItemC2SPacket(Hand.MAIN_HAND, sequence, player.yaw, player.pitch)
                 }
 
                 if (slot != player.inventory.selectedSlot) {
@@ -119,7 +119,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
             val boundingBox = player.box
             val detectionBox = boundingBox.withMinY(boundingBox.minY - y)
 
-            return isBlockAtPosition(detectionBox) { it is Block }
+            return detectionBox.isBlockAtPosition { it is Block }
         }
         return false
     }

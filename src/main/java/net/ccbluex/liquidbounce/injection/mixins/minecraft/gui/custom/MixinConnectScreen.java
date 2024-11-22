@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.api.IpInfoApi;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
-import net.ccbluex.liquidbounce.features.misc.ProxyManager;
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager;
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.gui.MixinScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -45,6 +45,10 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.net.InetSocketAddress;
+
+import static net.ccbluex.liquidbounce.utils.client.TextExtensionsKt.hideSensitiveAddress;
 
 @Mixin(ConnectScreen.class)
 public abstract class MixinConnectScreen extends MixinScreen {
@@ -94,10 +98,14 @@ public abstract class MixinConnectScreen extends MixinScreen {
 
     @Unique
     private Text getConnectionDetails(ClientConnection clientConnection, ServerAddress serverAddress) {
-        // This will either be the proxy address or the server address
-        var proxyAddr = clientConnection.getAddress();
-        var serverAddr = String.format("%s:%s", serverAddress.getAddress(), serverAddress.getPort());
-        var ipInfo = IpInfoApi.INSTANCE.getLocalIpInfo();
+        // This will either be the socket address or the server address
+        var socketAddr = getSocketAddress(clientConnection, serverAddress);
+        var serverAddr = String.format(
+                "%s:%s",
+                hideSensitiveAddress(serverAddress.getAddress()),
+                serverAddress.getPort()
+        );
+        var ipInfo = IpInfoApi.INSTANCE.getCurrent();
 
         var client = Text.literal("Client").formatted(Formatting.BLUE);
         if (ipInfo != null) {
@@ -111,11 +119,11 @@ public abstract class MixinConnectScreen extends MixinScreen {
         }
         var spacer = Text.literal(" ⟺ ").formatted(Formatting.DARK_GRAY);
 
-        var proxy = Text.literal(proxyAddr == null ? "(Unknown)" : proxyAddr.toString());
+        var socket = Text.literal(socketAddr);
         if (ProxyManager.INSTANCE.getCurrentProxy() != null) {
-            proxy.formatted(Formatting.GOLD); // Proxy good
+            socket.formatted(Formatting.GOLD); // Proxy good
         } else {
-            proxy.formatted(Formatting.RED); // No proxy - shows server address
+            socket.formatted(Formatting.RED); // No proxy - shows server address
         }
 
         var server = Text.literal(serverAddr).formatted(Formatting.GREEN);
@@ -123,9 +131,30 @@ public abstract class MixinConnectScreen extends MixinScreen {
         return Text.empty()
                 .append(client)
                 .append(spacer.copy())
-                .append(proxy)
+                .append(socket)
                 .append(spacer.copy())
                 .append(server);
+    }
+
+    @Unique
+    private static String getSocketAddress(ClientConnection clientConnection, ServerAddress serverAddress) {
+        String socketAddr;
+        if (clientConnection.getAddress() instanceof InetSocketAddress address) {
+            // In this we do not redact the host string - it is usually not sensitive
+            var hostString = address.getHostString();
+            var hostAddress = address.isUnresolved() ?
+                    "<unresolved>" :
+                    address.getAddress().getHostAddress();
+
+            if (hostString.equals(serverAddress.getAddress())) {
+                socketAddr = String.format("%s:%s", hostAddress, address.getPort());
+            } else {
+                socketAddr = String.format("%s/%s:%s", hostString, hostAddress, address.getPort());
+            }
+        } else {
+            socketAddr = "<unknown>";
+        }
+        return socketAddr;
     }
 
 }

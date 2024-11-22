@@ -19,11 +19,14 @@
 package net.ccbluex.liquidbounce.utils.item
 
 import com.mojang.brigadier.StringReader
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.inventory.ALL_SLOTS_IN_INVENTORY
+import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.minecraft.block.Block
 import net.minecraft.command.argument.ItemStackArgument
 import net.minecraft.command.argument.ItemStringReader
 import net.minecraft.component.DataComponentTypes
@@ -32,21 +35,18 @@ import net.minecraft.component.type.FoodComponent
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.entity.attribute.EntityAttributeInstance
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.effect.StatusEffectInstance
-import net.minecraft.item.AxeItem
-import net.minecraft.item.HoeItem
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.item.PickaxeItem
-import net.minecraft.item.ShovelItem
-import net.minecraft.item.ToolItem
+import net.minecraft.item.*
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.UseAction
+import net.minecraft.util.math.BlockPos
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -73,21 +73,34 @@ fun createSplashPotion(name: String, vararg effects: StatusEffectInstance): Item
     return itemStack
 }
 
-
 fun findHotbarSlot(item: Item): Int? = findHotbarSlot { it.item == item }
 
-fun findHotbarSlot(predicate: (ItemStack) -> Boolean): Int? {
+inline fun findHotbarSlot(predicate: (ItemStack) -> Boolean): Int? {
     return (0..8).firstOrNull { predicate(player.inventory.getStack(it)) }
+}
+
+fun findHotbarItemSlot(item: Item): HotbarItemSlot? = findHotbarItemSlot { it.itemStack.item == item }
+
+inline fun findHotbarItemSlot(predicate: (HotbarItemSlot) -> Boolean): HotbarItemSlot? {
+    return HOTBAR_SLOTS.firstOrNull { predicate(it) }
 }
 
 fun findInventorySlot(item: Item): ItemSlot? = findInventorySlot { it.item == item }
 
-fun findInventorySlot(predicate: (ItemStack) -> Boolean): ItemSlot? {
+inline fun findInventorySlot(predicate: (ItemStack) -> Boolean): ItemSlot? {
     if (mc.player == null) {
         return null
     }
 
     return ALL_SLOTS_IN_INVENTORY.find { predicate(it.itemStack) }
+}
+
+inline fun findInventorySlot(slots: List<ItemSlot>,  predicate: (ItemStack) -> Boolean): ItemSlot? {
+    if (mc.player == null) {
+        return null
+    }
+
+    return slots.find { predicate(it.itemStack) }
 }
 
 /**
@@ -108,10 +121,10 @@ fun ItemStack?.getEnchantmentCount(): Int {
     return enchantments.size
 }
 
-fun ItemStack?.getEnchantment(enchantment: Enchantment): Int {
+fun ItemStack?.getEnchantment(enchantment: RegistryKey<Enchantment>): Int {
     val enchantments = this?.get(DataComponentTypes.ENCHANTMENTS) ?: return 0
 
-    return enchantments.getLevel(enchantment)
+    return enchantments.getLevel(enchantment.toRegistryEntry())
 }
 
 val ItemStack.isConsumable: Boolean
@@ -133,14 +146,36 @@ val ToolItem.type: Int
         else -> error("Unknown tool item $this (WTF?)")
     }
 
-val ItemStack.attackDamage: Float
+fun ItemStack.getAttributeValue(attribute: RegistryEntry<EntityAttribute>) = item.components
+    .getOrDefault(
+        DataComponentTypes.ATTRIBUTE_MODIFIERS,
+        AttributeModifiersComponent.DEFAULT
+    )
+    .modifiers()
+    .filter { modifier -> modifier.attribute() == attribute }
+    .map { modifier -> modifier.modifier().value() }
+    .firstOrNull()
+
+val ItemStack.attackDamage: Double
     get() {
-        return player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
-            .toFloat() + EnchantmentHelper.getAttackDamage(
-            this,
-            null
-        ) + item.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+        val entityBaseDamage = player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+        val baseDamage = getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+            ?: return 0.0
+
+        /*
+         * Client-side damage calculation for enchantments does not exist anymore
+         * see https://bugs.mojang.com/browse/MC-196250
+         *
+         * We now use the following formula to calculate the damage:
+         * https://minecraft.wiki/w/Sharpness -> 0.5 * level + 0.5.
+         */
+        return entityBaseDamage + baseDamage + getSharpnessDamage()
     }
+
+val ItemStack.sharpnessLevel: Int
+    get() = EnchantmentHelper.getLevel(Enchantments.SHARPNESS.toRegistryEntry(), this)
+
+fun ItemStack.getSharpnessDamage(level: Int = sharpnessLevel) = if (level == 0) 0.0 else 0.5 * level + 0.5
 
 val ItemStack.attackSpeed: Float
     get() = item.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)
@@ -159,4 +194,26 @@ private fun Item.getAttributeValue(attribute: RegistryEntry<EntityAttribute>): F
         }
 
     return attribInstance.value.toFloat()
+}
+
+fun RegistryKey<Enchantment>.toRegistryEntry(): RegistryEntry<Enchantment> {
+    val world = mc.world
+    requireNotNull(world) { "World is null" }
+
+    val registry = world.registryManager.getWrapperOrThrow(RegistryKeys.ENCHANTMENT)
+    return registry.getOptional(this).orElseThrow { IllegalArgumentException("Unknown enchantment key $this") }
+}
+
+fun ItemStack.getBlock(): Block? {
+    val item = this.item
+    if (item !is BlockItem) {
+        return null
+    }
+
+   return item.block
+}
+
+fun ItemStack.isFullBlock(): Boolean {
+    val block = this.getBlock() ?: return false
+    return block.defaultState.isFullCube(mc.world!!, BlockPos.ORIGIN)
 }

@@ -40,12 +40,15 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
             NoFallRettungsplatform,
             NoFallSpartan524Flag,
             NoFallVulcan,
+            NoFallVulcanTP,
             NoFallVerus,
             NoFallForceJump,
             NoFallBlink,
             NoFallHoplite,
+            NoFallHypixelPacket,
+            NoFallHypixel,
         )
-    )
+    ).apply(::tagBy)
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
 

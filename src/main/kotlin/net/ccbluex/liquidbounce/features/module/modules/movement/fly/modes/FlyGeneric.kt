@@ -48,13 +48,13 @@ internal object FlyVanilla : Choice("Vanilla") {
     private val bypassVanillaCheck by boolean("BypassVanillaCheck", true)
 
     object BaseSpeed : Configurable("BaseSpeed") {
-        val horizontalSpeed by float("Horizontal", 0.44f, 0.1f..5f)
-        val verticalSpeed by float("Vertical", 0.44f, 0.1f..5f)
+        val horizontalSpeed by float("Horizontal", 0.44f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 0.44f, 0.1f..10f)
     }
 
     object SprintSpeed : ToggleableConfigurable(this, "SprintSpeed", true) {
-        val horizontalSpeed by float("Horizontal", 1f, 0.1f..5f)
-        val verticalSpeed by float("Vertical", 1f, 0.1f..5f)
+        val horizontalSpeed by float("Horizontal", 1f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 1f, 0.1f..10f)
     }
 
     init {
@@ -65,7 +65,8 @@ internal object FlyVanilla : Choice("Vanilla") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = repeatable {
         val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
         val hSpeed =
             if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed
@@ -112,7 +113,7 @@ internal object FlyCreative : Choice("Creative") {
     private val forceFlight by boolean("ForceFlight", true)
 
     override fun enable() {
-        player.abilities.allowFlying = true;
+        player.abilities.allowFlying = true
     }
 
     private fun shouldFlyDown(): Boolean {
@@ -217,7 +218,7 @@ internal object FlyExplosion : Choice("Explosion") {
         val packet = event.packet
 
         // Check if this is a regular velocity update
-        if (packet is EntityVelocityUpdateS2CPacket && packet.id == player.id) {
+        if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
             // Modify packet according to the specified values
             packet.velocityX = 0
             packet.velocityY = (packet.velocityY * vertical).toInt()

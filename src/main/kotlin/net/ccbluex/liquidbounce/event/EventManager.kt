@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.event
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
@@ -39,6 +40,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     OverlayRenderEvent::class,
     ScreenRenderEvent::class,
     WindowResizeEvent::class,
+    FrameBufferResizeEvent::class,
     MouseButtonEvent::class,
     MouseScrollEvent::class,
     MouseCursorEvent::class,
@@ -106,17 +108,28 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ServerConnectEvent::class,
     ServerPingedEvent::class,
     TargetChangeEvent::class,
+    BlockCountChangeEvent::class,
     GameModeChangeEvent::class,
     ComponentsUpdate::class,
     ResourceReloadEvent::class,
     ProxyAdditionResultEvent::class,
+    ProxyEditResultEvent::class,
     ProxyCheckResultEvent::class,
     ScaleFactorChangeEvent::class,
     DrawOutlinesEvent::class,
     OverlayMessageEvent::class,
     ScheduleInventoryActionEvent::class,
     SpaceSeperatedNamesChangeEvent::class,
-    ClickGuiScaleChangeEvent::class
+    ClickGuiScaleChangeEvent::class,
+    BrowserUrlChangeEvent::class,
+    TagEntityEvent::class,
+    MouseScrollInHotbarEvent::class,
+    PlayerFluidCollisionCheckEvent::class,
+    PlayerSneakMultiplier::class,
+    PerspectiveEvent::class,
+    ItemLoreQueryEvent::class,
+    PlayerEquipmentChangeEvent::class,
+    ClickGuiValueChangeEvent::class
 )
 
 /**
@@ -142,9 +155,8 @@ object EventManager {
         val hook = eventHook as EventHook<in Event>
 
         if (!handlers.contains(hook)) {
-            handlers.add(hook)
-
-            handlers.sortByDescending { it.priority }
+            // `handlers` is sorted descending by EventHook.priority
+            handlers.sortedInsert(hook) { -it.priority }
         }
     }
 
@@ -158,8 +170,8 @@ object EventManager {
     /**
      * Unregisters event handlers.
      */
-    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: ArrayList<EventHook<in Event>>) {
-        registry[eventClass]?.removeAll(hooks.toSet())
+    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: Collection<EventHook<in Event>>) {
+        registry[eventClass]?.removeAll(hooks.toHashSet())
     }
 
     fun unregisterEventHandler(eventHandler: Listenable) {

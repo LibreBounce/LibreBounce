@@ -22,8 +22,9 @@ package net.ccbluex.liquidbounce.config
 import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.QuickImports
-import net.ccbluex.liquidbounce.script.ScriptApi
-import net.ccbluex.liquidbounce.web.socket.protocol.ProtocolExclude
+import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 
 /**
  * Should handle events when enabled. Allows the client-user to toggle features. (like modules)
@@ -64,7 +65,7 @@ abstract class ToggleableConfigurable(
 
     override fun parent() = parent
 
-    @ScriptApi
+    @ScriptApiRequired
     @Suppress("unused")
     fun getEnabledValue(): Value<*> = this.inner[0]
 }
@@ -80,7 +81,10 @@ class ChoiceConfigurable<T : Choice>(
 ) : Configurable(name, valueType = ValueType.CHOICE) {
 
     var choices: MutableList<T> = choicesCallback(this).toMutableList()
-    var activeChoice: T = activeChoiceCallback(this)
+    private var defaultChoice: T = activeChoiceCallback(this)
+    var activeChoice: T = defaultChoice
+
+    operator fun T.unaryPlus() = choices.add(this)
 
     init {
         for (choice in choices) {
@@ -110,14 +114,35 @@ class ChoiceConfigurable<T : Choice>(
         if (this.activeChoice.handleEvents()) {
             this.activeChoice.disable()
         }
-        this.activeChoice = newChoice
+
+        // Don't remove this! This is important. We need to call the listeners of the choice in order to update
+        // the other systems accordingly. For whatever reason the conditional configurable is bypassing the value system
+        // which the other configurables use, so we do it manually.
+        set(mutableListOf(newChoice), apply = {
+            this.activeChoice = it[0] as T
+        })
+
         if (this.activeChoice.handleEvents()) {
             this.activeChoice.enable()
         }
     }
 
-    @ScriptApi
-    fun getChoicesStrings(): Array<String> = this.choices.map { it.name }.toTypedArray()
+    override fun restore() {
+        if (this.activeChoice.handleEvents()) {
+            this.activeChoice.disable()
+        }
+
+        set(mutableListOf(defaultChoice), apply = {
+            this.activeChoice = it[0] as T
+        })
+
+        if (this.activeChoice.handleEvents()) {
+            this.activeChoice.enable()
+        }
+    }
+
+    @ScriptApiRequired
+    fun getChoicesStrings(): Array<String> = this.choices.mapArray { it.name }
 
 }
 

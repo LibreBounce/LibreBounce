@@ -18,14 +18,22 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleNoMissCooldown;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
+import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions;
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAction;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
+import net.ccbluex.liquidbounce.integration.BrowserScreen;
+import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.ccbluex.liquidbounce.render.engine.RenderingFlags;
+import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility;
 import net.ccbluex.liquidbounce.utils.combat.CombatManager;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
@@ -34,9 +42,9 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.session.Session;
 import net.minecraft.client.util.Window;
@@ -47,11 +55,16 @@ import net.minecraft.util.hit.HitResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
+
+import static net.ccbluex.liquidbounce.utils.client.ProtocolUtilKt.getHasProtocolTranslator;
 
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
@@ -70,6 +83,9 @@ public abstract class MixinMinecraftClient {
     private IntegratedServer server;
     @Shadow
     private int itemUseCooldown;
+    @Shadow
+    @Nullable
+    public ClientPlayerInteractionManager interactionManager;
 
     @Inject(method = "isAmbientOcclusionEnabled()Z", at = @At("HEAD"), cancellable = true)
     private static void injectXRayFullBright(CallbackInfoReturnable<Boolean> callback) {
@@ -100,6 +116,10 @@ public abstract class MixinMinecraftClient {
 
     @Shadow
     public abstract Session getSession();
+
+    @Shadow
+    @org.jetbrains.annotations.Nullable
+    public Screen currentScreen;
 
     /**
      * Entry point of our hacked client
@@ -160,20 +180,32 @@ public abstract class MixinMinecraftClient {
         titleBuilder.append(LiquidBounce.INSTANCE.getClientCommit());
 
         titleBuilder.append(" | ");
-        titleBuilder.append(SharedConstants.getGameVersion().getName());
+
+        // ViaFabricPlus compatibility
+        if (getHasProtocolTranslator()) {
+            var protocolVersion = VfpCompatibility.INSTANCE.unsafeGetProtocolVersion();
+
+            if (protocolVersion != null) {
+                titleBuilder.append(protocolVersion.getName());
+            } else {
+                titleBuilder.append(SharedConstants.getGameVersion().getName());
+            }
+        } else {
+            titleBuilder.append(SharedConstants.getGameVersion().getName());
+        }
 
         ClientPlayNetworkHandler clientPlayNetworkHandler = this.getNetworkHandler();
         if (clientPlayNetworkHandler != null && clientPlayNetworkHandler.getConnection().isOpen()) {
             titleBuilder.append(" - ");
             ServerInfo serverInfo = this.getCurrentServerEntry();
             if (this.server != null && !this.server.isRemote()) {
-                titleBuilder.append(I18n.translate("title.singleplayer", new Object[0]));
+                titleBuilder.append(I18n.translate("title.singleplayer"));
             } else if (serverInfo != null && serverInfo.isRealm()) {
-                titleBuilder.append(I18n.translate("title.multiplayer.realms", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.realms"));
             } else if (this.server == null && (serverInfo == null || !serverInfo.isLocal())) {
-                titleBuilder.append(I18n.translate("title.multiplayer.other", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.other"));
             } else {
-                titleBuilder.append(I18n.translate("title.multiplayer.lan", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.lan"));
             }
         }
 
@@ -215,15 +247,6 @@ public abstract class MixinMinecraftClient {
     }
 
     /**
-     * Hook KillAura enforced blocking state
-     */
-    @Redirect(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 2))
-    private boolean hookEnforcedBlockingState(KeyBinding instance) {
-        return (ModuleKillAura.INSTANCE.getEnabled() && AutoBlock.INSTANCE.getEnabled()
-                && AutoBlock.INSTANCE.getBlockingStateEnforced()) || instance.isPressed();
-    }
-
-    /**
      * Hook item use cooldown
      */
     @Inject(method = "doItemUse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;itemUseCooldown:I", shift = At.Shift.AFTER))
@@ -233,6 +256,13 @@ public abstract class MixinMinecraftClient {
         itemUseCooldown = useCooldownEvent.getCooldown();
     }
 
+    @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
+    private void hookItemPick(CallbackInfo ci) {
+        if (ModuleMiddleClickAction.Pearl.INSTANCE.cancelPick()) {
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "hasOutline", cancellable = true, at = @At("HEAD"))
     private void injectOutlineESPFix(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (RenderingFlags.isCurrentlyRenderingEntityOutline().get()) {
@@ -240,13 +270,33 @@ public abstract class MixinMinecraftClient {
         }
     }
 
+    @ModifyExpressionValue(method = "doAttack",
+            at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I", ordinal = 0))
+    private int injectNoMissCooldown(int original) {
+        if (ModuleNoMissCooldown.INSTANCE.getEnabled() && ModuleNoMissCooldown.INSTANCE.getRemoveAttackCooldown()) {
+            return 0;
+        }
+
+        return original;
+    }
+
+    @WrapWithCondition(method = "doAttack", at = @At(value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I", ordinal = 1))
+    private boolean disableAttackCooldown(MinecraftClient instance, int value) {
+        return !(ModuleNoMissCooldown.INSTANCE.getEnabled() && ModuleNoMissCooldown.INSTANCE.getRemoveAttackCooldown());
+    }
+
     @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
     private void injectCombatPause(CallbackInfoReturnable<Boolean> cir) {
-        if (player == null || crosshairTarget == null) {
+        if (player == null || crosshairTarget == null || crosshairTarget.getType() == HitResult.Type.MISS) {
+            if (ModuleNoMissCooldown.INSTANCE.getEnabled() && ModuleNoMissCooldown.INSTANCE.getCancelAttackOnMiss()) {
+                // Prevent swinging
+                cir.setReturnValue(true);
+            }
             return;
         }
 
-        if (CombatManager.INSTANCE.shouldPauseCombat()) {
+        if (CombatManager.INSTANCE.getShouldPauseCombat()) {
             cir.setReturnValue(false);
         }
     }
@@ -274,4 +324,41 @@ public abstract class MixinMinecraftClient {
     private void onFinishedLoading(CallbackInfo ci) {
         EventManager.INSTANCE.callEvent(new ResourceReloadEvent());
     }
+
+    @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
+    private boolean injectMultiActionsBreakingWhileUsing(boolean original) {
+        return original && !(ModuleMultiActions.INSTANCE.handleEvents() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
+    }
+
+    @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
+    private boolean injectMultiActionsPlacingWhileBreaking(boolean original) {
+        return original && !(ModuleMultiActions.INSTANCE.handleEvents() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
+    }
+
+    @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
+    private boolean injectMultiActionsAttackingWhileUsingAndEnforcedBlockingState(boolean isUsingItem) {
+        if (isUsingItem) {
+            if (!this.options.useKey.isPressed() && !(ModuleKillAura.INSTANCE.getEnabled()
+                    && AutoBlock.INSTANCE.getEnabled() && AutoBlock.INSTANCE.getBlockingStateEnforced())) {
+                this.interactionManager.stopUsingItem(this.player);
+            }
+
+            if (!ModuleMultiActions.INSTANCE.handleEvents() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
+                this.options.attackKey.timesPressed = 0;
+            }
+
+            this.options.pickItemKey.timesPressed = 0;
+            this.options.useKey.timesPressed = 0;
+        }
+
+        return false;
+    }
+
+    @WrapWithCondition(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I", ordinal = 0))
+    private boolean injectFixAttackCooldownOnVirtualBrowserScreen(MinecraftClient instance, int value) {
+        // Do not reset attack cooldown when we are in the vr/browser screen, as this poses an
+        // unintended modification to the attack cooldown, which is not intended.
+        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen);
+    }
+
 }

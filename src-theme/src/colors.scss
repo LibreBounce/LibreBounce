@@ -3,6 +3,7 @@ $accent-color: #4677ff;
 $clickgui-base-color: black;
 $clickgui-text-color: white;
 $clickgui-text-dimmed-color: rgba(211, 211, 211, 255);
+$clickgui-grid-color: rgba(128, 128, 128, 0.25);
 
 $tabgui-base-color: black;
 $tabgui-text-color: white;
@@ -10,10 +11,13 @@ $tabgui-text-dimmed-color: rgba(211, 211, 211, 255);
 
 $arraylist-base-color: black;
 $arraylist-text-color: white;
+$arraylist-tag-color: #AAAAAA;
 
 $targethud-base-color: black;
 $targethud-text-color: white;
 $targethud-text-dimmed-color: rgba(211, 211, 211, 255);
+
+$blockcounter-base-color: black;
 
 $hotbar-base-color: black;
 $hotbar-text-color: white;
@@ -27,6 +31,7 @@ $menu-base-color: black;
 $menu-text-color: white;
 $menu-text-dimmed-color: rgba(211, 211, 211, 255);
 $menu-error-color: #fc4130;
+$menu-button-loader-color: white;
 
 $scoreboard-base-color: black;
 

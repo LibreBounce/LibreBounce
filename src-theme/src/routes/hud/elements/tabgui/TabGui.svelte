@@ -32,7 +32,7 @@
             return;
         }
 
-        switch (e.key.name) {
+        switch (e.key) {
             case "key.keyboard.down":
                 if (renderedModules.length === 0) {
                     selectedCategoryIndex =

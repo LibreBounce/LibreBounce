@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
+import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleNoRotateSet;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
@@ -47,10 +48,11 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
@@ -81,20 +83,25 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         ChunkUpdateFlag.chunkUpdate = false;
     }
 
-    @Redirect(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;"))
-    private Vec3d onExplosionVelocity(Vec3d instance, double x, double y, double z) {
-        Vec3d originalVector = new Vec3d(x, y, z);
+    @ModifyArgs(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;"))
+    private void onExplosionVelocity(Args args) {
+        double x = args.get(0);
+        double y = args.get(1);
+        double z = args.get(2);
+
         if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
-            double fixedX = MathHelper.clamp(x, -1000.0, 1000.0);
-            double fixedY = MathHelper.clamp(y, -1000.0, 1000.0);
-            double fixedZ = MathHelper.clamp(z, -1000.0, 1000.0);
-            Vec3d newVector = new Vec3d(fixedX, fixedY, fixedZ);
-            if (!originalVector.equals(newVector)) {
-                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion", true);
-                return instance.add(newVector);
+            double fixedX = MathHelper.clamp(x, -10.0, 10.0);
+            double fixedY = MathHelper.clamp(y, -10.0, 10.0);
+            double fixedZ = MathHelper.clamp(z, -10.0, 10.0);
+
+            if (fixedX != x || fixedY != y || fixedZ != z) {
+                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
+                        true);
+                args.set(0, fixedX);
+                args.set(1, fixedY);
+                args.set(2, fixedZ);
             }
         }
-        return instance.add(x, y, z);
     }
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
@@ -133,7 +140,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Cancelled demo GUI (just annoying thing)", false);
             return null;
         }
-        
+
         return original;
     }
 
@@ -168,7 +175,13 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
         if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
             // Changes your server side rotation and then resets it with provided settings
-            var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(new Rotation(j, k), null, null, true);
+            var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(
+                    new Rotation(j, k, true),
+                    null,
+                    null,
+                    true,
+                    null
+            );
             RotationManager.INSTANCE.aimAt(aimPlan, Priority.NOT_IMPORTANT, ModuleNoRotateSet.INSTANCE);
         } else {
             // Increase yaw and pitch by a value so small that the difference cannot be seen, just to update the rotation server-side.
@@ -181,10 +194,13 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyVariable(method = "sendChatMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private String handleSendMessage(String content) {
+        var result = ModuleBetterChat.INSTANCE.modifyMessage(content);
+
         if (ModuleDisabler.INSTANCE.getEnabled() && DisablerSpigotSpam.INSTANCE.getEnabled()) {
-            return DisablerSpigotSpam.INSTANCE.getMessage() + " " + content;
+            return DisablerSpigotSpam.INSTANCE.getMessage() + " " + result;
         }
-        return content;
+
+        return result;
     }
 
 }

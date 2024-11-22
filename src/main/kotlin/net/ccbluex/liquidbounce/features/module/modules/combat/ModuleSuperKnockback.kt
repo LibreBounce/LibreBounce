@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.DummyEvent
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.AttackEvent
@@ -36,9 +37,19 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  */
 object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases = arrayOf("WTap")) {
 
-    val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap))
+    val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap)).apply { tagBy(this) }
     val hurtTime by int("HurtTime", 10, 0..10)
     val chance by int("Chance", 100, 0..100, "%")
+    val onlyOnGround by boolean("OnlyOnGround", false)
+    val notInWater by boolean("NotInWater", true)
+
+    private object OnlyOnMove : ToggleableConfigurable(this, "OnlyOnMove", true) {
+        val onlyForward by boolean("OnlyForward", true)
+    }
+
+    init {
+        tree(OnlyOnMove)
+    }
 
     var sequence: Sequence<DummyEvent>? = null
 
@@ -66,6 +77,10 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
 
         @Suppress("unused")
         val attackHandler = handler<AttackEvent> { event ->
+            if (!shouldOperate()) {
+                return@handler
+            }
+
             val enemy = event.enemy
 
             if (enemy is LivingEntity && enemy.hurtTime <= hurtTime && chance >= (0..100).random() &&
@@ -94,7 +109,7 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
 
         @Suppress("unused")
         val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldStopSprinting(event) || sequence != null) {
+            if (!shouldOperate() || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -122,7 +137,7 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
 
         @Suppress("unused")
         val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldStopSprinting(event) || sequence != null) {
+            if (!shouldOperate() || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -149,6 +164,27 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
 
         return enemy is LivingEntity && enemy.hurtTime <= hurtTime && chance >= (0..100).random()
             && !ModuleCriticals.wouldCrit()
+    }
+
+    private fun shouldOperate(): Boolean {
+        if (onlyOnGround && !player.isOnGround) {
+            return false
+        }
+
+        if (notInWater && player.isInsideWaterOrBubbleColumn) {
+            return false
+        }
+
+        if (OnlyOnMove.enabled) {
+            val isMovingSideways = player.input.movementSideways != 0f
+            val isMoving = player.input.movementForward != 0f || isMovingSideways
+
+            if (!isMoving || (OnlyOnMove.onlyForward && isMovingSideways)) {
+                return false
+            }
+        }
+
+        return true
     }
 
     private fun reset() {

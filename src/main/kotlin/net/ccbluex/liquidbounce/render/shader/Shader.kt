@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gl.GlProgramManager
 import net.minecraft.client.gl.GlUniform
 import net.minecraft.client.gl.VertexBuffer
@@ -15,8 +16,6 @@ import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import org.lwjgl.opengl.GL30
 import java.io.Closeable
-
-const val QUALITY = 1f
 
 /**
  * A GLSL shader renderer. Takes a vertex and fragment shader and renders it to the canvas.
@@ -64,19 +63,19 @@ class Shader(vertex: String, fragment: String) : Closeable {
         GlStateManager.glDeleteShader(fragProgram)
 
         // bake buffer data
-        val builder = Tessellator.getInstance().buffer
-        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
-        builder.vertex(-1.0, -1.0, 1.0).texture(0f, 0f)
-            .color(1f, 1f, 1f, 1f).next()
-        builder.vertex(1.0, -1.0, 1.0).texture(1f, 0f)
-            .color(1f, 1f, 1f, 1f).next()
-        builder.vertex(1.0, 1.0, 1.0).texture(1f, 1f)
-            .color(1f, 1f, 1f, 1f).next()
-        builder.vertex(-1.0, 1.0, 1.0).texture(0f, 1f)
-            .color(1f, 1f, 1f, 1f).next()
+        val builder = Tessellator.getInstance()
+        val buffer = builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
+        buffer.vertex(-1.0f, -1.0f, 1.0f).texture(0f, 0f)
+            .color(1f, 1f, 1f, 1f)
+        buffer.vertex(1.0f, -1.0f, 1.0f).texture(1f, 0f)
+            .color(1f, 1f, 1f, 1f)
+        buffer.vertex(1.0f, 1.0f, 1.0f).texture(1f, 1f)
+            .color(1f, 1f, 1f, 1f)
+        buffer.vertex(-1.0f, 1.0f, 1.0f).texture(0f, 1f)
+            .color(1f, 1f, 1f, 1f)
 
-        buffer.bind()
-        buffer.upload(builder.end())
+        this.buffer.bind()
+        this.buffer.upload(buffer.end())
         VertexBuffer.unbind()
 
         // get uniform pointers
@@ -99,10 +98,10 @@ class Shader(vertex: String, fragment: String) : Closeable {
         return shader
     }
 
-    fun draw(mouseX: Int, mouseY: Int, width: Int, height: Int, delta: Float) {
+    fun draw(mouseX: Int, mouseY: Int, delta: Float) {
         GlProgramManager.useProgram(this.program)
 
-        canvas.resize((width * QUALITY).toInt(), (height * QUALITY).toInt())
+        canvas.resize(mc.window.framebufferWidth, mc.window.framebufferHeight)
         canvas.write()
 
         // update uniforms

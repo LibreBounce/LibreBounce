@@ -20,8 +20,8 @@ package net.ccbluex.liquidbounce.render
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.render.engine.font.FontGlyphPageManager
 import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
-import net.ccbluex.liquidbounce.render.engine.font.GlyphPage
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.HttpClient.download
@@ -42,7 +42,7 @@ object Fonts {
         }
     }
 
-    private var fontQueue = mutableListOf<QueuedFont>()
+    private val fontQueue = ArrayDeque<QueuedFont>()
 
     const val DEFAULT_FONT_SIZE: Int = 43
     val FONT_FORMATS = arrayOf("Regular", "Bold", "Italic", "BoldItalic")
@@ -50,11 +50,11 @@ object Fonts {
         .queueLoad()
 
     fun loadQueuedFonts() {
-        fontQueue.forEach {
-            logger.info("Loading queued font ${it.fontInfo.name}")
-            it.loadNow()
+        while (fontQueue.isNotEmpty()) {
+            val font = fontQueue.removeFirst()
+            logger.info("Loading queued font ${font.fontInfo.name}")
+            font.loadNow()
         }
-        fontQueue.clear()
     }
 
     /**
@@ -132,7 +132,7 @@ object Fonts {
                             .createFont(Font.TRUETYPE_FONT, basePath.resolve("$name-$it.ttf"))
                             .deriveFont(DEFAULT_FONT_SIZE.toFloat())
 
-                        GlyphPage.createAscii(font)
+                        FontGlyphPageManager(font)
                     }.toTypedArray(),
                     DEFAULT_FONT_SIZE.toFloat()
                 )

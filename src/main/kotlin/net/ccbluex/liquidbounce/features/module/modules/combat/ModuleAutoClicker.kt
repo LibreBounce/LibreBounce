@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.AxeItem
+import net.minecraft.item.BlockItem
 import net.minecraft.item.SwordItem
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
@@ -42,7 +43,7 @@ object ModuleAutoClicker : Module("AutoClicker", Category.COMBAT, aliases = arra
 
     object Left : ToggleableConfigurable(this, "Attack", true) {
 
-        val clickScheduler = tree(ClickScheduler(ModuleAutoClicker, true))
+        val clickScheduler = tree(ClickScheduler(this, true))
         internal val requiresNoInput by boolean("RequiresNoInput", false)
         private val objectiveType by enumChoice("Objective", ObjectiveType.ANY)
         private val onItemUse by enumChoice("OnItemUse", Use.WAIT)
@@ -120,8 +121,12 @@ object ModuleAutoClicker : Module("AutoClicker", Category.COMBAT, aliases = arra
     }
 
     object Right : ToggleableConfigurable(this, "Use", false) {
-        val clickScheduler = tree(ClickScheduler(ModuleAutoClicker, false))
+        val clickScheduler = tree(ClickScheduler(this, false))
+        internal val delayStart by boolean("DelayStart", false)
+        internal val onlyBlock by boolean("OnlyBlock", false)
         internal val requiresNoInput by boolean("RequiresNoInput", false)
+
+        internal var needToWait = true
     }
 
     init {
@@ -162,7 +167,20 @@ object ModuleAutoClicker : Module("AutoClicker", Category.COMBAT, aliases = arra
         }
 
         Right.run {
-            if (!enabled || !use) return@run
+            if (!enabled) return@run
+
+            if (!use) {
+                needToWait = true
+                return@run
+            }
+
+            if (onlyBlock && player.mainHandStack.item !is BlockItem) return@run
+
+            if (delayStart && needToWait) {
+                needToWait = false
+                waitTicks(2)
+                return@run
+            }
 
             clickScheduler.clicks {
                 KeyBinding.onKeyPressed(mc.options.useKey.boundKey)

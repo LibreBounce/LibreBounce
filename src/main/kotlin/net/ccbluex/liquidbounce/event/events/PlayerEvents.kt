@@ -24,9 +24,11 @@ import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.utils.client.Nameable
-import net.ccbluex.liquidbounce.web.socket.protocol.event.WebSocketEvent
+import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.fluid.Fluid
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.math.Vec3d
@@ -49,7 +51,12 @@ class PlayerPostTickEvent : Event()
 class PlayerMovementTickEvent : Event()
 
 @Nameable("playerNetworkMovementTick")
-class PlayerNetworkMovementTickEvent(val state: EventState) : Event()
+class PlayerNetworkMovementTickEvent(val state: EventState,
+                                     var x: Double,
+                                     var y: Double,
+                                     var z: Double,
+                                     var ground: Boolean
+                                    ): Event()
 
 @Nameable("playerPushOut")
 class PlayerPushOutEvent : CancellableEvent()
@@ -69,6 +76,9 @@ class PlayerAfterJumpEvent : Event()
 @Nameable("playerUseMultiplier")
 class PlayerUseMultiplier(var forward: Float, var sideways: Float) : Event()
 
+@Nameable("playerSneakMultiplier")
+class PlayerSneakMultiplier(var multiplier: Float) : Event()
+
 @Nameable("playerInteractedItem")
 class PlayerInteractedItem(val player: PlayerEntity, val hand: Hand, val actionResult: ActionResult) : Event()
 
@@ -86,3 +96,6 @@ class PlayerStepEvent(var height: Float) : Event()
 
 @Nameable("playerStepSuccess")
 class PlayerStepSuccessEvent(val movementVec: Vec3d, var adjustedVec: Vec3d) : Event()
+
+@Nameable("playerFluidCollisionCheck")
+class PlayerFluidCollisionCheckEvent(val fluid: TagKey<Fluid>) : CancellableEvent()

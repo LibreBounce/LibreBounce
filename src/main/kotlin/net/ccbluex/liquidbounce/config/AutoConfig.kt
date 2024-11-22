@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.authlib.utils.int
 import net.ccbluex.liquidbounce.authlib.utils.string
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.util.Formatting
 import java.io.Writer
@@ -36,13 +37,32 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
 
+data class IncludeConfiguration(
+    val includeBinds: Boolean = false,
+    val includeAction: Boolean = false,
+    val includeHidden: Boolean = false
+) {
+    companion object {
+        val DEFAULT = IncludeConfiguration()
+    }
+}
+
 object AutoConfig {
 
     var loadingNow = false
+        set(value) {
+            field = value
+
+            // After completion of loading, sync ClickGUI
+            if (!value) {
+                ModuleClickGui.reloadView()
+            }
+        }
+    var includeConfiguration = IncludeConfiguration.DEFAULT
 
     var configsCache: Array<AutoSettings>? = null
     val configs
-        get() = (configsCache ?: ClientApi.requestSettingsList()).apply {
+        get() = configsCache ?: ClientApi.requestSettingsList().apply {
             configsCache = this
         }
 
@@ -168,9 +188,12 @@ object AutoConfig {
      */
     fun serializeAutoConfig(
         writer: Writer,
+        includeConfiguration: IncludeConfiguration = IncludeConfiguration.DEFAULT,
         autoSettingsType: AutoSettingsType = AutoSettingsType.RAGE,
         statusType: AutoSettingsStatusType = AutoSettingsStatusType.BYPASSING
     ) {
+        this.includeConfiguration = includeConfiguration
+
         // Store the config
         val jsonTree =
             ConfigSystem.serializeConfigurable(ModuleManager.modulesConfigurable, ConfigSystem.autoConfigGson)
@@ -209,6 +232,8 @@ object AutoConfig {
         ConfigSystem.autoConfigGson.newJsonWriter(writer).use {
             ConfigSystem.autoConfigGson.toJson(jsonObject, it)
         }
+
+        this.includeConfiguration = IncludeConfiguration.DEFAULT
     }
 
 }

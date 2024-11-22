@@ -16,7 +16,8 @@
     "inventory",
     "splash",
     "container",
-    "disconnected"
+    "disconnected",
+    "browser"
   ],
   "components": [
     {
@@ -250,6 +251,36 @@
             {
               "name": "HorizontalOffset",
               "value": 20
+            },
+            {
+              "name": "Vertical",
+              "value": "CenterTranslated"
+            },
+            {
+              "name": "VerticalOffset",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BlockCounter",
+      "value": [
+        {
+          "name": "Enabled",
+          "value": true
+        },
+        {
+          "name": "Alignment",
+          "value": [
+            {
+              "name": "Horizontal",
+              "value": "Center"
+            },
+            {
+              "name": "HorizontalOffset",
+              "value": -20
             },
             {
               "name": "Vertical",

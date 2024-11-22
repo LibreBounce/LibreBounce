@@ -10,11 +10,12 @@
 
     const dispatch = createEventDispatcher();
 
-    let name = "";
+    let name = "Minecraft Server";
     let address = "";
     let resourcePackPolicy = "Prompt";
 
     $: disabled = validateInput(address, name);
+    $: address = address.trim();
 
     function validateInput(address: string, name: string): boolean {
         return address.length === 0 || name.length === 0;
@@ -31,7 +32,7 @@
     }
 
     function cleanUp() {
-        name = "";
+        name = "Minecraft Server";
         address = "";
         resourcePackPolicy = "";
     }
