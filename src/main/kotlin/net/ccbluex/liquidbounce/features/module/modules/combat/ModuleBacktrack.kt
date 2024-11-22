@@ -321,11 +321,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     }
 
     private fun shouldPause(): Boolean {
-        return if (pauseOnHit) {
-            shouldPause
-        } else {
-            false
-        }
+        return pauseOnHit && shouldPause
     }
 
     private fun shouldBacktrack(target: Entity): Boolean {
