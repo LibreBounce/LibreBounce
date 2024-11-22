@@ -404,3 +404,10 @@ export interface EntityHitResult extends HitResult {
     entityType: string;
     entityPos: Vec3;
 }
+
+export interface Pointer {
+    radius: number;
+    color: string;
+    rotateX: number;
+    rotateZ: number;
+}
