@@ -70,7 +70,9 @@ object ModuleClickGui :
     }
 
     @Suppress("UnusedPrivateProperty")
-    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
+    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true).onChanged {
+        EventManager.callEvent(ClickGuiValueChangeEvent(this))
+    }
 
     object Snapping : ToggleableConfigurable(this, "Snapping", true) {
 
