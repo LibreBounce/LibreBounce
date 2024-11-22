@@ -9,7 +9,7 @@
     import {fade} from "svelte/transition";
     import {listen} from "../../integration/ws";
     import type {ClickGuiScaleChangeEvent, ScaleFactorChangeEvent} from "../../integration/events";
-    import {scaleFactor} from "./clickgui_store";
+    import {scaleFactor, showGrid} from "./clickgui_store";
 
     let categories: GroupedModules = {};
     let modules: Module[] = [];
@@ -39,7 +39,7 @@
     });
 </script>
 
-<div class="clickgui" transition:fade|global={{duration: 200}}
+<div class="clickgui" class:grid={$showGrid} transition:fade|global={{duration: 200}}
      style="transform: scale({$scaleFactor * 50}%); width: {2 / $scaleFactor * 100}vw; height: {2 / $scaleFactor * 100}vh;">
     <Description/>
     <Search modules={structuredClone(modules)}/>
@@ -52,6 +52,8 @@
 <style lang="scss">
   @import "../../colors.scss";
 
+  $GRID_SIZE: 10px;
+
   .clickgui {
     background-color: rgba($clickgui-base-color, 0.6);
     overflow: hidden;
@@ -60,5 +62,11 @@
     transform-origin: top left;
     left: 0;
     top: 0;
+
+    &.grid {
+      background-image: linear-gradient(to right, rgba(128, 128, 128, 0.25) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(128, 128, 128, 0.25) 1px, transparent 1px);
+      background-size: $GRID_SIZE $GRID_SIZE;
+    }
   }
 </style>

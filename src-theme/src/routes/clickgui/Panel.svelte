@@ -6,7 +6,7 @@
     import type {ToggleModuleEvent} from "../../integration/events";
     import {fly} from "svelte/transition";
     import {quintOut} from "svelte/easing";
-    import {highlightModuleName, maxPanelZIndex} from "./clickgui_store";
+    import {highlightModuleName, maxPanelZIndex, showGrid} from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
     import {scaleFactor} from "./clickgui_store";
 
@@ -20,11 +20,9 @@
     let renderedModules: TModule[] = [];
 
     let moving = false;
-    let prevX = 0;
-    let prevY = 0;
     let offsetX = 0;
     let offsetY = 0;
-    const GRID_SIZE = 25;
+    const GRID_SIZE = 10;
     const panelConfig = loadPanelConfig();
 
     let ignoreGrid = false;
@@ -91,17 +89,17 @@
         offsetX = e.clientX - panelConfig.left;
         offsetY = e.clientY - panelConfig.top;
         panelConfig.zIndex = ++$maxPanelZIndex;
-        document.body.classList.add('moving-panel');
+        $showGrid = true;
     }
 
     function onMouseMove(e: MouseEvent) {
         if (moving) {
             const newLeft = (e.clientX - offsetX) * (2 / $scaleFactor);
             const newTop = (e.clientY - offsetY) * (2 / $scaleFactor);
-            
+
             panelConfig.left = snapToGrid(newLeft);
             panelConfig.top = snapToGrid(newTop);
-            
+
             fixPosition();
             savePanelConfig();
         }
@@ -109,7 +107,7 @@
 
     function onMouseUp() {
         moving = false;
-        document.body.classList.remove('moving-panel');
+        $showGrid = false;
     }
 
     function toggleExpanded() {
@@ -172,19 +170,20 @@
     });
 
     function handleKeydown(e: KeyboardEvent) {
-        if (e.key === 'Shift') {
+        if (e.key === "Shift") {
             ignoreGrid = true;
         }
     }
 
     function handleKeyup(e: KeyboardEvent) {
-        if (e.key === 'Shift') {
+        if (e.key === "Shift") {
             ignoreGrid = false;
         }
     }
 
     function snapToGrid(value: number): number {
         if (ignoreGrid) return value;
+
         return Math.round(value / GRID_SIZE) * GRID_SIZE;
     }
 </script>
@@ -225,15 +224,6 @@
 
 <style lang="scss">
   @import "../../colors.scss";
-
-  $GRID_SIZE: 25px;
-
-  :global(.moving-panel) {
-    background-image: 
-      linear-gradient(to right, rgba(128, 128, 128, 0.25) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(128, 128, 128, 0.25) 1px, transparent 1px);
-    background-size: $GRID_SIZE $GRID_SIZE;
-  }
 
   .panel {
     border-radius: 5px;
