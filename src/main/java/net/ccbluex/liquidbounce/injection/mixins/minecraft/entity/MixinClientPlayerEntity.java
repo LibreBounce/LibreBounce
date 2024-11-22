@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldSprintFeature;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
@@ -303,7 +304,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyReturnValue(method = "canSprint", at = @At("RETURN"))
     private boolean injectScaffoldSprintValue(boolean original) {
-        return original && (!ModuleScaffold.INSTANCE.getRunning() || ModuleScaffold.INSTANCE.getAllowSprinting());
+        return original && (!ModuleScaffold.INSTANCE.getRunning() || ScaffoldSprintFeature.INSTANCE.getRunning());
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
@@ -343,7 +344,15 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             return false;
         }
 
-        return !(ModuleAntiHunger.INSTANCE.getRunning() && ModuleAntiHunger.INSTANCE.getNoSprint()) && original;
+        if (ScaffoldSprintFeature.INSTANCE.getRunning() && ScaffoldSprintFeature.INSTANCE.getSpoof()) {
+            return false;
+        }
+
+        if (ModuleAntiHunger.INSTANCE.getRunning() && ModuleAntiHunger.INSTANCE.getNoSprint()) {
+            return false;
+        }
+
+        return original;
     }
 
     @WrapWithCondition(method = "closeScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
