@@ -230,8 +230,8 @@
 
   :global(.moving-panel) {
     background-image: 
-      linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
+      linear-gradient(to right, rgba(128, 128, 128, 0.25) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(128, 128, 128, 0.25) 1px, transparent 1px);
     background-size: $GRID_SIZE $GRID_SIZE;
   }
 
