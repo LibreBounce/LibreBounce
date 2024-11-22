@@ -195,13 +195,15 @@ public abstract class MixinLivingEntity extends MixinEntity {
         if ((Object) this != MinecraftClient.getInstance().player) {
             return;
         }
-        boolean elytra = isFallFlying();
-        if (ModuleElytraRecast.INSTANCE.getEnabled() &&  previousElytra && !elytra) {
+
+        var elytra = isFallFlying();
+        if (ModuleElytraRecast.INSTANCE.getEnabled() && previousElytra && !elytra) {
             MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.getId(),
                     SoundCategory.PLAYERS);
-            ModuleElytraRecast.INSTANCE.recastElytra((ClientPlayerEntity) (Object) this);
+            ModuleElytraRecast.INSTANCE.recastElytra();
             jumpingCooldown = 0;
         }
+
         previousElytra = elytra;
     }
 
