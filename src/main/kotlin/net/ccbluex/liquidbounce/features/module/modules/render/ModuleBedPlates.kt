@@ -37,7 +37,6 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.registry.tag.BlockTags
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.*
@@ -198,7 +197,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         val layer: Int,
     ) : Comparable<SurroundingBlock> {
         override fun compareTo(other: SurroundingBlock): Int = compareValuesBy(this, other,
-            { it.layer }, { -it.count }, { -it.block.hardness })
+            { it.layer }, { -it.count }, { -it.block.hardness }, { it.block.translationKey })
     }
 
     private sealed class BedState(val block: Block, val pos: Vec3d) {
