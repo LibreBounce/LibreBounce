@@ -30,6 +30,10 @@ import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk
 import org.lwjgl.glfw.GLFW
+// needed for showing a file dialog, a dummy Frame is created that is invisible
+// so that we can use it to open the dialog, instead of adding JAWT so we can convert it to a java.awt.Frame.
+import java.awt.FileDialog
+import java.awt.Frame
 
 /**
  * Proxy endpoints
@@ -119,6 +123,73 @@ fun postClipboardProxy(requestObject: RequestObject): FullHttpResponse {
                     ProxyManager.addProxy(host, port, "", "")
                 }
             }
+        }
+    }
+
+    return httpOk(JsonObject())
+}
+
+private fun importProxies(content: String) {
+    // TabNine moment
+    content.split("\n").map { line ->
+        val split = line.split(":")
+        val host = split[0]
+        val port = split[1].toInt()
+
+        if (split.size > 2) {
+            val username = split[2]
+            val password = split[3]
+            ProxyManager.addProxy(host, port, username, password, false)
+        } else {
+            ProxyManager.addProxy(host, port, "", "", false)
+        }
+    }
+}
+
+// why are we overcomplicating things
+// just have a get clipboard route or something... but ok fine, I'll do this anyway.
+// POST /api/v1/client/proxies/import/clipboard
+@Suppress("UNUSED_PARAMETER")
+fun postImportClipboardProxy(_requestObject: RequestObject): FullHttpResponse {
+    RenderSystem.recordRenderCall {
+        runCatching {
+            // Get clipboard content via GLFW
+            val clipboard = GLFW.glfwGetClipboardString(mc.window.handle)?: ""
+            if (!clipboard.isNotBlank())
+                return@recordRenderCall
+
+            importProxies(clipboard)
+        }
+    }
+
+    return httpOk(JsonObject())
+}
+
+// POST /api/v1/client/proxies/import/clipboard
+@Suppress("UNUSED_PARAMETER")
+fun postImportFileProxy(_requestObject: RequestObject): FullHttpResponse {
+    RenderSystem.recordRenderCall {
+        runCatching {
+            // https://github.com/JetBrains/compose-multiplatform/issues/176 (the initial file dialog idea)
+            // (initially to convert a GLFW window handle into a Frame,
+            // but I ended up creating a dummy frame because I didn't want an extra dependency)
+            // https://chatgpt.com/share/67400ff3-dcd8-8005-ae2f-41c8efe04b16
+
+            // Create a dummy AWT Frame
+            var dummyFrame = Frame()
+            // Remove borders and title bar
+            dummyFrame.isUndecorated = true
+            // Make it invisible
+            dummyFrame.setSize(0, 0)
+            // Center the dummy frame (optional)
+            dummyFrame.setLocationRelativeTo(null)
+            // Required for the dialog to work
+            dummyFrame.isVisible = true
+
+            // Open a File Dialog
+            // TODO: could `null as Frame?` work? will test later
+            var fileDialog = FileDialog(dummyFrame, "Choose a file", FileDialog.LOAD)
+            fileDialog.isVisible = true
         }
     }
 
