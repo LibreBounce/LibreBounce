@@ -6,7 +6,7 @@
     import type {ToggleModuleEvent} from "../../integration/events";
     import {fly} from "svelte/transition";
     import {quintOut} from "svelte/easing";
-    import {highlightModuleName, maxPanelZIndex, showGrid} from "./clickgui_store";
+    import {highlightModuleName, maxPanelZIndex, showGrid, snappingEnabled} from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
     import {scaleFactor} from "./clickgui_store";
 
@@ -89,7 +89,7 @@
         offsetX = e.clientX - panelConfig.left;
         offsetY = e.clientY - panelConfig.top;
         panelConfig.zIndex = ++$maxPanelZIndex;
-        $showGrid = true;
+        $showGrid = $snappingEnabled;
     }
 
     function onMouseMove(e: MouseEvent) {
@@ -182,7 +182,7 @@
     }
 
     function snapToGrid(value: number): number {
-        if (ignoreGrid) return value;
+        if (ignoreGrid || !$snappingEnabled) return value;
 
         return Math.round(value / GRID_SIZE) * GRID_SIZE;
     }

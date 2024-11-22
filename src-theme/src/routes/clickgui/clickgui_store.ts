@@ -15,3 +15,5 @@ export const highlightModuleName: Writable<string | null> = writable(null);
 export const scaleFactor: Writable<number> = writable(2);
 
 export const showGrid: Writable<boolean> = writable(false);
+
+export const snappingEnabled: Writable<boolean> = writable(true);

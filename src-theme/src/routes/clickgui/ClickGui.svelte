@@ -2,14 +2,18 @@
     import {onMount} from "svelte";
     import {getGameWindow, getModules, getModuleSettings} from "../../integration/rest";
     import {groupByCategory} from "../../integration/util";
-    import type {GroupedModules, Module} from "../../integration/types";
+    import type {ConfigurableSetting, GroupedModules, Module} from "../../integration/types";
     import Panel from "./Panel.svelte";
     import Search from "./Search.svelte";
     import Description from "./Description.svelte";
     import {fade} from "svelte/transition";
     import {listen} from "../../integration/ws";
-    import type {ClickGuiScaleChangeEvent, ScaleFactorChangeEvent} from "../../integration/events";
-    import {scaleFactor, showGrid} from "./clickgui_store";
+    import type {
+        ClickGuiScaleChangeEvent,
+        ClickGuiValueChangeEvent,
+        ScaleFactorChangeEvent
+    } from "../../integration/events";
+    import {scaleFactor, showGrid, snappingEnabled} from "./clickgui_store";
 
     let categories: GroupedModules = {};
     let modules: Module[] = [];
@@ -17,6 +21,11 @@
     let clickGuiScaleFactor = 1;
     $: {
         scaleFactor.set(minecraftScaleFactor * clickGuiScaleFactor);
+    }
+
+    function applyValues(configurable: ConfigurableSetting) {
+        clickGuiScaleFactor = configurable.value.find(v => v.name === "Scale")?.value as number ?? 1;
+        $snappingEnabled = configurable.value.find(v => v.name === "Snapping")?.value as boolean ?? true;
     }
 
     onMount(async () => {
@@ -27,15 +36,15 @@
         categories = groupByCategory(modules);
 
         const clickGuiSettings = await getModuleSettings("ClickGUI");
-        clickGuiScaleFactor = clickGuiSettings.value.find(v => v.name === "Scale")?.value as number ?? 1
+        applyValues(clickGuiSettings);
     });
 
     listen("scaleFactorChange", (e: ScaleFactorChangeEvent) => {
         minecraftScaleFactor = e.scaleFactor;
     });
 
-    listen("clickGuiScaleChange", (e: ClickGuiScaleChangeEvent) => {
-        clickGuiScaleFactor = e.value;
+    listen("clickGuiValueChange", (e: ClickGuiValueChangeEvent) => {
+        applyValues(e.configurable);
     });
 </script>
 
@@ -64,8 +73,8 @@
     top: 0;
 
     &.grid {
-      background-image: linear-gradient(to right, rgba(128, 128, 128, 0.25) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(128, 128, 128, 0.25) 1px, transparent 1px);
+      background-image: linear-gradient(to right, $clickgui-grid-color 1px, transparent 1px),
+      linear-gradient(to bottom, $clickgui-grid-color 1px, transparent 1px);
       background-size: $GRID_SIZE $GRID_SIZE;
     }
   }
