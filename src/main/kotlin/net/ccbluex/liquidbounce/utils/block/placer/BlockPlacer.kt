@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
@@ -136,11 +137,9 @@ class BlockPlacer(
             ticksToWait = cooldown.random()
         }
 
-        if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
-            return@handler
-        }
-
-        if (!ignoreUsingItem && player.isUsingItem) {
+        val inventoryOpen = !ignoreOpenInventory && mc.currentScreen is HandledScreen<*>
+        val usingItem = !ignoreUsingItem && player.isUsingItem
+        if (inventoryOpen || usingItem) {
             return@handler
         }
 
@@ -399,7 +398,7 @@ class BlockPlacer(
         }
 
         blocks.put(pos, isSupport)
-        targetRenderer.addBlock(pos, update)
+        targetRenderer.addBlock(pos, update, FULL_BOX)
     }
 
     /**

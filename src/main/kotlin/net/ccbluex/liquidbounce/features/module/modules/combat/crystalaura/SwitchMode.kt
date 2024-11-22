@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015-2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
+import net.ccbluex.liquidbounce.config.NamedChoice
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCustomAmbience;
-import net.minecraft.client.world.ClientWorld;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-
-@Mixin(ClientWorld.Properties.class)
-public class MixinClientWorldProperties {
-
-    @ModifyReturnValue(method = "getTimeOfDay", at = @At("RETURN"))
-    private long injectOverrideTime(long original) {
-        return ModuleCustomAmbience.getTime(original);
-    }
-
+enum class SwitchMode(override val choiceName: String) : NamedChoice {
+    SILENT("Silent"),
+    NORMAL("Normal"),
+    NONE("None")
 }

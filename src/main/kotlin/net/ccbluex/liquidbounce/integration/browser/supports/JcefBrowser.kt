@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import net.ccbluex.liquidbounce.utils.validation.HashValidator
 import kotlin.concurrent.thread
 
@@ -95,21 +96,14 @@ class JcefBrowser : IBrowser, Listenable {
     override fun createInputAwareTab(url: String, position: TabPosition, frameRate: Int, takesInput: () -> Boolean) =
         JcefTab(this, url, position, frameRate, takesInput = takesInput).apply(::addTab)
 
-    override fun getTabs() = tabs
+    override fun getTabs(): List<JcefTab> = tabs
 
     private fun addTab(tab: JcefTab) {
-        synchronized(tabs) {
-            tabs += tab
-
-            // Sort tabs by preferOnTop
-            tabs.sortBy { it.preferOnTop }
-        }
+        tabs.sortedInsert(tab, JcefTab::preferOnTop)
     }
 
     internal fun removeTab(tab: JcefTab) {
-        synchronized(tabs) {
-            tabs.remove(tab)
-        }
+        tabs.remove(tab)
     }
 
     override fun getBrowserType() = BrowserType.JCEF
