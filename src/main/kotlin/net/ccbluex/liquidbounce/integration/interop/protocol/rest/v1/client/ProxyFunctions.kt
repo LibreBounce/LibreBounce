@@ -150,7 +150,7 @@ private fun importProxies(content: String) {
 // just have a get clipboard route or something... but ok fine, I'll do this anyway.
 // POST /api/v1/client/proxies/import/clipboard
 @Suppress("UNUSED_PARAMETER")
-fun postImportClipboardProxy(_requestObject: RequestObject): FullHttpResponse {
+fun postImportClipboardProxy(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
         runCatching {
             // Get clipboard content via GLFW
@@ -168,7 +168,7 @@ fun postImportClipboardProxy(_requestObject: RequestObject): FullHttpResponse {
 
 // POST /api/v1/client/proxies/import/clipboard
 @Suppress("UNUSED_PARAMETER")
-fun postImportFileProxy(_requestObject: RequestObject): FullHttpResponse {
+fun postImportFileProxy(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
         runCatching {
             // https://github.com/JetBrains/compose-multiplatform/issues/176 (the initial file dialog idea)
