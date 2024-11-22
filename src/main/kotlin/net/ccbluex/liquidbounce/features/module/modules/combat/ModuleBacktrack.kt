@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.TrackedPosition
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket
@@ -50,16 +51,22 @@ import net.minecraft.util.math.Vec3d
 
 object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
-    private val range by floatRange("Range", 1f..3f, 0f..6f)
+    private val range by floatRange("Range", 1f..3f, 0f..10f)
     private val delay by intRange("Delay", 100..150, 0..1000, "ms")
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
+    private val trackingBuffer by int("TrackingBuffer", 500, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
+    private val pauseOnHit by boolean("PauseOnHit", false)
     private val espMode = choices("EspMode", Wireframe, arrayOf(Box, Model, Wireframe, None)).apply {
         doNotIncludeAlways()
     }
 
     private val packetQueue = LinkedHashSet<DelayData>()
     private val chronometer = Chronometer()
+
+    private var lastTargetTime = 0L
+
+    private var shouldPause = false
 
     private var target: Entity? = null
     private var position: TrackedPosition? = null
@@ -306,13 +313,37 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     fun isLagging() =
         enabled && packetQueue.isNotEmpty()
 
-    private fun shouldBacktrack(target: Entity) =
-        target.shouldBeAttacked() &&
-            target.boxedDistanceTo(player) in range &&
+    init {
+        handler<AttackEvent> {
+            val enemy = it.enemy
+            shouldPause = enemy is LivingEntity && enemy.hurtTime < 10
+        }
+    }
+
+    private fun shouldPause(): Boolean {
+        return if (pauseOnHit) {
+            shouldPause
+        } else false
+    }
+
+    private fun shouldBacktrack(target: Entity): Boolean {
+        val inRange = target.boxedDistanceTo(player) in range
+
+        if (inRange) {
+            lastTargetTime = System.currentTimeMillis()
+        }
+
+        return (inRange || System.currentTimeMillis() - lastTargetTime <= trackingBuffer) &&
+            target.shouldBeAttacked() &&
             player.age > 10 &&
             Math.random() * 100 < chance &&
-            chronometer.hasElapsed()
+            chronometer.hasElapsed() &&
+            !shouldPause()
+    }
 
-    private fun shouldCancelPackets() =
-        target != null && target!!.isAlive && shouldBacktrack(target!!)
+    private fun shouldCancelPackets(): Boolean {
+        return target != null &&
+            target!!.isAlive &&
+            shouldBacktrack(target!!)
+    }
 }
