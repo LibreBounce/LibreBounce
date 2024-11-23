@@ -38,15 +38,15 @@ object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayO
 
     val onlyVisual by boolean("OnlyVisual", false)
     val hideShieldSlot by boolean("HideShieldSlot", false)
-    val alwaysHideShield by boolean("AlwaysHideShield", false)
+    private val alwaysHideShield by boolean("AlwaysHideShield", false)
 
     @JvmOverloads
     fun shouldHideOffhand(
-        player: PlayerEntity = mc.player!!,
-        offhandItem: Item = player.offHandStack.item,
-        mainhandItem: Item = player.mainHandStack.item,
-    ) = (handleEvents() || AutoBlock.blockVisual) && offhandItem is ShieldItem
-        && (mainhandItem is SwordItem || player === mc.player && handleEvents() && alwaysHideShield)
+        player: PlayerEntity = this.player,
+        offHandItem: Item = player.offHandStack.item,
+        mainHandItem: Item = player.mainHandStack.item,
+    ) = (handleEvents() || AutoBlock.blockVisual) && offHandItem is ShieldItem
+        && (mainHandItem is SwordItem || player === this.player && handleEvents() && alwaysHideShield)
 
     @Suppress("UNUSED")
     private val packetHandler = sequenceHandler<PacketEvent> {
