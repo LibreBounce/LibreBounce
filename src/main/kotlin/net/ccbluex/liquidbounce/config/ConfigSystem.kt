@@ -153,7 +153,7 @@ object ConfigSystem {
                 }
 
                 logger.debug("Reading config ${configurable.loweredName}...")
-                deserializeConfigurable(configurable, reader())
+                deserializeConfigurable(configurable, bufferedReader())
             }.onSuccess {
                 logger.info("Successfully loaded config '${configurable.loweredName}'.")
             }.onFailure {
@@ -187,7 +187,7 @@ object ConfigSystem {
             }
 
             logger.debug("Writing config ${configurable.loweredName}...")
-            serializeConfigurable(configurable, writer())
+            serializeConfigurable(configurable, bufferedWriter())
             logger.info("Successfully saved config '${configurable.loweredName}'.")
         }.onFailure {
             logger.error("Unable to store config ${configurable.loweredName}", it)

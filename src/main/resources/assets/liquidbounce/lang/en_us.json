@@ -611,5 +611,6 @@
   "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "No flint-and-steel found, disabling...",
   "liquidbounce.module.dupe.description": "Attempts to Auto-Dupe items from your inventory by using exploits.",
   "liquidbounce.module.surround.description": "Builds holes that protect you from explosion damage.",
-  "liquidbounce.module.packetMine.description": "Allows you to mine blocks by clicking them once."
+  "liquidbounce.module.packetMine.description": "Allows you to mine blocks by clicking them once.",
+  "liquidbounce.module.fastExp.description": "Automatically repairs your armor."
 }
