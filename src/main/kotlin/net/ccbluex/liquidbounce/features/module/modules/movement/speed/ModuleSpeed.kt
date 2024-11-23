@@ -182,7 +182,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
             return false
         }
 
-        if (notWhileUsingItem && player.isUsingItem) {
+        if (notWhileUsingItem && mc.player?.isUsingItem == true) {
             return false
         }
 
