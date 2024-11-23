@@ -36,8 +36,6 @@ import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShieldItem;
-import net.minecraft.item.SwordItem;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
@@ -182,11 +180,7 @@ public abstract class MixinInGameHud {
 
     @ModifyExpressionValue(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
     private boolean hookOffhandItem(boolean original) {
-        return original || ModuleSwordBlock.INSTANCE.handleEvents()
-                && ModuleSwordBlock.INSTANCE.getHideShieldSlot()
-                && getCameraPlayer().getOffHandStack().getItem() instanceof ShieldItem
-                && (getCameraPlayer().getMainHandStack().getItem() instanceof SwordItem
-                || ModuleSwordBlock.INSTANCE.getAlwaysHideShield());
+        return original || ModuleSwordBlock.INSTANCE.shouldHideOffhand() && ModuleSwordBlock.INSTANCE.getHideShieldSlot();
     }
 
     @Unique

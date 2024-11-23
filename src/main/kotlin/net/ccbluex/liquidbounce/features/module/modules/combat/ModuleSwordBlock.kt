@@ -22,7 +22,10 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
 import net.minecraft.item.ShieldItem
 import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
@@ -36,6 +39,14 @@ object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayO
     val onlyVisual by boolean("OnlyVisual", false)
     val hideShieldSlot by boolean("HideShieldSlot", false)
     val alwaysHideShield by boolean("AlwaysHideShield", false)
+
+    @JvmOverloads
+    fun shouldHideOffhand(
+        player: PlayerEntity = mc.player!!,
+        offhandItem: Item = player.offHandStack.item,
+        mainhandItem: Item = player.mainHandStack.item,
+    ) = (handleEvents() || AutoBlock.blockVisual) && offhandItem is ShieldItem
+        && (mainhandItem is SwordItem || player === mc.player && handleEvents() && alwaysHideShield)
 
     @Suppress("UNUSED")
     private val packetHandler = sequenceHandler<PacketEvent> {

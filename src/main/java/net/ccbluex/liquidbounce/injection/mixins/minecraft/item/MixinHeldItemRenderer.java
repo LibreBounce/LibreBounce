@@ -72,12 +72,9 @@ public abstract class MixinHeldItemRenderer {
                                                 Hand hand, float swingProgress, ItemStack item, float equipProgress,
                                                 MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
                                                 CallbackInfo ci) {
-        if ((ModuleSwordBlock.INSTANCE.handleEvents() || AutoBlock.INSTANCE.getBlockVisual())
-                && hand == Hand.OFF_HAND
-                && item.getItem() instanceof ShieldItem
-                && (player.getMainHandStack().getItem() instanceof SwordItem
-                || ModuleSwordBlock.INSTANCE.handleEvents() && ModuleSwordBlock.INSTANCE.getAlwaysHideShield())
-        ) ci.cancel();
+        if (hand == Hand.OFF_HAND && ModuleSwordBlock.INSTANCE.shouldHideOffhand(player, item.getItem())) {
+            ci.cancel();
+        }
     }
 
     @Redirect(method = "renderFirstPersonItem", at = @At(
