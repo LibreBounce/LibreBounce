@@ -303,8 +303,8 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     }
 
     @ModifyReturnValue(method = "canSprint", at = @At("RETURN"))
-    private boolean injectScaffoldSprintValue(boolean original) {
-        return original && (!ModuleScaffold.INSTANCE.getRunning() || ScaffoldSprintFeature.INSTANCE.getRunning());
+    private boolean hookScaffoldSprint(boolean original) {
+        return original && ScaffoldSprintFeature.INSTANCE.canSprint();
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
