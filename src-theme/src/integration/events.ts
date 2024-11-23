@@ -1,4 +1,8 @@
-import type {Component, PlayerData, Proxy, Server, TextComponent} from "./types";
+import type {Component, ConfigurableSetting, PlayerData, Proxy, Server, TextComponent} from "./types";
+
+export interface ClickGuiValueChangeEvent {
+    configurable: ConfigurableSetting;
+}
 
 export interface ToggleModuleEvent {
     moduleName: string;
@@ -11,6 +15,7 @@ export interface KeyboardKeyEvent {
     scanCode: number;
     action: number;
     mods: number;
+    key: string;
 }
 
 export interface ScaleFactorChangeEvent {
@@ -37,16 +42,17 @@ export interface NotificationEvent {
 }
 
 export interface KeyEvent {
-    key: {
-        code: number;
-        name: string;
-    };
+    key: string;
     action: number;
     mods: number;
 }
 
 export interface TargetChangeEvent {
     target: PlayerData | null;
+}
+
+export interface BlockCountChangeEvent {
+    count?: number;
 }
 
 export interface AccountManagerAdditionEvent {
@@ -88,4 +94,8 @@ export interface SpaceSeperatedNamesChangeEvent {
 
 export interface ClickGuiScaleChangeEvent {
     value: number;
+}
+
+export interface BrowserUrlChangeEvent {
+    url: string;
 }

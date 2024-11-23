@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -24,10 +23,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.event.events.ScreenRenderEvent;
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent;
 import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
+import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
+import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
 import net.ccbluex.liquidbounce.interfaces.PostEffectPassTextureAddition;
 import net.ccbluex.liquidbounce.render.engine.UIRenderer;
 import net.ccbluex.liquidbounce.utils.aiming.RaytracingExtensionsKt;
@@ -35,8 +37,11 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.PostEffectProcessor;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -87,6 +92,10 @@ public abstract class MixinGameRenderer {
     @Shadow
     public abstract void tick();
 
+    @Shadow
+    @Final
+    private LightmapTextureManager lightmapTextureManager;
+
     /**
      * Hook game render event
      */
@@ -108,10 +117,10 @@ public abstract class MixinGameRenderer {
                 RotationManager.INSTANCE.getCurrentRotation() :
                 ModuleFreeCam.INSTANCE.getEnabled() ?
                         RotationManager.INSTANCE.getServerRotation() :
-                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta));
+                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta), true);
 
         return RaytracingExtensionsKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
-                false, tickDelta);
+                ModuleLiquidPlace.INSTANCE.getEnabled(), tickDelta);
     }
 
     @ModifyExpressionValue(method = "findCrosshairTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getRotationVec(F)Lnet/minecraft/util/math/Vec3d;"))
@@ -156,7 +165,7 @@ public abstract class MixinGameRenderer {
 
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
     private void injectBobView(MatrixStack matrixStack, float f, CallbackInfo callbackInfo) {
-        if (ModuleNoBob.INSTANCE.getEnabled()) {
+        if (ModuleNoBob.INSTANCE.getEnabled() || ModuleTracers.INSTANCE.getEnabled()) {
             callbackInfo.cancel();
             return;
         }
@@ -243,6 +252,66 @@ public abstract class MixinGameRenderer {
         if (ModuleAntiBlind.INSTANCE.getEnabled() && ModuleAntiBlind.INSTANCE.getFloatingItems()) {
             ci.cancel();
         }
+    }
+
+    @Inject(method = "renderWorld", at = @At(value = "RETURN"))
+    private void hookRestoreLightMap(RenderTickCounter tickCounter, CallbackInfo ci) {
+        ((LightmapTextureManagerAddition) lightmapTextureManager).liquid_bounce$restoreLightMap();
+    }
+  
+    @ModifyExpressionValue(method = "getFov", at = @At(value = "INVOKE", target = "Ljava/lang/Integer;intValue()I", remap = false))
+    private int hookGetFov(int original) {
+        int result;
+
+        if (ModuleZoom.INSTANCE.getEnabled()) {
+            return ModuleZoom.INSTANCE.getFov(true, 0);
+        } else {
+            result = ModuleZoom.INSTANCE.getFov(false, original);
+        }
+
+        if (ModuleNoFov.INSTANCE.getEnabled() && result == original) {
+            return ModuleNoFov.INSTANCE.getFov(result);
+        }
+
+        return result;
+    }
+
+    @Inject(method = "renderNausea", at = @At("HEAD"), cancellable = true)
+    private void hookNauseaOverlay(DrawContext context, float distortionStrength, CallbackInfo ci) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getEnabled() && antiBlind.getAntiNausea()) {
+            ci.cancel();
+        }
+    }
+
+    @ModifyExpressionValue(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerp(FFF)F"))
+    private float hookNausea(float original) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getEnabled() && antiBlind.getAntiNausea()) {
+            return 0f;
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "renderWorld",
+            at = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnCamera(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
+    }
+
+    @ModifyExpressionValue(method = "renderHand",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnHand(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
     }
 
 }

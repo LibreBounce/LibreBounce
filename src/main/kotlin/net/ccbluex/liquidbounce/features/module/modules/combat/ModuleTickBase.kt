@@ -30,7 +30,8 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
-import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Vec3d
@@ -47,14 +48,16 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
      * The range defines where we want to tickbase into. The first value is the minimum range, which we can
      * tick into, and the second value is the range where we cannot tickbase at all.
      */
-    private val range by floatRange("Range", 2.5f..4f, 0f..5f)
+    private val range by floatRange("Range", 2.5f..4f, 0f..8f)
 
     private val balanceRecoveryIncrement by float("BalanceRecoverIncrement", 1f, 0f..2f)
     private val balanceMaxValue by int("BalanceMaxValue", 20, 0..200)
-    private val maxTicksAtATime by int("MaxTicksAtATime", 4, 1..20, "ticks")
+    private val maxTicksAtATime by int("MaxTicksAtATime", 4, 1..20, "ticks").apply { tagBy(this) }
     private val pauseOnFlag by boolean("PauseOfFlag", true)
     private val pauseAfterTick by int("PauseAfterTick", 0, 0..100, "ticks")
     private val forceGround by boolean("ForceGround", false)
+    private val lineColor by color("Line", Color4b.WHITE)
+        .doNotIncludeAlways()
 
     private val requiresKillAura by boolean("RequiresKillAura", true)
 
@@ -64,7 +67,8 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
 
     private val tickBuffer = mutableListOf<TickData>()
 
-    val tickHandler = handler<PlayerTickEvent> {
+    @Suppress("unused")
+    private val tickHandler = handler<PlayerTickEvent> {
         // We do not want this module to conflict with blink
         if (player.vehicle != null || ModuleBlink.enabled) {
             return@handler
@@ -78,7 +82,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
     var duringTickModification = false
 
     @Suppress("unused")
-    val postTickHandler = sequenceHandler<PlayerPostTickEvent> {
+    private val postTickHandler = sequenceHandler<PlayerPostTickEvent> {
         // We do not want this module to conflict with blink
         if (player.vehicle != null || ModuleBlink.enabled || duringTickModification) {
             return@sequenceHandler
@@ -141,7 +145,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    val inputHandler = handler<MovementInputEvent> { event ->
+    private val inputHandler = handler<MovementInputEvent> { event ->
         // We do not want this module to conflict with blink
         if (player.vehicle != null || ModuleBlink.enabled) {
             return@handler
@@ -149,8 +153,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
 
         tickBuffer.clear()
 
-        val input = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(event.directionalInput)
-        val simulatedPlayer = SimulatedPlayer.fromClientPlayer(input)
+        val simulatedPlayer = PlayerSimulationCache.getSimulationForLocalPlayer()
 
         if (tickBalance <= 0) {
             reachedTheLimit = true
@@ -166,21 +169,28 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
             return@handler
         }
 
-        repeat(min(tickBalance.toInt(), maxTicksAtATime)) {
-            simulatedPlayer.tick()
+        val tickRange = 0 until min(tickBalance.toInt(), maxTicksAtATime)
+        val snapshots = simulatedPlayer.getSnapshotsBetween(tickRange)
+
+        snapshots.forEach {
             tickBuffer += TickData(
-                simulatedPlayer.pos,
-                simulatedPlayer.fallDistance,
-                simulatedPlayer.velocity,
-                simulatedPlayer.onGround
+                it.pos,
+                it.fallDistance,
+                it.velocity,
+                it.onGround
             )
         }
     }
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
-        renderEnvironmentForWorld(event.matrixStack) {
-            withColor(Color4b.BLUE) {
-                drawLineStrip(positions = tickBuffer.map { tick -> tick.position.toVec3() }.toTypedArray())
+    @Suppress("unused")
+    private val renderHandler = handler<WorldRenderEvent> { event ->
+        if (lineColor.a > 0) {
+            renderEnvironmentForWorld(event.matrixStack) {
+                withColor(lineColor) {
+                    drawLineStrip(positions = tickBuffer.mapArray { tick ->
+                        relativeToCamera(tick.position).toVec3()
+                    })
+                }
             }
         }
     }

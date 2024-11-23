@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {Module} from "../../integration/types";
-    import {setModuleEnabled} from "../../integration/rest";
+    import type {ConfigurableSetting, Module} from "../../integration/types";
+    import {getModuleSettings, setModuleEnabled} from "../../integration/rest";
     import {listen} from "../../integration/ws";
-    import type {KeyboardKeyEvent, ToggleModuleEvent} from "../../integration/events";
+    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ToggleModuleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
     import {onMount} from "svelte";
     import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
@@ -11,6 +11,7 @@
 
     let resultElements: HTMLElement[] = [];
     let searchContainerElement: HTMLElement;
+    let autoFocus: boolean = true
     let searchInputElement: HTMLElement;
     let query: string;
     let filteredModules: Module[] = [];
@@ -90,11 +91,21 @@
             return;
         }
 
-        searchInputElement.focus();
+        if (autoFocus) {
+            searchInputElement.focus();
+        }
     }
 
-    onMount(() => {
-        searchInputElement.focus();
+    function applyValues(configurable: ConfigurableSetting) {
+        autoFocus = configurable.value.find(v => v.name === "SearchBarAutoFocus")?.value as boolean ?? true;
+    }
+
+    onMount(async () => {
+        const clickGuiSettings = await getModuleSettings("ClickGUI");
+        applyValues(clickGuiSettings);
+        if (autoFocus) {
+            searchInputElement.focus();
+        }
     });
 
     listen("toggleModule", (e: ToggleModuleEvent) => {
@@ -107,6 +118,10 @@
     });
 
     listen("keyboardKey", handleKeyDown);
+
+    listen("clickGuiValueChange", (e: ClickGuiValueChangeEvent) => {
+        applyValues(e.configurable);
+    });
 </script>
 
 <svelte:window on:click={handleWindowClick} on:keydown={handleWindowKeyDown} on:contextmenu={handleWindowClick}/>
@@ -189,6 +204,13 @@
     overflow: auto;
 
     .result {
+      font-size: 16px;
+      padding: 10px 0;
+      transition: ease padding-left 0.2s;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: max-content 1fr max-content;
+
       .module-name {
         color: $clickgui-text-dimmed-color;
         transition: ease color 0.2s;
@@ -204,13 +226,6 @@
         color: rgba($clickgui-text-dimmed-color, .6);
         margin-left: 10px;
       }
-
-      font-size: 16px;
-      padding: 10px 0;
-      transition: ease padding-left 0.2s;
-      cursor: pointer;
-      display: grid;
-      grid-template-columns: max-content 1fr max-content;
 
       &.selected {
         padding-left: 10px;

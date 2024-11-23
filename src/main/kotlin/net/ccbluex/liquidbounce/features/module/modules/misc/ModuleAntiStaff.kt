@@ -27,7 +27,7 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
             val packet = event.packet
 
             // Check if this is a regular velocity update
-            if (packet is EntityVelocityUpdateS2CPacket && packet.id == player.id) {
+            if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
                 if (packet.velocityX == 0 && packet.velocityZ == 0 && packet.velocityY / 8000.0 > 0.075) {
                     // alert the user
                     alertAboutStaff()
@@ -170,7 +170,10 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
         val messageKey = if (username == null) "staffDetected" else "specificStaffDetected"
         val message = message(messageKey, username ?: "")
         notification("Staff Detected", message, NotificationEvent.Severity.INFO)
-        chat(warning(message(messageKey, username ?: "")))
+        chat(
+            warning(message(messageKey, username ?: "")),
+            metadata = MessageMetadata(id = "${this.name}#${username ?: "generic"}")
+        )
     }
 
 }

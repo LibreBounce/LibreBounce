@@ -29,9 +29,9 @@ import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Style
 import net.minecraft.util.Formatting
+import net.minecraft.util.Util
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 
 /**
  * MobOwners module
@@ -41,11 +41,9 @@ import java.util.concurrent.Executors
 
 object ModuleMobOwners : Module("MobOwners", Category.RENDER) {
 
-    val projectiles by boolean("Projectiles", false)
+    private val projectiles by boolean("Projectiles", false)
 
-    val uuidNameCache = ConcurrentHashMap<UUID, OrderedText>()
-
-    var asyncRequestExecutor = Executors.newSingleThreadExecutor()
+    private val uuidNameCache = ConcurrentHashMap<UUID, OrderedText>()
 
     fun getOwnerInfoText(entity: Entity): OrderedText? {
         if (!this.enabled) {
@@ -66,10 +64,8 @@ object ModuleMobOwners : Module("MobOwners", Category.RENDER) {
 
     private fun getFromMojangApi(ownerId: UUID): OrderedText {
         return uuidNameCache.computeIfAbsent(ownerId) {
-            this.asyncRequestExecutor.submit {
+            Util.getDownloadWorkerExecutor().execute {
                 try {
-                    class UsernameRecord(var name: String, var changedToAt: Int?)
-
                     val uuidAsString = it.toString().replace("-", "")
                     val url = "https://api.mojang.com/user/profiles/$uuidAsString/names"
                     val response = decode<Array<UsernameRecord>>(HttpClient.get(url))
@@ -90,10 +86,6 @@ object ModuleMobOwners : Module("MobOwners", Category.RENDER) {
         }
     }
 
-    override fun disable() {
-        this.asyncRequestExecutor.shutdownNow()
-
-        this.asyncRequestExecutor = Executors.newSingleThreadExecutor()
-    }
+    private data class UsernameRecord(val name: String, val changedToAt: Int?)
 
 }

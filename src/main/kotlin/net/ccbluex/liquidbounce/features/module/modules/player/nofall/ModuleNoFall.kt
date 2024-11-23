@@ -45,8 +45,10 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
             NoFallForceJump,
             NoFallBlink,
             NoFallHoplite,
+            NoFallHypixelPacket,
+            NoFallHypixel,
         )
-    )
+    ).apply(::tagBy)
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
 

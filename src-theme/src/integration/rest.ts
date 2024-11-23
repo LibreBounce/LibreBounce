@@ -1,11 +1,14 @@
 import {REST_BASE} from "./host";
 import type {
     Account,
+    Browser,
     ClientInfo,
     ClientUpdate,
     Component,
     ConfigurableSetting,
-    GameWindow, MinecraftKeybind,
+    GameWindow,
+    HitResult,
+    MinecraftKeybind,
     Module,
     PersistentStorageItem,
     PlayerData,
@@ -103,8 +106,15 @@ export async function getPlayerData(): Promise<PlayerData> {
     return data;
 }
 
-export async function getPrintableKeyName(code: number): Promise<PrintableKey> {
-    const searchParams = new URLSearchParams({code: code.toString()});
+export async function getCrosshairData(): Promise<HitResult> {
+    const response = await fetch(`${API_BASE}/client/crosshair`);
+    const data: HitResult = await response.json();
+
+    return data;
+}
+
+export async function getPrintableKeyName(key: string): Promise<PrintableKey> {
+    const searchParams = new URLSearchParams({key});
 
     const response = await fetch(`${API_BASE}/client/input?${searchParams.toString()}`);
     const data: PrintableKey = await response.json();
@@ -287,16 +297,6 @@ export async function addAlteningAccount(token: string) {
     });
 }
 
-export async function addEasyMCAccount(token: string) {
-    await fetch(`${API_BASE}/client/accounts/new/easymc`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({token})
-    });
-}
-
 export async function addMicrosoftAccount() {
     await fetch(`${API_BASE}/client/accounts/new/microsoft`, {
         method: "POST",
@@ -368,17 +368,6 @@ export async function directLoginToSessionAccount(token: string) {
         body: JSON.stringify({token})
     });
 }
-
-export async function directLoginToEasyMCAccount(token: string) {
-    await fetch(`${API_BASE}/client/account/login/easymc`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({token})
-    });
-}
-
 
 export async function getAccounts(): Promise<Account[]> {
     const response = await fetch(`${API_BASE}/client/accounts`);
@@ -474,23 +463,23 @@ export async function setProxyFavorite(id: number, favorite: boolean) {
     }
 }
 
-export async function addProxy(host: string, port: number, username: string, password: string) {
+export async function addProxy(host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({host, port, username, password})
+        body: JSON.stringify({host, port, username, password,forwardAuthentication})
     });
 }
 
-export async function editProxy(id: number, host: string, port: number, username: string, password: string) {
+export async function editProxy(id: number, host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/edit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({id, host, port, username, password})
+        body: JSON.stringify({id, host, port, username, password, forwardAuthentication})
     })
 }
 
@@ -553,7 +542,54 @@ export async function reconnectToServer() {
 }
 
 export async function toggleBackgroundShaderEnabled() {
-    await fetch(`${API_BASE}/client/theme/shader/switch`, {
+    await fetch(`${API_BASE}/client/shader`, {
+        method: "POST",
+    });
+}
+
+export async function getBrowser(): Promise<Browser> {
+    const response = await fetch(`${API_BASE}/client/browser`);
+    const data: Browser = await response.json();
+
+    return data;
+}
+
+export async function browserNavigate(url: string) {
+    await fetch(`${API_BASE}/client/browser/navigate`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({url})
+    })
+}
+
+export async function browserGoForward() {
+    await fetch(`${API_BASE}/client/browser/forward`, {
+        method: "POST",
+    });
+}
+
+export async function browserGoBack() {
+    await fetch(`${API_BASE}/client/browser/back`, {
+        method: "POST",
+    });
+}
+
+export async function browserReload() {
+    await fetch(`${API_BASE}/client/browser/reload`, {
+        method: "POST",
+    });
+}
+
+export async function browserForceReload() {
+    await fetch(`${API_BASE}/client/browser/forceReload`, {
+        method: "POST",
+    });
+}
+
+export async function browserClose() {
+    await fetch(`${API_BASE}/client/browser/close`, {
         method: "POST",
     });
 }

@@ -20,29 +20,34 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.oauth.ClientAccount.Companion.EMPTY_ACCOUNT
+import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
+import net.ccbluex.liquidbounce.api.oauth.OAuthClient
+import net.ccbluex.liquidbounce.api.oauth.OAuthClient.startAuth
+import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder.Companion.BOOLEAN_VALIDATOR
+import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.destructClient
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.wipeClient
+import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.web.integration.BrowserScreen
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler.clientJcef
-import net.ccbluex.liquidbounce.web.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.web.theme.Theme
-import net.ccbluex.liquidbounce.web.theme.ThemeManager
-import net.ccbluex.liquidbounce.web.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.web.theme.component.components
-import net.ccbluex.liquidbounce.web.theme.component.customComponents
-import net.ccbluex.liquidbounce.web.theme.component.types.FrameComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.HtmlComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.ImageComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.TextComponent
+import net.ccbluex.liquidbounce.integration.BrowserScreen
+import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationHandler.clientJcef
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.components
+import net.ccbluex.liquidbounce.integration.theme.component.customComponents
+import net.ccbluex.liquidbounce.integration.theme.component.types.ImageComponent
+import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.util.Util
@@ -68,17 +73,26 @@ object CommandClient {
         .subcommand(appereanceCommand())
         .subcommand(prefixCommand())
         .subcommand(destructCommand())
+        .subcommand(accountCommand())
+        .subcommand(cosmeticsCommand())
+        .subcommand(resetCommand())
         .build()
 
     private fun infoCommand() = CommandBuilder
         .begin("info")
         .handler { command, _ ->
-            chat(regular(command.result("clientName", variable(LiquidBounce.CLIENT_NAME))),
-                prefix = false)
-            chat(regular(command.result("clientVersion", variable(LiquidBounce.clientVersion))),
-                prefix = false)
-            chat(regular(command.result("clientAuthor", variable(LiquidBounce.CLIENT_AUTHOR))),
-                prefix = false)
+            chat(
+                regular(command.result("clientName", variable(LiquidBounce.CLIENT_NAME))),
+                metadata = MessageMetadata(prefix = false)
+            )
+            chat(
+                regular(command.result("clientVersion", variable(LiquidBounce.clientVersion))),
+                metadata = MessageMetadata(prefix = false)
+            )
+            chat(
+                regular(command.result("clientAuthor", variable(LiquidBounce.CLIENT_AUTHOR))),
+                metadata = MessageMetadata(prefix = false)
+            )
         }.build()
 
     private fun browserCommand() = CommandBuilder.begin("browser")
@@ -118,10 +132,12 @@ object CommandClient {
                                     )
                                 )
                         }),
-                    prefix = false
+                    metadata = MessageMetadata(
+                        prefix = false
+                    )
                 )
 
-                chat(prefix = false)
+                chat(metadata = MessageMetadata(prefix = false))
                 chat(regular("Integration Menu:"))
                 for (screenType in VirtualScreenType.entries) {
                     val url = runCatching {
@@ -153,7 +169,9 @@ object CommandClient {
                                     )
                             })
                             .append(regular(")")),
-                        prefix = false
+                        metadata = MessageMetadata(
+                            prefix = false
+                        )
                     )
                 }
 
@@ -219,18 +237,28 @@ object CommandClient {
         .hub()
         .subcommand(CommandBuilder.begin("list")
             .handler { command, args ->
-                chat(regular("Available themes:"))
-                for (theme in ThemeManager.themesFolder.listFiles()!!) {
-                    chat(regular("-> ${theme.name}"))
-                }
+                @Suppress("SpreadOperator")
+                chat(
+                    regular("Available themes: "),
+                    *ThemeManager.themes().flatMapIndexed { index, name ->
+                        listOf(
+                            regular(if (index == 0) "" else ", "),
+                            variable(name)
+                        )
+                    }.toTypedArray()
+                )
             }.build()
         )
         .subcommand(CommandBuilder.begin("set")
             .parameter(
                 ParameterBuilder.begin<String>("theme")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
+                    .autocompletedWith { s, _ ->
+                        ThemeManager.themes().filter { it.startsWith(s, true) }
+                    }
                     .build()
-            ).handler { command, args ->
+            )
+            .handler { command, args ->
                 val name = args[0] as String
 
                 if (name.equals("default", true)) {
@@ -239,17 +267,13 @@ object CommandClient {
                     return@handler
                 }
 
-                val theme = ThemeManager.themesFolder.listFiles()?.find {
-                    it.name.equals(name, true)
+                runCatching {
+                    ThemeManager.chooseTheme(name)
+                }.onFailure {
+                    chat(markAsError("Failed to switch theme: ${it.message}"))
+                }.onSuccess {
+                    chat(regular("Switched theme to $name."))
                 }
-
-                if (theme == null) {
-                    chat(regular("Theme not found."))
-                    return@handler
-                }
-
-                chat(regular("Switching theme to ${theme.name}..."))
-                ThemeManager.activeTheme = Theme(theme.name)
             }.build()
         )
         .subcommand(CommandBuilder.begin("browse").handler { command, _ ->
@@ -289,20 +313,6 @@ object CommandClient {
                     chat("Successfully added text component.")
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("frame")
-                .parameter(
-                    ParameterBuilder.begin<String>("url")
-                        .vararg()
-                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                        .build()
-                ).handler { command, args ->
-                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
-                    customComponents += FrameComponent(arg)
-                    ComponentOverlay.fireComponentsUpdate()
-
-                    chat("Successfully added frame component.")
-                }.build()
-            )
             .subcommand(CommandBuilder.begin("image")
                 .parameter(
                     ParameterBuilder.begin<String>("url")
@@ -317,20 +327,7 @@ object CommandClient {
                     chat("Successfully added image component.")
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("html")
-                .parameter(
-                    ParameterBuilder.begin<String>("code")
-                        .vararg()
-                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                        .build()
-                ).handler { command, args ->
-                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
-                    customComponents += HtmlComponent(arg)
-                    ComponentOverlay.fireComponentsUpdate()
-
-                    chat("Successfully added html component.")
-                }.build()
-            ).build()
+            .build()
         )
         .subcommand(CommandBuilder.begin("remove")
             .parameter(
@@ -408,7 +405,7 @@ object CommandClient {
                 .build()
         )
         .handler { command, args ->
-            val confirm = args[0] as? Boolean ?: false
+            val confirm = args.getOrNull(0) as Boolean? ?: false
             if (!confirm) {
                 chat(regular("Do you really want to destruct the client? " +
                     "If so, type the command again with 'yes' at the end."))
@@ -418,7 +415,7 @@ object CommandClient {
                 return@handler
             }
 
-            val wipe = args[1] as? Boolean ?: false
+            val wipe = args.getOrNull(1) as Boolean? ?: false
 
             chat(regular("LiquidBounce is being destructed from your client..."))
             if (!wipe) {
@@ -451,6 +448,104 @@ object CommandClient {
             CommandManager.Options.prefix = prefix
             chat(regular(command.result("prefixChanged", variable(prefix))))
         }
+        .build()
+
+    private fun accountCommand() = CommandBuilder.begin("account")
+        .hub()
+        .subcommand(CommandBuilder.begin("login")
+            .handler { command, args ->
+                if (ClientAccountManager.clientAccount != EMPTY_ACCOUNT) {
+                    chat(regular("You are already logged in."))
+                    return@handler
+                }
+
+                chat(regular("Starting OAuth authorization process..."))
+                OAuthClient.runWithScope {
+                    val account = startAuth { Util.getOperatingSystem().open(it) }
+                    ClientAccountManager.clientAccount = account
+                    ConfigSystem.storeConfigurable(ClientAccountManager)
+                    chat(regular("Successfully authorized client."))
+                }
+            }.build()
+        )
+        .subcommand(CommandBuilder.begin("logout")
+            .handler { command, args ->
+                if (ClientAccountManager.clientAccount == EMPTY_ACCOUNT) {
+                    chat(regular("You are not logged in."))
+                    return@handler
+                }
+
+                chat(regular("Logging out..."))
+                OAuthClient.runWithScope {
+                    ClientAccountManager.clientAccount = EMPTY_ACCOUNT
+                    ConfigSystem.storeConfigurable(ClientAccountManager)
+                    chat(regular("Successfully logged out."))
+                }
+            }.build()
+        )
+        .subcommand(CommandBuilder.begin("info")
+            .handler { command, args ->
+                if (ClientAccountManager.clientAccount == EMPTY_ACCOUNT) {
+                    chat(regular("You are not logged in."))
+                    return@handler
+                }
+
+                chat(regular("Getting user information..."))
+                OAuthClient.runWithScope {
+                    runCatching {
+                        val account = ClientAccountManager.clientAccount
+                        account.updateInfo()
+                        account
+                    }.onSuccess { account ->
+                        account.userInformation?.let { info ->
+                            chat(regular("User ID: "), variable(info.userId))
+                            chat(regular("Donation Perks: "), variable(if (info.premium) "Yes" else "No"))
+                        }
+                    }.onFailure {
+                        chat(markAsError("Failed to get user information: ${it.message}"))
+                    }
+
+                }
+            }.build()
+        )
+        .build()
+
+    private fun resetCommand() = CommandBuilder
+        .begin("reset")
+        .handler { command, _ ->
+            AutoConfig.loadingNow = true
+            ModuleManager
+                // TODO: Remove when HUD no longer contains the Element Configuration
+                .filter { module -> module !is ModuleHud  }
+                .forEach { it.restore() }
+            AutoConfig.loadingNow = false
+            chat(regular(command.result("successfullyReset")))
+        }
+        .build()
+
+    private fun cosmeticsCommand() = CommandBuilder
+        .begin("cosmetics")
+        .hub()
+        .subcommand(
+            CommandBuilder.begin("refresh")
+                .handler { command, _ ->
+                    chat(regular("Refreshing cosmetics..."))
+                    CosmeticService.carriersCosmetics.clear()
+                    ClientAccountManager.clientAccount.cosmetics = null
+
+                    CosmeticService.refreshCarriers(true) {
+                        chat(regular("Cosmetic System has been refreshed."))
+                    }
+                }
+                .build()
+        )
+        .subcommand(
+            CommandBuilder.begin("manage")
+                .handler { _, _ ->
+                    browseUrl("https://user.liquidbounce.net/cosmetics")
+                }
+                .build()
+        )
         .build()
 
 }

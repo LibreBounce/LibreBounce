@@ -25,41 +25,14 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.*
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.network.ClientPlayNetworkHandler
-import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.client.network.ClientPlayerInteractionManager
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.entity.effect.StatusEffect
-import org.lwjgl.glfw.GLFW
-
-interface QuickImports {
-    /**
-     * Collection of the most used variables
-     * to make the code more readable.
-     *
-     * However, we do not check for nulls here, because
-     * we are sure that the client is in-game, if not
-     * fiddling with the handler code.
-     */
-    val mc: MinecraftClient
-        get() = net.ccbluex.liquidbounce.utils.client.mc
-    val player: ClientPlayerEntity
-        get() = mc.player!!
-    val world: ClientWorld
-        get() = mc.world!!
-    val network: ClientPlayNetworkHandler
-        get() = mc.networkHandler!!
-    val interaction: ClientPlayerInteractionManager
-        get() = mc.interactionManager!!
-}
+import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.minecraft.client.util.InputUtil
 
 /**
  * A module also called 'hack' can be enabled and handle events
@@ -68,13 +41,14 @@ interface QuickImports {
 open class Module(
     name: String, // name parameter in configurable
     @Exclude val category: Category, // module category
-    bind: Int = GLFW.GLFW_KEY_UNKNOWN, // default bind
+    bind: Int = InputUtil.UNKNOWN_KEY.code, // default bind
+    bindAction: InputBind.BindAction = InputBind.BindAction.TOGGLE, // default action
     state: Boolean = false, // default state
     @Exclude val disableActivation: Boolean = false, // disable activation
     hide: Boolean = false, // default hide
     @Exclude val disableOnQuit: Boolean = false, // disables module when player leaves the world,
     @Exclude val aliases: Array<out String> = emptyArray() // additional names under which the module is known
-) : Listenable, Configurable(name), QuickImports {
+) : Listenable, Configurable(name), MinecraftShortcuts {
 
     val valueEnabled = boolean("Enabled", state).also {
         // Might not include the enabled state of the module depending on the category
@@ -83,7 +57,7 @@ open class Module(
                 return@also
             }
 
-            it.doNotInclude()
+            it.doNotIncludeAlways()
         }
     }.notAnOption()
 
@@ -149,10 +123,12 @@ open class Module(
         new
     }
 
-    var bind by key("Bind", bind)
-        .doNotInclude()
+    val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
+        .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
+        .independentDescription()
     var hidden by boolean("Hidden", hide)
-        .doNotInclude()
+        .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
+        .independentDescription()
         .onChange {
             EventManager.callEvent(RefreshArrayListEvent())
             it
@@ -163,30 +139,20 @@ open class Module(
      */
     private var locked: Value<Boolean>? = null
 
-    open val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.${name.toLowerCamelCase()}"
-
-    private val descriptionKey
-        get() = "$translationBaseKey.description"
-
-    open val description: String
-        get() = translation(descriptionKey).convertToString()
 
     // Tag to be displayed on the HUD
     open val tag: String?
-        get() = null
+        get() = this.tagValue?.getValue()?.toString()
+
+    private var tagValue: Value<*>? = null
 
     /**
      * Allows the user to access values by typing module.settings.<valuename>
      */
-    @ScriptApi
+    @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
-
-    init {
-        if (!LanguageManager.hasFallbackTranslation(descriptionKey)) {
-            logger.warn("$name is missing fallback description key $descriptionKey")
-        }
-    }
 
     /**
      * Called when module is turned on
@@ -234,15 +200,37 @@ open class Module(
         this.locked = boolean("Locked", false)
     }
 
+    fun tagBy(setting: Value<*>) {
+        check(this.tagValue == null) { "Tag already set" }
+
+        this.tagValue = setting
+
+        // Refresh arraylist on tag change
+        setting.onChanged {
+            EventManager.callEvent(RefreshArrayListEvent())
+        }
+    }
+
+    /**
+     * Warns when no module description is set in the main translation file.
+     *
+     * Requires that [Configurable.walkKeyPath] has previously been run.
+     */
+    fun verifyFallbackDescription() {
+        if (!LanguageManager.hasFallbackTranslation(descriptionKey!!)) {
+            logger.warn("$name is missing fallback description key $descriptionKey")
+        }
+    }
+
     protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
     protected fun <T : Choice> choices(
         name: String,
-        activeCallback: (ChoiceConfigurable<T>) -> T,
+        activeIndex: Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(this, name, activeCallback, choicesCallback)
+    ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
 
-    fun message(key: String, vararg args: Any) = translation("$translationBaseKey.messages.$key", *args)
+    fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
 
 }

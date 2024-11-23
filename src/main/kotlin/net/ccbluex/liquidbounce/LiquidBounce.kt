@@ -22,6 +22,9 @@ package net.ccbluex.liquidbounce
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
+import net.ccbluex.liquidbounce.api.oauth.ClientAccount
+import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
+import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventManager
@@ -31,35 +34,37 @@ import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.Reconnect
 import net.ccbluex.liquidbounce.features.command.CommandManager
-import net.ccbluex.liquidbounce.features.cosmetic.CapeService
+import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
 import net.ccbluex.liquidbounce.features.itemgroup.groups.headsCollection
 import net.ccbluex.liquidbounce.features.misc.AccountManager
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
+import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.browser.BrowserManager
+import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.render.Fonts
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
+import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.block.WorldChangeNotifier
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker
 import net.ccbluex.liquidbounce.utils.client.disableConflictingVfpOptions
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.globalEnemyConfigurable
+import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
+import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.mappings.Remapper
+import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
-import net.ccbluex.liquidbounce.web.browser.BrowserManager
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.web.socket.ClientSocket
-import net.ccbluex.liquidbounce.web.theme.ThemeManager
-import net.ccbluex.liquidbounce.web.theme.component.ComponentOverlay
 import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.resource.ResourceManager
 import net.minecraft.resource.ResourceReloader
@@ -118,20 +123,20 @@ object LiquidBounce : Listenable {
             logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
 
             // Load mappings
-            Remapper.load()
+            EnvironmentRemapper
 
             // Load translations
-            LanguageManager.loadLanguages()
+            LanguageManager.loadDefault()
 
             // Initialize client features
             EventManager
 
             // Config
             ConfigSystem
-            globalEnemyConfigurable
+            combatTargetsConfigurable
 
             ChunkScanner
-            WorldChangeNotifier
+            InputTracker
 
             // Features
             ModuleManager
@@ -146,17 +151,20 @@ object LiquidBounce : Listenable {
             InventoryManager
             WorldToScreen
             Reconnect
+            ActiveServerList
             ConfigSystem.root(ClientItemGroups)
             ConfigSystem.root(LanguageManager)
+            ConfigSystem.root(ClientAccountManager)
             BrowserManager
             Fonts
+            PostRotationExecutor
 
             // Register commands and modules
             CommandManager.registerInbuilt()
             ModuleManager.registerInbuilt()
 
             // Load user scripts
-            ScriptManager.loadScripts()
+            ScriptManager.loadAll()
 
             // Load theme and component overlay
             ThemeManager
@@ -166,7 +174,7 @@ object LiquidBounce : Listenable {
             ConfigSystem.loadAll()
 
             // Netty WebSocket
-            ClientSocket.start()
+            ClientInteropServer.start()
 
             // Initialize browser
             logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
@@ -226,22 +234,26 @@ object LiquidBounce : Listenable {
 
             // Refresh local IP info
             logger.info("Refreshing local IP info...")
-            IpInfoApi.refreshLocalIpInfo()
+            IpInfoApi
 
-            // Login into known token if not empty
-            if (CapeService.knownToken.isNotBlank()) {
-                runCatching {
-                    CapeService.login(CapeService.knownToken)
-                }.onFailure {
-                    logger.error("Failed to login into known cape token.", it)
-                }.onSuccess {
-                    logger.info("Successfully logged in into known cape token.")
+            // Check if client account is available
+            if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
+                OAuthClient.runWithScope {
+                    runCatching {
+                        ClientAccountManager.clientAccount.renew()
+                    }.onFailure {
+                        logger.error("Failed to renew client account token.", it)
+                        ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
+                    }.onSuccess {
+                        logger.info("Successfully renewed client account token.")
+                        ConfigSystem.storeConfigurable(ClientAccountManager)
+                    }
                 }
             }
 
-            // Refresh cape service
-            CapeService.refreshCapeCarriers {
-                logger.info("Successfully loaded ${CapeService.capeCarriers.size} cape carriers.")
+            // Refresh cosmetic service
+            CosmeticService.refreshCarriers(force = true) {
+                logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
             }
 
             // Load Head collection

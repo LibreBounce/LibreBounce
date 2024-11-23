@@ -25,16 +25,17 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.player.chestStealer.ModuleChestStealer
-import net.ccbluex.liquidbounce.features.module.modules.player.chestStealer.features.FeatureChestAura
+import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.ModuleChestStealer
+import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features.FeatureChestAura
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.block.Region
-import net.ccbluex.liquidbounce.utils.block.WorldChangeNotifier
+import net.ccbluex.liquidbounce.utils.block.AbstractBlockLocationTracker
+import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.block.BlockRenderType
+import net.minecraft.block.BlockState
 import net.minecraft.block.entity.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.AbstractDonkeyEntity
@@ -45,7 +46,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * StorageESP module
@@ -66,10 +66,12 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
 
     private val requiresChestStealer by boolean("RequiresChestStealer", false)
 
-    private val locations = ConcurrentHashMap<BlockPos, ChestType>()
+    override fun enable() {
+        ChunkScanner.subscribe(StorageScanner)
+    }
 
-    init {
-        WorldChangeNotifier.subscribe(StorageScanner)
+    override fun disable() {
+        ChunkScanner.unsubscribe(StorageScanner)
     }
 
     private object BoxMode : Choice("Box") {
@@ -99,11 +101,11 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
             }
         }
 
-        private fun collectBoxesToDraw(event: WorldRenderEvent): MutableList<Triple<Vec3d, Box, Color4b>> {
+        private fun collectBoxesToDraw(event: WorldRenderEvent): List<Triple<Vec3d, Box, Color4b>> {
             val queuedBoxes = mutableListOf<Triple<Vec3d, Box, Color4b>>()
 
-            for ((pos, type) in locations.entries) {
-                val color = type.color()
+            for ((pos, type) in StorageScanner.trackedBlockMap) {
+                val color = type.color
 
                 if (color.a <= 0 || !type.shouldRender(pos)) {
                     continue
@@ -126,7 +128,7 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
             }
 
             for (entity in world.entities) {
-                val type = categorizeEntity(entity) ?: continue
+                val type = entity.categorize() ?: continue
 
                 val pos = entity.interpolateCurrentPosition(event.partialTicks)
 
@@ -134,8 +136,9 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
                 val d = dimensions.width.toDouble() / 2.0
                 val box = Box(-d, 0.0, -d, d, dimensions.height.toDouble(), d).expand(0.05)
 
-                queuedBoxes.add(Triple(pos, box, type.color()))
+                queuedBoxes.add(Triple(pos, box, type.color))
             }
+
             return queuedBoxes
 
         }
@@ -149,19 +152,14 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
 
         @Suppress("unused")
         val glowRenderHandler = handler<DrawOutlinesEvent> { event ->
-            if (event.type != DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW) {
+            if (event.type != DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW
+                || StorageScanner.trackedBlockMap.isEmpty()) {
                 return@handler
             }
 
-            // Don't halt other modules from accessing locations
-            val positions = locations.entries.map { it.key to it.value }
-
-            if (positions.isEmpty())
-                return@handler
-
             renderEnvironmentForWorld(event.matrixStack) {
                 BoxRenderer.drawWith(this) {
-                    for ((pos, type) in positions) {
+                    for ((pos, type) in StorageScanner.trackedBlockMap) {
                         val state = pos.getState() ?: continue
 
                         // non-model blocks are already processed by WorldRenderer where we injected code which renders
@@ -183,7 +181,7 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
                         }
 
                         withPosition(relativeToCamera(Vec3d.of(pos))) {
-                            drawBox(boundingBox, type.color())
+                            drawBox(boundingBox, type.color)
                         }
 
                         event.markDirty()
@@ -193,19 +191,21 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         }
     }
 
-    fun categorizeEntity(entity: Entity): ChestType? {
-        return when (entity) {
+    @JvmStatic
+    fun Entity.categorize(): ChestType? {
+        return when (this) {
             // This includes any storage type minecart entity including ChestMinecartEntity
             is HopperMinecartEntity -> ChestType.HOPPER
             is StorageMinecartEntity -> ChestType.CHEST
             is ChestBoatEntity -> ChestType.CHEST
-            is AbstractDonkeyEntity -> if (entity.hasChest()) ChestType.CHEST else null
+            is AbstractDonkeyEntity -> ChestType.CHEST.takeIf { hasChest() }
             else -> null
         }
     }
 
-    fun categorizeBlockEntity(block: BlockEntity): ChestType? {
-        return when (block) {
+    @JvmStatic
+    fun BlockEntity.categorize(): ChestType? {
+        return when (this) {
             is ChestBlockEntity -> ChestType.CHEST
             is EnderChestBlockEntity -> ChestType.ENDER_CHEST
             is AbstractFurnaceBlockEntity -> ChestType.FURNACE
@@ -217,45 +217,48 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         }
     }
 
-    enum class ChestType(val color: () -> Color4b, val shouldRender: (BlockPos) -> Boolean = { true }) {
-        CHEST({ chestColor }, { !FeatureChestAura.interactedBlocksSet.contains(it) }),
-        ENDER_CHEST({ enderChestColor }, { !FeatureChestAura.interactedBlocksSet.contains(it) }),
-        FURNACE({ furnaceColor }),
-        DISPENSER({ dispenserColor }),
-        HOPPER({ hopperColor }),
-        SHULKER_BOX({ shulkerColor }, { !FeatureChestAura.interactedBlocksSet.contains(it) })
+    enum class ChestType {
+        CHEST {
+            override val color: Color4b
+                get() = chestColor
+
+            override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
+        },
+        ENDER_CHEST {
+            override val color: Color4b
+                get() = enderChestColor
+
+            override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
+        },
+        FURNACE {
+            override val color: Color4b
+                get() = furnaceColor
+        },
+        DISPENSER {
+            override val color: Color4b
+                get() = dispenserColor
+        },
+        HOPPER {
+            override val color: Color4b
+                get() = hopperColor
+        },
+        SHULKER_BOX {
+            override val color: Color4b
+                get() = shulkerColor
+
+            override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
+        };
+
+        abstract val color: Color4b
+
+        open fun shouldRender(pos: BlockPos): Boolean = true
     }
 
-    object StorageScanner : WorldChangeNotifier.WorldChangeSubscriber {
-        override fun invalidate(region: Region, rescan: Boolean) {}
-
-        override fun invalidateChunk(x: Int, z: Int, rescan: Boolean) {
-            // Clean up all chests in this chunk
-            locations.entries.removeIf { it.key.x shr 4 == x && it.key.z shr 4 == z }
-
-            // Chunk was unloaded? Don't rescan then
-            if (!rescan) {
-                return
-            }
-
-            val chunk = world.getChunk(x, z)
-
-            // Don't scan empty chunks (might be a noop)
-            if (chunk.isEmpty) {
-                return
-            }
-
-            for ((pos, blockEntity) in chunk.blockEntities.entries) {
-                val type = categorizeBlockEntity(blockEntity) ?: continue
-
-                locations[pos] = type
-            }
+    private object StorageScanner : AbstractBlockLocationTracker<ChestType>() {
+        override fun getStateFor(pos: BlockPos, state: BlockState): ChestType? {
+            val chunk = mc.world?.getChunk(pos) ?: return null
+            return chunk.getBlockEntity(pos)?.categorize()
         }
-
-        override fun invalidateEverything() {
-            locations.clear()
-        }
-
     }
 
     override fun handleEvents(): Boolean {

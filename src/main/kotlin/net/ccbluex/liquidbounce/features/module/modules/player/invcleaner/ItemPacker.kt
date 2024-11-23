@@ -1,5 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintProvider.SatisfactionStatus.OVERSATURATED
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintProvider.SatisfactionStatus.SATISFIED
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.minecraft.item.ItemStack
 
@@ -31,10 +33,12 @@ class ItemPacker {
         itemsToFillIn: List<ItemFacet>,
         hotbarSlotsToFill: List<ItemSlot>?,
         forbiddenSlots: Set<ItemSlot>,
-        maxItemCount: Int,
-        requiredStackCount: Int,
+        forbiddenSlotsToFill: Set<ItemSlot>,
+        contraintProvider: ItemAmountContraintProvider
     ): List<InventorySwap> {
         val moves = ArrayList<InventorySwap>()
+
+        val requriedStackCount = hotbarSlotsToFill?.size ?: 0
 
         var currentStackCount = 0
         var currentItemCount = 0
@@ -43,11 +47,11 @@ class ItemPacker {
         val leftHotbarSlotIterator = hotbarSlotsToFill?.iterator()
 
         for (filledInItem in itemsToFillIn) {
-            val maxCountReached = currentItemCount >= maxItemCount
-            val allStacksFilled = currentStackCount >= requiredStackCount
+            val constraintsSatisfied = contraintProvider.getSatisfactionStatus(filledInItem)
+            val allStacksFilled = currentStackCount >= requriedStackCount
 
-            if (maxCountReached && allStacksFilled) {
-                break
+            if (allStacksFilled && constraintsSatisfied == SATISFIED || constraintsSatisfied == OVERSATURATED) {
+                continue
             }
 
             val filledInItemSlot = filledInItem.itemSlot
@@ -58,6 +62,8 @@ class ItemPacker {
             }
 
             usefulItems.add(filledInItemSlot)
+
+            contraintProvider.addItem(filledInItem)
 
             currentItemCount += filledInItem.itemStack.count
             currentStackCount++
@@ -70,7 +76,7 @@ class ItemPacker {
             // Now find a fitting slot for the item.
             val targetSlot = fillItemIntoSlot(filledInItemSlot, leftHotbarSlotIterator)
 
-            if (targetSlot != null) {
+            if (targetSlot != null && targetSlot !in forbiddenSlotsToFill) {
                 moves.add(InventorySwap(filledInItemSlot, targetSlot))
             }
         }
@@ -110,6 +116,7 @@ class ItemPacker {
 
                     return null
                 }
+
                 areStacksSame -> {
                     // We mark the slot as used to prevent it being used for another slot.
                     alreadyAllocatedItems.add(hotbarSlotToFill)
@@ -130,5 +137,27 @@ class ItemPacker {
 
         // We found no target slot
         return null
+    }
+
+    interface ItemAmountContraintProvider {
+        fun getSatisfactionStatus(item: ItemFacet): SatisfactionStatus
+        fun addItem(item: ItemFacet)
+
+        enum class SatisfactionStatus {
+            /**
+             * Keep the item
+             */
+            NOT_SATISFIED,
+
+            /**
+             * The item is not needed - except for filling slots.
+             */
+            SATISFIED,
+
+            /**
+             * The item shouldn't be kept - even if there are still slots to fill.
+             */
+            OVERSATURATED,
+        }
     }
 }

@@ -1,25 +1,40 @@
 <script lang="ts">
-    import {createEventDispatcher, onMount} from "svelte";
     import type {KeySetting, ModuleSetting} from "../../../integration/types";
-    import {listen} from "../../../integration/ws";
-    import {getPrintableKeyName} from "../../../integration/rest";
-    import type {KeyboardKeyEvent} from "../../../integration/events";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {getPrintableKeyName} from "../../../integration/rest";
+    import {createEventDispatcher} from "svelte";
+    import {listen} from "../../../integration/ws";
+    import type {KeyboardKeyEvent} from "../../../integration/events";
 
     export let setting: ModuleSetting;
 
     const cSetting = setting as KeySetting;
 
     const dispatch = createEventDispatcher();
+    const UNKNOWN_KEY = "key.keyboard.unknown";
 
     let binding = false;
     let printableKeyName = "";
 
-    async function updatePrintableKeyName() {
-        if (cSetting.value === -1) {
-            return;
+    $: {
+        if (cSetting.value !== UNKNOWN_KEY) {
+            getPrintableKeyName(cSetting.value)
+                .then(printableKey => {
+                    printableKeyName = printableKey.localized;
+                });
         }
-        printableKeyName = (await getPrintableKeyName(cSetting.value)).localized;
+    }
+
+    async function toggleBinding() {
+        if (binding) {
+            cSetting.value = UNKNOWN_KEY;
+        }
+
+        binding = !binding;
+
+        setting = {...cSetting};
+
+        dispatch("change");
     }
 
     listen("keyboardKey", async (e: KeyboardKeyEvent) => {
@@ -30,32 +45,14 @@
         binding = false;
 
         if (e.keyCode !== 256) {
-            cSetting.value = e.keyCode;
+            cSetting.value = e.key;
         } else {
-            cSetting.value = -1;
+            cSetting.value = UNKNOWN_KEY;
         }
-        await updatePrintableKeyName();
 
         setting = {...cSetting};
 
         dispatch("change");
-    });
-
-    async function toggleBinding() {
-        if (binding) {
-            cSetting.value = -1;
-            await updatePrintableKeyName();
-        }
-
-        binding = !binding;
-
-        setting = {...cSetting};
-
-        dispatch("change");
-    }
-
-    onMount(async () => {
-        await updatePrintableKeyName();
     });
 </script>
 
@@ -63,8 +60,8 @@
     <button class="change-bind" on:click={toggleBinding}>
         {#if !binding}
             <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}:</div>
-            
-            {#if cSetting.value === -1}
+
+            {#if cSetting.value === UNKNOWN_KEY}
                 <span class="none">None</span>
             {:else}
                 <span>{printableKeyName}</span>
@@ -79,7 +76,7 @@
   @import "../../../colors.scss";
 
   .setting {
-    padding: 7px 0px;
+    padding: 7px 0;
   }
 
   .change-bind {
@@ -87,7 +84,7 @@
     border: solid 2px $accent-color;
     border-radius: 3px;
     cursor: pointer;
-    padding: 5px;
+    padding: 4px;
     font-weight: 500;
     color: $clickgui-text-color;
     font-size: 12px;

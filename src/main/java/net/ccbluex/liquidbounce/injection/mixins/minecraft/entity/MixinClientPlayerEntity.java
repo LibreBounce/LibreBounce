@@ -35,9 +35,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.web.socket.protocol.rest.game.PlayerData;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -70,6 +70,9 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @Unique
     private PlayerData lastKnownStatistics = null;
+
+    @Unique
+    private PlayerNetworkMovementTickEvent eventMotion;
 
     /**
      * Hook entity tick event
@@ -116,7 +119,29 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "sendMovementPackets", at = @At("HEAD"))
     private void hookMovementPre(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerNetworkMovementTickEvent(EventState.PRE));
+        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+        eventMotion = new PlayerNetworkMovementTickEvent(EventState.PRE, player.getX(), player.getY(), player.getZ(), player.isOnGround());
+        EventManager.INSTANCE.callEvent(eventMotion);
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D"))
+    private double modifyXPosition(double original) {
+        return eventMotion.getX();
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getY()D"))
+    private double modifyYPosition(double original) {
+        return eventMotion.getY();
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D"))
+    private double modifyZPosition(double original) {
+        return eventMotion.getZ();
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isOnGround()Z"))
+    private boolean modifyOnGround(boolean original) {
+        return eventMotion.getGround();
     }
 
     /**
@@ -124,7 +149,8 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "sendMovementPackets", at = @At("RETURN"))
     private void hookMovementPost(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerNetworkMovementTickEvent(EventState.POST));
+        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+        EventManager.INSTANCE.callEvent(new PlayerNetworkMovementTickEvent(EventState.POST, player.getX(), player.getY(), player.getZ(), player.isOnGround()));
     }
 
     /**
@@ -157,6 +183,16 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
         }
 
         return original;
+    }
+
+    /**
+     * Hook custom sneaking multiplier
+     */
+    @ModifyArg(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(ZF)V", ordinal = 0), index = 1)
+    private float hookCustomSneakingMultiplier(float slowDownFactor) {
+        final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier(slowDownFactor);
+        EventManager.INSTANCE.callEvent(playerSneakMultiplier);
+        return playerSneakMultiplier.getMultiplier();
     }
 
     /**

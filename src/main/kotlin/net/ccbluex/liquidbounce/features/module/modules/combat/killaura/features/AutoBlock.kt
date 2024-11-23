@@ -37,12 +37,11 @@ import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.item.ItemStack
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import net.minecraft.util.Hand
 import net.minecraft.util.UseAction
 import net.minecraft.util.hit.HitResult
+import java.security.SecureRandom
 
 object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false) {
 
@@ -51,6 +50,7 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
 
     val tickOff by int("TickOff", 0, 0..2, "ticks")
     val tickOn by int("TickOn", 0, 0..2, "ticks")
+    val chance by float("Chance", 100f, 0f..100f, "%")
 
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
@@ -70,6 +70,13 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
      * @see net.minecraft.client.render.item.HeldItemRenderer renderFirstPersonItem
      */
     var blockVisual = false
+        get() = field && super.handleEvents()
+
+    val shouldUnblockToHit
+        get() = unblockMode != UnblockMode.NONE
+
+    val blockImmediate
+        get() = tickOn == 0 || blockMode == BlockMode.WATCHDOG
 
     /**
      * Make it seem like the player is blocking.
@@ -82,77 +89,70 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
         blockVisual = true
     }
 
-    fun shouldUnblockToHit(): Boolean {
-        return unblockMode != UnblockMode.NONE
-    }
-
-    fun prepareBlocking(): Boolean {
-        // If we configured it to block now, simply return true.
-        if (tickOn == 0) {
-            return true
-        }
-
-        return when (blockMode) {
-            BlockMode.WATCHDOG -> {
-                network.sendPacket(Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround))
-                network.sendPacket(
-                    PlayerActionC2SPacket(
-                        PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK,
-                        player.blockPos,
-                        player.horizontalFacing.opposite)
-                )
-                true
-            }
-            else -> false
-        }
-    }
+    var shouldBlink = false
 
     /**
      * Starts blocking.
      */
+    @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
-        if (!enabled || player.isBlockAction) {
-            return
-        }
-
-        if (onlyWhenInDanger && !isInDanger()) {
-            stopBlocking()
-            return
-        }
-
-        val blockHand = when {
-            canBlock(player.mainHandStack) -> Hand.MAIN_HAND
-            canBlock(player.offHandStack) -> Hand.OFF_HAND
-            else -> return  // We cannot block with any item.
-        }
-
-        val itemStack = player.getStackInHand(blockHand)
-
-        // We do not want to block if the item is disabled.
-        if (itemStack.isEmpty || !itemStack.isItemEnabled(world.enabledFeatures)) {
-            return
-        }
-
-        // Since we fake the blocking state, we simply set the visual blocking state to true.
-        if (blockMode == BlockMode.FAKE) {
-            blockVisual = true
-            return
-        }
-
-        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.WATCHDOG) {
-            interactWithFront()
-        }
-
-        // Interact with the item in the block hand
-        val actionResult = interaction.interactItem(player, blockHand)
-        if (actionResult.isAccepted) {
-            if (actionResult.shouldSwingHand()) {
-                player.swingHand(blockHand)
+        if (SecureRandom().nextFloat() * 100 <= chance) {
+            if (!enabled || (player.isBlockAction && blockMode != BlockMode.WATCHDOG)) {
+                return
             }
-        }
 
-        blockVisual = true
-        blockingStateEnforced = true
+            if (onlyWhenInDanger && !isInDanger()) {
+                stopBlocking()
+                return
+            }
+
+            val blockHand = when {
+                canBlock(player.mainHandStack) -> Hand.MAIN_HAND
+                canBlock(player.offHandStack) -> Hand.OFF_HAND
+                else -> return  // We cannot block with any item.
+            }
+
+            val itemStack = player.getStackInHand(blockHand)
+
+            // We do not want to block if the item is disabled.
+            if (itemStack.isEmpty || !itemStack.isItemEnabled(world.enabledFeatures)) {
+                return
+            }
+
+            // Since we fake the blocking state, we simply set the visual blocking state to true.
+            if (blockMode == BlockMode.FAKE) {
+                blockVisual = true
+                return
+            }
+
+            if (blockMode == BlockMode.WATCHDOG) {
+                val currentSlot = player.inventory.selectedSlot
+                val nextSlot = (currentSlot + 1) % 8
+
+                shouldBlink = true
+                network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
+                network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
+                shouldBlink = false
+
+                // We interact below as well. I am not sure if this is part of the magic bypass or an oversight.
+                interactWithFront()
+            }
+
+            if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.WATCHDOG) {
+                interactWithFront()
+            }
+
+            // Interact with the item in the block hand
+            val actionResult = interaction.interactItem(player, blockHand)
+            if (actionResult.isAccepted) {
+                if (actionResult.shouldSwingHand()) {
+                    player.swingHand(blockHand)
+                }
+            }
+
+            blockVisual = true
+            blockingStateEnforced = true
+        }
     }
 
     fun stopBlocking(pauses: Boolean = false): Boolean {
@@ -175,7 +175,7 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
 
             unblockMode == UnblockMode.CHANGE_SLOT -> {
                 val currentSlot = player.inventory.selectedSlot
-                val nextSlot = (currentSlot + 1) % 9
+                val nextSlot = (currentSlot + 1) % 8
 
                 // todo: add support for tick-off delay, since this is a bit too fast
                 network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
