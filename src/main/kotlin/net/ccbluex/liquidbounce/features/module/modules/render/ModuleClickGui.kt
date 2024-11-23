@@ -21,11 +21,9 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.ClickGuiValueChangeEvent
-import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
-import net.ccbluex.liquidbounce.event.events.GameRenderEvent
-import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
@@ -70,7 +68,9 @@ object ModuleClickGui :
     }
 
     @Suppress("UnusedPrivateProperty")
-    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
+    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true).onChanged {
+        EventManager.callEvent(ClickGuiValueChangeEvent(this))
+    }
 
     object Snapping : ToggleableConfigurable(this, "Snapping", true) {
 
@@ -87,6 +87,7 @@ object ModuleClickGui :
     }
 
     private var clickGuiTab: ITab? = null
+    private const val WORLD_CHANGE_SECONDS_UNTIL_RELOAD = 5
 
     init {
         tree(Snapping)
@@ -157,16 +158,24 @@ object ModuleClickGui :
     }
 
     @Suppress("unused")
-    private val worldChangeHandler = handler<WorldChangeEvent>(
+    private val browserReadyHandler = handler<BrowserReadyEvent>(
+        ignoreCondition = true
+    ) {
+        createView()
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = sequenceHandler<WorldChangeEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
         ignoreCondition = true
     ) { event ->
-        // When changing the world or disconnecting from a server,
-        // close the ClickGUI to free resources
         if (event.world == null) {
-            closeView()
-        } else {
-            createView()
+            return@sequenceHandler
+        }
+
+        waitSeconds(WORLD_CHANGE_SECONDS_UNTIL_RELOAD)
+        if (mc.currentScreen !is ClickScreen) {
+            reloadView()
         }
     }
 
