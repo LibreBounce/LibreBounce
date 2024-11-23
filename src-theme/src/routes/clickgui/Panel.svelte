@@ -9,6 +9,7 @@
     import {gridSize, highlightModuleName, maxPanelZIndex, showGrid, snappingEnabled} from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
     import {scaleFactor} from "./clickgui_store";
+    import {debounceAsync} from "../../integration/util";
 
     export let category: string;
     export let modules: TModule[];
@@ -72,12 +73,12 @@
         }
     }
 
-    async function savePanelConfig() {
+    const savePanelConfig = debounceAsync(async () => {
         await setItem(
             `clickgui.panel.${category}`,
             JSON.stringify(panelConfig),
         );
-    }
+    });
 
     function fixPosition() {
         panelConfig.left = clamp(panelConfig.left, 0, document.documentElement.clientWidth * (2 / $scaleFactor) - panelElement.offsetWidth);
