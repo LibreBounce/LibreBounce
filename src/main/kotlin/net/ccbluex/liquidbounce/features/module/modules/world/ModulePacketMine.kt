@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -98,9 +97,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
             field?.let {
                 targetRenderer.removeBlock(it)
                 if (abortCanceled) {
-                    EventScheduler.schedule<GameTickEvent>(this, action = { _ ->
-                        abort(it, true)
-                    })
+                    abort(it, true)
                 }
             }
 
