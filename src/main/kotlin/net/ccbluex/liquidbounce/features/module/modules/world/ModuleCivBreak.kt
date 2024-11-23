@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.event.events.BlockAttackEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
@@ -27,6 +28,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
@@ -52,12 +54,13 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
     private val switch by boolean("Switch", false)
     private val targetRenderer = tree(
         PlacementRenderer("TargetRendering", true, this,
-            defaultColor = Color4b(255, 0, 0, 90)
+            defaultColor = Color4b(255, 0, 0, 90),
+            clump = false
         )
     )
 
     private val chronometer = Chronometer()
-    private var pos: BlockPos? = null
+    private var targetPos: BlockPos? = null
         set(value) {
             field?.let { targetRenderer.removeBlock(it) }
             value?.let { targetRenderer.addBlock(it) }
@@ -66,18 +69,37 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
         }
     private var dir: Direction? = null
 
+    init {
+        handler<BlockAttackEvent> {
+            if (it.pos.getState()!!.getHardness(world, it.pos) > 0f) {
+                it.cancelEvent()
+            }
+        }
+    }
+
+    override fun enable() {
+        interaction.cancelBlockBreaking()
+        targetPos = ModulePacketMine.targetPos
+        ModulePacketMine.targetPos = null
+    }
+
+    override fun disable() {
+        targetPos = null
+        dir = null
+    }
+
     @Suppress("unused")
     private val repeatable = repeatable {
-        if (pos == null || dir == null) {
+        if (targetPos == null || dir == null) {
             return@repeatable
         }
 
         // some blocks only break when holding a certain tool
         val oldSlot = player.inventory.selectedSlot
-        val state = world.getBlockState(pos)
+        val state = world.getBlockState(targetPos)
         var shouldSwitch = switch && state.isToolRequired
         if (shouldSwitch && ModuleAutoTool.enabled) {
-            ModuleAutoTool.switchToBreakBlock(pos!!)
+            ModuleAutoTool.switchToBreakBlock(targetPos!!)
             shouldSwitch = false
         } else if (shouldSwitch) {
             val slot = findHotbarSlot { stack -> stack.isSuitableFor(state) } ?: -1
@@ -92,7 +114,7 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
 
         // Alright, for some reason when we spam STOP_DESTROY_BLOCK
         // server accepts us to destroy the same block instantly over and over.
-        network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, dir))
+        network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, targetPos, dir))
 
         if (shouldSwitch) {
             network.sendPacket(UpdateSelectedSlotC2SPacket(oldSlot))
@@ -107,7 +129,7 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
 
         val raytrace = raytraceBlock(
             player.eyes,
-            pos!!,
+            targetPos!!,
             state,
             range = 25.0,
             wallsRange = 25.0
@@ -128,7 +150,9 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
     }
 
     @Suppress("unused")
-    private val packetHandler = handler<MouseButtonEvent> { event ->
+    private val mouseButtonHandler = handler<MouseButtonEvent> { event ->
+        mc.currentScreen?.let { return@handler }
+
         val isLeftClick = event.button == 0
         // without adding a little delay before being able to unselect / select again, selecting would be impossible
         val hasTimePassed = chronometer.hasElapsed(200)
@@ -138,24 +162,19 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
         }
 
         // mining unbreakable (-1) or instant breaking (0) blocks with this doesn't make sense
-        val shouldTargetBlock = world.getBlockState(hitResult.blockPos).getHardness(world, hitResult.blockPos) > 0F
+        val shouldTargetBlock = world.getBlockState(hitResult.blockPos).getHardness(world, hitResult.blockPos) > 0f
         // stop when the block is clicked again
-        val isCancelledByUser = hitResult.blockPos.equals(pos)
+        val isCancelledByUser = hitResult.blockPos.equals(targetPos)
 
-        if (shouldTargetBlock && !isCancelledByUser) {
-            pos = hitResult.blockPos
+        if (shouldTargetBlock && world.worldBorder.contains(hitResult.blockPos) && !isCancelledByUser) {
+            targetPos = hitResult.blockPos
             dir = hitResult.side
         } else {
-            pos = null
+            targetPos = null
             dir = null
         }
 
         chronometer.reset()
-    }
-
-    override fun disable() {
-        pos = null
-        dir = null
     }
 
 }

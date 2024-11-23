@@ -280,6 +280,25 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
     }
 
     /**
+     * Updates the box of [pos] to [box].
+     *
+     * This method won't affect positions that are in the state of fading out.
+     */
+    fun updateBox(pos: BlockPos, box: Box) {
+        val result1 = inList.computeIfPresent(pos) { _, value ->
+            Triple(value.first, value.second, box)
+        }
+
+        val result2 = currentList.computeIfPresent(pos) { _, value ->
+            Pair(value.first, box)
+        }
+
+        if (result1 != null || result2 != null) {
+            updateNeighbors(pos)
+        }
+    }
+
+    /**
      * Puts all currently rendered positions in the out-animation state and keeps it being rendered until
      * all animations have been finished even though the module might be already disabled.
      */

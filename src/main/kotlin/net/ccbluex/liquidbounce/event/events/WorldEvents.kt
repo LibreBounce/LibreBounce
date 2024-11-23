@@ -53,6 +53,9 @@ class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: Voxel
 @Nameable("blockBreakingProgress")
 class BlockBreakingProgressEvent(val pos: BlockPos) : Event()
 
+@Nameable("blockBreakingProgress")
+class BlockAttackEvent(val pos: BlockPos) : CancellableEvent()
+
 @Nameable("blockVelocityMultiplier")
 class BlockVelocityMultiplierEvent(val block: Block, var multiplier: Float) : Event()
 
