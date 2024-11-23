@@ -193,11 +193,11 @@ fun Long.formatBytesAsSize(): String {
     val terabytes = gigabytes / 1024
 
     return when {
-        terabytes >= 1 -> String.format("%.2f TB", terabytes)
-        gigabytes >= 1 -> String.format("%.2f GB", gigabytes)
-        megabytes >= 1 -> String.format("%.2f MB", megabytes)
-        kilobytes >= 1 -> String.format("%.2f KB", kilobytes)
-        else -> String.format("%.2f B", bytes)
+        terabytes >= 1 -> "%.2f TB".format(terabytes)
+        gigabytes >= 1 -> "%.2f GB".format(gigabytes)
+        megabytes >= 1 -> "%.2f MB".format(megabytes)
+        kilobytes >= 1 -> "%.2f KB".format(kilobytes)
+        else -> "%.2f B".format(bytes)
     }
 }
 
