@@ -166,7 +166,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
                 considerInventory = !ignoreOpenInventory,
                 configurable = rotationsConfigurable,
                 Priority.IMPORTANT_FOR_USAGE_2,
-                ModuleCivBreak
+                ModulePacketMine
             )
         }
 
