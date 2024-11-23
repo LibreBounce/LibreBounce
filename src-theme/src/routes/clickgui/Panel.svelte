@@ -24,6 +24,8 @@
     let offsetX = 0;
     let offsetY = 0;
 
+    let scrollPositionSaveTimeout: number | undefined;
+
     const panelConfig = loadPanelConfig();
 
     let ignoreGrid = false;
@@ -86,27 +88,31 @@
     }
 
     function onMouseDown(e: MouseEvent) {
+        if (e.button !== 0 && e.button !== 1) return;
+
         moving = true;
-        offsetX = e.clientX - panelConfig.left;
-        offsetY = e.clientY - panelConfig.top;
+        offsetX = e.clientX * (2 / $scaleFactor) - panelConfig.left;
+        offsetY = e.clientY * (2 / $scaleFactor) - panelConfig.top;
         panelConfig.zIndex = ++$maxPanelZIndex;
         $showGrid = $snappingEnabled;
     }
 
     function onMouseMove(e: MouseEvent) {
         if (moving) {
-            const newLeft = (e.clientX - offsetX) * (2 / $scaleFactor);
-            const newTop = (e.clientY - offsetY) * (2 / $scaleFactor);
+            const newLeft = (e.clientX * (2 / $scaleFactor) - offsetX);
+            const newTop = (e.clientY * (2 / $scaleFactor) - offsetY);
 
             panelConfig.left = snapToGrid(newLeft);
             panelConfig.top = snapToGrid(newTop);
 
             fixPosition();
-            savePanelConfig();
         }
     }
 
     function onMouseUp() {
+        if (moving) {
+            savePanelConfig();
+        }
         moving = false;
         $showGrid = false;
     }
@@ -128,7 +134,13 @@
 
     function handleModulesScroll() {
         panelConfig.scrollTop = modulesElement.scrollTop;
-        savePanelConfig();
+
+        if (scrollPositionSaveTimeout !== undefined) {
+            clearTimeout(scrollPositionSaveTimeout);
+        }
+        scrollPositionSaveTimeout = setTimeout(() => {
+            savePanelConfig();
+        }, 500)
     }
 
     highlightModuleName.subscribe(() => {
