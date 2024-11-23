@@ -86,16 +86,16 @@
 
     function onMouseDown(e: MouseEvent) {
         moving = true;
-        offsetX = e.clientX - panelConfig.left;
-        offsetY = e.clientY - panelConfig.top;
+        offsetX = e.clientX * (2 / $scaleFactor) - panelConfig.left;
+        offsetY = e.clientY * (2 / $scaleFactor) - panelConfig.top;
         panelConfig.zIndex = ++$maxPanelZIndex;
         $showGrid = $snappingEnabled;
     }
 
     function onMouseMove(e: MouseEvent) {
         if (moving) {
-            const newLeft = (e.clientX - offsetX) * (2 / $scaleFactor);
-            const newTop = (e.clientY - offsetY) * (2 / $scaleFactor);
+            const newLeft = (e.clientX * (2 / $scaleFactor) - offsetX);
+            const newTop = (e.clientY * (2 / $scaleFactor) - offsetY);
 
             panelConfig.left = snapToGrid(newLeft);
             panelConfig.top = snapToGrid(newTop);
