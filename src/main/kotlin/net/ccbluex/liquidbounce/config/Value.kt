@@ -97,16 +97,31 @@ open class Value<T : Any>(
 
     @Exclude
     var key: String? = null
+        set(value) {
+            field = value
 
-    val descriptionKey: String?
-        get() = if (independentDescription) {
-            "liquidbounce.common.value.${name.toLowerCamelCase()}.description"
-        } else {
-            this.key?.let { s -> "$s.description" }
+            if (value != null) {
+                this.descriptionKey = if (independentDescription) {
+                    "liquidbounce.common.value.${name.toLowerCamelCase()}.description"
+                } else {
+                    this.key?.let { s -> "$s.description" }
+                }
+            }
         }
 
-    open val description: String?
-        get() = descriptionKey?.let { key -> translation(key).convertToString() }
+    @Exclude
+    @ProtocolExclude
+    var descriptionKey: String? = null
+        set(value) {
+            field = value
+
+            if (value != null) {
+                this.description = translation(value).convertToString()
+            }
+        }
+
+    @Exclude
+    open var description: String? = null
 
     /**
      * Support for delegated properties
