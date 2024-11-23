@@ -31,9 +31,9 @@ import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.entity.effect.StatusEffects
 
-/*
-    extensive blocksmc speed
-    @author liquidsquid1
+/**
+ * extensive blocksmc speed
+ * @author liquidsquid1
  */
 
 class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("BlocksMC") {
