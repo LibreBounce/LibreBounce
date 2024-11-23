@@ -100,8 +100,8 @@ open class Value<T : Any>(
         set(value) {
             field = value
 
-            if (value != null) {
-                this.descriptionKey = if (independentDescription) {
+            this.descriptionKey = value?.let {
+                if (independentDescription) {
                     "liquidbounce.common.value.${name.toLowerCamelCase()}.description"
                 } else {
                     this.key?.let { s -> "$s.description" }
@@ -115,9 +115,7 @@ open class Value<T : Any>(
         set(value) {
             field = value
 
-            if (value != null) {
-                this.description = translation(value).convertToString()
-            }
+            this.description = value?.let { key -> translation(key).convertToString() }
         }
 
     @Exclude
