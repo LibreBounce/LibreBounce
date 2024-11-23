@@ -41,15 +41,9 @@ internal object VelocityBlocksMC : Choice("BlocksMC") {
 
         // Check if this is a regular velocity update
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
-            if (player.velocity.y >= 0) {
-                event.cancelEvent()
-                network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY))
-                network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY))
-            } else {
-                val currentVelocity = player.velocity
-                packet.velocityX = (currentVelocity.x * 8000).toInt()
-                packet.velocityZ = (currentVelocity.z * 8000).toInt()
-            }
+            event.cancelEvent()
+            network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY))
+            network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY))
         }
     }
 
