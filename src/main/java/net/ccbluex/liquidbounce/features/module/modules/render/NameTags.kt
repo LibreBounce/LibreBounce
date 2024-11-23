@@ -25,12 +25,15 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
+import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Vec3
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
@@ -287,13 +290,11 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
 
         if (armor && entity is EntityPlayer) {
             for (index in 0..4) {
-                if (entity.getEquipmentInSlot(index) == null) {
-                    continue
-                }
+                val itemStack = entity.getEquipmentInSlot(index) ?: continue
 
                 mc.renderItem.zLevel = -147F
                 mc.renderItem.renderItemAndEffectIntoGUI(
-                    entity.getEquipmentInSlot(index), -50 + index * 20, if (potion && foundPotion) -42 else -22
+                    itemStack, -50 + index * 20, if (potion && foundPotion) -42 else -22
                 )
             }
 

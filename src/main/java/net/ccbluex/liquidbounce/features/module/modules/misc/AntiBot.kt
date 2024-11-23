@@ -12,10 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.botList
 import net.ccbluex.liquidbounce.utils.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
-import net.ccbluex.liquidbounce.utils.extensions.center
-import net.ccbluex.liquidbounce.utils.extensions.getFullName
-import net.ccbluex.liquidbounce.utils.extensions.hitBox
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
@@ -119,7 +116,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         if (health && (entity.health > 20F || entity.health < 0F))
             return true
 
-        if (entityID && (entity.entityId >= 1000000000 || entity.entityId <= -1))
+        if (entityID && (entity.entityId >= 1000000000 || entity.entityId <= 0))
             return true
 
         if (derp && (entity.rotationPitch > 90F || entity.rotationPitch < -90F))
@@ -139,10 +136,7 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         }
 
         if (ping) {
-            if (mc.netHandler.getPlayerInfo(entity.uniqueID)?.responseTime == 0 ||
-                mc.netHandler.getPlayerInfo(entity.uniqueID)?.responseTime == null
-            )
-                return true
+            if (entity.getPing() == 0) return true
         }
 
         if (invalidUUID && mc.netHandler.getPlayerInfo(entity.uniqueID) == null) {
@@ -161,6 +155,12 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
             return true
 
         if (invalidGround && invalidGroundList.getOrDefault(entity.entityId, 0) >= 10)
+            return true
+
+        if (alwaysInRadius && entity.entityId !in notAlwaysInRadiusList)
+            return true
+
+        if (alwaysBehind && entity.entityId in alwaysBehindList)
             return true
 
         if (duplicateProfile) {
@@ -216,12 +216,6 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
             }
             return !shouldReturn
         }
-
-        if (alwaysInRadius && entity.entityId !in notAlwaysInRadiusList)
-            return true
-
-        if (alwaysBehind && entity.entityId in alwaysBehindList)
-            return true
 
         return entity.name.isEmpty() || entity.name == mc.thePlayer.name
     }
