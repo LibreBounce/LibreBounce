@@ -76,6 +76,8 @@ import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.*
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket.Mode.STOP_SPRINTING
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -501,6 +503,13 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         // Take the fall off position before placing the block
         val previousFallOffPos = currentOptimalLine?.let { l -> ScaffoldMovementPrediction.getFallOffPositionOnLine(l) }
+
+        if (ScaffoldSprintFeature.UnSprintOnPlace.running && ScaffoldSprintFeature.UnSprintOnPlace.packet) {
+            if (player.lastSprinting) {
+                player.networkHandler.sendPacket(ClientCommandC2SPacket(player, STOP_SPRINTING))
+                player.lastSprinting = false
+            }
+        }
 
         renderer.addBlock(target.placedBlock)
         doPlacement(currentCrosshairTarget, handToInteractWith, {
