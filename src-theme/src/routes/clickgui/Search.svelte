@@ -212,8 +212,20 @@
       grid-template-columns: max-content 1fr max-content;
 
       .module-name {
+        position: relative;
         color: $clickgui-text-dimmed-color;
         transition: ease color 0.2s;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: -4px;
+          bottom: 0;
+          height: 1px;
+          width: 0;
+          background-color: $accent-color;
+          transition: width 0.3s ease;
+        }
       }
 
       &.enabled {
@@ -229,6 +241,10 @@
 
       &.selected {
         padding-left: 10px;
+
+        .module-name::after {
+          width: calc(100% + 8px);
+        }
       }
 
       &:hover {
