@@ -57,7 +57,6 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     }
 
     val repeatable = repeatable {
-
         if (player.isOnGround) {
             airTicks = 0
             canSpeed = true
