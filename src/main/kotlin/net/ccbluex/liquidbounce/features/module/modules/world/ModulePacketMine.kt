@@ -28,9 +28,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.EventScheduler
@@ -89,7 +87,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private var started = false
     private var direction: Direction? = null
     private var progress = 0f
-    private var shouldPreviouslyRotate = rotationMode.start
+    private var shouldRotate = rotationMode.start
 
     var targetPos: BlockPos? = null
         set(value) {
@@ -137,31 +135,27 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
             return@repeatable
         }
 
-        if (!handleRotating(blockPos, state)) {
-            return@repeatable
-        }
-
-        handleBreaking(blockPos, state)
+        val rotation = handleRotating(blockPos, state) ?: return@repeatable
+        handleBreaking(blockPos, state, rotation)
     }
 
-    private fun handleRotating(blockPos: BlockPos, state: BlockState): Boolean {
-        val shouldRotate = rotationMode.shouldRotate()
-        if (shouldRotate) {
-            val raytrace = raytraceBlock(
-                player.eyes,
-                blockPos,
-                state,
-                range = range.toDouble(),
-                wallsRange = wallsRange.toDouble()
-            ) ?: run {
-                if (shouldPreviouslyRotate || blockPos.getCenterDistanceSquaredEyes() > keepRange.sq()) {
-                    abort(blockPos)
-                }
+    private fun handleRotating(blockPos: BlockPos, state: BlockState): Rotation? {
+        val rotate = rotationMode.shouldRotate()
 
-                shouldPreviouslyRotate = true
-                return false
-            }
+        val eyes = player.eyes
+        val raytrace = raytraceBlock(
+            eyes,
+            blockPos,
+            state,
+            range = range.toDouble(),
+            wallsRange = wallsRange.toDouble()
+        ) ?: run {
+            // don't do actions when the block is out of range
+            abort(blockPos)
+            return null
+        }
 
+        if (rotate) {
             RotationManager.aimAt(
                 raytrace.rotation,
                 considerInventory = !ignoreOpenInventory,
@@ -171,14 +165,20 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
             )
         }
 
-        shouldPreviouslyRotate = shouldRotate
+        shouldRotate = rotate
 
-        return true
+        return raytrace.rotation
     }
 
-    private fun handleBreaking(blockPos: BlockPos, state: BlockState) {
+    private fun handleBreaking(blockPos: BlockPos, state: BlockState, rotation: Rotation) {
+        // are we looking at the target?
         val rayTraceResult = raytraceBlock(
             max(range, wallsRange).toDouble() + 1.0,
+            rotation = if (shouldRotate && (!started || rotationMode.between)) {
+                RotationManager.serverRotation
+            } else {
+                rotation
+            },
             pos = blockPos,
             state = state
         )
@@ -290,7 +290,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     }
 
     private fun abort(pos: BlockPos, force: Boolean = false) {
-        if (!force && pos.getCenterDistanceSquaredEyes() > keepRange.sq()) {
+        if (!force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
             return
         }
 
@@ -382,7 +382,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         progress = 0f
         started = false
         direction = null
-        shouldPreviouslyRotate = rotationMode.start
+        shouldRotate = rotationMode.start
     }
 
     @Suppress("unused")
