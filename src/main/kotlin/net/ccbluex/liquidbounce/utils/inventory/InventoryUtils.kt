@@ -187,17 +187,27 @@ fun findItemsInContainer(screen: GenericContainerScreen) =
         .filter { !it.stack.isNothing() && it.inventory === screen.screenHandler.inventory }
         .map { ContainerItemSlot(it.id) }
 
-fun useHotbarSlotOrOffhand(item: HotbarItemSlot) = when (item) {
-    OffHandSlot -> interactItem(Hand.OFF_HAND)
-    else -> interactItem(Hand.MAIN_HAND) {
-        SilentHotbar.selectSlotSilently(null, item.hotbarSlotForServer, 1)
+fun useHotbarSlotOrOffhand(
+    item: HotbarItemSlot,
+    ticksUntilReset: Int = 1,
+    yaw: Float = RotationManager.serverRotation.yaw,
+    pitch: Float = RotationManager.serverRotation.pitch
+) = when (item) {
+    OffHandSlot -> interactItem(Hand.OFF_HAND, yaw, pitch)
+    else -> interactItem(Hand.MAIN_HAND, yaw, pitch) {
+        SilentHotbar.selectSlotSilently(null, item.hotbarSlotForServer, ticksUntilReset)
     }
 }
 
-fun interactItem(hand: Hand, preInteraction: () -> Unit = { }) {
+fun interactItem(
+    hand: Hand,
+    yaw: Float = RotationManager.serverRotation.yaw,
+    pitch: Float = RotationManager.serverRotation.yaw,
+    preInteraction: () -> Unit = { }
+) {
     preInteraction()
 
-    interaction.interactItem(player, hand).takeIf { it.isAccepted }?.let {
+    interaction.interactItem(player, hand, yaw, pitch).takeIf { it.isAccepted }?.let {
         if (it.shouldSwingHand()) {
             player.swingHand(hand)
         }

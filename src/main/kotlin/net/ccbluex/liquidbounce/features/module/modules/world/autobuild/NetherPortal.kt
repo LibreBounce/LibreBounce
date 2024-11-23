@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.autobuild
 
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.block.getBlockingEntities
 import net.ccbluex.liquidbounce.utils.block.isBlockedByEntities
 import net.minecraft.block.Blocks
@@ -27,7 +27,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
 class NetherPortal(val origin: BlockPos, val down: Boolean, val direction: Direction, rotated: Direction)
-    : QuickImports {
+    : MinecraftShortcuts {
 
     val frameBlocks = arrayOf(
         origin.up(4), origin.offset(rotated).up(4),

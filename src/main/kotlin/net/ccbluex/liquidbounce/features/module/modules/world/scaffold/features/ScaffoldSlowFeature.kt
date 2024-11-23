@@ -24,10 +24,18 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 
 object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", false) {
     private val slowSpeed by float("SlowSpeed", 0.6f, 0.1f..3f)
+    private val onlyOnGround by boolean("OnlyOnGround", false)
 
     @Suppress("unused")
     val stateUpdateHandler = repeatable {
-        player.velocity.x *= slowSpeed
-        player.velocity.z *= slowSpeed
+        if (onlyOnGround) {
+            if (player.isOnGround) {
+                player.velocity.x *= slowSpeed
+                player.velocity.z *= slowSpeed
+            }
+        } else {
+            player.velocity.x *= slowSpeed
+            player.velocity.z *= slowSpeed
+        }
     }
 }
