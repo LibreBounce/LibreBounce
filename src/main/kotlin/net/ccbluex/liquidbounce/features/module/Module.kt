@@ -27,21 +27,12 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedColorChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedNoneChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedSpawnLocationChoice
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.ccbluex.liquidbounce.utils.kotlin.mapArray
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.network.ClientPlayNetworkHandler
-import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.client.network.ClientPlayerInteractionManager
 import net.minecraft.client.util.InputUtil
-import net.minecraft.client.world.ClientWorld
 
 /**
  * A module also called 'hack' can be enabled and handle events
@@ -57,7 +48,7 @@ open class Module(
     hide: Boolean = false, // default hide
     @Exclude val disableOnQuit: Boolean = false, // disables module when player leaves the world,
     @Exclude val aliases: Array<out String> = emptyArray() // additional names under which the module is known
-) : Listenable, Configurable(name), QuickImports {
+) : Listenable, Configurable(name), MinecraftShortcuts {
 
     val valueEnabled = boolean("Enabled", state).also {
         // Might not include the enabled state of the module depending on the category

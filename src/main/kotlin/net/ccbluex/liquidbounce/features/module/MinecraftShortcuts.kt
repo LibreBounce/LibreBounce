@@ -14,7 +14,7 @@ import net.minecraft.client.world.ClientWorld
  * we are sure that the client is in-game, if not
  * fiddling with the handler code.
  */
-interface QuickImports {
+interface MinecraftShortcuts {
     val mc: MinecraftClient
         get() = net.ccbluex.liquidbounce.utils.client.mc
     val player: ClientPlayerEntity
