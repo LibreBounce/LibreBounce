@@ -93,8 +93,8 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
 
     val modes = choices("Mode", 0, this::initializeSpeeds).apply(::tagBy)
 
+    private val notWhileUsingItem by boolean("NotWhileUsingItem", false)
     private val notDuringScaffold by boolean("NotDuringScaffold", true)
-    private val notDuringFly by boolean("NotDuringFly", true)
     private val notWhileSneaking by boolean("NotWhileSneaking", false)
 
     private object OnlyInCombat : ToggleableConfigurable(this, "OnlyInCombat", false) {
@@ -178,7 +178,11 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
             return false
         }
 
-        if (notDuringScaffold && ModuleScaffold.enabled || notDuringFly && ModuleFly.enabled) {
+        if (notDuringScaffold && ModuleScaffold.enabled || ModuleFly.enabled) {
+            return false
+        }
+
+        if (notWhileUsingItem && player.isUsingItem) {
             return false
         }
 
