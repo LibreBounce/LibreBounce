@@ -27,7 +27,7 @@
             step: 0.01,
         });
 
-        apiSlider.on("update", values => {
+        apiSlider.on("change", values => {
             const newValue = values.map(v => v.toString()).map(v => parseFloat(v));
 
             cSetting.value = {

@@ -27,7 +27,7 @@
             step: 1,
         });
 
-        apiSlider.on("update", (values) => {
+        apiSlider.on("change", (values) => {
             const newValue = parseInt(values[0].toString());
 
             cSetting.value = newValue;
