@@ -185,6 +185,22 @@ fun Int.formatAsTime(): String {
     }
 }
 
+fun Long.formatBytesAsSize(): String {
+    val bytes = this.toDouble()
+    val kilobytes = bytes / 1024
+    val megabytes = kilobytes / 1024
+    val gigabytes = megabytes / 1024
+    val terabytes = gigabytes / 1024
+
+    return when {
+        terabytes >= 1 -> String.format("%.2f TB", terabytes)
+        gigabytes >= 1 -> String.format("%.2f GB", gigabytes)
+        megabytes >= 1 -> String.format("%.2f MB", megabytes)
+        kilobytes >= 1 -> String.format("%.2f KB", kilobytes)
+        else -> String.format("%.2f B", bytes)
+    }
+}
+
 fun hideSensitiveAddress(address: String): String {
     // Hide possibly sensitive information from LiquidProxy
     return when {
