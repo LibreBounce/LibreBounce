@@ -48,7 +48,7 @@ private const val BACKGROUND_PADDING: Int = 2
  */
 object ModuleItemTags : Module("ItemTags", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.itemTags"
 
     private val boxSize by float("BoxSize", 1.0F, 0.1F..10.0F)
@@ -111,7 +111,7 @@ object ModuleItemTags : Module("ItemTags", Category.RENDER) {
             -BACKGROUND_PADDING,
             width + BACKGROUND_PADDING,
             height + BACKGROUND_PADDING,
-            Color4b(0, 0, 0, 128).toRGBA()
+            Color4b(0, 0, 0, 128).toARGB()
         )
 
         val c = fontRenderer.size

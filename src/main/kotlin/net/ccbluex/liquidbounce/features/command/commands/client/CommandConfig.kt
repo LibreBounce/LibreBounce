@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
-import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
@@ -162,7 +161,9 @@ object CommandConfig {
                                                 )
                                             )
                                     },
-                                    regular(" | ${it.serverAddress ?: "Global"}"), prefix = false
+                                    regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
+                                        prefix = false
+                                    )
                                 )
                             }
                         }.onFailure {

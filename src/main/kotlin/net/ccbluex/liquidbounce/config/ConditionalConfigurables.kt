@@ -21,9 +21,10 @@ package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.QuickImports
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 
 /**
  * Should handle events when enabled. Allows the client-user to toggle features. (like modules)
@@ -32,7 +33,7 @@ abstract class ToggleableConfigurable(
     @Exclude @ProtocolExclude val parent: Listenable? = null,
     name: String,
     enabled: Boolean
-) : Listenable, Configurable(name, valueType = ValueType.TOGGLEABLE), QuickImports {
+) : Listenable, Configurable(name, valueType = ValueType.TOGGLEABLE), MinecraftShortcuts {
 
     // TODO: Make enabled change also call newState
     var enabled by boolean("Enabled", enabled)
@@ -64,7 +65,7 @@ abstract class ToggleableConfigurable(
 
     override fun parent() = parent
 
-    @ScriptApi
+    @ScriptApiRequired
     @Suppress("unused")
     fun getEnabledValue(): Value<*> = this.inner[0]
 }
@@ -82,6 +83,14 @@ class ChoiceConfigurable<T : Choice>(
     var choices: MutableList<T> = choicesCallback(this).toMutableList()
     private var defaultChoice: T = activeChoiceCallback(this)
     var activeChoice: T = defaultChoice
+
+    operator fun T.unaryPlus() = choices.add(this)
+
+    init {
+        for (choice in choices) {
+            choice.base = this
+        }
+    }
 
     fun newState(state: Boolean) {
         if (state) {
@@ -132,15 +141,15 @@ class ChoiceConfigurable<T : Choice>(
         }
     }
 
-    @ScriptApi
-    fun getChoicesStrings(): Array<String> = this.choices.map { it.name }.toTypedArray()
+    @ScriptApiRequired
+    fun getChoicesStrings(): Array<String> = this.choices.mapArray { it.name }
 
 }
 
 /**
  * A mode is sub-module to separate different bypasses into extra classes
  */
-abstract class Choice(name: String) : Configurable(name), Listenable, NamedChoice, QuickImports {
+abstract class Choice(name: String) : Configurable(name), Listenable, NamedChoice, MinecraftShortcuts {
 
     override val choiceName: String
         get() = this.name

@@ -29,7 +29,7 @@ import kotlin.math.*
 object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
 
     // Configuration options
-    private val modes = choices<Choice>("Mode", MotionMode, arrayOf(MotionMode))
+    private val modes = choices<Choice>("Mode", MotionMode, arrayOf(MotionMode)).apply { tagBy(this) }
     private val range by float("Range", 2f, 0.0f..8.0f)
     private val followRange by float("FollowRange", 4f, 0.0f..10.0f).onChange {
         it.coerceAtLeast(range)
@@ -42,6 +42,7 @@ object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
             get() = modes
 
         private val controlDirection by boolean("ControlDirection", true)
+        private val requiresSpeed by boolean("RequiresSpeed", false)
         private val hypixel by boolean("Hypixel", false)
 
         init {
@@ -80,8 +81,11 @@ object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
                     return false
                 }
 
-                if (VoidCheck.enabled && player.wouldFallIntoVoid(point,
-                        safetyExpand = VoidCheck.safetyExpand.toDouble())) {
+                if (VoidCheck.enabled && player.wouldFallIntoVoid(
+                        point,
+                        safetyExpand = VoidCheck.safetyExpand.toDouble()
+                    )
+                ) {
                     return false
                 }
 
@@ -124,6 +128,11 @@ object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
 
             // If the player is not pressing the jump key and requires space, we exit early
             if (requiresSpace && !mc.options.jumpKey.isPressed) {
+                return@handler
+            }
+
+            // If speed isn't enabled and requiresSpeed is, we exit early
+            if (requiresSpeed && !ModuleSpeed.enabled) {
                 return@handler
             }
 

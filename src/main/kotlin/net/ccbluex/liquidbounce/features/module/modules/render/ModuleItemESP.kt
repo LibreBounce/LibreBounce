@@ -40,16 +40,16 @@ import net.minecraft.util.math.Box
 
 object ModuleItemESP : Module("ItemESP", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.itemEsp"
 
-
     private val modes = choices("Mode", OutlineMode, arrayOf(GlowMode, OutlineMode, BoxMode))
-    private val colorMode = choices<GenericColorMode<Any?>>(
-        "ColorMode",
-        { it.choices[0] },
-        { arrayOf(GenericStaticColorMode(it, Color4b(255, 179, 72, 255)), GenericRainbowColorMode(it)) }
-    )
+    private val colorMode = choices("ColorMode", 0) {
+        arrayOf(
+            GenericStaticColorMode(it, Color4b(255, 179, 72, 255)),
+            GenericRainbowColorMode(it)
+        )
+    }
 
     private object BoxMode : Choice("Box") {
 

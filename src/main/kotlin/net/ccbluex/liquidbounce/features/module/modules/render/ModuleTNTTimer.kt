@@ -42,7 +42,7 @@ import kotlin.math.sin
  */
 object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.tntTimer"
 
     // Glow ESP

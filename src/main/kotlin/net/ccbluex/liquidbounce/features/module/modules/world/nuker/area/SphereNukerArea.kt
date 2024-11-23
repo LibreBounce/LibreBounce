@@ -32,11 +32,11 @@ import kotlin.jvm.optionals.getOrDefault
 
 object SphereNukerArea : NukerArea("Sphere") {
 
-    override fun lookupTargets(range: Float, count: Int?): List<Pair<BlockPos, BlockState>> {
-        val rangeSquared = range * range
+    override fun lookupTargets(radius: Float, count: Int?): Sequence<Pair<BlockPos, BlockState>> {
+        val rangeSquared = radius * radius
         val eyesPos = player.eyes
 
-        val positions = searchBlocksInCuboid(range, eyesPos) { pos, state ->
+        val positions = eyesPos.searchBlocksInCuboid(radius) { pos, state ->
             if (state.isNotBreakable(pos)) {
                 return@searchBlocksInCuboid false
             }
@@ -58,8 +58,7 @@ object SphereNukerArea : NukerArea("Sphere") {
 
         val boundingBox = player.box.offset(0.0, -1.0, 0.0)
         val nonStandingPositions = positions.filter { (pos, _) ->
-            val blockBox = Box.enclosing(pos, pos.add(1, 1, 1))
-            !boundingBox.intersects(blockBox)
+            !boundingBox.intersects(Box(pos))
         }
 
         // If there are more than one target, we should remove blocks that we are standing on

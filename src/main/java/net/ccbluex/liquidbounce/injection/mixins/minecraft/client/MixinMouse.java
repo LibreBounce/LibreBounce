@@ -20,17 +20,17 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleZoom;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Mouse.class)
 public class MixinMouse {
@@ -76,21 +76,16 @@ public class MixinMouse {
         return original || ModuleZoom.INSTANCE.getEnabled();
     }
 
-    /**
-     * Hook mouse cursor event
-     */
-    @ModifyArgs(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"), require = 1, allow = 1)
-    private void modifyMouseRotationInput(Args args) {
-        var cursorDeltaX = (double) args.get(0);
-        var cursorDeltaY = (double) args.get(1);
-
+    @WrapWithCondition(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"), require = 1, allow = 1)
+    private boolean modifyMouseRotationInput(ClientPlayerEntity instance, double cursorDeltaX, double cursorDeltaY) {
         final MouseRotationEvent event = new MouseRotationEvent(cursorDeltaX, cursorDeltaY);
         EventManager.INSTANCE.callEvent(event);
-        if (event.isCancelled())
-            return;
+        if (event.isCancelled()) {
+            return false;
+        }
 
-        args.set(0, event.getCursorDeltaX());
-        args.set(1, event.getCursorDeltaY());
+        instance.changeLookDirection(event.getCursorDeltaX(), event.getCursorDeltaY());
+        return false;
     }
 
 }

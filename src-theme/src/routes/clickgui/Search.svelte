@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {Module} from "../../integration/types";
+    import type {ConfigurableSetting, Module} from "../../integration/types";
     import {getModuleSettings, setModuleEnabled} from "../../integration/rest";
     import {listen} from "../../integration/ws";
-    import type {ToggleModuleEvent} from "../../integration/events";
+    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ToggleModuleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
     import {onMount} from "svelte";
     import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
@@ -87,9 +87,13 @@
         }
     }
 
+    function applyValues(configurable: ConfigurableSetting) {
+        autoFocus = configurable.value.find(v => v.name === "SearchBarAutoFocus")?.value as boolean ?? true;
+    }
+
     onMount(async () => {
         const clickGuiSettings = await getModuleSettings("ClickGUI");
-        autoFocus = clickGuiSettings.value.find(v => v.name === "SearchBarAutoFocus")?.value as boolean ?? true
+        applyValues(clickGuiSettings);
         if (autoFocus) {
             searchInputElement.focus();
         }
@@ -102,6 +106,10 @@
         }
         mod.enabled = e.enabled;
         filteredModules = filteredModules;
+    });
+
+    listen("clickGuiValueChange", (e: ClickGuiValueChangeEvent) => {
+        applyValues(e.configurable);
     });
 </script>
 

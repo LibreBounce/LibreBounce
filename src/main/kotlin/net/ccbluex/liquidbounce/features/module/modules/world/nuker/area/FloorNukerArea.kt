@@ -23,9 +23,11 @@ import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.kotlin.isNotEmpty
 import net.ccbluex.liquidbounce.utils.math.component1
 import net.ccbluex.liquidbounce.utils.math.component2
 import net.ccbluex.liquidbounce.utils.math.component3
+import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
 import net.minecraft.util.math.BlockPos
@@ -35,14 +37,17 @@ import kotlin.jvm.optionals.getOrDefault
 
 object FloorNukerArea : NukerArea("Floor") {
 
+    private val relativeToPlayer by boolean("RelativeToPlayer", true)
+
     private val startPosition by vec3i("StartPosition", Vec3i.ZERO)
     private val endPosition by vec3i("EndPosition", Vec3i.ZERO)
 
     private val topToBottom by boolean("TopToBottom", true)
 
-    override fun lookupTargets(radius: Float, count: Int?): List<Pair<BlockPos, BlockState>> {
-        val (startX, startY, startZ) = startPosition
-        val (endX, endY, endZ) = endPosition
+    @Suppress("detekt:CognitiveComplexMethod")
+    override fun lookupTargets(radius: Float, count: Int?): Sequence<Pair<BlockPos, BlockState>> {
+        val (startX, startY, startZ) = if (relativeToPlayer) startPosition.add(player.blockPos) else startPosition
+        val (endX, endY, endZ) = if (relativeToPlayer) endPosition.add(player.blockPos) else endPosition
 
         val box = Box.enclosing(
             BlockPos(startX, startY, startZ),
@@ -54,7 +59,7 @@ object FloorNukerArea : NukerArea("Floor") {
         val rangeSquared = radius * radius
         if (box.squaredBoxedDistanceTo(eyesPos) > rangeSquared) {
             // Return empty list if not
-            return emptyList()
+            return emptySequence()
         }
 
         // Create ranges from start position to end position, they might be flipped, so we need to use min/max
@@ -66,15 +71,19 @@ object FloorNukerArea : NukerArea("Floor") {
         // we can skip the rest
         // From top to bottom
 
+        val start = BlockPos.Mutable(xRange.first, 0, zRange.first)
+        val end = BlockPos.Mutable(xRange.last, 0, zRange.last)
+
         // Check if [topToBottom] is enabled, if so reverse the range
         for (y in yRange.let { if (topToBottom) it.reversed() else it }) {
-            val m = xRange.flatMap { x ->
-                zRange.mapNotNull { z ->
-                    val pos = BlockPos(x, y, z)
-                    val state = pos.getState() ?: return@mapNotNull null
+            start.y = y
+            end.y = y
+            val m = sequence {
+                for (pos in start..end) {
+                    val state = pos.getState() ?: continue
 
                     if (state.isNotBreakable(pos)) {
-                        return@mapNotNull null
+                        continue
                     }
 
                     val shape = state.getCollisionShape(world, pos, ShapeContext.of(player))
@@ -84,9 +93,7 @@ object FloorNukerArea : NukerArea("Floor") {
                             .getClosestPointTo(eyesPos)
                             .map { vec3d -> vec3d.squaredDistanceTo(eyesPos) <= rangeSquared }
                             .getOrDefault(false)) {
-                        pos to state
-                    } else {
-                        null
+                        yield(pos.toImmutable() to state)
                     }
                 }
             }
@@ -101,7 +108,7 @@ object FloorNukerArea : NukerArea("Floor") {
             }
         }
 
-        return emptyList()
+        return emptySequence()
     }
 
 }

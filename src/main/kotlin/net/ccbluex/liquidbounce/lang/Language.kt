@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.text.*
 import net.minecraft.util.Language
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 fun translation(key: String, vararg args: Any): MutableText =
     MutableText.of(LanguageText(key, args))
@@ -39,35 +40,44 @@ object LanguageManager : Configurable("lang") {
         "en_pt",
         "pt_br"
     )
-    private val languageMap = mutableMapOf<String, ClientLanguage>()
+    private val languageMap = ConcurrentHashMap<String, ClientLanguage>()
 
     /**
-     * Load all languages which are pre-defined in [knownLanguages] and stored in assets.
+     * Load a specified language which are pre-defined in [knownLanguages] and stored in assets.
      * If a language is not found, it will be logged as error.
      *
      * Languages are stored in assets/minecraft/liquidbounce/lang and when loaded will be stored in [languageMap]
      */
-    fun loadLanguages() {
-        for (language in knownLanguages) {
+    private fun loadLanguage(language: String): ClientLanguage? {
+        return if (languageMap.containsKey(language)) {
+            languageMap[language]!!
+        } else {
             runCatching {
-                val languageFile = javaClass.getResourceAsStream("/assets/liquidbounce/lang/$language.json")
-                val translations = decode<HashMap<String, String>>(languageFile.reader().readText())
+                languageMap.computeIfAbsent(language) {
+                    val languageFile = javaClass.getResourceAsStream("/assets/liquidbounce/lang/$language.json")
+                    val translations = decode<HashMap<String, String>>(languageFile!!)
 
-                languageMap[language] = ClientLanguage(translations)
+                    ClientLanguage(translations)
+                }
             }.onSuccess {
                 logger.info("Loaded language $language")
             }.onFailure {
                 logger.error("Failed to load language $language", it)
-            }
+            }.getOrNull()
         }
     }
 
-    fun getLanguage() = languageMap[languageIdentifier] ?: languageMap[COMMON_UNDERSTOOD_LANGUAGE]
+    fun loadDefault() {
+        loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
+        loadLanguage(languageIdentifier)
+    }
 
-    fun getCommonLanguage() = languageMap[COMMON_UNDERSTOOD_LANGUAGE]
+    fun getLanguage() = loadLanguage(languageIdentifier) ?: loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
+
+    fun getCommonLanguage() = loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
 
     fun hasFallbackTranslation(key: String) =
-        languageMap[COMMON_UNDERSTOOD_LANGUAGE]?.hasTranslation(key) ?: false
+        loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)?.hasTranslation(key) ?: false
 
 }
 

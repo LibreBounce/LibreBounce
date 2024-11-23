@@ -21,6 +21,8 @@ package net.ccbluex.liquidbounce.utils.block
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.contains
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
+import net.minecraft.world.chunk.Chunk
 import kotlin.math.max
 import kotlin.math.min
 
@@ -33,22 +35,39 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
         get() = this.from
 
     companion object {
+        // the Region is a closed range so this is not empty actually
         val EMPTY: Region = Region(BlockPos.ORIGIN, BlockPos.ORIGIN)
 
         fun quadAround(pos: BlockPos, xz: Int, y: Int): Region {
-            assert(xz > 0 && y > 0)
-
-            return Region(pos.add(-xz, -y, -xz), pos.add(xz + 1, y + 1, xz + 1))
+            return Region(pos.add(-xz, -y, -xz), pos.add(xz, y, xz))
         }
 
-        fun fromChunkPosition(x: Int, z: Int): Region {
-            val from = BlockPos(x shl 4, 0, z shl 4)
-
-            return Region(from, from.add(16, mc.world!!.height, 16))
+        fun from(blockPos: BlockPos): Region {
+            return Region(blockPos, blockPos)
         }
 
-        fun fromBlockPos(blockPos: BlockPos): Region {
-            return Region(blockPos, blockPos.add(1, 1, 1))
+        fun from(chunk: Chunk): Region {
+            val pos = chunk.pos
+            return Region(
+                BlockPos(pos.x shl 4, chunk.bottomY, pos.z shl 4),
+                BlockPos(pos.x shl 4 or 15, chunk.topY, pos.z shl 4 or 15)
+            )
+        }
+
+        fun fromChunkPos(x: Int, z: Int): Region {
+            return Region(
+                BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
+                BlockPos(x shl 4 or 15, mc.world!!.height, z shl 4 or 15)
+            )
+        }
+
+        fun Region.getBox(): Box {
+            return Box(
+                0.0, 0.0, 0.0,
+                to.x - from.x + 1.0,
+                to.y - from.y + 1.0,
+                to.z - from.z + 1.0,
+            )
         }
     }
 
@@ -71,7 +90,7 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
 
         this.from = fixedFrom
         this.to = fixedTo
-        this.volume = (fixedTo.x - fixedFrom.x) * (fixedFrom.y - fixedTo.y) * (fixedFrom.z - fixedFrom.z)
+        this.volume = (fixedTo.x - fixedFrom.x) * (fixedTo.y - fixedFrom.y) * (fixedTo.z - fixedFrom.z)
     }
 
     private inline val xRange: IntRange
@@ -86,7 +105,7 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
     override fun isEmpty(): Boolean = this.volume == 0
 
     operator fun contains(pos: Region): Boolean {
-        return pos.from.x..pos.to.x in xRange && pos.from.y..pos.to.y in yRange && pos.from.z..pos.to.z in zRange
+        return pos.xRange in xRange && pos.yRange in yRange && pos.zRange in zRange
     }
 
     override operator fun contains(value: BlockPos): Boolean {
@@ -98,7 +117,9 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
     }
 
     private fun intersects(minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int): Boolean {
-        return minX..maxX in xRange && maxY..minY in yRange && minZ..maxZ in zRange
+        return !(this.to.x <= minX || this.from.x >= maxX ||
+            this.to.y <= minY || this.from.y >= maxY ||
+            this.to.z <= minZ || this.from.z >= maxZ)
     }
 
     override fun equals(other: Any?): Boolean {

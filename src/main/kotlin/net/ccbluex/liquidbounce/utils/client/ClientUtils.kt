@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.interfaces.ClientTextColorAdditions
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.util.InputUtil
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.text.TextColor
@@ -33,7 +32,6 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Util
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.Logger
-import org.lwjgl.glfw.GLFW
 
 val logger: Logger
     get() = LiquidBounce.logger
@@ -61,7 +59,13 @@ fun variable(text: MutableText) = text.styled { it.withColor(Formatting.GOLD) }
 
 fun variable(text: String) = text.asText().styled { it.withColor(Formatting.GOLD) }
 
+fun highlight(text: MutableText) = text.styled { it.withColor(Formatting.DARK_PURPLE) }
+
+fun highlight(text: String) = text.asText().styled { it.withColor(Formatting.DARK_PURPLE) }
+
 fun warning(text: MutableText) = text.styled { it.withColor(Formatting.YELLOW) }
+
+fun warning(text: String) = text.asText().styled { it.withColor(Formatting.YELLOW) }
 
 fun markAsError(text: String) = text.asText().styled { it.withColor(Formatting.RED) }
 

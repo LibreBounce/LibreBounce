@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleNoMissCoold
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions;
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAction;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
@@ -198,13 +199,13 @@ public abstract class MixinMinecraftClient {
             titleBuilder.append(" - ");
             ServerInfo serverInfo = this.getCurrentServerEntry();
             if (this.server != null && !this.server.isRemote()) {
-                titleBuilder.append(I18n.translate("title.singleplayer", new Object[0]));
+                titleBuilder.append(I18n.translate("title.singleplayer"));
             } else if (serverInfo != null && serverInfo.isRealm()) {
-                titleBuilder.append(I18n.translate("title.multiplayer.realms", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.realms"));
             } else if (this.server == null && (serverInfo == null || !serverInfo.isLocal())) {
-                titleBuilder.append(I18n.translate("title.multiplayer.other", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.other"));
             } else {
-                titleBuilder.append(I18n.translate("title.multiplayer.lan", new Object[0]));
+                titleBuilder.append(I18n.translate("title.multiplayer.lan"));
             }
         }
 
@@ -253,6 +254,13 @@ public abstract class MixinMinecraftClient {
         UseCooldownEvent useCooldownEvent = new UseCooldownEvent(itemUseCooldown);
         EventManager.INSTANCE.callEvent(useCooldownEvent);
         itemUseCooldown = useCooldownEvent.getCooldown();
+    }
+
+    @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
+    private void hookItemPick(CallbackInfo ci) {
+        if (ModuleMiddleClickAction.Pearl.INSTANCE.cancelPick()) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "hasOutline", cancellable = true, at = @At("HEAD"))

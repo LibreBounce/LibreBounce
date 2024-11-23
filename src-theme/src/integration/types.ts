@@ -28,12 +28,19 @@ export type ModuleSetting =
     | TextSetting
     | TextArraySetting
     | BindSetting
-    | VectorSetting;
+    | VectorSetting
+    | KeySetting;
 
 export interface BlocksSetting {
     valueType: string;
     name: string;
     value: string[];
+}
+
+export interface KeySetting {
+    valueType: string;
+    name: string;
+    value: string;
 }
 
 export interface BindSetting {
@@ -316,6 +323,7 @@ export interface Proxy {
     id: number;
     host: string;
     port: number;
+    forwardAuthentication: boolean;
     favorite: boolean;
     credentials: {
         username: string;

@@ -51,8 +51,8 @@ object ModuleDerp : Module("Derp", Category.FUN) {
             return@repeatable
         }
 
-        val yaw = (yawMode.activeChoice as YawChoice).yaw
-        val pitch = (pitchMode.activeChoice as PitchChoice).pitch.let {
+        val yaw = yawMode.activeChoice.yaw
+        val pitch = pitchMode.activeChoice.pitch.let {
             if (safePitch) {
                 it.coerceIn(-90f..90f)
             } else {

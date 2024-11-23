@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallBlink
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.pressingMovementButton
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import kotlin.random.Random
@@ -44,6 +44,7 @@ internal object VelocityModify : Choice("Modify") {
     private val motionVertical by float("MotionVertical", 0f, 0f..1f)
     private val chance by int("Chance", 100, 0..100, "%")
     private val filter by enumChoice("Filter", VelocityTriggerFilter.ALWAYS)
+    private val onlyMove by boolean("OnlyMove", false)
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
@@ -53,6 +54,7 @@ internal object VelocityModify : Choice("Modify") {
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
             if (chance != 100 && Random.nextInt(100) > chance) return@handler
             if (!filter.allow()) return@handler
+            if (onlyMove && !player.pressingMovementButton) return@handler
 
             // It should just block the packet
             if (horizontal == 0f && vertical == 0f) {
@@ -84,6 +86,7 @@ internal object VelocityModify : Choice("Modify") {
         } else if (packet is ExplosionS2CPacket) { // Check if velocity is affected by explosion
             if (chance != 100 && Random.nextInt(100) > chance) return@handler
             if (!filter.allow()) return@handler
+            if (onlyMove && !player.pressingMovementButton) return@handler
 
             // note: explosion packets are being used by hypixel to trick poorly made cheats.
 

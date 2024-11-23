@@ -25,7 +25,16 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
+import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.browser.BrowserManager
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
+import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
+import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
 import net.ccbluex.liquidbounce.render.shader.Shader
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -33,14 +42,6 @@ import net.ccbluex.liquidbounce.utils.io.extractZip
 import net.ccbluex.liquidbounce.utils.io.resource
 import net.ccbluex.liquidbounce.utils.io.resourceToString
 import net.ccbluex.liquidbounce.utils.render.refreshRate
-import net.ccbluex.liquidbounce.integration.browser.BrowserManager
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
-import net.ccbluex.liquidbounce.integration.theme.component.Component
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.texture.NativeImage
@@ -80,10 +81,10 @@ object ThemeManager : Configurable("theme") {
             // Update integration browser
             IntegrationHandler.updateIntegrationBrowser()
             ModuleHud.refresh()
+            ModuleClickGui.restartView()
         }
 
-    private val takesInputHandler: () -> Boolean
-        get() = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
+    private val takesInputHandler: () -> Boolean = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
 
     init {
         ConfigSystem.root(this)
@@ -101,9 +102,15 @@ object ThemeManager : Configurable("theme") {
      * Open [ITab] with the given [VirtualScreenType] and mark as static if [markAsStatic] is true.
      * This tab will be locked to the highest refresh rate since it is input aware.
      */
-    fun openInputAwareImmediate(virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false): ITab =
-        BrowserManager.browser?.createInputAwareTab(route(virtualScreenType, markAsStatic).url, frameRate = refreshRate,
-            takesInput = takesInputHandler) ?: error("Browser is not initialized")
+    fun openInputAwareImmediate(
+        virtualScreenType: VirtualScreenType? = null,
+        markAsStatic: Boolean = false,
+        takesInput: () -> Boolean = takesInputHandler
+    ): ITab = BrowserManager.browser?.createInputAwareTab(
+        route(virtualScreenType, markAsStatic).url,
+        frameRate = refreshRate,
+        takesInput = takesInput
+    ) ?: error("Browser is not initialized")
 
     fun updateImmediate(tab: ITab?, virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false) =
         tab?.loadUrl(route(virtualScreenType, markAsStatic).url)
@@ -140,7 +147,7 @@ object ThemeManager : Configurable("theme") {
             val shader = activeTheme.compiledShaderBackground ?: defaultTheme.compiledShaderBackground
 
             if (shader != null) {
-                shader.draw(mouseX, mouseY, width, height, delta)
+                shader.draw(mouseX, mouseY, delta)
                 return true
             }
         }
@@ -156,6 +163,8 @@ object ThemeManager : Configurable("theme") {
 
     fun chooseTheme(name: String) {
         activeTheme = Theme(name)
+
+
     }
 
     fun themes() = themesFolder.listFiles()?.filter { it.isDirectory }?.mapNotNull { it.name } ?: emptyList()
@@ -180,7 +189,7 @@ class Theme(val name: String) {
             error("Theme $name does not contain a metadata file")
         }
 
-        decode<ThemeMetadata>(metadataFile.readText())
+        decode<ThemeMetadata>(metadataFile.inputStream())
     }
 
     val exists: Boolean

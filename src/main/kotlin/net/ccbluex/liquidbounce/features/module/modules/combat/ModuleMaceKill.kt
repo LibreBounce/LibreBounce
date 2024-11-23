@@ -33,7 +33,7 @@ import kotlin.math.ceil
  */
 object ModuleMaceKill : Module("MaceKill", Category.COMBAT) {
 
-    private val fallHeight by int("FallHeight", 22, 1..170)
+    private val fallHeight by int("FallHeight", 22, 1..170).apply { tagBy(this) }
 
     init {
         // This module will likely not bypass any anti-cheat, so to prevent someone using it,

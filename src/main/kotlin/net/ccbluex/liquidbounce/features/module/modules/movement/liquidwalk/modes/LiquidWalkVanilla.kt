@@ -39,7 +39,7 @@ internal object LiquidWalkVanilla : Choice("Vanilla") {
 
     @Suppress("unused")
     val inputHandler = handler<MovementInputEvent> { event ->
-        if (event.sneaking || !isBlockAtPosition(player.box) { it is FluidBlock }) {
+        if (event.sneaking || !player.box.isBlockAtPosition { it is FluidBlock }) {
             return@handler
         }
 
@@ -55,7 +55,7 @@ internal object LiquidWalkVanilla : Choice("Vanilla") {
 
         val block = event.state.block
 
-        if (block is FluidBlock && !isBlockAtPosition(player.box) { it is FluidBlock }) {
+        if (block is FluidBlock && !player.box.isBlockAtPosition { it is FluidBlock }) {
             event.shape = VoxelShapes.fullCube()
         }
     }

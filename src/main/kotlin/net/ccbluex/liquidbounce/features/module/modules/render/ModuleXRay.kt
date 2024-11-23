@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.getState
@@ -38,9 +39,10 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     val fullBright by boolean("FullBright", true)
 
     // Only render blocks with non-solid blocks around
-    private val onlyExposure by boolean("OnlyExposure", false)
+    private val exposedOnly by boolean("ExposedOnly", false)
+        .onChanged(::valueChangedReload)
 
-    private val deafultBlocks = mutableSetOf(
+    private val defaultBlocks = setOf(
         // Overworld ores
         COAL_ORE,
         COPPER_ORE,
@@ -172,22 +174,30 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     // Set of blocks that will not be excluded
     val blocks by blocks(
         "Blocks",
-        deafultBlocks
-    )
+        defaultBlocks.toMutableSet()
+    ).onChanged(::valueChangedReload)
 
+    /**
+     * Checks if the block should be rendered or not.
+     * This can be used to exclude blocks that should not be rendered.
+     * Also features an option to only render blocks that are exposed to air.
+     */
     fun shouldRender(blockState: BlockState, blockPos: BlockPos) = when {
         blockState.block !in blocks -> false
 
-        onlyExposure -> Direction.entries.any {
+        exposedOnly -> Direction.entries.any {
             blockPos.add(it.vector)?.let { pos -> pos.getState()?.isSolidBlock(world, pos) } == false
         }
 
         else -> true
     }
 
-    fun resetBlocks() {
+    /**
+     * Resets the block list to the default values
+     */
+    fun applyDefaults() {
         blocks.clear()
-        blocks.addAll(deafultBlocks)
+        blocks.addAll(defaultBlocks)
     }
 
     override fun enable() {
@@ -197,4 +207,13 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
     override fun disable() {
         mc.worldRenderer.reload()
     }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun valueChangedReload(it: Any) {
+        RenderSystem.recordRenderCall {
+            // Reload world renderer on block list change
+            mc.worldRenderer.reload()
+        }
+    }
+
 }

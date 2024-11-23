@@ -37,8 +37,8 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleAntiBot.modes
 
-    private val suspectList = HashSet<UUID>()
-    private val botList = HashSet<UUID>()
+    private val suspectList = hashSetOf<UUID>()
+    private val botList = hashSetOf<UUID>()
 
     val packetHandler = handler<PacketEvent> {
         val packet = it.packet

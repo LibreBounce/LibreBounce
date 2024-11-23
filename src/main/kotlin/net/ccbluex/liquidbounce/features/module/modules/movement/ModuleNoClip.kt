@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 
@@ -33,38 +33,66 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  *
  * Allows you to fly through blocks.
  */
-
 object ModuleNoClip : Module("NoClip", Category.MOVEMENT) {
 
     val speed by float("Speed", 0.32f, 0.1f..0.4f)
+    private val onlyInVehicle by boolean("OnlyInVehicle", false)
     private val disableOnSetback by boolean("DisableOnSetback", true)
+
+    private var noClipSet = false
 
     @Suppress("unused")
     private val handleGameTick = repeatable {
+        if (paused()) {
+            if (noClipSet) {
+                disable()
+            }
+
+            return@repeatable
+        }
+
+        noClipSet = true
         player.noClip = true
         player.fallDistance = 0f
         player.isOnGround = false
 
         val speed = speed.toDouble()
-        player.strafe(speed = speed)
+        player.controllingVehicle?.let {
+            it.noClip = true
 
-        player.velocity.y = when {
-            mc.options.jumpKey.isPressed -> speed
-            mc.options.sneakKey.isPressed -> -speed
-            else -> 0.0
+            if (!ModuleVehicleControl.enabled) {
+                it.velocity = it.velocity.strafe(speed = speed)
+                it.velocity.y = when {
+                    mc.options.jumpKey.isPressed -> speed
+                    mc.options.sneakKey.isPressed -> -speed
+                    else -> 0.0
+                }
+            }
+        } ?: run {
+            player.strafe(speed = speed)
+
+            player.velocity.y = when {
+                mc.options.jumpKey.isPressed -> speed
+                mc.options.sneakKey.isPressed -> -speed
+                else -> 0.0
+            }
         }
     }
 
     val packetHandler = handler<PacketEvent> { event ->
         // Setback detection
-        if (event.packet is PlayerPositionLookS2CPacket && disableOnSetback) {
-            chat(regular(this.message("setbackDetected")))
+        if (event.packet is PlayerPositionLookS2CPacket && disableOnSetback && !paused()) {
+            chat(markAsError(this.message("setbackDetected")))
             enabled = false
         }
     }
 
     override fun disable() {
+        noClipSet = false
         player.noClip = false
+        player.controllingVehicle?.let { it.noClip = false }
     }
+
+    fun paused() = onlyInVehicle && mc.player?.controllingVehicle == null
 
 }

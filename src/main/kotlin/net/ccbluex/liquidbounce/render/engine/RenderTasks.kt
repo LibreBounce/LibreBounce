@@ -90,8 +90,8 @@ data class UV2s(val u: Short, val v: Short) {
         buffer.putShort(idx + 2, v)
     }
 
-    fun toFloatArray(): Array<Float> {
-        return arrayOf((u.toInt() and 0xFFFF) / 65535.0f, (v.toInt() and 0xFFFF) / 65535.0f)
+    fun toFloatArray(): FloatArray {
+        return floatArrayOf((u.toInt() and 0xFFFF) / 65535.0f, (v.toInt() and 0xFFFF) / 65535.0f)
     }
 }
 
@@ -159,8 +159,7 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     }
 
     private fun componentToHex(c: Int): String {
-        val hexString = Integer.toHexString(c)
-        return if (hexString.length == 1) "0$hexString" else hexString
+        return Integer.toHexString(c).padStart(2, '0')
     }
 
     fun red(red: Int) = Color4b(red, this.g, this.b, this.a)
@@ -170,9 +169,6 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     fun blue(blue: Int) = Color4b(this.r, this.g, blue, this.a)
 
     fun alpha(alpha: Int) = Color4b(this.r, this.g, this.b, alpha)
-
-    @Deprecated("Returns ARGB", ReplaceWith("toARGB()"))
-    fun toRGBA() = toARGB()
 
     fun toARGB() = (a shl 24) or (r shl 16) or (g shl 8) or b
 

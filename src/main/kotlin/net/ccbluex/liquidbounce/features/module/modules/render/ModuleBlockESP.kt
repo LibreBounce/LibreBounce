@@ -56,17 +56,13 @@ object ModuleBlockESP : Module("BlockESP", Category.RENDER) {
         it
     }
 
-    private val colorMode = choices<GenericColorMode<Pair<BlockPos, BlockState>>>(
-        "ColorMode",
-        { it.choices[0] },
-        {
-            arrayOf(
-                MapColorMode(it),
-                GenericStaticColorMode(it, Color4b(255, 179, 72, 50)),
-                GenericRainbowColorMode(it)
-            )
-        }
-    )
+    private val colorMode = choices("ColorMode", 0) {
+        arrayOf(
+            MapColorMode(it),
+            GenericStaticColorMode(it, Color4b(255, 179, 72, 50)),
+            GenericRainbowColorMode(it)
+        )
+    }
 
     private object Box : Choice("Box") {
         override val parent: ChoiceConfigurable<Choice>

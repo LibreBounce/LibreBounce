@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.math.Easing
+import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
@@ -31,13 +32,88 @@ import net.minecraft.util.math.Vec3i
 open class Configurable(
     name: String,
     value: MutableList<Value<*>> = mutableListOf(),
-    valueType: ValueType = ValueType.CONFIGURABLE
-) : Value<MutableList<Value<*>>>(name, defaultValue = value, valueType) {
+    valueType: ValueType = ValueType.CONFIGURABLE,
+
+    /**
+     * Signalizes that the [Configurable]'s translation key
+     * should not depend on another [Configurable].
+     * This means the [baseKey] will be directly used.
+     *
+     * The options should be used in common options, so that
+     * descriptions don't have to be written twice.
+     */
+    independentDescription: Boolean = false
+) : Value<MutableList<Value<*>>>(
+    name,
+    defaultValue = value,
+    valueType,
+    independentDescription = independentDescription
+) {
+
+    /**
+     * Stores the [Configurable] in which
+     * the [Configurable] is included, can be null.
+     */
+    var base: Configurable? = null
+
+    /**
+     * The base key used when [base] is null,
+     * otherwise the [baseKey] from [base]
+     * is used when its base is null and so on.
+     */
+    open val baseKey: String
+        get() = "liquidbounce.option.${name.toLowerCamelCase()}"
 
     open fun initConfigurable() {
         inner.filterIsInstance<Configurable>().forEach {
             it.initConfigurable()
         }
+    }
+
+    /**
+     * Walks the path of the [Configurable] and its children
+     */
+    fun walkKeyPath(previousBaseKey: String? = null) {
+        this.key = if (previousBaseKey != null) {
+            "$previousBaseKey.${name.toLowerCamelCase()}"
+        } else {
+            constructBaseKey()
+        }
+
+        // Update children
+        for (currentValue in this.inner) {
+            if (currentValue is Configurable) {
+                currentValue.walkKeyPath(this.key)
+            } else {
+                currentValue.key = "${this.key}.value.${currentValue.name.toLowerCamelCase()}"
+            }
+
+            if (currentValue is ChoiceConfigurable<*>) {
+                val currentKey = currentValue.key
+
+                currentValue.choices.forEach { choice -> choice.walkKeyPath(currentKey) }
+            }
+        }
+    }
+
+    /**
+     * Joins the names of all bases and this and the [baseKey] of the lowest
+     * base together to create a translation base key.
+     */
+    private fun constructBaseKey(): String {
+        val values = mutableListOf<String>()
+        var current: Configurable? = this
+        while (current != null) {
+            val base1 = current.base
+            if (base1 == null) {
+                values.add(current.baseKey)
+            } else {
+                values.add(current.name.toLowerCamelCase())
+            }
+            current = base1
+        }
+        values.reverse()
+        return values.joinToString(".")
     }
 
     @get:JvmName("getContainedValues")
@@ -56,7 +132,7 @@ open class Configurable(
         for (currentValue in this.inner) {
             if (currentValue is ToggleableConfigurable) {
                 output.add(currentValue)
-                output.addAll(currentValue.inner.filter { it.name.equals("Enabled", true) })
+                currentValue.inner.filterTo(output) { it.name.equals("Enabled", true) }
             } else {
                 if (currentValue is Configurable) {
                     currentValue.getContainedValuesRecursivelyInternal(output)
@@ -86,7 +162,12 @@ open class Configurable(
 
     protected fun <T : Configurable> tree(configurable: T): T {
         inner.add(configurable)
+        configurable.base = this
         return configurable
+    }
+
+    protected fun <T : Configurable> treeAll(vararg configurable: T) {
+        configurable.forEach(this::tree)
     }
 
     protected fun <T : Any> value(
@@ -124,6 +205,11 @@ open class Configurable(
 
     protected fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
 
+    protected fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
+
+    protected fun key(name: String, default: InputUtil.Key = InputUtil.UNKNOWN_KEY) =
+        value(name, default, ValueType.KEY)
+
     protected fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
 
@@ -151,22 +237,34 @@ open class Configurable(
         value(name, default, ValueType.ITEMS, ListValueType.Item)
 
     internal inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
-        where T : Enum<T>, T: NamedChoice = enumChoice(name, default, enumValues<T>())
+        where T : Enum<T>, T : NamedChoice = enumChoice(name, default, enumValues<T>())
 
     protected fun <T> enumChoice(name: String, default: T, choices: Array<T>): ChooseListValue<T>
-        where T : Enum<T>, T: NamedChoice =
+        where T : Enum<T>, T : NamedChoice =
         ChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this) }
 
-    protected fun <T: Choice> choices(listenable: Listenable, name: String, active: T, choices: Array<T>) =
-        ChoiceConfigurable<T>(listenable, name, { active }) { choices }.apply { this@Configurable.inner.add(this) }
+    protected fun <T : Choice> choices(
+        listenable: Listenable,
+        name: String,
+        active: T,
+        choices: Array<T>
+    ): ChoiceConfigurable<T> {
+        return ChoiceConfigurable<T>(listenable, name, { active }) { choices }.apply {
+            this@Configurable.inner.add(this)
+            this.base = this@Configurable
+        }
+    }
 
-    protected fun <T: Choice> choices(
+    protected fun <T : Choice> choices(
         listenable: Listenable,
         name: String,
         activeCallback: (ChoiceConfigurable<T>) -> T,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = ChoiceConfigurable<T>(listenable, name, activeCallback, choicesCallback).apply {
-        this@Configurable.inner.add(this)
+    ): ChoiceConfigurable<T> {
+        return ChoiceConfigurable(listenable, name, activeCallback, choicesCallback).apply {
+            this@Configurable.inner.add(this)
+            this.base = this@Configurable
+        }
     }
 
     protected fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }

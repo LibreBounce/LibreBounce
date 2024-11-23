@@ -18,7 +18,9 @@
  */
 package net.ccbluex.liquidbounce.utils.entity
 
+import net.ccbluex.liquidbounce.common.ShapeFlag
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
 import net.ccbluex.liquidbounce.utils.block.raycast
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -29,8 +31,9 @@ import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.ccbluex.liquidbounce.utils.movement.findEdgeCollision
+import net.minecraft.block.EntityShapeContext
+import net.minecraft.block.ShapeContext
 import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.TntEntity
@@ -52,6 +55,8 @@ import net.minecraft.world.Difficulty
 import net.minecraft.world.GameRules
 import net.minecraft.world.RaycastContext
 import net.minecraft.world.explosion.Explosion
+import net.minecraft.world.explosion.ExplosionBehavior
+import java.util.function.Predicate
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -209,10 +214,10 @@ val Entity.prevPos: Vec3d
     get() = Vec3d(this.prevX, this.prevY, this.prevZ)
 
 val Entity.rotation: Rotation
-    get() = Rotation(this.yaw, this.pitch)
+    get() = Rotation(this.yaw, this.pitch, true)
 
 val ClientPlayerEntity.lastRotation: Rotation
-    get() = Rotation(this.lastYaw, this.lastPitch)
+    get() = Rotation(this.lastYaw, this.lastPitch, true)
 
 val Entity.box: Box
     get() = boundingBox.expand(targetingMargin.toDouble())
@@ -388,52 +393,87 @@ fun LivingEntity.getExplosionDamageFromEntity(entity: Entity): Float {
 /**
  * See [ExplosionBehavior.calculateDamage].
  */
+@Suppress("LongParameterList")
 fun LivingEntity.getDamageFromExplosion(
     pos: Vec3d,
     exploding: Entity? = null,
     power: Float = 6f,
     explosionRange: Float = power * 2f, // allows setting precomputed values
     damageDistance: Float = explosionRange * explosionRange,
-    exclude: Array<BlockPos>? = null
+    exclude: Array<BlockPos>? = null,
+    include: BlockPos? = null,
+    maxBlastResistance: Float? = null,
+    entityBoundingBox: Box? = null
 ): Float {
     // no damage will be dealt if the entity is outside the explosion range or when the difficulty is peaceful
     if (this.squaredDistanceTo(pos) > damageDistance || world.difficulty == Difficulty.PEACEFUL) {
         return 0f
     }
 
-    val distanceDecay = 1.0 - (sqrt(this.squaredDistanceTo(pos)) / explosionRange.toDouble())
-    val exposure = exclude?.let { getExposureToExplosion(pos, it) } ?: Explosion.getExposure(pos, this)
-    val pre1 = exposure.toDouble() * distanceDecay
+    try {
+        ShapeFlag.noShapeChange = true
 
-    val preprocessedDamage = (pre1 * pre1 + pre1) / 2.0 * 7.0 * explosionRange.toDouble() + 1.0
-    if (preprocessedDamage == 0.0) {
-        return 0f
+        val useTweakedMethod = exclude != null ||
+            maxBlastResistance != null ||
+            include != null ||
+            entityBoundingBox != null
+
+        val exposure = if (useTweakedMethod) {
+            getExposureToExplosion(pos, exclude, include, maxBlastResistance, entityBoundingBox)
+        } else {
+            Explosion.getExposure(pos, this)
+        }
+
+        val distanceDecay = 1.0 - (sqrt(this.squaredDistanceTo(pos)) / explosionRange.toDouble())
+        val pre1 = exposure.toDouble() * distanceDecay
+
+        val preprocessedDamage = (pre1 * pre1 + pre1) / 2.0 * 7.0 * explosionRange.toDouble() + 1.0
+        if (preprocessedDamage == 0.0) {
+            return 0f
+        }
+
+        val explosion = Explosion(
+            world,
+            exploding,
+            pos.x,
+            pos.y,
+            pos.z,
+            power,
+            false,
+            world.getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY)
+        )
+
+        return getEffectiveDamage(world.damageSources.explosion(explosion), preprocessedDamage.toFloat())
+    } finally {
+        ShapeFlag.noShapeChange = false
     }
-
-    val explosion = Explosion(
-        world,
-        exploding,
-        pos.x,
-        pos.y,
-        pos.z,
-        power,
-        false,
-        world.getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY)
-    )
-
-    return getEffectiveDamage(world.damageSources.explosion(explosion), preprocessedDamage.toFloat())
 }
 
 /**
  * Basically [Explosion.getExposure] but this method allows us to exclude blocks using [exclude].
  */
 @Suppress("NestedBlockDepth")
-fun LivingEntity.getExposureToExplosion(source: Vec3d, exclude: Array<BlockPos>): Float {
-    val entityBoundingBox = boundingBox
+fun LivingEntity.getExposureToExplosion(
+    source: Vec3d,
+    exclude: Array<BlockPos>?,
+    include: BlockPos?,
+    maxBlastResistance: Float?,
+    entityBoundingBox: Box?
+): Float {
+    val entityBoundingBox1 = entityBoundingBox ?: boundingBox
+    val shapeContext = entityBoundingBox1?.let {
+        EntityShapeContext(
+            isDescending,
+            entityBoundingBox1.minY,
+            mainHandStack,
+            Predicate { state -> canWalkOnFluid(state) },
+            this
+        ) // TODO does this work?
+    } ?: ShapeContext.of(this)
 
-    val stepX = 1.0 / ((entityBoundingBox.maxX - entityBoundingBox.minX) * 2.0 + 1.0)
-    val stepY = 1.0 / ((entityBoundingBox.maxY - entityBoundingBox.minY) * 2.0 + 1.0)
-    val stepZ = 1.0 / ((entityBoundingBox.maxZ - entityBoundingBox.minZ) * 2.0 + 1.0)
+    val stepX = 1.0 / ((entityBoundingBox1.maxX - entityBoundingBox1.minX) * 2.0 + 1.0)
+    val stepY = 1.0 / ((entityBoundingBox1.maxY - entityBoundingBox1.minY) * 2.0 + 1.0)
+    val stepZ = 1.0 / ((entityBoundingBox1.maxZ - entityBoundingBox1.minZ) * 2.0 + 1.0)
 
     val offsetX = (1.0 - floor(1.0 / stepX) * stepX) / 2.0
     val offsetZ = (1.0 - floor(1.0 / stepZ) * stepZ) / 2.0
@@ -451,9 +491,9 @@ fun LivingEntity.getExposureToExplosion(source: Vec3d, exclude: Array<BlockPos>)
         while (currentYStep <= 1.0) {
             var currentZStep = 0.0
             while (currentZStep <= 1.0) {
-                val sampleX = MathHelper.lerp(currentXStep, entityBoundingBox.minX, entityBoundingBox.maxX)
-                val sampleY = MathHelper.lerp(currentYStep, entityBoundingBox.minY, entityBoundingBox.maxY)
-                val sampleZ = MathHelper.lerp(currentZStep, entityBoundingBox.minZ, entityBoundingBox.maxZ)
+                val sampleX = MathHelper.lerp(currentXStep, entityBoundingBox1.minX, entityBoundingBox1.maxX)
+                val sampleY = MathHelper.lerp(currentYStep, entityBoundingBox1.minY, entityBoundingBox1.maxY)
+                val sampleZ = MathHelper.lerp(currentZStep, entityBoundingBox1.minZ, entityBoundingBox1.maxZ)
 
                 val samplePoint = Vec3d(sampleX + offsetX, sampleY, sampleZ + offsetZ)
                 val hitResult = world.raycast(
@@ -462,8 +502,11 @@ fun LivingEntity.getExposureToExplosion(source: Vec3d, exclude: Array<BlockPos>)
                         source,
                         RaycastContext.ShapeType.COLLIDER,
                         RaycastContext.FluidHandling.NONE,
-                        this
-                    ), exclude
+                        shapeContext
+                    ),
+                    exclude,
+                    include,
+                    maxBlastResistance
                 )
 
                 if (hitResult.type == HitResult.Type.MISS) {
@@ -556,19 +599,21 @@ fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
     }
 }
 
-fun ClientPlayerEntity.isInHole(): Boolean {
-    val pos = BlockPos.ofFloored(pos)
-    return arrayOf(
-        Direction.EAST,
-        Direction.WEST,
-        Direction.SOUTH,
-        Direction.NORTH,
-        Direction.DOWN,
-    ).all {
-        pos.offset(it).isBlastResistant()
+fun ClientPlayerEntity.isInHole(feetBlockPos: BlockPos = getFeetBlockPos()): Boolean {
+    return DIRECTIONS_EXCLUDING_UP.all {
+        feetBlockPos.offset(it).isBlastResistant()
     }
 }
 
 fun ClientPlayerEntity.isBurrowed(): Boolean {
-    return BlockPos.ofFloored(pos).isBlastResistant()
+    return getFeetBlockPos().isBlastResistant()
+}
+
+fun ClientPlayerEntity.getFeetBlockPos(): BlockPos {
+    val bb = boundingBox
+    return BlockPos(
+        MathHelper.floor(MathHelper.lerp(0.5, bb.minX, bb.maxX)),
+        MathHelper.ceil(bb.minY),
+        MathHelper.floor(MathHelper.lerp(0.5, bb.minZ, bb.maxZ))
+    )
 }

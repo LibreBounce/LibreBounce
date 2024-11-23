@@ -25,9 +25,10 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.MapColor
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
+import java.util.concurrent.ConcurrentHashMap
 
 class MinimapHeightmapManager {
-    private val heightmaps = hashMapOf<ChunkPos, HeightmapForChunk>()
+    private val heightmaps = ConcurrentHashMap<ChunkPos, HeightmapForChunk>()
 
     fun getHeight(
         x: Int,
@@ -40,7 +41,7 @@ class MinimapHeightmapManager {
     }
 
     private fun getHeightmap(chunkPos: ChunkPos): HeightmapForChunk {
-        return heightmaps.getOrPut(chunkPos) { HeightmapForChunk() }
+        return heightmaps.getOrPut(chunkPos, ::HeightmapForChunk)
     }
 
     fun updateChunk(chunkPos: ChunkPos) {

@@ -28,14 +28,16 @@ import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.script.ScriptApi
+import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
+import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
-import net.minecraft.client.util.InputUtil
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -47,14 +49,19 @@ typealias ValueListener<T> = (T) -> T
 typealias ValueChangedListener<T> = (T) -> Unit
 
 /**
- * Value based on generics and support for readable names and description
+ * Value based on generics and support for readable names and descriptions.
  */
 @Suppress("TooManyFunctions")
 open class Value<T : Any>(
     @SerializedName("name") open val name: String,
     @Exclude private var defaultValue: T,
     @Exclude val valueType: ValueType,
-    @Exclude @ProtocolExclude val listType: ListValueType = ListValueType.None
+    @Exclude @ProtocolExclude val listType: ListValueType = ListValueType.None,
+
+    /**
+     * If true, the description won't be bound to any [Configurable].
+     */
+    @Exclude @ProtocolExclude var independentDescription: Boolean = false
 ) {
 
     @SerializedName("value") internal var inner: T = defaultValue
@@ -88,6 +95,32 @@ open class Value<T : Any>(
     var notAnOption = false
         private set
 
+    @Exclude
+    var key: String? = null
+        set(value) {
+            field = value
+
+            this.descriptionKey = value?.let {
+                if (independentDescription) {
+                    "liquidbounce.common.value.${name.toLowerCamelCase()}.description"
+                } else {
+                    this.key?.let { s -> "$s.description" }
+                }
+            }
+        }
+
+    @Exclude
+    @ProtocolExclude
+    var descriptionKey: String? = null
+        set(value) {
+            field = value
+
+            this.description = value?.let { key -> translation(key).convertToString() }
+        }
+
+    @Exclude
+    open var description: String? = null
+
     /**
      * Support for delegated properties
      * example:
@@ -106,7 +139,7 @@ open class Value<T : Any>(
         set(t)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("getValue")
     fun getValue(): Any {
         if (this is ChoiceConfigurable<*>) {
@@ -121,7 +154,7 @@ open class Value<T : Any>(
         }
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     @JvmName("setValue")
     @Suppress("UNCHECKED_CAST")
     fun setValue(t: org.graalvm.polyglot.Value) = runCatching {
@@ -213,6 +246,11 @@ open class Value<T : Any>(
 
     fun notAnOption(): Value<T> {
         notAnOption = true
+        return this
+    }
+
+    fun independentDescription(): Value<T> {
+        independentDescription = true
         return this
     }
 
@@ -338,14 +376,12 @@ open class Value<T : Any>(
                 set(items as T)
             }
 
-            ValueType.BIND -> {
-                val newValue = try {
-                    InputUtil.Type.KEYSYM.createFromCode(string.toInt())
-                } catch (e: NumberFormatException) {
-                    inputByName(string)
-                }
+            ValueType.KEY -> {
+                set(inputByName(string) as T)
+            }
 
-                set(newValue as T)
+            ValueType.BIND -> {
+                (get() as InputBind).bind(string)
             }
 
             else -> error("unsupported value type")
@@ -420,7 +456,7 @@ class ChooseListValue<T : NamedChoice>(
         set(newValue)
     }
 
-    @ScriptApi
+    @ScriptApiRequired
     fun getChoicesStrings(): Array<String> {
         return this.choices.map { it.choiceName }.toTypedArray()
     }
@@ -455,7 +491,7 @@ enum class ListValueType(val type: Class<*>?) {
     Item(net.minecraft.item.Item::class.java),
     String(kotlin.String::class.java),
     Friend(FriendManager.Friend::class.java),
-    Proxy(ProxyManager.Proxy::class.java),
+    Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
     None(null)
 }

@@ -18,9 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
-import it.unimi.dsi.fastutil.ints.IntObjectPair
+import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -29,38 +27,22 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.Fonts
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
-import net.ccbluex.liquidbounce.utils.block.AbstractBlockLocationTracker
-import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
+import net.ccbluex.liquidbounce.utils.kotlin.getValue
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
+import java.util.*
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val BED_BLOCKS = setOf(
-    Blocks.RED_BED,
-    Blocks.BLUE_BED,
-    Blocks.GREEN_BED,
-    Blocks.BLACK_BED,
-    Blocks.WHITE_BED,
-    Blocks.YELLOW_BED,
-    Blocks.PURPLE_BED,
-    Blocks.ORANGE_BED,
-    Blocks.PINK_BED,
-    Blocks.LIGHT_BLUE_BED,
-    Blocks.LIGHT_GRAY_BED,
-    Blocks.LIME_BED,
-    Blocks.MAGENTA_BED,
-    Blocks.BROWN_BED,
-    Blocks.CYAN_BED,
-    Blocks.GRAY_BED
-)
 private const val ITEM_SIZE: Int = 16
 private const val BACKGROUND_PADDING: Int = 2
 
@@ -78,24 +60,45 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         Fonts.DEFAULT_FONT.get()
     }
 
+    private val WHITELIST_NON_SOLID = setOf(
+        Blocks.LADDER,
+
+        Blocks.GLASS,
+        Blocks.WHITE_STAINED_GLASS,
+        Blocks.ORANGE_STAINED_GLASS,
+        Blocks.MAGENTA_STAINED_GLASS,
+        Blocks.LIGHT_BLUE_STAINED_GLASS,
+        Blocks.YELLOW_STAINED_GLASS,
+        Blocks.LIME_STAINED_GLASS,
+        Blocks.PINK_STAINED_GLASS,
+        Blocks.GRAY_STAINED_GLASS,
+        Blocks.LIGHT_GRAY_STAINED_GLASS,
+        Blocks.CYAN_STAINED_GLASS,
+        Blocks.PURPLE_STAINED_GLASS,
+        Blocks.BLUE_STAINED_GLASS,
+        Blocks.BROWN_STAINED_GLASS,
+        Blocks.GREEN_STAINED_GLASS,
+        Blocks.RED_STAINED_GLASS,
+        Blocks.BLACK_STAINED_GLASS,
+    )
+
     val renderHandler = handler<OverlayRenderEvent> {
         val playerPos = player.blockPos
 
-        val maxDistanceSquared = maxDistance * maxDistance
+        val maxDistanceSquared = maxDistance.sq()
 
         renderEnvironmentForGUI {
             fontRenderer.withBuffers { buf ->
-                BlockTracker.trackedBlockMap.map { (key, value) ->
-                    DoubleObjectImmutablePair(key.getSquaredDistance(playerPos), value)
-                }.filter {
-                    it.keyDouble() < maxDistanceSquared
-                }.sortedBy {
-                    it.keyDouble()
-                }.take(maxCount).forEachWithSelf { entry, i, self ->
-                    val bedState = entry.value()
+                BedBlockTracker.trackedBlockMap.map { (pos, bedState) ->
+                    DoubleObjectPair.of(pos.getSquaredDistance(playerPos), bedState)
+                }.filter { (distSq, _) ->
+                    distSq < maxDistanceSquared
+                }.sortedBy { (distSq, _) ->
+                    distSq
+                }.take(maxCount).forEachWithSelf { (distSq, bedState), i, self ->
                     val screenPos = WorldToScreen.calculateScreenPos(bedState.pos.add(0.0, renderY.toDouble(), 0.0))
                         ?: return@forEachWithSelf
-                    val distance = sqrt(entry.keyDouble())
+                    val distance = sqrt(distSq)
                     val surrounding = bedState.surroundingBlocks
 
                     val z = 1000.0F * (self.size - i - 1) / self.size
@@ -116,7 +119,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                                 -BACKGROUND_PADDING,
                                 rectWidth + BACKGROUND_PADDING,
                                 rectHeight + BACKGROUND_PADDING,
-                                Color4b(0, 0, 0, 128).toRGBA()
+                                Color4b(0, 0, 0, 128).toARGB()
                             )
 
                             var itemX = 0
@@ -194,148 +197,121 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         val layer: Int,
     ) : Comparable<SurroundingBlock> {
         override fun compareTo(other: SurroundingBlock): Int = compareValuesBy(this, other,
-            SurroundingBlock::layer, { -it.count }, { -it.block.hardness })
+            { it.layer }, { -it.count }, { -it.block.hardness }, { it.block.translationKey })
     }
 
-    @JvmRecord
-    private data class BedState(
-        val block: Block,
-        val pos: Vec3d,
-        val surroundingBlocks: Set<SurroundingBlock>,
-    )
+    private sealed class BedState(val block: Block, val pos: Vec3d) {
+        abstract val surroundingBlocks: Set<SurroundingBlock>
 
-    @Suppress("CognitiveComplexMethod")
-    private fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<IntObjectPair<BlockPos>> =
-        sequence {
-            val queue = ArrayDeque<IntObjectPair<BlockPos>>(layers * layers * directions.size / 2).apply {
-                add(IntObjectImmutablePair(0, this@searchLayer))
-            }
-            val visited = hashSetOf(this@searchLayer)
+        class Normal(
+            block: Block,
+            pos: Vec3d,
+            override val surroundingBlocks: Set<SurroundingBlock>
+        ) : BedState(block, pos)
 
-            while (queue.isNotEmpty()) {
-                val current = queue.removeFirst()
+        class Lazy(
+            block: Block,
+            pos: Vec3d,
+            supplier: () -> Set<SurroundingBlock>
+        ) : BedState(block, pos) {
+            override val surroundingBlocks by lazy(LazyThreadSafetyMode.NONE, supplier)
+        }
+    }
 
-                val layer = current.keyInt()
+    private fun BlockPos.getBedSurroundingBlocks(blockState: BlockState): Set<SurroundingBlock> {
+        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers, ::Object2IntOpenHashMap)
 
-                if (layer == layers) {
-                    continue
+        searchBedLayer(blockState, maxLayers)
+            .forEach { (layer, pos) ->
+                val state = pos.getState()
+
+                // Ignore empty positions and fluid
+                if (state == null || state.isAir) {
+                    return@forEach
                 }
 
-                if (layer > 0) {
-                    yield(current)
-                }
-
-                val pos = current.value()
-
-                for (direction in directions) {
-                    val newPos = pos.offset(direction)
-
-                    if (newPos !in visited && getManhattanDistance(newPos) <= layers) {
-                        visited.add(newPos)
-                        queue.add(IntObjectImmutablePair(layer + 1, newPos))
+                val block = state.block
+                if (state.isSolidBlock(world, pos) || block in WHITELIST_NON_SOLID) {
+                    // Count blocks
+                    with(layers[layer - 1]) {
+                        put(block, if (containsKey(block)) getInt(block) + 1 else 1)
                     }
                 }
             }
+
+        val result = TreeSet<SurroundingBlock>()
+
+        layers.forEachIndexed { i, map ->
+            map.object2IntEntrySet().forEach { (block, count) ->
+                result += SurroundingBlock(block, count, i + 1)
+            }
         }
 
-    private fun getBedPlates(headState: BlockState, head: BlockPos): BedState {
+        return result
+    }
+
+    private fun BlockPos.getBedPlates(headState: BlockState): BedState {
         val bedDirection = headState.get(BedBlock.FACING)
 
-        val (left, right) = if (bedDirection.axis == Direction.Axis.X) {
-            arrayOf(Direction.SOUTH, Direction.NORTH)
-        } else {
-            arrayOf(Direction.WEST, Direction.EAST)
-        }
-
-        val opposite = bedDirection.opposite
-        val layers = Array<Object2IntOpenHashMap<Block>>(maxLayers - 1) { Object2IntOpenHashMap() }
-
-        (head.searchLayer(maxLayers, bedDirection, Direction.UP, left, right) +
-            head.offset(opposite).searchLayer(maxLayers, opposite, Direction.UP, left, right))
-            .mapNotNull {
-                IntObjectImmutablePair(it.keyInt(), it.value()?.getState() ?: return@mapNotNull null)
-            }
-            .filterNot {
-                // Ignore empty positions
-                it.value().isAir
-            }
-            .forEach {
-                // Count blocks
-                val map = layers[it.keyInt() - 1]
-                val block = it.value().block
-                if (map.containsKey(block)) {
-                    map.put(block, map.getInt(block) + 1)
-                } else {
-                    map.put(block, 1)
-                }
-            }
-
-        return BedState(
-            headState.block,
-            Vec3d(
-                head.x + (opposite.offsetX * 0.5) + 0.5,
-                head.y + 1.0,
-                head.z + (opposite.offsetZ * 0.5) + 0.5,
-            ),
-            sortedSetOf<SurroundingBlock>().apply {
-                // flat map
-                layers.forEachIndexed { i, map ->
-                    map.object2IntEntrySet().forEach {
-                        add(
-                            SurroundingBlock(
-                                it.key,
-                                it.intValue,
-                                i + 1,
-                            )
-                        )
-                    }
-                }
-            },
+        val bedBlock = headState.block
+        val renderPos = Vec3d(
+            x - (bedDirection.offsetX * 0.5) + 0.5,
+            y + 1.0,
+            z - (bedDirection.offsetZ * 0.5) + 0.5,
         )
+
+        // When there are many beds, we don't load them all
+        return if (BedBlockTracker.trackedBlockMap.size < maxCount + 4
+                    || player.blockPos.getSquaredDistance(this) < maxDistance.sq()) {
+            BedState.Normal(bedBlock, renderPos, getBedSurroundingBlocks(headState))
+        } else {
+            BedState.Lazy(bedBlock, renderPos) { getBedSurroundingBlocks(headState) }
+        }
     }
 
     override fun enable() {
-        ChunkScanner.subscribe(BlockTracker)
+        ChunkScanner.subscribe(BedBlockTracker)
     }
 
     override fun disable() {
-        ChunkScanner.unsubscribe(BlockTracker)
+        ChunkScanner.unsubscribe(BedBlockTracker)
     }
 
-    private object BlockTracker : AbstractBlockLocationTracker<BedState>() {
+    private object BedBlockTracker : AbstractBlockLocationTracker<BedState>() {
+        private val searchStart by ThreadLocal.withInitial(BlockPos::Mutable)
+        private val searchEnd by ThreadLocal.withInitial(BlockPos::Mutable)
+
         override fun getStateFor(pos: BlockPos, state: BlockState): BedState? {
-            return when {
-                state.block in BED_BLOCKS -> {
-                    val part = BedBlock.getBedPart(state)
-                    // Only track the first part (head) of the bed
-                    if (part == DoubleBlockProperties.Type.FIRST) {
-                        getBedPlates(state, pos)
-                    } else {
-                        null
-                    }
-                }
-
-                trackedBlockMap.isNotEmpty() -> {
-                    // A non-bed block was updated, we need to update the bed blocks around it
-                    trackedBlockMap.keys.forEach {
-                        // Update if the block is close to a bed
-                        val trackedPos = it
-                        if (trackedPos.getManhattanDistance(pos) > maxLayers) {
-                            return@forEach
-                        }
-
-                        val trackedState = trackedPos.getState() ?: return@forEach
-                        if (trackedState.block !in BED_BLOCKS) {
-                            // The tracked block is not a bed anymore, remove it
-                            trackedBlockMap.remove(it)
-                        } else {
-                            trackedBlockMap[it] = getBedPlates(trackedState, trackedPos)
-                        }
-                    }
+            return if (state.isBed) {
+                val part = BedBlock.getBedPart(state)
+                // Only track the first part (head) of the bed
+                if (part == DoubleBlockProperties.Type.FIRST) {
+                    pos.getBedPlates(state)
+                } else {
                     null
                 }
+            } else {
+                // A non-bed block was updated, we need to update the bed blocks around it
+                // Get a sub map of the sorted map
+                trackedBlockMap.subMap(
+                    searchStart.set(pos, -maxLayers, -maxLayers, -maxLayers), true,
+                    // Don't check beds above
+                    searchEnd.set(pos, maxLayers, 0, maxLayers), true,
+                ).keys.forEach {
+                    // Update if the block is close to a bed
+                    if (it.getManhattanDistance(pos) > maxLayers) {
+                        return@forEach
+                    }
 
-                else -> null
+                    val trackedState = it.getState() ?: return@forEach
+                    if (!trackedState.isBed) {
+                        // The tracked block is not a bed anymore, remove it
+                        trackedBlockMap.remove(it)
+                    } else {
+                        trackedBlockMap[it] = it.getBedPlates(trackedState)
+                    }
+                }
+                null
             }
         }
     }

@@ -19,35 +19,58 @@
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
+import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.minecraft.client.network.ClientPlayerEntity
+import net.minecraft.client.network.ClientPlayerInteractionManager
+import net.minecraft.client.network.SequencedPacketCreator
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.world.GameMode
+import org.apache.commons.lang3.mutable.MutableObject
 
 fun clickBlockWithSlot(
     player: ClientPlayerEntity,
     rayTraceResult: BlockHitResult,
-    slot: Int
+    slot: Int,
+    placementSwingMode: SwingMode,
+    switchMode: SwitchMode = SwitchMode.SILENT
 ) {
+    val hand = if (slot == OFFHAND_SLOT.hotbarSlotForServer) {
+        Hand.OFF_HAND
+    } else {
+        Hand.MAIN_HAND
+    }
+
     val prevHotbarSlot = player.inventory.selectedSlot
+    if (hand == Hand.MAIN_HAND) {
+        if (switchMode == SwitchMode.NONE && slot != prevHotbarSlot) {
+            // the slot is not selected and we can't switch
+            return
+        }
 
-    player.inventory.selectedSlot = slot
+        player.inventory.selectedSlot = slot
 
-    if (slot != prevHotbarSlot) {
-        player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(slot))
+        if (slot != prevHotbarSlot) {
+            player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(slot))
+        }
     }
 
     interaction.sendSequencedPacket(world) { sequence ->
-        PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, rayTraceResult, sequence)
+        PlayerInteractBlockC2SPacket(hand, rayTraceResult, sequence)
     }
 
-    val itemUsageContext = ItemUsageContext(player, Hand.MAIN_HAND, rayTraceResult)
+    val itemUsageContext = ItemUsageContext(player, hand, rayTraceResult)
 
     val itemStack = player.inventory.getStack(slot)
 
@@ -62,14 +85,50 @@ fun clickBlockWithSlot(
     }
 
     if (actionResult.shouldSwingHand()) {
-        player.swingHand(Hand.MAIN_HAND)
+        placementSwingMode.swing(hand)
     }
 
-    if (slot != prevHotbarSlot) {
+    if (slot != prevHotbarSlot && hand == Hand.MAIN_HAND && switchMode == SwitchMode.SILENT) {
         player.networkHandler.sendPacket(UpdateSelectedSlotC2SPacket(prevHotbarSlot))
     }
 
     player.inventory.selectedSlot = prevHotbarSlot
+}
+
+/**
+ * [ClientPlayerInteractionManager.interactItem] but with custom rotations.
+ */
+fun ClientPlayerInteractionManager.interactItem(
+    player: PlayerEntity,
+    hand: Hand,
+    yaw: Float,
+    pitch: Float
+): ActionResult {
+    if (gameMode == GameMode.SPECTATOR) {
+        return ActionResult.PASS
+    }
+
+    this.syncSelectedSlot()
+    val mutableObject = MutableObject<ActionResult>()
+    this.sendSequencedPacket(world, SequencedPacketCreator { sequence: Int ->
+        val playerInteractItemC2SPacket = PlayerInteractItemC2SPacket(hand, sequence, yaw, pitch)
+        val itemStack = player.getStackInHand(hand)
+        if (player.itemCooldownManager.isCoolingDown(itemStack.item)) {
+            mutableObject.value = ActionResult.PASS
+            return@SequencedPacketCreator playerInteractItemC2SPacket
+        }
+
+        val typedActionResult = itemStack.use(world, player, hand)
+        val itemStack2 = typedActionResult.value
+        if (itemStack2 != itemStack) {
+            player.setStackInHand(hand, itemStack2)
+        }
+
+        mutableObject.value = typedActionResult.result
+        return@SequencedPacketCreator playerInteractItemC2SPacket
+    })
+
+    return mutableObject.value
 }
 
 fun handlePacket(packet: Packet<*>) =

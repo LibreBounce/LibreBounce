@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkNoCheatPlus
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVanilla
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVerusB3901
-import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVulcan
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVulcan291
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.block.isBlockAtPosition
 import net.ccbluex.liquidbounce.utils.entity.box
@@ -46,7 +46,7 @@ object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arra
         LiquidWalkVanilla,
         LiquidWalkNoCheatPlus,
         LiquidWalkVerusB3901,
-        LiquidWalkVulcan,
+        LiquidWalkVulcan291,
     )).apply { tagBy(this) }
 
     /**
@@ -56,14 +56,14 @@ object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arra
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.01)
 
-        return isBlockAtPosition(detectionBox) { it is FluidBlock }
+        return detectionBox.isBlockAtPosition { it is FluidBlock }
     }
 
     fun collidesWithAnythingElse(): Boolean {
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.5)
 
-        return collideBlockIntersects(detectionBox) { it !is FluidBlock }
+        return detectionBox.collideBlockIntersects { it !is FluidBlock }
     }
 
 }

@@ -19,6 +19,6 @@ fun getSessionInfo(requestObject: RequestObject): FullHttpResponse {
 // GET /api/v1/client/location
 @Suppress("UNUSED_PARAMETER")
 fun getLocationInfo(requestObject: RequestObject): FullHttpResponse {
-    val locationInfo = IpInfoApi.localIpInfo ?: return httpForbidden("Location is not known (yet)")
+    val locationInfo = IpInfoApi.current ?: return httpForbidden("Location is not known")
     return httpOk(protocolGson.toJsonTree(locationInfo))
 }
