@@ -23,6 +23,8 @@
     let offsetX = 0;
     let offsetY = 0;
 
+    let scrollPositionSaveTimeout: number | undefined;
+
     const panelConfig = loadPanelConfig();
 
     let ignoreGrid = false;
@@ -101,11 +103,13 @@
             panelConfig.top = snapToGrid(newTop);
 
             fixPosition();
-            savePanelConfig();
         }
     }
 
     function onMouseUp() {
+        if (moving) {
+            savePanelConfig();
+        }
         moving = false;
         $showGrid = false;
     }
@@ -127,7 +131,13 @@
 
     function handleModulesScroll() {
         panelConfig.scrollTop = modulesElement.scrollTop;
-        savePanelConfig();
+
+        if (scrollPositionSaveTimeout !== undefined) {
+            clearTimeout(scrollPositionSaveTimeout);
+        }
+        scrollPositionSaveTimeout = setTimeout(() => {
+            savePanelConfig();
+        }, 500)
     }
 
     highlightModuleName.subscribe(() => {
