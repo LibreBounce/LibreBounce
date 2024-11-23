@@ -28,13 +28,13 @@ import net.ccbluex.liquidbounce.config.util.Exclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
@@ -96,11 +96,17 @@ open class Value<T : Any>(
         private set
 
     @Exclude
-    @ProtocolExclude
-    var descriptionKey: String? = null
+    var key: String? = null
+
+    val descriptionKey: String?
+        get() = if (independentDescription) {
+            "liquidbounce.common.value.${name.toLowerCamelCase()}.description"
+        } else {
+            this.key?.let { s -> "$s.description" }
+        }
 
     open val description: String?
-        get() = descriptionKey?.let { translation(it).convertToString() }
+        get() = descriptionKey?.let { key -> translation(key).convertToString() }
 
     /**
      * Support for delegated properties

@@ -49,7 +49,7 @@ object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
 
     private var browserTab: ITab? = null
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.hud"
 
     private val blur by boolean("Blur", true)

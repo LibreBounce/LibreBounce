@@ -22,7 +22,6 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.math.Easing
-import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
@@ -38,7 +37,7 @@ open class Configurable(
     /**
      * Signalizes that the [Configurable]'s translation key
      * should not depend on another [Configurable].
-     * This means the [translationBaseKey] will be directly used.
+     * This means the [baseKey] will be directly used.
      *
      * The options should be used in common options, so that
      * descriptions don't have to be written twice.
@@ -58,11 +57,11 @@ open class Configurable(
     var base: Configurable? = null
 
     /**
-     * The translation base used when [base] is null,
-     * otherwise the [translationBaseKey] from [base]
+     * The base key used when [base] is null,
+     * otherwise the [baseKey] from [base]
      * is used when its base is null and so on.
      */
-    open val translationBaseKey: String
+    open val baseKey: String
         get() = "liquidbounce.option.${name.toLowerCamelCase()}"
 
     open fun initConfigurable() {
@@ -72,53 +71,42 @@ open class Configurable(
     }
 
     /**
-     * Creates the description keys for this [Configurable] and all values.
+     * Walks the path of the [Configurable] and its children
      */
-    fun loadDescriptionKeys(previousBaseKey: String? = null) {
-        val baseKey = if (independentDescription) {
-            translationBaseKey
-        } else if (previousBaseKey != null) {
+    fun walkKeyPath(previousBaseKey: String? = null) {
+        this.key = if (previousBaseKey != null) {
             "$previousBaseKey.${name.toLowerCamelCase()}"
         } else {
-            constructTranslationBaseKey()
+            constructBaseKey()
         }
 
-        this.descriptionKey = "$baseKey.description"
-        // TODO remove debug logger
-        logger.info(descriptionKey)
-
+        // Update children
         for (currentValue in this.inner) {
             if (currentValue is Configurable) {
-                currentValue.loadDescriptionKeys(baseKey)
+                currentValue.walkKeyPath(this.key)
             } else {
-                currentValue.descriptionKey = if (currentValue.independentDescription) {
-                    "liquidbounce.common.value.${currentValue.name.toLowerCamelCase()}.description"
-                } else {
-                    "$baseKey.value.${currentValue.name.toLowerCamelCase()}.description"
-                }
-                logger.info(currentValue.descriptionKey)
+                currentValue.key = "${this.key}.value.${currentValue.name.toLowerCamelCase()}"
             }
 
             if (currentValue is ChoiceConfigurable<*>) {
-                val suffix = ".description"
-                val currentKey = currentValue.descriptionKey!!.substringBeforeLast(suffix)
+                val currentKey = currentValue.key
 
-                currentValue.choices.forEach { it.loadDescriptionKeys(currentKey) }
+                currentValue.choices.forEach { choice -> choice.walkKeyPath(currentKey) }
             }
         }
     }
 
     /**
-     * Joins the names of all bases and this and the [translationBaseKey] of the lowest
+     * Joins the names of all bases and this and the [baseKey] of the lowest
      * base together to create a translation base key.
      */
-    private fun constructTranslationBaseKey(): String {
+    private fun constructBaseKey(): String {
         val values = mutableListOf<String>()
         var current: Configurable? = this
         while (current != null) {
             val base1 = current.base
             if (base1 == null) {
-                values.add(current.translationBaseKey)
+                values.add(current.baseKey)
             } else {
                 values.add(current.name.toLowerCamelCase())
             }

@@ -139,7 +139,7 @@ open class Module(
      */
     private var locked: Value<Boolean>? = null
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.${name.toLowerCamelCase()}"
 
     // Tag to be displayed on the HUD
@@ -214,7 +214,7 @@ open class Module(
     /**
      * Warns when no module description is set in the main translation file.
      *
-     * Requires that [Configurable.loadDescriptionKeys] has previously been run.
+     * Requires that [Configurable.walkKeyPath] has previously been run.
      */
     fun verifyFallbackDescription() {
         if (!LanguageManager.hasFallbackTranslation(descriptionKey!!)) {
@@ -231,6 +231,6 @@ open class Module(
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
 
-    fun message(key: String, vararg args: Any) = translation("$translationBaseKey.messages.$key", *args)
+    fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
 
 }

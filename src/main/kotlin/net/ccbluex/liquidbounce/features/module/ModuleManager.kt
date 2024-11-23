@@ -355,7 +355,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
 
         builtin.forEach {
             addModule(it)
-            it.loadDescriptionKeys()
+            it.walkKeyPath()
             it.verifyFallbackDescription()
         }
     }
