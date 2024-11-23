@@ -60,6 +60,11 @@ import kotlin.math.max
 @Suppress("TooManyFunctions")
 object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
+    /**
+     * Instantly sends the stop destroy packet. Immediate mined positions can't be aborted.
+     */
+    private val immediate by boolean("Immediate", false)
+
     private val range by float("Range", 4.5f, 1f..6f)
     private val wallsRange by float("WallsRange", 4.5f, 0f..6f).onChange {
         it.coerceAtLeast(range)
@@ -72,7 +77,12 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private val rotationMode by enumChoice("Rotate", RotationMode.NEVER)
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
     private val abortCanceled by boolean("AbortCanceled", true)
+
+    // not immediate specific settings
+
+    private val clientSideSet by boolean("ClientSideSet", false)
     private val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
+
     private val targetRenderer = tree(
         PlacementRenderer(
             "TargetRendering", true, this,
@@ -84,6 +94,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private val chronometer = Chronometer()
 
     private var started = false
+    private var finished = false
     private var direction: Direction? = null
     private var progress = 0f
     private var shouldRotate = rotationMode.start
@@ -111,7 +122,11 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         }
 
     init {
-        handler<BlockAttackEvent> { it.cancelEvent() }
+        handler<BlockAttackEvent> {
+            if (!ModuleCivBreak.enabled) {
+                it.cancelEvent()
+            }
+        }
     }
 
     override fun enable() {
@@ -201,9 +216,21 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         val slot = switchMode.getSlot(state)
         if (!started) {
             startBreaking(slot, blockPos, direction)
-        } else {
+        } else if (!finished) {
             updateBreakingProgress(blockPos, state, slot)
+            if (progress >= 1f && !immediate) {
+                network.sendPacket(
+                    PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, direction)
+                )
+
+                if (clientSideSet) {
+                    interaction.breakBlock(blockPos)
+                }
+
+                finished = true
+            }
         }
+
         this@ModulePacketMine.direction = direction
     }
 
@@ -215,9 +242,11 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
             PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction)
         )
         swingMode.swing(Hand.MAIN_HAND)
-        network.sendPacket(
-            PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, direction)
-        )
+        if (immediate) {
+            network.sendPacket(
+                PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, direction)
+            )
+        }
     }
 
     private fun updateBreakingProgress(
@@ -287,19 +316,16 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     }
 
     private fun abort(pos: BlockPos, force: Boolean = false) {
-        if (!force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
+        if (!started || finished || immediate || !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
             return
         }
 
-        direction?.let {
-            started = false
-            network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, it))
-            network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, it))
-            swingMode.swing(Hand.MAIN_HAND)
-            network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, it))
-            direction = null
-            progress = 0f
-        }
+        val dir = direction ?: Direction.DOWN
+        network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, dir))
+        started = false
+        direction = null
+        progress = 0f
+        finished = false
     }
 
     @Suppress("unused")
@@ -380,6 +406,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         started = false
         direction = null
         shouldRotate = rotationMode.start
+        finished = false
     }
 
     @Suppress("unused")

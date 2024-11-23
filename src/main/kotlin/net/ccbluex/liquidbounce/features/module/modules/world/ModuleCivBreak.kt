@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.events.BlockAttackEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
@@ -28,7 +27,6 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
-import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
@@ -68,14 +66,6 @@ object ModuleCivBreak : Module("CivBreak", Category.WORLD) {
             field = value
         }
     private var dir: Direction? = null
-
-    init {
-        handler<BlockAttackEvent> {
-            if (it.pos.getState()!!.getHardness(world, it.pos) > 0f) {
-                it.cancelEvent()
-            }
-        }
-    }
 
     override fun enable() {
         interaction.cancelBlockBreaking()
