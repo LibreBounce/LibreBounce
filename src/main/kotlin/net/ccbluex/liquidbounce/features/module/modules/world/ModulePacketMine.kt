@@ -60,6 +60,7 @@ import kotlin.math.max
  *
  * Automatically mines blocks you click once. Using AutoTool is recommended.
  */
+@Suppress("TooManyFunctions")
 object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     private val range by float("Range", 4.5f, 1f..6f)
@@ -182,7 +183,9 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
             state = state
         )
 
-        if (rayTraceResult == null || rayTraceResult.type != HitResult.Type.BLOCK || rayTraceResult.blockPos != targetPos) {
+        if (rayTraceResult == null ||
+            rayTraceResult.type != HitResult.Type.BLOCK ||
+            rayTraceResult.blockPos != targetPos) {
             abort(blockPos)
             return
         }
