@@ -43,6 +43,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.vul
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.vulcan.SpeedVulcanGround286
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog.SpeedHypixelBHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog.SpeedHypixelLowHop
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.blocksmc.SpeedBlocksMC
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -88,7 +89,9 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         SpeedIntave14(configurable),
 
         SpeedHylexLowHop(configurable),
-        SpeedHylexGround(configurable)
+        SpeedHylexGround(configurable),
+        
+        SpeedBlocksMC(configurable)
     )
 
     val modes = choices("Mode", 0, this::initializeSpeeds).apply(::tagBy)
