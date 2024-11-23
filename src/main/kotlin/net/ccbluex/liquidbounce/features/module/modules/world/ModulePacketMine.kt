@@ -436,7 +436,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         NEVER("Never", false, false);
 
         fun shouldSwitch(): Boolean {
-            return between || end || progress >= 1f
+            return between || end && progress >= 1f
         }
 
         fun getBlockBreakingDelta(pos: BlockPos, state: BlockState, itemStack: ItemStack?): Float {
