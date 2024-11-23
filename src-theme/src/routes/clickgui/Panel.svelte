@@ -87,6 +87,8 @@
     }
 
     function onMouseDown(e: MouseEvent) {
+        if (e.button !== 0 && e.button !== 1) return;
+
         moving = true;
         offsetX = e.clientX * (2 / $scaleFactor) - panelConfig.left;
         offsetY = e.clientY * (2 / $scaleFactor) - panelConfig.top;
