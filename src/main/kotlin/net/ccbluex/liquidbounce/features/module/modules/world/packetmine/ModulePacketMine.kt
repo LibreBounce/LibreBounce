@@ -309,20 +309,6 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         }
     }
 
-    private fun abort(pos: BlockPos, force: Boolean = false) {
-        val notPossible = !started || finished || !mode.activeChoice.canAbort
-        if (notPossible || !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
-            return
-        }
-
-        val dir = direction ?: Direction.DOWN
-        network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, dir))
-        started = false
-        direction = null
-        progress = 0f
-        finished = false
-    }
-
     @Suppress("unused")
     private val blockUpdateHandler = handler<PacketEvent> {
         if (!mode.activeChoice.stopOnStateChange) {
@@ -346,6 +332,25 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         if (pos == targetPos && state.isAir) {
             targetPos = null
         }
+    }
+
+    private fun abort(pos: BlockPos, force: Boolean = false) {
+        val notPossible = !started || finished || !mode.activeChoice.canAbort
+        if (notPossible || !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
+            return
+        }
+
+        val dir = direction ?: Direction.DOWN
+        network.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, dir))
+        resetMiningState()
+    }
+
+    private fun resetMiningState() {
+        progress = 0f
+        started = false
+        direction = null
+        shouldRotate = rotationMode.start
+        finished = false
     }
 
     /* tweaked minecraft code start */
@@ -399,14 +404,6 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     }
 
     /* tweaked minecraft code end */
-
-    private fun resetMiningState() {
-        progress = 0f
-        started = false
-        direction = null
-        shouldRotate = rotationMode.start
-        finished = false
-    }
 
     @Suppress("unused")
     enum class RotationMode(
