@@ -224,6 +224,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleFocus,
             ModuleAntiStaff,
             ModuleFlagCheck,
+            ModulePacketLogger,
 
             // Movement
             ModuleAirJump,
