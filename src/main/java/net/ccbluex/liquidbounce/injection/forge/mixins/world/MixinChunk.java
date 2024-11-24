@@ -36,9 +36,7 @@ public class MixinChunk {
         final ProphuntESP prophuntESP = ProphuntESP.INSTANCE;
 
         if (prophuntESP.handleEvents()) {
-            synchronized (prophuntESP.getBlocks()) {
-                prophuntESP.getBlocks().put(pos, System.currentTimeMillis());
-            }
+            prophuntESP.recordBlock(pos);
         }
     }
 
