@@ -51,6 +51,7 @@ class FontGlyphPageManager(
         }
     }
 
+    @Suppress("NestedBlockDepth")
     private fun createGlyphRegistries(
         baseFonts: Set<FontManager.FontFace>,
         glyphPages: List<StaticGlyphPage>
