@@ -130,7 +130,9 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
                 mc.options.rightKey.isPressed -> -90f
                 else -> 0f
             }
-        } else 0f
+        } else {
+            0f
+        }
         return 0f
     }
 
