@@ -27,11 +27,14 @@
             step: 1,
         });
 
-        apiSlider.on("change", (values) => {
+        apiSlider.on("update", (values) => {
             const newValue = parseInt(values[0].toString());
 
             cSetting.value = newValue;
             setting = { ...cSetting };
+        });
+
+        apiSlider.on("set", () => {
             dispatch("change");
         });
     });
