@@ -94,6 +94,7 @@ object ModulePacketLogger : Module("PacketLogger", Category.MISC) {
         chat(text, metadata = MessageMetadata(prefix = false))
     }
 
+    @Suppress("SwallowedException")
     private fun appendFields(text: MutableText, clazz: Class<out Packet<*>>, packet: Packet<*>) {
         text.append(":\n")
 
