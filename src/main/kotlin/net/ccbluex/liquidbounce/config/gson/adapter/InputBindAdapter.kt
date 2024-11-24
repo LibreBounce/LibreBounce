@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.minecraft.client.util.InputUtil
 import java.lang.reflect.Type
 
-object InputBindSerializer : JsonSerializer<InputBind>, JsonDeserializer<InputBind> {
+object InputBindAdapter : JsonSerializer<InputBind>, JsonDeserializer<InputBind> {
 
     override fun serialize(src: InputBind, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
         return JsonObject().apply {

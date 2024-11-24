@@ -17,21 +17,25 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.serializer
 
-import com.google.gson.*
-import net.ccbluex.liquidbounce.render.engine.Color4b
-import java.awt.Color
+import com.google.gson.JsonObject
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
+import net.minecraft.item.ItemStack
+import net.minecraft.registry.Registries
 import java.lang.reflect.Type
 
-object ColorSerializer : JsonSerializer<Color4b>, JsonDeserializer<Color4b> {
-
-    override fun serialize(src: Color4b, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        return JsonPrimitive(src.toARGB())
-    }
-
-    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): Color4b {
-        return Color4b(Color(json.asInt, true))
+object ItemStackSerializer : JsonSerializer<ItemStack> {
+    override fun serialize(src: ItemStack?, typeOfSrc: Type, context: JsonSerializationContext) = src?.let {
+        JsonObject().apply {
+            addProperty("identifier", Registries.ITEM.getId(it.item).toString())
+            add("displayName", context.serialize(it.name))
+            addProperty("count", it.count)
+            addProperty("damage", it.damage)
+            addProperty("maxDamage", it.maxDamage)
+            addProperty("empty", it.isEmpty)
+        }
     }
 
 }

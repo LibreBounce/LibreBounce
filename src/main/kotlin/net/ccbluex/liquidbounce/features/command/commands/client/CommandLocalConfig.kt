@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.AutoConfig.loadingNow
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.IncludeConfiguration
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
@@ -66,7 +67,7 @@ object CommandLocalConfig {
 
                             loadingNow = true
                             ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, bufferedReader(),
-                                ConfigSystem.autoConfigGson)
+                                publicGson)
                         }.onFailure {
                             chat(markAsError(command.result("failedToLoad", variable(name))))
                         }.onSuccess {

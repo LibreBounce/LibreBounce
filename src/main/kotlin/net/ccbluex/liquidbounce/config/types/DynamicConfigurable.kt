@@ -16,25 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+package net.ccbluex.liquidbounce.config.types
 
-package net.ccbluex.liquidbounce.config.adapter
-
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
-import net.ccbluex.liquidbounce.config.Value
-import java.lang.reflect.Type
 
-object ValueSerializationAdapter : JsonSerializer<Value<*>> {
-
-    override fun serialize(src: Value<*>, typeOfSrc: Type?, context: JsonSerializationContext): JsonElement {
-        val obj = JsonObject()
-
-        obj.addProperty("name", src.name)
-        obj.add("value", context.serialize(src.inner))
-
-        return obj
-    }
-
-}
+/**
+ * A dynamic configurable that can create instances of values that are not yet present.
+ */
+open class DynamicConfigurable(
+    name: String,
+    value: MutableList<Value<*>> = mutableListOf(),
+    val factory: (String, JsonObject) -> Value<*>,
+    valueType: ValueType = ValueType.CONFIGURABLE
+) : Configurable(name, value, valueType)

@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.utils.validation
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.utils.client.logger
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File

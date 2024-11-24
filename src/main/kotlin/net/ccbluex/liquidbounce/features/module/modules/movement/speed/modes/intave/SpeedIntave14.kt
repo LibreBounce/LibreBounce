@@ -19,9 +19,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.intave
 
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
@@ -44,9 +44,14 @@ import net.minecraft.entity.MovementType
  * @author larryngton
  */
 class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Intave14", parent) {
+
     private val yawOffsetMode by enumChoice("YawOffsetMode", YawOffsetMode.AIR)
 
-    private class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
+    companion object {
+        private const val BOOST_CONSTANT = 0.003
+    }
+
+    private inner class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
 
         private val strength by float("Strength", 0.29f, 0.01f..0.29f)
 
@@ -61,16 +66,12 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         }
     }
 
-    private class AirBoost(parent: Listenable) : ToggleableConfigurable(parent, "AirBoost", true) {
+    private inner class AirBoost(parent: Listenable) : ToggleableConfigurable(parent, "AirBoost", true) {
 
         private val initialBoostMultiplier by float(
             "InitialBoostMultiplier", 1f,
             0.01f..10f
         )
-
-        companion object {
-            private const val BOOST_CONSTANT = 0.003
-        }
 
         @Suppress("unused")
         private val tickHandler = repeatable {

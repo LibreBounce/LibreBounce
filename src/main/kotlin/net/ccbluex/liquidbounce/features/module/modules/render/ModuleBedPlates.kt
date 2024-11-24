@@ -56,9 +56,8 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private val maxCount by int("MaxCount", 8, 1..64)
     private val highlightUnbreakable by boolean("HighlightUnbreakable", true)
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = Fonts.DEFAULT_FONT.get()
 
     private val WHITELIST_NON_SOLID = setOf(
         Blocks.LADDER,

@@ -17,21 +17,21 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
-import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
-import net.ccbluex.liquidbounce.authlib.manage.AccountSerializer
+import net.ccbluex.liquidbounce.render.engine.Color4b
+import java.awt.Color
 import java.lang.reflect.Type
 
-object MinecraftAccountSerializer : JsonSerializer<MinecraftAccount>, JsonDeserializer<MinecraftAccount> {
+object ColorAdapter : JsonSerializer<Color4b>, JsonDeserializer<Color4b> {
 
-    override fun serialize(src: MinecraftAccount, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        return AccountSerializer.toJson(src)
+    override fun serialize(src: Color4b, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        return JsonPrimitive(src.toARGB())
     }
 
-    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext?): MinecraftAccount {
-        return AccountSerializer.fromJson(json.asJsonObject)
+    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): Color4b {
+        return Color4b(Color(json.asInt, true))
     }
 
 }

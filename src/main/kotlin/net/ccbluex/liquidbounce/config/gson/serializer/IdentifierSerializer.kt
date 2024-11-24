@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 202 CCBlueX
+ * Copyright (c) 2015 - 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,20 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config.adapter
 
-import com.google.gson.*
-import net.minecraft.client.util.InputUtil
+package net.ccbluex.liquidbounce.config.gson.serializer
+
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
+import net.minecraft.util.Identifier
 import java.lang.reflect.Type
 
-object InputUtilKeySerializer : JsonSerializer<InputUtil.Key>, JsonDeserializer<InputUtil.Key> {
-
-    override fun serialize(src: InputUtil.Key, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        return JsonPrimitive(src.translationKey)
-    }
-
-    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): InputUtil.Key {
-        return InputUtil.fromTranslationKey(json.asString)
-    }
-
+object IdentifierSerializer : JsonSerializer<Identifier> {
+    override fun serialize(src: Identifier?, typeOfSrc: Type, context: JsonSerializationContext) =
+        src?.let { JsonPrimitive(it.toString()) }
 }

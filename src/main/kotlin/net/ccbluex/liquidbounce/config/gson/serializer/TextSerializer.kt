@@ -16,37 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config.adapter
+
+package net.ccbluex.liquidbounce.config.gson.serializer
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.processContent
+import net.minecraft.registry.DynamicRegistryManager
+import net.minecraft.text.Text
 import java.lang.reflect.Type
 
-object ChoiceConfigurableSerializer : JsonSerializer<ChoiceConfigurable<Choice>> {
-
-    override fun serialize(
-        src: ChoiceConfigurable<Choice>, typeOfSrc: Type, context: JsonSerializationContext
-    ): JsonElement {
-        val obj = JsonObject()
-
-        obj.addProperty("name", src.name)
-        obj.addProperty("active", src.activeChoice.choiceName)
-        obj.add("value", context.serialize(src.inner))
-
-        val choices = JsonObject()
-
-        for (choice in src.choices) {
-            choices.add(choice.name, context.serialize(choice))
-        }
-
-        obj.add("choices", choices)
-        obj.add("valueType", context.serialize(src.valueType))
-
-        return obj
-    }
-
+object TextSerializer : JsonSerializer<Text> {
+    override fun serialize(src: Text?, typeOfSrc: Type, context: JsonSerializationContext): JsonElement =
+        Text.Serialization.toJson(
+            src?.processContent(), mc.world?.registryManager ?: DynamicRegistryManager.EMPTY
+        )
 }

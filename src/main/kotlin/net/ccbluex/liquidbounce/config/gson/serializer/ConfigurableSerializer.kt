@@ -17,42 +17,57 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.serializer
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.Value
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import java.lang.reflect.Type
 
-object ConfigurableSerializer : JsonSerializer<Configurable> {
+class ConfigurableSerializer(
+    private val withValueType: Boolean, private val includePrivate: Boolean, private val includeNotAnOption: Boolean
+) : JsonSerializer<Configurable> {
 
-    override fun serialize(
-        src: Configurable,
-        typeOfSrc: Type,
-        context: JsonSerializationContext
-    ) = JsonObject().apply {
-        addProperty("name", src.name)
-        add("value", context.serialize(src.inner))
+    companion object {
+
+        /**
+         * This serializer is used to serialize [Configurable]s to JSON
+         */
+        val FILE_SERIALIZER = ConfigurableSerializer(
+            withValueType = false, includePrivate = true, includeNotAnOption = true
+        )
+
+        /**
+         * This serializer is used to serialize [Configurable]s to JSON for interop communication
+         */
+        val INTEROP_SERIALIZER = ConfigurableSerializer(
+            withValueType = true, includePrivate = true, includeNotAnOption = false
+        )
+
+        /**
+         * This serializer is used to serialize [Configurable]s to JSON for public config
+         */
+        val PUBLIC_SERIALIZER = ConfigurableSerializer(
+            withValueType = false, includePrivate = false, includeNotAnOption = true
+        )
+
     }
-}
-
-/**
- * Assign [AutoConfigurableSerializer] serializer for Configurables that should be published publicly instead of
- * using [ConfigurableSerializer]
- */
-object AutoConfigurableSerializer : JsonSerializer<Configurable> {
 
     override fun serialize(
-        src: Configurable,
-        typeOfSrc: Type,
-        context: JsonSerializationContext
+        src: Configurable, typeOfSrc: Type, context: JsonSerializationContext
     ) = JsonObject().apply {
         addProperty("name", src.name)
-        add("value", context.serialize(src.inner.filter { checkIfInclude(it) }))
+        add(
+            "value",
+            context.serialize(src.inner.filter { includeNotAnOption || !it.notAnOption }
+                .filter { includePrivate || checkIfInclude(it) }))
+        if (withValueType) {
+            add("valueType", context.serialize(src.valueType))
+        }
     }
 
     /**
