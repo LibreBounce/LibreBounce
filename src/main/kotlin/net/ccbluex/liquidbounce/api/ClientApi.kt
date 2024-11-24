@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.api
 
 import com.google.gson.annotations.SerializedName
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.utils.io.HttpClient.request
 import net.minecraft.util.Formatting
 import org.apache.commons.lang3.RandomStringUtils

@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
-import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.RenderEnvironment
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
@@ -60,9 +60,8 @@ object ModuleNametags : Module("Nametags", Category.RENDER) {
     val scale by float("Scale", 2F, 0.25F..4F)
     private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
 
-    val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    val fontRenderer
+        get() = FontManager.FONT_RENDERER
 
     @Suppress("unused")
     val overlayRenderHandler = handler<OverlayRenderEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->

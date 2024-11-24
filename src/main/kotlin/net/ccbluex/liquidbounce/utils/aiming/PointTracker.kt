@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.collection
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.item.getBlock

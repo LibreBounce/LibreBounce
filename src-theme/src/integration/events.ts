@@ -1,4 +1,8 @@
-import type {Component, PlayerData, Proxy, Server, TextComponent} from "./types";
+import type {Component, ConfigurableSetting, PlayerData, Proxy, Server, TextComponent} from "./types";
+
+export interface ClickGuiValueChangeEvent {
+    configurable: ConfigurableSetting;
+}
 
 export interface ToggleModuleEvent {
     moduleName: string;

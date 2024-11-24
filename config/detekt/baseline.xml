@@ -50,6 +50,8 @@
     <ID>BracesOnIfStatements:TargetFinding.kt$BlockPlacementTarget$if</ID>
     <ID>BracesOnIfStatements:TargetRenderer.kt$WorldTargetRenderer.GlowingCircle$else</ID>
     <ID>BracesOnIfStatements:TargetRenderer.kt$WorldTargetRenderer.GlowingCircle$if</ID>
+    <ID>CognitiveComplexMethod:AStarMode.kt$AStarMode$override fun enable()</ID>
+    <ID>CognitiveComplexMethod:AStarMode.kt$AStarMode$private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List&lt;Vec3i></ID>
     <ID>CognitiveComplexMethod:AutoConfig.kt$AutoConfig$fun handlePossibleAutoConfig(jsonObject: JsonObject)</ID>
     <ID>CognitiveComplexMethod:BlockExtensions.kt$fun Block?.isInteractable(blockState: BlockState?): Boolean</ID>
     <ID>CognitiveComplexMethod:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
@@ -90,11 +92,11 @@
     <ID>LongMethod:CommandScript.kt$CommandScript$fun createCommand(): Command</ID>
     <ID>LongMethod:CommandXRay.kt$CommandXRay$fun createCommand(): Command</ID>
     <ID>LongMethod:InteropFunctionRegistry.kt$internal fun registerInteropFunctions(node: Node)</ID>
+    <ID>LongMethod:LiquidBounce.kt$LiquidBounce.ClientResourceReloader$override fun reload(manager: ResourceManager)</ID>
     <ID>LongMethod:ModuleManager.kt$ModuleManager$fun registerInbuilt()</ID>
     <ID>LongMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>LongMethod:Value.kt$Value$open fun setByString(string: String)</ID>
     <ID>LongParameterList:Command.kt$Command$( val name: String, val aliases: Array&lt;out String>, val parameters: Array&lt;Parameter&lt;*>>, val subcommands: Array&lt;Command>, val executable: Boolean, val handler: CommandHandler?, private var parentCommand: Command? = null )</ID>
-    <ID>LongParameterList:EntityExtensions.kt$( pos: Vec3d, exploding: Entity? = null, power: Float = 6f, explosionRange: Float = power * 2f, // allows setting precomputed values damageDistance: Float = explosionRange * explosionRange, exclude: Array&lt;BlockPos>? = null )</ID>
     <ID>LongParameterList:FallingPlayer.kt$FallingPlayer$( private val player: ClientPlayerEntity, var x: Double, var y: Double, var z: Double, private var motionX: Double, private var motionY: Double, private var motionZ: Double, private val yaw: Float )</ID>
     <ID>LongParameterList:FontRenderer.kt$FontRenderer$( x0: Float, x: Float, y: Float, z: Float, color: Color4b, through: Boolean )</ID>
     <ID>LongParameterList:Mat4.kt$Mat4.Companion$( left: Float, top: Float, right: Float, bottom: Float, nearPlane: Float, farPlane: Float )</ID>
@@ -111,6 +113,7 @@
     <ID>MatchingDeclarationName:ComparatorUtils.kt$ComparatorChain&lt;T> : Comparator</ID>
     <ID>MatchingDeclarationName:MovementUtils.kt$DirectionalInput</ID>
     <ID>MaxLineLength:HttpClient.kt$HttpClient$"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"</ID>
+    <ID>NestedBlockDepth:AStarMode.kt$AStarMode$private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List&lt;Vec3i></ID>
     <ID>NestedBlockDepth:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>
     <ID>NestedBlockDepth:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
@@ -119,6 +122,7 @@
     <ID>ReturnCount:AutoFarmBlockHandler.kt$AutoFarmBlockTracker$override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates?</ID>
     <ID>ReturnCount:IntegrationHandler.kt$IntegrationHandler$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
     <ID>ReturnCount:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
+    <ID>SpreadOperator:AStarMode.kt$AStarMode$( Vec3i(-1, 0, 0), // left Vec3i(1, 0, 0), // right *(-9..9).map { Vec3i(0, it, 0) }.toTypedArray(), // up- and down Vec3i(0, 0, -1), // front Vec3i(0, 0, 1) // back )</ID>
     <ID>SpreadOperator:ModuleVomit.kt$ModuleVomit$( *emptySlots.map { slot -> CreativeInventoryAction.performFillSlot(randomStack, slot) } .toTypedArray(), *emptySlots.map { slot -> ClickInventoryAction.performThrow(null, slot) } .toTypedArray() )</ID>
     <ID>StringLiteralDuplication:AutoQueueGommeDuels.kt$AutoQueueGommeDuels$"AutoPlay"</ID>
     <ID>StringLiteralDuplication:ScriptSetting.kt$ScriptSetting$"default"</ID>

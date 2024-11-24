@@ -19,11 +19,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
-import net.ccbluex.liquidbounce.event.events.GameRenderEvent
-import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
@@ -49,8 +49,10 @@ object ModuleClickGui :
     @Suppress("UnusedPrivateProperty")
     private val scale by float("Scale", 1f, 0.5f..2f).onChanged {
         EventManager.callEvent(ClickGuiScaleChangeEvent(it))
+        EventManager.callEvent(ClickGuiValueChangeEvent(this))
     }
 
+    @Suppress("UnusedPrivateProperty")
     private val cache by boolean("Cache", true).onChanged { cache ->
         RenderSystem.recordRenderCall {
             if (cache) {
@@ -66,9 +68,30 @@ object ModuleClickGui :
     }
 
     @Suppress("UnusedPrivateProperty")
-    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
+    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true).onChanged {
+        EventManager.callEvent(ClickGuiValueChangeEvent(this))
+    }
+
+    object Snapping : ToggleableConfigurable(this, "Snapping", true) {
+
+        @Suppress("UnusedPrivateProperty")
+        private val gridSize by int("GridSize", 10, 1..100, "px").onChanged {
+            EventManager.callEvent(ClickGuiValueChangeEvent(ModuleClickGui))
+        }
+
+        init {
+            inner.find { it.name == "Enabled" }?.onChanged {
+                EventManager.callEvent(ClickGuiValueChangeEvent(ModuleClickGui))
+            }
+        }
+    }
 
     private var clickGuiTab: ITab? = null
+    private const val WORLD_CHANGE_SECONDS_UNTIL_RELOAD = 5
+
+    init {
+        tree(Snapping)
+    }
 
     override fun enable() {
         // Pretty sure we are not in a game, so we can't open the clickgui
@@ -76,11 +99,13 @@ object ModuleClickGui :
             return
         }
 
-        mc.setScreen(if (clickGuiTab == null) {
-            VrScreen(VirtualScreenType.CLICK_GUI)
-        } else {
-            ClickScreen()
-        })
+        mc.setScreen(
+            if (clickGuiTab == null) {
+                VrScreen(VirtualScreenType.CLICK_GUI)
+            } else {
+                ClickScreen()
+            }
+        )
         super.enable()
     }
 
@@ -133,16 +158,24 @@ object ModuleClickGui :
     }
 
     @Suppress("unused")
-    private val worldChangeHandler = handler<WorldChangeEvent>(
+    private val browserReadyHandler = handler<BrowserReadyEvent>(
+        ignoreCondition = true
+    ) {
+        createView()
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = sequenceHandler<WorldChangeEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
         ignoreCondition = true
     ) { event ->
-        // When changing the world or disconnecting from a server,
-        // close the ClickGUI to free resources
         if (event.world == null) {
-            closeView()
-        } else {
-            createView()
+            return@sequenceHandler
+        }
+
+        waitSeconds(WORLD_CHANGE_SECONDS_UNTIL_RELOAD)
+        if (mc.currentScreen !is ClickScreen) {
+            reloadView()
         }
     }
 

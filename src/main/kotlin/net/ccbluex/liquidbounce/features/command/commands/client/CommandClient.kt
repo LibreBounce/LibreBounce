@@ -36,8 +36,6 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.destructClient
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.wipeClient
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
-import net.ccbluex.liquidbounce.lang.LanguageManager
-import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.integration.BrowserScreen
 import net.ccbluex.liquidbounce.integration.IntegrationHandler
 import net.ccbluex.liquidbounce.integration.IntegrationHandler.clientJcef
@@ -48,6 +46,8 @@ import net.ccbluex.liquidbounce.integration.theme.component.components
 import net.ccbluex.liquidbounce.integration.theme.component.customComponents
 import net.ccbluex.liquidbounce.integration.theme.component.types.ImageComponent
 import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
+import net.ccbluex.liquidbounce.lang.LanguageManager
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.util.Util

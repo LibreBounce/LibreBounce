@@ -608,5 +608,6 @@
   "liquidbounce.module.autoBuild.messages.noObsidian": "没有足够的黑曜石, 关闭中...",
   "liquidbounce.module.autoBuild.messages.noFlintAndSteel": "没有打火石，无法启动传送门, 关闭中...",
   "liquidbounce.module.dupe.description": "尝试利用漏洞从物品栏中自动复制物品。",
-  "liquidbounce.module.surround.description": "自动在周围建造安全方块，保护你免受爆炸伤害。"
+  "liquidbounce.module.surround.description": "自动在周围建造安全方块，保护你免受爆炸伤害。",
+  "liquidbounce.module.fastExp.description": "自动用经验瓶修复你的装备。"
 }

@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.fucker
 
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.CancelBlockBreakingEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -159,6 +160,11 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
         val destroyerTarget = currentTarget ?: return@repeatable
         val currentRotation = RotationManager.serverRotation
 
+        if (ModulePacketMine.enabled && destroyerTarget.action == DestroyAction.DESTROY) {
+            ModulePacketMine.setTarget(destroyerTarget.pos)
+            return@repeatable
+        }
+
         // Check if we are already looking at the block
         val rayTraceResult = raytraceBlock(
             max(range, wallRange).toDouble(),
@@ -190,7 +196,7 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
 
     @Suppress("unused")
     private val cancelBlockBreakingHandler = handler<CancelBlockBreakingEvent> {
-        if (currentTarget != null) {
+        if (currentTarget != null && !ModulePacketMine.enabled) {
             it.cancelEvent()
         }
     }
@@ -327,14 +333,16 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
             return null
         }
 
-        val (rotation, _) = raytrace
-        RotationManager.aimAt(
-            rotation,
-            considerInventory = !ignoreOpenInventory,
-            configurable = rotations,
-            if (prioritizeOverKillAura) Priority.IMPORTANT_FOR_USAGE_3 else Priority.IMPORTANT_FOR_USAGE_1,
-            this@ModuleFucker
-        )
+        if (!ModulePacketMine.enabled) {
+            val (rotation, _) = raytrace
+            RotationManager.aimAt(
+                rotation,
+                considerInventory = !ignoreOpenInventory,
+                configurable = rotations,
+                if (prioritizeOverKillAura) Priority.IMPORTANT_FOR_USAGE_3 else Priority.IMPORTANT_FOR_USAGE_1,
+                this@ModuleFucker
+            )
+        }
 
         ModuleFucker.currentTarget = target
 

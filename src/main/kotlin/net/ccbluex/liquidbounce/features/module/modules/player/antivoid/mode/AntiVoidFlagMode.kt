@@ -20,7 +20,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode
 
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 
 object AntiVoidFlagMode : AntiVoidMode("Flag") {

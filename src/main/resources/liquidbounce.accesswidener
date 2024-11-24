@@ -61,6 +61,7 @@ mutable field net/minecraft/network/packet/c2s/play/PlayerMoveC2SPacket changeLo
 
 accessible field net/minecraft/client/network/ClientPlayerInteractionManager currentBreakingProgress F
 accessible field net/minecraft/client/network/ClientPlayerInteractionManager blockBreakingCooldown I
+accessible field net/minecraft/client/network/ClientPlayerInteractionManager gameMode Lnet/minecraft/world/GameMode;
 
 accessible field net/minecraft/network/packet/c2s/common/ResourcePackStatusC2SPacket status Lnet/minecraft/network/packet/c2s/common/ResourcePackStatusC2SPacket$Status;
 
@@ -182,3 +183,7 @@ accessible field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket snea
 mutable field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
 
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager syncSelectedSlot ()V
+
+accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V
+
+accessible method net/minecraft/entity/Entity unsetRemoved ()V
