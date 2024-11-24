@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler

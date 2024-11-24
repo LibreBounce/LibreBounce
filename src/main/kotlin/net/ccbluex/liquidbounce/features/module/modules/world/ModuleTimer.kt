@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
@@ -42,7 +42,7 @@ import kotlin.math.ceil
  */
 object ModuleTimer : Module("Timer", Category.WORLD, disableOnQuit = true) {
 
-    val modes = choices("Mode", Classic, arrayOf(Classic, Pulse, Boost))
+    val modes = choices("Mode", Classic, arrayOf(Classic, Pulse, Boost)).apply { tagBy(this) }
 
     object Classic : Choice("Classic") {
 

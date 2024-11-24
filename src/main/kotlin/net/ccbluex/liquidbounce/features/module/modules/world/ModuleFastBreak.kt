@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NoneChoice
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
@@ -37,8 +37,7 @@ object ModuleFastBreak : Module("FastBreak", Category.WORLD) {
 
     private val breakDamage by float("BreakDamage", 0.8f, 0.1f..1f)
 
-    private val modeChoice = choices<Choice>("Mode", { it.choices[0] }, { arrayOf(NoneChoice(it), AbortAnother) })
-
+    private val modeChoice = choices("Mode", 0) { arrayOf(NoneChoice(it), AbortAnother) }.apply(::tagBy)
 
     val repeatable = repeatable {
         interaction.blockBreakingCooldown = 0

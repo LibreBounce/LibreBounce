@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -62,14 +62,14 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
         enableLock()
     }
 
-    val modes = choices<Choice>("Mode", { PacketCrit }) {
+    val modes = choices("Mode", 1) {
         arrayOf(
             NoneChoice(it),
             PacketCrit,
             NoGroundCrit,
             JumpCrit
         )
-    }.apply { tagBy(this) }
+    }.apply(::tagBy)
 
     private object PacketCrit : Choice("Packet") {
 
@@ -445,13 +445,13 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
     fun canCrit(ignoreOnGround: Boolean = false): Boolean {
         val blockingEffects = arrayOf(LEVITATION, BLINDNESS, SLOW_FALLING)
 
-        val blockingConditions = arrayOf(
+        val blockingConditions = booleanArrayOf(
             // Modules
             ModuleFly.enabled,
             ModuleLiquidWalk.enabled && ModuleLiquidWalk.standingOnWater(),
             player.isInLava, player.isTouchingWater, player.hasVehicle(),
             // Cobwebs
-            collideBlockIntersects(player.box, checkCollisionShape = false) { it is CobwebBlock },
+            player.box.collideBlockIntersects(checkCollisionShape = false) { it is CobwebBlock },
             // Effects
             blockingEffects.any(player::hasStatusEffect),
             // Disabling conditions

@@ -7,6 +7,7 @@ import type {
     Component,
     ConfigurableSetting,
     GameWindow,
+    HitResult,
     MinecraftKeybind,
     Module,
     PersistentStorageItem,
@@ -105,8 +106,15 @@ export async function getPlayerData(): Promise<PlayerData> {
     return data;
 }
 
-export async function getPrintableKeyName(code: number): Promise<PrintableKey> {
-    const searchParams = new URLSearchParams({code: code.toString()});
+export async function getCrosshairData(): Promise<HitResult> {
+    const response = await fetch(`${API_BASE}/client/crosshair`);
+    const data: HitResult = await response.json();
+
+    return data;
+}
+
+export async function getPrintableKeyName(key: string): Promise<PrintableKey> {
+    const searchParams = new URLSearchParams({key});
 
     const response = await fetch(`${API_BASE}/client/input?${searchParams.toString()}`);
     const data: PrintableKey = await response.json();
@@ -455,23 +463,23 @@ export async function setProxyFavorite(id: number, favorite: boolean) {
     }
 }
 
-export async function addProxy(host: string, port: number, username: string, password: string) {
+export async function addProxy(host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({host, port, username, password})
+        body: JSON.stringify({host, port, username, password,forwardAuthentication})
     });
 }
 
-export async function editProxy(id: number, host: string, port: number, username: string, password: string) {
+export async function editProxy(id: number, host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/edit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({id, host, port, username, password})
+        body: JSON.stringify({id, host, port, username, password, forwardAuthentication})
     })
 }
 
@@ -534,7 +542,7 @@ export async function reconnectToServer() {
 }
 
 export async function toggleBackgroundShaderEnabled() {
-    await fetch(`${API_BASE}/client/theme/shader/switch`, {
+    await fetch(`${API_BASE}/client/shader`, {
         method: "POST",
     });
 }

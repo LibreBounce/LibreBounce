@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -138,7 +138,7 @@ object ModuleAutoBow : Module("AutoBow", Category.COMBAT, aliases = arrayOf("Bow
                     return@handler
                 }
 
-                val targetRotation = RotationManager.storedAimPlan ?: return@handler
+                val targetRotation = RotationManager.workingAimPlan ?: return@handler
 
                 val aimDifference = RotationManager.rotationDifference(
                     RotationManager.serverRotation, targetRotation.rotation

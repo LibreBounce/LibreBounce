@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.InputHandleEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.failedHits
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.hasFailedHit
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.renderFailedHits
+import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -47,6 +48,7 @@ import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.wouldBlockHit
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.openInventorySilently
@@ -102,6 +104,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
     // Rotation
     private val rotations = tree(object : RotationsConfigurable(this, combatSpecific = true) {
         val rotationTimingMode by enumChoice("RotationTiming", RotationTimingMode.NORMAL)
+        val aimThroughWalls by boolean("ThroughWalls", false)
     })
     private val pointTracker = tree(PointTracker())
 
@@ -110,7 +113,6 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
     private val criticalsMode by enumChoice("Criticals", CriticalsMode.SMART)
     private val keepSprint by boolean("KeepSprint", true)
     private val attackShielding by boolean("AttackShielding", false)
-    private val whileUsingItem by boolean("WhileUsingItem", true)
     private val requiresClick by boolean("RequiresClick", false)
     internal val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     internal val simulateInventoryClosing by boolean("SimulateInventoryClosing", true)
@@ -131,6 +133,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         targetTracker.cleanup()
         failedHits.clear()
         AutoBlock.stopBlocking()
+        AutoBlock.shouldBlink = false
         NotifyWhenFail.failedHitsIncrement = 0
     }
 
@@ -171,7 +174,8 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         updateEnemySelection()
     }
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val gameHandler = repeatable {
         if (player.isDead || player.isSpectator) {
             return@repeatable
         }
@@ -210,10 +214,10 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         // Determine if we should attack the target or someone else
         val rotation = if (rotations.rotationTimingMode == RotationTimingMode.ON_TICK) {
             getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW)?.rotation
-                ?: RotationManager.serverRotation
+                ?: RotationManager.currentRotation ?: player.rotation
         } else {
-            RotationManager.serverRotation
-        }
+            RotationManager.currentRotation ?: player.rotation
+        }.normalize()
         val chosenEntity: Entity
 
         if (raycast != TRACE_NONE) {
@@ -422,7 +426,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
             ModuleDebug.DebuggedBox(cutOffBox, Color4b.GREEN.alpha(90)))
         ModuleDebug.debugGeometry(this, "Point", ModuleDebug.DebuggedPoint(nextPoint, Color4b.WHITE))
 
-        val rotationPreference = LeastDifferencePreference(RotationManager.serverRotation, nextPoint)
+        val rotationPreference = LeastDifferencePreference.leastDifferenceToLastPoint(eyes, nextPoint)
 
         // find best spot
         val spot = raytraceBox(
@@ -436,9 +440,26 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
             range = range,
             wallsRange = wallRange.toDouble(),
             rotationPreference = rotationPreference
-        ) ?: return null
+        )
 
-        return spot
+        return if (spot == null && rotations.aimThroughWalls) {
+            val throughSpot = raytraceBox(
+                eyes, cutOffBox,
+                // Since [range] is squared, we need to square root
+                range = range,
+                wallsRange = range,
+                rotationPreference = rotationPreference
+            ) ?: raytraceBox(
+                eyes, box,
+                range = range,
+                wallsRange = range,
+                rotationPreference = rotationPreference
+            )
+
+            throughSpot
+        } else {
+            spot
+        }
     }
 
     private fun checkIfReadyToAttack(choosenEntity: Entity): Boolean {
@@ -485,7 +506,8 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                     waitTicks(AutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem && !whileUsingItem) {
+        } else if (player.isUsingItem &&
+            !(ModuleMultiActions.handleEvents() && ModuleMultiActions.attackingWhileUsing)) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 
@@ -496,7 +518,9 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         attack()
 
         if (rotations.rotationTimingMode == RotationTimingMode.ON_TICK && rotation != null) {
-            network.sendPacket(Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround))
+            network.sendPacket(
+                Full(player.x, player.y, player.z, player.withFixedYaw(rotation), player.pitch, player.isOnGround)
+            )
         }
 
         if (simulateInventoryClosing && isInInventoryScreen) {

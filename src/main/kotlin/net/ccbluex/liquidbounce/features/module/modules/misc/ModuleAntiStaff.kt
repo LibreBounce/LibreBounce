@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
@@ -170,7 +170,10 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
         val messageKey = if (username == null) "staffDetected" else "specificStaffDetected"
         val message = message(messageKey, username ?: "")
         notification("Staff Detected", message, NotificationEvent.Severity.INFO)
-        chat(warning(message(messageKey, username ?: "")))
+        chat(
+            warning(message(messageKey, username ?: "")),
+            metadata = MessageMetadata(id = "${this.name}#${username ?: "generic"}")
+        )
     }
 
 }

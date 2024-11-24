@@ -21,23 +21,26 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.interactItem
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.item.isNothing
@@ -64,8 +67,9 @@ import kotlin.math.sqrt
  */
 object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
+    private val range by floatRange("Range", 3.0f..6f, 1f..50f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
-    private val gravityType by enumChoice("GravityType", GravityType.AUTO)
+    private val gravityType by enumChoice("GravityType", GravityType.AUTO).apply { tagBy(this) }
 
     private val clickScheduler = tree(ClickScheduler(this, showCooldown = false))
 
@@ -79,8 +83,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             highestPointDefault = PointTracker.PreferredBoxPart.HEAD,
             // The lag on Hypixel is massive
             timeEnemyOffsetDefault = 3f,
-            timeEnemyOffsetScale = 0f..7f,
-            gaussianOffsetDefault = false
+            timeEnemyOffsetScale = 0f..7f
         )
     )
 
@@ -97,8 +100,10 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
     private val selectSlotAutomatically by boolean("SelectSlotAutomatically", true)
+    private val tickUntilSlotReset by int("TicksUntillSlotReset", 1, 0..20)
     private val considerInventory by boolean("ConsiderInventory", true)
 
+    private val requiresKillAura by boolean("RequiresKillAura", false)
     private val notDuringCombat by boolean("NotDuringCombat", false)
     val constantLag by boolean("ConstantLag", false)
 
@@ -110,25 +115,33 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
     val simulatedTickHandler = handler<SimulatedTickEvent> {
         targetTracker.cleanup()
 
-        if (notDuringCombat && CombatManager.isInCombat) {
-            return@handler
-        }
-
-        // Check if we have a throwable, if not we can't shoot.
-        val (hand, slot) = getThrowable() ?: return@handler
-
         // Find the recommended target
         val target = targetTracker.enemies().firstOrNull {
             // Check if we can see the enemy
             player.canSee(it)
         } ?: return@handler
 
+        if (notDuringCombat && CombatManager.isInCombat) {
+            return@handler
+        }
+
+        if (requiresKillAura && !ModuleKillAura.enabled) {
+            return@handler
+        }
+
+        if (target.boxedDistanceTo(player) !in range) {
+            return@handler
+        }
+
+        // Check if we have a throwable, if not we can't shoot.
+        val (hand, slot) = getThrowable() ?: return@handler
+
         // Select the throwable if we are not holding it.
         if (slot != -1) {
             if (!selectSlotAutomatically) {
                 return@handler
             }
-            SilentHotbar.selectSlotSilently(this, slot)
+            SilentHotbar.selectSlotSilently(this, slot, tickUntilSlotReset)
         }
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
@@ -154,6 +167,10 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             return@repeatable
         }
 
+        if (target.boxedDistanceTo(player) !in range) {
+            return@repeatable
+        }
+
         if (notDuringCombat && CombatManager.isInCombat) {
             return@repeatable
         }
@@ -163,7 +180,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
-            SilentHotbar.selectSlotSilently(this, slot)
+            SilentHotbar.selectSlotSilently(this, slot, tickUntilSlotReset)
 
             // If we are not holding the throwable, we can't shoot.
             if (SilentHotbar.serversideSlot != slot) {
@@ -173,7 +190,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
-            SilentHotbar.selectSlotSilently(this, slot)
+            SilentHotbar.selectSlotSilently(this, slot, tickUntilSlotReset)
         }
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
@@ -195,7 +212,12 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
                 return@clicks false
             }
 
-            interaction.interactItem(player, hand).isAccepted
+            interaction.interactItem(
+                player,
+                hand,
+                RotationManager.serverRotation.yaw,
+                RotationManager.serverRotation.pitch
+            ).isAccepted
         }
     }
 
@@ -210,7 +232,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
     private fun generateRotation(target: LivingEntity, gravityType: GravityType): Rotation? {
         val (fromPoint, toPoint, _, _)
-                = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)
+            = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)
 
         return when (gravityType) {
 
@@ -235,7 +257,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
                 // Compute the horizontal distance to the target on the XZ plane (ignoring y-component).
                 val horizontalDistance = sqrt(
                     targetPosition.x * targetPosition.x +
-                            targetPosition.z * targetPosition.z
+                        targetPosition.z * targetPosition.z
                 )
 
                 // Calculate yaw angle: the horizontal angle between the player's forward direction
@@ -248,8 +270,8 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
                     atan(
                         (launchVelocity.pow(2) - sqrt(
                             launchVelocity.pow(4) -
-                                    0.006f * (0.006f * (horizontalDistance.pow(2)) + 2 * targetPosition.y *
-                                    launchVelocity.pow(2))
+                                0.006f * (0.006f * (horizontalDistance.pow(2)) + 2 * targetPosition.y *
+                                launchVelocity.pow(2))
                         )) / (0.006f * horizontalDistance)
                     )
                 )).toFloat()

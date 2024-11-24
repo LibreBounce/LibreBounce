@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -67,7 +67,7 @@ object ModuleSprint : Module("Sprint", Category.MOVEMENT) {
                 MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
         val preventSprint = (if (player.isOnGround) stopOnGround else stopOnAir)
             && !shouldSprintOmnidirectionally()
-            && RotationManager.storedAimPlan?.applyVelocityFix == false && !hasForwardMovement
+            && RotationManager.workingAimPlan?.applyVelocityFix == false && !hasForwardMovement
 
         return enabled && preventSprint
     }

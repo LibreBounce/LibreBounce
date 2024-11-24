@@ -35,6 +35,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -44,6 +45,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -200,9 +202,12 @@ public abstract class MixinWorldRenderer {
         if (ModuleESP.INSTANCE.getEnabled() && ModuleESP.GlowMode.INSTANCE.isActive() && CombatExtensionsKt.shouldBeShown(entity)) {
             return true;
         }
+        if (ModuleTNTTimer.INSTANCE.getEnabled() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
+            return true;
+        }
 
         if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.handleEvents() &&
-                ModuleStorageESP.Glow.INSTANCE.isActive() && ModuleStorageESP.INSTANCE.categorizeEntity(entity) != null) {
+                ModuleStorageESP.Glow.INSTANCE.isActive() && ModuleStorageESP.categorize(entity) != null) {
             return true;
         }
 
@@ -219,11 +224,16 @@ public abstract class MixinWorldRenderer {
         if (ModuleItemESP.INSTANCE.getEnabled() && ModuleItemESP.GlowMode.INSTANCE.isActive() && ModuleItemESP.INSTANCE.shouldRender(instance)) {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
         }
+
+        if (instance instanceof TntEntity && ModuleTNTTimer.INSTANCE.getEnabled() && ModuleTNTTimer.INSTANCE.getEsp()) {
+            return ModuleTNTTimer.INSTANCE.getTntColor(((TntEntity) instance).getFuse()).toARGB();
+        }
+
         if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.handleEvents()
                 && ModuleStorageESP.Glow.INSTANCE.isActive()) {
-            var categorizedEntity = ModuleStorageESP.INSTANCE.categorizeEntity(instance);
+            var categorizedEntity = ModuleStorageESP.categorize(instance);
             if (categorizedEntity != null) {
-                return categorizedEntity.getColor().invoke().toARGB();
+                return categorizedEntity.getColor().toARGB();
             }
         }
 
@@ -295,4 +305,40 @@ public abstract class MixinWorldRenderer {
 
         return original;
     }
+
+    @ModifyArgs(
+            method = "drawBlockOutline",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/WorldRenderer;drawCuboidShapeOutline(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V"
+            )
+    )
+    private void modifyBlockOutlineArgs(Args args) {
+        // args: MatrixStack matrices,
+        //		VertexConsumer vertexConsumer,
+        //		VoxelShape shape,
+        //		double offsetX,
+        //		double offsetY,
+        //		double offsetZ,
+        //		float red,
+        //		float green,
+        //		float blue,
+        //		float alpha
+
+        if (!ModuleBlockOutline.INSTANCE.getEnabled()) {
+            return;
+        }
+
+        var color = ModuleBlockOutline.INSTANCE.getOutlineColor();
+        var red = color.getR() / 255f;
+        var green = color.getG() / 255f;
+        var blue = color.getB() / 255f;
+        var alpha = color.getA() / 255f;
+
+        args.set(6, red);
+        args.set(7, green);
+        args.set(8, blue);
+        args.set(9, alpha);
+    }
+
 }

@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -34,7 +34,7 @@ object ModuleNoRotateSet : Module("NoRotateSet", Category.PLAYER) {
         "Mode", SilentAccept, arrayOf(
             SilentAccept, ResetRotation
         )
-    )
+    ).apply { tagBy(this) }
 
     object ResetRotation : Choice("ResetRotation") {
         override val parent: ChoiceConfigurable<Choice>

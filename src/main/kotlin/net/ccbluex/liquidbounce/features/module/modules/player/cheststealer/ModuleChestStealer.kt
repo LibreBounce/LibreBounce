@@ -20,7 +20,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.cheststealer
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.features.module.Category
@@ -86,7 +86,13 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
                     ClickInventoryAction.performPickup(screen, slot),
                     ClickInventoryAction.performPickup(screen, emptySlot),
                 )
-            })
+            },
+                /**
+                 * we prioritize item based on how important it is
+                 * for example we should prioritize armor over apples
+                 */
+                ItemCategorization(listOf()).getItemFacets(slot).maxOf { it.category.type.allocationPriority }
+            )
         }
 
         // Check if stealing the chest was completed
@@ -118,22 +124,13 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
     ): Int {
         val freeSlotsInInv = (0..35).count { player.inventory.getStack(it).isNothing() }
 
-        var spaceGainedThroughMerge = 0
+        val spaceGainedThroughMerge = cleanupPlan.mergeableItems.entries.sumOf { (id, slots) ->
+            val slotsInChest = slots.count { it.slotType == ItemSlotType.CONTAINER }
+            val totalCount = slots.sumOf { it.itemStack.count }
 
-        for (mergeableItem in cleanupPlan.mergeableItems) {
-            var slotsInChest = 0
-            var totalCount = 0
+            val mergedStackCount = ceil(totalCount.toDouble() / id.item.maxCount.toDouble()).toInt()
 
-            for (itemStackWithSlot in mergeableItem.value) {
-                if (itemStackWithSlot.slotType == ItemSlotType.CONTAINER) {
-                    slotsInChest++
-                }
-                totalCount += itemStackWithSlot.itemStack.count
-            }
-
-            val mergedStackCount = ceil(totalCount.toDouble() / mergeableItem.key.item.maxCount.toDouble()).toInt()
-
-            spaceGainedThroughMerge += (mergeableItem.value.size - mergedStackCount).coerceAtMost(slotsInChest)
+            (slots.size - mergedStackCount).coerceAtMost(slotsInChest)
         }
 
         return (slotsToCollect - freeSlotsInInv - spaceGainedThroughMerge).coerceAtLeast(0)
@@ -142,9 +139,11 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
     private fun isScreenTitleChest(screen: GenericContainerScreen): Boolean {
         val titleString = screen.title.string
 
-        return arrayOf("container.chest", "container.chestDouble", "container.enderchest", "container.shulkerBox",
-            "container.barrel")
-            .map { Text.translatable(it); }
+        return sequenceOf(
+            "container.chest", "container.chestDouble", "container.enderchest", "container.shulkerBox",
+            "container.barrel"
+        )
+            .map { Text.translatable(it) }
             .any { it.string == titleString }
     }
 
@@ -169,8 +168,16 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
                 continue
             }
 
-            event.schedule(inventoryConstrains,
-                ClickInventoryAction.performSwap(screen, hotbarSwap.from, hotbarSwap.to))
+            event.schedule(
+                inventoryConstrains,
+                ClickInventoryAction.performSwap(screen, hotbarSwap.from, hotbarSwap.to),
+                /**
+                 * we prioritize item based on how important it is
+                 * for example we should prioritize armor over apples
+                 */
+                ItemCategorization(listOf()).getItemFacets(hotbarSwap.from)
+                    .maxOf { it.category.type.allocationPriority }
+            )
 
             // todo: hook to schedule and check if swap was successful
             cleanupPlan.remapSlots(
@@ -219,7 +226,7 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
             }
         }),
         INDEX("Index", { list -> list.sortedBy { it.slotInContainer } }),
-        RANDOM("Random", List<ContainerItemSlot>::shuffled ),
+        RANDOM("Random", List<ContainerItemSlot>::shuffled),
     }
 
     /**

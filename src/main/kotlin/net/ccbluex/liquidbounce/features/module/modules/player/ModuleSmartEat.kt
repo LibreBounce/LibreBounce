@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.PlayerInteractedItem
 import net.ccbluex.liquidbounce.event.handler
@@ -165,7 +165,7 @@ object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
 
             if (useAction != UseAction.EAT && useAction != UseAction.DRINK)
                 return@repeatable
-            if (!SilentHotbar.isSlotModified(this@SilentOffhand))
+            if (!SilentHotbar.isSlotModifiedBy(this@SilentOffhand))
                 return@repeatable
 
             // if we are already eating, we want to keep the silent slot

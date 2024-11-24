@@ -48,6 +48,6 @@ object ModuleBlockBounce : Module("BlockBounce", Category.MOVEMENT) {
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.01)
 
-        return isBlockAtPosition(detectionBox) { it is SlimeBlock || it is BedBlock || it is HoneyBlock }
+        return detectionBox.isBlockAtPosition { it is SlimeBlock || it is BedBlock || it is HoneyBlock }
     }
 }

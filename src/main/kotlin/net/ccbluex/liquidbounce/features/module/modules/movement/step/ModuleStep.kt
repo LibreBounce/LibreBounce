@@ -20,8 +20,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.step
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerStepEvent
 import net.ccbluex.liquidbounce.event.events.PlayerStepSuccessEvent
@@ -43,7 +43,7 @@ import net.minecraft.stat.Stats
 
 object ModuleStep : Module("Step", Category.MOVEMENT) {
 
-    var modes = choices("Mode", Instant, arrayOf(Instant, Legit, Vulcan286))
+    var modes = choices("Mode", Instant, arrayOf(Instant, Legit, Vulcan286)).apply { tagBy(this) }
 
     object Legit : Choice("Legit") {
         override val parent: ChoiceConfigurable<Choice>

@@ -35,9 +35,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.web.socket.protocol.rest.game.PlayerData;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -183,6 +183,16 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
         }
 
         return original;
+    }
+
+    /**
+     * Hook custom sneaking multiplier
+     */
+    @ModifyArg(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(ZF)V", ordinal = 0), index = 1)
+    private float hookCustomSneakingMultiplier(float slowDownFactor) {
+        final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier(slowDownFactor);
+        EventManager.INSTANCE.callEvent(playerSneakMultiplier);
+        return playerSneakMultiplier.getMultiplier();
     }
 
     /**

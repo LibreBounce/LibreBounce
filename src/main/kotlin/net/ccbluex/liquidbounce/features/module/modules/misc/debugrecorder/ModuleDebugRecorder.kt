@@ -1,9 +1,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder
 
 import com.google.gson.Gson
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.AimDebugRecorder
@@ -56,7 +56,7 @@ object ModuleDebugRecorder : Module("DebugRecorder", Category.MISC) {
 
             runCatching {
                 val baseName = dateFormat.format(Date())
-                val folder = ConfigSystem.rootFolder.resolve("debugRecorder/$name")
+                val folder = ConfigSystem.rootFolder.resolve("debug-recorder/$name")
 
                 folder.mkdirs()
 

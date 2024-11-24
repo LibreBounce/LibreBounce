@@ -30,27 +30,24 @@ import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder.Companion.BOOLEAN_VALIDATOR
-import net.ccbluex.liquidbounce.features.cosmetic.CosmeticCategory
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.destructClient
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.wipeClient
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
+import net.ccbluex.liquidbounce.integration.BrowserScreen
+import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationHandler.clientJcef
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.components
+import net.ccbluex.liquidbounce.integration.theme.component.customComponents
+import net.ccbluex.liquidbounce.integration.theme.component.types.ImageComponent
+import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.web.integration.BrowserScreen
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.web.integration.IntegrationHandler.clientJcef
-import net.ccbluex.liquidbounce.web.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.web.theme.ThemeManager
-import net.ccbluex.liquidbounce.web.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.web.theme.component.components
-import net.ccbluex.liquidbounce.web.theme.component.customComponents
-import net.ccbluex.liquidbounce.web.theme.component.types.FrameComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.HtmlComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.ImageComponent
-import net.ccbluex.liquidbounce.web.theme.component.types.TextComponent
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.util.Util
@@ -84,12 +81,18 @@ object CommandClient {
     private fun infoCommand() = CommandBuilder
         .begin("info")
         .handler { command, _ ->
-            chat(regular(command.result("clientName", variable(LiquidBounce.CLIENT_NAME))),
-                prefix = false)
-            chat(regular(command.result("clientVersion", variable(LiquidBounce.clientVersion))),
-                prefix = false)
-            chat(regular(command.result("clientAuthor", variable(LiquidBounce.CLIENT_AUTHOR))),
-                prefix = false)
+            chat(
+                regular(command.result("clientName", variable(LiquidBounce.CLIENT_NAME))),
+                metadata = MessageMetadata(prefix = false)
+            )
+            chat(
+                regular(command.result("clientVersion", variable(LiquidBounce.clientVersion))),
+                metadata = MessageMetadata(prefix = false)
+            )
+            chat(
+                regular(command.result("clientAuthor", variable(LiquidBounce.CLIENT_AUTHOR))),
+                metadata = MessageMetadata(prefix = false)
+            )
         }.build()
 
     private fun browserCommand() = CommandBuilder.begin("browser")
@@ -129,10 +132,12 @@ object CommandClient {
                                     )
                                 )
                         }),
-                    prefix = false
+                    metadata = MessageMetadata(
+                        prefix = false
+                    )
                 )
 
-                chat(prefix = false)
+                chat(metadata = MessageMetadata(prefix = false))
                 chat(regular("Integration Menu:"))
                 for (screenType in VirtualScreenType.entries) {
                     val url = runCatching {
@@ -164,7 +169,9 @@ object CommandClient {
                                     )
                             })
                             .append(regular(")")),
-                        prefix = false
+                        metadata = MessageMetadata(
+                            prefix = false
+                        )
                     )
                 }
 
@@ -306,20 +313,6 @@ object CommandClient {
                     chat("Successfully added text component.")
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("frame")
-                .parameter(
-                    ParameterBuilder.begin<String>("url")
-                        .vararg()
-                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                        .build()
-                ).handler { command, args ->
-                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
-                    customComponents += FrameComponent(arg)
-                    ComponentOverlay.fireComponentsUpdate()
-
-                    chat("Successfully added frame component.")
-                }.build()
-            )
             .subcommand(CommandBuilder.begin("image")
                 .parameter(
                     ParameterBuilder.begin<String>("url")
@@ -334,20 +327,7 @@ object CommandClient {
                     chat("Successfully added image component.")
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("html")
-                .parameter(
-                    ParameterBuilder.begin<String>("code")
-                        .vararg()
-                        .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                        .build()
-                ).handler { command, args ->
-                    val arg = (args[0] as Array<*>).joinToString(" ") { it as String }
-                    customComponents += HtmlComponent(arg)
-                    ComponentOverlay.fireComponentsUpdate()
-
-                    chat("Successfully added html component.")
-                }.build()
-            ).build()
+            .build()
         )
         .subcommand(CommandBuilder.begin("remove")
             .parameter(

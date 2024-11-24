@@ -15,133 +15,97 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.misc.FriendManager
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
-import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.entity.getEffectiveDamage
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.entity.Entity
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.RotationMode
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
+import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.math.Vec3d
-import net.minecraft.world.GameRules
-import net.minecraft.world.explosion.Explosion
-import kotlin.math.floor
-import kotlin.math.sqrt
 
-object ModuleCrystalAura : Module("CrystalAura", Category.COMBAT) {
+object ModuleCrystalAura : Module(
+    "CrystalAura",
+    Category.COMBAT,
+    aliases = arrayOf("AutoCrystal"),
+    disableOnQuit = true
+) {
 
-    val swing by boolean("Swing", true)
+    val targetTracker = tree(TargetTracker(maxRange = 12f))
 
-    internal object PlaceOptions : ToggleableConfigurable(this, "Place", true) {
-        val range by float("Range", 4.5F, 1.0F..5.0F)
-        val minEfficiency by float("MinEfficiency", 0.1F, 0.0F..5.0F)
+    object PredictFeature : Configurable("Predict") {
+        init {
+            treeAll(SelfPredict, TargetPredict)
+        }
     }
-
-    internal object DestroyOptions : ToggleableConfigurable(this, "Destroy", true) {
-        val range by float("Range", 4.5F, 1.0F..5.0F)
-        val minEfficiency by float("MinEfficiency", 0.1F, 0.0F..5.0F)
-    }
-
-    internal object SelfPreservationOptions : ToggleableConfigurable(this, "SelfPreservation", true) {
-        val selfDamageWeight by float("SelfDamageWeight", 2.0F, 0.0F..10.0F)
-        val friendDamageWeight by float("FriendDamageWeight", 1.0F, 0.0F..10.0F)
-    }
-
-    // Rotation
-    internal val rotations = tree(RotationsConfigurable(this))
 
     init {
-        tree(PlaceOptions)
-        tree(DestroyOptions)
-        tree(SelfPreservationOptions)
+        treeAll(
+            SubmoduleCrystalPlacer,
+            SubmoduleCrystalDestroyer,
+            CrystalAuraDamageOptions,
+            PredictFeature,
+            SubmoduleIdPredict,
+            SubmoduleSetDead,
+            SubmoduleBasePlace
+        )
+    }
+
+    private val targetRenderer = tree(WorldTargetRenderer(this))
+
+    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+        arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
+    })
+
+    var currentTarget: LivingEntity? = null
+
+    override fun disable() {
+        SubmoduleCrystalPlacer.placementRenderer.clearSilently()
+        SubmoduleCrystalDestroyer.postAttackHandlers.forEach(CrystalPostAttackTracker::onToggle)
+        SubmoduleBasePlace.disable()
+        CrystalAuraDamageOptions.cacheMap.clear()
+    }
+
+    override fun enable() {
+        SubmoduleCrystalDestroyer.postAttackHandlers.forEach(CrystalPostAttackTracker::onToggle)
     }
 
     @Suppress("unused")
-    val networkTickHandler = repeatable {
-        // Make the crystal placer run
-        SubmoduleCrystalPlacer.tick()
+    val simulatedTickHandler = handler<SimulatedTickEvent> {
+        CrystalAuraDamageOptions.cacheMap.clear()
+        if (CombatManager.shouldPauseCombat) {
+            return@handler
+        }
+
+        currentTarget = targetTracker.enemies().firstOrNull()
+        currentTarget ?: return@handler
         // Make the crystal destroyer run
         SubmoduleCrystalDestroyer.tick()
-    }
-
-    /**
-     * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
-     */
-    internal fun approximateExplosionDamage(
-        world: ClientWorld,
-        pos: Vec3d,
-    ): Double {
-        val possibleVictims =
-            world
-                .getEntitiesBoxInRange(pos, 6.0) { shouldTakeIntoAccount(it) && it.boundingBox.maxY > pos.y }
-                .filterIsInstance<LivingEntity>()
-
-        var totalGood = 0.0
-        var totalHarm = 0.0
-
-        for (possibleVictim in possibleVictims) {
-            val dmg = getDamageFromExplosion(pos, possibleVictim) * entityDamageWeight(possibleVictim)
-
-            if (dmg > 0) {
-                totalGood += dmg
-            } else {
-                totalHarm += dmg
-            }
-        }
-
-        return totalGood + totalHarm
-    }
-
-    private fun shouldTakeIntoAccount(entity: Entity): Boolean {
-        return entity.shouldBeAttacked() || entity == player || FriendManager.isFriend(entity)
-    }
-
-    private fun getDamageFromExplosion(
-        pos: Vec3d,
-        possibleVictim: LivingEntity,
-        power: Float = 6.0F,
-    ): Float {
-        val explosionRange = power * 2.0F
-
-        val distanceDecay = 1.0F - sqrt(possibleVictim.squaredDistanceTo(pos).toFloat()) / explosionRange
-        val pre1 = Explosion.getExposure(pos, possibleVictim) * distanceDecay
-
-        val preprocessedDamage = floor((pre1 * pre1 + pre1) / 2.0F * 7.0F * explosionRange + 1.0F)
-
-        val explosion =
-            Explosion(
-                possibleVictim.world,
-                null,
-                pos.x,
-                pos.y,
-                pos.z,
-                power,
-                false,
-                world.getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY),
-            )
-
-        return possibleVictim.getEffectiveDamage(mc.world!!.damageSources.explosion(explosion), preprocessedDamage)
-    }
-
-    private fun entityDamageWeight(entity: Entity): Double {
-        if (!SelfPreservationOptions.enabled) {
-            return 1.0
-        }
-
-        return when {
-            entity == player -> -SelfPreservationOptions.selfDamageWeight.toDouble()
-            FriendManager.isFriend(entity) -> -SelfPreservationOptions.friendDamageWeight.toDouble()
-            else -> 1.0
+        // Make the crystal placer run
+        SubmoduleCrystalPlacer.tick()
+        if (!SubmoduleIdPredict.enabled) {
+            // Make the crystal destroyer run
+            SubmoduleCrystalDestroyer.tick()
         }
     }
+
+    @Suppress("unused")
+    val renderHandler = handler<WorldRenderEvent> {
+        val target = currentTarget ?: return@handler
+
+        renderEnvironmentForWorld(it.matrixStack) {
+            targetRenderer.render(this, target, it.partialTicks)
+        }
+    }
+
 }

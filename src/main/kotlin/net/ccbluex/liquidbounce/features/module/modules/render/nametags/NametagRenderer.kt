@@ -53,20 +53,18 @@ class NametagRenderer {
         env: RenderEnvironment,
         info: NametagInfo,
         pos: Vec3,
-    ) {
-        val c = Fonts.DEFAULT_FONT_SIZE.toFloat()
+    ) = with(env) {
+        val c = FontManager.DEFAULT_FONT_SIZE
 
         val scale = 1.0F / (c * 0.15F) * ModuleNametags.scale
 
-        env.matrixStack.push()
-        env.matrixStack.translate(pos.x, pos.y, pos.z)
-        env.matrixStack.scale(scale, scale, 1.0F)
-
-        val fontRenderer = ModuleNametags.fontRenderer.value
+        matrixStack.push()
+        matrixStack.translate(pos.x, pos.y, pos.z)
+        matrixStack.scale(scale, scale, 1.0F)
 
         val x =
-            fontRenderer.draw(
-                fontRenderer.process(info.text),
+            ModuleNametags.fontRenderer.draw(
+                ModuleNametags.fontRenderer.process(info.text),
                 0.0F,
                 0.0F,
                 shadow = true,
@@ -74,12 +72,12 @@ class NametagRenderer {
             )
 
         // Make the model view matrix center the text when rendering
-        env.matrixStack.translate(-x * 0.5F, -fontRenderer.height * 0.5F, 0.00F)
+        matrixStack.translate(-x * 0.5F, -ModuleNametags.fontRenderer.height * 0.5F, 0.00F)
 
-        fontRenderer.commit(env, fontBuffers)
+        ModuleNametags.fontRenderer.commit(env, fontBuffers)
 
-        val q1 = Vec3(-0.1F * c, fontRenderer.height * -0.1F, 0.0F)
-        val q2 = Vec3(x + 0.2F * c, fontRenderer.height * 1.1F, 0.0F)
+        val q1 = Vec3(-0.1F * c, ModuleNametags.fontRenderer.height * -0.1F, 0.0F)
+        val q2 = Vec3(x + 0.2F * c, ModuleNametags.fontRenderer.height * 1.1F, 0.0F)
 
         quadBuffers.drawQuad(env, q1, q2)
 
@@ -87,11 +85,11 @@ class NametagRenderer {
             lineBuffers.drawQuadOutlines(env, q1, q2)
         }
 
-        if (ModuleNametags.items) {
+        if (ModuleNametags.ShowOptions.items) {
             drawItemList(pos, info.items)
         }
 
-        env.matrixStack.pop()
+        matrixStack.pop()
     }
 
     private fun drawItemList(
@@ -109,7 +107,7 @@ class NametagRenderer {
             0,
             itemsToRender.size * ITEM_SIZE,
             ITEM_SIZE,
-            Color4b.BLACK.alpha(0).toRGBA()
+            Color4b.BLACK.alpha(0).toARGB()
         )
 
         dc.matrices.translate(0.0F, 0.0F, 100.0F)
@@ -138,7 +136,7 @@ class NametagRenderer {
             lineBuffers.draw()
         }
         env.withColor(Color4b.WHITE) {
-            fontBuffers.draw()
+            fontBuffers.draw(ModuleNametags.fontRenderer)
         }
     }
 }

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
@@ -27,7 +27,9 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
@@ -63,10 +65,7 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
     private var angleSmooth = choices<AngleSmoothMode>(this, "AngleSmooth", { it.choices[0] }, {
         arrayOf(
             LinearAngleSmoothMode(it),
-            BezierAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it),
-            ConditionalLinearAngleSmoothMode(it),
-            AccelerationSmoothMode(it)
+            SigmoidAngleSmoothMode(it)
         )
     })
 
@@ -123,7 +122,7 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
                 currentRotation.pitch + (rotation.pitch - currentRotation.pitch) * (timerSpeed * partialTicks)
             )
 
-            player.applyRotation(interpolatedRotation)
+            player.setRotation(interpolatedRotation)
         }
     }
 

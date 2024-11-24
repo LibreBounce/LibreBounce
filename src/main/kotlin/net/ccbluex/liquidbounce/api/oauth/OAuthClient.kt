@@ -10,7 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.*
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.api.ClientApi.API_V3_ENDPOINT
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.features.cosmetic.Cosmetic
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import java.net.InetSocketAddress
@@ -100,7 +100,7 @@ object OAuthClient {
                     val response = DefaultFullHttpResponse(
                         HttpVersion.HTTP_1_1, HttpResponseStatus.OK
                     ).apply {
-                        content().writeBytes(OAuthClient.SUCCESS_HTML.toByteArray())
+                        content().writeBytes(SUCCESS_HTML.toByteArray())
                         headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8")
                         headers().set(HttpHeaderNames.CONTENT_LENGTH, content().readableBytes())
                     }

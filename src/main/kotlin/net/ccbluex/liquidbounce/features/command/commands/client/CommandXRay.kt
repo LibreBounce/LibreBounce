@@ -161,7 +161,7 @@ object CommandXRay {
                 CommandBuilder
                     .begin("reset")
                     .handler {command, _ ->
-                        ModuleXRay.resetBlocks()
+                        ModuleXRay.applyDefaults()
                         chat(regular(command.result("Reset the blocks to the default values")))
                     }
                     .build()

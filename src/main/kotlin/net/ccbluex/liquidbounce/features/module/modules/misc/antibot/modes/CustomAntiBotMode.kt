@@ -18,22 +18,27 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
-import net.minecraft.entity.Entity
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket
-import java.util.*
 import kotlin.math.abs
 
 object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
+
     override val parent: ChoiceConfigurable<*>
         get() = ModuleAntiBot.modes
 
@@ -41,90 +46,159 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val vlToConsiderAsBot by int("VLToConsiderAsBot", 10, 1..50, "flags")
     }
 
-    init {
-        tree(InvalidGround)
-        tree(AlwaysInRadius)
-    }
-
-    private val duplicate by boolean("Duplicate", true)
+    private val duplicate by boolean("Duplicate", false)
     private val noGameMode by boolean("NoGameMode", true)
     private val illegalPitch by boolean("IllegalPitch", true)
-    private val fakeEntityID by boolean("FakeEntityID", false)
-    private val illegalName by boolean("IllegalName", false)
+    private val fakeEntityID by boolean("FakeEntityID", true)
+    private val illegalName by boolean("IllegalName", true)
     private val needHit by boolean("NeedHit", false)
     private val health by boolean("IllegalHealth", false)
+    private val swung by boolean("Swung", false)
+    private val critted by boolean("Critted", false)
+    private val attributes by boolean("Attributes", false)
 
     private object AlwaysInRadius : ToggleableConfigurable(ModuleAntiBot, "AlwaysInRadius", false) {
         val alwaysInRadiusRange by float("AlwaysInRadiusRange", 20f, 5f..30f)
     }
 
-    private val invalidGroundList = mutableMapOf<Entity, Int>()
-    private val hitList = HashSet<UUID>()
-    private val notAlwaysInRadius = HashSet<UUID>()
+    // LivingTime in 1.8.9
+    private object Age : ToggleableConfigurable(ModuleAntiBot, "Age", false) {
+        val minimum by int("Minimum", 20, 0..120, "ticks")
+    }
+
+    init {
+        tree(InvalidGround)
+        tree(AlwaysInRadius)
+        tree(Age)
+    }
+
+    private val flyingSet = Int2IntOpenHashMap()
+    private val hitListSet = IntOpenHashSet()
+    private val notAlwaysInRadiusSet = IntOpenHashSet()
+
+    private val swungSet = IntOpenHashSet()
+    private val crittedSet = IntOpenHashSet()
+    private val attributesSet = IntOpenHashSet()
+    private val ageSet = IntOpenHashSet()
 
     val repeatable = repeatable {
+        val rangeSquared = AlwaysInRadius.alwaysInRadiusRange.sq()
         for (entity in world.players) {
-            if (player.distanceTo(entity) > AlwaysInRadius.alwaysInRadiusRange) {
-                notAlwaysInRadius.add(entity.uuid)
+            if (player.squaredDistanceTo(entity) > rangeSquared) {
+                notAlwaysInRadiusSet.add(entity.id)
+            }
+
+            if (entity.age < Age.minimum) {
+                ageSet.add(entity.id)
+            }
+        }
+
+        with(ageSet.intIterator()) {
+            while (hasNext()) {
+                val entity = world.getEntityById(nextInt())
+                if (entity == null || entity.age >= Age.minimum) {
+                    remove()
+                }
             }
         }
     }
 
-    val attackHandler = handler<AttackEvent> {
-        hitList.add(it.enemy.uuid)
+    @Suppress("unused")
+    private val attackHandler = handler<AttackEvent> {
+        hitListSet.add(it.enemy.id)
     }
 
-    val packetHandler = handler<PacketEvent> {
-        if (it.packet !is EntityS2CPacket || !it.packet.isPositionChanged || !InvalidGround.enabled) {
-            return@handler
-        }
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
+        when (val packet = event.packet) {
+            is EntityS2CPacket -> {
+                if (!packet.isPositionChanged || !InvalidGround.enabled) {
+                    return@handler
+                }
 
-        val entity = it.packet.getEntity(world) ?: return@handler
+                val entity = packet.getEntity(world) ?: return@handler
+                val id = entity.id
+                val currentValue = flyingSet.getOrDefault(id, 0)
+                if (entity.isOnGround && entity.prevY != entity.y) {
+                    flyingSet.put(id, currentValue + 1)
+                } else if (!entity.isOnGround && currentValue > 0) {
+                    val newVL = currentValue / 2
 
-        if (entity.isOnGround && entity.prevY != entity.y) {
-            invalidGroundList[entity] = invalidGroundList.getOrDefault(entity, 0) + 1
-        } else if (!entity.isOnGround && invalidGroundList.getOrDefault(entity, 0) > 0) {
-            val newVL = invalidGroundList.getOrDefault(entity, 0) / 2
+                    if (newVL <= 0) {
+                        flyingSet.remove(id)
+                    } else {
+                        flyingSet.put(id, newVL)
+                    }
+                }
+            }
 
-            if (newVL <= 0) {
-                invalidGroundList.remove(entity)
-            } else {
-                invalidGroundList[entity] = newVL
+            is EntityAttributesS2CPacket -> {
+                attributesSet.add(packet.entityId)
+            }
+
+            is EntityAnimationS2CPacket -> {
+                val animationId = packet.animationId
+
+                if (animationId == EntityAnimationS2CPacket.SWING_MAIN_HAND ||
+                    animationId == EntityAnimationS2CPacket.SWING_OFF_HAND) {
+                    swungSet.add(packet.entityId)
+                } else if (animationId == EntityAnimationS2CPacket.CRIT ||
+                    animationId == EntityAnimationS2CPacket.ENCHANTED_HIT) {
+                    crittedSet.add(packet.entityId)
+                }
+            }
+
+            is EntitiesDestroyS2CPacket -> {
+                with(packet.entityIds.intIterator()) {
+                    while (hasNext()) {
+                        val entityId = nextInt()
+                        attributesSet.remove(entityId)
+                        flyingSet.remove(entityId)
+                        hitListSet.remove(entityId)
+                        notAlwaysInRadiusSet.remove(entityId)
+                        ageSet.remove(entityId)
+                    }
+                }
             }
         }
+
+
     }
 
     private fun hasInvalidGround(player: PlayerEntity): Boolean {
-        return invalidGroundList.getOrDefault(player, 0) >= InvalidGround.vlToConsiderAsBot
+        return flyingSet.getOrDefault(player.id, 0) >= InvalidGround.vlToConsiderAsBot
     }
 
+    private const val VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+
     private fun hasIllegalName(player: PlayerEntity): Boolean {
-        val validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
         val name = player.nameForScoreboard
 
         if (name.length < 3 || name.length > 16) {
             return true
         }
 
-        val result = name.indices.find { !validChars.contains(name[it]) }
-
-        return result != null
+        return name.any { it !in VALID_CHARS }
     }
 
     @Suppress("all")
     private fun meetsCustomConditions(player: PlayerEntity): Boolean {
-        val noGameMode = noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null
-        val invalidGround = InvalidGround.enabled && hasInvalidGround(player)
-        val fakeID = fakeEntityID && (player.id < 0 || player.id >= 1E+9)
-        val isADuplicate = duplicate && isADuplicate(player.gameProfile)
-        val illegalName = illegalName && hasIllegalName(player)
-        val illegalPitch = illegalPitch && abs(player.pitch) > 90
-        val alwaysInRadius = AlwaysInRadius.enabled && !notAlwaysInRadius.contains(player.uuid)
-        val needHit = needHit && !hitList.contains(player.uuid)
-        val health = health && player.health > 20f
-
-        return noGameMode || invalidGround || fakeID || isADuplicate
-            || illegalName || illegalPitch || alwaysInRadius || needHit || health
+        return when {
+            noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null -> true
+            InvalidGround.enabled && hasInvalidGround(player) -> true
+            fakeEntityID && (player.id < 0 || player.id >= 1E+9) -> true
+            duplicate && isADuplicate(player.gameProfile) -> true
+            illegalName && hasIllegalName(player) -> true
+            illegalPitch && abs(player.pitch) > 90 -> true
+            AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(player.id) -> true
+            Age.enabled && ageSet.contains(player.id) -> true
+            needHit && !hitListSet.contains(player.id) -> true
+            health && player.health > 20f -> true
+            swung && !swungSet.contains(player.id) -> true
+            critted && !crittedSet.contains(player.id) -> true
+            attributes && !attributesSet.contains(player.id) -> true
+            else -> false
+        }
     }
 
     override fun isBot(entity: PlayerEntity): Boolean {
@@ -132,8 +206,12 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     }
 
     override fun reset() {
-        invalidGroundList.clear()
-        notAlwaysInRadius.clear()
-        hitList.clear()
+        flyingSet.clear()
+        notAlwaysInRadiusSet.clear()
+        hitListSet.clear()
+        swungSet.clear()
+        crittedSet.clear()
+        attributesSet.clear()
+        ageSet.clear()
     }
 }
