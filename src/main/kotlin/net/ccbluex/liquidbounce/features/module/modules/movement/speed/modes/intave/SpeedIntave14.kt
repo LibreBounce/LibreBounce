@@ -44,7 +44,12 @@ import net.minecraft.entity.MovementType
  * @author larryngton
  */
 class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Intave14", parent) {
+
     private val yawOffsetMode by enumChoice("YawOffsetMode", YawOffsetMode.AIR)
+
+    companion object {
+        private const val BOOST_CONSTANT = 0.003
+    }
 
     private inner class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
 
@@ -67,10 +72,6 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
             "InitialBoostMultiplier", 1f,
             0.01f..10f
         )
-
-        companion object {
-            private const val BOOST_CONSTANT = 0.003
-        }
 
         @Suppress("unused")
         private val tickHandler = repeatable {
