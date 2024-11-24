@@ -90,7 +90,7 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
     )
 
     @Suppress("unused")
-    val renderEventHandler = handler<GameTickEvent> {
+    private val renderHandler = handler<GameTickEvent> {
         val friendMappings = if (ReplaceFriendNames.enabled) {
             FriendManager.friends.filter { it.name.isNotBlank() }.mapIndexed { id, friend ->
                 friend.name to (friend.alias ?: friend.getDefaultName(id))
@@ -101,11 +101,13 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
 
         val playerName = player.gameProfile?.name
 
-        val otherPlayers = mc.networkHandler?.playerList?.mapNotNull {
-            val otherName = it?.profile?.name
+        val otherPlayers = if (ReplaceOthers.enabled) {
+            network.playerList?.mapNotNull { playerListEntry ->
+                val otherName = playerListEntry?.profile?.name
 
-            if (otherName != playerName) otherName else null
-        } ?: emptyList()
+                if (otherName != playerName) otherName else null
+            }
+        } else { null } ?: emptyList()
 
         this.replacementMappings.update(
             mc.session.username to this.replacement,
@@ -152,8 +154,6 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
 
         return output.toString()
     }
-
-    class ReplacementMapping(val originalName: String, val replacement: String, val color4b: Color4b)
 
     class NameProtectOrderedText(original: OrderedText) : OrderedText {
         private val mappedCharacters = ArrayList<MappedCharacter>()
