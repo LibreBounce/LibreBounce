@@ -610,5 +610,6 @@
   "liquidbounce.module.middleClickAction.description": "Er ermöglicht dir, Aktionen mit Mittelklicks durchzuführen.",
   "liquidbounce.module.middleClickAction.messages.removedFriend": "%s wurde erfolgreich aus der Freundesliste entfernt.",
   "liquidbounce.module.elytraRecast.description": "Wirft Elytra neu aus, während die Sprungtaste gedrückt gehalten wird",
-  "liquidbounce.module.packetMine.description": "Erlaubt es dir, Blöcke abzubauen, in dem du sie nur einmal anklickst."
+  "liquidbounce.module.packetMine.description": "Erlaubt es dir, Blöcke abzubauen, in dem du sie nur einmal anklickst.",
+  "liquidbounce.module.tpAura.description": "Teleportiert und greift automatisch Feinde in deiner Umgebung an."
 }
