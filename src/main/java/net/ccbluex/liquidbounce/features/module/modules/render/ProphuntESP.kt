@@ -26,6 +26,7 @@ import net.minecraft.entity.item.EntityFallingBlock
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import java.awt.Color
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.pow
 
 object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = false) {
@@ -59,16 +60,14 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
     private val color
         get() = if (colorRainbow) rainbow() else Color(colorRed, colorGreen, colorBlue)
 
-    private val blocks = mutableMapOf<BlockPos, Long>()
+    private val blocks = ConcurrentHashMap<BlockPos, Long>()
 
     fun recordBlock(blockPos: BlockPos) {
-        synchronized(blocks) {
-            blocks[blockPos] = System.currentTimeMillis()
-        }
+        blocks[blockPos] = System.currentTimeMillis()
     }
 
     override fun onDisable() {
-        synchronized(blocks) { blocks.clear() }
+        blocks.clear()
     }
 
     @EventTarget
@@ -86,14 +85,14 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
             }
         }
 
-        synchronized(blocks) {
-            val iterator = blocks.entries.iterator()
+        val now = System.currentTimeMillis()
 
-            while (iterator.hasNext()) {
-                val (pos, time) = iterator.next()
+        with(blocks.entries.iterator()) {
+            while (hasNext()) {
+                val (pos, time) = next()
 
-                if (System.currentTimeMillis() - time > 2000L) {
-                    iterator.remove()
+                if (now - time > 2000L) {
+                    remove()
                     continue
                 }
 
