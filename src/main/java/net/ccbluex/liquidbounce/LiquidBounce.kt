@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce
 
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.loadSettings
 import net.ccbluex.liquidbounce.api.messageOfTheDay
@@ -49,7 +50,6 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import kotlin.concurrent.thread
 
 object LiquidBounce {
 
@@ -179,7 +179,7 @@ object LiquidBounce {
 
             // Setup Discord RPC
             if (showRPCValue) {
-                thread {
+                SharedScopes.IO.launch {
                     try {
                         clientRichPresence.setup()
                     } catch (throwable: Throwable) {

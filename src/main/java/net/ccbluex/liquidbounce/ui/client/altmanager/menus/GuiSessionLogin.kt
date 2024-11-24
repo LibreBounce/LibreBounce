@@ -6,18 +6,18 @@
 package net.ccbluex.liquidbounce.ui.client.altmanager.menus
 
 import com.thealtening.AltService
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.LoginUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import org.lwjgl.input.Keyboard
-import kotlin.concurrent.thread
-
 
 class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
 
@@ -92,7 +92,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
                 loginButton.enabled = false
                 status = "§aLogging in..."
 
-                thread {
+                SharedScopes.IO.launch {
                     val loginResult = LoginUtils.loginSessionId(sessionTokenField.text)
 
                     status = when (loginResult) {

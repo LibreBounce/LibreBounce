@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager
 
-import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.thealtening.AltService
+import kotlinx.coroutines.launch
 import me.liuli.elixir.account.CrackedAccount
 import me.liuli.elixir.account.MicrosoftAccount
 import me.liuli.elixir.account.MinecraftAccount
@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.UserUtils.isValidTokenOffline
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
@@ -40,9 +41,6 @@ import java.awt.Color
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.util.*
-import java.util.function.Consumer
-import kotlin.concurrent.thread
-
 
 class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
 
@@ -76,7 +74,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
         // Setup buttons
 
         val startPositionY = 22
-        buttonList.run {
+        with(buttonList) {
             add(GuiButton(1, width - 80, startPositionY + 24, 70, 20, "Add").also { addButton = it })
             add(GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, "Remove").also { removeButton = it })
             add(GuiButton(7, width - 80, startPositionY + 24 * 3, 70, 20, "Import"))
@@ -429,10 +427,9 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 // Check json is valid object
                 if (jsonElement.isJsonObject) {
                     // Get json object of element
-                    val jsonObject = jsonElement.asJsonObject
-                    jsonObject.entrySet().forEach(Consumer { (key, value): Map.Entry<String, JsonElement> ->
+                    jsonElement.asJsonObject.entrySet().forEach { (key, value) ->
                         activeGenerators[key] = value.asBoolean
-                    })
+                    }
                 }
             } catch (throwable: Throwable) {
                 // Print throwable to console
@@ -442,7 +439,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
 
         fun login(
             minecraftAccount: MinecraftAccount, success: () -> Unit, error: (Exception) -> Unit, done: () -> Unit
-        ) = thread(name = "LoginTask") {
+        ) = SharedScopes.IO.launch {
             if (altService.currentService != AltService.EnumAltService.MOJANG) {
                 try {
                     altService.switchService(AltService.EnumAltService.MOJANG)

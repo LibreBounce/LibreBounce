@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -14,6 +16,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.UserUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.BoolValue
@@ -24,7 +27,6 @@ import net.minecraft.util.IChatComponent
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.regex.Pattern
-import kotlin.concurrent.thread
 
 object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameDetecting = false) {
 
@@ -153,7 +155,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
     private var loggedIn = false
 
-    private var loginThread: Thread? = null
+    private var loginJob: Job? = null
 
     private val connectTimer = MSTimer()
 
@@ -170,7 +172,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
     @EventTarget
     fun onUpdate(updateEvent: UpdateEvent) {
-        if (client.isConnected() || (loginThread?.isAlive == true)) return
+        if (client.isConnected() || (loginJob?.isActive == true)) return
 
         if (connectTimer.hasTimePassed(5000)) {
             connect()
@@ -179,7 +181,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
     }
 
     private fun connect() {
-        if (client.isConnected() || (loginThread?.isAlive == true)) return
+        if (client.isConnected() || (loginJob?.isActive == true)) return
 
         if (jwt && jwtToken.isEmpty()) {
             chat("§7[§a§lChat§7] §cError: §7No token provided!")
@@ -189,7 +191,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
         loggedIn = false
 
-        loginThread = thread {
+        loginJob = SharedScopes.IO.launch {
             try {
                 client.connect()
 
@@ -203,7 +205,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
                 chat("§7[§a§lChat§7] §cError: §7${cause.javaClass.name}: ${cause.message}")
             }
 
-            loginThread = null
+            loginJob = null
         }
     }
 
