@@ -61,6 +61,15 @@ object EnvironmentRemapper {
         }?.get(environment)?.toDotNotation() ?: clazz
     }
 
+    fun remapClassNameToNamed(clazz: String): String {
+        environment ?: return clazz
+
+        val className = clazz.toSlashNotation()
+        return mappings?.classEntries?.find {
+            it?.get(environment) == className
+        }?.get("named")?.toDotNotation() ?: clazz
+    }
+
     fun remapField(clazz: Class<*>, name: String): String {
         environment ?: return name
 

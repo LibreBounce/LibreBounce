@@ -33,7 +33,9 @@ import net.minecraft.network.packet.Packet
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import org.apache.commons.lang3.StringUtils
 import java.lang.reflect.Modifier
+import kotlin.math.max
 
 /**
  * Module PacketLogger
@@ -68,11 +70,11 @@ object ModulePacketLogger : Module("PacketLogger", Category.MISC) {
 
         text.append(" ")
         val classNames = mutableListOf<String>()
-        classNames.add(EnvironmentRemapper.remapClassName(clazz.simpleName))
+        classNames.add(getClassName(clazz.name))
 
         var superclass = clazz.superclass
         while (superclass != null && superclass != Any::class.java) {
-            classNames.add(EnvironmentRemapper.remapClassName(superclass.simpleName))
+            classNames.add(getClassName(superclass.name))
             superclass = superclass.superclass
         }
 
@@ -92,6 +94,13 @@ object ModulePacketLogger : Module("PacketLogger", Category.MISC) {
         appendFields(text, clazz, packet)
 
         chat(text, metadata = MessageMetadata(prefix = false))
+    }
+
+    private fun getClassName(obfuscatedName: String): String {
+        val remapClassName = EnvironmentRemapper.remapClassNameToNamed(obfuscatedName)
+        val lastDotIndex = remapClassName.lastIndexOf('.')
+        val lastDollarIndex = remapClassName.lastIndexOf('$')
+        return StringUtils.substring(remapClassName, max(lastDotIndex, lastDollarIndex) + 1)
     }
 
     @Suppress("SwallowedException")
