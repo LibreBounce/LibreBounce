@@ -5,8 +5,14 @@
  */
 package net.ccbluex.liquidbounce.ui.client.tools
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.TabUtils
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
@@ -16,45 +22,53 @@ import java.awt.Color
 import java.io.FileWriter
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.swing.JOptionPane
-import kotlin.concurrent.thread
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
 
-    private val ports = mutableListOf<Int>()
+    private val ports = LinkedHashSet<Int>()
+    private val portsLock = ReentrantReadWriteLock()
+
     private lateinit var hostField: GuiTextField
     private lateinit var minPortField: GuiTextField
     private lateinit var maxPortField: GuiTextField
-    private lateinit var threadsField: GuiTextField
+    private lateinit var parallelismField: GuiTextField
     private lateinit var buttonToggle: GuiButton
-    private var running = false
     private var status = "§7Waiting..."
     private var host: String = ""
-    private var currentPort = 0
     private var maxPort = 0
     private var minPort = 0
-    private var checkedPort = 0
+
+    private var scanJob: Job? = null
+    private val running: Boolean
+        get() = scanJob?.isActive == true
+
+    private var checkedPort = AtomicInteger(0)
 
     override fun initGui() {
         Keyboard.enableRepeatEvents(true)
 
-        hostField = GuiTextField(0, Fonts.font40, width / 2 - 100, 60, 200, 20).apply {
+        hostField = GuiTextField(0, Fonts.minecraftFont, width / 2 - 100, 60, 200, 20).apply {
             isFocused = true
             maxStringLength = Int.MAX_VALUE
             text = "localhost"
         }
 
-        minPortField = GuiTextField(1, Fonts.font40, width / 2 - 100, 90, 90, 20).apply {
+        minPortField = GuiTextField(1, Fonts.minecraftFont, width / 2 - 100, 90, 90, 20).apply {
             maxStringLength = 5
             text = "1"
         }
 
-        maxPortField = GuiTextField(2, Fonts.font40, width / 2 + 10, 90, 90, 20).apply {
+        maxPortField = GuiTextField(2, Fonts.minecraftFont, width / 2 + 10, 90, 90, 20).apply {
             maxStringLength = 5
             text = "65535"
         }
 
-        threadsField = GuiTextField(3, Fonts.font40, width / 2 - 100, 120, 200, 20).apply {
+        parallelismField = GuiTextField(3, Fonts.minecraftFont, width / 2 - 100, 120, 200, 20).apply {
             maxStringLength = Int.MAX_VALUE
             text = "500"
         }
@@ -79,15 +93,15 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         hostField.drawTextBox()
         minPortField.drawTextBox()
         maxPortField.drawTextBox()
-        threadsField.drawTextBox()
+        parallelismField.drawTextBox()
 
         Fonts.font40.drawString("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
 
-        synchronized(ports) {
+        portsLock.read {
             var yOffset = 12
             for (port in ports) {
-                Fonts.font35.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
-                yOffset += Fonts.font35.fontHeight
+                Fonts.minecraftFont.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
+                yOffset += Fonts.minecraftFont.FONT_HEIGHT
             }
         }
 
@@ -104,8 +118,9 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     private fun togglePortScanning() {
-        if (running) {
-            running = false
+        buttonToggle.displayString = if (running) {
+            scanJob?.cancel()
+            "Start"
         } else {
             host = hostField.text
             if (host.isEmpty()) {
@@ -123,39 +138,40 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
                 return
             }
 
-            val threads = threadsField.text.toIntOrNull() ?: run {
-                status = "§cInvalid threads"
+            val parallelism = parallelismField.text.toIntOrNull() ?: run {
+                status = "§cInvalid parallelism"
                 return
             }
 
-            ports.clear()
-            currentPort = minPort - 1
-            checkedPort = minPort
+            scanJob = SharedScopes.IO.launch {
+                ports.clear()
+                checkedPort.set(minPort)
 
-            repeat(threads) {
-                thread {
-                    while (running && currentPort < maxPort) {
-                        currentPort++
-                        val port = currentPort
-                        try {
-                            Socket().use { socket ->
-                                socket.connect(InetSocketAddress(host, port), 500)
+                val semaphore = Semaphore(parallelism)
+
+                (minPort..maxPort).map { port ->
+                    launch {
+                        semaphore.withPermit {
+                            try {
+                                Socket().use { socket ->
+                                    socket.connect(InetSocketAddress(host, port), 500)
+                                }
+
+                                portsLock.write {
+                                    ports.add(port)
+                                }
+                            } catch (ignored: Exception) {
                             }
-                            synchronized(ports) {
-                                if (!ports.contains(port)) ports.add(port)
-                            }
-                        } catch (ignored: Exception) {
+                            checkedPort.set(port)
                         }
-                        if (checkedPort < port) checkedPort = port
                     }
-                    running = false
-                    buttonToggle.displayString = "Start"
-                }
+                }.joinAll()
+
+                buttonToggle.displayString = "Start"
             }
 
-            running = true
+            "Stop"
         }
-        buttonToggle.displayString = if (running) "Stop" else "Start"
     }
 
     private fun exportPorts() {
@@ -185,7 +201,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         }
 
         if (keyCode == Keyboard.KEY_TAB) {
-            TabUtils.tab(hostField, minPortField, maxPortField, threadsField)
+            TabUtils.tab(hostField, minPortField, maxPortField, parallelismField)
         }
 
         if (running) return
@@ -194,7 +210,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
             hostField.isFocused -> hostField.textboxKeyTyped(typedChar, keyCode)
             minPortField.isFocused && !typedChar.isLetter() -> minPortField.textboxKeyTyped(typedChar, keyCode)
             maxPortField.isFocused && !typedChar.isLetter() -> maxPortField.textboxKeyTyped(typedChar, keyCode)
-            threadsField.isFocused && !typedChar.isLetter() -> threadsField.textboxKeyTyped(typedChar, keyCode)
+            parallelismField.isFocused && !typedChar.isLetter() -> parallelismField.textboxKeyTyped(typedChar, keyCode)
         }
 
         super.keyTyped(typedChar, keyCode)
@@ -204,7 +220,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         hostField.mouseClicked(mouseX, mouseY, mouseButton)
         minPortField.mouseClicked(mouseX, mouseY, mouseButton)
         maxPortField.mouseClicked(mouseX, mouseY, mouseButton)
-        threadsField.mouseClicked(mouseX, mouseY, mouseButton)
+        parallelismField.mouseClicked(mouseX, mouseY, mouseButton)
         super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
@@ -212,13 +228,13 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         hostField.updateCursorCounter()
         minPortField.updateCursorCounter()
         maxPortField.updateCursorCounter()
-        threadsField.updateCursorCounter()
+        parallelismField.updateCursorCounter()
         super.updateScreen()
     }
 
     override fun onGuiClosed() {
         Keyboard.enableRepeatEvents(false)
-        running = false
+        scanJob?.cancel()
         super.onGuiClosed()
     }
 }
