@@ -128,14 +128,6 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
             field = value
         }
 
-    init {
-        handler<BlockAttackEvent> {
-            if (mode.activeChoice.stopNormalMining) {
-                it.cancelEvent()
-            }
-        }
-    }
-
     override fun enable() {
         if (mode.activeChoice.stopNormalMining) {
             interaction.cancelBlockBreaking()
@@ -310,11 +302,16 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         chronometer.reset()
     }
 
+    @Suppress("unused")
+    private val blockAttackHandler = handler<BlockAttackEvent> {
+        if (mode.activeChoice.stopNormalMining) {
+            it.cancelEvent()
+        }
+    }
+
     private fun abort(pos: BlockPos, force: Boolean = false) {
-        if (!started ||
-            finished ||
-            !mode.activeChoice.canAbort ||
-            !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
+        val notPossible = !started || finished || !mode.activeChoice.canAbort
+        if (notPossible || !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
             return
         }
 
