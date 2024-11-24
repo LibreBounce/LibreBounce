@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.events.AccountManagerMessageEvent
 import net.ccbluex.liquidbounce.features.misc.AccountManager
 import net.ccbluex.liquidbounce.utils.client.browseUrl
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.randomUsername
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import org.lwjgl.glfw.GLFW
@@ -188,5 +189,13 @@ fun deleteAccount(requestObject: RequestObject): FullHttpResponse {
         addProperty("uuid", profile.uuid.toString())
         addProperty("avatar", ClientApi.formatAvatarUrl(profile.uuid, profile.username))
         addProperty("type", account.type)
+    })
+}
+
+// POST /api/v1/client/account/random-name
+@Suppress("UNUSED_PARAMETER")
+fun generateName(requestObject: RequestObject): FullHttpResponse {
+    return httpOk(JsonObject().apply {
+        addProperty("name", randomUsername())
     })
 }

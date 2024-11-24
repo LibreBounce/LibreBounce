@@ -32,25 +32,13 @@ private fun loadLines(name: String): List<String> {
     return reader.readLines()
 }
 
-private fun random(rng: Random, length: Int, chars: CharArray): String {
-    val stringBuilder = StringBuilder()
-
-    repeat(length) {
-        stringBuilder.append(chars[rng.nextInt(chars.size)])
-    }
-
-    return stringBuilder.toString()
-}
-
 /**
- * @author mems01 (original in legacy), superblaubeere27 (edit)
- *
  * Generates 16 char long names in this format:
  * (x = random separator character (0-9_))
  */
 fun randomUsername(
-    maxLength: Int,
-    rng: Random
+    maxLength: Int = (8..16).random(),
+    rng: Random = Random.Default
 ): String {
     val (firstWordList, secondWordList) = if (rng.nextBoolean()) {
         ADJECTIVE_LISTS_BY_SIZE to ANIMAL_LISTS_BY_SIZE
@@ -100,10 +88,10 @@ fun leetRandomly(rng: Random, str: String, leetReplacements: Int): String {
     val charArray = str.toCharArray()
     val indices = ArrayList(charArray.indices.filter { LEET_MAP.containsKey(charArray[it]) })
 
-    for (ignored in 0..<leetReplacements.coerceAtMost(indices.size)) {
+    for (ignored in 0 until leetReplacements.coerceAtMost(indices.size)) {
         val idx = indices.random(rng)
 
-        charArray[idx] = LEET_MAP.get(charArray[idx])!!
+        charArray[idx] = LEET_MAP[charArray[idx]]!!
 
         // Terrible performance, but ok
         indices.remove(idx)
@@ -113,7 +101,7 @@ fun leetRandomly(rng: Random, str: String, leetReplacements: Int): String {
 }
 
 private fun findWordShorterOrEqual(strings: List<List<String>>, maxLength: Int) =
-    strings.getOrNull(maxLength - 3) ?: strings.last()
+    strings.getOrNull(maxLength) ?: strings.last()
 
 private fun buildShorterThanList(list: List<String>): List<List<String>> {
     val sortedList = list.sortedBy { it.length }
@@ -134,7 +122,7 @@ private fun buildShorterThanList(list: List<String>): List<List<String>> {
     }
 
     // Fill remaining slots
-    for (idx in 1..<out.size) {
+    for (idx in 1 until out.size) {
         if (out[idx] == null) {
             out[idx] = out[idx - 1]
         }
