@@ -27,10 +27,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.PositionAndOnGround
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.registry.tag.BlockTags
-import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3i
-import net.minecraft.world.RaycastContext
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
@@ -46,11 +44,18 @@ object AStarMode : TpAuraChoice("AStar") {
     private val maximumCost by int("MaximumCost", 250, 50..500)
     private val tickDistance by int("TickDistance", 3, 1..7)
     private val allowDiagonal by boolean("AllowDiagonal", false)
+    private val stickAt by int("Stick", 5, 1..10, "ticks")
+
+    /**
+     * Whether to wait for one-tick before teleporting to the next position.
+     */
+    private val tickTimeout by boolean("TickTimeout", true)
 
     private var pathCache: PathCache? = null
     private var pathFinderThread: Thread? = null
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = repeatable {
         val (_, path) = pathCache ?: return@repeatable
 
         if (!clickScheduler.goingToClick) {
@@ -58,14 +63,14 @@ object AStarMode : TpAuraChoice("AStar") {
         }
 
         travel(path)
-        waitTicks(20)
+        waitTicks(stickAt)
         travel(path.reversed())
         desyncPlayerPosition = null
         pathCache = null
     }
 
     override fun enable() {
-        pathFinderThread = thread {
+        pathFinderThread = thread(name = "TpAura-AStarPathFinder") {
             while (ModuleTpAura.enabled) {
                 runCatching {
                     val playerPosition = player.pos
@@ -90,7 +95,11 @@ object AStarMode : TpAuraChoice("AStar") {
                     }
                 }
 
-                Thread.sleep(50)
+               try {
+                   Thread.sleep(50)
+               } catch (e: InterruptedException) {
+                   break
+               }
             }
         }
 
@@ -100,11 +109,12 @@ object AStarMode : TpAuraChoice("AStar") {
     override fun disable() {
         pathFinderThread?.interrupt()
         pathFinderThread = null
-        pathCache = null
         desyncPlayerPosition = null
+        pathCache = null
         super.disable()
     }
 
+    @Suppress("unused")
     val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
         val (_, path) = pathCache ?: return@handler
@@ -113,18 +123,11 @@ object AStarMode : TpAuraChoice("AStar") {
             withColor(Color4b.WHITE) {
                 drawLineStrip(path.map { relativeToCamera(it.toVec3d().add(0.5, 0.5, 0.5)).toVec3() })
             }
-
-            desyncPlayerPosition?.let { playerPosition ->
-                withColor(Color4b.BLUE) {
-                    withPositionRelativeToCamera(playerPosition) {
-                        drawSolidBox(Box(0.4, 0.4, 0.4, 0.6, 0.6, 0.6))
-                    }
-                }
-            }
         }
     }
 
-    val packetHandler = handler<PacketEvent> {
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> {
         val packet = it.packet
 
         if (packet is PlayerMoveC2SPacket) {
@@ -136,7 +139,7 @@ object AStarMode : TpAuraChoice("AStar") {
             packet.z = position.z
             packet.changePosition = true
         } else if (packet is PlayerPositionLookS2CPacket) {
-            chat(markAsError("Server setback detected - teleport failed!"))
+            chat(markAsError("Server setback detected - teleport failed at ${packet.x} ${packet.y} ${packet.z}!"))
             stuckChronometer.reset()
             pathCache = null
             desyncPlayerPosition = null
@@ -154,30 +157,26 @@ object AStarMode : TpAuraChoice("AStar") {
             val start = chunk.first().toVec3d().add(0.5, 0.5, 0.5)
             val end = chunk.last().toVec3d().add(0.5, 0.5, 0.5)
 
-            if (world.raycast(
-                    RaycastContext(
-                        start, end, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player
-                    )
-                ).type != HitResult.Type.MISS
-            ) {
+            if (world.getBlockCollisions(player, Box(start, end)).any()) {
                 // If the path is not clear, we need to go one by one.
                 for (position in chunk) {
                     network.sendPacket(
                         PositionAndOnGround(
-                            position.x + 0.5, position.y + 0.01, position.z + 0.5, false
+                            position.x + 0.5, position.y.toDouble(), position.z + 0.5, false
                         )
                     )
                     desyncPlayerPosition = position.toVec3d()
                 }
-                waitTicks(1)
                 continue
+            } else {
+                // If the path is clear, we can teleport to the last position of the chunk.
+                network.sendPacket(PositionAndOnGround(end.x, end.y, end.z, false))
+                desyncPlayerPosition = end
             }
 
-            // If the path is clear, we can teleport to the last position of the chunk.
-            network.sendPacket(PositionAndOnGround(end.x, end.y, end.z, false))
-            desyncPlayerPosition = end
-
-            waitTicks(1)
+            if (tickTimeout) {
+                waitTicks(1)
+            }
         }
     }
 
@@ -247,8 +246,7 @@ object AStarMode : TpAuraChoice("AStar") {
         val directions = listOf(
             Vec3i(-1, 0, 0), // left
             Vec3i(1, 0, 0), // right
-            Vec3i(0, -1, 0), // down
-            Vec3i(0, 1, 0), // up
+            *(-9..9).map { Vec3i(0, it, 0) }.toTypedArray(), // up- and down
             Vec3i(0, 0, -1), // front
             Vec3i(0, 0, 1) // back
         )
@@ -300,4 +298,5 @@ object AStarMode : TpAuraChoice("AStar") {
     }
 
     private fun distanceBetween(a: Vec3i, b: Vec3i) = a.getSquaredDistance(b).roundToInt()
+
 }

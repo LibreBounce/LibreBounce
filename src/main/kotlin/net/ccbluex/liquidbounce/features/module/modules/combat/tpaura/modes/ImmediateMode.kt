@@ -51,12 +51,6 @@ object ImmediateMode : TpAuraChoice("Immediate") {
                         relativeToCamera(playerPosition.add(0.0, 1.0, 0.0)).toVec3()
                     ))
                 }
-
-                withColor(Color4b.BLUE) {
-                    withPositionRelativeToCamera(playerPosition) {
-                        drawSolidBox(Box(0.4, 0.4, 0.4, 0.6, 0.6, 0.6))
-                    }
-                }
             }
         }
     }

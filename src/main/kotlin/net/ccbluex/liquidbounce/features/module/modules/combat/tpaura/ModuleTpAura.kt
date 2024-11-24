@@ -20,30 +20,37 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.tpaura
 
 import net.ccbluex.liquidbounce.config.Choice
 import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.AStarMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.ImmediateMode
+import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.attack
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.util.math.Vec3d
 
 object ModuleTpAura : Module("TpAura", Category.COMBAT, disableOnQuit = true) {
 
-    val mode = choices<TpAuraChoice>("Mode", ImmediateMode, arrayOf(ImmediateMode, AStarMode))
+    private val attackRange by float("AttackRange", 4.2f, 3f..5f)
 
     val clickScheduler = tree(ClickScheduler(this, true))
-    private val attackRange by float("AttackRange", 4.2f, 3f..5f)
+    val mode = choices<TpAuraChoice>("Mode", AStarMode, arrayOf(AStarMode, ImmediateMode))
     val targetTracker = tree(TargetTracker())
 
     val stuckChronometer = Chronometer()
     var desyncPlayerPosition: Vec3d? = null
 
-    val attackRepeatable = repeatable {
+    @Suppress("unused")
+    private val attackRepeatable = repeatable {
         val position = desyncPlayerPosition ?: player.pos
 
         clickScheduler.clicks {
@@ -54,6 +61,13 @@ object ModuleTpAura : Module("TpAura", Category.COMBAT, disableOnQuit = true) {
             enemy.attack(true, keepSprint = true)
             true
         }
+    }
+
+    @Suppress("unused")
+    val renderHandler = handler<WorldRenderEvent> { event ->
+        val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
+        val wireframePlayer = WireframePlayer(desyncPlayerPosition ?: return@handler, yaw, pitch)
+        wireframePlayer.render(event, Color4b(36, 32, 147, 87), Color4b(36, 32, 147, 255))
     }
 
 }
