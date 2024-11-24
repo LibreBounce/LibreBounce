@@ -19,12 +19,14 @@
  */
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.netty.http.model.RequestObject
-import net.ccbluex.netty.http.util.httpOk
+import net.ccbluex.netty.http.util.*
 
 // GET /api/v1/client/theme
 @Suppress("UNUSED_PARAMETER")
@@ -39,4 +41,25 @@ fun postToggleShader(requestObject: RequestObject): FullHttpResponse {
     ThemeManager.shaderEnabled = !ThemeManager.shaderEnabled
     ConfigSystem.storeConfigurable(ThemeManager)
     return httpOk(JsonObject())
+}
+
+
+// GET /api/v1/client/fonts
+@Suppress("UNUSED_PARAMETER")
+fun getFonts(requestObject: RequestObject): FullHttpResponse = httpOk(JsonArray().apply {
+    FontManager.fontFaces
+        .filter { fontFace -> fontFace.isLoaded }
+        .forEach { (name, _) ->
+            add(name)
+        }
+})
+
+// GET /api/v1/client/fonts/:name
+@Suppress("UNUSED_PARAMETER")
+fun getFont(requestObject: RequestObject): FullHttpResponse {
+    val name = requestObject.params["name"] ?: return httpBadRequest("Missing font name")
+    val font = FontManager.fontFace(name) ?: return httpNotFound(name, "Font not found")
+    val file = font.file ?: return httpNoContent()
+
+    return httpFile(file)
 }

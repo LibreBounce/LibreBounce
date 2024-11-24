@@ -310,7 +310,7 @@ class FontRendererBuffers {
 
     fun draw(renderer: FontRenderer) {
         this.textBuffers.forEachIndexed { style, bufferBuilder ->
-            val tex = renderer.glyphPages[style]!!.staticPage.texture
+            val tex = (renderer.glyphPages[style] ?: renderer.glyphPages[0])!!.staticPage.texture
 
             RenderSystem.bindTexture(tex.glId)
 

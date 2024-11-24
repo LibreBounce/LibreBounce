@@ -75,7 +75,7 @@ object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
     }
 
     private val fontRenderer
-        get() = Fonts.DEFAULT_FONT.get()
+        get() = FontManager.FONT_RENDERER
 
     private const val DEFAULT_FUSE = 80
 

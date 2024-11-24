@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.RenderEnvironment
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
@@ -61,7 +61,7 @@ object ModuleNametags : Module("Nametags", Category.RENDER) {
     private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
 
     val fontRenderer
-        get() = Fonts.DEFAULT_FONT.get()
+        get() = FontManager.FONT_RENDERER
 
     @Suppress("unused")
     val overlayRenderHandler = handler<OverlayRenderEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->

@@ -19,6 +19,7 @@
  */
 package net.ccbluex.liquidbounce
 
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
@@ -49,7 +50,7 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.Active
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
@@ -70,6 +71,8 @@ import net.minecraft.resource.ResourceManager
 import net.minecraft.resource.ResourceReloader
 import net.minecraft.resource.SynchronousResourceReloader
 import org.apache.logging.log4j.LogManager
+import java.io.File
+import kotlin.time.measureTime
 
 /**
  * LiquidBounce
@@ -156,7 +159,7 @@ object LiquidBounce : Listenable {
             ConfigSystem.root(LanguageManager)
             ConfigSystem.root(ClientAccountManager)
             BrowserManager
-            Fonts
+            FontManager
             PostRotationExecutor
 
             // Register commands and modules
@@ -213,10 +216,32 @@ object LiquidBounce : Listenable {
 
         override fun reload(manager: ResourceManager) {
             runCatching {
-                logger.info("Loading fonts...")
-                Fonts.loadQueuedFonts()
-            }.onSuccess {
-                logger.info("Loaded fonts successfully!")
+                // Queue fonts of all themes
+                // TODO: Will be removed with PR #3884 as it is not needed anymore
+                ThemeManager.themesFolder.listFiles()
+                    ?.filter { file -> file.isDirectory }
+                    ?.forEach { file ->
+                        runCatching {
+                            val assetsFolder = File(file, "assets")
+                            if (!assetsFolder.exists()) {
+                                return@forEach
+                            }
+
+                            FontManager.queueFolder(assetsFolder)
+                        }.onFailure {
+                            logger.error("Failed to queue fonts from theme '${file.name}'.", it)
+                        }
+                    }
+
+                // Load fonts
+                val duration = measureTime {
+                    runBlocking {
+                        FontManager.workOnQueue()
+                    }
+                }
+
+                logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
+                logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
             }.onFailure(ErrorHandler::fatal)
 
             // Check for newest version
