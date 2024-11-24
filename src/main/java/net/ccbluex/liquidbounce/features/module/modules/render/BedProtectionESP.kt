@@ -86,16 +86,13 @@ object BedProtectionESP : Module("BedProtectionESP", Category.RENDER, hideModule
                         blocksAround.add(currBlock.down())
                     }
 
-                    nextLayerAirBlocks.addAll(
-                        blocksAround.filter { blockPos -> getBlock(blockPos) == air }
-                    )
-                    nextLayerBlocks.addAll(
-                        blocksAround.filter { blockPos ->
-                            (allLayers || getBlock(blockPos) != air) && !cachedBlocks.contains(
-                                blockPos
-                            )
-                        }
-                    )
+                    blocksAround.filterTo(nextLayerAirBlocks) { blockPos -> getBlock(blockPos) == air }
+
+                    blocksAround.filterTo(nextLayerBlocks) { blockPos ->
+                        (allLayers || getBlock(blockPos) != air) && !cachedBlocks.contains(
+                            blockPos
+                        )
+                    }
                 }
 
                 // move to the next layer
