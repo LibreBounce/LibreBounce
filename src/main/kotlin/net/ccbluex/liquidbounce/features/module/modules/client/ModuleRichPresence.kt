@@ -31,9 +31,9 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.config.util.decode
-import net.ccbluex.liquidbounce.config.util.jsonArrayOf
-import net.ccbluex.liquidbounce.config.util.jsonObjectOf
+import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
+import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler

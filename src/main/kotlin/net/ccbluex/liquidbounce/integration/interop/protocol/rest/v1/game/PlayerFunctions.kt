@@ -21,8 +21,10 @@
 
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 
+import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.hideShieldSlot
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.shouldHideOffhand
 import net.ccbluex.liquidbounce.features.module.modules.misc.sanitizeWithNameProtect
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -45,11 +47,11 @@ import net.minecraft.world.GameMode
 
 // GET /api/v1/client/player
 @Suppress("UNUSED_PARAMETER")
-fun getPlayerData(requestObject: RequestObject) = httpOk(protocolGson.toJsonTree(PlayerData.fromPlayer(player)))
+fun getPlayerData(requestObject: RequestObject) = httpOk(interopGson.toJsonTree(PlayerData.fromPlayer(player)))
 
 // GET /api/v1/client/crosshair
 @Suppress("UNUSED_PARAMETER")
-fun getCrosshairData(requestObject: RequestObject) = httpOk(protocolGson.toJsonTree(mc.crosshairTarget))
+fun getCrosshairData(requestObject: RequestObject) = httpOk(interopGson.toJsonTree(mc.crosshairTarget))
 
 data class PlayerData(
     val username: String,
@@ -73,7 +75,7 @@ data class PlayerData(
     val mainHandStack: ItemStack,
     val offHandStack: ItemStack,
     val armorItems: List<ItemStack> = emptyList(),
-    val scoreboard: ScoreboardData? = null
+    val scoreboard: ScoreboardData? = null,
 ) {
 
     companion object {
@@ -98,7 +100,7 @@ data class PlayerData(
             player.experienceProgress.fixNaN(),
             player.statusEffects.toList(),
             player.mainHandStack,
-            player.offHandStack,
+            if (shouldHideOffhand(player = player) && hideShieldSlot) ItemStack.EMPTY else player.offHandStack,
             player.armorItems.toList(),
             if (mc.player == player) ScoreboardData.fromScoreboard(player.scoreboard) else null
         )

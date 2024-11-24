@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.integration.theme.component
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 
 /**
  * A set of tweaks that can be applied to the Original HUD by the component

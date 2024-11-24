@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.features
 
-import net.ccbluex.liquidbounce.config.Value
+import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module

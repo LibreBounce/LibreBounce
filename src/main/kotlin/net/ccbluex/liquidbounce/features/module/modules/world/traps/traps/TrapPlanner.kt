@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.traps.traps
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeIntent
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockIntentProvider
