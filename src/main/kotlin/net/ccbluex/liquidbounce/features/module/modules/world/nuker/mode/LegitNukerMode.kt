@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.ignoreOpenInventory
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.mode
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.wasTarget
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
@@ -58,8 +59,14 @@ object LegitNukerMode : Choice("Legit") {
 
         this.currentTarget = lookupTarget()
 
-        if (this.currentTarget == null) {
+        val currentTarget = currentTarget
+        if (currentTarget == null) {
             wasTarget = null
+            return@handler
+        }
+
+        if (ModulePacketMine.enabled) {
+            ModulePacketMine.setTarget(currentTarget)
         }
     }
 
@@ -67,6 +74,10 @@ object LegitNukerMode : Choice("Legit") {
     private val tickHandler = repeatable {
         val currentTarget = currentTarget ?: return@repeatable
         val state = currentTarget.getState() ?: return@repeatable
+
+        if (ModulePacketMine.enabled) {
+            return@repeatable
+        }
 
         // Wait for the switch delay to pass
         if (wasTarget != null && currentTarget != wasTarget) {
@@ -92,6 +103,7 @@ object LegitNukerMode : Choice("Legit") {
      */
     private fun lookupTarget(): BlockPos? {
         val eyes = player.eyes
+        val packetMine = ModulePacketMine.enabled
 
         // Check if the current target is still valid
         currentTarget?.let { pos ->
@@ -109,13 +121,15 @@ object LegitNukerMode : Choice("Legit") {
                 wallsRange = wallRange.toDouble(),
             ) ?: return@let
 
-            RotationManager.aimAt(
-                raytraceResult.rotation,
-                considerInventory = !ignoreOpenInventory,
-                configurable = rotations,
-                priority = Priority.IMPORTANT_FOR_USAGE_1,
-                ModuleNuker
-            )
+            if (!packetMine) {
+                RotationManager.aimAt(
+                    raytraceResult.rotation,
+                    considerInventory = !ignoreOpenInventory,
+                    configurable = rotations,
+                    priority = Priority.IMPORTANT_FOR_USAGE_1,
+                    ModuleNuker
+                )
+            }
 
             // We don't need to update the target if it's still valid
             return pos
@@ -130,13 +144,15 @@ object LegitNukerMode : Choice("Legit") {
                 wallsRange = wallRange.toDouble(),
             ) ?: continue
 
-            RotationManager.aimAt(
-                raytraceResult.rotation,
-                considerInventory = !ignoreOpenInventory,
-                configurable = rotations,
-                priority = Priority.IMPORTANT_FOR_USAGE_1,
-                ModuleNuker
-            )
+            if (!packetMine) {
+                RotationManager.aimAt(
+                    raytraceResult.rotation,
+                    considerInventory = !ignoreOpenInventory,
+                    configurable = rotations,
+                    priority = Priority.IMPORTANT_FOR_USAGE_1,
+                    ModuleNuker
+                )
+            }
 
             return pos
         }

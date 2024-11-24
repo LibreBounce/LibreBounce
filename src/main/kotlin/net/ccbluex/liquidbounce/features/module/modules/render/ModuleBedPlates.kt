@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.*
@@ -57,7 +57,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private val highlightUnbreakable by boolean("HighlightUnbreakable", true)
 
     private val fontRenderer
-        get() = Fonts.DEFAULT_FONT.get()
+        get() = FontManager.FONT_RENDERER
 
     private val WHITELIST_NON_SOLID = setOf(
         Blocks.LADDER,

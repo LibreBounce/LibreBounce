@@ -49,6 +49,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
             if (entity is EndCrystalEntity) {
                 super.attacked(id)
                 world.removeEntity(id, Entity.RemovalReason.DISCARDED)
+                entities[id] = entity
             }
         }
 
@@ -57,7 +58,9 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
         }
 
         override fun timedOut(id: Int) {
-            world.addEntity(entities.remove(id) ?: return)
+            val entity = entities.remove(id) ?: return
+            entity.unsetRemoved()
+            world.addEntity(entity)
         }
 
         override fun cleared() {

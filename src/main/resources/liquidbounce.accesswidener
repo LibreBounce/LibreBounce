@@ -176,3 +176,5 @@ accessible method net/minecraft/entity/projectile/PersistentProjectileEntity isI
 accessible method net/minecraft/entity/Entity isAlwaysInvulnerableTo (Lnet/minecraft/entity/damage/DamageSource;)Z
 
 accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V
+
+accessible method net/minecraft/entity/Entity unsetRemoved ()V
