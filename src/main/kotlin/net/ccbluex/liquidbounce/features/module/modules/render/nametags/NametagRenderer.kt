@@ -136,7 +136,7 @@ class NametagRenderer {
             lineBuffers.draw()
         }
         env.withColor(Color4b.WHITE) {
-            fontBuffers.draw(ModuleNametags.fontRenderer)
+            fontBuffers.draw()
         }
     }
 }
