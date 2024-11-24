@@ -57,7 +57,9 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private val trackingBuffer by int("TrackingBuffer", 500, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
     private val pauseOnHit by boolean("PauseOnHit", false)
-    private val espMode = choices("EspMode", Wireframe, arrayOf(Box, Model, Wireframe, None)).apply {
+    private val espMode = choices("EspMode", Wireframe, arrayOf(
+        Box, Model, Wireframe, None
+    )).apply {
         doNotIncludeAlways()
     }
 
@@ -258,8 +260,10 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> {
-        val enemy = it.enemy
+    private val attackHandler = handler<AttackEvent> { event ->
+        val enemy = event.enemy
+
+        shouldPause = enemy is LivingEntity && enemy.hurtTime < 10
 
         if (!shouldBacktrack(enemy)) {
             return@handler
@@ -309,20 +313,6 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         position = null
     }
 
-    fun isLagging() =
-        enabled && packetQueue.isNotEmpty()
-
-    init {
-        handler<AttackEvent> {
-            val enemy = it.enemy
-            shouldPause = enemy is LivingEntity && enemy.hurtTime < 10
-        }
-    }
-
-    private fun shouldPause(): Boolean {
-        return pauseOnHit && shouldPause
-    }
-
     private fun shouldBacktrack(target: Entity): Boolean {
         val inRange = target.boxedDistanceTo(player) in range
 
@@ -338,9 +328,10 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
             !shouldPause()
     }
 
-    private fun shouldCancelPackets(): Boolean {
-        return target != null &&
-            target!!.isAlive &&
-            shouldBacktrack(target!!)
-    }
+    fun isLagging() = enabled && packetQueue.isNotEmpty()
+
+    private fun shouldPause() = pauseOnHit && shouldPause
+
+    private fun shouldCancelPackets() =
+        target?.let { target -> target.isAlive && shouldBacktrack(target) } ?: false
 }
