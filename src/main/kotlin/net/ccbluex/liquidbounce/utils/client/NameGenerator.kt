@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.subList
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.random.Random
-import kotlin.random.nextInt
 
 private val ADJECTIVE_LISTS_BY_SIZE = buildShorterThanList(loadLines("adjectives.txt"))
 private val ANIMAL_LISTS_BY_SIZE = buildShorterThanList(loadLines("animals.txt"))
@@ -119,7 +118,7 @@ private fun findWordShorterOrEqual(strings: List<List<String>>, maxLength: Int) 
 private fun buildShorterThanList(list: List<String>): List<List<String>> {
     val sortedList = list.sortedBy { it.length }
 
-    var out = Array<List<String>?>(sortedList.last().length) { null }
+    val out = Array<List<String>?>(sortedList.last().length) { null }
 
     var lastLen = 0
 

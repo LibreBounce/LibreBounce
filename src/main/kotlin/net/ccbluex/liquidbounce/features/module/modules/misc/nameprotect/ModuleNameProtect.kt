@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
@@ -47,7 +47,7 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
 
     private val colorMode = choices<GenericColorMode<Unit>>(
         "ColorMode",
-        { it.choices[0] },
+        0,
         {
             arrayOf(GenericStaticColorMode(it, Color4b(255, 179, 72, 50)), GenericRainbowColorMode(it))
         }
@@ -57,22 +57,20 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
         val colorMode = choices<GenericColorMode<Unit>>(
             ReplaceFriendNames,
             "ColorMode",
-            { it.choices[0] },
-            {
-                arrayOf(GenericStaticColorMode(it, Color4b(0, 241, 255)), GenericRainbowColorMode(it))
-            }
-        )
+            0
+        ) {
+            arrayOf(GenericStaticColorMode(it, Color4b(0, 241, 255)), GenericRainbowColorMode(it))
+        }
     }
 
     private object ReplaceOthers : ToggleableConfigurable(this, "ObfuscateOthers", false) {
         val colorMode = ReplaceOthers.choices<GenericColorMode<Unit>>(
             ReplaceOthers,
             "ColorMode",
-            { it.choices[0] },
-            {
-                arrayOf(GenericStaticColorMode(it, Color4b(71, 71, 71)), GenericRainbowColorMode(it))
-            }
-        )
+            0
+        ) {
+            arrayOf(GenericStaticColorMode(it, Color4b(71, 71, 71)), GenericRainbowColorMode(it))
+        }
     }
 
     init {
@@ -94,7 +92,7 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
     @Suppress("unused")
     val renderEventHandler = handler<GameTickEvent> {
         val friendMappings = if (ReplaceFriendNames.enabled) {
-            FriendManager.friends.mapIndexed { id, friend ->
+            FriendManager.friends.filter { it.name.isNotBlank() }.mapIndexed { id, friend ->
                 friend.name to (friend.alias ?: friend.getDefaultName(id))
             }
         } else {
@@ -196,7 +194,7 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
                     replacement.second.newName.forEachIndexed { idx, ch ->
                         this.mappedCharacters.add(
                             MappedCharacter(
-                                originalCharacters[currentIndex].style.withColor(color.toRGBA()),
+                                originalCharacters[currentIndex].style.withColor(color.toARGB()),
                                 false,
                                 ch.code
                             )
