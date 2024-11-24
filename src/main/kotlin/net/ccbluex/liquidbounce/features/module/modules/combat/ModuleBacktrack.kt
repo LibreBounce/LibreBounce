@@ -63,8 +63,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
 
     private val packetQueue = LinkedHashSet<DelayData>()
     private val chronometer = Chronometer()
-
-    private var lastTargetTime = 0L
+    private val trackingBufferChronometer = Chronometer()
 
     private var shouldPause = false
 
@@ -328,10 +327,10 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         val inRange = target.boxedDistanceTo(player) in range
 
         if (inRange) {
-            lastTargetTime = System.currentTimeMillis()
+            trackingBufferChronometer.reset()
         }
 
-        return (inRange || System.currentTimeMillis() - lastTargetTime <= trackingBuffer) &&
+        return (inRange || !trackingBufferChronometer.hasElapsed(trackingBuffer.toLong())) &&
             target.shouldBeAttacked() &&
             player.age > 10 &&
             Math.random() * 100 < chance &&
