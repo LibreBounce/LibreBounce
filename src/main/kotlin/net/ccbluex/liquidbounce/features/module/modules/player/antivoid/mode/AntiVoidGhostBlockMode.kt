@@ -35,14 +35,12 @@ object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
 
     @Suppress("unused")
     private val handleBlockShape = handler<BlockShapeEvent> { event ->
-        if (isTestingCollision || event.shape != VoxelShapes.empty() || !isLikelyFalling || isExempt) {
+        if (isTestingCollision || !isLikelyFalling || isExempt) {
             return@handler
         }
 
-        val position = event.pos
-
-        // We only want to place a block below the player
-        if (position.y >= player.blockY) {
+        // We only want to place a fake-block collision below the player if the collision shape is empty.
+        if (event.shape != VoxelShapes.empty() || event.pos.y >= player.blockY) {
             return@handler
         }
 
