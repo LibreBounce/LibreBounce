@@ -16,16 +16,13 @@ import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
 import net.minecraft.entity.item.EntityMinecartChest
 import net.minecraft.tileentity.*
@@ -43,10 +40,9 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
     private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val customColor by boolean("CustomColor", false)
-    private val colorRed by int("R", 255, 0..255) { customColor }
-    private val colorGreen by int("G", 179, 0..255) { customColor }
-    private val colorBlue by int("B", 72, 0..255) { customColor }
+    private val espColorMode by choices("ESP-Color", arrayOf("None", "Custom"), "None")
+    private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false)
+    { espColorMode == "Custom" }.with(255, 179, 72)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..500) {
         override fun onUpdate(value: Int) {
@@ -74,26 +70,20 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     private val sign by boolean("Sign", false)
 
     private fun getColor(tileEntity: TileEntity): Color? {
-        return if (customColor) {
+        return if (espColorMode == "Custom") {
             when {
-                chest && tileEntity is TileEntityChest && tileEntity !in clickedTileEntities -> Color(
-                    colorRed,
-                    colorGreen,
-                    colorBlue
-                )
+                chest && tileEntity is TileEntityChest && tileEntity !in clickedTileEntities -> 
+                    Color(espColor.color().rgb)
 
-                enderChest && tileEntity is TileEntityEnderChest && tileEntity !in clickedTileEntities -> Color(
-                    colorRed,
-                    colorGreen,
-                    colorBlue
-                )
+                enderChest && tileEntity is TileEntityEnderChest && tileEntity !in clickedTileEntities ->
+                    Color(espColor.color().rgb)
 
-                furnace && tileEntity is TileEntityFurnace -> Color(colorRed, colorGreen, colorBlue)
-                dispenser && tileEntity is TileEntityDispenser -> Color(colorRed, colorGreen, colorBlue)
-                hopper && tileEntity is TileEntityHopper -> Color(colorRed, colorGreen, colorBlue)
-                enchantmentTable && tileEntity is TileEntityEnchantmentTable -> Color(colorRed, colorGreen, colorBlue)
-                brewingStand && tileEntity is TileEntityBrewingStand -> Color(colorRed, colorGreen, colorBlue)
-                sign && tileEntity is TileEntitySign -> Color(colorRed, colorGreen, colorBlue)
+                furnace && tileEntity is TileEntityFurnace -> Color(espColor.color().rgb)
+                dispenser && tileEntity is TileEntityDispenser -> Color(espColor.color().rgb)
+                hopper && tileEntity is TileEntityHopper -> Color(espColor.color().rgb)
+                enchantmentTable && tileEntity is TileEntityEnchantmentTable -> Color(espColor.color().rgb)
+                brewingStand && tileEntity is TileEntityBrewingStand -> Color(espColor.color().rgb)
+                sign && tileEntity is TileEntitySign -> Color(espColor.color().rgb)
                 else -> null
             }
         } else {
