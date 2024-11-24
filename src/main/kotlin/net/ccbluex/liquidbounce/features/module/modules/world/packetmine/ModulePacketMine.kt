@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable

@@ -19,8 +19,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.utils.block.isBreakable
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.minecraft.block.BlockState
