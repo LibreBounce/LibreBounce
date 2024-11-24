@@ -68,11 +68,11 @@ object ModulePacketLogger : Module("PacketLogger", Category.MISC) {
 
         text.append(" ")
         val classNames = mutableListOf<String>()
-        classNames.add(clazz.simpleName)
+        classNames.add(EnvironmentRemapper.remapClassName(clazz.simpleName))
 
         var superclass = clazz.superclass
         while (superclass != null && superclass != Any::class.java) {
-            classNames.add(superclass.simpleName)
+            classNames.add(EnvironmentRemapper.remapClassName(superclass.simpleName))
             superclass = superclass.superclass
         }
 
