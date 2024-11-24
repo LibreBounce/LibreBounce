@@ -185,7 +185,6 @@ object FontManager {
                 fontStyles.map { it?.let { FontGlyphPageManager(it) } }.toTypedArray(),
                 DEFAULT_FONT_SIZE
             )
-            logger.info("Font Renderer for font $name has been loaded successfully.")
         }
 
 
