@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleTeleport
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.block.canStandOn
-import net.ccbluex.liquidbounce.utils.block.getCollisionShape
+import net.ccbluex.liquidbounce.utils.block.collisionShape
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.client.player
@@ -117,7 +117,7 @@ object CommandVClip {
             // go to the next position in the direction
             newPos = newPos.offset(direction)
 
-            val shape = newPos.getCollisionShape()
+            val shape = newPos.collisionShape
 
             // we have to be able to stand on the position
             if (canTpOn(newPos, shape)) {
@@ -177,7 +177,7 @@ object CommandVClip {
 
         while (accumulatedHeight < requiredHeight) {
             newPos = newPos.up()
-            val collisionShape = newPos.getCollisionShape()
+            val collisionShape = newPos.collisionShape
 
             if (!collisionShape.isEmpty) {
                 val maxAvailableHeight = collisionShape.getMin(Direction.Axis.Y)

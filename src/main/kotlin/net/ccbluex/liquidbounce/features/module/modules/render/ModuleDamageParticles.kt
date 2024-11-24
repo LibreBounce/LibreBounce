@@ -49,14 +49,17 @@ object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
     private val transitionType by curve("TransitionType", Easing.QUAD_OUT)
 
     private val healthMap = Object2FloatOpenHashMap<LivingEntity>()
-    private val particles = hashSetOf<Particle>()
+
+    /**
+     * Ordered by startTime
+     */
+    private val particles = ArrayDeque<Particle>()
 
     private const val EPSILON = 0.05F
     private const val FORMATTER = "%.1f"
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = Fonts.DEFAULT_FONT.get()
 
     override fun disable() {
         healthMap.clear()
@@ -103,7 +106,10 @@ object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
 
         healthMap.keys.removeIf { it !in entities || it.isDead }
 
-        particles.removeIf { now - it.startTime > ttl * 1000F }
+        val earliest = now - (ttl * 1000).toLong()
+        while (particles.isNotEmpty() && particles.first().startTime < earliest) {
+            particles.removeFirst()
+        }
     }
 
     @Suppress("unused")
@@ -139,6 +145,7 @@ object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
         }
     }
 
+    @JvmRecord
     data class Particle(val startTime: Long, val text: String, val color: Color4b, val pos: Vec3d)
 
 }

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.autododge
 
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.rayTraceCollidingBlocks
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -80,7 +80,7 @@ class DodgePlanner(
     private val hypotheticalHit: ModuleAutoDodge.HitInfo,
     private val distanceToArrowLine: Double,
     private val optimalDodgePosRelativeToPlayer: Vec3d,
-) : QuickImports {
+) : MinecraftShortcuts {
     fun plan(): DodgePlan {
         val inputForEvasionWithCurrentRotation =
             getDodgeMovementWithoutAngleChange(this.optimalDodgePosRelativeToPlayer)

@@ -18,51 +18,25 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.loadingNow
-import net.ccbluex.liquidbounce.config.util.Exclude
+import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
+import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedColorChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedNoneChoice
-import net.ccbluex.liquidbounce.features.module.modules.world.fucker.IsSelfBedSpawnLocationChoice
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.client.inGame
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.ccbluex.liquidbounce.utils.kotlin.mapArray
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.network.ClientPlayNetworkHandler
-import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.client.network.ClientPlayerInteractionManager
 import net.minecraft.client.util.InputUtil
-import net.minecraft.client.world.ClientWorld
-
-interface QuickImports {
-    /**
-     * Collection of the most used variables
-     * to make the code more readable.
-     *
-     * However, we do not check for nulls here, because
-     * we are sure that the client is in-game, if not
-     * fiddling with the handler code.
-     */
-    val mc: MinecraftClient
-        get() = net.ccbluex.liquidbounce.utils.client.mc
-    val player: ClientPlayerEntity
-        get() = mc.player!!
-    val world: ClientWorld
-        get() = mc.world!!
-    val network: ClientPlayNetworkHandler
-        get() = mc.networkHandler!!
-    val interaction: ClientPlayerInteractionManager
-        get() = mc.interactionManager!!
-}
 
 /**
  * A module also called 'hack' can be enabled and handle events
@@ -78,7 +52,7 @@ open class Module(
     hide: Boolean = false, // default hide
     @Exclude val disableOnQuit: Boolean = false, // disables module when player leaves the world,
     @Exclude val aliases: Array<out String> = emptyArray() // additional names under which the module is known
-) : Listenable, Configurable(name), QuickImports {
+) : Listenable, Configurable(name), MinecraftShortcuts {
 
     val valueEnabled = boolean("Enabled", state).also {
         // Might not include the enabled state of the module depending on the category
@@ -155,8 +129,10 @@ open class Module(
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
+        .independentDescription()
     var hidden by boolean("Hidden", hide)
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
+        .independentDescription()
         .onChange {
             EventManager.callEvent(RefreshArrayListEvent())
             it
@@ -167,14 +143,8 @@ open class Module(
      */
     private var locked: Value<Boolean>? = null
 
-    open val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.${name.toLowerCamelCase()}"
-
-    private val descriptionKey
-        get() = "$translationBaseKey.description"
-
-    open val description: String
-        get() = translation(descriptionKey).convertToString()
 
     // Tag to be displayed on the HUD
     open val tag: String?
@@ -187,12 +157,6 @@ open class Module(
      */
     @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
-
-    init {
-        if (!LanguageManager.hasFallbackTranslation(descriptionKey)) {
-            logger.warn("$name is missing fallback description key $descriptionKey")
-        }
-    }
 
     /**
      * Called when module is turned on
@@ -251,7 +215,18 @@ open class Module(
         }
     }
 
-    protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
+    /**
+     * Warns when no module description is set in the main translation file.
+     *
+     * Requires that [Configurable.walkKeyPath] has previously been run.
+     */
+    fun verifyFallbackDescription() {
+        if (!LanguageManager.hasFallbackTranslation(descriptionKey!!)) {
+            logger.warn("$name is missing fallback description key $descriptionKey")
+        }
+    }
+
+    protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
     protected fun <T : Choice> choices(
@@ -260,6 +235,6 @@ open class Module(
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
 
-    fun message(key: String, vararg args: Any) = translation("$translationBaseKey.messages.$key", *args)
+    fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
 
 }

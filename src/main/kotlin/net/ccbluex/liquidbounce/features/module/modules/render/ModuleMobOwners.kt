@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.io.HttpClient
@@ -64,7 +64,7 @@ object ModuleMobOwners : Module("MobOwners", Category.RENDER) {
 
     private fun getFromMojangApi(ownerId: UUID): OrderedText {
         return uuidNameCache.computeIfAbsent(ownerId) {
-            Util.getDownloadWorkerExecutor().submit {
+            Util.getDownloadWorkerExecutor().execute {
                 try {
                     val uuidAsString = it.toString().replace("-", "")
                     val url = "https://api.mojang.com/user/profiles/$uuidAsString/names"

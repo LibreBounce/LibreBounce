@@ -20,8 +20,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
-import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
-import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.features.command.builder.*
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.utils.client.bypassNameProtection
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -177,10 +176,7 @@ object CommandFriend {
         return CommandBuilder
             .begin("add")
             .parameter(
-                ParameterBuilder
-                    .begin<String>("name")
-                    .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                    .useMinecraftAutoCompletion()
+                playerParameter()
                     .required()
                     .build()
             )

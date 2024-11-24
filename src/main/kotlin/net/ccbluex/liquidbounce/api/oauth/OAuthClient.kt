@@ -10,7 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.*
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.api.ClientApi.API_V3_ENDPOINT
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.features.cosmetic.Cosmetic
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import java.net.InetSocketAddress
@@ -33,7 +33,7 @@ object OAuthClient {
     private var authCodeContinuation: Continuation<String>? = null
 
     fun runWithScope(block: suspend CoroutineScope.() -> Unit) {
-        scope.launch(block = block)
+        scope.launch { block() }
     }
 
     suspend fun startAuth(onUrl: (String) -> Unit): ClientAccount {

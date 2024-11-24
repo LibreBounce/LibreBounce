@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.authlib;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.authlib.minecraft.client.MinecraftClient;
-import net.ccbluex.liquidbounce.features.misc.ProxyManager;
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

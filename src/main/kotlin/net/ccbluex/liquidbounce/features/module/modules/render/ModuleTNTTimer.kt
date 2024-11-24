@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -42,7 +42,7 @@ import kotlin.math.sin
  */
 object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.tntTimer"
 
     // Glow ESP
@@ -74,9 +74,8 @@ object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
         tree(ShowTimer)
     }
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = Fonts.DEFAULT_FONT.get()
 
     private const val DEFAULT_FUSE = 80
 

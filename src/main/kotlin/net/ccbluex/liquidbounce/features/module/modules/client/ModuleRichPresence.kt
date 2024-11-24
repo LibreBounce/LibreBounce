@@ -24,18 +24,20 @@ import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
 import com.jagrosh.discordipc.exceptions.NoDiscordClientException
+import kotlinx.coroutines.Dispatchers
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.config.util.decode
-import net.ccbluex.liquidbounce.config.util.jsonArrayOf
-import net.ccbluex.liquidbounce.config.util.jsonObjectOf
+import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
+import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
@@ -44,7 +46,6 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
 import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 
 data class IpcConfiguration(
     val appID: Long,
@@ -75,52 +76,6 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
 
     init {
         doNotIncludeAlways()
-
-        virtualThread(name = "RichPresence Updater") {
-            while (true) {
-                Thread.sleep(1000L)
-
-                if (enabled) {
-                    connectIpc()
-                } else {
-                    shutdownIpc()
-                }
-
-                // Check ipc client is connected and send rpc
-                if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
-                    continue
-                }
-
-                ipcClient!!.sendRichPresence {
-                    // Set playing time
-                    setStartTimestamp(timestamp)
-
-                    // Check assets contains logo and set logo
-                    if ("logo" in ipcConfiguration.assets) {
-                        setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
-                    }
-
-                    if ("smallLogo" in ipcConfiguration.assets) {
-                        setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
-                    }
-
-                    setDetails(formatText(detailsText))
-                    setState(formatText(stateText))
-
-                    setButtons(jsonArrayOf(
-                        jsonObjectOf(
-                            "label" to "Download",
-                            "url" to "https://liquidbounce.net/",
-                        ),
-
-                        jsonObjectOf(
-                            "label" to "GitHub",
-                            "url" to "https://github.com/CCBlueX/LiquidBounce",
-                        ),
-                    ))
-                }
-            }
-        }
     }
 
     override fun enable() {
@@ -172,6 +127,56 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
             logger.info("Successfully closed Discord RPC.")
         }
         super.disable()
+    }
+
+    @Suppress("unused")
+    val updateCycle = repeatable {
+        waitTicks(20)
+
+        /**
+         * Don't block the render thread
+         */
+        withContext(Dispatchers.IO) {
+            if (enabled) {
+                connectIpc()
+            } else {
+                shutdownIpc()
+            }
+
+            // Check ipc client is connected and send rpc
+            if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
+                return@withContext
+            }
+
+            ipcClient!!.sendRichPresence {
+                // Set playing time
+                setStartTimestamp(timestamp)
+
+                // Check assets contains logo and set logo
+                if ("logo" in ipcConfiguration.assets) {
+                    setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
+                }
+
+                if ("smallLogo" in ipcConfiguration.assets) {
+                    setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
+                }
+
+                setDetails(formatText(detailsText))
+                setState(formatText(stateText))
+
+                setButtons(jsonArrayOf(
+                    jsonObjectOf(
+                        "label" to "Download",
+                        "url" to "https://liquidbounce.net/",
+                    ),
+
+                    jsonObjectOf(
+                        "label" to "GitHub",
+                        "url" to "https://github.com/CCBlueX/LiquidBounce",
+                    ),
+                ))
+            }
+        }
     }
 
     @Suppress("unused")
