@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -41,7 +41,7 @@ import kotlin.math.max
  * Allows the crystal aura to send a break packet right when a crystal is placed by predicting the
  * expected entity id.
  */
-object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict", true) {
+object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict", false) {
 
     /**
      * Sends a packet for all included offsets.

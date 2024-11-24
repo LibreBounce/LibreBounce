@@ -25,14 +25,12 @@ import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.client.ModuleAutoConfig
-import net.ccbluex.liquidbounce.features.module.modules.client.ModuleLiquidChat
-import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresence
-import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
+import net.ccbluex.liquidbounce.features.module.modules.client.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
@@ -157,6 +155,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleCriticals,
             ModuleHitbox,
             ModuleKillAura,
+            ModuleTpAura,
             ModuleSuperKnockback,
             ModuleTimerRange,
             ModuleTickBase,
@@ -209,7 +208,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             // Misc
             ModuleAntiBot,
             ModuleBetterChat,
-            ModuleFriendClicker,
+            ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
             ModuleNotifier,
@@ -229,6 +228,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAvoidHazards,
             ModuleBlockBounce,
             ModuleBlockWalk,
+            ModuleElytraRecast,
             ModuleElytraFly,
             ModuleFly,
             ModuleFreeze,
@@ -269,6 +269,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleBlink,
             ModuleChestStealer,
             ModuleEagle,
+            ModuleFastExp,
             ModuleFastUse,
             ModuleInventoryCleaner,
             ModuleNoFall,
@@ -355,7 +356,11 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             builtin += ModuleDebugRecorder
         }
 
-        builtin.forEach(::addModule)
+        builtin.forEach {
+            addModule(it)
+            it.walkKeyPath()
+            it.verifyFallbackDescription()
+        }
     }
 
     private fun addModule(module: Module) {

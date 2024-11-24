@@ -30,7 +30,7 @@ import net.minecraft.client.util.math.MatrixStack
 class GameRenderEvent : Event()
 
 @Nameable("screenRender")
-class ScreenRenderEvent(val context: DrawContext, val delta: Float) : Event()
+class ScreenRenderEvent(val context: DrawContext, val partialTicks: Float) : Event()
 
 @Nameable("overlayRender")
 class OverlayRenderEvent(val context: DrawContext, val delta: Float) : Event()

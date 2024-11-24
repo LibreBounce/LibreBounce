@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.command
 
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.minecraft.text.MutableText
@@ -35,7 +35,7 @@ class Command(
     val executable: Boolean,
     val handler: CommandHandler?,
     private var parentCommand: Command? = null
-) : QuickImports {
+) : MinecraftShortcuts {
     val translationBaseKey: String
         get() = "liquidbounce.command.${getParentKeys(this, name)}"
 

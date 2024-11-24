@@ -20,6 +20,8 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
@@ -248,7 +250,7 @@ public abstract class MixinGameRenderer {
     private void hookRestoreLightMap(RenderTickCounter tickCounter, CallbackInfo ci) {
 //        ((LightmapTextureManagerAddition) lightmapTextureManager).liquid_bounce$restoreLightMap();
     }
-  
+
     @ModifyExpressionValue(method = "getFov", at = @At(value = "INVOKE", target = "Ljava/lang/Integer;intValue()I", remap = false))
     private int hookGetFov(int original) {
         int result;
@@ -287,8 +289,8 @@ public abstract class MixinGameRenderer {
 
     @ModifyExpressionValue(method = "renderWorld",
             at = @At(
-                value = "INVOKE",
-                target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
             )
     )
     private Perspective hookPerspectiveEventOnCamera(Perspective original) {

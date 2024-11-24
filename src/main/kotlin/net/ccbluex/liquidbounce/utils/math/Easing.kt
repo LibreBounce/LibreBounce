@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.math
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow

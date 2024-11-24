@@ -18,11 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.minecraft.entity.Entity
 import net.minecraft.entity.decoration.EndCrystalEntity
-import java.util.*
 
 /**
  * Removes hit crystals instantly from the world instead of waiting for the actual remove packet
@@ -38,7 +38,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
 
     object CrystalTracker : CrystalPostAttackTracker() {
 
-        val entities: MutableMap<Int, EndCrystalEntity> = Collections.synchronizedMap(Int2ObjectOpenHashMap())
+        val entities: MutableMap<Int, EndCrystalEntity> = Int2ObjectMaps.synchronize(Int2ObjectOpenHashMap())
 
         override fun attacked(id: Int) {
             if (!handleEvents()) {

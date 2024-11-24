@@ -20,9 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -46,11 +46,6 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val vlToConsiderAsBot by int("VLToConsiderAsBot", 10, 1..50, "flags")
     }
 
-    init {
-        tree(InvalidGround)
-        tree(AlwaysInRadius)
-    }
-
     private val duplicate by boolean("Duplicate", false)
     private val noGameMode by boolean("NoGameMode", true)
     private val illegalPitch by boolean("IllegalPitch", true)
@@ -66,6 +61,17 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val alwaysInRadiusRange by float("AlwaysInRadiusRange", 20f, 5f..30f)
     }
 
+    // LivingTime in 1.8.9
+    private object Age : ToggleableConfigurable(ModuleAntiBot, "Age", false) {
+        val minimum by int("Minimum", 20, 0..120, "ticks")
+    }
+
+    init {
+        tree(InvalidGround)
+        tree(AlwaysInRadius)
+        tree(Age)
+    }
+
     private val flyingSet = Int2IntOpenHashMap()
     private val hitListSet = IntOpenHashSet()
     private val notAlwaysInRadiusSet = IntOpenHashSet()
@@ -73,12 +79,26 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     private val swungSet = IntOpenHashSet()
     private val crittedSet = IntOpenHashSet()
     private val attributesSet = IntOpenHashSet()
+    private val ageSet = IntOpenHashSet()
 
     val repeatable = repeatable {
         val rangeSquared = AlwaysInRadius.alwaysInRadiusRange.sq()
         for (entity in world.players) {
             if (player.squaredDistanceTo(entity) > rangeSquared) {
                 notAlwaysInRadiusSet.add(entity.id)
+            }
+
+            if (entity.age < Age.minimum) {
+                ageSet.add(entity.id)
+            }
+        }
+
+        with(ageSet.intIterator()) {
+            while (hasNext()) {
+                val entity = world.getEntityById(nextInt())
+                if (entity == null || entity.age >= Age.minimum) {
+                    remove()
+                }
             }
         }
     }
@@ -97,16 +117,17 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 }
 
                 val entity = packet.getEntity(world) ?: return@handler
-                val currentValue = flyingSet.getOrDefault(entity.id, 0)
+                val id = entity.id
+                val currentValue = flyingSet.getOrDefault(id, 0)
                 if (entity.isOnGround && entity.prevY != entity.y) {
-                    flyingSet.put(entity.id, currentValue + 1)
+                    flyingSet.put(id, currentValue + 1)
                 } else if (!entity.isOnGround && currentValue > 0) {
                     val newVL = currentValue / 2
 
                     if (newVL <= 0) {
-                        flyingSet.remove(entity.id)
+                        flyingSet.remove(id)
                     } else {
-                        flyingSet.put(entity.id, newVL)
+                        flyingSet.put(id, newVL)
                     }
                 }
             }
@@ -128,13 +149,14 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             }
 
             is EntitiesDestroyS2CPacket -> {
-                packet.entityIds.intIterator().apply {
+                with(packet.entityIds.intIterator()) {
                     while (hasNext()) {
                         val entityId = nextInt()
                         attributesSet.remove(entityId)
                         flyingSet.remove(entityId)
                         hitListSet.remove(entityId)
                         notAlwaysInRadiusSet.remove(entityId)
+                        ageSet.remove(entityId)
                     }
                 }
             }
@@ -169,6 +191,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             illegalName && hasIllegalName(player) -> true
             illegalPitch && abs(player.pitch) > 90 -> true
             AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(player.id) -> true
+            Age.enabled && ageSet.contains(player.id) -> true
             needHit && !hitListSet.contains(player.id) -> true
             health && player.health > 20f -> true
             swung && !swungSet.contains(player.id) -> true
@@ -189,5 +212,6 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         swungSet.clear()
         crittedSet.clear()
         attributesSet.clear()
+        ageSet.clear()
     }
 }

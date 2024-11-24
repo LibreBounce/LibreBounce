@@ -18,5 +18,9 @@
  */
 package net.ccbluex.liquidbounce.script
 
+/**
+ * Marks a class, function or property as part of the LiquidBounce Script API.
+ * It might not serve a purpose other than documentation.
+ */
 @Retention(AnnotationRetention.SOURCE)
 annotation class ScriptApiRequired

@@ -110,5 +110,7 @@ fun Vec3d.squaredXZDistanceTo(other: Vec3d): Double {
     return d * d + e * e
 }
 
+infix fun Vec3d.angleWith(other: Vec3d): Double = this.dotProduct(other) / this.length() / other.length()
+
 val Box.size: Double
     get() = this.lengthX * this.lengthY * this.lengthZ

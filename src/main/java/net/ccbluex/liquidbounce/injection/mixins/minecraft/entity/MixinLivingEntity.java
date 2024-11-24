@@ -20,15 +20,12 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.ccbluex.liquidbounce.config.NoneChoice;
+import net.ccbluex.liquidbounce.config.types.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAirJump;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiLevitation;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoJumpDelay;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
+import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
@@ -39,12 +36,15 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
@@ -100,6 +100,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         return original;
     }
+
+    @Shadow
+    public abstract boolean isGliding();
+
 
     /**
      * Disable [StatusEffects.SLOW_FALLING] effect when [ModuleAntiLevitation] is enabled
@@ -214,6 +218,26 @@ public abstract class MixinLivingEntity extends MixinEntity {
             this.jump();
             jumpingCooldown = 10;
         }
+    }
+
+    @Unique
+    private boolean previousElytra = false;
+
+    @Inject(method = "tickGliding", at = @At("TAIL"))
+    public void recastIfLanded(CallbackInfo callbackInfo) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
+        }
+
+        var elytra = isGliding();
+        if (ModuleElytraRecast.INSTANCE.getEnabled() && previousElytra && !elytra) {
+            MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.id(),
+                    SoundCategory.PLAYERS);
+            ModuleElytraRecast.INSTANCE.recastElytra();
+            jumpingCooldown = 0;
+        }
+
+        previousElytra = elytra;
     }
 
     /**

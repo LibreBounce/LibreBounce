@@ -48,7 +48,7 @@ private const val BACKGROUND_PADDING: Int = 2
  */
 object ModuleItemTags : Module("ItemTags", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.itemTags"
 
     private val boxSize by float("BoxSize", 1.0F, 0.1F..10.0F)
@@ -56,9 +56,8 @@ object ModuleItemTags : Module("ItemTags", Category.RENDER) {
     private val renderY by float("RenderY", 0.0F, -2.0F..2.0F)
     private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = Fonts.DEFAULT_FONT.get()
 
     @Suppress("unused")
     val renderHandler = handler<OverlayRenderEvent> {

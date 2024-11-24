@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed
 
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.movement.copy
@@ -31,7 +31,7 @@ import net.minecraft.util.math.Vec3d
 /**
  * Prevents you from bumping into corners when chasing.
  */
-object SpeedAntiCornerBump : QuickImports {
+object SpeedAntiCornerBump : MinecraftShortcuts {
     /**
      * Called when the speed mode might jump. Decides if the jump should be delayed.
      */
