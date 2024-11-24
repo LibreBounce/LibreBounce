@@ -87,7 +87,7 @@ dependencies {
 
     // Recommended mods (on IDE)
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-//    modImplementation "maven.modrinth:sodium:${project.sodium_version}"
+    modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modCompileOnly "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
