@@ -182,7 +182,7 @@ object AStarMode : TpAuraChoice("AStar") {
 
     data class PathCache(val enemy: LivingEntity, val path: List<Vec3i>)
 
-    fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List<Vec3i> {
+    private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List<Vec3i> {
         if (start == end) return listOf(end)
 
         val openList = mutableListOf<Node>()
