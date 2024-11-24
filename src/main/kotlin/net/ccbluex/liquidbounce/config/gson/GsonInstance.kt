@@ -90,7 +90,6 @@ val fileGson: Gson = GsonBuilder()
     .addSerializationExclusionStrategy(ExcludeStrategy())
     .registerCommonTypeAdapters()
     .registerTypeHierarchyAdapter(Configurable::class.javaObjectType, ConfigurableSerializer.FILE_SERIALIZER)
-    .registerTypeHierarchyAdapter(Component::class.javaObjectType, ReadOnlyComponentSerializer)
     .create()
 
 /**
