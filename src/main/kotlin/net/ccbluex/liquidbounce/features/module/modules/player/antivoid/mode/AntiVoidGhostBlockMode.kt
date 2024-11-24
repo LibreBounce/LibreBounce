@@ -51,7 +51,7 @@ object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
     }
 
     /**
-     * We do not use the general logic of AntiVoid here, we have a very basic one here.
+     * We have [handleBlockShape] to fix our situation instead.
      */
     override fun fix() = false
 
