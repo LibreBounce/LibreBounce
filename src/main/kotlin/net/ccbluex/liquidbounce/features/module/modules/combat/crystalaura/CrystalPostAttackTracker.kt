@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap
+import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -27,14 +28,13 @@ import net.ccbluex.liquidbounce.event.repeatable
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket
 import net.minecraft.sound.SoundEvents
-import java.util.*
 
 /**
  * Can be implemented to handle actions after crystals got attacked.
  */
 abstract class CrystalPostAttackTracker : Listenable {
 
-    protected val attackedIds: MutableMap<Int, Long> = Collections.synchronizedMap(Int2LongLinkedOpenHashMap())
+    protected val attackedIds: MutableMap<Int, Long> = Int2LongMaps.synchronize(Int2LongLinkedOpenHashMap())
 
     val repeatable = repeatable {
         val currentTime = System.currentTimeMillis()

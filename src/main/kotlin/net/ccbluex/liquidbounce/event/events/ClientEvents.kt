@@ -21,6 +21,7 @@
 package net.ccbluex.liquidbounce.event.events
 
 import com.google.gson.annotations.SerializedName
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.features.chat.packet.User
@@ -38,9 +39,18 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.network.ServerInfo
 import net.minecraft.world.GameMode
 
+@Deprecated(
+    "The `clickGuiScaleChange` event has been deprecated.",
+    ReplaceWith("ClickGuiScaleChangeEvent"),
+    DeprecationLevel.WARNING
+)
 @Nameable("clickGuiScaleChange")
 @WebSocketEvent
 class ClickGuiScaleChangeEvent(val value: Float) : Event()
+
+@Nameable("clickGuiValueChange")
+@WebSocketEvent
+class ClickGuiValueChangeEvent(val configurable: Configurable) : Event()
 
 @Nameable("spaceSeperatedNamesChange")
 @WebSocketEvent
@@ -53,6 +63,7 @@ class ClientStartEvent : Event()
 class ClientShutdownEvent : Event()
 
 @Nameable("valueChanged")
+@WebSocketEvent
 class ValueChangedEvent(val value: Value<*>) : Event()
 
 @Nameable("toggleModule")

@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleNoMissCoold
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions;
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAction;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
@@ -253,6 +254,13 @@ public abstract class MixinMinecraftClient {
         UseCooldownEvent useCooldownEvent = new UseCooldownEvent(itemUseCooldown);
         EventManager.INSTANCE.callEvent(useCooldownEvent);
         itemUseCooldown = useCooldownEvent.getCooldown();
+    }
+
+    @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
+    private void hookItemPick(CallbackInfo ci) {
+        if (ModuleMiddleClickAction.Pearl.INSTANCE.cancelPick()) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "hasOutline", cancellable = true, at = @At("HEAD"))

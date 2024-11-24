@@ -40,7 +40,7 @@ import net.minecraft.util.math.Box
 
 object ModuleItemESP : Module("ItemESP", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.itemEsp"
 
     private val modes = choices("Mode", OutlineMode, arrayOf(GlowMode, OutlineMode, BoxMode))

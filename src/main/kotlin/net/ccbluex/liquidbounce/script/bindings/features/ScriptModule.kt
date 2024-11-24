@@ -38,7 +38,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
         get() = _tag
 
     private var _description: String? = null
-    override val description: String
+    override var description: String? = ""
         get() = _description ?: ""
 
     /**
