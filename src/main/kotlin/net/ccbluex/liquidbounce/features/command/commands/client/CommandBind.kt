@@ -24,7 +24,10 @@ import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.input.keyList
+import net.ccbluex.liquidbounce.utils.input.mouseList
 
 /**
  * Bind Command
@@ -43,6 +46,7 @@ object CommandBind {
                 ParameterBuilder
                     .begin<String>("key")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                    .autocompletedWith { begin -> (keyList + mouseList).filter { it.startsWith(begin) } }
                     .required()
                     .build()
             )
@@ -53,10 +57,22 @@ object CommandBind {
                 val module = ModuleManager.find { it.name.equals(name, true) }
                     ?: throw CommandException(command.result("moduleNotFound", name))
 
-                val bindKey = key(keyName)
-                module.bind = bindKey
+                if (keyName.equals("none", true)) {
+                    module.bind.unbind()
+                    ModuleClickGui.reloadView()
+                    chat(regular(command.result("moduleUnbound", variable(module.name))))
+                    return@handler
+                }
 
-                chat(regular(command.result("moduleBound", variable(module.name), variable(keyName(bindKey)))))
+                runCatching {
+                    module.bind.bind(keyName)
+                    ModuleClickGui.reloadView()
+                }.onSuccess {
+                    chat(regular(command.result("moduleBound", variable(module.name), variable(module.bind.keyName))))
+                }.onFailure {
+                    chat(markAsError(command.result("keyNotFound", variable(keyName))))
+                }
+
             }
             .build()
     }

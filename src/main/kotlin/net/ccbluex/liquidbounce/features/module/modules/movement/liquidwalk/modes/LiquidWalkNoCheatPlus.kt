@@ -21,8 +21,8 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
@@ -58,13 +58,13 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
 
         val block = event.state.block
 
-        if (block is FluidBlock && !isBlockAtPosition(player.box) { it is FluidBlock }) {
+        if (block is FluidBlock && !player.box.isBlockAtPosition { it is FluidBlock }) {
             event.shape = VoxelShapes.fullCube()
         }
     }
 
     val repeatable = repeatable {
-        if (isBlockAtPosition(player.box) { it is FluidBlock } && !player.input.sneaking) {
+        if (player.box.isBlockAtPosition { it is FluidBlock } && !player.input.sneaking) {
             player.velocity.y = 0.08
         }
     }

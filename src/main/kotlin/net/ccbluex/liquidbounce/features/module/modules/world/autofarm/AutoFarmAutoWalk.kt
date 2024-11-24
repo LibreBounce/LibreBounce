@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.autofarm
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent
@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.ItemEntity
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.Vec3i
 
 object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", false) {
 
@@ -45,8 +44,8 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
 
     var walkTarget: Vec3d? = null
 
-    private fun findWalkToItem() = world.entities.filter { it is ItemEntity && it.distanceTo(player) < 20 }
-        .minByOrNull { it.distanceTo(player) }?.pos
+    private fun findWalkToItem() = world.entities.filter { it is ItemEntity && it.squaredDistanceTo(player) < 20 * 20 }
+        .minByOrNull { it.squaredDistanceTo(player) }?.pos
 
     fun updateWalkTarget(): Boolean {
         if (!enabled) return false
@@ -94,8 +93,8 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
         }
 
         val closestBlock = AutoFarmBlockTracker.trackedBlockMap.filter { allowedItems[it.value.ordinal] }.keys.map {
-            Vec3d.ofCenter(Vec3i(it.x, it.y, it.z))
-        }.minByOrNull { it.distanceTo(player.pos) }
+            it.toCenterPos()
+        }.minByOrNull { it.squaredDistanceTo(player.pos) }
 
         return closestBlock
     }

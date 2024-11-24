@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
@@ -32,7 +32,7 @@ object HorizonAntiBotMode : Choice("Horizon"), ModuleAntiBot.IAntiBotMode {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleAntiBot.modes
 
-    private val botList = HashSet<UUID>()
+    private val botList = hashSetOf<UUID>()
 
     val packetHandler = handler<PacketEvent> {
         when (val packet = it.packet) {
@@ -49,11 +49,7 @@ object HorizonAntiBotMode : Choice("Horizon"), ModuleAntiBot.IAntiBotMode {
             }
 
             is PlayerRemoveS2CPacket -> {
-                for (id in packet.profileIds) {
-                    if (botList.contains(id)) {
-                        botList.remove(id)
-                    }
-                }
+                packet.profileIds.forEach(botList::remove)
             }
         }
     }

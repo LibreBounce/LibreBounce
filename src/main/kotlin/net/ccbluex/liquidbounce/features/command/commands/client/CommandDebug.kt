@@ -28,6 +28,7 @@ import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.lang.LanguageManager
@@ -144,18 +145,17 @@ object CommandDebug {
         })
 
         add("scripts", JsonArray().apply {
-            ScriptManager.loadedScripts.forEach { script ->
+            ScriptManager.scripts.forEach { script ->
                 add(JsonObject().apply {
                     addProperty("name", script.scriptName)
                     addProperty("version", script.scriptVersion)
                     addProperty("author", script.scriptAuthors.joinToString(", "))
-                    addProperty("path", script.scriptFile.path)
+                    addProperty("path", script.file.path)
                 })
             }
         })
 
-        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable,
-            ConfigSystem.clientGson))
+        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable, publicGson))
     }
 
     /**

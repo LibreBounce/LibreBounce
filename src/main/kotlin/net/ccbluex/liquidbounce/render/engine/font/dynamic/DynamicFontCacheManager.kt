@@ -3,13 +3,11 @@ package net.ccbluex.liquidbounce.render.engine.font.dynamic
 import com.mojang.blaze3d.platform.GlStateManager
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.withLock
-import net.ccbluex.liquidbounce.render.Fonts
-import net.ccbluex.liquidbounce.render.engine.font.GlyphDescriptor
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.FontGlyph
+import net.ccbluex.liquidbounce.render.engine.font.GlyphDescriptor
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.minecraft.client.texture.NativeImage
-import net.minecraft.util.Identifier
-import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -21,7 +19,7 @@ class DynamicFontCacheManager(
     /**
      * Available fonts, sorted by priority
      */
-    private val availableFonts: List<Fonts.LoadedFont>
+    private val availableFonts: Set<FontManager.FontFace>
 ) {
     private val glyphPageLock = ReentrantLock()
     private val glyphPageDirtyFlag = AtomicBoolean(false)
@@ -229,7 +227,7 @@ class DynamicFontCacheManager(
         return requests
     }
 
-    private fun findFontForGlyph(ch: GlyphIdentifier): Fonts.FontId? {
+    private fun findFontForGlyph(ch: GlyphIdentifier): FontManager.FontId? {
         return this.availableFonts.firstNotNullOfOrNull {
             val fontInStyle = it.styles.get(ch.font)
 

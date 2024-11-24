@@ -15,7 +15,6 @@ export interface GroupedModules {
 
 export type ModuleSetting =
     BlocksSetting
-    | KeySetting
     | BooleanSetting
     | FloatSetting
     | FloatRangeSetting
@@ -27,7 +26,10 @@ export type ModuleSetting =
     | TogglableSetting
     | ColorSetting
     | TextSetting
-    | TextArraySetting;
+    | TextArraySetting
+    | BindSetting
+    | VectorSetting
+    | KeySetting;
 
 export interface BlocksSetting {
     valueType: string;
@@ -35,10 +37,35 @@ export interface BlocksSetting {
     value: string[];
 }
 
+export interface KeySetting {
+    valueType: string;
+    name: string;
+    value: string;
+}
+
+export interface BindSetting {
+    valueType: string;
+    name: string;
+    value: {
+        boundKey: string;
+        action: string;
+    };
+    defaultValue: {
+        boundKey: string;
+        action: string;
+    };
+}
+
 export interface TextSetting {
     valueType: string;
     name: string;
     value: string;
+}
+
+export interface VectorSetting {
+    valueType: string;
+    name: string;
+    value: Vec3;
 }
 
 export interface TextArraySetting {
@@ -48,12 +75,6 @@ export interface TextArraySetting {
 }
 
 export interface ColorSetting {
-    valueType: string;
-    name: string;
-    value: number;
-}
-
-export interface KeySetting {
     valueType: string;
     name: string;
     value: number;
@@ -163,6 +184,9 @@ export interface Scoreboard {
 export interface PlayerData {
     username: string;
     uuid: string;
+    position: Vec3;
+    blockPosition: Vec3;
+    velocity: Vec3;
     selectedSlot: number;
     gameMode: string;
     health: number,
@@ -192,6 +216,12 @@ export interface StatusEffect {
     visible: boolean;
     showIcon: boolean;
     color: number;
+}
+
+export interface Vec3 {
+    x: number;
+    y: number;
+    z: number;
 }
 
 export interface ItemStack {
@@ -293,6 +323,7 @@ export interface Proxy {
     id: number;
     host: string;
     port: number;
+    forwardAuthentication: boolean;
     favorite: boolean;
     credentials: {
         username: string;
@@ -355,4 +386,21 @@ export interface ClientUpdate {
 
 export interface Browser {
     url: string
+}
+
+export interface HitResult {
+    type: "block" | "entity" | "miss";
+    pos: Vec3;
+}
+
+export interface BlockHitResult extends HitResult {
+    blockPos: Vec3;
+    side: string;
+    isInsideBlock: boolean;
+}
+
+export interface EntityHitResult extends HitResult {
+    entityName: string;
+    entityType: string;
+    entityPos: Vec3;
 }

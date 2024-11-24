@@ -18,16 +18,26 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.fluid
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.FluidPushEvent
+import net.ccbluex.liquidbounce.event.events.PlayerFluidCollisionCheckEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
 
 internal object NoSlowFluid : ToggleableConfigurable(ModuleNoSlow, "Fluid", true) {
 
+    private var collision by boolean("Collision", true)
+
     @Suppress("unused")
     private val fluidPushHandler = handler<FluidPushEvent> {
         it.cancelEvent()
+    }
+
+    @Suppress("unused")
+    private val fluidCollisionHandler = handler<PlayerFluidCollisionCheckEvent> {
+        if (!collision) {
+            it.cancelEvent()
+        }
     }
 
 }

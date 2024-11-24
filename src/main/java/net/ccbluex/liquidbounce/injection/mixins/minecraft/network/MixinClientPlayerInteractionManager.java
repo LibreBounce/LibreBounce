@@ -71,6 +71,15 @@ public class MixinClientPlayerInteractionManager {
         }
     }
 
+    @Inject(method = "attackBlock", at = @At("HEAD"), cancellable = true)
+    private void hookAttackBlock(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
+        var attackEvent = new BlockAttackEvent(pos);
+        EventManager.INSTANCE.callEvent(attackEvent);
+        if (attackEvent.isCancelled()) {
+            cir.setReturnValue(false);
+        }
+    }
+
     /**
      * @author superblaubeere27
      */

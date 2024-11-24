@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
@@ -46,6 +46,7 @@ class SpeedLegitHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
 
 open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
 
+    @Suppress("unused")
     val handleMovementInput = handler<MovementInputEvent> {
         if (!player.isOnGround || !player.moving) {
             return@handler

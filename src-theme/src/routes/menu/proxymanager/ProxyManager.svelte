@@ -206,10 +206,10 @@
     <EditProxyModal bind:visible={editProxyModalVisible} id={currentEditProxy.id}
                     host={currentEditProxy.host}
                     port={currentEditProxy.port}
+                    forwardAuthentication={currentEditProxy.forwardAuthentication}
                     username={currentEditProxy.credentials?.username ?? ""}
                     password={currentEditProxy.credentials?.password ?? ""}
-                    requiresAuthentication={currentEditProxy.credentials !== undefined}
-                    on:proxyEdit={refreshProxies}/>
+                    requiresAuthentication={currentEditProxy.credentials !== undefined}/>
 {/if}
 <Menu>
     <OptionBar>

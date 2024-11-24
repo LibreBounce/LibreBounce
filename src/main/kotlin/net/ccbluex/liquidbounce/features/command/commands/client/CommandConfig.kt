@@ -23,11 +23,11 @@ import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
-import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
@@ -90,12 +90,12 @@ object CommandConfig {
                                         if(modules.isEmpty()) {
                                             ConfigSystem.deserializeConfigurable(
                                                 ModuleManager.modulesConfigurable, this,
-                                                ConfigSystem.autoConfigGson
+                                                publicGson
                                             )
                                         } else {
                                             ConfigSystem.deserializeModuleConfigurable(
                                                 modules, this,
-                                                ConfigSystem.autoConfigGson
+                                                publicGson
                                             )
                                         }
                                     }
@@ -162,7 +162,9 @@ object CommandConfig {
                                                 )
                                             )
                                     },
-                                    regular(" | ${it.serverAddress ?: "Global"}"), prefix = false
+                                    regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
+                                        prefix = false
+                                    )
                                 )
                             }
                         }.onFailure {

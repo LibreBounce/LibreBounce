@@ -20,8 +20,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.ncp
 
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -38,13 +38,14 @@ import net.minecraft.entity.effect.StatusEffects
 /**
  * author: @larryngton
  * tested on anticheat.test.com and eu.loyisa.cn
- * made for ncp, works on uncp and other anticheats by disabling some options
+ * made for ncp, works on uncp and other anticheats by changing some options
  */
 class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP", parent) {
 
-    private class PullDown(parent: Listenable?) : ToggleableConfigurable(parent, "PullDown", true) {
+    private inner class PullDown(parent: Listenable?) : ToggleableConfigurable(parent, "PullDown", true) {
 
-        private val onTick by int("OnTick", 5, 5..9)
+        private val motionMultiplier by float("MotionMultiplier", 1f, 0.01f..10f)
+        private val onTick by int("OnTick", 5, 1..9)
         private val onHurt by boolean("OnHurt", true)
 
         private var ticksInAir = 0
@@ -58,7 +59,7 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
                 ticksInAir++
                 if (ticksInAir == onTick) {
                     player.strafe()
-                    player.velocity.y = -0.1523351824467155
+                    player.velocity.y -= (0.1523351824467155 * motionMultiplier)
                 }
             }
 
@@ -72,7 +73,22 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
         tree(PullDown(this))
     }
 
-    private val boost by boolean("Boost", true)
+    private inner class Boost(parent: Listenable?) : ToggleableConfigurable(parent, "Boost", true) {
+        private val initialBoostMultiplier by float("InitialBoostMultiplier", 1f, 0.01f..10f)
+
+        @Suppress("unused")
+        val repeatable = repeatable {
+            if (player.moving) {
+                player.velocity.x *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
+                player.velocity.z *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
+            }
+        }
+    }
+
+    init {
+        tree(Boost(this))
+    }
+
     private val timerBoost by boolean("Timer", true)
     private val damageBoost by boolean("DamageBoost", true) // flags with morecrits
     private val shouldLowHop by boolean("LowHop", true)
@@ -102,11 +118,6 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
 
         if (timerBoost) {
             Timer.requestTimerSpeed(1.08f, priority = Priority.IMPORTANT_FOR_USAGE_1, provider = ModuleSpeed)
-        }
-
-        if (player.moving && boost) {
-            player.velocity.x *= 1f + BOOST_CONSTANT
-            player.velocity.z *= 1f + BOOST_CONSTANT
         }
 
         if (player.hurtTime >= 1 && damageBoost) {

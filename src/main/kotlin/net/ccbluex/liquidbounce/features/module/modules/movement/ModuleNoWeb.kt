@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
@@ -43,7 +43,7 @@ object ModuleNoWeb : Module("NoWeb", Category.MOVEMENT) {
         enableLock()
     }
 
-    private val modes = choices("Mode", Air, arrayOf(Air, GrimBreak, Intave14))
+    private val modes = choices("Mode", Air, arrayOf(Air, GrimBreak, Intave14)).apply { tagBy(this) }
 
     val repeatable = repeatable {
         if (ModuleAvoidHazards.enabled && ModuleAvoidHazards.cobWebs) {

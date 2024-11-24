@@ -21,10 +21,10 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
@@ -65,7 +65,8 @@ internal object FlyVanilla : Choice("Vanilla") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = repeatable {
         val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
         val hSpeed =
             if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed
@@ -112,7 +113,7 @@ internal object FlyCreative : Choice("Creative") {
     private val forceFlight by boolean("ForceFlight", true)
 
     override fun enable() {
-        player.abilities.allowFlying = true;
+        player.abilities.allowFlying = true
     }
 
     private fun shouldFlyDown(): Boolean {

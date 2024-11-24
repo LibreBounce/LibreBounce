@@ -18,17 +18,12 @@
  */
 package net.ccbluex.liquidbounce.render.engine.font
 
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.UV2f
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import org.lwjgl.opengl.GL11
-import java.awt.AlphaComposite
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.Graphics2D
-import java.awt.Point
-import java.awt.RenderingHints
+import java.awt.*
 import java.awt.font.FontRenderContext
 import java.awt.font.GlyphMetrics
 import java.awt.font.LineMetrics
@@ -45,6 +40,11 @@ data class BoundingBox2f(val xMin: Float, val yMin: Float, val xMax: Float, val 
         rect.width.toFloat(),
         rect.height.toFloat()
     )
+
+    fun contains(x: Float, y: Float): Boolean {
+        return x in xMin..xMax && y in yMin..yMax
+    }
+
 }
 
 data class BoundingBox2s(val min: UV2f, val max: UV2f) {
@@ -262,7 +262,7 @@ abstract class GlyphPage {
     }
 }
 
-data class FontGlyph(val codepoint: Char, val font: Fonts.FontId)
+data class FontGlyph(val codepoint: Char, val font: FontManager.FontId)
 
 internal fun BufferedImage.toNativeImage(): NativeImage {
     val nativeImage = NativeImage(NativeImage.Format.RGBA, this.width, this.height, false)

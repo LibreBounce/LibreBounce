@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -126,7 +126,8 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
 
         private var ticksTimeout = 0
 
-        val repeatable = repeatable {
+        @Suppress("unused")
+        private val strafeHandler = repeatable {
             if (ticksTimeout > 0) {
                 ticksTimeout--
                 return@repeatable

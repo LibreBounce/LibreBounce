@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing.enabled
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing.mode
 import net.ccbluex.liquidbounce.render.*

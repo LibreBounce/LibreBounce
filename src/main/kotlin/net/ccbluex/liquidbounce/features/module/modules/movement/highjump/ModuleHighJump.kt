@@ -20,8 +20,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.highjump
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
@@ -43,7 +43,7 @@ object ModuleHighJump : Module("HighJump", Category.MOVEMENT) {
         "Mode", Vanilla, arrayOf(
             Vanilla, Vulcan
         )
-    )
+    ).apply { tagBy(this) }
     private val motion by float("Motion", 0.8f, 0.2f..10f)
 
     private object Vanilla : Choice("Vanilla") {

@@ -20,7 +20,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
@@ -56,11 +56,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
     private val interactionRange by float("Range", 3F, 1F..6F)
     private val wallInteractionRange by float("WallRange", 0f, 0F..6F).onChange {
         // Ensure that wallInteractionRange does not exceed interactionRange
-        if (it > interactionRange) {
-            interactionRange
-        } else {
-            it
-        }
+        minOf(interactionRange, it)
     }
     private val interactionDelay by int("Delay", 5, 1..80, "ticks")
     private val shouldDisplayVisualSwing by boolean("VisualSwing", true)
@@ -95,10 +91,9 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
         val playerEyesPosition = player.eyes
 
         // Select blocks for processing within the search radius
-        val nearbyStorageBlocks = searchBlocksInCuboid(searchRadius, playerEyesPosition) { pos, state ->
-            validStorageBlocks.contains(state.block) && pos !in interactedBlocksSet && getNearestPoint(
-                playerEyesPosition,
-                Box.enclosing(pos, pos.add(1, 1, 1))
+        val nearbyStorageBlocks = playerEyesPosition.searchBlocksInCuboid(searchRadius) { pos, state ->
+            state.block in validStorageBlocks && pos !in interactedBlocksSet && getNearestPoint(
+                playerEyesPosition, Box(pos)
             ).squaredDistanceTo(playerEyesPosition) <= searchRadiusSquared
         }.sortedBy { it.first.getCenterDistanceSquared() }
 

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
@@ -146,7 +146,6 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         val width = mc.window.scaledWidth
 
-        //
         /**
          * Separate the debugged owner from its parameter
          * Structure should be like this:
@@ -159,13 +158,11 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         val debuggedOwners = debugParameters.keys.groupBy { it.owner }
 
-        debuggedOwners.onEachIndexed { index, (owner, parameter) ->
-            val ownerName = if (owner is Module) {
-                owner.name
-            } else if (owner is Listenable) {
-                "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
-            } else {
-                owner.javaClass.simpleName
+        debuggedOwners.onEach { (owner, parameter) ->
+            val ownerName = when (owner) {
+                is Module -> owner.name
+                is Listenable -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
+                else -> owner.javaClass.simpleName
             }
 
             textList += Text.literal(ownerName).styled {
@@ -187,23 +184,31 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         val directionWidth = biggestWidth / 2
         context.fill(
             width / 2 - directionWidth, 20, width / 2 + directionWidth,
-            50 + (mc.textRenderer.fontHeight * textList.size), Color4b(0, 0, 0, 128).toRGBA()
+            50 + (mc.textRenderer.fontHeight * textList.size), Color4b(0, 0, 0, 128).toARGB()
         )
 
         context.drawCenteredTextWithShadow(mc.textRenderer, Text.literal("Debugging").styled {
             it.withColor(Formatting.LIGHT_PURPLE).withBold(true)
-        }.asOrderedText(), width / 2, 22, Color4b.WHITE.toRGBA())
+        }.asOrderedText(), width / 2, 22, Color4b.WHITE.toARGB())
 
         // Draw white line below Debugging text
-        context.fill(width / 2 - directionWidth, 32, width / 2 + directionWidth, 33, Color4b.WHITE.toRGBA())
+        context.fill(width / 2 - directionWidth, 32, width / 2 + directionWidth, 33, Color4b.WHITE.toARGB())
 
         // Draw text line one by one
         textList.forEachIndexed { index, text ->
             context.drawCenteredTextWithShadow(
                 mc.textRenderer, text, width / 2, 40 +
-                    (mc.textRenderer.fontHeight * index), Color4b.WHITE.toRGBA()
+                        (mc.textRenderer.fontHeight * index), Color4b.WHITE.toARGB()
             )
         }
+    }
+
+    inline fun debugGeometry(owner: Any, name: String, lazyGeometry: () -> DebuggedGeometry) {
+        if (!enabled) {
+            return
+        }
+
+        debugGeometry(owner, name, lazyGeometry.invoke())
     }
 
     fun debugGeometry(owner: Any, name: String, geometry: DebuggedGeometry) {
@@ -215,11 +220,19 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         debuggedGeometry[DebuggedGeometryOwner(owner, name)] = geometry
     }
 
-    data class DebuggedGeometryOwner(val owner: Any, val name: String)
+    private data class DebuggedGeometryOwner(val owner: Any, val name: String)
 
-    data class DebuggedParameter(val owner: Any, val name: String)
+    private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private var debugParameters = hashMapOf<DebuggedParameter, Any>()
+    private val debugParameters = hashMapOf<DebuggedParameter, Any>()
+
+    inline fun debugParameter(owner: Any, name: String, lazyValue: () -> Any) {
+        if (!enabled) {
+            return
+        }
+
+        debugParameter(owner, name, lazyValue.invoke())
+    }
 
     fun debugParameter(owner: Any, name: String, value: Any) {
         if (!enabled) {
@@ -234,7 +247,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         return Color4b(Color.getHSBColor(hue, 1f, 1f)).alpha(32)
     }
 
-    abstract class DebuggedGeometry(val color: Color4b) {
+    sealed class DebuggedGeometry(val color: Color4b) {
         abstract fun render(env: WorldRenderEnvironment)
     }
 
@@ -277,7 +290,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         color
     )
 
-    class DebugCollection(val geometry: List<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
+    class DebugCollection(val geometry: Collection<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
         override fun render(env: WorldRenderEnvironment) {
             this.geometry.forEach { it.render(env) }
         }

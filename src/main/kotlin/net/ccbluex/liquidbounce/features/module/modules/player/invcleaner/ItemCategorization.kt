@@ -18,11 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ArmorEvaluation
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.*
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ScaffoldBlockItemSelection
 import net.ccbluex.liquidbounce.utils.item.*
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.sorting.compareValueByCondition
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.fluid.LavaFluid
@@ -49,7 +50,7 @@ enum class ItemType(
      * ## Used values
      * - Specialization (see above): 10 per level
      */
-    val allocationPriority: Int = 0,
+    val allocationPriority: Priority = Priority.NORMAL,
     /**
      * The user maybe wants to filter the items by a specific type. But the we don't need all versions of the item.
      * To stop the invcleaner from keeping items of every type, we can specify what function a specific item serves.
@@ -57,20 +58,20 @@ enum class ItemType(
      */
     val providedFunction: ItemFunction? = null
 ) {
-    ARMOR(true, allocationPriority = 20),
-    SWORD(true, allocationPriority = 10, providedFunction = ItemFunction.WEAPON_LIKE),
-    WEAPON(true, allocationPriority = -1, providedFunction = ItemFunction.WEAPON_LIKE),
+    ARMOR(true, allocationPriority = Priority.IMPORTANT_FOR_PLAYER_LIFE),
+    SWORD(true, allocationPriority = Priority.IMPORTANT_FOR_USAGE_2, providedFunction = ItemFunction.WEAPON_LIKE),
+    WEAPON(true, allocationPriority = Priority.NOT_IMPORTANT, providedFunction = ItemFunction.WEAPON_LIKE),
     BOW(true),
     CROSSBOW(true),
     ARROW(true),
-    TOOL(true, allocationPriority = 10),
+    TOOL(true, allocationPriority = Priority.IMPORTANT_FOR_USAGE_1),
     ROD(true),
     THROWABLE(false),
     SHIELD(true),
     FOOD(false),
     BUCKET(false),
-    PEARL(false),
-    GAPPLE(false),
+    PEARL(false, allocationPriority = Priority.IMPORTANT_FOR_USAGE_1),
+    GAPPLE(false, allocationPriority = Priority.IMPORTANT_FOR_USAGE_1),
     POTION(false),
     BLOCK(false),
     NONE(false),
@@ -175,7 +176,7 @@ class ItemCategorization(
             is CrossbowItem -> arrayOf(CrossbowItemFacet(slot))
             is ArrowItem -> arrayOf(ArrowItemFacet(slot))
             is ToolItem -> arrayOf(ToolItemFacet(slot))
-            is FishingRodItem -> arrayOf(RodItemFacet(slot), ThrowableItemFacet(slot))
+            is FishingRodItem -> arrayOf(RodItemFacet(slot))
             is ShieldItem -> arrayOf(ShieldItemFacet(slot))
             is BlockItem -> {
                 if (ScaffoldBlockItemSelection.isValidBlock(slot.itemStack)
@@ -218,8 +219,7 @@ class ItemCategorization(
                     PrimitiveItemFacet(slot, ItemCategory(ItemType.GAPPLE, 0), 1),
                 )
             }
-            Items.SNOWBALL -> arrayOf(ThrowableItemFacet(slot))
-            Items.EGG -> arrayOf(ThrowableItemFacet(slot))
+            Items.SNOWBALL, Items.EGG, Items.WIND_CHARGE -> arrayOf(ThrowableItemFacet(slot))
             else -> {
                 if (slot.itemStack.isFood) {
                     arrayOf(FoodItemFacet(slot))

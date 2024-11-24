@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.autofarm
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
@@ -188,13 +188,10 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
 
     // Searches for any blocks within the radius that need to be destroyed, such as crops.
     private fun updateTargetToBreakable(radius: Float, radiusSquared: Float, eyesPos: Vec3d): Boolean {
-        val blocksToBreak = searchBlocksInCuboid(radius, eyesPos) { pos, state ->
-            !state.isAir && isTargeted(state, pos) && getNearestPoint(
-                eyesPos,
-                Box.enclosing(pos, pos.add(1, 1, 1))
-            ).squaredDistanceTo(eyesPos) <= radiusSquared
+        val blocksToBreak = eyesPos.searchBlocksInCuboid(radius) { pos, state ->
+            !state.isAir && isTargeted(state, pos) &&
+                getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
         }.sortedBy { it.first.getCenterDistanceSquared() }
-
 
         for ((pos, state) in blocksToBreak) {
             val (rotation, _) = raytraceBlock(
@@ -231,15 +228,12 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
         if (!allowFarmland && !allowSoulsand) return false
 
         val blocksToPlace =
-            searchBlocksInCuboid(radius, eyesPos) { pos, state ->
+            eyesPos.searchBlocksInCuboid(radius) { pos, state ->
                 !state.isAir && isFarmBlockWithAir(state, pos, allowFarmland, allowSoulsand)
-                        && getNearestPoint(
-                    eyesPos,
-                    Box.enclosing(pos, pos.add(1, 1, 1))
-                ).squaredDistanceTo(eyesPos) <= radiusSquared
-            }.sortedBy { it.first.getCenterDistanceSquared() }
+                        && getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
+            }.map { it.first }.sortedBy { it.getCenterDistanceSquared() }
 
-        for ((pos, _) in blocksToPlace) {
+        for (pos in blocksToPlace) {
             val (rotation, _) = raytracePlaceBlock(
                 player.eyes,
                 pos.up(),

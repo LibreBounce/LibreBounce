@@ -16,37 +16,60 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
-/**
- * tested on mineblaze.net
- * made for intave version 14.8.4
- */
-
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.consume
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.util.math.Direction
 
+/**
+ * tested on mineblaze.net
+ */
+
 internal class NoSlowConsumeIntave14(override val parent: ChoiceConfigurable<*>) : Choice("Intave14") {
+    private val mode by enumChoice("Mode", Mode.RELEASE)
+
+    private fun releasePacket() {
+        network.sendPacket(
+            PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.RELEASE_USE_ITEM,
+                player.blockPos,
+                Direction.UP
+            )
+        )
+    }
 
     @Suppress("unused")
     private val onNetworkTick = handler<PlayerNetworkMovementTickEvent> { event ->
-        if (player.isUsingItem && event.state == EventState.PRE && player.moving) {
-            if (player.itemUseTimeLeft == 0 || player.itemUseTime == 1) {
-                network.sendPacket(
-                    PlayerActionC2SPacket(
-                        PlayerActionC2SPacket.Action.RELEASE_USE_ITEM,
-                        player.blockPos,
-                        Direction.UP
-                    )
-                )
+        if (event.state == EventState.PRE) {
+            when (mode) {
+                Mode.RELEASE -> {
+                    if (player.isUsingItem) {
+                        releasePacket()
+                    }
+
+                    if (player.itemUseTime == 3) {
+                        player.stopUsingItem()
+                        releasePacket()
+                    }
+                }
+
+                Mode.NEW -> {
+                    if (player.itemUseTime <= 2 || player.itemUseTimeLeft == 0) {
+                        releasePacket()
+                    }
+                }
             }
         }
+    }
+
+    private enum class Mode(override val choiceName: String) : NamedChoice {
+        RELEASE("Release"),
+        NEW("New")
     }
 }

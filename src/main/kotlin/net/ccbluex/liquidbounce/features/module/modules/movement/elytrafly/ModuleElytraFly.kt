@@ -18,10 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraStatic
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraVanilla
 
 /**
  * ElytraFly module

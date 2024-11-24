@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f
 import net.ccbluex.liquidbounce.utils.client.mc
 
@@ -81,16 +81,16 @@ class Alignment(
     fun toStyle() = """
         position: fixed;
         ${when (horizontalAlignment) {
-            ScreenAxisX.LEFT -> "left: ${horizontalOffset}px"
-            ScreenAxisX.RIGHT -> "right: ${horizontalOffset}px"
-            ScreenAxisX.CENTER -> "left: calc(50% + ${horizontalOffset}px)"
-            ScreenAxisX.CENTER_TRANSLATED -> "left: calc(50% + ${horizontalOffset}px)"
+        ScreenAxisX.LEFT -> "left: ${horizontalOffset}px"
+        ScreenAxisX.RIGHT -> "right: ${horizontalOffset}px"
+        ScreenAxisX.CENTER -> "left: calc(50% + ${horizontalOffset}px)"
+        ScreenAxisX.CENTER_TRANSLATED -> "left: calc(50% + ${horizontalOffset}px)"
     }};
         ${when (verticalAlignment) {
-            ScreenAxisY.TOP -> "top: ${verticalOffset}px"
-            ScreenAxisY.BOTTOM -> "bottom: ${verticalOffset}px"
-            ScreenAxisY.CENTER -> "top: calc(50% + ${verticalOffset}px)"
-            ScreenAxisY.CENTER_TRANSLATED -> "top: calc(50% + ${verticalOffset}px)"
+        ScreenAxisY.TOP -> "top: ${verticalOffset}px"
+        ScreenAxisY.BOTTOM -> "bottom: ${verticalOffset}px"
+        ScreenAxisY.CENTER -> "top: calc(50% + ${verticalOffset}px)"
+        ScreenAxisY.CENTER_TRANSLATED -> "top: calc(50% + ${verticalOffset}px)"
     }};
         transform: translate(
             ${if (horizontalAlignment == ScreenAxisX.CENTER_TRANSLATED) "-50%" else "0"},

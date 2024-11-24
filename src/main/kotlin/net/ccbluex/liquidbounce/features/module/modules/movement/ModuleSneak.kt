@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
@@ -36,7 +36,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  */
 object ModuleSneak : Module("Sneak", Category.MOVEMENT) {
 
-    var modes = choices("Mode", Vanilla, arrayOf(Legit, Vanilla, Switch))
+    var modes = choices("Mode", Vanilla, arrayOf(Legit, Vanilla, Switch)).apply { tagBy(this) }
     var notDuringMove by boolean("NotDuringMove", false)
 
     private object Legit : Choice("Legit") {

@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.consume
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.NoneChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.NoneChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowNoBlockInteract
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2360
@@ -42,11 +42,13 @@ object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
 
     @Suppress("unused")
     private val modes = choices<Choice>(this, "Mode", { it.choices[0] }) {
-        arrayOf(NoneChoice(it),
+        arrayOf(
+            NoneChoice(it),
             NoSlowSharedGrim2360(it),
             NoSlowSharedGrim2364MC18(it),
             NoSlowSharedInvalidHand(it),
-            NoSlowConsumeIntave14(it)
+            NoSlowConsumeIntave14(it),
+            NoSlowConsumeRelease(it)
         )
     }
 

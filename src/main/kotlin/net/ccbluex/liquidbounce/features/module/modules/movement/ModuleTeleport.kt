@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -46,14 +46,11 @@ object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("
                 this.enabled = false
             }
         }
-
-        super.enable()
     }
 
     override fun disable() {
         indicatedTeleport = null
         teleportsToWait = 0
-        super.disable()
     }
 
     fun indicateTeleport(x: Double = player.x, y: Double = player.y, z: Double = player.z) {
@@ -104,11 +101,11 @@ object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("
     }
 
     fun teleport(x: Double = player.x, y: Double = player.y, z: Double = player.z) {
-        val deltaX = x - player.x
-        val deltaY = y - player.y
-        val deltaZ = z - player.z
-
         if (paperExploit) {
+            val deltaX = x - player.x
+            val deltaY = y - player.y
+            val deltaZ = z - player.z
+
             val times = (floor((abs(deltaX) + abs(deltaY) + abs(deltaZ)) / 10) - 1).toInt()
             val packetToSend = if (allFull) MovePacketType.FULL else MovePacketType.POSITION_AND_ON_GROUND
             repeat(times) {
@@ -140,10 +137,11 @@ object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("
             })
         }
 
-        player.updatePosition(x, y, z)
+        val entity = player.vehicle ?: player
+        entity.updatePosition(x, y, z)
 
         if (resetMotion) {
-            player.velocity = player.velocity.multiply(0.0, 0.0, 0.0)
+            entity.velocity = entity.velocity.multiply(0.0, 0.0, 0.0)
         }
 
         chat(regular(

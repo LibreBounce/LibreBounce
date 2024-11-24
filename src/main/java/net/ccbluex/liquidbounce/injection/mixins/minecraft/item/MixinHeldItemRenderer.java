@@ -19,9 +19,13 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.item;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleSilentHotbar;
+import net.ccbluex.liquidbounce.utils.client.SilentHotbar;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -33,6 +37,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.RotationAxis;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
@@ -58,18 +63,16 @@ public abstract class MixinHeldItemRenderer {
         }
     }
 
+    @Final
     @Shadow
-    protected abstract void applySwingOffset(MatrixStack matrices, Arm arm, float swingProgress);
+    private MinecraftClient client;
 
     @Inject(method = "renderFirstPersonItem", at = @At("HEAD"), cancellable = true)
     private void hideShield(AbstractClientPlayerEntity player, float tickDelta, float pitch,
                                                 Hand hand, float swingProgress, ItemStack item, float equipProgress,
                                                 MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
                                                 CallbackInfo ci) {
-        var shouldHide = ModuleSwordBlock.INSTANCE.getEnabled() || AutoBlock.INSTANCE.getBlockVisual();
-        if (shouldHide && hand == Hand.OFF_HAND && item.getItem() instanceof ShieldItem &&
-                !player.getStackInHand(Hand.MAIN_HAND).isEmpty()
-                && player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof SwordItem) {
+        if (hand == Hand.OFF_HAND && ModuleSwordBlock.INSTANCE.shouldHideOffhand(player, item.getItem())) {
             ci.cancel();
         }
     }
@@ -168,6 +171,25 @@ public abstract class MixinHeldItemRenderer {
             // Default animation
             ModuleAnimations.OneSevenAnimation.INSTANCE.transform(matrices, arm, equipProgress, swingProgress);
         }
+    }
+
+    @ModifyExpressionValue(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getMainHandStack()Lnet/minecraft/item/ItemStack;"))
+    private ItemStack injectSilentHotbar(ItemStack original) {
+        if (ModuleSilentHotbar.INSTANCE.getEnabled()) {
+            // noinspection DataFlowIssue
+            return client.player.getInventory().main.get(SilentHotbar.INSTANCE.getClientsideSlot());
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttackCooldownProgress(F)F"))
+    private float injectSilentHotbarNoCooldown(float original) {
+        if (ModuleSilentHotbar.INSTANCE.getEnabled() && ModuleSilentHotbar.INSTANCE.getNoCooldownProgress() && SilentHotbar.INSTANCE.isSlotModified()) {
+            return 1f;
+        }
+
+        return original;
     }
 
 }

@@ -21,8 +21,8 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
@@ -119,7 +119,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
             val boundingBox = player.box
             val detectionBox = boundingBox.withMinY(boundingBox.minY - y)
 
-            return isBlockAtPosition(detectionBox) { it is Block }
+            return detectionBox.isBlockAtPosition { it is Block }
         }
         return false
     }
