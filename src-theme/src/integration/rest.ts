@@ -489,6 +489,19 @@ export async function addProxyFromClipboard() {
     });
 }
 
+export async function importProxyFromClipboard() {
+    await fetch(`${API_BASE}/client/proxies/import/clipboard`, {
+        method: "POST"
+    });
+}
+
+export async function importProxyFromFile() {
+    await fetch(`${API_BASE}/client/proxies/import/file`, {
+        method: "POST"
+    });
+}
+
+
 export async function removeProxy(id: number) {
     await fetch(`${API_BASE}/client/proxies/remove`, {
         method: "DELETE",
