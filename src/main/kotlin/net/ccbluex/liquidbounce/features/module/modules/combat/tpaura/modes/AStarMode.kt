@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes
 
-import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -44,12 +43,8 @@ object AStarMode : TpAuraChoice("AStar") {
     private val maximumCost by int("MaximumCost", 250, 50..500)
     private val tickDistance by int("TickDistance", 3, 1..7)
     private val allowDiagonal by boolean("AllowDiagonal", false)
-    private val stickAt by int("Stick", 5, 1..10, "ticks")
 
-    /**
-     * Whether to wait for one-tick before teleporting to the next position.
-     */
-    private val tickTimeout by boolean("TickTimeout", true)
+    private val stickAt by int("Stick", 5, 1..10, "ticks")
 
     private var pathCache: PathCache? = null
     private var pathFinderThread: Thread? = null
@@ -115,7 +110,7 @@ object AStarMode : TpAuraChoice("AStar") {
     }
 
     @Suppress("unused")
-    val renderHandler = handler<WorldRenderEvent> { event ->
+    private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
         val (_, path) = pathCache ?: return@handler
 
@@ -146,7 +141,7 @@ object AStarMode : TpAuraChoice("AStar") {
         }
     }
 
-    private suspend fun Sequence<*>.travel(path: List<Vec3i>) {
+    private fun travel(path: List<Vec3i>) {
         // Currently path is a list of positions we need to go one by one, however we can split it into chunks
         // to use less packets and teleport more efficiently.
         // However, we cannot teleport if there are blocks in the way, so we need to check if the path is clear.
@@ -172,10 +167,6 @@ object AStarMode : TpAuraChoice("AStar") {
                 // If the path is clear, we can teleport to the last position of the chunk.
                 network.sendPacket(PositionAndOnGround(end.x, end.y, end.z, false))
                 desyncPlayerPosition = end
-            }
-
-            if (tickTimeout) {
-                waitTicks(1)
             }
         }
     }
@@ -287,14 +278,12 @@ object AStarMode : TpAuraChoice("AStar") {
     }
 
     private fun isPassable(position: Vec3i): Boolean {
-        val blockPos = position.toBlockPos()
+        val collisions = world.getBlockCollisions(player, Box(
+            position.toVec3d(),
+            position.toVec3d().add(1.0, 2.0, 1.0)
+        ))
 
-        val blockStates = arrayOf(
-            blockPos.getState(),
-            blockPos.up().getState(),
-        )
-
-        return blockStates.all { it == null || it.isAir || it.isIn(BlockTags.FIRE) || it.isIn(BlockTags.CLIMBABLE) }
+        return collisions.none()
     }
 
     private fun distanceBetween(a: Vec3i, b: Vec3i) = a.getSquaredDistance(b).roundToInt()
