@@ -22,7 +22,7 @@ package net.ccbluex.liquidbounce.config.types
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 
 /**
@@ -34,7 +34,7 @@ abstract class ToggleableConfigurable(
     @Exclude @ProtocolExclude val parent: Listenable? = null,
     name: String,
     enabled: Boolean
-) : Listenable, Configurable(name, valueType = ValueType.TOGGLEABLE), QuickImports {
+) : Listenable, Configurable(name, valueType = ValueType.TOGGLEABLE), MinecraftShortcuts {
 
     // TODO: Make enabled change also call newState
     var enabled by boolean("Enabled", enabled)

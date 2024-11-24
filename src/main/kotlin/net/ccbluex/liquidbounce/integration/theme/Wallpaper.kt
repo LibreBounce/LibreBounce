@@ -85,7 +85,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float
         ): Boolean {
             val shader = shader ?: return false
-            shader.draw(mouseX, mouseY, width, height, delta)
+            shader.draw(mouseX, mouseY, delta)
             return true
         }
 
