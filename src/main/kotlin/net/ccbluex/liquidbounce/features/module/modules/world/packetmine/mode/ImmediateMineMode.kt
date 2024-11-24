@@ -26,11 +26,7 @@ import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
-object ImmediateMineMode : MineMode(
-    "Immediate",
-    canManuallyChange = false,
-    canAbort = false
-) {
+object ImmediateMineMode : MineMode("Immediate", canManuallyChange = false, canAbort = false) {
 
     override fun start(blockPos: BlockPos, direction: Direction?) {
         NormalMineMode.start(blockPos, direction)

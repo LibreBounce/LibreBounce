@@ -32,7 +32,6 @@ abstract class MineMode(
     name: String,
     val canManuallyChange: Boolean = true,
     val canAbort: Boolean = true,
-    val stopNormalMining: Boolean = true,
     val stopOnStateChange: Boolean = true
 ) : Choice(name) {
 

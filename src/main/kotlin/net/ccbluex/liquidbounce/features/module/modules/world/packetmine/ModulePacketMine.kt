@@ -59,6 +59,8 @@ import kotlin.math.max
  * PacketMine module
  *
  * Automatically mines blocks you click once. Using AutoTool is recommended.
+ *
+ * @author ccetl
  */
 @Suppress("TooManyFunctions")
 object ModulePacketMine : Module("PacketMine", Category.WORLD) {
@@ -93,7 +95,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private val targetRenderer = tree(
         PlacementRenderer(
             "TargetRendering", true, this,
-            defaultColor = Color4b(255, 0, 0, 90),
+            defaultColor = Color4b(255, 255, 0, 90),
             clump = false
         )
     )
@@ -105,8 +107,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private var direction: Direction? = null
     private var started = false
     private var shouldRotate = rotationMode.start
-
-    var targetPos: BlockPos? = null
+    private var targetPos: BlockPos? = null
         set(value) {
             if (value == field) {
                 return
@@ -129,9 +130,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         }
 
     override fun enable() {
-        if (mode.activeChoice.stopNormalMining) {
-            interaction.cancelBlockBreaking()
-        }
+        interaction.cancelBlockBreaking()
     }
 
     override fun disable() {
@@ -304,9 +303,12 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     @Suppress("unused")
     private val blockAttackHandler = handler<BlockAttackEvent> {
-        if (mode.activeChoice.stopNormalMining) {
-            it.cancelEvent()
-        }
+        it.cancelEvent()
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+       targetPos = null
     }
 
     @Suppress("unused")
@@ -351,6 +353,12 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         direction = null
         shouldRotate = rotationMode.start
         finished = false
+    }
+
+    fun setTarget(blockPos: BlockPos) {
+        if (finished && mode.activeChoice.canManuallyChange || targetPos == null) {
+            targetPos = blockPos
+        }
     }
 
     /* tweaked minecraft code start */

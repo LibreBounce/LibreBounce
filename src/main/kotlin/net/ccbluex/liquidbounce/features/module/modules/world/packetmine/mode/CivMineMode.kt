@@ -30,11 +30,7 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
-object CivMineMode : MineMode(
-    "Civ",
-    stopNormalMining = false,
-    stopOnStateChange = false
-) {
+object CivMineMode : MineMode("Civ", stopOnStateChange = false) {
 
     private val switch by boolean("Switch", false)
 
