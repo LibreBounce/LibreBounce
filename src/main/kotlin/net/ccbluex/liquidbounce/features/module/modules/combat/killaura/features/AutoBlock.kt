@@ -52,6 +52,7 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
     val tickOn by int("TickOn", 0, 0..2, "ticks")
     val chance by float("Chance", 100f, 0f..100f, "%")
 
+    val whenAttacking by boolean("WhenAttacking", true)
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
 

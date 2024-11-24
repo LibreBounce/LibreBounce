@@ -281,8 +281,10 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
 
         ModuleDebug.debugParameter(ModuleKillAura, "Good-Rotation", rotation)
 
+        val isAttack = clickScheduler.goingToClick && checkIfReadyToAttack(chosenEntity)
+
         // Attack enemy according to the attack scheduler
-        if (clickScheduler.goingToClick && checkIfReadyToAttack(chosenEntity)) {
+        if (isAttack) {
             prepareAttackEnvironment(rotation) {
                 clickScheduler.clicks {
                     // On each click, we check if we are still ready to attack
@@ -302,7 +304,9 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                     true
                 }
             }
-        } else {
+        }
+
+        if (!isAttack || AutoBlock.whenAttacking) {
             if (clickScheduler.isClickOnNextTick(AutoBlock.tickOff) && AutoBlock.shouldUnblockToHit) {
                 AutoBlock.stopBlocking(pauses = true)
             } else {
