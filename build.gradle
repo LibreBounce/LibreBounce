@@ -130,6 +130,9 @@ dependencies {
     // Update Checker
     includeDependency "com.vdurmont:semver4j:3.1.0"
 
+    // Name Protect
+    includeDependency "org.ahocorasick:ahocorasick:0.6.3"
+
     // Test libraries
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.3"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
