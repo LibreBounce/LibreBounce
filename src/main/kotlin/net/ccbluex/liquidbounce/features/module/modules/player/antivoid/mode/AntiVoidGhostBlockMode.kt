@@ -35,7 +35,6 @@ object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
 
     @Suppress("unused")
     private val handleBlockShape = handler<BlockShapeEvent> { event ->
-        // Otherwise we would be stuck in a loop
         if (isTestingCollision || event.shape != VoxelShapes.empty() || !isLikelyFalling || isExempt) {
             return@handler
         }
