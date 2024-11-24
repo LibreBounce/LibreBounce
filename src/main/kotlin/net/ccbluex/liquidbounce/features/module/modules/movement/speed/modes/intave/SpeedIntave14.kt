@@ -46,7 +46,7 @@ import net.minecraft.entity.MovementType
 class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Intave14", parent) {
     private val yawOffsetMode by enumChoice("YawOffsetMode", YawOffsetMode.AIR)
 
-    private class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
+    private inner class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
 
         private val strength by float("Strength", 0.29f, 0.01f..0.29f)
 
@@ -61,7 +61,7 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         }
     }
 
-    private class AirBoost(parent: Listenable) : ToggleableConfigurable(parent, "AirBoost", true) {
+    private inner class AirBoost(parent: Listenable) : ToggleableConfigurable(parent, "AirBoost", true) {
 
         private val initialBoostMultiplier by float(
             "InitialBoostMultiplier", 1f,
