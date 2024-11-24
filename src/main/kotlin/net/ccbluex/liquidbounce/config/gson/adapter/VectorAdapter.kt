@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
 import net.minecraft.util.math.Vec3d
@@ -26,7 +26,7 @@ import java.lang.reflect.Type
 /**
  * Please use [Vec3i] instead of [BlockPos] for serialization.
  */
-object Vec3iSerializer : JsonSerializer<Vec3i>, JsonDeserializer<Vec3i> {
+object Vec3iAdapter : JsonSerializer<Vec3i>, JsonDeserializer<Vec3i> {
 
     override fun serialize(src: Vec3i, typeOfSrc: Type, context: JsonSerializationContext) = JsonObject().apply {
         addProperty("x", src.x)
@@ -42,7 +42,7 @@ object Vec3iSerializer : JsonSerializer<Vec3i>, JsonDeserializer<Vec3i> {
 
 }
 
-object Vec3dSerializer : JsonSerializer<Vec3d>, JsonDeserializer<Vec3d> {
+object Vec3dAdapter : JsonSerializer<Vec3d>, JsonDeserializer<Vec3d> {
 
     override fun serialize(src: Vec3d, typeOfSrc: Type, context: JsonSerializationContext) = JsonObject().apply {
         addProperty("x", src.x)

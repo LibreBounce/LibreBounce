@@ -19,11 +19,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.block.getSortedSphere
+import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.block.isBlockedByEntitiesReturnCrystal
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
@@ -189,10 +192,10 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             ) {
                 val up = pos.up()
                 if (PredictFeature.willBeBlocked(
-                    box.offset(up.x.toDouble(), up.y.toDouble(), up.z.toDouble()),
-                    target,
-                    !canPlace
-                )) {
+                        box.offset(up.x.toDouble(), up.y.toDouble(), up.z.toDouble()),
+                        target,
+                        !canPlace
+                    )) {
                     return@forEach
                 }
 

@@ -121,6 +121,9 @@ val ClientPlayerEntity.pressingMovementButton
 val Entity.exactPosition
     get() = Vec3d(x, y, z)
 
+val Entity.blockVecPosition
+    get() = Vec3i(blockX, blockY, blockZ)
+
 val PlayerEntity.ping: Int
     get() = mc.networkHandler?.getPlayerListEntry(uuid)?.latency ?: 0
 

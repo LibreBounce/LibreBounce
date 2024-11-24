@@ -17,19 +17,15 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.serializer
 
-import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import java.lang.reflect.Type
 
 object EnumChoiceSerializer : JsonSerializer<NamedChoice> {
-
-    override fun serialize(src: NamedChoice, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        return JsonPrimitive(src.choiceName)
-    }
-
+    override fun serialize(src: NamedChoice, typeOfSrc: Type, context: JsonSerializationContext) =
+        JsonPrimitive(src.choiceName)
 }

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
-import net.ccbluex.liquidbounce.config.Choice;
+import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler;

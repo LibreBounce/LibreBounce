@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 
 enum class SwitchMode(override val choiceName: String) : NamedChoice {
     SILENT("Silent"),

@@ -17,22 +17,26 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
-import net.minecraft.item.Item
-import net.minecraft.registry.Registries
-import net.minecraft.util.Identifier
 import java.lang.reflect.Type
 
-object ItemValueSerializer : JsonSerializer<Item>, JsonDeserializer<Item> {
+object IntRangeAdapter : JsonSerializer<IntRange>, JsonDeserializer<IntRange> {
 
-    override fun serialize(src: Item, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        return JsonPrimitive(Registries.ITEM.getId(src).toString())
+    override fun serialize(src: IntRange, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        val obj = JsonObject()
+
+        obj.addProperty("from", src.first)
+        obj.addProperty("to", src.last)
+
+        return obj
     }
 
-    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): Item {
-        return Registries.ITEM.get(Identifier.tryParse(json.asString))
+    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): IntRange {
+        val obj = json.asJsonObject
+
+        return obj["from"].asInt..obj["to"].asInt
     }
 
 }

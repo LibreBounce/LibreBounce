@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.input
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.util.InputUtil

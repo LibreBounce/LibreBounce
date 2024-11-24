@@ -17,12 +17,12 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
 import java.lang.reflect.Type
 
-object RangeSerializer : JsonSerializer<ClosedRange<*>>, JsonDeserializer<ClosedRange<*>> {
+object RangeAdapter : JsonSerializer<ClosedRange<*>>, JsonDeserializer<ClosedRange<*>> {
 
     override fun serialize(src: ClosedRange<*>, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
         val obj = JsonObject()

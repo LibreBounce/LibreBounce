@@ -17,19 +17,19 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.config
+package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 import com.mojang.brigadier.StringReader
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
-import net.ccbluex.liquidbounce.config.util.Exclude
+import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
+import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.integration.interop.protocol.ProtocolExclude
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.convertToString
@@ -280,7 +280,19 @@ open class Value<T : Any>(
             }
 
             else -> {
-                gson.fromJson(element, currValue.javaClass)
+                var clazz: Class<*>? = currValue.javaClass
+                var r: T? = null
+
+                while (clazz != null && clazz != Any::class.java) {
+                    try {
+                        r = gson.fromJson(element, clazz) as T?
+                        break
+                    } catch (@Suppress("SwallowedException") e: ClassCastException) {
+                        clazz = clazz.superclass
+                    }
+                }
+
+                r ?: error("Failed to deserialize value")
             }
         })
     }
@@ -483,7 +495,9 @@ enum class ValueType {
     INVALID,
     PROXY,
     CONFIGURABLE,
-    TOGGLEABLE
+    TOGGLEABLE,
+    ALIGNMENT,
+    WALLPAPER,
 }
 
 enum class ListValueType(val type: Class<*>?) {

@@ -24,8 +24,8 @@ import com.mojang.authlib.yggdrasil.YggdrasilUserApiService
 import net.ccbluex.liquidbounce.authlib.account.*
 import net.ccbluex.liquidbounce.authlib.yggdrasil.clientIdentifier
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.ListValueType
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ListValueType
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.AccountManagerAdditionResultEvent

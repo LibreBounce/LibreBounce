@@ -19,8 +19,8 @@
 package net.ccbluex.liquidbounce.features.misc
 
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.ListValueType
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ListValueType
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.handler

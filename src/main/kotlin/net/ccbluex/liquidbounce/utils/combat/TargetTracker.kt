@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData

@@ -16,22 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config.adapter
+package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
-import net.minecraft.block.Block
-import net.minecraft.registry.Registries
-import net.minecraft.util.Identifier
+import net.minecraft.client.util.InputUtil
 import java.lang.reflect.Type
 
-object BlockValueSerializer : JsonSerializer<Block>, JsonDeserializer<Block> {
+object InputUtilAdapter : JsonSerializer<InputUtil.Key>, JsonDeserializer<InputUtil.Key> {
 
-    override fun serialize(src: Block, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        return JsonPrimitive(Registries.BLOCK.getId(src).toString())
-    }
+    override fun serialize(src: InputUtil.Key, typeOfSrc: Type, context: JsonSerializationContext) =
+        JsonPrimitive(src.translationKey)
 
-    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): Block {
-        return Registries.BLOCK.get(Identifier.tryParse(json.asString))
-    }
+    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): InputUtil.Key =
+        InputUtil.fromTranslationKey(json.asString)
 
 }

@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config
+package net.ccbluex.liquidbounce.config.types
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.math.Easing
-import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
@@ -160,90 +160,90 @@ open class Configurable(
 
     // Common value types
 
-    protected fun <T : Configurable> tree(configurable: T): T {
+    fun <T : Configurable> tree(configurable: T): T {
         inner.add(configurable)
         configurable.base = this
         return configurable
     }
 
-    protected fun <T : Configurable> treeAll(vararg configurable: T) {
+    fun <T : Configurable> treeAll(vararg configurable: T) {
         configurable.forEach(this::tree)
     }
 
-    protected fun <T : Any> value(
+    fun <T : Any> value(
         name: String,
         default: T,
         valueType: ValueType = ValueType.INVALID,
         listType: ListValueType = ListValueType.None
     ) = Value(name, default, valueType, listType).apply { this@Configurable.inner.add(this) }
 
-    private fun <T : Any> rangedValue(name: String, default: T, range: ClosedRange<*>, suffix: String,
+    fun <T : Any> rangedValue(name: String, default: T, range: ClosedRange<*>, suffix: String,
                                       valueType: ValueType) =
         RangedValue(name, default, range, suffix, valueType).apply { this@Configurable.inner.add(this) }
 
     // Fixed data types
 
-    protected fun boolean(name: String, default: Boolean) = value(name, default, ValueType.BOOLEAN)
+    fun boolean(name: String, default: Boolean) = value(name, default, ValueType.BOOLEAN)
 
-    protected fun float(name: String, default: Float, range: ClosedFloatingPointRange<Float>, suffix: String = "") =
+    fun float(name: String, default: Float, range: ClosedFloatingPointRange<Float>, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.FLOAT)
 
-    protected fun floatRange(
+    fun floatRange(
         name: String,
         default: ClosedFloatingPointRange<Float>,
         range: ClosedFloatingPointRange<Float>,
         suffix: String = ""
     ) = rangedValue(name, default, range, suffix, ValueType.FLOAT_RANGE)
 
-    protected fun int(name: String, default: Int, range: IntRange, suffix: String = "") =
+    fun int(name: String, default: Int, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT)
 
-    protected fun bind(name: String, default: Int) = bind(
+    fun bind(name: String, default: Int) = bind(
         name,
         InputBind(InputUtil.Type.KEYSYM, default, InputBind.BindAction.TOGGLE)
     )
 
-    protected fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
+    fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
 
-    protected fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
+    fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
 
-    protected fun key(name: String, default: InputUtil.Key = InputUtil.UNKNOWN_KEY) =
+    fun key(name: String, default: InputUtil.Key = InputUtil.UNKNOWN_KEY) =
         value(name, default, ValueType.KEY)
 
-    protected fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
+    fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
 
-    protected fun text(name: String, default: String) = value(name, default, ValueType.TEXT)
+    fun text(name: String, default: String) = value(name, default, ValueType.TEXT)
 
-    protected fun textArray(name: String, default: MutableList<String>) =
+    fun textArray(name: String, default: MutableList<String>) =
         value(name, default, ValueType.TEXT_ARRAY, ListValueType.String)
 
-    protected fun curve(name: String, default: Easing) = enumChoice(name, default)
+    fun curve(name: String, default: Easing) = enumChoice(name, default)
 
-    protected fun color(name: String, default: Color4b) = value(name, default, ValueType.COLOR)
+    fun color(name: String, default: Color4b) = value(name, default, ValueType.COLOR)
 
-    protected fun block(name: String, default: Block) = value(name, default, ValueType.BLOCK)
+    fun block(name: String, default: Block) = value(name, default, ValueType.BLOCK)
 
-    protected fun vec3i(name: String, default: Vec3i) = value(name, default, ValueType.VECTOR_I)
+    fun vec3i(name: String, default: Vec3i) = value(name, default, ValueType.VECTOR_I)
 
-    protected fun vec3d(name: String, default: Vec3d) = value(name, default, ValueType.VECTOR_D)
+    fun vec3d(name: String, default: Vec3d) = value(name, default, ValueType.VECTOR_D)
 
-    protected fun blocks(name: String, default: MutableSet<Block>) =
+    fun blocks(name: String, default: MutableSet<Block>) =
         value(name, default, ValueType.BLOCKS, ListValueType.Block)
 
-    protected fun item(name: String, default: Item) = value(name, default, ValueType.ITEM)
+    fun item(name: String, default: Item) = value(name, default, ValueType.ITEM)
 
-    protected fun items(name: String, default: MutableList<Item>) =
+    fun items(name: String, default: MutableList<Item>) =
         value(name, default, ValueType.ITEMS, ListValueType.Item)
 
-    internal inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
+    inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
         where T : Enum<T>, T : NamedChoice = enumChoice(name, default, enumValues<T>())
 
-    protected fun <T> enumChoice(name: String, default: T, choices: Array<T>): ChooseListValue<T>
+    fun <T> enumChoice(name: String, default: T, choices: Array<T>): ChooseListValue<T>
         where T : Enum<T>, T : NamedChoice =
         ChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this) }
 
-    protected fun <T : Choice> choices(
+    fun <T : Choice> choices(
         listenable: Listenable,
         name: String,
         active: T,
@@ -255,7 +255,7 @@ open class Configurable(
         }
     }
 
-    protected fun <T : Choice> choices(
+    fun <T : Choice> choices(
         listenable: Listenable,
         name: String,
         activeCallback: (ChoiceConfigurable<T>) -> T,
@@ -267,6 +267,6 @@ open class Configurable(
         }
     }
 
-    protected fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }
+    fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }
 
 }

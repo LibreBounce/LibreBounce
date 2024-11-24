@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
@@ -89,12 +90,12 @@ object CommandConfig {
                                         if(modules.isEmpty()) {
                                             ConfigSystem.deserializeConfigurable(
                                                 ModuleManager.modulesConfigurable, this,
-                                                ConfigSystem.autoConfigGson
+                                                publicGson
                                             )
                                         } else {
                                             ConfigSystem.deserializeModuleConfigurable(
                                                 modules, this,
-                                                ConfigSystem.autoConfigGson
+                                                publicGson
                                             )
                                         }
                                     }

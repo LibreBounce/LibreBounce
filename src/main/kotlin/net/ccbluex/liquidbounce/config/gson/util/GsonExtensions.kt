@@ -16,20 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.config.util
+package net.ccbluex.liquidbounce.config.gson.util
 
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import java.io.InputStream
-
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FIELD)
-annotation class Exclude
-
-class ExcludeStrategy : ExclusionStrategy {
-    override fun shouldSkipClass(clazz: Class<*>?) = false
-    override fun shouldSkipField(field: FieldAttributes) = field.getAnnotation(Exclude::class.java) != null
-}
 
 /**
  * Decode JSON content

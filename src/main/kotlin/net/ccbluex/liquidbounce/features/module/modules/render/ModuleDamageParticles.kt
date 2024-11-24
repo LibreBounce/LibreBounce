@@ -58,9 +58,8 @@ object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
     private const val EPSILON = 0.05F
     private const val FORMATTER = "%.1f"
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = Fonts.DEFAULT_FONT.get()
 
     override fun disable() {
         healthMap.clear()
