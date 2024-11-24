@@ -68,9 +68,11 @@ class SocketEventHandler : Listenable {
 
     private fun writeToSockets(event: Event) {
         val json = runCatching {
+            val webSocketAnnotation = event::class.java.getAnnotation(WebSocketEvent::class.java)!!
+
             val jsonObj = JsonObject()
             jsonObj.addProperty("name", event::class.eventName)
-            jsonObj.add("event", interopGson.toJsonTree(event))
+            jsonObj.add("event", webSocketAnnotation.serializer.gson.toJsonTree(event))
             interopGson.toJson(jsonObj)
         }.onFailure {
             logger.error("Failed to serialize event $event", it)

@@ -93,7 +93,7 @@ object ComponentOverlay : Listenable {
         return activeComponents.filter { it.enabled && it.tweaks.contains(tweak) }
     }
 
-    fun fireComponentsUpdate() = EventManager.callEvent(ComponentsUpdate())
+    fun fireComponentsUpdate() = EventManager.callEvent(ComponentsUpdate(activeComponents))
 
     override fun parent() = ModuleHud
 

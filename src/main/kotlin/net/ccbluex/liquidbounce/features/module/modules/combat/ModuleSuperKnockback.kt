@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.math.angleWith
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity

@@ -21,6 +21,7 @@
 package net.ccbluex.liquidbounce.event.events
 
 import com.google.gson.annotations.SerializedName
+import net.ccbluex.liquidbounce.config.gson.GsonInstance
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.Event
@@ -184,8 +185,8 @@ class VirtualScreenEvent(val screenName: String, val action: Action) : Event() {
 class ServerPingedEvent(val server: ServerInfo) : Event()
 
 @Nameable("componentsUpdate")
-@WebSocketEvent
-class ComponentsUpdate : Event()
+@WebSocketEvent(serializer = GsonInstance.ACCESSIBLE_INTEROP)
+class ComponentsUpdate(val components: List<Component>) : Event()
 
 /**
  * The simulated tick event is called by the [MovementInputEvent] with a simulated movement context.

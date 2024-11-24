@@ -20,9 +20,9 @@ package net.ccbluex.liquidbounce.config.types
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.math.Easing
-import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
