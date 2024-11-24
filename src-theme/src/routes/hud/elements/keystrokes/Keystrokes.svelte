@@ -12,6 +12,8 @@
     let keyJump: MinecraftKeybind | undefined;
     let keyAttack: MinecraftKeybind | undefined;
     let keyUse: MinecraftKeybind | undefined;
+    let keySprint: MinecraftKeybind | undefined;
+    let keySneak: MinecraftKeybind | undefined;
 
     async function updateKeybinds() {
         const keybinds = await getMinecraftKeybinds();
@@ -23,6 +25,8 @@
         keyJump = keybinds.find(k => k.bindName === "key.jump");
         keyAttack = keybinds.find(k => k.bindName === "key.attack");
         keyUse = keybinds.find(k => k.bindName === "key.use");
+        keySprint = keybinds.find(k => k.bindName === "key.sprint");
+        keySneak = keybinds.find(k => k.bindName === "key.sneak");
     }
 
     onMount(updateKeybinds);
@@ -40,6 +44,8 @@
     <Key key={keyJump} flexBasis="100%" showName/>
     <Key key={keyAttack} flexBasis="calc(50% - 2.5px)" showCPS/>
     <Key key={keyUse} flexBasis="calc(50% - 2.5px)" showCPS/>
+    <Key key={keySprint} flexBasis="calc(50% - 2.5px)" showName/>
+    <Key key={keySneak} flexBasis="calc(50% - 2.5px)" showName/>
 </div>
 
 <style lang="scss">

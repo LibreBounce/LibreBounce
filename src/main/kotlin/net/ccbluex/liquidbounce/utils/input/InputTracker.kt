@@ -45,6 +45,8 @@ object InputTracker : Listenable {
         KeyBindingTracker(mc.options.jumpKey),
         KeyBindingTracker(mc.options.attackKey),
         KeyBindingTracker(mc.options.useKey),
+        KeyBindingTracker(mc.options.sprintKey),
+        KeyBindingTracker(mc.options.sneakKey),
     )
 
     override fun children(): List<Listenable> = trackers
