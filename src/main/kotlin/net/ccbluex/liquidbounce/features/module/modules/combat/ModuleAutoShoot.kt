@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.interactItem
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
@@ -82,8 +83,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             highestPointDefault = PointTracker.PreferredBoxPart.HEAD,
             // The lag on Hypixel is massive
             timeEnemyOffsetDefault = 3f,
-            timeEnemyOffsetScale = 0f..7f,
-            gaussianOffsetDefault = 0f
+            timeEnemyOffsetScale = 0f..7f
         )
     )
 
@@ -212,7 +212,12 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
                 return@clicks false
             }
 
-            interaction.interactItem(player, hand).isAccepted
+            interaction.interactItem(
+                player,
+                hand,
+                RotationManager.serverRotation.yaw,
+                RotationManager.serverRotation.pitch
+            ).isAccepted
         }
     }
 

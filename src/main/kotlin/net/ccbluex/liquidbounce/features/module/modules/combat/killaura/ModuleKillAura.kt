@@ -133,6 +133,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         targetTracker.cleanup()
         failedHits.clear()
         AutoBlock.stopBlocking()
+        AutoBlock.shouldBlink = false
         NotifyWhenFail.failedHitsIncrement = 0
     }
 
@@ -216,7 +217,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                 ?: RotationManager.currentRotation ?: player.rotation
         } else {
             RotationManager.currentRotation ?: player.rotation
-        }
+        }.normalize()
         val chosenEntity: Entity
 
         if (raycast != TRACE_NONE) {

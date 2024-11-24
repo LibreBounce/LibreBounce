@@ -22,10 +22,9 @@
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 
 import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.hideShieldSlot
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.shouldHideOffhand
 import net.ccbluex.liquidbounce.features.module.modules.misc.sanitizeWithNameProtect
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -33,10 +32,8 @@ import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import net.minecraft.entity.effect.StatusEffectInstance
-import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
 import net.minecraft.scoreboard.Scoreboard
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
 import net.minecraft.scoreboard.ScoreboardEntry
@@ -44,11 +41,9 @@ import net.minecraft.scoreboard.Team
 import net.minecraft.scoreboard.number.NumberFormat
 import net.minecraft.scoreboard.number.StyledNumberFormat
 import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
-import java.util.*
 
 // GET /api/v1/client/player
 @Suppress("UNUSED_PARAMETER")
@@ -80,80 +75,35 @@ data class PlayerData(
     val mainHandStack: ItemStack,
     val offHandStack: ItemStack,
     val armorItems: List<ItemStack> = emptyList(),
-    val scoreboard: ScoreboardData? = null
+    val scoreboard: ScoreboardData? = null,
 ) {
 
     companion object {
 
-        fun fromPlayer(player: PlayerEntity): PlayerData {
-            // If we are in the editor, we want to show a demo player filled with as much data as possible
-            if (IntegrationHandler.route.type == VirtualScreenType.EDITOR) {
-                return demo()
-            }
-
-            return PlayerData(
-                player.nameForScoreboard,
-                player.uuidAsString,
-                player.pos,
-                player.blockPos,
-                player.velocity,
-                player.inventory.selectedSlot,
-                if (mc.player == player) interaction.currentGameMode else GameMode.DEFAULT,
-                player.health.fixNaN(),
-                player.getActualHealth().fixNaN(),
-                player.maxHealth.fixNaN(),
-                player.absorptionAmount.fixNaN(),
-                player.armor,
-                player.hungerManager.foodLevel,
-                player.air,
-                player.maxAir,
-                player.experienceLevel,
-                player.experienceProgress.fixNaN(),
-                player.statusEffects.toList(),
-                player.mainHandStack,
-                player.offHandStack,
-                player.armorItems.toList(),
-                if (mc.player == player) ScoreboardData.fromScoreboard(player.scoreboard) else null
-            )
-        }
-
-        private fun demo() = PlayerData(
-            "DemoPlayer",
-            UUID.nameUUIDFromBytes("DemoPlayer".toByteArray()).toString(),
-            Vec3d.ZERO,
-            BlockPos.ORIGIN,
-            Vec3d.ZERO,
-            3,
-            GameMode.DEFAULT,
-            20f,
-            20f,
-            20f,
-            0f,
-            4,
-            20,
-            300,
-            300,
-            1337,
-            0.4f,
-            listOf(
-                StatusEffectInstance(StatusEffects.HERO_OF_THE_VILLAGE, 1337),
-                StatusEffectInstance(StatusEffects.SPEED, 666),
-                StatusEffectInstance(StatusEffects.STRENGTH, 69),
-                StatusEffectInstance(StatusEffects.RESISTANCE, 420),
-            ),
-            ItemStack(Items.DIAMOND_SWORD),
-            ItemStack(Items.SHIELD),
-            emptyList(),
-            ScoreboardData(
-                "Demo Scoreboard".asText().styled { style -> style.withColor(Formatting.GOLD) },
-                (0 until 15).map {
-                    SidebarEntry("-".repeat(it).asText(), "$it".asText().styled {
-                        style -> style.withColor(Formatting.RED)
-                    })
-                }.toTypedArray()
-            )
+        fun fromPlayer(player: PlayerEntity) = PlayerData(
+            player.nameForScoreboard,
+            player.uuidAsString,
+            player.pos,
+            player.blockPos,
+            player.velocity,
+            player.inventory.selectedSlot,
+            if (mc.player == player) interaction.currentGameMode else GameMode.DEFAULT,
+            player.health.fixNaN(),
+            player.getActualHealth().fixNaN(),
+            player.maxHealth.fixNaN(),
+            player.absorptionAmount.fixNaN(),
+            player.armor,
+            player.hungerManager.foodLevel,
+            player.air,
+            player.maxAir,
+            player.experienceLevel,
+            player.experienceProgress.fixNaN(),
+            player.statusEffects.toList(),
+            player.mainHandStack,
+            if (shouldHideOffhand(player = player) && hideShieldSlot) ItemStack.EMPTY else player.offHandStack,
+            player.armorItems.toList(),
+            if (mc.player == player) ScoreboardData.fromScoreboard(player.scoreboard) else null
         )
-
     }
 
 }

@@ -15,20 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import it.unimi.dsi.fastutil.objects.ObjectFloatImmutablePair
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.block.SwingMode
-import net.ccbluex.liquidbounce.utils.block.getSortedSphere
-import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.isBlockedByEntitiesReturnCrystal
+import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
@@ -40,12 +35,13 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Vec3d
 import kotlin.math.max
 
 object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place", true) {
 
-    private var swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
+    private val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
+    private val switchMode by enumChoice("Switch", SwitchMode.SILENT)
+    val oldVersion by boolean("1_12_2", false)
     private val delay by int("Delay", 0, 0..1000, "ms")
     private val range by float("Range", 4.5F, 1.0F..5.0F).onChanged { updateSphere() }
     private val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F).onChanged {
@@ -138,8 +134,11 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 player,
                 blockHitResult?.withSide(side) ?: return@rotate,
                 getSlot() ?: return@rotate,
-                swingMode
+                swingMode,
+                switchMode
             )
+
+            SubmoduleIdPredict.run(targetPos)
 
             chronometer.reset()
         })
@@ -153,7 +152,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         }
     }
 
-    @Suppress("ComplexCondition")
+    @Suppress("ComplexCondition", "LongMethod", "CognitiveComplexMethod")
     private fun updateTarget() {
         // Reset current target
         previousTarget = placementTarget
@@ -164,9 +163,15 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         val wallsRange = wallsRange.toDouble()
 
         val target = ModuleCrystalAura.currentTarget ?: return
-        val maxX = target.boundingBox.maxX
+        val maxY = target.boundingBox.maxY
 
-        val positions = mutableListOf<ObjectObjectImmutablePair<BlockPos, Boolean>>()
+        val positions = mutableListOf<PlacementPositionCandidate>()
+
+        val box = if (oldVersion) FULL_BOX.withMaxX(2.0) else FULL_BOX
+
+        val basePlace = SubmoduleBasePlace.shouldBasePlaceRun()
+        val currentBasePlaceTarget = if (basePlace) null else SubmoduleBasePlace.currentTarget
+        val basePlaceLayers = if (basePlace) SubmoduleBasePlace.getBasePlaceLayers(target.y) else IntOpenHashSet()
 
         val playerPos = player.blockPos
         val pos = BlockPos.Mutable()
@@ -174,33 +179,61 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             pos.set(playerPos).move(it)
             val state = pos.getState()!!
             val canSeeUpperBlockSide = !onlyAbove || canSeeUpperBlockSide(playerEyePos, pos, range, wallsRange)
-            if ((state.block == Blocks.OBSIDIAN || state.block == Blocks.BEDROCK) &&
-                pos.up().getState()!!.isAir &&
+            val canPlace = state.block == Blocks.OBSIDIAN || state.block == Blocks.BEDROCK
+
+            if (pos.up().getState()!!.isAir &&
+                (!oldVersion || pos.up(2).getState()!!.isAir) &&
                 canSeeUpperBlockSide &&
-                pos.x.toDouble() + 1.0 < maxX
+                pos.y.toDouble() + 1.0 < maxY &&
+                (canPlace || SubmoduleBasePlace.canBasePlace(basePlace, pos, basePlaceLayers, state))
             ) {
-                val blocked = pos.up().isBlockedByEntitiesReturnCrystal()
+                val up = pos.up()
+                if (PredictFeature.willBeBlocked(
+                        box.offset(up.x.toDouble(), up.y.toDouble(), up.z.toDouble()),
+                        target,
+                        !canPlace
+                    )) {
+                    return@forEach
+                }
+
+                val blocked = up.isBlockedByEntitiesReturnCrystal(
+                    box = box
+                )
 
                 val crystal = blocked.value() != null
                 if (!blocked.keyBoolean() || crystal) {
-                    positions.add(ObjectObjectImmutablePair(pos.toImmutable(), !crystal))
+                    positions.add(PlacementPositionCandidate(pos.toImmutable(), !crystal, !canPlace))
                 }
             }
         }
 
-        val bestTarget =
-            positions
-                .mapNotNull {
-                    val damageSourceLoc = Vec3d.of(it.left()).add(0.5, 1.0, 0.5)
-                    val explosionDamage = ModuleCrystalAura.approximateExplosionDamage(damageSourceLoc)
-                        ?: return@mapNotNull null
-                    ObjectFloatImmutablePair(it, explosionDamage)
+        val finalPositions = positions.filter(PlacementPositionCandidate::isNotInvalid)
+        var bestTarget = finalPositions.maxByOrNull { it.explosionDamage!! } ?: return
+
+        if (bestTarget.requiresBasePlace) {
+            finalPositions.filterNot { it.requiresBasePlace }.maxByOrNull { it.explosionDamage!! }?.let {
+                if (it.explosionDamage!! - bestTarget.explosionDamage!! >= SubmoduleBasePlace.minAdvantage) {
+                    bestTarget = it
                 }
-                .maxByOrNull { it.secondFloat() }
+            }
+        }
 
+        currentBasePlaceTarget?.let {
+            it.calculate()
+            if (it.isNotInvalid() &&
+                it.explosionDamage!! - bestTarget.explosionDamage!! >= SubmoduleBasePlace.minAdvantage) {
+                bestTarget = it
+            }
+        }
 
-        if (bestTarget != null && bestTarget.left().second()) {
-            placementTarget = bestTarget.first().first()
+        if (bestTarget.requiresBasePlace && bestTarget != currentBasePlaceTarget) {
+            SubmoduleBasePlace.currentTarget = bestTarget
+        } else if (bestTarget != currentBasePlaceTarget) {
+            SubmoduleBasePlace.currentTarget = null
+        }
+
+        if (bestTarget.notBlockedByCrystal && !bestTarget.requiresBasePlace) {
+            placementTarget = bestTarget.pos
         }
     }
 

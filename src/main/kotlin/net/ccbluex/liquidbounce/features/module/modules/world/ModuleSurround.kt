@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
 import net.ccbluex.liquidbounce.utils.entity.isInHole
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.entity.Entity
 import net.minecraft.entity.decoration.EndCrystalEntity
@@ -45,6 +46,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3i
@@ -337,17 +339,25 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
 
     @Suppress("unused")
     private val blockUpdateHandler = handler<PacketEvent> {
-        val packet = it.packet
-        if (!instant || packet !is BlockUpdateS2CPacket) {
+        if (!instant) {
             return@handler
         }
 
-        val irrelevantPacket = !packet.state.isReplaceable || packet.pos !in placer.blocks
+        when (val packet = it.packet) {
+            is BlockUpdateS2CPacket -> placeInstant(packet.pos, packet.state)
+            is ChunkDeltaUpdateS2CPacket -> {
+                packet.visitUpdates { pos, state -> placeInstant(null, state, pos as BlockPos.Mutable) }
+            }
+        }
+    }
 
-        val pos = packet.pos
+    private fun placeInstant(blockPos: BlockPos?, state: BlockState, blockPos1: BlockPos.Mutable? = null) {
+        val pos = blockPos ?: blockPos1!!
+        val irrelevantPacket = !state.isReplaceable || pos !in placer.blocks
+
         val rotationMode = placer.rotationMode.activeChoice
         if (irrelevantPacket || rotationMode !is NoRotationMode || pos.isBlockedByEntities()) {
-            return@handler
+            return
         }
 
         val searchOptions = BlockPlacementTargetFindingOptions(
@@ -360,29 +370,29 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
             placer.wallRange > 0
         )
 
-        val placementTarget = findBestBlockPlacementTarget(pos, searchOptions) ?: return@handler
+        val placementTarget = findBestBlockPlacementTarget(pos, searchOptions) ?: return
 
         // Check if we can reach the target
         if (!placer.canReach(placementTarget.interactedBlockPos, placementTarget.rotation)) {
-            return@handler
+            return
         }
 
         if (placementTarget.interactedBlockPos.getBlock().isInteractable(
                 placementTarget.interactedBlockPos.getState()
             )
         ) {
-            return@handler
+            return
         }
 
         if (rotationMode.send) {
-            val rotation = placementTarget.rotation.fixedSensitivity()
+            val rotation = placementTarget.rotation.normalize()
             network.connection!!.send(
                 PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround),
                 null
             )
         }
 
-        placer.doPlacement(false, pos, placementTarget)
+        placer.doPlacement(false, blockPos ?: blockPos1!!.toImmutable(), placementTarget)
     }
 
     private fun getEntitySurround(entity: Entity, list: HashSet<BlockPos>, blocked: HashSet<BlockPos>, y: Double) {

@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
@@ -34,7 +34,7 @@ abstract class BlockPlacerRotationMode(
     name: String,
     private val configurable: ChoiceConfigurable<BlockPlacerRotationMode>,
     val placer: BlockPlacer
-) : Choice(name), QuickImports {
+) : Choice(name), MinecraftShortcuts {
 
     val postMove by boolean("PostMove", false)
 
@@ -116,7 +116,7 @@ class NoRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, 
             }
 
             if (send) {
-                val rotation = placementTarget.rotation.fixedSensitivity()
+                val rotation = placementTarget.rotation.normalize()
                 network.connection!!.send(
                     PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround),
                     null

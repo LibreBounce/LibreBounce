@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.command.ParameterValidationResult
 import net.ccbluex.liquidbounce.features.command.ParameterVerifier
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.utils.client.mc
 
 class ParameterBuilder<T> private constructor(val name: String) {
 
@@ -32,7 +33,6 @@ class ParameterBuilder<T> private constructor(val name: String) {
     private var required: Boolean? = null
     private var vararg: Boolean = false
     private var autocompletionHandler: AutoCompletionHandler? = null
-    private var useMinecraftAutoCompletion: Boolean = false
 
     companion object {
         val STRING_VALIDATOR: ParameterVerifier<String> = { ParameterValidationResult.ok(it) }
@@ -125,24 +125,21 @@ class ParameterBuilder<T> private constructor(val name: String) {
     }
 
     fun useMinecraftAutoCompletion(): ParameterBuilder<T> {
-        this.useMinecraftAutoCompletion = true
+        autocompletionHandler = { begin, _ ->
+            mc.networkHandler?.playerList?.map { it.profile.name }?.filter { it.startsWith(begin) } ?: emptyList()
+        }
 
         return this
     }
 
     fun build(): Parameter<T> {
-        require(!this.useMinecraftAutoCompletion || autocompletionHandler == null) {
-            "Standard Minecraft autocompletion was enabled and an autocompletion handler was set"
-        }
-
         return Parameter(
             this.name,
             this.required
                 ?: throw IllegalArgumentException("The parameter was neither marked as required nor as optional."),
             this.vararg,
             this.verifier,
-            autocompletionHandler,
-            useMinecraftAutoCompletion
+            autocompletionHandler
         )
     }
 

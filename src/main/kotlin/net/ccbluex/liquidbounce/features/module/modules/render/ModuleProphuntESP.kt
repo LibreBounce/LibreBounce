@@ -22,7 +22,7 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-import java.util.*
+import java.util.concurrent.PriorityBlockingQueue
 
 object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
     aliases = arrayOf("BlockUpdateDetector", "FallingBlockESP")) {
@@ -59,6 +59,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
     private val renderBlockUpdates by boolean("RenderBlockUpdates", true)
     private val renderFallingBlockEntity by boolean("RenderFallingBlockEntity", true)
 
+    @JvmRecord
     private data class TrackedBlock(val pos: BlockPos, val expirationTime: Long) : Comparable<TrackedBlock> {
         override fun compareTo(other: TrackedBlock) =
             expirationTime.compareTo(other.expirationTime)
@@ -70,15 +71,13 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
         )
     }
 
-    private val trackedBlocks = PriorityQueue<TrackedBlock>()
+    private val trackedBlocks = PriorityBlockingQueue<TrackedBlock>()
     private val renderTicks by float("RenderTicks", 60f, 0f..600f)
 
     @Suppress("unused")
     private val gameHandler = repeatable {
-        synchronized(trackedBlocks) {
-            while (trackedBlocks.isNotEmpty() && trackedBlocks.peek().expirationTime <= world.time) {
-                trackedBlocks.poll()
-            }
+        while (trackedBlocks.isNotEmpty() && trackedBlocks.peek().expirationTime <= world.time) {
+            trackedBlocks.poll()
         }
 
         waitTicks(1)
@@ -106,9 +105,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
         var dirty = false
 
         renderEnvironmentForWorld(matrixStack) {
-            synchronized(trackedBlocks) {
-                dirty = drawBlocks(this, trackedBlocks, colorMode, fullAlpha, drawOutline) || dirty
-            }
+            dirty = drawBlocks(this, trackedBlocks, colorMode, fullAlpha, drawOutline) || dirty
         }
 
         return dirty
@@ -153,7 +150,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
 
     private fun WorldRenderEnvironment.drawBlocks(
         env: WorldRenderEnvironment,
-        blocks: PriorityQueue<TrackedBlock>,
+        blocks: Iterable<TrackedBlock>,
         colorMode: GenericColorMode<Any>,
         fullAlpha: Boolean,
         drawOutline: Boolean
@@ -247,9 +244,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
     @Suppress("unused")
     private val networkHandler = handler<PacketEvent> { event ->
         if (event.packet is BlockUpdateS2CPacket) {
-            synchronized(trackedBlocks) {
-                trackedBlocks.offer(TrackedBlock(event.packet.pos, world.time + renderTicks.toLong()))
-            }
+            trackedBlocks.offer(TrackedBlock(event.packet.pos, world.time + renderTicks.toLong()))
         }
     }
 }

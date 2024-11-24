@@ -21,15 +21,22 @@ package net.ccbluex.liquidbounce.integration.browser.supports
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.mcef.MCEF
-import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.validation.HashValidator
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
+import net.ccbluex.liquidbounce.mcef.MCEF
+import net.ccbluex.liquidbounce.utils.client.ErrorHandler
+import net.ccbluex.liquidbounce.utils.client.formatBytesAsSize
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
+import net.ccbluex.liquidbounce.utils.validation.HashValidator
+import kotlin.concurrent.thread
+
+/**
+ * The time threshold for cleaning up old cache directories.
+ */
+private const val CACHE_CLEANUP_THRESHOLD = 1000 * 60 * 60 * 24 * 7 // 7 days
 
 /**
  * Uses a modified fork of the JCEF library browser backend made for Minecraft.
@@ -64,7 +71,7 @@ class JcefBrowser : IBrowser, Listenable {
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
-                virtualThread(name = "mcef-downloader") {
+                thread(name = "mcef-downloader") {
                     runCatching {
                         resourceManager.downloadJcef()
                         RenderSystem.recordRenderCall(whenAvailable)
@@ -72,6 +79,44 @@ class JcefBrowser : IBrowser, Listenable {
                 }
             } else {
                 whenAvailable()
+            }
+        }
+
+        // Clean up old cache directories
+        thread(name = "mcef-cache-cleanup", block = this::cleanup)
+    }
+
+    /**
+     * Cleans up old cache directories.
+     *
+     * TODO: Check if we have an active PID using the cache directory, if so, check if the LiquidBounce
+     *   process attached to the JCEF PID is still running or not. If not, we could kill the JCEF process
+     *   and clean up the cache directory.
+     */
+    fun cleanup() {
+        if (cacheFolder.exists()) {
+            runCatching {
+                cacheFolder.listFiles()
+                    ?.filter { file ->
+                        file.isDirectory && System.currentTimeMillis() - file.lastModified() > CACHE_CLEANUP_THRESHOLD
+                    }
+                    ?.sumOf { file ->
+                        try {
+                            val fileSize = file.walkTopDown().sumOf { uFile -> uFile.length() }
+                            file.deleteRecursively()
+                            fileSize
+                        } catch (e: Exception) {
+                            logger.error("Failed to clean up old cache directory", e)
+                            0
+                        }
+                    } ?: 0
+            }.onFailure {
+                // Not a big deal, not fatal.
+                logger.error("Failed to clean up old JCEF cache directories", it)
+            }.onSuccess { size ->
+                if (size > 0) {
+                    logger.info("Cleaned up ${size.formatBytesAsSize()} JCEF cache directories")
+                }
             }
         }
     }
@@ -91,20 +136,13 @@ class JcefBrowser : IBrowser, Listenable {
 
     override fun createTab(url: String, position: TabPosition, frameRate: Int, takesInput: () -> Boolean) =
         JcefTab(this, url, position, frameRate, takesInput = takesInput).apply {
-            synchronized(tabs) {
-                tabs += this
-
-                // Sort tabs by drawing stage
-                tabs.sortBy { tab -> tab.drawingStage }
-            }
+            tabs.sortedInsert(this, JcefTab::drawingStage)
         }
 
     override fun getTabs() = tabs
 
     internal fun removeTab(tab: JcefTab) {
-        synchronized(tabs) {
-            tabs.remove(tab)
-        }
+        tabs.remove(tab)
     }
 
     override fun getBrowserType() = BrowserType.JCEF

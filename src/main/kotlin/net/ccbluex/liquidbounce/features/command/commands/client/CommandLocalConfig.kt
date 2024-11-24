@@ -66,7 +66,7 @@ object CommandLocalConfig {
                             }
 
                             loadingNow = true
-                            ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(),
+                            ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, bufferedReader(),
                                 publicGson)
                         }.onFailure {
                             chat(markAsError(command.result("failedToLoad", variable(name))))

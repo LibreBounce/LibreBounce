@@ -42,7 +42,7 @@ import net.minecraft.client.gui.screen.DisconnectedScreen
 
 object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.hud"
 
     private val blur by boolean("Blur", true)

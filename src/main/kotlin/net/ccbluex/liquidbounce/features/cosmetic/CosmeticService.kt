@@ -33,10 +33,10 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.kotlin.toMD5
-import net.ccbluex.liquidbounce.utils.kotlin.virtualThread
 import net.minecraft.client.session.Session
 import net.minecraft.util.Util
 import java.util.*
+import kotlin.concurrent.thread
 
 /**
  * A more reliable, safer and stress reduced cosmetics service
@@ -76,7 +76,7 @@ object CosmeticService : Listenable, Configurable("Cosmetics") {
         if (task == null) {
             // Check if the required time in milliseconds has passed of the REFRESH_DELAY
             if (lastUpdate.hasElapsed(REFRESH_DELAY) || force) {
-                task = virtualThread(name = "UpdateCarriersTask") {
+                task = thread(name = "UpdateCarriersTask") {
                     runCatching {
                         carriers = decode<Set<String>>(HttpClient.get(CARRIERS_URL))
                         task = null

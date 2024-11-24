@@ -95,8 +95,8 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
                             drawEntryBox(entry.key, entry.value.second, box, colorFactor)
 
                             if (time - entry.value.first >= outTime) {
-                                updateNeighbors(entry.key)
                                 remove()
+                                updateNeighbors(entry.key)
                             }
                         }
                     }

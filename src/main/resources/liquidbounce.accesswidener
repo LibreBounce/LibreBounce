@@ -61,6 +61,7 @@ mutable field net/minecraft/network/packet/c2s/play/PlayerMoveC2SPacket changeLo
 
 accessible field net/minecraft/client/network/ClientPlayerInteractionManager currentBreakingProgress F
 accessible field net/minecraft/client/network/ClientPlayerInteractionManager blockBreakingCooldown I
+accessible field net/minecraft/client/network/ClientPlayerInteractionManager gameMode Lnet/minecraft/world/GameMode;
 
 accessible field net/minecraft/network/packet/c2s/common/ResourcePackStatusC2SPacket status Lnet/minecraft/network/packet/c2s/common/ResourcePackStatusC2SPacket$Status;
 
@@ -158,6 +159,9 @@ mutable field net/minecraft/network/packet/s2c/common/CommonPingS2CPacket parame
 accessible field net/minecraft/entity/LimbAnimator pos F
 
 accessible field net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket entityId I
+accessible method net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket <init> (IZLnet/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractTypeHandler;)V
+accessible class net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractTypeHandler
+accessible field net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket ATTACK Lnet/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractTypeHandler;
 
 accessible field net/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket sectionPos Lnet/minecraft/util/math/ChunkSectionPos;
 
@@ -179,3 +183,5 @@ accessible field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket snea
 mutable field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
 
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager syncSelectedSlot ()V
+
+accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V

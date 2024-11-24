@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 object ModuleCustomAmbience : Module("CustomAmbience", Category.RENDER) {
 
     val weather = enumChoice("Weather", WeatherType.SUNNY)
-    val time = enumChoice("Time", TimeType.NOON)
+    private val time = enumChoice("Time", TimeType.NOON)
 
     object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", false) {
 
@@ -62,6 +62,23 @@ object ModuleCustomAmbience : Module("CustomAmbience", Category.RENDER) {
 
     init {
         tree(CustomLightColor)
+    }
+
+    @JvmStatic
+    fun getTime(original: Long): Long {
+        return if (enabled) {
+            when (time.get()) {
+                TimeType.NO_CHANGE -> original
+                TimeType.DAWN -> 23041L
+                TimeType.DAY -> 1000L
+                TimeType.NOON -> 6000L
+                TimeType.DUSK -> 12610L
+                TimeType.NIGHT -> 13000L
+                TimeType.MID_NIGHT -> 18000L
+            }
+        } else {
+            original
+        }
     }
 
     enum class WeatherType(override val choiceName: String) : NamedChoice {

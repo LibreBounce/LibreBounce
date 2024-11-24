@@ -22,13 +22,11 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.CancelBlockBreakingEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
-import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
-import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -40,7 +38,7 @@ import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
-import net.ccbluex.liquidbounce.utils.math.toVec3d
+import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.block.BedBlock
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.util.ActionResult
@@ -59,7 +57,7 @@ import kotlin.math.max
  *
  * Destroys/Uses selected blocks around you.
  */
-object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBreaker")) {
+object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBreaker", "IdNuker")) {
 
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
@@ -98,50 +96,19 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
 
     // Rotation
     private val rotations = tree(RotationsConfigurable(this))
-
-    private object FuckerHighlight : ToggleableConfigurable(this, "Highlight", true) {
-
-        private val color by color("Color", Color4b(255, 0, 0, 50))
-        private val outlineColor by color("OutlineColor", Color4b(255, 0, 0, 100))
-
-        @Suppress("unused")
-        val renderHandler = handler<WorldRenderEvent> { event ->
-            val matrixStack = event.matrixStack
-            val (pos, _) = currentTarget ?: return@handler
-
-            renderEnvironmentForWorld(matrixStack) {
-                val blockState = pos.getState() ?: return@renderEnvironmentForWorld
-                if (blockState.isAir) {
-                    return@renderEnvironmentForWorld
-                }
-
-                val outlineShape = blockState.getOutlineShape(world, pos)
-                val boundingBox = if (outlineShape.isEmpty) {
-                    FULL_BOX
-                } else {
-                    outlineShape.boundingBox
-                }
-
-                withPositionRelativeToCamera(pos.toVec3d()) {
-                    withColor(color) {
-                        drawSolidBox(boundingBox)
-                    }
-
-                    if (outlineColor.a != 0) {
-                        withColor(outlineColor) {
-                            drawOutlinedBox(boundingBox)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    init {
-        tree(FuckerHighlight)
-    }
+    private val targetRenderer = tree(
+        PlacementRenderer("TargetRendering", true, this,
+            defaultColor = Color4b(255, 0, 0, 90)
+        )
+    )
 
     private var currentTarget: DestroyerTarget? = null
+        set(value) {
+            field?.let { targetRenderer.removeBlock(it.pos) }
+            value?.let { targetRenderer.addBlock(it.pos) }
+
+            field = value
+        }
     private var wasTarget: DestroyerTarget? = null
 
     override fun disable() {

@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.event
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
@@ -126,6 +127,9 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerFluidCollisionCheckEvent::class,
     PlayerSneakMultiplier::class,
     PerspectiveEvent::class,
+    ItemLoreQueryEvent::class,
+    PlayerEquipmentChangeEvent::class,
+    ClickGuiValueChangeEvent::class
 )
 
 /**
@@ -152,11 +156,7 @@ object EventManager {
 
         if (!handlers.contains(hook)) {
             // `handlers` is sorted descending by EventHook.priority
-            val insertIndex = handlers.binarySearchBy(-hook.priority) { -it.priority }.let {
-                if (it >= 0) it else it.inv()
-            }
-
-            handlers.add(insertIndex, hook)
+            handlers.sortedInsert(hook) { -it.priority }
         }
     }
 

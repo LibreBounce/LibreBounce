@@ -15,8 +15,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
@@ -34,12 +32,13 @@ import kotlin.math.max
 
 object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "Destroy", true) {
 
-    private val swing by boolean("Swing", true)
+    val swing by boolean("Swing", true)
     private val delay by int("Delay", 0, 0..1000, "ms")
-    private val range by float("Range", 4.5F, 1.0F..5.0F)
-    private val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F)
+    val range by float("Range", 4.5F, 1.0F..5.0F)
+    val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F)
 
-    private val chronometer = Chronometer()
+    var postAttackHandlers = arrayOf(CrystalAuraSpeedDebugger, SubmoduleSetDead.CrystalTracker)
+    val chronometer = Chronometer()
     private var currentTarget: EndCrystalEntity? = null
 
     fun tick() {
@@ -78,6 +77,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
             val target1 = currentTarget ?: return@rotate
 
             target1.attack(swing)
+            postAttackHandlers.forEach { it.attacked(target1.id) }
             chronometer.reset()
         })
     }
@@ -99,7 +99,10 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                         return@mapNotNull null
                     }
 
-                    val damage = ModuleCrystalAura.approximateExplosionDamage(it.pos) ?: return@mapNotNull null
+                    val damage = CrystalAuraDamageOptions.approximateExplosionDamage(
+                        it.pos,
+                        CrystalAuraDamageOptions.RequestingSubmodule.DESTROY
+                    ) ?: return@mapNotNull null
 
                     ObjectFloatImmutablePair(it as EndCrystalEntity, damage)
                 }

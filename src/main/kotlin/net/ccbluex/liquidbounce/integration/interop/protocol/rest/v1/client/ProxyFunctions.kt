@@ -24,7 +24,7 @@ import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.gson.interopGson
-import net.ccbluex.liquidbounce.features.misc.ProxyManager
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
@@ -77,7 +77,13 @@ fun getProxies(requestObject: RequestObject) = httpOk(JsonArray().apply {
 // POST /api/v1/client/proxies/add
 @Suppress("UNUSED_PARAMETER")
 fun postAddProxy(requestObject: RequestObject): FullHttpResponse {
-    data class ProxyRequest(val host: String, val port: Int, val username: String, val password: String)
+    data class ProxyRequest(
+        val host: String,
+        val port: Int,
+        val username: String,
+        val password: String,
+        val forwardAuthentication: Boolean
+    )
     val body = requestObject.asJson<ProxyRequest>()
 
     if (body.host.isBlank()) {
@@ -122,7 +128,14 @@ fun postClipboardProxy(requestObject: RequestObject): FullHttpResponse {
 // POST /api/v1/client/proxies/edit
 @Suppress("UNUSED_PARAMETER")
 fun postEditProxy(requestObject: RequestObject): FullHttpResponse {
-    data class ProxyRequest(val id: Int, val host: String, val port: Int, val username: String, val password: String)
+    data class ProxyRequest(
+        val id: Int,
+        val host: String,
+        val port: Int,
+        val username: String,
+        val password: String,
+        val forwardAuthentication: Boolean
+    )
     val body = requestObject.asJson<ProxyRequest>()
 
     if (body.host.isBlank()) {
@@ -133,7 +146,7 @@ fun postEditProxy(requestObject: RequestObject): FullHttpResponse {
         return httpForbidden("No port")
     }
 
-    ProxyManager.editProxy(body.id, body.host, body.port, body.username, body.password)
+    ProxyManager.editProxy(body.id, body.host, body.port, body.username, body.password, body.forwardAuthentication)
     return httpOk(JsonObject())
 }
 

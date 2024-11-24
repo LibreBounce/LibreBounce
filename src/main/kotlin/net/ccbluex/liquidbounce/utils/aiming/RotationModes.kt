@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.QuickImports
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -30,7 +30,7 @@ abstract class RotationMode(
     name: String,
     private val configurable: ChoiceConfigurable<RotationMode>,
     val module: Module,
-) : Choice(name), QuickImports {
+) : Choice(name), MinecraftShortcuts {
 
     /**
      * Already sends the packet on post-move.
@@ -79,7 +79,7 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Mod
     override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
         PostRotationExecutor.addTask(module, postMove, task = {
             if (send) {
-                val fixedRotation = rotation.fixedSensitivity()
+                val fixedRotation = rotation.normalize()
                 network.connection!!.send(
                     PlayerMoveC2SPacket.LookAndOnGround(fixedRotation.yaw, fixedRotation.pitch, player.isOnGround),
                     null

@@ -56,7 +56,7 @@ object ModuleDebugRecorder : Module("DebugRecorder", Category.MISC) {
 
             runCatching {
                 val baseName = dateFormat.format(Date())
-                val folder = ConfigSystem.rootFolder.resolve("debugRecorder/$name")
+                val folder = ConfigSystem.rootFolder.resolve("debug-recorder/$name")
 
                 folder.mkdirs()
 

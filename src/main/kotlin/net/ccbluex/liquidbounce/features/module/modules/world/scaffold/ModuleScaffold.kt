@@ -427,8 +427,8 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         val currentRotation = if ((rotationTiming == ON_TICK || rotationTiming == ON_TICK_SNAP) && target != null) {
             target.rotation
         } else {
-            RotationManager.serverRotation
-        }
+            RotationManager.currentRotation ?: player.rotation
+        }.normalize()
         val currentCrosshairTarget = technique.activeChoice.getCrosshairTarget(target, currentRotation)
         val currentDelay = delay.random()
 
@@ -479,21 +479,22 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
             if (currentRotation != RotationManager.serverRotation) {
                 network.sendPacket(
                     Full(
-                        player.x, player.y, player.z, currentRotation.yaw, currentRotation.pitch,
+                        player.x, player.y, player.z,
+                        currentRotation.yaw,
+                        currentRotation.pitch,
                         player.isOnGround
                     )
                 )
+            }
 
-                if (rotationTiming == ON_TICK_SNAP) {
-                    RotationManager.aimAt(
-                        currentRotation,
-                        considerInventory = considerInventory,
-                        configurable = ScaffoldRotationConfigurable,
-                        provider = this@ModuleScaffold,
-                        priority = Priority.IMPORTANT_FOR_PLAYER_LIFE
-                    )
-                }
-
+            if (rotationTiming == ON_TICK_SNAP) {
+                RotationManager.aimAt(
+                    currentRotation,
+                    considerInventory = considerInventory,
+                    configurable = ScaffoldRotationConfigurable,
+                    provider = this@ModuleScaffold,
+                    priority = Priority.IMPORTANT_FOR_PLAYER_LIFE
+                )
             }
         }
 
@@ -512,8 +513,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         if (rotationTiming == ON_TICK && RotationManager.serverRotation != player.rotation) {
             network.sendPacket(
                 Full(
-                    player.x, player.y, player.z, player.withFixedYaw(currentRotation),
-                    player.pitch, player.isOnGround
+                    player.x, player.y, player.z, player.withFixedYaw(currentRotation), player.pitch, player.isOnGround
                 )
             )
         }
@@ -570,6 +570,10 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     internal fun getTargetedPosition(blockPos: BlockPos): BlockPos {
         if (ScaffoldDownFeature.handleEvents() && ScaffoldDownFeature.shouldGoDown) {
             return blockPos.add(0, -2, 0)
+        }
+
+        if (ScaffoldCeilingFeature.canConstructCeiling() && ScaffoldCeilingFeature.enabled) {
+            return blockPos.add(0, 3, 0)
         }
 
         if (!isTowering) {

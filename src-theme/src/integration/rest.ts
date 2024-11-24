@@ -463,23 +463,23 @@ export async function setProxyFavorite(id: number, favorite: boolean) {
     }
 }
 
-export async function addProxy(host: string, port: number, username: string, password: string) {
+export async function addProxy(host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({host, port, username, password})
+        body: JSON.stringify({host, port, username, password,forwardAuthentication})
     });
 }
 
-export async function editProxy(id: number, host: string, port: number, username: string, password: string) {
+export async function editProxy(id: number, host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/edit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({id, host, port, username, password})
+        body: JSON.stringify({id, host, port, username, password, forwardAuthentication})
     })
 }
 
