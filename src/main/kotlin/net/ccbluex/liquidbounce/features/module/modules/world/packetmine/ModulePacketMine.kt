@@ -16,16 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.world
+package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.world.ModuleAutoTool
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.CivMineMode
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.ImmediateMineMode
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.NormalMineMode
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.*
@@ -60,10 +63,19 @@ import kotlin.math.max
 @Suppress("TooManyFunctions")
 object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
-    /**
-     * Instantly sends the stop destroy packet. Immediate mined positions can't be aborted.
-     */
-    private val immediate by boolean("Immediate", false)
+    val mode = choices<MineMode>(
+        this,
+        "Mode",
+        NormalMineMode,
+        arrayOf(NormalMineMode, ImmediateMineMode, CivMineMode)
+    )
+
+    init {
+        mode.onChanged {
+            disable()
+            enable()
+        }
+    }
 
     private val range by float("Range", 4.5f, 1f..6f)
     private val wallsRange by float("WallsRange", 4.5f, 0f..6f).onChange {
@@ -72,31 +84,26 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private val keepRange by float("KeepRange", 25f, 0f..200f).onChange {
         it.coerceAtLeast(wallsRange)
     }
-    private val swingMode by enumChoice("Swing", SwingMode.HIDE_CLIENT)
+    val swingMode by enumChoice("Swing", SwingMode.HIDE_CLIENT)
     private val switchMode by enumChoice("Switch", ToolMode.ON_STOP)
     private val rotationMode by enumChoice("Rotate", RotationMode.NEVER)
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
-    private val abortCanceled by boolean("AbortCanceled", true)
-
-    // not immediate specific settings
-
-    private val clientSideSet by boolean("ClientSideSet", false)
     private val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
 
     private val targetRenderer = tree(
         PlacementRenderer(
             "TargetRendering", true, this,
-            defaultColor = Color4b(0, 255, 0, 90),
+            defaultColor = Color4b(255, 0, 0, 90),
             clump = false
         )
     )
 
     private val chronometer = Chronometer()
 
-    private var started = false
-    private var finished = false
+    var finished = false
+    var progress = 0f
     private var direction: Direction? = null
-    private var progress = 0f
+    private var started = false
     private var shouldRotate = rotationMode.start
 
     var targetPos: BlockPos? = null
@@ -107,7 +114,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
             field?.let {
                 targetRenderer.removeBlock(it)
-                if (abortCanceled) {
+                if (!finished && mode.activeChoice.canAbort) {
                     abort(it, true)
                 }
             }
@@ -123,14 +130,16 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     init {
         handler<BlockAttackEvent> {
-            if (!ModuleCivBreak.enabled) {
+            if (mode.activeChoice.stopNormalMining) {
                 it.cancelEvent()
             }
         }
     }
 
     override fun enable() {
-        interaction.cancelBlockBreaking()
+        if (mode.activeChoice.stopNormalMining) {
+            interaction.cancelBlockBreaking()
+        }
     }
 
     override fun disable() {
@@ -141,7 +150,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     private val repeatable = repeatable {
         val blockPos = targetPos ?: return@repeatable
         val state = blockPos.getState()!!
-        val invalid = state.isNotBreakable(blockPos) && !player.isCreative || state.isAir
+        val invalid = mode.activeChoice.isInvalid(blockPos, state)
         if (invalid || blockPos.getCenterDistanceSquaredEyes() > keepRange.sq()) {
             targetPos = null
             return@repeatable
@@ -197,7 +206,9 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
         if (rayTraceResult == null ||
             rayTraceResult.type != HitResult.Type.BLOCK ||
-            rayTraceResult.blockPos != targetPos) {
+            rayTraceResult.blockPos != targetPos
+        ) {
+            mode.activeChoice.onCannotLookAtTarget(blockPos)
             abort(blockPos)
             return
         }
@@ -216,37 +227,20 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         val slot = switchMode.getSlot(state)
         if (!started) {
             startBreaking(slot, blockPos, direction)
-        } else if (!finished) {
+        } else if (mode.activeChoice.shouldUpdate(blockPos, direction, slot)) {
             updateBreakingProgress(blockPos, state, slot)
-            if (progress >= 1f && !immediate) {
-                network.sendPacket(
-                    PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, direction)
-                )
-
-                if (clientSideSet) {
-                    interaction.breakBlock(blockPos)
-                }
-
-                finished = true
+            if (progress >= 1f && !finished) {
+                mode.activeChoice.finish(blockPos, direction)
             }
         }
 
-        this@ModulePacketMine.direction = direction
+        ModulePacketMine.direction = direction
     }
 
     private fun startBreaking(slot: IntObjectImmutablePair<ItemStack>?, blockPos: BlockPos, direction: Direction?) {
         switch(slot, blockPos)
-        EventManager.callEvent(BlockBreakingProgressEvent(blockPos))
+        mode.activeChoice.start(blockPos, direction)
         started = true
-        network.sendPacket(
-            PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction)
-        )
-        swingMode.swing(Hand.MAIN_HAND)
-        if (immediate) {
-            network.sendPacket(
-                PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, direction)
-            )
-        }
     }
 
     private fun updateBreakingProgress(
@@ -286,8 +280,9 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     @Suppress("unused")
     private val mouseButtonHandler = handler<MouseButtonEvent> { event ->
-        mc.currentScreen?.let { return@handler }
-        if (ModuleCivBreak.enabled) {
+        val openScreen = mc.currentScreen != null
+        val unchangeableActive = !mode.activeChoice.canManuallyChange && targetPos != null
+        if (openScreen || unchangeableActive) {
             return@handler
         }
 
@@ -302,11 +297,11 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         val blockPos = hitResult.blockPos
         val state = blockPos.getState()!!
 
-        val shouldTargetBlock = state.isBreakable(blockPos) && world.worldBorder.contains(blockPos)
+        val shouldTargetBlock = mode.activeChoice.shouldTarget(blockPos, state)
         // stop when the block is clicked again
         val isCancelledByUser = blockPos.equals(targetPos)
 
-        targetPos = if (shouldTargetBlock && !isCancelledByUser) {
+        targetPos = if (shouldTargetBlock && world.worldBorder.contains(blockPos) && !isCancelledByUser) {
             blockPos
         } else {
             null
@@ -316,7 +311,10 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     }
 
     private fun abort(pos: BlockPos, force: Boolean = false) {
-        if (!started || finished || immediate || !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
+        if (!started ||
+            finished ||
+            !mode.activeChoice.canAbort ||
+            !force && pos.getCenterDistanceSquaredEyes() <= keepRange.sq()) {
             return
         }
 
@@ -330,6 +328,10 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     @Suppress("unused")
     private val blockUpdateHandler = handler<PacketEvent> {
+        if (!mode.activeChoice.stopOnStateChange) {
+            return@handler
+        }
+
         when (val packet = it.packet) {
             is BlockUpdateS2CPacket -> {
                 mc.renderTaskQueue.add(Runnable { updatePosOnChange(packet.pos, packet.state) } )
@@ -344,8 +346,8 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     }
 
     private fun updatePosOnChange(pos: BlockPos, state: BlockState) {
-        if (pos == this.targetPos && state.isAir) {
-            this.targetPos = null
+        if (pos == targetPos && state.isAir) {
+            targetPos = null
         }
     }
 

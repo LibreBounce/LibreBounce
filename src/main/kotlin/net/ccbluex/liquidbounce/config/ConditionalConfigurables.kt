@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.config
 
 import net.ccbluex.liquidbounce.config.util.Exclude
@@ -111,6 +110,10 @@ class ChoiceConfigurable<T : Choice>(
                 " (available options are ${this.choices.joinToString { it.choiceName }})")
         }
 
+        if (activeChoice === newChoice) {
+            return
+        }
+
         if (this.activeChoice.handleEvents()) {
             this.activeChoice.disable()
         }
@@ -128,6 +131,10 @@ class ChoiceConfigurable<T : Choice>(
     }
 
     override fun restore() {
+        if (activeChoice === defaultChoice) {
+            return
+        }
+
         if (this.activeChoice.handleEvents()) {
             this.activeChoice.disable()
         }
