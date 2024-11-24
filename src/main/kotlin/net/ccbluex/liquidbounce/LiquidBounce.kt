@@ -19,7 +19,6 @@
  */
 package net.ccbluex.liquidbounce
 
-import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
@@ -235,9 +234,7 @@ object LiquidBounce : Listenable {
 
                 // Load fonts
                 val duration = measureTime {
-                    runBlocking {
-                        FontManager.workOnQueue()
-                    }
+                    FontManager.createGlyphManager()
                 }
 
                 logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")

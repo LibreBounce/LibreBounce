@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.GlyphPage.Companion.CharacterGenerationInfo
 import net.minecraft.client.texture.NativeImageBackedTexture
 import java.awt.Dimension
@@ -14,7 +14,7 @@ import kotlin.math.sqrt
  */
 class StaticGlyphPage(
     override val texture: NativeImageBackedTexture,
-    val glyphs: List<Pair<Fonts.FontId, GlyphRenderInfo>>
+    val glyphs: Set<Pair<FontManager.FontId, GlyphRenderInfo>>
 ): GlyphPage() {
     companion object {
         /**
@@ -50,7 +50,9 @@ class StaticGlyphPage(
 
             renderGlyphs(atlas, glyphsToRender)
 
-            val glyphs = glyphsToRender.map { it.fontGlyph.font to createGlyphFromGenerationInfo(it, atlasDimensions) }
+            val glyphs = glyphsToRender
+                .map { it.fontGlyph.font to createGlyphFromGenerationInfo(it, atlasDimensions) }
+                .toSet()
 
             val nativeImage = atlas.toNativeImage()
             val texture = NativeImageBackedTexture(nativeImage)

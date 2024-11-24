@@ -19,10 +19,10 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.ModuleNameProtect
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeWithNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.sanitizeWithNameProtect
 import net.ccbluex.liquidbounce.render.*
-import net.ccbluex.liquidbounce.render.Fonts.DEFAULT_FONT_SIZE
+import net.ccbluex.liquidbounce.render.FontManager.DEFAULT_FONT_SIZE
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextProcessor
@@ -35,7 +35,6 @@ import net.minecraft.util.math.Vec3d
 import org.joml.Vector3f
 import java.awt.Font
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -69,9 +68,9 @@ class FontRenderer(
      *
      * [Font.BOLD] | [Font.ITALIC] -> 3 (Can be null)
      */
-    val font: Fonts.LoadedFont,
+    val font: FontManager.FontFace,
     val glyphManager: FontGlyphPageManager,
-    override val size: Float = DEFAULT_FONT_SIZE.toFloat()
+    override val size: Float = DEFAULT_FONT_SIZE
 ) : AbstractFontRenderer<TextProcessor.ProcessedText>() {
 
     private val cache = FontRendererCache()
