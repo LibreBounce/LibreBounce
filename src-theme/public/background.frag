@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 #ifdef GL_ES
 precision lowp float;
