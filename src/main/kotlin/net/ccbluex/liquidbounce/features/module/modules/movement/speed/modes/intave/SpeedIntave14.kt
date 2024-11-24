@@ -91,12 +91,6 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
      */
     private val lowHop by boolean("LowHop", true)
 
-    private enum class YawOffsetMode(override val choiceName: String) : NamedChoice {
-        GROUND("Ground"),
-        AIR("Air"),
-        NONE("None")
-    }
-
     private val rotationsConfigurable = RotationsConfigurable(this)
 
     @Suppress("unused")
@@ -125,8 +119,8 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
     }
 
     private fun groundYawOffset(): Float {
-        if (player.isOnGround) {
-            return when {
+        yaw = if (player.isOnGround) {
+            when {
                 mc.options.forwardKey.isPressed && mc.options.leftKey.isPressed -> 45f
                 mc.options.forwardKey.isPressed && mc.options.rightKey.isPressed -> -45f
                 mc.options.backKey.isPressed && mc.options.leftKey.isPressed -> 135f
@@ -136,17 +130,26 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
                 mc.options.rightKey.isPressed -> -90f
                 else -> 0f
             }
-        }
+        } else 0f
         return 0f
     }
 
     private fun airYawOffset(): Float {
-        return if (!player.isOnGround &&
-            mc.options.forwardKey.isPressed && !mc.options.leftKey.isPressed && !mc.options.rightKey.isPressed
-        ) {
-            -45f
-        } else {
-            0f
+        yaw = when {
+            !player.isOnGround &&
+                mc.options.forwardKey.isPressed &&
+                !mc.options.leftKey.isPressed &&
+                !mc.options.rightKey.isPressed
+                -> -45f
+
+            else -> 0f
         }
+        return 0f
+    }
+
+    private enum class YawOffsetMode(override val choiceName: String) : NamedChoice {
+        GROUND("Ground"),
+        AIR("Air"),
+        NONE("None")
     }
 }
