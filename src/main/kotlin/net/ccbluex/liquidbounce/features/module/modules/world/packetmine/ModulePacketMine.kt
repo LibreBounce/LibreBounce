@@ -20,7 +20,10 @@ package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.BlockAttackEvent
+import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
@@ -32,7 +35,10 @@ import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.No
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquaredEyes
+import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.entity.eyes
@@ -308,7 +314,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     @Suppress("unused")
     private val worldChangeHandler = handler<WorldChangeEvent> {
-       targetPos = null
+        targetPos = null
     }
 
     @Suppress("unused")
@@ -319,13 +325,13 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
         when (val packet = it.packet) {
             is BlockUpdateS2CPacket -> {
-                mc.renderTaskQueue.add(Runnable { updatePosOnChange(packet.pos, packet.state) } )
+                mc.renderTaskQueue.add(Runnable { updatePosOnChange(packet.pos, packet.state) })
             }
 
             is ChunkDeltaUpdateS2CPacket -> {
                 mc.renderTaskQueue.add(Runnable {
                     packet.visitUpdates { pos, state -> updatePosOnChange(pos, state) }
-                } )
+                })
             }
         }
     }
@@ -433,7 +439,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
 
     }
 
-    enum class ToolMode(override val choiceName: String, val end: Boolean, val between: Boolean): NamedChoice {
+    enum class ToolMode(override val choiceName: String, val end: Boolean, val between: Boolean) : NamedChoice {
 
         ON_STOP("OnStop", true, false),
         ALWAYS("Always", true, true),
