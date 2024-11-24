@@ -54,7 +54,7 @@ object BlinkUtils {
             if (sent == true && receive == false) {
                 if (event.eventType == EventState.RECEIVE) {
                     synchronized(packetsReceived) {
-                        PacketUtils.queuedPackets.addAll(packetsReceived)
+                        schedulePacketProcess(packetsReceived)
                     }
                     packetsReceived.clear()
                 }
@@ -132,7 +132,7 @@ object BlinkUtils {
 
     fun syncSent() {
         synchronized(packetsReceived) {
-            PacketUtils.queuedPackets.addAll(packetsReceived)
+            schedulePacketProcess(packetsReceived)
             packetsReceived.clear()
         }
     }
@@ -176,7 +176,7 @@ object BlinkUtils {
 
     fun unblink() {
         synchronized(packetsReceived) {
-            PacketUtils.queuedPackets.addAll(packetsReceived)
+            schedulePacketProcess(packetsReceived)
         }
         synchronized(packets) {
             sendPackets(*packets.toTypedArray(), triggerEvents = false)

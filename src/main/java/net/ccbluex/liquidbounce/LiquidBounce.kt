@@ -49,6 +49,7 @@ import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
+import net.ccbluex.liquidbounce.utils.timing.WaitMsUtils
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 
 object LiquidBounce {
@@ -125,6 +126,7 @@ object LiquidBounce {
             registerListener(Tower)
             registerListener(WaitTickUtils)
             registerListener(SilentHotbar)
+            registerListener(WaitMsUtils)
 
             // Load client fonts
             loadFonts()

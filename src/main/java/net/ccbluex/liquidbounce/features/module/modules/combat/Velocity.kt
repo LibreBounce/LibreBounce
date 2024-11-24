@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.MovementUtils.isOnGround
 import net.ccbluex.liquidbounce.utils.MovementUtils.speed
-import net.ccbluex.liquidbounce.utils.PacketUtils.queuedPackets
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.RaycastUtils.runWithModifiedRaycastResult
@@ -29,6 +28,7 @@ import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.realMotionX
 import net.ccbluex.liquidbounce.utils.realMotionY
 import net.ccbluex.liquidbounce.utils.realMotionZ
+import net.ccbluex.liquidbounce.utils.schedulePacketProcess
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.boolean
@@ -682,8 +682,8 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     private fun sendPacketsByOrder(velocity: Boolean) {
         synchronized(packets) {
             packets.entries.removeAll { (packet, timestamp) ->
-                if (velocity || timestamp <= (System.currentTimeMillis() - spoofDelay)) {
-                    queuedPackets.add(packet)
+                if (velocity || timestamp <= System.currentTimeMillis() - spoofDelay) {
+                    schedulePacketProcess(packet)
                     true
                 } else false
             }

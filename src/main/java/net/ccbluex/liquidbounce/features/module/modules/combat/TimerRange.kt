@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
+import net.ccbluex.liquidbounce.utils.schedulePacketProcess
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.boolean
@@ -295,7 +296,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     fun onMotion(event: MotionEvent) {
         if (blink && event.eventState == EventState.POST) {
             synchronized(packetsReceived) {
-                queuedPackets.addAll(packetsReceived)
+                schedulePacketProcess(packetsReceived)
             }
             packetsReceived.clear()
         }
