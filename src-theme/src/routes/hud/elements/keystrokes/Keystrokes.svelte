@@ -10,6 +10,10 @@
     let keyLeft: MinecraftKeybind | undefined;
     let keyRight: MinecraftKeybind | undefined;
     let keyJump: MinecraftKeybind | undefined;
+    let keyAttack: MinecraftKeybind | undefined;
+    let keyUse: MinecraftKeybind | undefined;
+    let keySprint: MinecraftKeybind | undefined;
+    let keySneak: MinecraftKeybind | undefined;
 
     async function updateKeybinds() {
         const keybinds = await getMinecraftKeybinds();
@@ -19,6 +23,10 @@
         keyLeft = keybinds.find(k => k.bindName === "key.left");
         keyRight = keybinds.find(k => k.bindName === "key.right");
         keyJump = keybinds.find(k => k.bindName === "key.jump");
+        keyAttack = keybinds.find(k => k.bindName === "key.attack");
+        keyUse = keybinds.find(k => k.bindName === "key.use");
+        keySprint = keybinds.find(k => k.bindName === "key.sprint");
+        keySneak = keybinds.find(k => k.bindName === "key.sneak");
     }
 
     onMount(updateKeybinds);
@@ -27,21 +35,28 @@
 </script>
 
 <div class="keystrokes">
-    <Key key={keyForward} gridArea="a" />
-    <Key key={keyLeft} gridArea="b" />
-    <Key key={keyBack} gridArea="c" />
-    <Key key={keyRight} gridArea="d" />
-    <Key key={keyJump} gridArea="e" />
+    <div class="nil"></div>
+    <Key key={keyForward} showName/>
+    <div class="nil"></div>
+    <Key key={keyLeft} showName/>
+    <Key key={keyBack} showName/>
+    <Key key={keyRight} showName/>
+    <Key key={keyJump} flexBasis="100%" showName/>
+    <Key key={keyAttack} flexBasis="calc(50% - 2.5px)" showCPS/>
+    <Key key={keyUse} flexBasis="calc(50% - 2.5px)" showCPS/>
+    <Key key={keySprint} flexBasis="calc(50% - 2.5px)" showName/>
+    <Key key={keySneak} flexBasis="calc(50% - 2.5px)" showName/>
 </div>
 
 <style lang="scss">
-    .keystrokes {
-      display: grid;
-      grid-template-areas:
-        ". a ."
-        "b c d"
-        "e e e";
-      grid-template-columns: repeat(3, 50px);
-      gap: 5px;
-    }
+  .keystrokes {
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(50px * 3 + 5px * 2);
+    gap: 5px;
+  }
+
+  .nil {
+    width: 50px;
+  }
 </style>

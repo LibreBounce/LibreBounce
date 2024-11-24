@@ -1,24 +1,43 @@
 <script lang="ts">
     import {listen} from "../../../../integration/ws";
-    import type {KeyEvent} from "../../../../integration/events";
+    import type {KeyBindingEvent, KeyBindingCPSEvent} from "../../../../integration/events";
     import type {MinecraftKeybind} from "../../../../integration/types";
 
-    export let gridArea: string;
+    export let flexBasis: string = '50px';
     export let key: MinecraftKeybind | undefined;
+    export let showName: boolean = false;
+    export let showCPS: boolean = false;
 
     let active = false;
 
-    listen("key", (e: KeyEvent) => {
+    let cps = 0;
+
+    listen("keybinding", (e: KeyBindingEvent) => {
         if (e.key !== key?.key.translationKey) {
             return;
         }
 
         active = e.action === 1 || e.action === 2;
     });
+
+    if (showCPS) {
+        listen("keybindingCPS", (e: KeyBindingCPSEvent) => {
+            if (e.key !== key?.key.translationKey) {
+                return;
+            }
+
+            cps = e.cps;
+        });
+    }
 </script>
 
-<div class="key" style="grid-area: {gridArea};" class:active>
-    {key?.key.localized ?? "???"}
+<div class="key" style="flex-basis: {flexBasis};" class:active>
+    {#if showName}
+        <span>{key?.key.localized ?? "???"}</span>
+    {/if}
+    {#if showCPS}
+        <span>{cps}</span>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -29,6 +48,7 @@
     background-color: rgba($keystrokes-base-color, .68);
     color: $keystrokes-text-color;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     border-radius: 5px;
