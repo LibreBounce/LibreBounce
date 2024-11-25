@@ -117,6 +117,8 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         AACHop3313, AACHop350, AACHop4,
 
         NCPBHop, NCPFHop, SNCPBHop, NCPHop, NCPYPort,
+
+        MiJump, Frame
     )
 
     private val showDeprecatedValue = object : BoolValue("DeprecatedMode", true) {
