@@ -62,6 +62,7 @@ import kotlin.math.floor
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+
 val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
 
@@ -131,7 +132,36 @@ val ClientPlayerEntity.directionYaw: Float
     get() = getMovementDirectionOfInput(this.yaw, DirectionalInput(this.input))
 
 val ClientPlayerEntity.isBlockAction: Boolean
-    get() = player.isUsingItem && player.activeItem.useAction == UseAction.BLOCK
+    get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
+
+/**
+ * Check if the player can step up by [height] blocks.
+ *
+ * TODO: Use Minecraft Step logic instead of this basic collision check.
+ */
+fun ClientPlayerEntity.canStep(height: Double = 1.0): Boolean {
+    if (!horizontalCollision || isDescending || !isOnGround) {
+        // If we are not colliding with anything, we are not meant to step
+        return false
+    }
+
+    val box = this.boundingBox
+    val direction = this.directionYaw
+
+    val angle = Math.toRadians(direction.toDouble())
+    val xOffset = -sin(angle) * 0.1
+    val zOffset = cos(angle) * 0.1
+
+    val offsetBox = box.offset(xOffset, 0.0, zOffset)
+    val stepBox = offsetBox.offset(0.0, height, 0.0)
+
+    return world.getBlockCollisions(this, stepBox).all { shape ->
+        shape == VoxelShapes.empty()
+    } && world.getBlockCollisions(this, offsetBox).all { shape ->
+        shape != VoxelShapes.empty()
+    }
+}
+
 
 fun getMovementDirectionOfInput(facingYaw: Float, input: DirectionalInput): Float {
     var actualYaw = facingYaw
