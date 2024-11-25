@@ -25,8 +25,10 @@ import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
+import net.ccbluex.netty.http.util.httpBadRequest
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk
 import org.lwjgl.glfw.GLFW
@@ -132,7 +134,11 @@ fun postClipboardProxy(requestObject: RequestObject): FullHttpResponse {
 private fun importProxies(content: String) {
     // TabNine moment
     content.split("\n").map { line ->
-        val split = line.split(":")
+        var lineWithoutProtocol = line
+        if (lineWithoutProtocol.contains("://")) {
+            lineWithoutProtocol = line.split("://")[1]
+        }
+        val split = lineWithoutProtocol.split(":")
         val host = split[0]
         val port = split[1].toInt()
 
@@ -151,16 +157,18 @@ private fun importProxies(content: String) {
 // POST /api/v1/client/proxies/import/clipboard
 @Suppress("UNUSED_PARAMETER")
 fun postImportClipboardProxy(requestObject: RequestObject): FullHttpResponse {
-    RenderSystem.recordRenderCall {
-        runCatching {
-            // Get clipboard content via GLFW
-            val clipboard = GLFW.glfwGetClipboardString(mc.window.handle)?: ""
-            if (!clipboard.isNotBlank()) {
-                return@recordRenderCall
-            }
+    runCatching {
+        // Get clipboard content via GLFW
+        val clipboard = GLFW.glfwGetClipboardString(mc.window.handle)?: ""
+        logger.debug ("Get clipboard content via GLFW: $clipboard")
 
-            importProxies(clipboard)
+        if (!clipboard.isNotBlank()) {
+            logger.debug("Clipboard is empty, skip.")
+            return httpBadRequest("Clipboard is empty")
         }
+        logger.debug("Clipboard content is not empty, import.")
+
+        importProxies(clipboard)
     }
 
     return httpOk(JsonObject())
