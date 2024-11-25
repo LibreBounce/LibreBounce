@@ -421,8 +421,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return
 
-        if (mode != "IntaveReduce") return
-        if (!hasReceivedVelocity) return
+        if (mode != "IntaveReduce" || !hasReceivedVelocity) return
 
         if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
             player.motionX *= reduceFactor
@@ -497,7 +496,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
             when (mode.lowercase()) {
                 "simple" -> handleVelocity(event)
 
-                "aac", "reverse", "smoothreverse", "aaczero", "ghostblock", "intaveReduce" -> hasReceivedVelocity = true
+                "aac", "reverse", "smoothreverse", "aaczero", "ghostblock", "intavereduce" -> hasReceivedVelocity = true
 
                 "jump" -> {
                     // TODO: Recode and make all velocity modes support velocity direction checks
