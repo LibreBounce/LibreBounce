@@ -27,7 +27,7 @@ import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.gson.interopGson
-import net.ccbluex.liquidbounce.config.gson.serializer.ResourcePolicy
+import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.ResourcePolicy
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
