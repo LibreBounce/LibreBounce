@@ -92,6 +92,7 @@
     <ID>LongMethod:CommandScript.kt$CommandScript$fun createCommand(): Command</ID>
     <ID>LongMethod:CommandXRay.kt$CommandXRay$fun createCommand(): Command</ID>
     <ID>LongMethod:InteropFunctionRegistry.kt$internal fun registerInteropFunctions(node: Node)</ID>
+    <ID>LongMethod:LiquidBounce.kt$LiquidBounce.ClientResourceReloader$override fun reload(manager: ResourceManager)</ID>
     <ID>LongMethod:ModuleManager.kt$ModuleManager$fun registerInbuilt()</ID>
     <ID>LongMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>LongMethod:Value.kt$Value$open fun setByString(string: String)</ID>

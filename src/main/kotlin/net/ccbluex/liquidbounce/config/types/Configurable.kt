@@ -255,6 +255,10 @@ open class Configurable(
         }
     }
 
+    @Deprecated(
+        "Use choices(listenable, name, activeIndex, choicesCallback) instead",
+        ReplaceWith("choices(listenable, name, activeIndex, choicesCallback)")
+    )
     fun <T : Choice> choices(
         listenable: Listenable,
         name: String,
@@ -266,6 +270,13 @@ open class Configurable(
             this.base = this@Configurable
         }
     }
+
+    protected fun <T : Choice> choices(
+        listenable: Listenable,
+        name: String,
+        activeIndex: Int,
+        choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
+    ) = choices(listenable, name, { it.choices[activeIndex] }, choicesCallback)
 
     fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }
 

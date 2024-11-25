@@ -404,3 +404,7 @@ export interface EntityHitResult extends HitResult {
     entityType: string;
     entityPos: Vec3;
 }
+
+export interface GeneratorResult {
+    name: string;
+}

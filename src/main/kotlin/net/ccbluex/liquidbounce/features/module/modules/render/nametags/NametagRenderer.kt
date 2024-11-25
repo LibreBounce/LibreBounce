@@ -54,7 +54,7 @@ class NametagRenderer {
         info: NametagInfo,
         pos: Vec3,
     ) = with(env) {
-        val c = Fonts.DEFAULT_FONT_SIZE.toFloat()
+        val c = FontManager.DEFAULT_FONT_SIZE
 
         val scale = 1.0F / (c * 0.15F) * ModuleNametags.scale
 
@@ -136,7 +136,7 @@ class NametagRenderer {
             lineBuffers.draw()
         }
         env.withColor(Color4b.WHITE) {
-            fontBuffers.draw(ModuleNametags.fontRenderer)
+            fontBuffers.draw()
         }
     }
 }

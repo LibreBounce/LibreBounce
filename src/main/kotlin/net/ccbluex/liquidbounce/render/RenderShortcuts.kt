@@ -70,7 +70,7 @@ sealed class RenderEnvironment(val matrixStack: MatrixStack) {
         try {
             block(fontBuffers) // don't forget to `commit`!
         } finally {
-            fontBuffers.draw(this)
+            fontBuffers.draw()
         }
     }
 

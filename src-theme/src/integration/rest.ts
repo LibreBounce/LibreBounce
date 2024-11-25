@@ -7,6 +7,7 @@ import type {
     Component,
     ConfigurableSetting,
     GameWindow,
+    GeneratorResult,
     HitResult,
     MinecraftKeybind,
     Module,
@@ -605,4 +606,13 @@ export async function browserClose() {
     await fetch(`${API_BASE}/client/browser/close`, {
         method: "POST",
     });
+}
+
+export async function randomUsername(): Promise<string> {
+    let response = await fetch(`${API_BASE}/client/account/random-name`, {
+        method: "POST",
+    });
+    let data: GeneratorResult = await response.json();
+
+    return data.name;
 }

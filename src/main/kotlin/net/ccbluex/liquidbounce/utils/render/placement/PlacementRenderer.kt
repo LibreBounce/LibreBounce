@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 
+// TODO box interpolation (when the box was changed)
 /**
  * Render boxes, manages fade-in/-out and culling.
  *
@@ -138,6 +139,22 @@ open class PlacementRenderer(
 
         val handler = placementRenderHandlers[handlerId] ?: return
         handler.updateAll()
+    }
+
+    /**
+     * Updates the box of [pos] to [box].
+     *
+     * This method won't affect positions that are in the state of fading out.
+     *
+     * @param handlerId On which handler the update should be performed.
+     */
+    fun updateBox(pos: BlockPos, box: Box, handlerId: Int = 0) {
+        if (!enabled) {
+            return
+        }
+
+        val handler = placementRenderHandlers[handlerId] ?: return
+        handler.updateBox(pos, box)
     }
 
     /**

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.misc
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
@@ -49,7 +50,7 @@ object HideAppearance : Listenable {
     var isHidingNow = false
         set(value) {
             field = value
-            updateClient()
+            RenderSystem.recordRenderCall(::updateClient)
         }
     var isDestructed = false
 

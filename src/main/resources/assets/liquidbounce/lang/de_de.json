@@ -594,7 +594,7 @@
   "liquidbounce.module.offhand.description": "Verwaltet deine Offhand.",
   "liquidbounce.module.twerk.description": "Sneakt und Unsneakt automatisch.",
   "liquidbounce.module.silentHotbar.description": "Deaktiviert die Anzeige beim Wechseln von Items bei z.B. AutoTool & AutoWeapon, sodass das Item in deiner Hand weiterhin angezeigt wird.",
-  "liquidbounce.module.freeLook.description": "Ermöglicht dir, die Kamera frei um deinen Charakter herum zu bewegen.",
+  "liquidbounce.module.freeLook.description": "Ermöglicht dir, die Kamera frei um deinen Charakter herumzubewegen.",
   "liquidbounce.module.vehicleControl.messages.quitHelp": "Um das Fahrzeug verlassen zu können, lande auf dem Boden und drücke deine Sneak Taste.",
   "liquidbounce.module.vehicleControl.messages.vehicleTooFar": "Das Fahrzeug ist zu weit entfernt, um erreicht zu werden.",
   "liquidbounce.module.vehicleControl.messages.vehicleGone": "Das Fahrzeug ist verschwunden.",
@@ -609,5 +609,7 @@
   "liquidbounce.module.middleClickAction.messages.addedFriend": "%s wurde erfolgreich zur Freundesliste hinzugefügt.",
   "liquidbounce.module.middleClickAction.description": "Er ermöglicht dir, Aktionen mit Mittelklicks durchzuführen.",
   "liquidbounce.module.middleClickAction.messages.removedFriend": "%s wurde erfolgreich aus der Freundesliste entfernt.",
-  "liquidbounce.module.elytraRecast.description": "Wirft Elytra neu aus, während die Sprungtaste gedrückt gehalten wird"
+  "liquidbounce.module.elytraRecast.description": "Wirft Elytra neu aus, während die Sprungtaste gedrückt gehalten wird",
+  "liquidbounce.module.packetMine.description": "Erlaubt es dir, Blöcke abzubauen, in dem du sie nur einmal anklickst.",
+  "liquidbounce.module.tpAura.description": "Teleportiert und greift automatisch Feinde in deiner Umgebung an."
 }

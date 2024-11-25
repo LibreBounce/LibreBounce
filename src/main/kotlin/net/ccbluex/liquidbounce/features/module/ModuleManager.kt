@@ -25,7 +25,10 @@ import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.client.*
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleAutoConfig
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleLiquidChat
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresence
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
@@ -41,6 +44,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.ModuleNameProtect
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
@@ -72,6 +76,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.autobuild.ModuleAu
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
 import net.ccbluex.liquidbounce.features.module.modules.world.fucker.ModuleFucker
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
@@ -329,7 +334,6 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAutoFarm,
             ModuleAutoTool,
             ModuleCrystalAura,
-            ModuleCivBreak,
             ModuleFastBreak,
             ModuleFastPlace,
             ModuleFucker,
@@ -343,6 +347,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleExtinguish,
             ModuleBedDefender,
             ModuleSurround,
+            ModulePacketMine,
 
             // Client
             ModuleAutoConfig,
