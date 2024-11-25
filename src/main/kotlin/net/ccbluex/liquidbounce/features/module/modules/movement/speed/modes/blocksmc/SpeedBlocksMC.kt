@@ -38,8 +38,8 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 
 /*
-    extensive blocksmc speed
-    @author liquidsquid1
+ * extensive blocksmc speed
+ *@author liquidsquid1
  */
 
 class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("BlocksMC") {
