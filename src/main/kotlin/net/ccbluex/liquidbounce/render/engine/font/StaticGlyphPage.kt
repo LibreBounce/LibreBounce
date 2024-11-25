@@ -104,8 +104,7 @@ class StaticGlyphPage(
                 .mapNotNull { createCharacterCreationInfo(it) }
                 .sortedBy { it.glyphMetrics.bounds2D.height }
 
-//            val maxTextureSize = maxTextureSize.value
-            val maxTextureSize = 1024
+            val maxTextureSize = maxTextureSize.value
 
             // The suggested width of the atlas, determined by a simple heuristic, capped by the maximal texture size
             val totalArea = glyphsToRender.sumOf { it.glyphMetrics.bounds2D.width * it.glyphMetrics.bounds2D.height }
