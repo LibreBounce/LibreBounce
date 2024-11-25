@@ -10,11 +10,13 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
+import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
 import net.ccbluex.liquidbounce.value.int
@@ -32,7 +34,9 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
 
     private val mode by choices(
         "Mode",
-        arrayOf("Vanilla", "Jump", "NCP", "MotionNCP", "OldNCP", "AAC", "LAAC", "AAC3.3.4", "Spartan", "Rewinside"),
+        arrayOf("Vanilla", "Jump", "NCP", "MotionNCP",
+            "OldNCP", "AAC", "LAAC", "AAC3.3.4",
+            "Spartan", "Rewinside", "BlocksMCTimer"),
         "NCP"
     )
 
@@ -70,6 +74,10 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         val mode = mode
         val thePlayer = mc.thePlayer ?: return
 
+        if (thePlayer.isOnLadder || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb) return
+
+        if (!thePlayer.isMoving) return
+
         // Motion steps
         when (mode) {
             "Jump" ->
@@ -78,8 +86,33 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
                     thePlayer.motionY = jumpHeight.toDouble()
                 }
 
+            "BlocksMCTimer" ->
+                if (thePlayer.onGround && thePlayer.isCollidedHorizontally) {
+                    if (!couldStep()) {
+                        mc.timer.timerSpeed = 1f
+                        return
+                    }
+
+                    fakeJump()
+                    thePlayer.tryJump()
+
+                    // TODO: Improve Timer Balancing
+                    mc.timer.timerSpeed = 6f
+                    WaitTickUtils.schedule(1) {
+                        mc.timer.timerSpeed = 0.18f
+                    }
+                    WaitTickUtils.schedule(2) {
+                        strafe(0.27F)
+                        mc.timer.timerSpeed = 5f
+                    }
+                    WaitTickUtils.schedule(3) {
+                        thePlayer.motionY = -thePlayer.motionY
+                        mc.timer.timerSpeed = 1f
+                    }
+                }
+
             "LAAC" ->
-                if (thePlayer.isCollidedHorizontally && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isInLava && !thePlayer.isInWeb) {
+                if (thePlayer.isCollidedHorizontally) {
                     if (thePlayer.onGround && timer.hasTimePassed(delay)) {
                         isStep = true
 
@@ -175,7 +208,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
 
         // Set step to default in some cases
         if (!thePlayer.onGround || !timer.hasTimePassed(delay) ||
-            mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4")
+            mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4", "BlocksMCTimer")
         ) {
             thePlayer.stepHeight = 0.6F
             event.stepHeight = 0.6F

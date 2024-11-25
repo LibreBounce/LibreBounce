@@ -29,7 +29,7 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                 player.tryJump()
             } else {
                 if (fullStrafe) {
-                    strafe(speed = speed - 0.006F)
+                    strafe(speed - 0.006F)
                 } else {
                     if (airTicks >= 6) {
                         strafe()
@@ -52,7 +52,7 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                 }
 
                 if (player.hurtTime == 9 && bmcDamageBoost) {
-                    strafe(speed = 1F)
+                    strafe(1F)
                 }
 
                 if (damageLowHop && player.hurtTime >= 1) {
