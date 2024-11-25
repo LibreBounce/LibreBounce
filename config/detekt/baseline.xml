@@ -68,6 +68,7 @@
     <ID>CognitiveComplexMethod:ModuleKillAura.kt$ModuleKillAura$private suspend fun Sequence&lt;*>.mightAttack(chosenEntity: Entity, rotation: Rotation)</ID>
     <ID>CognitiveComplexMethod:PlacementRenderHandler.kt$PlacementRenderHandler$fun render(event: WorldRenderEvent, time: Long)</ID>
     <ID>CognitiveComplexMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
+    <ID>CognitiveComplexMethod:ScaffoldGodBridgeTechnique.kt$ScaffoldGodBridgeTechnique$override fun ledge( ledge: Boolean, ledgeSoon: Boolean, target: BlockPlacementTarget?, rotation: Rotation ): LedgeState</ID>
     <ID>CognitiveComplexMethod:SimulatedArrow.kt$SimulatedArrow$private fun updateCollision(pos: Vec3d, newPos: Vec3d): HitResult?</ID>
     <ID>CognitiveComplexMethod:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
     <ID>ComplexCondition:PlacementRenderHandler.kt$PlacementRenderHandler$(!direction1Present &amp;&amp; !direction2Present) || (direction1Present &amp;&amp; direction2Present &amp;&amp; !diagonalPresent)</ID>
@@ -118,6 +119,7 @@
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>
     <ID>NestedBlockDepth:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
     <ID>NestedBlockDepth:EntityExtensions.kt$fun LivingEntity.getActualHealth(fromScoreboard: Boolean = true): Float</ID>
+    <ID>NestedBlockDepth:ScaffoldGodBridgeTechnique.kt$ScaffoldGodBridgeTechnique$override fun ledge( ledge: Boolean, ledgeSoon: Boolean, target: BlockPlacementTarget?, rotation: Rotation ): LedgeState</ID>
     <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
     <ID>ReturnCount:AutoFarmBlockHandler.kt$AutoFarmBlockTracker$override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates?</ID>
     <ID>ReturnCount:IntegrationHandler.kt$IntegrationHandler$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
