@@ -180,8 +180,8 @@ open class PlacementRenderer(
     /**
      * Only run when the module and this is enabled or out-animations are running.
      */
-    override fun handleEvents(): Boolean {
-        return module.handleEvents() && enabled || !outAnimationsFinished
+    override fun isRunning(): Boolean {
+        return module.isRunning() && enabled || !outAnimationsFinished
     }
 
     /**

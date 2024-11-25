@@ -45,7 +45,7 @@ object SequenceManager : Listenable {
     val tickSequences = handler<GameTickEvent>(priority = 1000) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
-            if (!sequence.owner.handleEvents()) {
+            if (!sequence.owner.isRunning()) {
                 sequence.cancel()
                 continue
             }
@@ -82,7 +82,7 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
     }
 
     internal open suspend fun coroutineRun() {
-        if (owner.handleEvents()) {
+        if (owner.isRunning()) {
             runCatching {
                 handler(event)
             }.onFailure {
@@ -185,7 +185,7 @@ class RepeatingSequence(owner: Listenable, handler: SuspendableHandler<DummyEven
     override suspend fun coroutineRun() {
         sync()
 
-        while (continueLoop && owner.handleEvents()) {
+        while (continueLoop && owner.isRunning()) {
             super.coroutineRun()
             sync()
         }

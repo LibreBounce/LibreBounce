@@ -110,7 +110,7 @@ abstract class CrystalPostAttackTracker : Listenable {
      * @param id The id of the attacked entity.
      */
     open fun attacked(id: Int) {
-        if (!handleEvents()) {
+        if (!isRunning()) {
             return
         }
 

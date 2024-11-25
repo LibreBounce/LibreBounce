@@ -49,7 +49,7 @@ object ModuleAutoAccount : Module("AutoAccount", Category.MISC, aliases = arrayO
 
     // We can receive chat messages before the world is initialized,
     // so we have to handel events even before the that
-    override fun handleEvents() = enabled
+    override fun isRunning() = enabled
 
     fun login() {
         chat("login")

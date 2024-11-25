@@ -13,7 +13,7 @@ internal object NoSlowBlockingBlink : Choice("Blink") {
         get() = modes
 
     fun shouldLag(packet: Packet<*>?): FakeLag.LagResult? {
-        if (!isActive || !handleEvents() || !player.isBlocking) {
+        if (!isActive || !isRunning() || !player.isBlocking) {
             return null
         }
 

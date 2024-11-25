@@ -206,7 +206,7 @@ public abstract class MixinWorldRenderer {
             return true;
         }
 
-        if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.handleEvents() &&
+        if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.isRunning() &&
                 ModuleStorageESP.Glow.INSTANCE.isActive() && ModuleStorageESP.categorize(entity) != null) {
             return true;
         }
@@ -229,7 +229,7 @@ public abstract class MixinWorldRenderer {
             return ModuleTNTTimer.INSTANCE.getTntColor(((TntEntity) instance).getFuse()).toARGB();
         }
 
-        if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.handleEvents()
+        if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.isRunning()
                 && ModuleStorageESP.Glow.INSTANCE.isActive()) {
             var categorizedEntity = ModuleStorageESP.categorize(instance);
             if (categorizedEntity != null) {

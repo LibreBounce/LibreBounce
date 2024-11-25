@@ -199,7 +199,7 @@ object EventManager {
         for (eventHook in target) {
             EventScheduler.process(event)
 
-            if (!eventHook.ignoresCondition && !eventHook.handlerClass.handleEvents()) {
+            if (!eventHook.ignoreRunning && !eventHook.handlerClass.isRunning()) {
                 continue
             }
 
