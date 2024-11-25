@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAction;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
@@ -327,12 +328,12 @@ public abstract class MixinMinecraftClient {
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean injectMultiActionsBreakingWhileUsing(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.handleEvents() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
+        return original && !(ModuleMultiActions.INSTANCE.isRunning() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
     }
 
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
     private boolean injectMultiActionsPlacingWhileBreaking(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.handleEvents() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
+        return original && !(ModuleMultiActions.INSTANCE.isRunning() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
     }
 
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
@@ -343,7 +344,7 @@ public abstract class MixinMinecraftClient {
                 this.interactionManager.stopUsingItem(this.player);
             }
 
-            if (!ModuleMultiActions.INSTANCE.handleEvents() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
+            if (!ModuleMultiActions.INSTANCE.isRunning() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
                 this.options.attackKey.timesPressed = 0;
             }
 
@@ -358,7 +359,8 @@ public abstract class MixinMinecraftClient {
     private boolean injectFixAttackCooldownOnVirtualBrowserScreen(MinecraftClient instance, int value) {
         // Do not reset attack cooldown when we are in the vr/browser screen, as this poses an
         // unintended modification to the attack cooldown, which is not intended.
-        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen);
+        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen ||
+                this.currentScreen instanceof ModuleClickGui.ClickScreen);
     }
 
 }

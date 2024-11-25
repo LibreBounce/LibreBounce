@@ -49,7 +49,7 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
         get() = ModuleFly.modes
 
     val requiresLag
-        get() = this.handleEvents()
+        get() = this.isRunning()
 
     val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet

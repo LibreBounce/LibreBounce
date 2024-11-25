@@ -62,7 +62,7 @@ abstract class ToggleableConfigurable(
      * Because we pass the parent to the Listenable, we can simply
      * call the super.handleEvents() and it will return false if the upper-listenable is disabled.
      */
-    override fun handleEvents() = super.handleEvents() && enabled
+    override fun isRunning() = super.isRunning() && enabled
 
     override fun parent() = parent
 

@@ -67,9 +67,13 @@ class ClientShutdownEvent : Event()
 @WebSocketEvent
 class ValueChangedEvent(val value: Value<*>) : Event()
 
-@Nameable("toggleModule")
+@Nameable("moduleActivation")
 @WebSocketEvent
-class ToggleModuleEvent(val moduleName: String, val hidden: Boolean, val enabled: Boolean) : Event()
+class ModuleActivationEvent(val moduleName: String) : Event()
+
+@Nameable("moduleToggle")
+@WebSocketEvent
+class ModuleToggleEvent(val moduleName: String, val hidden: Boolean, val enabled: Boolean) : Event()
 
 @Nameable("refreshArrayList")
 @WebSocketEvent

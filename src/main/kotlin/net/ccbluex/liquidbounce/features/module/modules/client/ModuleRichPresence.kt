@@ -194,7 +194,7 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
         .replace("%protocol%", protocolVersion.let { "${it.name} (${it.version})" })
         .replace("%server%", hideSensitiveAddress(mc.currentServerEntry?.address ?: "none"))
 
-    override fun handleEvents() = true
+    override fun isRunning() = true
 
     private inline fun IPCClient.sendRichPresence(builderAction: RichPresence.Builder.() -> Unit) =
         sendRichPresence(RichPresence.Builder().apply(builderAction).build())

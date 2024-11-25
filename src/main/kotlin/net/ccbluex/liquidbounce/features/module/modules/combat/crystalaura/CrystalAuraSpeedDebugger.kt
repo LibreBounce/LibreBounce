@@ -53,6 +53,6 @@ object CrystalAuraSpeedDebugger : CrystalPostAttackTracker() {
         attackedIds.clear()
     }
 
-    override fun handleEvents() = ModuleCrystalAura.handleEvents() && ModuleDebug.enabled
+    override fun isRunning() = ModuleCrystalAura.isRunning() && ModuleDebug.enabled
 
 }

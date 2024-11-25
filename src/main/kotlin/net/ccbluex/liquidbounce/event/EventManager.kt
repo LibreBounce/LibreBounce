@@ -87,7 +87,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ClientStartEvent::class,
     ClientShutdownEvent::class,
     ValueChangedEvent::class,
-    ToggleModuleEvent::class,
+    ModuleActivationEvent::class,
+    ModuleToggleEvent::class,
     NotificationEvent::class,
     ClientChatStateChange::class,
     ClientChatMessageEvent::class,
@@ -198,7 +199,7 @@ object EventManager {
         for (eventHook in target) {
             EventScheduler.process(event)
 
-            if (!eventHook.ignoresCondition && !eventHook.handlerClass.handleEvents()) {
+            if (!eventHook.ignoreRunning && !eventHook.handlerClass.isRunning()) {
                 continue
             }
 

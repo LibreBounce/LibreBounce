@@ -52,8 +52,8 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents()) {
+    override fun isRunning(): Boolean {
+        if (!super.isRunning()) {
             return false
         }
 

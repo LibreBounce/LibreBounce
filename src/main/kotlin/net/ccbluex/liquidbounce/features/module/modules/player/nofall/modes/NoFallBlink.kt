@@ -142,6 +142,6 @@ internal object NoFallBlink : Choice("Blink") {
         super.disable()
     }
 
-    fun shouldLag() = handleEvents() && blinkFall
+    fun shouldLag() = isRunning() && blinkFall
 
 }

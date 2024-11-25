@@ -20,14 +20,15 @@
  */
 package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
 
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f
 import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.math.ChunkPos
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 /**
  * Size of the texture atlas in chunks (size x size)
@@ -47,7 +48,7 @@ class MinimapTextureAtlasManager {
     private val dirtyAtlasPositions = hashSetOf<AtlasPosition>()
     private val chunkPosAtlasPosMap = hashMapOf<ChunkPos, AtlasPosition>()
 
-    private val lock = ReentrantLock()
+    private val lock = ReentrantReadWriteLock()
 
     private var allocated = false
 
@@ -82,10 +83,8 @@ class MinimapTextureAtlasManager {
     }
 
     fun deallocate(chunkPos: ChunkPos) {
-        lock.withLock {
-            val atlasPosition = chunkPosAtlasPosMap.remove(chunkPos) ?: return
-
-            availableAtlasPositions.add(atlasPosition)
+        lock.write {
+            chunkPosAtlasPosMap.remove(chunkPos)?.apply(availableAtlasPositions::add)
         }
     }
 
@@ -96,22 +95,22 @@ class MinimapTextureAtlasManager {
     }
 
     fun getOrNotLoadedTexture(chunkPos: ChunkPos): AtlasPosition {
-        return chunkPosAtlasPosMap[chunkPos] ?: NOT_LOADED_ATLAS_POSITION
+        return get(chunkPos) ?: NOT_LOADED_ATLAS_POSITION
     }
 
     fun get(chunkPos: ChunkPos): AtlasPosition? {
-        return chunkPosAtlasPosMap[chunkPos]
+        return lock.read { chunkPosAtlasPosMap[chunkPos] }
     }
 
     private fun getOrAllocate(chunkPos: ChunkPos): AtlasPosition {
-        return get(chunkPos) ?: allocate(chunkPos)
+        return chunkPosAtlasPosMap[chunkPos] ?: allocate(chunkPos)
     }
 
     fun editChunk(
         chunkPos: ChunkPos,
         editor: (NativeImageBackedTexture, AtlasPosition) -> Unit,
     ) {
-        val atlasPosition = lock.withLock {
+        val atlasPosition = lock.write {
             getOrAllocate(chunkPos).apply(dirtyAtlasPositions::add)
         }
 
@@ -124,7 +123,7 @@ class MinimapTextureAtlasManager {
      * @return the GLid of the texture
      */
     fun prepareRendering(): Int {
-        lock.withLock {
+        lock.write {
             if (this.dirtyAtlasPositions.isEmpty()) {
                 return this.texture.glId
             }

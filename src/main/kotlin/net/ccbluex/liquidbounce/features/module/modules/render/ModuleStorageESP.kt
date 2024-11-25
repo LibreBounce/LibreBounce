@@ -261,12 +261,12 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         }
     }
 
-    override fun handleEvents(): Boolean {
+    override fun isRunning(): Boolean {
         if (requiresChestStealer && !ModuleChestStealer.enabled) {
             return false
         }
 
-        return super.handleEvents()
+        return super.isRunning()
     }
 
 }

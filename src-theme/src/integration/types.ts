@@ -408,3 +408,8 @@ export interface EntityHitResult extends HitResult {
 export interface GeneratorResult {
     name: string;
 }
+
+export interface Screen {
+    class: string,
+    title: string,
+}

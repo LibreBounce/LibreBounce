@@ -26,16 +26,22 @@ typealias Handler<T> = (T) -> Unit
 class EventHook<T : Event>(
     val handlerClass: Listenable,
     val handler: Handler<T>,
-    val ignoresCondition: Boolean,
+    val ignoreRunning: Boolean,
     val priority: Int = 0
 )
 
 interface Listenable {
 
     /**
-     * Allows disabling event handling when condition is false.
+     * Returns whether the listenable is running or not, this is based on the parent listenable
+     * and if no parent is present, it will return the opposite of [isDestructed].
+     *
+     * When destructed, the listenable will not handle any events. This is likely to be overridden by
+     * the implementing class to provide a toggleable feature.
+     *
+     * This can be ignored by handlers when [ignoreRunning] is set to true on the [EventHook].
      */
-    fun handleEvents(): Boolean = parent()?.handleEvents() ?: !isDestructed
+    fun isRunning(): Boolean = parent()?.isRunning() ?: !isDestructed
 
     /**
      * Parent listenable
@@ -92,7 +98,7 @@ fun Listenable.repeatable(eventHandler: SuspendableHandler<DummyEvent>) {
     // Ignore condition makes sense because we do not want our sequence to run after we do not handle events anymore
     handler<GameTickEvent>(ignoreCondition = true) {
         // Check if we should start or stop the sequence
-        if (this.handleEvents()) {
+        if (this.isRunning()) {
             // Check if the sequence is already running
             if (sequence == null) {
                 // If not, start it
