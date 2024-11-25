@@ -44,12 +44,14 @@ import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.round
 import kotlin.math.sin
+import kotlin.random.Random
 
 object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedgeExtension {
 
     private enum class Mode(override val choiceName: String) : NamedChoice {
         JUMP("Jump"),
-        SNEAK("Sneak")
+        SNEAK("Sneak"),
+        RANDOM("Random")
     }
 
     private var mode by enumChoice("Mode", Mode.JUMP)
@@ -84,6 +86,11 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
                     }
                     mode == Mode.JUMP -> LedgeState(requiresJump = true, requiresSneak = 0)
                     mode == Mode.SNEAK -> LedgeState(requiresJump = false, requiresSneak = sneakTime)
+                    mode == Mode.RANDOM -> if (Random.nextBoolean()) {
+                        LedgeState(requiresJump = true, requiresSneak = 0)
+                    } else {
+                        LedgeState(requiresJump = false, requiresSneak = sneakTime)
+                    }
                     else -> LedgeState.NO_LEDGE
                 }
             }
