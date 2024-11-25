@@ -3,7 +3,7 @@
     import type {Module as TModule} from "../../integration/types";
     import {listen} from "../../integration/ws";
     import Module from "./Module.svelte";
-    import type {ToggleModuleEvent} from "../../integration/events";
+    import type {ModuleToggleEvent} from "../../integration/events";
     import {fly} from "svelte/transition";
     import {quintOut} from "svelte/easing";
     import {gridSize, highlightModuleName, maxPanelZIndex, showGrid, snappingEnabled} from "./clickgui_store";
@@ -154,7 +154,7 @@
         }
     });
 
-    listen("toggleModule", (e: ToggleModuleEvent) => {
+    listen("moduleToggle", (e: ModuleToggleEvent) => {
         const moduleName = e.moduleName;
         const moduleEnabled = e.enabled;
 

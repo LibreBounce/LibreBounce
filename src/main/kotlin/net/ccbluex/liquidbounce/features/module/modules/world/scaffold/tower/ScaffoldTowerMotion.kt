@@ -27,8 +27,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.isBlockBelow
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.towerMode
 import net.minecraft.stat.Stats
-import java.util.*
-import kotlin.jvm.optionals.getOrNull
 import kotlin.math.truncate
 
 object ScaffoldTowerMotion : Choice("Motion") {
@@ -42,22 +40,26 @@ object ScaffoldTowerMotion : Choice("Motion") {
     /**
      * The position where the player jumped off
      */
-    private var jumpOffPosition = Optional.empty<Double>()
+    private var jumpOffPosition = Double.NaN
 
     override val parent: ChoiceConfigurable<Choice>
         get() = towerMode
 
     val jumpEvent = handler<PlayerJumpEvent> {
-        jumpOffPosition = Optional.of(player.y)
+        jumpOffPosition = player.y
     }
 
     val repeatable = repeatable {
         if (!mc.options.jumpKey.isPressed || ModuleScaffold.blockCount <= 0 || !isBlockBelow) {
-            jumpOffPosition = Optional.empty()
+            jumpOffPosition = Double.NaN
             return@repeatable
         }
 
-        if (player.y > (jumpOffPosition.getOrNull() ?: return@repeatable) + triggerHeight) {
+        if (jumpOffPosition.isNaN()) {
+            return@repeatable
+        }
+
+        if (player.y > jumpOffPosition + triggerHeight) {
             player.setPosition(player.x, truncate(player.y), player.z)
 
             player.velocity.y = motion.toDouble()
@@ -68,7 +70,7 @@ object ScaffoldTowerMotion : Choice("Motion") {
             )
             player.incrementStat(Stats.JUMP)
 
-            jumpOffPosition = Optional.of(player.y)
+            jumpOffPosition = player.y
         }
     }
 

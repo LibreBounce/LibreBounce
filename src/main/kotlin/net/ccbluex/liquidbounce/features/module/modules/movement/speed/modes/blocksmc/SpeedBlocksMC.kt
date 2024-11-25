@@ -23,14 +23,20 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.bl
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.movement.copy
+import net.ccbluex.liquidbounce.utils.movement.zeroXZ
 import net.minecraft.entity.effect.StatusEffects
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 
 /**
  * extensive blocksmc speed
@@ -48,8 +54,11 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     private var airTicks = 0
     private var canSpeed = false
 
+    private var lastVelocity = 0
+
     override fun enable() {
         canSpeed = false
+        lastVelocity = 9999
     }
 
     override fun disable() {
@@ -58,6 +67,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     }
 
     val repeatable = repeatable {
+
         if (player.isOnGround) {
             airTicks = 0
             canSpeed = true
@@ -69,7 +79,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             }
             if (fullStrafe) {
                 if (player.moving) {
-                    player.strafe(speed = player.sqrtSpeed - 0.006)
+                    player.strafe(speed = player.sqrtSpeed - 0.004)
                 }
             } else {
                 if (airTicks >= 6 && player.moving) {
@@ -95,8 +105,21 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
                 }
             }
 
-            if (player.hurtTime == 9 && damageBoost && player.moving) {
-                player.strafe(speed = 1.0)
+            if (damageBoost && player.moving) {
+                when (lastVelocity) {
+                    1, 2 -> {
+                        player.strafe(speed = 1.1)
+                    }
+                    3, 4, 5, 6, 7, 8, 9 -> {
+                        player.strafe(speed = 1.0)
+                    }
+                    10, 11, 12, 13, 14 -> {
+                        player.strafe(speed = 0.75)
+                    }
+                    15, 16, 17, 18, 19, 20 -> {
+                        player.strafe(speed = 0.5)
+                    }
+                }
             }
 
             if (damageLowHop && player.hurtTime >= 1) {
@@ -106,6 +129,9 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             }
 
         }
+
+        lastVelocity++
+
     }
 
     val jumpEvent = handler<PlayerJumpEvent> {
@@ -126,4 +152,31 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             it.input.copy(jump = true)
         }
     }
+
+    @Suppress("unused")
+    val packetHandler = sequenceHandler<PacketEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+        val packet = event.packet
+
+        if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
+            val velocityX = packet.velocityX / 8000.0
+            val velocityY = packet.velocityY / 8000.0
+            val velocityZ = packet.velocityZ / 8000.0
+
+            waitTicks(1)
+
+            // Fall damage velocity
+            val fallDamage = velocityX == 0.0 && velocityZ == 0.0 && velocityY == -0.078375
+            if (!fallDamage) {
+                lastVelocity = 0
+            }
+
+            return@sequenceHandler
+        }
+
+        if (packet is PlayerPositionLookS2CPacket) {
+            lastVelocity = 9999
+            player.zeroXZ()
+        }
+    }
+
 }

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 
+import it.unimi.dsi.fastutil.objects.ObjectLongMutablePair
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing.enabled
@@ -30,16 +31,17 @@ import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-import org.apache.commons.lang3.tuple.MutablePair
 
 internal object NotifyWhenFail {
 
-    internal var failedHits = arrayListOf<MutablePair<Vec3d, Long>>()
+    internal val failedHits = ArrayDeque<ObjectLongMutablePair<Vec3d>>()
     var hasFailedHit = false
     var failedHitsIncrement = 0
 
@@ -74,7 +76,7 @@ internal object NotifyWhenFail {
                 val centerDistance = entity.box.center.subtract(player.eyes).length()
                 val boxSpot = player.eyes.add(rotation.rotationVec.multiply(centerDistance))
 
-                failedHits.add(MutablePair(boxSpot, 0L))
+                failedHits.add(ObjectLongMutablePair(boxSpot, 0L))
             }
 
             Sound -> {
@@ -94,8 +96,17 @@ internal object NotifyWhenFail {
             return
         }
 
-        failedHits.forEach { it.setRight(it.getRight() + 1) }
-        failedHits = failedHits.filter { it.right <= boxFadeSeconds } as ArrayList<MutablePair<Vec3d, Long>>
+        with(failedHits.iterator()) {
+            while (hasNext()) {
+                val pair = next()
+                val newValue = pair.valueLong() + 1L
+                if (newValue >= boxFadeSeconds) {
+                    remove()
+                    continue
+                }
+                pair.value(newValue)
+            }
+        }
 
         val markedBlocks = failedHits
 

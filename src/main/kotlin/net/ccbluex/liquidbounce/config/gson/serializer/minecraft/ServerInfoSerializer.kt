@@ -18,7 +18,7 @@
  *
  */
 
-package net.ccbluex.liquidbounce.config.gson.serializer
+package net.ccbluex.liquidbounce.config.gson.serializer.minecraft
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext

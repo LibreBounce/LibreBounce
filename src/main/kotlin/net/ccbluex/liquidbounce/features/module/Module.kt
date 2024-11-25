@@ -97,6 +97,9 @@ open class Module(
                 disable()
             }
         }.onSuccess {
+            // Notify everyone about module activation
+            EventManager.callEvent(ModuleActivationEvent(name))
+
             // Save new module state when module activation is enabled
             if (disableActivation) {
                 return@onChange false
@@ -111,8 +114,8 @@ open class Module(
                 )
             }
 
-            // Call out module event
-            EventManager.callEvent(ToggleModuleEvent(name, hidden, new))
+            // Notify everyone about module state
+            EventManager.callEvent(ModuleToggleEvent(name, hidden, new))
 
             // Call to state-aware sub-configurables
             inner.filterIsInstance<ChoiceConfigurable<*>>().forEach { it.newState(new) }

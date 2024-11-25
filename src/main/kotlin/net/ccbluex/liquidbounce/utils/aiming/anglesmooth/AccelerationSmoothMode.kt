@@ -1,9 +1,12 @@
 package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
 
+import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
@@ -80,7 +83,7 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         prevPitchDiff: Float,
         yawDiff: Float,
         pitchDiff: Float,
-    ): Pair<Float, Float> {
+    ): FloatFloatPair {
         val yawAccel = RotationManager.angleDifference(yawDiff, prevYawDiff)
             .coerceIn(-yawAcceleration.random().toFloat(), yawAcceleration.random().toFloat())
         val pitchAccel = RotationManager.angleDifference(pitchDiff, prevPitchDiff)
@@ -89,7 +92,7 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         val yawError = yawAccel * yawErrorMulti() + yawConstantError()
         val pitchError = pitchAccel * pitchErrorMulti() + pitchConstantError()
 
-        return (prevYawDiff + yawAccel + yawError) to (prevPitchDiff + pitchAccel + pitchError)
+        return FloatFloatPair.of(prevYawDiff + yawAccel + yawError, prevPitchDiff + pitchAccel + pitchError)
     }
 
     private fun yawErrorMulti() = (-yawAccelerationError..yawAccelerationError).random().toFloat()

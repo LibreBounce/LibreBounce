@@ -30,9 +30,11 @@ import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.entity.canStep
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.movement.copy
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -103,13 +105,15 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
 
         private var ticksWait = 0
 
-        val repeatable = repeatable {
+        @Suppress("unused")
+        private val tickHandler = repeatable {
             if (ticksWait > 0) {
                 ticksWait--
             }
         }
 
-        val stepHandler = handler<PlayerStepEvent> {
+        @Suppress("unused")
+        private val stepHandler = handler<PlayerStepEvent> {
             if (ticksWait > 0) {
                 return@handler
             }
@@ -117,7 +121,8 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
             it.height = height
         }
 
-        val stepSuccessEvent = handler<PlayerStepSuccessEvent> { event ->
+        @Suppress("unused")
+        private val stepSuccessEvent = handler<PlayerStepSuccessEvent> { event ->
             val stepHeight = event.adjustedVec.y
 
             ModuleDebug.debugParameter(ModuleStep, "StepHeight", stepHeight)
@@ -170,8 +175,9 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
         private var stepCounter = 0
         private var stepping = false
 
-        val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
-            if (player.isOnGround && player.horizontalCollision && !stepping) {
+        @Suppress("unused")
+        private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
+            if (player.canStep(1.0) && !stepping) {
                 event.input = event.input.copy(jump = true)
                 stepCounter++
 
@@ -216,9 +222,10 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
 
         var stepping = false
 
-        val movementInputHandler = sequenceHandler<MovementInputEvent> {
-            if (player.isOnGround && player.horizontalCollision && !stepping) {
-                it.input = it.input.copy(jump = true)
+        @Suppress("unused")
+        private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
+            if (player.canStep(1.0) && !stepping) {
+                event.input = event.input.copy(jump = true)
 
                 stepping = true
                 Timer.requestTimerSpeed(baseTimer, Priority.IMPORTANT_FOR_USAGE_1, ModuleStep, 3)
@@ -240,6 +247,7 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
             super.disable()
         }
 
+        override fun handleEvents() = super.handleEvents() && !ModuleSpeed.enabled
 
     }
 

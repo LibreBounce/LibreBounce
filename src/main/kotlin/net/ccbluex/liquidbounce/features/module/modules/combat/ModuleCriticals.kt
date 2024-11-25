@@ -41,6 +41,8 @@ import net.ccbluex.liquidbounce.utils.combat.findEnemies
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.movement.copy
 import net.minecraft.block.CobwebBlock
 import net.minecraft.entity.Entity

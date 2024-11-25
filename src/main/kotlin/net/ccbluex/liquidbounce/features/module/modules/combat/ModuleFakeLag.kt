@@ -62,6 +62,8 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
 
     private var nextDelay = delay.random()
 
+    private var isEnemyNearby = false
+
     fun shouldLag(packet: Packet<*>?): Boolean {
         if (!enabled || !inGame || player.isDead || player.isTouchingWater || mc.currentScreen != null) {
             return false
@@ -120,7 +122,9 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
             Mode.CONSTANT -> true
             Mode.DYNAMIC -> {
                 // If there is an enemy in range, we want to lag.
-                world.findEnemy(range) ?: return false
+                if (!isEnemyNearby) {
+                    return false
+                }
 
                 val (playerPosition, _, _) = FakeLag.firstPosition() ?: return true
                 val playerBox = player.dimensions.getBoxAt(playerPosition)
@@ -153,7 +157,10 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
         }
     }
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val gameTickHandler = repeatable {
+        isEnemyNearby = world.findEnemy(range) != null
+
         if (evadeArrows) {
             val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@repeatable
 
@@ -177,6 +184,11 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
                 FakeLag.flush(evadingPacket.idx + 1)
             }
         }
+    }
+
+    override fun disable() {
+        isEnemyNearby = false
+        super.disable()
     }
 
 }

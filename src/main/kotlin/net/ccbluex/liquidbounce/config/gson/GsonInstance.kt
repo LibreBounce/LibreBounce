@@ -25,7 +25,11 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.adapter.*
-import net.ccbluex.liquidbounce.config.gson.serializer.*
+import net.ccbluex.liquidbounce.config.gson.serializer.ChoiceConfigurableSerializer
+import net.ccbluex.liquidbounce.config.gson.serializer.ConfigurableSerializer
+import net.ccbluex.liquidbounce.config.gson.serializer.EnumChoiceSerializer
+import net.ccbluex.liquidbounce.config.gson.serializer.ReadOnlyComponentSerializer
+import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.*
 import net.ccbluex.liquidbounce.config.gson.stategies.ExcludeStrategy
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
@@ -35,6 +39,7 @@ import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.minecraft.block.Block
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.network.ServerInfo
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
@@ -145,6 +150,7 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
         .registerTypeHierarchyAdapter(NamedChoice::class.javaObjectType, EnumChoiceSerializer)
         .registerTypeHierarchyAdapter(MinecraftAccount::class.javaObjectType, MinecraftAccountAdapter)
         .registerTypeHierarchyAdapter(Text::class.javaObjectType, TextSerializer)
+        .registerTypeHierarchyAdapter(Screen::class.javaObjectType, ScreenSerializer)
         .registerTypeAdapter(Session::class.javaObjectType, SessionSerializer)
         .registerTypeAdapter(ServerInfo::class.javaObjectType, ServerInfoSerializer)
         .registerTypeAdapter(GameMode::class.javaObjectType, GameModeSerializer)
