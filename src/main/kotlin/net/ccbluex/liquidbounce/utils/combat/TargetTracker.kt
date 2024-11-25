@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
@@ -39,7 +39,7 @@ import net.minecraft.entity.player.PlayerEntity
  */
 open class TargetTracker(
     defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
-    rangeOption: Boolean = false
+    maxRange: Float? = null
 ) : Configurable("Target") {
 
     var range = Double.MAX_VALUE
@@ -52,8 +52,8 @@ open class TargetTracker(
     private val priority by enumChoice("Priority", defaultPriority)
 
     init {
-        if (rangeOption) {
-            float("Range", 4.5f, 1f..12f).onChanged { range = it.toDouble() }
+        if (maxRange != null) {
+            float("Range", 4.5f, 1f..maxRange).onChanged { range = it.toDouble() }
             range = 4.5
         }
     }

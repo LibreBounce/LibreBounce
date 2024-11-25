@@ -18,15 +18,15 @@
  */
 package net.ccbluex.liquidbounce.integration.browser
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
-import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.integration.interop.persistant.PersistentLocalStorage
+import net.ccbluex.liquidbounce.utils.client.ErrorHandler
+import net.ccbluex.liquidbounce.utils.client.logger
 
 object BrowserManager : Configurable("browser") {
 

@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
@@ -69,8 +69,10 @@ class PointTracker(
         var currentOffset: Vec3d = Vec3d.ZERO
         private var targetOffset: Vec3d = Vec3d.ZERO
 
-        val factor by floatRange("Offset", 0f..0f, 0.0f..1.0f)
-        val dynamicFactor by float("DynamicFactor", 0f, 0f..10f, "x")
+        val yawFactor by floatRange("YawOffset", 0f..0f, 0.0f..1.0f)
+        val pitchFactor by floatRange("PitchOffset", 0f..0f, 0.0f..1.0f)
+        val dynamicYawFactor by float("DynamicYawFactor", 0f, 0f..10f, "x")
+        val dynamicPitchFactor by float("DynamicPitchFactor", 0f, 0f..10f, "x")
         val chance by int("Chance", 100, 0..100, "%")
         val speed by floatRange("Speed", 0.1f..0.2f, 0.01f..1f)
         val tolerance by float("Tolerance", 0.1f, 0.01f..0.1f)
@@ -79,6 +81,10 @@ class PointTracker(
 
         private fun interpolate(start: Double, end: Double, f: Double) = start + (end - start) * f
 
+        fun factorCheck(): Boolean {
+            return yawFactor.random() > 0.0f && pitchFactor.random() > 0.0f && chance > 0
+        }
+
         private fun gaussianHasReachedTarget(vec1: Vec3d, vec2: Vec3d, tolerance: Float): Boolean {
             return abs(vec1.x - vec2.x) < tolerance &&
                 abs(vec1.y - vec2.y) < tolerance &&
@@ -86,19 +92,26 @@ class PointTracker(
         }
 
         fun updateGaussianOffset() {
-            val factor =
-                if (dynamicFactor > 0f) {
-                    (factor.random() + player.sqrtSpeed * dynamicFactor)
+            val yawFactor =
+                if (dynamicYawFactor > 0f) {
+                    (yawFactor.random() + player.sqrtSpeed * dynamicYawFactor)
                 } else {
-                    factor.random()
+                    yawFactor.random()
+                }
+
+            val pitchFactor =
+                if (dynamicPitchFactor > 0f) {
+                    (pitchFactor.random() + player.sqrtSpeed * dynamicPitchFactor)
+                } else {
+                    pitchFactor.random()
                 }
 
             if (gaussianHasReachedTarget(currentOffset, targetOffset, tolerance)) {
                 if (random.nextInt(100) <= chance) {
                     targetOffset = Vec3d(
-                        random.nextGaussian(MEAN_X, STDDEV_X) * factor,
-                        random.nextGaussian(MEAN_Y, STDDEV_Y) * factor.coerceAtMost(1.0),
-                        random.nextGaussian(MEAN_Z, STDDEV_Z) * factor
+                        random.nextGaussian(MEAN_X, STDDEV_X) * yawFactor,
+                        random.nextGaussian(MEAN_Y, STDDEV_Y) * pitchFactor,
+                        random.nextGaussian(MEAN_Z, STDDEV_Z) * yawFactor
                     )
                 }
             } else {
@@ -254,7 +267,7 @@ class PointTracker(
             initialCutoffBox
         }
 
-        val offset = if (gaussian.enabled && gaussian.factor.random() > 0.0) {
+        val offset = if (gaussian.enabled && gaussian.factorCheck()) {
             gaussian.updateGaussianOffset()
             gaussian.currentOffset
         } else {

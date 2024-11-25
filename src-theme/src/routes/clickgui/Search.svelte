@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {Module} from "../../integration/types";
+    import type {ConfigurableSetting, Module} from "../../integration/types";
     import {getModuleSettings, setModuleEnabled} from "../../integration/rest";
     import {listen} from "../../integration/ws";
-    import type {KeyboardKeyEvent, ModuleToggleEvent} from "../../integration/events";
+    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ToggleModuleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
     import {onMount} from "svelte";
     import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
@@ -37,26 +37,31 @@
     }
 
     async function handleKeyDown(e: KeyboardKeyEvent) {
+        if (e.screen === undefined || !e.screen.class.startsWith("net.ccbluex.liquidbounce") ||
+            !(e.screen.title === "ClickGUI" || e.screen.title === "VS-CLICKGUI")) {
+            return;
+        }
+
         if (filteredModules.length === 0 || e.action === 0) {
             return;
         }
 
-        switch (e.keyCode) {
-            case 264:
+        switch (e.key) {
+            case "key.keyboard.down":
                 selectedIndex = (selectedIndex + 1) % filteredModules.length;
                 break;
-            case 265:
+            case "key.keyboard.up":
                 selectedIndex =
                     (selectedIndex - 1 + filteredModules.length) %
                     filteredModules.length;
                 break;
-            case 257:
+            case "key.keyboard.enter":
                 await toggleModule(
                     filteredModules[selectedIndex].name,
                     !filteredModules[selectedIndex].enabled,
                 );
                 break;
-            case 258:
+            case "key.keyboard.tab":
                 const m = filteredModules[selectedIndex]?.name;
                 if (m) {
                     $highlightModuleName = m;
@@ -96,15 +101,19 @@
         }
     }
 
+    function applyValues(configurable: ConfigurableSetting) {
+        autoFocus = configurable.value.find(v => v.name === "SearchBarAutoFocus")?.value as boolean ?? true;
+    }
+
     onMount(async () => {
         const clickGuiSettings = await getModuleSettings("ClickGUI");
-        autoFocus = clickGuiSettings.value.find(v => v.name === "SearchBarAutoFocus")?.value as boolean ?? true
+        applyValues(clickGuiSettings);
         if (autoFocus) {
             searchInputElement.focus();
         }
     });
 
-    listen("moduleToggle", (e: ModuleToggleEvent) => {
+    listen("moduleToggle", (e: ToggleModuleEvent) => {
         const mod = filteredModules.find((m) => m.name === e.moduleName);
         if (!mod) {
             return;
@@ -114,6 +123,10 @@
     });
 
     listen("keyboardKey", handleKeyDown);
+
+    listen("clickGuiValueChange", (e: ClickGuiValueChangeEvent) => {
+        applyValues(e.configurable);
+    });
 </script>
 
 <svelte:window on:click={handleWindowClick} on:keydown={handleWindowKeyDown} on:contextmenu={handleWindowClick}/>

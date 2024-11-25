@@ -5,12 +5,13 @@ import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.api.ClientApi
+import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.AccountManagerMessageEvent
 import net.ccbluex.liquidbounce.features.misc.AccountManager
 import net.ccbluex.liquidbounce.utils.client.browseUrl
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
+import net.ccbluex.liquidbounce.utils.client.randomUsername
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import org.lwjgl.glfw.GLFW
@@ -27,7 +28,7 @@ fun getAccounts(requestObject: RequestObject): FullHttpResponse {
             addProperty("username", profile.username)
             addProperty("uuid", profile.uuid.toString())
             addProperty("avatar", ClientApi.formatAvatarUrl(profile.uuid, profile.username))
-            add("bans", protocolGson.toJsonTree(account.bans))
+            add("bans", interopGson.toJsonTree(account.bans))
             addProperty("type", account.type)
             addProperty("favorite", account.favorite)
         })
@@ -150,7 +151,7 @@ fun postLoginSessionAccount(requestObject: RequestObject): FullHttpResponse {
 @Suppress("UNUSED_PARAMETER")
 fun postRestoreInitial(requestObject: RequestObject): FullHttpResponse {
     AccountManager.restoreInitial()
-    return httpOk(protocolGson.toJsonTree(mc.session))
+    return httpOk(interopGson.toJsonTree(mc.session))
 }
 
 // PUT /api/v1/client/accounts/favorite
@@ -188,5 +189,13 @@ fun deleteAccount(requestObject: RequestObject): FullHttpResponse {
         addProperty("uuid", profile.uuid.toString())
         addProperty("avatar", ClientApi.formatAvatarUrl(profile.uuid, profile.username))
         addProperty("type", account.type)
+    })
+}
+
+// POST /api/v1/client/account/random-name
+@Suppress("UNUSED_PARAMETER")
+fun generateName(requestObject: RequestObject): FullHttpResponse {
+    return httpOk(JsonObject().apply {
+        addProperty("name", randomUsername())
     })
 }

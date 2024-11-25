@@ -18,24 +18,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
-import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Box
-import java.awt.Color
 
 /**
  * ESP module
@@ -45,7 +41,7 @@ import java.awt.Color
 
 object ModuleESP : Module("ESP", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.esp"
 
     private val modes = choices("Mode", GlowMode, arrayOf(BoxMode, OutlineMode, GlowMode))
@@ -59,10 +55,15 @@ object ModuleESP : Module("ESP", Category.RENDER) {
 
     private val friendColor by color("Friends", Color4b(0, 0, 255))
 
-    private object BoxMode : Choice("Box") {
-
-        override val parent: ChoiceConfigurable<Choice>
+    abstract class EspMode(
+        name: String,
+        val requiresTrueSight: Boolean = false
+    ) : Choice(name) {
+        override val parent
             get() = modes
+    }
+
+    private object BoxMode : EspMode("Box") {
 
         private val outline by boolean("Outline", true)
 
@@ -97,23 +98,15 @@ object ModuleESP : Module("ESP", Category.RENDER) {
                     }
                 }
             }
-
         }
+
     }
+
+    object GlowMode : EspMode("Glow", requiresTrueSight = true)
+
+    object OutlineMode : EspMode("Outline", requiresTrueSight = true)
 
     fun findRenderedEntities() = world.entities.filterIsInstance<LivingEntity>().filter { it.shouldBeShown() }
-
-    object GlowMode : Choice("Glow") {
-
-        override val parent: ChoiceConfigurable<Choice>
-            get() = modes
-
-    }
-
-    object OutlineMode : Choice("Outline") {
-        override val parent: ChoiceConfigurable<Choice>
-            get() = modes
-    }
 
     private fun getBaseColor(entity: LivingEntity): Color4b {
         if (entity is PlayerEntity) {
@@ -136,4 +129,8 @@ object ModuleESP : Module("ESP", Category.RENDER) {
 
         return baseColor
     }
+
+    fun requiresTrueSight(entity: LivingEntity) =
+        modes.activeChoice.requiresTrueSight && entity.shouldBeShown()
+
 }

@@ -1,4 +1,8 @@
-import type {Component, PlayerData, Proxy, Server, TextComponent} from "./types";
+import type {Component, ConfigurableSetting, PlayerData, Proxy, Screen, Server, TextComponent} from "./types";
+
+export interface ClickGuiValueChangeEvent {
+    configurable: ConfigurableSetting;
+}
 
 export interface ModuleToggleEvent {
     moduleName: string;
@@ -12,6 +16,7 @@ export interface KeyboardKeyEvent {
     action: number;
     mods: number;
     key: string;
+    screen: Screen | undefined;
 }
 
 export interface ScaleFactorChangeEvent {

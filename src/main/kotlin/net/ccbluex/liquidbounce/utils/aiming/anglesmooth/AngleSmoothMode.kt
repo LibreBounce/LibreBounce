@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
 
-import net.ccbluex.liquidbounce.config.Choice
+import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d

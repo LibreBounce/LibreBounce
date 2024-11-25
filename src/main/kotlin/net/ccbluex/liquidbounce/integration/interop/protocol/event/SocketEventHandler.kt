@@ -20,10 +20,10 @@
 package net.ccbluex.liquidbounce.integration.interop.protocol.event
 
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer.httpServer
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
+import net.ccbluex.liquidbounce.utils.client.logger
 import kotlin.reflect.KClass
 
 class SocketEventHandler : Listenable {
@@ -68,10 +68,12 @@ class SocketEventHandler : Listenable {
 
     private fun writeToSockets(event: Event) {
         val json = runCatching {
+            val webSocketAnnotation = event::class.java.getAnnotation(WebSocketEvent::class.java)!!
+
             val jsonObj = JsonObject()
             jsonObj.addProperty("name", event::class.eventName)
-            jsonObj.add("event", protocolGson.toJsonTree(event))
-            protocolGson.toJson(jsonObj)
+            jsonObj.add("event", webSocketAnnotation.serializer.gson.toJsonTree(event))
+            interopGson.toJson(jsonObj)
         }.onFailure {
             logger.error("Failed to serialize event $event", it)
         }.getOrNull() ?: return

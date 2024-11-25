@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.itemgroup
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.itemgroup.groups.ContainerItemGroup
 import net.ccbluex.liquidbounce.features.itemgroup.groups.ExploitsItemGroup
 import net.ccbluex.liquidbounce.features.itemgroup.groups.HeadsItemGroup

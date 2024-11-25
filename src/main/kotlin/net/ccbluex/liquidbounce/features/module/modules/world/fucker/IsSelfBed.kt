@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.fucker
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.inventory.getArmorColor
@@ -39,7 +39,7 @@ fun isSelfBedChoices(choice: ChoiceConfigurable<IsSelfBedChoice>): Array<IsSelfB
 
 sealed class IsSelfBedChoice(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
     abstract fun isSelfBed(block: BedBlock, pos: BlockPos): Boolean
-    abstract fun shouldDefend(block: BedBlock, pos: BlockPos): Boolean
+    open fun shouldDefend(block: BedBlock, pos: BlockPos): Boolean = isSelfBed(block, pos)
 }
 
 class IsSelfBedNoneChoice(parent: ChoiceConfigurable<*>) : IsSelfBedChoice("None", parent) {
@@ -54,8 +54,6 @@ class IsSelfBedSpawnLocationChoice(parent: ChoiceConfigurable<*>) : IsSelfBedCho
 
     override fun isSelfBed(block: BedBlock, pos: BlockPos) =
         spawnLocation?.isInRange(pos.toVec3d(), bedDistance.toDouble()) ?: false
-
-    override fun shouldDefend(block: BedBlock, pos: BlockPos) = isSelfBed(block, pos)
 
     @Suppress("unused")
     private val gameStartHandler = handler<PacketEvent> {
@@ -81,7 +79,4 @@ class IsSelfBedColorChoice(parent: ChoiceConfigurable<*>) : IsSelfBedChoice("Col
 
         return armorColor == colorRgb
     }
-
-    override fun shouldDefend(block: BedBlock, pos: BlockPos) = isSelfBed(block, pos)
-
 }

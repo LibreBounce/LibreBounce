@@ -54,7 +54,9 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
             VelocityExemptGrim117,
             VelocityDexland,
             VelocityJumpReset,
-            VelocityIntave
+            VelocityIntave,
+            VelocityHylex,
+            VelocityBlocksMC
         )
     ).apply(::tagBy)
 

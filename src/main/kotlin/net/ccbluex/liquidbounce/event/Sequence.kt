@@ -19,13 +19,11 @@
 package net.ccbluex.liquidbounce.event
 
 import com.google.common.collect.Lists
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -162,6 +160,18 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
      * It does not matter if we wait 0 or 1 ticks, it will always sync to the next tick.
      */
     internal suspend fun sync() = wait { 0 }
+
+    /**
+     * A custom implementation of `withContext`, which makes the Sequence correctly suspended by the task.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun <T> withContext(context: CoroutineContext, block: suspend CoroutineScope.() -> T): T {
+        // Set parent job as `this.coroutine`
+        val deferred = CoroutineScope(coroutine + context).async(context, block = block)
+        // Use `waitUntil` to avoid duplicated resumption
+        this.waitUntil { deferred.isCompleted }
+        return deferred.getCompleted()
+    }
 
 }
 

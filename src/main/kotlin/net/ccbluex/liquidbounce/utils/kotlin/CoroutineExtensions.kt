@@ -25,3 +25,7 @@ import kotlin.reflect.KProperty
 inline operator fun <T> ThreadLocal<T>.getValue(receiver: Any?, property: KProperty<*>): T = get()
 
 inline operator fun <T> ThreadLocal<T>.setValue(receiver: Any?, property: KProperty<*>, value: T) = set(value)
+
+inline fun Array<Thread>.joinAll() = forEach { it.join() }
+
+inline fun Iterable<Thread>.joinAll() = forEach { it.join() }

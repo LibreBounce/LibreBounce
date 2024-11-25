@@ -19,11 +19,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
-import net.ccbluex.liquidbounce.event.events.ClickGuiScaleChangeEvent
-import net.ccbluex.liquidbounce.event.events.GameRenderEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.integration.VrScreen
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.utils.client.asText
+import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -48,8 +49,10 @@ object ModuleClickGui :
     @Suppress("UnusedPrivateProperty")
     private val scale by float("Scale", 1f, 0.5f..2f).onChanged {
         EventManager.callEvent(ClickGuiScaleChangeEvent(it))
+        EventManager.callEvent(ClickGuiValueChangeEvent(this))
     }
 
+    @Suppress("UnusedPrivateProperty")
     private val cache by boolean("Cache", true).onChanged { cache ->
         RenderSystem.recordRenderCall {
             if (cache) {
@@ -65,34 +68,50 @@ object ModuleClickGui :
     }
 
     @Suppress("UnusedPrivateProperty")
-    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true)
+    private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true).onChanged {
+        EventManager.callEvent(ClickGuiValueChangeEvent(this))
+    }
+
+    object Snapping : ToggleableConfigurable(this, "Snapping", true) {
+
+        @Suppress("UnusedPrivateProperty")
+        private val gridSize by int("GridSize", 10, 1..100, "px").onChanged {
+            EventManager.callEvent(ClickGuiValueChangeEvent(ModuleClickGui))
+        }
+
+        init {
+            inner.find { it.name == "Enabled" }?.onChanged {
+                EventManager.callEvent(ClickGuiValueChangeEvent(ModuleClickGui))
+            }
+        }
+    }
 
     private var clickGuiTab: ITab? = null
+    private const val WORLD_CHANGE_SECONDS_UNTIL_RELOAD = 5
+
+    init {
+        tree(Snapping)
+    }
 
     override fun enable() {
         // Pretty sure we are not in a game, so we can't open the clickgui
-        if (mc.player == null || mc.world == null) {
+        if (!inGame) {
             return
         }
 
-        mc.setScreen(if (clickGuiTab == null) {
-            VrScreen(VirtualScreenType.CLICK_GUI)
-        } else {
-            ClickScreen()
-        })
+        mc.setScreen(
+            if (clickGuiTab == null) {
+                VrScreen(VirtualScreenType.CLICK_GUI)
+            } else {
+                ClickScreen()
+            }
+        )
         super.enable()
     }
 
-    @Suppress("unused")
-    private val browserReadyHandler = handler<BrowserReadyEvent>(
-        priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
-        ignoreCondition = true
-    ) {
-        if (cache) {
-            createView()
-        }
-    }
-
+    /**
+     * Creates the ClickGUI view
+     */
     private fun createView() {
         if (clickGuiTab != null) {
             return
@@ -103,9 +122,28 @@ object ModuleClickGui :
         }.preferOnTop()
     }
 
+    /**
+     * Closes the ClickGUI view
+     */
     private fun closeView() {
         clickGuiTab?.closeTab()
         clickGuiTab = null
+    }
+
+    /**
+     * Restarts the ClickGUI view
+     */
+    fun restartView() {
+        closeView()
+        createView()
+    }
+
+    /**
+     * Synchronizes the ClickGUI with the module values until there is a better solution
+     * for updating setting changes
+     */
+    fun reloadView() {
+        clickGuiTab?.reload()
     }
 
     @Suppress("unused")
@@ -116,6 +154,28 @@ object ModuleClickGui :
         // A hack to prevent the clickgui from being drawn
         if (mc.currentScreen !is ClickScreen) {
             clickGuiTab?.drawn = true
+        }
+    }
+
+    @Suppress("unused")
+    private val browserReadyHandler = handler<BrowserReadyEvent>(
+        ignoreCondition = true
+    ) {
+        createView()
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = sequenceHandler<WorldChangeEvent>(
+        priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
+        ignoreCondition = true
+    ) { event ->
+        if (event.world == null) {
+            return@sequenceHandler
+        }
+
+        waitSeconds(WORLD_CHANGE_SECONDS_UNTIL_RELOAD)
+        if (mc.currentScreen !is ClickScreen) {
+            reloadView()
         }
     }
 

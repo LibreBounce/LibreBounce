@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
@@ -61,6 +61,8 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
     }
 
     private var nextDelay = delay.random()
+
+    private var isEnemyNearby = false
 
     fun shouldLag(packet: Packet<*>?): Boolean {
         if (!enabled || !inGame || player.isDead || player.isTouchingWater || mc.currentScreen != null) {
@@ -114,7 +116,9 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
             Mode.CONSTANT -> true
             Mode.DYNAMIC -> {
                 // If there is an enemy in range, we want to lag.
-                world.findEnemy(range) ?: return false
+                if (!isEnemyNearby) {
+                    return false
+                }
 
                 val (playerPosition, _, _) = FakeLag.firstPosition() ?: return true
                 val playerBox = player.dimensions.getBoxAt(playerPosition)
@@ -147,7 +151,10 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
         }
     }
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val gameTickHandler = repeatable {
+        isEnemyNearby = world.findEnemy(range) != null
+
         if (evadeArrows) {
             val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@repeatable
 
@@ -171,6 +178,11 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
                 FakeLag.flush(evadingPacket.idx + 1)
             }
         }
+    }
+
+    override fun disable() {
+        isEnemyNearby = false
+        super.disable()
     }
 
 }

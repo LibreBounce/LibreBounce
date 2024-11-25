@@ -18,9 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
@@ -28,7 +29,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.minecraft.client.network.AbstractClientPlayerEntity
 
@@ -46,7 +46,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
      */
     private val combatOnly by boolean("Combat", false)
 
-    private abstract class FocusChoice(name: String) : Choice(name) {
+    private sealed class FocusChoice(name: String) : Choice(name) {
         override val parent: ChoiceConfigurable<*>
             get() = mode
         abstract fun isFocused(playerEntity: AbstractClientPlayerEntity): Boolean
@@ -83,7 +83,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
         private val whenNoFocus by enumChoice("WhenNoFocus", NoFocusMode.ALLOW_ALL)
 
         // Combination of [entityId] and [time]
-        private val focus = mutableMapOf<Int, Long>()
+        private val focus = Int2LongLinkedOpenHashMap()
 
         enum class NoFocusMode(override val choiceName: String) : NamedChoice {
             ALLOW_ALL("AllowAll"),
@@ -101,7 +101,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
                     NotificationEvent.Severity.INFO
                 )
             }
-            focus[target.id] = System.currentTimeMillis() + timeUntilReset * 1000
+            focus.put(target.id, System.currentTimeMillis() + timeUntilReset * 1000)
         }
 
         @Suppress("unused")
@@ -112,7 +112,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
             }
 
             val currentTime = System.currentTimeMillis()
-            focus.entries.removeIf { (entityId, time) ->
+            focus.int2LongEntrySet().removeIf { (entityId, time) ->
                 // Remove if entity is out of range
                 val entity = world.getEntityById(entityId) as? AbstractClientPlayerEntity ?: return@removeIf true
 

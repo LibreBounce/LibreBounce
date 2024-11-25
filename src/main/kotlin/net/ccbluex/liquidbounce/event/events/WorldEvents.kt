@@ -26,6 +26,9 @@ import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.client.world.ClientWorld
+import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.shape.VoxelShape
 
@@ -50,11 +53,19 @@ class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: Voxel
 @Nameable("blockBreakingProgress")
 class BlockBreakingProgressEvent(val pos: BlockPos) : Event()
 
+@Nameable("blockBreakingProgress")
+class BlockAttackEvent(val pos: BlockPos) : CancellableEvent()
+
 @Nameable("blockVelocityMultiplier")
 class BlockVelocityMultiplierEvent(val block: Block, var multiplier: Float) : Event()
 
 @Nameable("blockSlipperinessMultiplier")
 class BlockSlipperinessMultiplierEvent(val block: Block, var slipperiness: Float) : Event()
+
+@Nameable("entityEquipmentChange")
+class PlayerEquipmentChangeEvent(
+    val player: PlayerEntity, val equipmentSlot: EquipmentSlot, val itemStack: ItemStack
+) : Event()
 
 @Nameable("fluidPush")
 class FluidPushEvent : CancellableEvent()

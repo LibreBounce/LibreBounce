@@ -19,19 +19,20 @@
 package net.ccbluex.liquidbounce.utils.render.placement
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
-import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 
+// TODO box interpolation (when the box was changed)
 /**
  * Render boxes, manages fade-in/-out and culling.
  *
@@ -74,6 +75,8 @@ open class PlacementRenderer(
     var placementRenderHandlers = Int2ObjectOpenHashMap<PlacementRenderHandler>()
 
     init {
+        doNotIncludeAlways()
+
         placementRenderHandlers.put(0, PlacementRenderHandler(this))
     }
 
@@ -97,7 +100,7 @@ open class PlacementRenderer(
      *
      * @param handlerId To which handler the block should be added.
      */
-    fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = FULL_BOX, handlerId: Int = 0) {
+    fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = pos.outlineBox, handlerId: Int = 0) {
         // return if the renderer is deactivated or the box is empty, as there wouldn't be anything to render
         if (!enabled || box == EMPTY_BOX) {
             return
@@ -136,6 +139,22 @@ open class PlacementRenderer(
 
         val handler = placementRenderHandlers[handlerId] ?: return
         handler.updateAll()
+    }
+
+    /**
+     * Updates the box of [pos] to [box].
+     *
+     * This method won't affect positions that are in the state of fading out.
+     *
+     * @param handlerId On which handler the update should be performed.
+     */
+    fun updateBox(pos: BlockPos, box: Box, handlerId: Int = 0) {
+        if (!enabled) {
+            return
+        }
+
+        val handler = placementRenderHandlers[handlerId] ?: return
+        handler.updateBox(pos, box)
     }
 
     /**
