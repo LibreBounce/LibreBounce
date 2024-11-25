@@ -59,7 +59,7 @@ object CommandCenter : Listenable {
             state = CenterHandlerState.INACTIVE
         }
 
-    override fun handleEvents() = super.handleEvents() && inGame && state == CenterHandlerState.APPLY_ON_NEXT_EVENT
+    override fun isRunning() = super.isRunning() && inGame && state == CenterHandlerState.APPLY_ON_NEXT_EVENT
 
     enum class CenterHandlerState {
         INACTIVE,

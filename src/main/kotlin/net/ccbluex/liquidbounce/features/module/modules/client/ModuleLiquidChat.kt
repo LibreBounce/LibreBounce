@@ -207,6 +207,6 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
         }
     }
 
-    override fun handleEvents() = enabled
+    override fun isRunning() = enabled
 
 }

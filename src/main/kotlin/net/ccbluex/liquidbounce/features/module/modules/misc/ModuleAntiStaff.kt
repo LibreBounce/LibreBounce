@@ -153,7 +153,7 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
 
         }
 
-        override fun handleEvents() = ModuleAntiStaff.enabled && enabled
+        override fun isRunning() = ModuleAntiStaff.enabled && enabled
 
     }
 

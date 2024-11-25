@@ -52,8 +52,8 @@ object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
         )
     }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents() || !inGame) {
+    override fun isRunning(): Boolean {
+        if (!super.isRunning() || !inGame) {
             return false
         }
 

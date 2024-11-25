@@ -70,7 +70,7 @@ class ChoiceConfigurable<T : Choice>(
             return
         }
 
-        if (this.activeChoice.handleEvents()) {
+        if (this.activeChoice.isRunning()) {
             this.activeChoice.disable()
         }
 
@@ -81,7 +81,7 @@ class ChoiceConfigurable<T : Choice>(
             this.activeChoice = it[0] as T
         })
 
-        if (this.activeChoice.handleEvents()) {
+        if (this.activeChoice.isRunning()) {
             this.activeChoice.enable()
         }
     }
@@ -91,7 +91,7 @@ class ChoiceConfigurable<T : Choice>(
             return
         }
 
-        if (this.activeChoice.handleEvents()) {
+        if (this.activeChoice.isRunning()) {
             this.activeChoice.disable()
         }
 
@@ -99,7 +99,7 @@ class ChoiceConfigurable<T : Choice>(
             this.activeChoice = it[0] as T
         })
 
-        if (this.activeChoice.handleEvents()) {
+        if (this.activeChoice.isRunning()) {
             this.activeChoice.enable()
         }
     }
@@ -130,7 +130,7 @@ abstract class Choice(name: String) : Configurable(name), Listenable, NamedChoic
      * We check if the parent is active and if the mode is active, if so
      * we handle the events.
      */
-    override fun handleEvents() = super.handleEvents() && isActive
+    override fun isRunning() = super.isRunning() && isActive
 
     override fun parent() = this.parent.listenable
 

@@ -41,7 +41,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
         val entities: MutableMap<Int, EndCrystalEntity> = Int2ObjectMaps.synchronize(Int2ObjectOpenHashMap())
 
         override fun attacked(id: Int) {
-            if (!handleEvents()) {
+            if (!isRunning()) {
                 return
             }
 

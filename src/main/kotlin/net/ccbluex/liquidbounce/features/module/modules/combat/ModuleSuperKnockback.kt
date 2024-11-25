@@ -63,8 +63,8 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         }
     }
 
-    override fun handleEvents(): Boolean {
-        val handleEvents = super.handleEvents()
+    override fun isRunning(): Boolean {
+        val handleEvents = super.isRunning()
 
         // Reset if the module is not handling events anymore
         if (!handleEvents) {

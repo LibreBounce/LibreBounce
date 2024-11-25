@@ -568,7 +568,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     }
 
     internal fun getTargetedPosition(blockPos: BlockPos): BlockPos {
-        if (ScaffoldDownFeature.handleEvents() && ScaffoldDownFeature.shouldGoDown) {
+        if (ScaffoldDownFeature.isRunning() && ScaffoldDownFeature.shouldGoDown) {
             return blockPos.add(0, -2, 0)
         }
 

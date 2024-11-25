@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.utils.client
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock.player
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
@@ -65,6 +64,6 @@ object InteractionTracker : Listenable {
 
     data class Interaction(val hand: Hand, val action: UseAction)
 
-    override fun handleEvents() = inGame
+    override fun isRunning() = inGame
 
 }
