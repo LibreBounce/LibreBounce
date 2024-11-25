@@ -231,7 +231,7 @@ object ActiveServerList : Listenable {
         serverListPinger.tick()
     }
 
-    override fun handleEvents() = true
+    override fun isRunning() = true
 
 }
 

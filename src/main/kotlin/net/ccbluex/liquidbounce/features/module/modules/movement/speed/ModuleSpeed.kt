@@ -105,7 +105,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         val modes = choices(this, "Mode", { it.choices[0] },
             ModuleSpeed::initializeSpeeds)
 
-        override fun handleEvents(): Boolean {
+        override fun isRunning(): Boolean {
             // We cannot use our parent super.handleEvents() here, because it has been turned false
             // when [OnlyInCombat] is enabled
             if (!ModuleSpeed.enabled || !enabled || !inGame || !passesRequirements()) {
@@ -113,7 +113,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
             }
 
             // Only On Potion Effect has a higher priority
-            if (OnlyOnPotionEffect.handleEvents()) {
+            if (OnlyOnPotionEffect.isRunning()) {
                 return false
             }
 
@@ -135,7 +135,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         val modes = choices(this, "Mode", { it.choices[0] },
             ModuleSpeed::initializeSpeeds)
 
-        override fun handleEvents(): Boolean {
+        override fun isRunning(): Boolean {
             // We cannot use our parent super.handleEvents() here, because it has been turned false
             // when [OnlyOnPotionEffect] is enabled
             if (!ModuleSpeed.enabled || !enabled || !inGame || !passesRequirements()) {
@@ -152,10 +152,10 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         tree(OnlyOnPotionEffect)
     }
 
-    override fun handleEvents(): Boolean {
+    override fun isRunning(): Boolean {
         // Early return if the module is not ready to be used - prevents accessing player when it's null below
         // in case it was forgotten to be checked
-        if (!super.handleEvents()) {
+        if (!super.isRunning()) {
             return false
         }
 
@@ -164,7 +164,7 @@ object ModuleSpeed : Module("Speed", Category.MOVEMENT) {
         }
 
         // We do not want to handle events if the OnlyInCombat is enabled
-        if (OnlyInCombat.enabled && OnlyInCombat.handleEvents()) {
+        if (OnlyInCombat.enabled && OnlyInCombat.isRunning()) {
             return false
         }
 

@@ -33,7 +33,7 @@ object ScaffoldBlinkFeature : ToggleableConfigurable(ModuleScaffold, "Blink", fa
     private val pulseTimer = Chronometer()
 
     val shouldBlink
-        get() = handleEvents() && (!player.isOnGround || !pulseTimer.hasElapsed(pulseTime))
+        get() = isRunning() && (!player.isOnGround || !pulseTimer.hasElapsed(pulseTime))
 
     fun onBlockPlacement() {
         pulseTime = time.random().toLong()

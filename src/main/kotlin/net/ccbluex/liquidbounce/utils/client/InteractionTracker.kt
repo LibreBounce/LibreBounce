@@ -64,6 +64,6 @@ object InteractionTracker : Listenable {
 
     data class Interaction(val hand: Hand, val action: UseAction)
 
-    override fun handleEvents() = inGame
+    override fun isRunning() = inGame
 
 }

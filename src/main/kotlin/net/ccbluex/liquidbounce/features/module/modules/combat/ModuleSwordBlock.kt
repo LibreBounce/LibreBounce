@@ -45,8 +45,8 @@ object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayO
         player: PlayerEntity = this.player,
         offHandItem: Item = player.offHandStack.item,
         mainHandItem: Item = player.mainHandStack.item,
-    ) = (handleEvents() || AutoBlock.blockVisual) && offHandItem is ShieldItem
-        && (mainHandItem is SwordItem || player === this.player && handleEvents() && alwaysHideShield)
+    ) = (isRunning() || AutoBlock.blockVisual) && offHandItem is ShieldItem
+        && (mainHandItem is SwordItem || player === this.player && isRunning() && alwaysHideShield)
 
     @Suppress("UNUSED")
     private val packetHandler = sequenceHandler<PacketEvent> {

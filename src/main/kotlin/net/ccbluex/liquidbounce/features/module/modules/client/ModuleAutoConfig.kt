@@ -115,6 +115,6 @@ object ModuleAutoConfig : Module("AutoConfig", Category.CLIENT, state = true, al
     /**
      * Overwrites the condition requirement for being in game
      */
-    override fun handleEvents() = enabled
+    override fun isRunning() = enabled
 
 }

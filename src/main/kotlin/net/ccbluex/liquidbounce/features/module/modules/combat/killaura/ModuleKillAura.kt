@@ -507,7 +507,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                 }
             }
         } else if (player.isUsingItem &&
-            !(ModuleMultiActions.handleEvents() && ModuleMultiActions.attackingWhileUsing)) {
+            !(ModuleMultiActions.isRunning() && ModuleMultiActions.attackingWhileUsing)) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 

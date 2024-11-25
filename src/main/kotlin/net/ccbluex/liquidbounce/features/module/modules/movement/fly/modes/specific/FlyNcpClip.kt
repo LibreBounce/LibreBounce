@@ -71,7 +71,7 @@ object FlyNcpClip : Choice("NcpClip") {
 
     var shouldLag = false
         private set
-        get() = this.handleEvents() && blink && field
+        get() = this.isRunning() && blink && field
 
     val repeatable = repeatable {
         val startPos = startPosition

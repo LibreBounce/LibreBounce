@@ -179,7 +179,7 @@ open class Module(
     /**
      * Events should be handled when module is enabled
      */
-    override fun handleEvents() = enabled && inGame && !isDestructed
+    override fun isRunning() = enabled && inGame && !isDestructed
 
     /**
      * Handles disconnect and if [disableOnQuit] is true disables module

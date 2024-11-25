@@ -43,8 +43,8 @@ internal object NoSlowBow : ToggleableConfigurable(ModuleNoSlow, "Bow", true) {
         )
     }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents() || !inGame) {
+    override fun isRunning(): Boolean {
+        if (!super.isRunning() || !inGame) {
             return false
         }
 

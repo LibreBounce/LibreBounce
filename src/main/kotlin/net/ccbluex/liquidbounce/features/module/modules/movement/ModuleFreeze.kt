@@ -151,7 +151,7 @@ object ModuleFreeze : Module("Freeze", Category.MOVEMENT) {
             get() = modes
 
         fun shouldLag(origin: TransferOrigin): LagResult? {
-            if (!enabled || !handleEvents()) {
+            if (!enabled || !isRunning()) {
                 return null
             }
 
