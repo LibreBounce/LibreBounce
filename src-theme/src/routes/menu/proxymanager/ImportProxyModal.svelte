@@ -7,6 +7,7 @@ import Modal from "../common/modal/Modal.svelte";
     // import SwitchSetting from "../common/setting/SwitchSetting.svelte";
     // import ButtonSetting from "../common/setting/ButtonSetting.svelte";
     // import {editProxy as editProxyRest} from "../../../integration/rest";
+    import { importProxyFromFile, importProxyFromClipboard } from "../../../integration/rest";
 
     export let visible: boolean;
 </script>
@@ -14,8 +15,8 @@ import Modal from "../common/modal/Modal.svelte";
 <Modal title="Import Proxy" bind:visible={visible}>
     <IconTextButton
         title="From Clipboard" icon="icon-clipboard.svg" 
-        on:click={() => alert("Not implemented yet")}/>
+        on:click={() => importProxyFromClipboard() }/>
     <IconTextButton
         title="From File" icon="icon-file.svg"   
-        on:click={() => alert("Not implemented yet")}/>
+        on:click={() => importProxyFromFile() }/>
 </Modal>
