@@ -37,8 +37,8 @@ import net.minecraft.util.Hand
 object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayOf("OldBlocking")) {
 
     val onlyVisual by boolean("OnlyVisual", false)
-    val hideShieldSlot by boolean("HideShieldSlot", false)
-    private val alwaysHideShield by boolean("AlwaysHideShield", false)
+    val hideShieldSlot by boolean("HideShieldSlot", false).doNotIncludeAlways()
+    private val alwaysHideShield by boolean("AlwaysHideShield", false).doNotIncludeAlways()
 
     @JvmOverloads
     fun shouldHideOffhand(
