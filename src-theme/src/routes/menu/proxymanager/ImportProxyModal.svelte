@@ -2,11 +2,7 @@
 <!-- probably will remove these comments later anyways... -->
 <script lang="ts">
     import IconTextButton from "../common/buttons/IconTextButton.svelte";
-import Modal from "../common/modal/Modal.svelte";
-    // import IconTextInput from "../common/setting/IconTextInput.svelte";
-    // import SwitchSetting from "../common/setting/SwitchSetting.svelte";
-    // import ButtonSetting from "../common/setting/ButtonSetting.svelte";
-    // import {editProxy as editProxyRest} from "../../../integration/rest";
+    import Modal from "../common/modal/Modal.svelte";
     import { importProxyFromFile, importProxyFromClipboard } from "../../../integration/rest";
 
     export let visible: boolean;
