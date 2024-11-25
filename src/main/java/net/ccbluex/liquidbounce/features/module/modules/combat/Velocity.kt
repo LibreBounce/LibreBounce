@@ -43,6 +43,8 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK
 import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.client.C0BPacketEntityAction
+import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
@@ -64,7 +66,8 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
             "Simple", "AAC", "AACPush", "AACZero", "AACv4",
             "Reverse", "SmoothReverse", "Jump", "Glitch", "Legit",
             "GhostBlock", "Vulcan", "S32Packet", "MatrixReduce",
-            "IntaveReduce", "Delay", "GrimC03", "Hypixel", "HypixelAir", "Click"
+            "IntaveReduce", "Delay", "GrimC03", "Hypixel", "HypixelAir",
+            "Click", "BlocksMC"
         ), "Simple"
     )
 
@@ -326,7 +329,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                 }
             }
 
-            "IntaveReduce" -> {
+            "intavereduce" -> {
                 if (!hasReceivedVelocity) return
                 intaveTick++
 
@@ -543,6 +546,16 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                             packet.motionX = (packet.getMotionX() * 0.86).toInt()
                             packet.motionZ = (packet.getMotionZ() * 0.86).toInt()
                         }
+                    }
+                }
+
+                // Credit: @LiquidSquid / Ported from NextGen
+                "blocksmc" -> {
+                    if (packet is S12PacketEntityVelocity && packet.entityID == thePlayer.entityId) {
+                        event.cancelEvent()
+
+                        sendPacket(C0BPacketEntityAction(thePlayer, START_SNEAKING))
+                        sendPacket(C0BPacketEntityAction(thePlayer, STOP_SNEAKING))
                     }
                 }
 
