@@ -246,7 +246,7 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
             super.disable()
         }
 
-        override fun handleEvents() = super.handleEvents() && !ModuleSpeed.enabled
+        override fun isRunning() = super.isRunning() && !ModuleSpeed.enabled
 
     }
 
