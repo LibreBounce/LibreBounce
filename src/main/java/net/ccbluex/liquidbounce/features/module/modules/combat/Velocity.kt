@@ -551,7 +551,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
 
                 // Credit: @LiquidSquid / Ported from NextGen
                 "blocksmc" -> {
-                    if (packet is S12PacketEntityVelocity && packet.entityID == thePlayer.entityId) {
+                    if (packet is S12PacketEntityVelocity) {
                         event.cancelEvent()
 
                         sendPacket(C0BPacketEntityAction(thePlayer, START_SNEAKING))
