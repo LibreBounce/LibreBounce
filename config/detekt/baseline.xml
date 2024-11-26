@@ -13,7 +13,6 @@
     <ID>BracesOnIfStatements:FaceTargetPositionFactory.kt$NearestRotationTargetPositionFactory$if</ID>
     <ID>BracesOnIfStatements:FaceTargetPositionFactory.kt$ReverseYawTargetPositionFactory$if</ID>
     <ID>BracesOnIfStatements:FaceTargetPositionFactory.kt$StabilizedRotationTargetPositionFactory$if</ID>
-    <ID>BracesOnIfStatements:FakeLag.kt$FakeLag$if</ID>
     <ID>BracesOnIfStatements:FlyFireball.kt$FlyFireball$else</ID>
     <ID>BracesOnIfStatements:FlyFireballCustomTechnique.kt$FlyFireballCustomTechnique$if</ID>
     <ID>BracesOnIfStatements:FlyFireballLegitTechnique.kt$FlyFireballLegitTechnique$if</ID>
@@ -151,7 +150,6 @@
     <ID>TooManyFunctions:ConfigSystem.kt$ConfigSystem</ID>
     <ID>TooManyFunctions:Configurable.kt$Configurable : Value</ID>
     <ID>TooManyFunctions:EntityExtensions.kt$net.ccbluex.liquidbounce.utils.entity.EntityExtensions.kt</ID>
-    <ID>TooManyFunctions:FakeLag.kt$FakeLag : EventListener</ID>
     <ID>TooManyFunctions:InventoryUtils.kt$net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.kt</ID>
     <ID>TooManyFunctions:ItemExtensions.kt$net.ccbluex.liquidbounce.utils.item.ItemExtensions.kt</ID>
     <ID>TooManyFunctions:ModuleManager.kt$ModuleManager : EventListenerIterable</ID>

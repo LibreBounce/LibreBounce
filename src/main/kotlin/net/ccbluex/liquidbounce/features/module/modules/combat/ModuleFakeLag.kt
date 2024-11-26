@@ -71,7 +71,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
         isEnemyNearby = world.findEnemy(range) != null
 
         if (ModuleAutoDodge.running) {
-            val position = PacketQueueManager.positions.firstOrNull() ?: return@tickHandler
+            val position = positions.firstOrNull() ?: return@tickHandler
 
             if (ModuleAutoDodge.getInflictedHit(position) == null) {
                 return@tickHandler
@@ -108,8 +108,12 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
         }
 
         when (val packet = event.packet) {
-            is PlayerPositionLookS2CPacket, is PlayerInteractBlockC2SPacket,
-            is PlayerActionC2SPacket, is UpdateSignC2SPacket, is PlayerInteractEntityC2SPacket,
+
+            is PlayerPositionLookS2CPacket,
+            is PlayerInteractBlockC2SPacket,
+            is PlayerActionC2SPacket,
+            is UpdateSignC2SPacket,
+            is PlayerInteractEntityC2SPacket,
             is ResourcePackStatusC2SPacket -> {
                 return@handler
             }

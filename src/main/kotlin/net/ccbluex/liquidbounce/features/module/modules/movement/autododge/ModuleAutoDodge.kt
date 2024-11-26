@@ -173,9 +173,9 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
 
             val inflictedHit = getInflictedHit(position)
 
-            if (inflictedHit == null)
+            if (inflictedHit == null) {
                 return EvadingPacket(packetIndex - 1, null)
-            else if (inflictedHit.tickDelta > bestTimeToImpact) {
+            } else if (inflictedHit.tickDelta > bestTimeToImpact) {
                 bestTimeToImpact = inflictedHit.tickDelta
                 bestPacketIdx = packetIndex - 1
                 bestPacketPosition = position
