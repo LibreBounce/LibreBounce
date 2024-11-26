@@ -230,7 +230,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         val blocksToPlace =
             eyesPos.searchBlocksInCuboid(radius) { pos, state ->
                 !state.isAir && isFarmBlockWithAir(state, pos, allowFarmland, allowSoulsand)
-                        && getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
+                    && getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
             }.map { it.first }.sortedBy { it.getCenterDistanceSquared() }
 
         for (pos in blocksToPlace) {
