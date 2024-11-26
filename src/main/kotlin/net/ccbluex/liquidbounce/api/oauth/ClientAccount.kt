@@ -3,10 +3,10 @@ package net.ccbluex.liquidbounce.api.oauth
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.util.Exclude
+import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.cosmetic.Cosmetic
-import java.util.UUID
+import java.util.*
 
 object ClientAccountManager : Configurable("account") {
     var clientAccount by value("account", ClientAccount.EMPTY_ACCOUNT)

@@ -18,14 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NoneChoice
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 
 /**
@@ -33,13 +33,13 @@ import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
  *
  * Allows you to break blocks faster.
  */
-object ModuleFastBreak : Module("FastBreak", Category.WORLD) {
+object ModuleFastBreak : ClientModule("FastBreak", Category.WORLD) {
 
     private val breakDamage by float("BreakDamage", 0.8f, 0.1f..1f)
 
     private val modeChoice = choices("Mode", 0) { arrayOf(NoneChoice(it), AbortAnother) }.apply(::tagBy)
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         interaction.blockBreakingCooldown = 0
 
         if (interaction.currentBreakingProgress > breakDamage) {

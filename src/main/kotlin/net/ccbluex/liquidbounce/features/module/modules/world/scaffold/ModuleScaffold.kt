@@ -19,17 +19,17 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold
 
 import it.unimi.dsi.fastutil.ints.IntObjectPair
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.NoneChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NoneChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BlockCountChangeEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSafeWalk
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallBlink
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -91,7 +91,7 @@ import kotlin.math.abs
  * Places blocks under you.
  */
 @Suppress("TooManyFunctions")
-object ModuleScaffold : Module("Scaffold", Category.WORLD) {
+object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     private var delay by intRange("Delay", 0..0, 0..40, "ticks")
     private val minDist by float("MinDist", 0.0f, 0.0f..0.25f)
@@ -401,14 +401,14 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     }
 
     @Suppress("unused")
-    val timerHandler = repeatable {
+    val timerHandler = tickHandler {
         if (timer != 1f) {
             Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, this@ModuleScaffold)
         }
     }
 
     @Suppress("unused")
-    val tickHandler = repeatable {
+    val tickHandler = tickHandler {
         updateRenderCount(blockCount)
 
         if (player.isOnGround) {
@@ -453,14 +453,14 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         }
 
         if (target == null || currentCrosshairTarget == null) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Does the crosshair target meet the requirements?
         if (!target.doesCrosshairTargetFullFillRequirements(currentCrosshairTarget) ||
             !isValidCrosshairTarget(currentCrosshairTarget)
         ) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (!ScaffoldAutoBlockFeature.alwaysHoldBlock) {
@@ -468,7 +468,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
         }
 
         if (!hasBlockInMainHand && !hasBlockInOffHand) {
-            return@repeatable
+            return@tickHandler
         }
 
         val handToInteractWith = if (hasBlockInMainHand) Hand.MAIN_HAND else Hand.OFF_HAND
@@ -568,7 +568,7 @@ object ModuleScaffold : Module("Scaffold", Category.WORLD) {
     }
 
     internal fun getTargetedPosition(blockPos: BlockPos): BlockPos {
-        if (ScaffoldDownFeature.handleEvents() && ScaffoldDownFeature.shouldGoDown) {
+        if (ScaffoldDownFeature.running && ScaffoldDownFeature.shouldGoDown) {
             return blockPos.add(0, -2, 0)
         }
 

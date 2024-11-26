@@ -20,14 +20,14 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.fireball.techniques
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.fireball.FlyFireball
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
@@ -80,7 +80,7 @@ object FlyFireballLegitTechnique : Choice("Legit") {
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (FlyFireball.wasTriggered) {
             canMove = !stopMove
 

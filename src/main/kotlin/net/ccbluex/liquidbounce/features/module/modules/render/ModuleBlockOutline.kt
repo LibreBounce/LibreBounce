@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 
 /**
@@ -29,6 +29,6 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
  *
  * TODO: Implement Block Side Box and GUI Information Panel
  */
-object ModuleBlockOutline : Module("BlockOutline", Category.RENDER, aliases = arrayOf("BlockOverlay")) {
+object ModuleBlockOutline : ClientModule("BlockOutline", Category.RENDER, aliases = arrayOf("BlockOverlay")) {
     val outlineColor by color("Outline", Color4b(68, 117, 255, 102))
 }

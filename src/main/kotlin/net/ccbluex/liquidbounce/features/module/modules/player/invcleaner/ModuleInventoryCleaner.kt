@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
@@ -35,7 +35,7 @@ import net.minecraft.screen.slot.SlotActionType
  *
  * Automatically throws away useless items and sorts them.
  */
-object ModuleInventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
+object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 

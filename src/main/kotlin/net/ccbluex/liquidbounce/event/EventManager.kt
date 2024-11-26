@@ -51,7 +51,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     KeyEvent::class,
     MouseRotationEvent::class,
     KeybindChangeEvent::class,
-    AttackEvent::class,
+    AttackEntityEvent::class,
     SessionEvent::class,
     ScreenEvent::class,
     ChatSendEvent::class,
@@ -87,7 +87,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ClientStartEvent::class,
     ClientShutdownEvent::class,
     ValueChangedEvent::class,
-    ToggleModuleEvent::class,
+    ModuleActivationEvent::class,
+    ModuleToggleEvent::class,
     NotificationEvent::class,
     ClientChatStateChange::class,
     ClientChatMessageEvent::class,
@@ -128,7 +129,10 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerSneakMultiplier::class,
     PerspectiveEvent::class,
     ItemLoreQueryEvent::class,
-    PlayerEquipmentChangeEvent::class
+    PlayerEquipmentChangeEvent::class,
+    ClickGuiValueChangeEvent::class,
+    BlockAttackEvent::class,
+    QueuePacketEvent::class
 )
 
 /**
@@ -146,7 +150,7 @@ object EventManager {
     /**
      * Used by handler methods
      */
-    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>) {
+    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>): EventHook<T> {
         val handlers = registry[eventClass]
             ?: error("The event '${eventClass.name}' is not registered in Events.kt::ALL_EVENT_CLASSES.")
 
@@ -157,6 +161,8 @@ object EventManager {
             // `handlers` is sorted descending by EventHook.priority
             handlers.sortedInsert(hook) { -it.priority }
         }
+
+        return eventHook
     }
 
     /**
@@ -173,9 +179,9 @@ object EventManager {
         registry[eventClass]?.removeAll(hooks.toHashSet())
     }
 
-    fun unregisterEventHandler(eventHandler: Listenable) {
+    fun unregisterEventHandler(eventListener: EventListener) {
         registry.values.forEach {
-            it.removeIf { it.handlerClass == eventHandler }
+            it.removeIf { it.handlerClass == eventListener }
         }
     }
 
@@ -196,7 +202,7 @@ object EventManager {
         for (eventHook in target) {
             EventScheduler.process(event)
 
-            if (!eventHook.ignoresCondition && !eventHook.handlerClass.handleEvents()) {
+            if (!eventHook.ignoreNotRunning && !eventHook.handlerClass.running) {
                 continue
             }
 

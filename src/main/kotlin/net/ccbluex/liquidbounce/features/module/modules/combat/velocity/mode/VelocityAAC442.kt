@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 
 /**
@@ -36,7 +36,7 @@ internal object VelocityAAC442 : Choice("AAC4.4.2") {
     private val reduce by float("Reduce", 0.62f, 0f..1f)
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (player.hurtTime > 0 && !player.isOnGround) {
             player.velocity.x *= reduce
             player.velocity.z *= reduce

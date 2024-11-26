@@ -20,9 +20,9 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.fireball.trigger
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.fireball.FlyFireball
 
 object FlyFireballInstantTrigger : Choice("Instant") {
@@ -30,7 +30,7 @@ object FlyFireballInstantTrigger : Choice("Instant") {
     override val parent: ChoiceConfigurable<Choice>
         get() = FlyFireball.trigger
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         FlyFireball.wasTriggered = true
     }
 

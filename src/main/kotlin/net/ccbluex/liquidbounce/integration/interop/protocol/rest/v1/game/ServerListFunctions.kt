@@ -26,11 +26,11 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.ResourcePolicy
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.integration.interop.protocol.ResourcePolicy
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.pingThemAll
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.serverList
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -63,7 +63,7 @@ fun getServers(requestObject: RequestObject) = runCatching {
 
     val servers = JsonArray()
     serverList.toList().forEachIndexed { id, serverInfo ->
-        val json = protocolGson.toJsonTree(serverInfo)
+        val json = interopGson.toJsonTree(serverInfo)
 
         if (!json.isJsonObject) {
             logger.warn("Failed to convert serverInfo to json")
@@ -176,7 +176,7 @@ fun postOrderServers(requestObject: RequestObject): FullHttpResponse {
     return httpOk(JsonObject())
 }
 
-object ActiveServerList : Listenable {
+object ActiveServerList : EventListener {
 
     internal var serverList = ServerList(mc).apply { loadFile() }
 
@@ -231,7 +231,7 @@ object ActiveServerList : Listenable {
         serverListPinger.tick()
     }
 
-    override fun handleEvents() = true
+    override val running = true
 
 }
 

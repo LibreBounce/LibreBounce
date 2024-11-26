@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -43,7 +43,7 @@ import kotlin.math.sin
  * A target tracker to choose the best enemy to attack
  */
 abstract class TargetRenderer<T: RenderEnvironment>(
-    module: Module
+    module: ClientModule
 ) : ToggleableConfigurable(module, "TargetRendering", true) {
 
     init {
@@ -63,7 +63,7 @@ abstract class TargetRenderer<T: RenderEnvironment>(
 }
 
 
-class WorldTargetRenderer(module: Module) : TargetRenderer<WorldRenderEnvironment>(module) {
+class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvironment>(module) {
 
     val legacy = Legacy()
     val circle = Circle(module)
@@ -110,7 +110,7 @@ class WorldTargetRenderer(module: Module) : TargetRenderer<WorldRenderEnvironmen
         }
     }
 
-    inner class Circle(module: Module) : WorldTargetRenderAppearance("Circle") {
+    inner class Circle(module: ClientModule) : WorldTargetRenderAppearance("Circle") {
         override val parent: ChoiceConfigurable<Choice>
             get() = appearance
 
@@ -149,7 +149,7 @@ class WorldTargetRenderer(module: Module) : TargetRenderer<WorldRenderEnvironmen
 
     }
 
-    inner class GlowingCircle(module: Module) : WorldTargetRenderAppearance("GlowingCircle") {
+    inner class GlowingCircle(module: ClientModule) : WorldTargetRenderAppearance("GlowingCircle") {
         override val parent: ChoiceConfigurable<Choice>
             get() = appearance
 
@@ -283,7 +283,7 @@ class WorldTargetRenderer(module: Module) : TargetRenderer<WorldRenderEnvironmen
     }
 }
 
-class OverlayTargetRenderer(module: Module) : TargetRenderer<GUIRenderEnvironment>(module) {
+class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvironment>(module) {
     override val appearance = choices<Choice>(module, "Mode", Legacy(), arrayOf(Legacy()))
 
     inner class Legacy : OverlayTargetRenderAppearance("Arrow") {

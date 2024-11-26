@@ -23,20 +23,21 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.chat.ChatClient
 import net.ccbluex.liquidbounce.features.chat.packet.ServerRequestJWTPacket
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
-object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, state = true,
+object ModuleLiquidChat : ClientModule("LiquidChat", Category.CLIENT, hide = true, state = true,
     aliases = arrayOf("GlobalChat")) {
 
     private var jwtToken by text("JwtToken", "")
@@ -116,7 +117,7 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
         super.disable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!chatClient.connected) {
             chatClient.connectAsync()
 
@@ -207,6 +208,9 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
         }
     }
 
-    override fun handleEvents() = enabled
+    /**
+     * Overwrites the condition requirement for being in-game
+     */
+    override val running = !isDestructed && enabled
 
 }

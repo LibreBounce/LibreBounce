@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
-import net.ccbluex.liquidbounce.features.module.modules.misc.sanitizeWithNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeWithNameProtect
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -47,9 +47,16 @@ class NametagTextFormatter(private val entity: Entity) {
             outputText.append(this.pingText).append(" ")
         }
 
-        val nameString = entity.displayName!!.sanitizeWithNameProtect().string
+        val name = entity.displayName!!.sanitizeWithNameProtect()
+        val nameColor = this.nameColor
 
-        outputText.append(nameString.asText().styled { it.withColor(this.nameColor) })
+        val nameText: Text = if (nameColor != null) {
+            name.string.asText().styled { it.withColor(nameColor) }
+        } else {
+            name
+        }
+
+        outputText.append(nameText)
 
         if (ModuleNametags.ShowOptions.health) {
             outputText.append(" ").append(this.healthText)
@@ -64,7 +71,7 @@ class NametagTextFormatter(private val entity: Entity) {
 
     private val isBot = ModuleAntiBot.isBot(entity)
 
-    private val nameColor: TextColor
+    private val nameColor: TextColor?
         get() {
             val tagColor = EntityTaggingManager.getTag(this.entity).color
 
@@ -73,7 +80,7 @@ class NametagTextFormatter(private val entity: Entity) {
                 entity.isInvisible -> Formatting.GOLD.toTextColor()
                 entity.isSneaking -> Formatting.DARK_RED.toTextColor()
                 tagColor != null -> TextColor.fromRgb(tagColor.toARGB())
-                else -> Formatting.GRAY.toTextColor()
+                else -> null
             }
         }
 

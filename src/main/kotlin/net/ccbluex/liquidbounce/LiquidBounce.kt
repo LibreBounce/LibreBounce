@@ -27,8 +27,8 @@ import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -42,14 +42,14 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
@@ -70,6 +70,8 @@ import net.minecraft.resource.ResourceManager
 import net.minecraft.resource.ResourceReloader
 import net.minecraft.resource.SynchronousResourceReloader
 import org.apache.logging.log4j.LogManager
+import java.io.File
+import kotlin.time.measureTime
 
 /**
  * LiquidBounce
@@ -78,7 +80,7 @@ import org.apache.logging.log4j.LogManager
  *
  * @author kawaiinekololis (@team CCBlueX)
  */
-object LiquidBounce : Listenable {
+object LiquidBounce : EventListener {
 
     /**
      * CLIENT INFORMATION
@@ -156,7 +158,7 @@ object LiquidBounce : Listenable {
             ConfigSystem.root(LanguageManager)
             ConfigSystem.root(ClientAccountManager)
             BrowserManager
-            Fonts
+            FontManager
             PostRotationExecutor
 
             // Register commands and modules
@@ -179,7 +181,7 @@ object LiquidBounce : Listenable {
             // Initialize browser
             logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
 
-            IntegrationHandler
+            IntegrationListener
             BrowserManager.initBrowser()
 
             // Register resource reloader
@@ -213,10 +215,30 @@ object LiquidBounce : Listenable {
 
         override fun reload(manager: ResourceManager) {
             runCatching {
-                logger.info("Loading fonts...")
-                Fonts.loadQueuedFonts()
-            }.onSuccess {
-                logger.info("Loaded fonts successfully!")
+                // Queue fonts of all themes
+                // TODO: Will be removed with PR #3884 as it is not needed anymore
+                ThemeManager.themesFolder.listFiles()
+                    ?.filter { file -> file.isDirectory }
+                    ?.forEach { file ->
+                        runCatching {
+                            val assetsFolder = File(file, "assets")
+                            if (!assetsFolder.exists()) {
+                                return@forEach
+                            }
+
+                            FontManager.queueFolder(assetsFolder)
+                        }.onFailure {
+                            logger.error("Failed to queue fonts from theme '${file.name}'.", it)
+                        }
+                    }
+
+                // Load fonts
+                val duration = measureTime {
+                    FontManager.createGlyphManager()
+                }
+
+                logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
+                logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
             }.onFailure(ErrorHandler::fatal)
 
             // Check for newest version

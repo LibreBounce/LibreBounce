@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.murdermystery
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.item.BowItem
@@ -14,7 +14,7 @@ object MurderMysteryInfectionMode : MurderMysteryGenericMode("Infection") {
         get() = ModuleMurderMystery.modes
 
     val rep =
-        repeatable {
+        tickHandler {
             world.players
                 .filterIsInstance<AbstractClientPlayerEntity>()
                 .filter {

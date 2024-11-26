@@ -23,18 +23,15 @@ package net.ccbluex.liquidbounce.features.module.modules.player.antivoid
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidBlinkMode
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidFlagMode
+import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidGhostBlockMode
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.utils.block.canStandOn
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
-import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.util.shape.VoxelShapes
 
@@ -42,9 +39,10 @@ import net.minecraft.util.shape.VoxelShapes
  * AntiVoid module protects the player from falling into the void by simulating
  * future movements and taking action if necessary.
  */
-object ModuleAntiVoid : Module("AntiVoid", Category.PLAYER) {
+object ModuleAntiVoid : ClientModule("AntiVoid", Category.PLAYER) {
 
-    val mode = choices("Mode", AntiVoidFlagMode, arrayOf(
+    val mode = choices("Mode", AntiVoidGhostBlockMode, arrayOf(
+        AntiVoidGhostBlockMode,
         AntiVoidFlagMode,
         AntiVoidBlinkMode
     ))
@@ -54,6 +52,7 @@ object ModuleAntiVoid : Module("AntiVoid", Category.PLAYER) {
 
     // Flags indicating if an action has been already taken or needs to be taken.
     var isLikelyFalling = false
+    var isTestingCollision = false
 
     // How many future ticks to simulate to ensure safety.
     private const val SAFE_TICKS_THRESHOLD = 10
@@ -73,7 +72,12 @@ object ModuleAntiVoid : Module("AntiVoid", Category.PLAYER) {
         )
 
         // Analyzes if the player might be falling into the void soon.
-        isLikelyFalling = isLikelyFalling(simulatedPlayer)
+        try {
+            isTestingCollision = true
+            isLikelyFalling = isLikelyFalling(simulatedPlayer)
+        } finally {
+            isTestingCollision = false
+        }
     }
 
 
@@ -120,9 +124,9 @@ object ModuleAntiVoid : Module("AntiVoid", Category.PLAYER) {
      * Executes periodically to check if an anti-void action is required, and triggers it if necessary.
      */
     @Suppress("unused")
-    private val antiVoidListener = repeatable {
+    private val antiVoidListener = tickHandler {
         if (mode.activeChoice.isExempt || !isLikelyFalling) {
-            return@repeatable
+            return@tickHandler
         }
 
         val boundingBox = player.boundingBox.withMinY(voidThreshold.toDouble())

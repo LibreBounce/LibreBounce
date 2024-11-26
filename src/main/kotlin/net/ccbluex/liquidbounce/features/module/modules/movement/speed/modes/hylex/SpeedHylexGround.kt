@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.hylex
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.minecraft.entity.effect.StatusEffects
 
 /**
@@ -38,24 +38,24 @@ class SpeedHylexGround(override val parent: ChoiceConfigurable<*>) : Choice("Hyl
         super.enable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!player.isOnGround) {
             groundTicks = 0
-            return@repeatable
+            return@tickHandler
         }
 
         groundTicks++
 
         if (groundTicks <= 5) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (player.hurtTime >= 1) {
-            return@repeatable
+            return@tickHandler
         }
 
         if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) >= 1) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (!(mc.options.leftKey.isPressed || mc.options.rightKey.isPressed)) {
@@ -64,7 +64,7 @@ class SpeedHylexGround(override val parent: ChoiceConfigurable<*>) : Choice("Hyl
                 1.0,
                 1.2174
             )
-            return@repeatable
+            return@tickHandler
         }
 
         player.velocity = player.velocity.multiply(

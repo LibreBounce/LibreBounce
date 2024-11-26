@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -44,7 +44,7 @@ import kotlin.random.nextInt
  * This allows us to predict future actions and behave accordingly.
  */
 open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int = 60, name: String = "ClickScheduler")
-    : Configurable(name), Listenable where T : Listenable {
+    : Configurable(name), EventListener where T : EventListener {
 
     companion object {
         val RNG = java.util.Random()
@@ -58,7 +58,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     private val clickTechnique by enumChoice("Technique", ClickTechnique.STABILIZED)
 
     class Cooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", true)
-        where T: Listenable {
+        where T: EventListener {
 
         val rangeCooldown by floatRange("Timing", 1.0f..1.0f, 0.1f..1f)
 
@@ -157,7 +157,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     /**
      * A click cycle is 20 ticks long, which is the length of a second.
      */
-    data class ClickCycle(var index: Int, val clickArray: Array<Int>, val totalClicks: Int) {
+    data class ClickCycle(var index: Int, val clickArray: IntArray, val totalClicks: Int) {
 
         fun next() = index++
 
@@ -191,7 +191,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
          */
         STABILIZED("Stabilized", { cps, _ ->
             val clicks = cps.random()
-            val clickArray = Array(20) { 0 }
+            val clickArray = IntArray(20) { 0 }
 
             // Calculate the interval and distribute the remainder to spread evenly
             val interval = clickArray.size / clicks
@@ -234,7 +234,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
 
             // Generate a random click array lasting 20 ticks
             // Make sure to support more than 20 clicks
-            val clickArray = Array(20) { 0 }
+            val clickArray = IntArray(20) { 0 }
 
             repeat(clicks) {
                 // Increase random index inside click array by 1
@@ -261,7 +261,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
 
             // Generate a random click array lasting 20 ticks
             // Make sure to support more than 20 clicks
-            val clickArray = Array(20) { 0 }
+            val clickArray = IntArray(20) { 0 }
 
             repeat(clicks) {
                 // Increase random index inside click array by 1
@@ -302,7 +302,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
             val travelTime = Random.nextInt(7..12)
             val travelReturnTime = Random.nextInt(2..4)
 
-            val clickArray = Array(travelTime + travelReturnTime) { 0 }
+            val clickArray = IntArray(travelTime + travelReturnTime) { 0 }
 
             // Fit the clicks into the travel time of the
             while (clickArray.sum() < clicks) {
@@ -327,7 +327,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
          */
         BUTTERFLY("Butterfly", { cps, _ ->
             // Generate a random click array lasting 120 ticks
-            val clickArray = Array(20) { 0 }
+            val clickArray = IntArray(20) { 0 }
             val clicks = cps.random()
 
             while (clickArray.sum() < clicks) {
@@ -361,7 +361,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
 
             var t = 0.0
 
-            val clickArray = Array(20) { 0 }
+            val clickArray = IntArray(20) { 0 }
 
             while (true) {
                 val v = RNG.nextDouble()

@@ -101,9 +101,9 @@ dependencies {
     }
 
     // JCEF Support
-    includeModDependency "com.github.CCBlueX:mcef:1.2.0-1.21.1"
+    includeModDependency "com.github.CCBlueX:mcef:1.2.1-1.21.1"
     includeDependency "org.apache.commons:commons-exec:1.3"
-    includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.0") {
+    includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
     }
 
@@ -120,15 +120,19 @@ dependencies {
 //    includeDependency "org.graalvm.polyglot:ruby-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
 
-    // SOCKS5 Proxy Support (to stay compatible with ViaFabricPlus)
-    includeDependency ("io.netty:netty-handler-proxy:4.1.114.Final") {
+    // SOCKS5 Proxy Support
+    includeDependency ("io.netty:netty-handler-proxy:4.1.97.Final") {
         exclude group: "io.netty", module: "netty-common"
         exclude group: "io.netty", module: "netty-buffer"
         exclude group: "io.netty", module: "netty-transport"
+        exclude group: "io.netty", module: "netty-codec"
     }
 
     // Update Checker
     includeDependency "com.vdurmont:semver4j:3.1.0"
+
+    // Name Protect
+    includeDependency "org.ahocorasick:ahocorasick:0.6.3"
 
     // Test libraries
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.3"

@@ -23,19 +23,21 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.minecraft.block.BlockState
+import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.chunk.WorldChunk
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
 
-object ChunkScanner : Listenable {
+object ChunkScanner : EventListener {
+
     private val subscribers = CopyOnWriteArrayList<BlockChangeSubscriber>()
 
     private val loadedChunks = hashSetOf<ChunkLocation>()
@@ -117,7 +119,16 @@ object ChunkScanner : Listenable {
     }
 
     object ChunkScannerThread {
-        private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+        /**
+         * When the first request comes in, the dispatcher and the scope will be initialized,
+         * and its parallelism cannot be modified
+         */
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private val dispatcher = Util.getMainWorkerExecutor().asCoroutineDispatcher()
+            .limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
+
+        private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
         /**
          * Shared cache for CoroutineScope
@@ -153,16 +164,17 @@ object ChunkScanner : Listenable {
                         retrying = 0
 
                         // process the update request
-                        // TODO: may need to start a new job
-                        when (chunkUpdate) {
-                            is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
+                        launch {
+                            when (chunkUpdate) {
+                                is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
 
-                            is UpdateRequest.ChunkUnloadRequest -> subscribers.forEach {
-                                it.clearChunk(chunkUpdate.x, chunkUpdate.z)
-                            }
+                                is UpdateRequest.ChunkUnloadRequest -> subscribers.forEach {
+                                    it.clearChunk(chunkUpdate.x, chunkUpdate.z)
+                                }
 
-                            is UpdateRequest.BlockUpdateEvent -> subscribers.forEach {
-                                it.recordBlock(chunkUpdate.blockPos, chunkUpdate.newState, cleared = false)
+                                is UpdateRequest.BlockUpdateEvent -> subscribers.forEach {
+                                    it.recordBlock(chunkUpdate.blockPos, chunkUpdate.newState, cleared = false)
+                                }
                             }
                         }
                     } catch (e: CancellationException) {

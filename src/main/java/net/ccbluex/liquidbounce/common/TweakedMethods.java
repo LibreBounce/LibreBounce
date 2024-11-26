@@ -33,7 +33,7 @@ import net.minecraft.world.RaycastContext;
 public class TweakedMethods {
 
     public static BlockHitResult tweakedRaycast(BlockView blockView, RaycastContext context) {
-        if (ModuleGhostHand.INSTANCE.getEnabled()) {
+        if (ModuleGhostHand.INSTANCE.getRunning()) {
             var returned = (BlockHitResult) BlockView.raycast(context.getStart(), context.getEnd(), context, (contextx, pos) -> {
                 BlockState blockState = blockView.getBlockState(pos);
 

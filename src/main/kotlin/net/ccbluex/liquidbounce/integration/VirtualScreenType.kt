@@ -67,34 +67,34 @@ enum class VirtualScreenType(
     MULTIPLAYER(
         "multiplayer",
         recognizer = { it is MultiplayerScreen || it is MultiplayerWarningScreen },
-        open = { mc.setScreen(MultiplayerScreen(IntegrationHandler.parent)) }
+        open = { mc.setScreen(MultiplayerScreen(IntegrationListener.parent)) }
     ),
 
     MULTIPLAYER_REALMS(
         "multiplayer_realms",
         recognizer = { it is RealmsMainScreen },
-        open = { mc.setScreen(RealmsMainScreen(IntegrationHandler.parent)) }
+        open = { mc.setScreen(RealmsMainScreen(IntegrationListener.parent)) }
     ),
 
     SINGLEPLAYER(
         "singleplayer",
         recognizer = { it is SelectWorldScreen },
         open = {
-            mc.setScreen(SelectWorldScreen(IntegrationHandler.parent))
+            mc.setScreen(SelectWorldScreen(IntegrationListener.parent))
         }
     ),
 
     CREATE_WORLD(
         "create_world",
         recognizer = { it is CreateWorldScreen },
-        open = { CreateWorldScreen.create(mc, IntegrationHandler.parent) }
+        open = { CreateWorldScreen.create(mc, IntegrationListener.parent) }
     ),
 
     OPTIONS(
         "options",
         recognizer = { it is OptionsScreen },
         open = {
-            mc.setScreen(OptionsScreen(IntegrationHandler.parent, mc.options))
+            mc.setScreen(OptionsScreen(IntegrationListener.parent, mc.options))
         }
     ),
 

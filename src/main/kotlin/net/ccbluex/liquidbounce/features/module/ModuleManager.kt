@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -31,8 +31,10 @@ import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresenc
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
@@ -43,6 +45,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.ModuleNameProtect
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
@@ -74,6 +77,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.autobuild.ModuleAu
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
 import net.ccbluex.liquidbounce.features.module.modules.world.fucker.ModuleFucker
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
@@ -86,12 +90,12 @@ import org.lwjgl.glfw.GLFW
 /**
  * Should be sorted by Module::name
  */
-private val modules = ArrayList<Module>(256)
+private val modules = ArrayList<ClientModule>(256)
 
 /**
  * A fairly simple module manager
  */
-object ModuleManager : Listenable, Iterable<Module> by modules {
+object ModuleManager : EventListener, Iterable<ClientModule> by modules {
 
     val modulesConfigurable = ConfigSystem.root("modules", modules)
 
@@ -125,7 +129,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             GLFW.GLFW_PRESS -> if (mc.currentScreen == null) {
                 filter { m -> m.bind.matchesMouse(event.button) }
                     .forEach { m ->
-                        m.enabled = !m.enabled || m.bind.action == InputBind.BindAction.HOLD
+                        m.enabled = !m.running || m.bind.action == InputBind.BindAction.HOLD
                     }
             }
             GLFW.GLFW_RELEASE ->
@@ -157,6 +161,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleCriticals,
             ModuleHitbox,
             ModuleKillAura,
+            ModuleTpAura,
             ModuleSuperKnockback,
             ModuleTimerRange,
             ModuleTickBase,
@@ -209,7 +214,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             // Misc
             ModuleAntiBot,
             ModuleBetterChat,
-            ModuleFriendClicker,
+            ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
             ModuleNotifier,
@@ -229,6 +234,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAvoidHazards,
             ModuleBlockBounce,
             ModuleBlockWalk,
+            ModuleElytraRecast,
             ModuleElytraFly,
             ModuleFly,
             ModuleFreeze,
@@ -269,6 +275,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleBlink,
             ModuleChestStealer,
             ModuleEagle,
+            ModuleFastExp,
             ModuleFastUse,
             ModuleInventoryCleaner,
             ModuleNoFall,
@@ -328,7 +335,6 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleAutoFarm,
             ModuleAutoTool,
             ModuleCrystalAura,
-            ModuleCivBreak,
             ModuleFastBreak,
             ModuleFastPlace,
             ModuleFucker,
@@ -342,6 +348,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             ModuleExtinguish,
             ModuleBedDefender,
             ModuleSurround,
+            ModulePacketMine,
 
             // Client
             ModuleAutoConfig,
@@ -355,17 +362,21 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             builtin += ModuleDebugRecorder
         }
 
-        builtin.forEach(::addModule)
+        builtin.forEach {
+            addModule(it)
+            it.walkKeyPath()
+            it.verifyFallbackDescription()
+        }
     }
 
-    private fun addModule(module: Module) {
+    private fun addModule(module: ClientModule) {
         module.initConfigurable()
         module.init()
-        modules.sortedInsert(module, Module::name)
+        modules.sortedInsert(module, ClientModule::name)
     }
 
-    private fun removeModule(module: Module) {
-        if (module.enabled) {
+    private fun removeModule(module: ClientModule) {
+        if (module.running) {
             module.disable()
         }
         module.unregister()
@@ -375,19 +386,19 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
     /**
      * Allow `ModuleManager += Module` syntax
      */
-    operator fun plusAssign(module: Module) {
+    operator fun plusAssign(module: ClientModule) {
         addModule(module)
     }
 
-    operator fun plusAssign(modules: Iterable<Module>) {
+    operator fun plusAssign(modules: Iterable<ClientModule>) {
         modules.forEach(this::addModule)
     }
 
-    operator fun minusAssign(module: Module) {
+    operator fun minusAssign(module: ClientModule) {
         removeModule(module)
     }
 
-    operator fun minusAssign(modules: Iterable<Module>) {
+    operator fun minusAssign(modules: Iterable<ClientModule>) {
         modules.forEach(this::removeModule)
     }
 
@@ -395,7 +406,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, args: List<String>, validator: (Module) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, args: List<String>, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
         val resultPrefix = parts.dropLast(1).joinToString(",") + ","
@@ -409,7 +420,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
             }
     }
 
-    fun parseModulesFromParameter(name: String?): List<Module> {
+    fun parseModulesFromParameter(name: String?): List<ClientModule> {
         if (name == null) return emptyList()
         return name.split(",").mapNotNull { getModuleByName(it) }
     }
@@ -422,7 +433,7 @@ object ModuleManager : Listenable, Iterable<Module> by modules {
     fun getCategories() = Category.entries.mapArray { it.readableName }
 
     @JvmName("getModules")
-    fun getModules(): Iterable<Module> = modules
+    fun getModules(): Iterable<ClientModule> = modules
 
     @JvmName("getModuleByName")
     @ScriptApiRequired

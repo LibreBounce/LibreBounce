@@ -26,15 +26,16 @@ import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.dropPort
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.rootDomain
 
-object ModuleAutoConfig : Module("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {
+object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {
 
     private val blacklistedServer = mutableListOf(
         // Common anticheat test server
@@ -68,7 +69,7 @@ object ModuleAutoConfig : Module("AutoConfig", Category.CLIENT, state = true, al
         super.disable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (requiresConfigLoad && inGame && mc.currentScreen == null) {
             enable()
             requiresConfigLoad = false
@@ -113,8 +114,8 @@ object ModuleAutoConfig : Module("AutoConfig", Category.CLIENT, state = true, al
     }
 
     /**
-     * Overwrites the condition requirement for being in game
+     * Overwrites the condition requirement for being in-game
      */
-    override fun handleEvents() = enabled
+    override val running = !isDestructed && enabled
 
 }

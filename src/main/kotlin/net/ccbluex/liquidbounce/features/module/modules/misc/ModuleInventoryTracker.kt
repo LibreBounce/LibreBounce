@@ -1,11 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.events.*
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
+import net.ccbluex.liquidbounce.event.events.ItemLoreQueryEvent
+import net.ccbluex.liquidbounce.event.events.PlayerEquipmentChangeEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.CommandInvsee
 import net.ccbluex.liquidbounce.features.command.commands.client.NoInteractInventory
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.EquipmentSlot
@@ -15,7 +18,7 @@ import net.minecraft.entity.EquipmentSlot.Type.*
 import net.minecraft.item.ItemStack
 import java.util.*
 
-object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
+object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) {
 
     private val playerMap = HashMap<UUID, TrackedInventory>()
 
@@ -45,14 +48,14 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
         }
 
         val inventory = player.inventory
-        val items = trackedInventory.items
+        val items = trackedInventory.items.toTypedArray()
 
         val mainHandEmpty = mainHandStack.isEmpty
         val range = if (mainHandEmpty) 0..34 else 1..35
         val offset = if (mainHandEmpty) 1 else 0
 
         for (i in range) {
-            inventory.main[i + offset] = if (i < items.size) items[i] else ItemStack.EMPTY
+            inventory.main[i + offset] = items.getOrNull(i) ?: ItemStack.EMPTY
         }
     }
 
@@ -71,9 +74,9 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
     }
 
     val itemLoreQueryHandler = handler<ItemLoreQueryEvent> { event ->
-        if (!enabled || mc.currentScreen !is NoInteractInventory) return@handler
-        val player = CommandInvsee.viewedPlayer
-        val timeStamp = playerMap[player?.uuid]?.timeMap?.get(event.itemStack) ?: return@handler
+        if (!running || mc.currentScreen !is NoInteractInventory) return@handler
+        val player = CommandInvsee.viewedPlayer ?: return@handler
+        val timeStamp = playerMap[player.uuid]?.timeMap?.getLong(event.itemStack)?.takeIf { it != 0L } ?: return@handler
         val lastSeen = System.currentTimeMillis() - timeStamp
         event.addLore("§7Last Seen: ${toMinutesSeconds(lastSeen)}§r")
     }
@@ -88,8 +91,8 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
 
 class TrackedInventory {
 
-    val items = LinkedList<ItemStack>()
-    val timeMap = HashMap<ItemStack, Long>()
+    val items = ArrayDeque<ItemStack>()
+    val timeMap = Object2LongOpenHashMap<ItemStack>()
 
     /**
      * if slot type is armor then we check if the item is already in the tracked items
@@ -101,8 +104,8 @@ class TrackedInventory {
 
         items.removeIf { newItemStack.item == it.item && newItemStack.enchantments == it.enchantments }
         if (updatedSlot.type == HAND) {
-            items.add(0, newItemStack)
-            timeMap[newItemStack] = System.currentTimeMillis()
+            items.addFirst(newItemStack)
+            timeMap.put(newItemStack, System.currentTimeMillis())
 
             if (items.size > 36) {
                 items.removeLast()

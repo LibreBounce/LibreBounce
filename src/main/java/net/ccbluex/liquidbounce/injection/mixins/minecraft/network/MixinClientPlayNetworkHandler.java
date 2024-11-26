@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
-import net.ccbluex.liquidbounce.config.Choice;
+import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler;
@@ -89,7 +89,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         double y = args.get(1);
         double z = args.get(2);
 
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
             double fixedX = MathHelper.clamp(x, -10.0, 10.0);
             double fixedY = MathHelper.clamp(y, -10.0, 10.0);
             double fixedZ = MathHelper.clamp(z, -10.0, 10.0);
@@ -106,7 +106,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
     private int onParticleAmount(int original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitParticlesAmount() && 500 <= original) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesAmount() && 500 <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too many particles", true);
             return 100;
         }
@@ -115,7 +115,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getSpeed()F"))
     private float onParticleSpeed(float original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitParticlesSpeed() && 10.0f <= original) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesSpeed() && 10.0f <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too fast particles speed", true);
             return 10.0f;
         }
@@ -124,7 +124,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;getRadius()F"))
     private float onExplosionWorld(float original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitExplosionRange()) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionRange()) {
             float radius = MathHelper.clamp(original, -1000.0f, 1000.0f);
             if (radius != original) {
                 ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too big TNT explosion radius", true);
@@ -136,7 +136,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onGameStateChange", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket;getReason()Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket$Reason;"))
     private GameStateChangeS2CPacket.Reason onGameStateChange(GameStateChangeS2CPacket.Reason original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && original == GameStateChangeS2CPacket.DEMO_MESSAGE_SHOWN && ModuleAntiExploit.INSTANCE.getCancelDemo()) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && original == GameStateChangeS2CPacket.DEMO_MESSAGE_SHOWN && ModuleAntiExploit.INSTANCE.getCancelDemo()) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Cancelled demo GUI (just annoying thing)", false);
             return null;
         }
@@ -164,7 +164,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         float j = packet.getYaw();
         float k = packet.getPitch();
 
-        if (!ModuleNoRotateSet.INSTANCE.getEnabled() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
+        if (!ModuleNoRotateSet.INSTANCE.getRunning() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
             return;
         }
 
@@ -196,7 +196,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     private String handleSendMessage(String content) {
         var result = ModuleBetterChat.INSTANCE.modifyMessage(content);
 
-        if (ModuleDisabler.INSTANCE.getEnabled() && DisablerSpigotSpam.INSTANCE.getEnabled()) {
+        if (ModuleDisabler.INSTANCE.getRunning() && DisablerSpigotSpam.INSTANCE.getEnabled()) {
             return DisablerSpigotSpam.INSTANCE.getMessage() + " " + result;
         }
 

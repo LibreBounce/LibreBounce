@@ -18,25 +18,25 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.Value
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isHidingNow
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.markAsError
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.components
 import net.ccbluex.liquidbounce.integration.theme.component.customComponents
 import net.ccbluex.liquidbounce.integration.theme.component.types.minimap.ChunkRenderer
+import net.ccbluex.liquidbounce.utils.block.ChunkScanner
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.inGame
+import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.minecraft.client.gui.screen.DisconnectedScreen
 
 /**
@@ -45,11 +45,11 @@ import net.minecraft.client.gui.screen.DisconnectedScreen
  * The client in-game dashboard.
  */
 
-object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
+object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = true) {
 
     private var browserTab: ITab? = null
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.hud"
 
     private val blur by boolean("Blur", true)
@@ -68,8 +68,8 @@ object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
         tree(Configurable("Custom", customComponents as MutableList<Value<*>>))
     }
 
-    val screenHandler = handler<ScreenEvent>(ignoreCondition = true) {
-        if (!enabled || !inGame || it.screen is DisconnectedScreen || isHidingNow) {
+    val screenHandler = handler<ScreenEvent>(ignoreNotRunning = true) {
+        if (!running || !inGame || it.screen is DisconnectedScreen || isHidingNow) {
             browserTab?.closeTab()
             browserTab = null
         } else if (browserTab == null) {

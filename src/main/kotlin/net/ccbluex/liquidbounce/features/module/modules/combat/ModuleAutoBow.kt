@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -58,7 +58,7 @@ import kotlin.math.*
  * Automatically shoots with your bow when it's fully charged
  *  + and make it possible to shoot faster
  */
-object ModuleAutoBow : Module("AutoBow", Category.COMBAT, aliases = arrayOf("BowAssist", "BowAimbot")) {
+object ModuleAutoBow : ClientModule("AutoBow", Category.COMBAT, aliases = arrayOf("BowAssist", "BowAimbot")) {
     const val ACCELERATION = -0.006
     const val REAL_ACCELERATION = -0.005
 
@@ -228,13 +228,13 @@ object ModuleAutoBow : Module("AutoBow", Category.COMBAT, aliases = arrayOf("Bow
         private val targetRenderer = tree(OverlayTargetRenderer(ModuleAutoBow))
 
         @Suppress("unused")
-        val tickRepeatable = repeatable {
+        val tickRepeatable = tickHandler {
             targetTracker.cleanup()
 
             // Should check if player is using bow
             val activeItem = player.activeItem?.item
             if (activeItem !is BowItem && activeItem !is TridentItem) {
-                return@repeatable
+                return@tickHandler
             }
 
             val eyePos = player.eyes
@@ -250,7 +250,7 @@ object ModuleAutoBow : Module("AutoBow", Category.COMBAT, aliases = arrayOf("Bow
             }
 
             if (rotation == null) {
-                return@repeatable
+                return@tickHandler
             }
 
             RotationManager.aimAt(
@@ -432,21 +432,21 @@ object ModuleAutoBow : Module("AutoBow", Category.COMBAT, aliases = arrayOf("Bow
         private val packetType by enumChoice("PacketType", MovePacketType.FULL)
 
         @Suppress("unused")
-        val tickRepeatable = repeatable {
+        val tickRepeatable = tickHandler {
             val currentItem = player.activeItem
 
             // Should accelerated game ticks when using bow
             if (currentItem?.item is BowItem) {
                 if (notInTheAir && !player.isOnGround) {
-                    return@repeatable
+                    return@tickHandler
                 }
 
                 if (notDuringMove && player.moving) {
-                    return@repeatable
+                    return@tickHandler
                 }
 
                 if (notDuringRegeneration && player.hasStatusEffect(StatusEffects.REGENERATION)) {
-                    return@repeatable
+                    return@tickHandler
                 }
 
                 repeat(speed) {

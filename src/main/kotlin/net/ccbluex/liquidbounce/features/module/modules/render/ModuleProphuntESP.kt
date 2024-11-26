@@ -1,14 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.utils.interpolateHue
@@ -22,9 +22,9 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-import java.util.*
+import java.util.concurrent.PriorityBlockingQueue
 
-object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
+object ModuleProphuntESP : ClientModule("ProphuntESP", Category.RENDER,
     aliases = arrayOf("BlockUpdateDetector", "FallingBlockESP")) {
 
     private val modes = choices(
@@ -59,6 +59,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
     private val renderBlockUpdates by boolean("RenderBlockUpdates", true)
     private val renderFallingBlockEntity by boolean("RenderFallingBlockEntity", true)
 
+    @JvmRecord
     private data class TrackedBlock(val pos: BlockPos, val expirationTime: Long) : Comparable<TrackedBlock> {
         override fun compareTo(other: TrackedBlock) =
             expirationTime.compareTo(other.expirationTime)
@@ -70,15 +71,13 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
         )
     }
 
-    private val trackedBlocks = PriorityQueue<TrackedBlock>()
+    private val trackedBlocks = PriorityBlockingQueue<TrackedBlock>()
     private val renderTicks by float("RenderTicks", 60f, 0f..600f)
 
     @Suppress("unused")
-    private val gameHandler = repeatable {
-        synchronized(trackedBlocks) {
-            while (trackedBlocks.isNotEmpty() && trackedBlocks.peek().expirationTime <= world.time) {
-                trackedBlocks.poll()
-            }
+    private val gameHandler = tickHandler {
+        while (trackedBlocks.isNotEmpty() && trackedBlocks.peek().expirationTime <= world.time) {
+            trackedBlocks.poll()
         }
 
         waitTicks(1)
@@ -106,9 +105,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
         var dirty = false
 
         renderEnvironmentForWorld(matrixStack) {
-            synchronized(trackedBlocks) {
-                dirty = drawBlocks(this, trackedBlocks, colorMode, fullAlpha, drawOutline) || dirty
-            }
+            dirty = drawBlocks(this, trackedBlocks, colorMode, fullAlpha, drawOutline) || dirty
         }
 
         return dirty
@@ -153,7 +150,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
 
     private fun WorldRenderEnvironment.drawBlocks(
         env: WorldRenderEnvironment,
-        blocks: PriorityQueue<TrackedBlock>,
+        blocks: Iterable<TrackedBlock>,
         colorMode: GenericColorMode<Any>,
         fullAlpha: Boolean,
         drawOutline: Boolean
@@ -247,9 +244,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
     @Suppress("unused")
     private val networkHandler = handler<PacketEvent> { event ->
         if (event.packet is BlockUpdateS2CPacket) {
-            synchronized(trackedBlocks) {
-                trackedBlocks.offer(TrackedBlock(event.packet.pos, world.time + renderTicks.toLong()))
-            }
+            trackedBlocks.offer(TrackedBlock(event.packet.pos, world.time + renderTicks.toLong()))
         }
     }
 }

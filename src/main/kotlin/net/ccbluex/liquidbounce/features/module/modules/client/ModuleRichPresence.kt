@@ -31,15 +31,15 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.config.util.decode
-import net.ccbluex.liquidbounce.config.util.jsonArrayOf
-import net.ccbluex.liquidbounce.config.util.jsonObjectOf
+import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
+import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.hideSensitiveAddress
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -57,7 +57,7 @@ val ipcConfiguration by lazy {
     decode<IpcConfiguration>(HttpClient.get("$CLIENT_CLOUD/discord.json"))
 }
 
-object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true, hide = true,
+object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state = true, hide = true,
     aliases = arrayOf("DiscordPresence")) {
 
     private val detailsText by text("Details", "Nextgen v%clientVersion% by %clientAuthor%")
@@ -130,7 +130,7 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
     }
 
     @Suppress("unused")
-    val updateCycle = repeatable {
+    val updateCycle = tickHandler {
         waitTicks(20)
 
         /**
@@ -189,14 +189,17 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
         .replace("%clientName%", CLIENT_NAME)
         .replace("%clientBranch%", clientBranch)
         .replace("%clientCommit%", clientCommit)
-        .replace("%enabledModules%", ModuleManager.count { it.enabled }.toString())
+        .replace("%enabledModules%", ModuleManager.count { it.running }.toString())
         .replace("%totalModules%", ModuleManager.count().toString())
         .replace("%protocol%", protocolVersion.let { "${it.name} (${it.version})" })
         .replace("%server%", hideSensitiveAddress(mc.currentServerEntry?.address ?: "none"))
 
-    override fun handleEvents() = true
-
     private inline fun IPCClient.sendRichPresence(builderAction: RichPresence.Builder.() -> Unit) =
         sendRichPresence(RichPresence.Builder().apply(builderAction).build())
+
+    /**
+     * Always running
+     */
+    override val running = true
 
 }

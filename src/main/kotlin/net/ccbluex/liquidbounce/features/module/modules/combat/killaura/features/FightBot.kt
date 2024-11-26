@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.clickScheduler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.targetTracker
@@ -46,7 +46,7 @@ object FightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", false) {
     private val safeRange by float("SafeRange", 4f, 0.1f..5f)
     private var sideToGo = false
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         sideToGo = !sideToGo
 
         waitTicks(

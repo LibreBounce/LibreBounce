@@ -95,8 +95,8 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
                             drawEntryBox(entry.key, entry.value.second, box, colorFactor)
 
                             if (time - entry.value.first >= outTime) {
-                                updateNeighbors(entry.key)
                                 remove()
+                                updateNeighbors(entry.key)
                             }
                         }
                     }
@@ -276,6 +276,25 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
         }
         for (entry in currentList) {
             currentList[entry.key] = getCullData(entry.key) to entry.value.second
+        }
+    }
+
+    /**
+     * Updates the box of [pos] to [box].
+     *
+     * This method won't affect positions that are in the state of fading out.
+     */
+    fun updateBox(pos: BlockPos, box: Box) {
+        val result1 = inList.computeIfPresent(pos) { _, value ->
+            Triple(value.first, value.second, box)
+        }
+
+        val result2 = currentList.computeIfPresent(pos) { _, value ->
+            Pair(value.first, box)
+        }
+
+        if (result1 != null || result2 != null) {
+            updateNeighbors(pos)
         }
     }
 

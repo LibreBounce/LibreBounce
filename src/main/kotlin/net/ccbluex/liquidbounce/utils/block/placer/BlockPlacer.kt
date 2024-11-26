@@ -19,14 +19,15 @@
 package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
@@ -56,11 +57,11 @@ import kotlin.math.max
 
 class BlockPlacer(
     name: String,
-    val module: Module,
+    val module: ClientModule,
     val priority: Priority,
     val slotFinder: (BlockPos?) -> HotbarItemSlot?,
     allowSupportPlacements: Boolean = true
-) : Configurable(name), Listenable {
+) : Configurable(name), EventListener {
 
     val range by float("Range", 4.5f, 1f..6f)
     val wallRange by float("WallRange", 4.5f, 0f..6f)
@@ -136,11 +137,9 @@ class BlockPlacer(
             ticksToWait = cooldown.random()
         }
 
-        if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
-            return@handler
-        }
-
-        if (!ignoreUsingItem && player.isUsingItem) {
+        val inventoryOpen = !ignoreOpenInventory && mc.currentScreen is HandledScreen<*>
+        val usingItem = !ignoreUsingItem && player.isUsingItem
+        if (inventoryOpen || usingItem) {
             return@handler
         }
 
@@ -399,7 +398,7 @@ class BlockPlacer(
         }
 
         blocks.put(pos, isSupport)
-        targetRenderer.addBlock(pos, update)
+        targetRenderer.addBlock(pos, update, FULL_BOX)
     }
 
     /**
@@ -443,6 +442,6 @@ class BlockPlacer(
         inaccessible.clear()
     }
 
-    override fun parent(): Listenable = module
+    override fun parent(): EventListener = module
 
 }

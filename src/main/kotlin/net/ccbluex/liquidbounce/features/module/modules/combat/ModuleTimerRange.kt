@@ -20,9 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.Timer.timerSpeed
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
@@ -35,7 +35,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Automatically speeds up when you are near an enemy.
  */
 
-object ModuleTimerRange : Module("TimerRange", Category.COMBAT) {
+object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
 
     private val timerBalanceLimit by float("TimerBalanceLimit", 20f, 0f..50f)
     private val normalSpeed by float("NormalSpeed", 0.9F, 0.1F..10F)
@@ -55,7 +55,7 @@ object ModuleTimerRange : Module("TimerRange", Category.COMBAT) {
         super.enable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val newTimerSpeed = updateTimerSpeed()
 
         if (newTimerSpeed != null) {

@@ -23,10 +23,10 @@ import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.entity.box
@@ -41,7 +41,7 @@ import kotlin.math.abs
  *
  * Show health changes of entities
  */
-object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
+object ModuleDamageParticles : ClientModule("DamageParticles", Category.RENDER) {
 
     private val scale by float("Scale", 1.5F, 0.25F..4F)
     private val ttl by float("TimeToLive", 1.5F, 0.5F..5.0F, "s")
@@ -58,9 +58,8 @@ object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
     private const val EPSILON = 0.05F
     private const val FORMATTER = "%.1f"
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = FontManager.FONT_RENDERER
 
     override fun disable() {
         healthMap.clear()
@@ -80,7 +79,7 @@ object ModuleDamageParticles : Module("DamageParticles", Category.RENDER) {
     }
 
     @Suppress("unused")
-    private val tickHandler = repeatable {
+    private val tickHandler = tickHandler {
         val entities = world.entities.filterIsInstanceTo(hashSetOf<LivingEntity>())
         entities.remove(player)
 

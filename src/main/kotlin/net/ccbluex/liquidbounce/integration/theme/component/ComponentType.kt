@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.integration.theme.component
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent
 import net.ccbluex.liquidbounce.integration.theme.component.types.minimap.MinimapComponent
 

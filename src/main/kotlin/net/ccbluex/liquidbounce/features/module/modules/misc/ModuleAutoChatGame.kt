@@ -20,10 +20,10 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -34,7 +34,7 @@ import kotlin.concurrent.thread
 /**
  * Automatically solves chat game riddles.
  */
-object ModuleAutoChatGame : Module("AutoChatGame", Category.MISC) {
+object ModuleAutoChatGame : ClientModule("AutoChatGame", Category.MISC) {
 
     private val baseUrl by text("BaseUrl", OPENAI_BASE_URL)
         .doNotIncludeAlways() // Keeps API key private
@@ -129,12 +129,12 @@ object ModuleAutoChatGame : Module("AutoChatGame", Category.MISC) {
         }
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         // Has the trigger word been said and has the buffer time elapsed?
         if (triggerWordChronometer.hasElapsed(bufferTime.toLong())) {
             // Is the buffer empty? - If it is we already answered the question.
             if (chatBuffer.isEmpty()) {
-                return@repeatable
+                return@tickHandler
             }
 
             // Handle questions

@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.nuker
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.area.FloorNukerArea
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.area.SphereNukerArea
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode.InstantNukerMode
@@ -33,7 +33,7 @@ import net.minecraft.util.math.BlockPos
  *
  * Destroys blocks around you.
  */
-object ModuleNuker : Module("Nuker", Category.WORLD, disableOnQuit = true) {
+object ModuleNuker : ClientModule("Nuker", Category.WORLD, disableOnQuit = true) {
 
     val mode =
         choices("Mode", LegitNukerMode, arrayOf(LegitNukerMode, InstantNukerMode))

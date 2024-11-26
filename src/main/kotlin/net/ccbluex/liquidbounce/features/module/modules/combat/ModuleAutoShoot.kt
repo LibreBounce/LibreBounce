@@ -21,13 +21,13 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.PointTracker
@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.interactItem
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
@@ -64,7 +65,7 @@ import kotlin.math.sqrt
  *
  * @author 1zuna
  */
-object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
+object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
     private val range by floatRange("Range", 3.0f..6f, 1f..50f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
@@ -124,7 +125,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
             return@handler
         }
 
-        if (requiresKillAura && !ModuleKillAura.enabled) {
+        if (requiresKillAura && !ModuleKillAura.running) {
             return@handler
         }
 
@@ -157,25 +158,25 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
      * Handles the auto shoot logic.
      */
     @Suppress("unused")
-    val handleAutoShoot = repeatable {
-        val target = targetTracker.lockedOnTarget ?: return@repeatable
+    val handleAutoShoot = tickHandler {
+        val target = targetTracker.lockedOnTarget ?: return@tickHandler
 
         // Cannot happen but we want to smart-cast
         @Suppress("USELESS_IS_CHECK")
         if (target !is LivingEntity) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (target.boxedDistanceTo(player) !in range) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (notDuringCombat && CombatManager.isInCombat) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Check if we have a throwable, if not we can't shoot.
-        val (hand, slot) = getThrowable() ?: return@repeatable
+        val (hand, slot) = getThrowable() ?: return@tickHandler
 
         // Select the throwable if we are not holding it.
         if (slot != -1) {
@@ -183,7 +184,7 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
             // If we are not holding the throwable, we can't shoot.
             if (SilentHotbar.serversideSlot != slot) {
-                return@repeatable
+                return@tickHandler
             }
         }
 
@@ -196,13 +197,13 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
 
         // Check difference between server and client rotation
         val rotationDifference = RotationManager.rotationDifference(
-            rotation ?: return@repeatable,
+            rotation ?: return@tickHandler,
             RotationManager.serverRotation
         )
 
         // Check if we are not aiming at the target yet
         if (rotationDifference > aimOffThreshold) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Check if we are still aiming at the target
@@ -211,7 +212,12 @@ object ModuleAutoShoot : Module("AutoShoot", Category.COMBAT) {
                 return@clicks false
             }
 
-            interaction.interactItem(player, hand).isAccepted
+            interaction.interactItem(
+                player,
+                hand,
+                RotationManager.serverRotation.yaw,
+                RotationManager.serverRotation.pitch
+            ).isAccepted
         }
     }
 

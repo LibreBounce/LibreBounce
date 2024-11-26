@@ -20,12 +20,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
@@ -47,14 +47,14 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : Choice("H
 
     private var airTicks = 0
     @Suppress("unused")
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         shouldStrafe = false
 
         if (player.isOnGround) {
             player.strafe()
             shouldStrafe = true
             airTicks = 0
-            return@repeatable
+            return@tickHandler
         } else {
             airTicks++
 

@@ -21,18 +21,18 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.player.autobuff
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features.*
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 
-object ModuleAutoBuff : Module("AutoBuff", Category.PLAYER, aliases = arrayOf("AutoPot", "AutoGapple", "AutoSoup")) {
+object ModuleAutoBuff : ClientModule("AutoBuff", Category.PLAYER, aliases = arrayOf("AutoPot", "AutoGapple", "AutoSoup")) {
 
     /**
      * All buff features
@@ -88,14 +88,14 @@ object ModuleAutoBuff : Module("AutoBuff", Category.PLAYER, aliases = arrayOf("A
     private val activeFeatures
         get() = features.filter { it.enabled }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (notDuringCombat && CombatManager.isInCombat) {
-            return@repeatable
+            return@tickHandler
         }
 
         for (feature in activeFeatures) {
             if (feature.runIfPossible(this)) {
-                return@repeatable
+                return@tickHandler
             }
         }
 

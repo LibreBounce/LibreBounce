@@ -22,10 +22,11 @@ import net.ccbluex.liquidbounce.config.AutoConfig.loadingNow
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.IncludeConfiguration
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
@@ -65,8 +66,8 @@ object CommandLocalConfig {
                             }
 
                             loadingNow = true
-                            ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(),
-                                ConfigSystem.autoConfigGson)
+                            ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, bufferedReader(),
+                                publicGson)
                         }.onFailure {
                             chat(markAsError(command.result("failedToLoad", variable(name))))
                         }.onSuccess {
@@ -152,7 +153,7 @@ object CommandLocalConfig {
             .build()
     }
 
-    private fun autoComplete(begin: String, validator: (Module) -> Boolean = { true }): List<String> {
+    private fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         return ConfigSystem.userConfigsFolder.listFiles()?.map { it.nameWithoutExtension }
             ?.filter { it.startsWith(begin) } ?: emptyList()
     }

@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import it.unimi.dsi.fastutil.objects.ObjectFloatImmutablePair
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.canSeeBox
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
@@ -99,7 +99,10 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                         return@mapNotNull null
                     }
 
-                    val damage = ModuleCrystalAura.approximateExplosionDamage(it.pos) ?: return@mapNotNull null
+                    val damage = CrystalAuraDamageOptions.approximateExplosionDamage(
+                        it.pos,
+                        CrystalAuraDamageOptions.RequestingSubmodule.DESTROY
+                    ) ?: return@mapNotNull null
 
                     ObjectFloatImmutablePair(it as EndCrystalEntity, damage)
                 }

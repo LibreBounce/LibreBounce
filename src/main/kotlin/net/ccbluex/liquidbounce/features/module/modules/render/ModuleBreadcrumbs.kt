@@ -19,13 +19,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.utils.rainbow
@@ -45,7 +45,7 @@ import java.util.*
  *
  * Leaves traces behind players.
  */
-object ModuleBreadcrumbs : Module("Breadcrumbs", Category.RENDER, aliases = arrayOf("PlayerTrails")) {
+object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases = arrayOf("PlayerTrails")) {
 
     private val onlyOwn by boolean("OnlyOwn", true)
     private val color by color("Color", Color4b(70, 119, 255, 120))
@@ -142,7 +142,7 @@ object ModuleBreadcrumbs : Module("Breadcrumbs", Category.RENDER, aliases = arra
     }
 
     @Suppress("unused")
-    val worldChangeHandler = handler<WorldChangeEvent>(ignoreCondition = true) {
+    val worldChangeHandler = handler<WorldChangeEvent>(ignoreNotRunning = true) {
         clear()
     }
 

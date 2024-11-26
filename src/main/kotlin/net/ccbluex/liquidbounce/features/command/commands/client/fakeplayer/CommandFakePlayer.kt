@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer
 
 import com.mojang.authlib.GameProfile
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -44,7 +44,7 @@ import java.util.*
  *
  * Allows you to spawn a client side player for testing purposes.
  */
-object CommandFakePlayer : Listenable {
+object CommandFakePlayer : EventListener {
 
     /**
      * Stores all fake players.

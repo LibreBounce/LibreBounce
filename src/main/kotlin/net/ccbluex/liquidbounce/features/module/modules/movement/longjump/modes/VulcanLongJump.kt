@@ -21,11 +21,11 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.ModuleLongJump
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -68,7 +68,7 @@ internal object VulcanLongJump : Choice("Vulcan289") {
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (started) {
             if (recievedLagback) {
                 player.velocity.y = 1.0

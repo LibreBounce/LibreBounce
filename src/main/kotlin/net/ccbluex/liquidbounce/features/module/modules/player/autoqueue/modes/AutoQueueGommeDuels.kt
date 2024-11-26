@@ -20,13 +20,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
 import net.ccbluex.liquidbounce.utils.client.*
@@ -56,13 +56,13 @@ object AutoQueueGommeDuels : Choice("GommeDuels") {
         super.enable()
     }
 
-    val repeatable = repeatable {
-        val inGameHud = mc.inGameHud ?: return@repeatable
+    val repeatable = tickHandler {
+        val inGameHud = mc.inGameHud ?: return@tickHandler
         val playerListHeader = inGameHud.playerListHud.header
 
         if (playerListHeader == null) {
             inMatch = false
-            return@repeatable
+            return@tickHandler
         }
 
         // Check if we are on GommeHD.net
@@ -72,7 +72,7 @@ object AutoQueueGommeDuels : Choice("GommeDuels") {
 
             notification("AutoPlay", "Not on GommeHD.net", NotificationEvent.Severity.ERROR)
             waitTicks(20)
-            return@repeatable
+            return@tickHandler
         }
 
         // Check in which situation we are
@@ -165,7 +165,7 @@ object AutoQueueGommeDuels : Choice("GommeDuels") {
                 PlayerInteractItemC2SPacket(Hand.MAIN_HAND, sequence, player.yaw, player.pitch)
             }
             waitTicks(20)
-        } else if (!ModuleKillAura.enabled && controlKillAura) {
+        } else if (!ModuleKillAura.running && controlKillAura) {
             ModuleKillAura.enabled = true
         }
     }

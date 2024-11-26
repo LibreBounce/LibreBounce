@@ -18,11 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.autofarm
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -53,7 +53,7 @@ import net.minecraft.world.RaycastContext
  *
  * Automatically farms stuff for you.
  */
-object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
+object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
     // TODO Fix this entire module-
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
@@ -97,17 +97,17 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
 
     var currentTarget: BlockPos? = null
 
-    val repeatable = repeatable { _ ->
+    val repeatable = tickHandler { _ ->
         // Return if the user is inside a screen like the inventory
         if (mc.currentScreen is HandledScreen<*>) {
-            return@repeatable
+            return@tickHandler
         }
 
         updateTarget()
 
         // Return if the blink module is enabled
-        if (ModuleBlink.enabled) {
-            return@repeatable
+        if (ModuleBlink.running) {
+            return@tickHandler
         }
 
         // Disable the module and return if the inventory is full, and the setting for disabling the module is enabled
@@ -115,14 +115,14 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
             notification("Inventory is Full", "AutoFarm has been disabled", NotificationEvent.Severity.ERROR)
             disable()
             enabled = false
-            return@repeatable
+            return@tickHandler
         }
 
         // If there is no currentTarget (a block close enough to be interacted with) walk if wanted
         currentTarget ?: run {
             autoWalk.updateWalkTarget()
 
-            return@repeatable
+            return@tickHandler
         }
 
         autoWalk.stopWalk() // Stop walking if we found a target close enough to interact with it
@@ -137,15 +137,15 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
                 RaycastContext.FluidHandling.NONE,
                 player
             )
-        ) ?: return@repeatable
+        ) ?: return@tickHandler
 
         if (rayTraceResult.type != HitResult.Type.BLOCK) {
-            return@repeatable
+            return@tickHandler
         }
 
         val blockPos = rayTraceResult.blockPos
 
-        var state = rayTraceResult.blockPos.getState() ?: return@repeatable
+        var state = rayTraceResult.blockPos.getState() ?: return@tickHandler
         if (isTargeted(state, blockPos)) {
             if (fortune) {
                 Hotbar.findBestItem(1) { _, itemStack -> itemStack.getEnchantment(Enchantments.FORTUNE) }
@@ -162,12 +162,12 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
                 // Only wait if the block is completely broken
                 waitTicks(interactDelay.random())
             }
-            return@repeatable
+            return@tickHandler
 
         } else {
             val pos = blockPos.offset(rayTraceResult.side).down()
 
-            state = pos.getState() ?: return@repeatable
+            state = pos.getState() ?: return@tickHandler
 
             if (isFarmBlockWithAir(state, pos)) {
                 val item = if (state.block is FarmlandBlock) {
@@ -176,7 +176,7 @@ object ModuleAutoFarm : Module("AutoFarm", Category.WORLD) {
                     itemForSoulSand
                 }
 
-                item ?: return@repeatable
+                item ?: return@tickHandler
 
                 SilentHotbar.selectSlotSilently(this, item.hotbarSlotForServer, AutoPlaceCrops.swapBackDelay.random())
                 doPlacement(rayTraceResult)

@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.features.command.AutoCompletionHandler
 import net.ccbluex.liquidbounce.features.command.Parameter
 import net.ccbluex.liquidbounce.features.command.ParameterValidationResult
 import net.ccbluex.liquidbounce.features.command.ParameterVerifier
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.mc
 
@@ -36,7 +36,7 @@ class ParameterBuilder<T> private constructor(val name: String) {
 
     companion object {
         val STRING_VALIDATOR: ParameterVerifier<String> = { ParameterValidationResult.ok(it) }
-        val MODULE_VALIDATOR: ParameterVerifier<Module> = { name ->
+        val MODULE_VALIDATOR: ParameterVerifier<ClientModule> = { name ->
             val mod = ModuleManager.find { it.name.equals(name, true) }
 
             if (mod == null) {
