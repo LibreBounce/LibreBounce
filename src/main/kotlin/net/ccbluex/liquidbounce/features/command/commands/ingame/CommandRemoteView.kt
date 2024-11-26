@@ -82,6 +82,7 @@ object CommandRemoteView : CommandFactory, MinecraftShortcuts {
                                     )
                                     return@handler
                                 }
+
                                 mc.setCameraEntity(entity)
                                 pName = entity.nameForScoreboard
                                 chat(
@@ -92,6 +93,8 @@ object CommandRemoteView : CommandFactory, MinecraftShortcuts {
                                     regular(command.result("caseOff", variable(entity.nameForScoreboard))),
                                     metadata = MessageMetadata(id = "CRemoteView#info", remove = false)
                                 )
+
+                                break
                             }
                         }
                     }

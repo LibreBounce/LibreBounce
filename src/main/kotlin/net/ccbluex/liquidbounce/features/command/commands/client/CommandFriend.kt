@@ -80,6 +80,9 @@ object CommandFriend : CommandFactory {
                         metadata = MessageMetadata(id = "CFriend#info")
                     )
                 } else {
+                    mc.inGameHud.chatHud.removeMessage("CFriend#info")
+                    val data = MessageMetadata(id = "CFriend#info", remove = false)
+
                     FriendManager.friends.forEachIndexed { index, friend ->
                         val alias = friend.alias ?: friend.getDefaultName(index)
                         val copyText = regular("Copy ${friend.name}")
@@ -109,7 +112,7 @@ object CommandFriend : CommandFactory {
                             variable(alias),
                             regular(") "),
                             removeButton,
-                            metadata = MessageMetadata(id = "CFriend#info")
+                            metadata = data
                         )
                     }
                 }

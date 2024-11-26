@@ -52,7 +52,7 @@ object CommandUsername : CommandFactory, MinecraftShortcuts {
                         .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, username))
                 }
 
-                chat(regular(command.result("username", formattedUsernameWithEvents)))
+                chat(regular(command.result("username", formattedUsernameWithEvents)), command)
                 GLFW.glfwSetClipboardString(mc.window.handle, username)
             }
             .build()
