@@ -36,7 +36,7 @@ public class MixinSignText {
 
     @Inject(method = "getOrderedMessages", at = @At("HEAD"), cancellable = true)
     private void injectNoSignRender(boolean filtered, Function<Text, OrderedText> messageOrderer, CallbackInfoReturnable<OrderedText[]> cir) {
-        if (ModuleNoSignRender.INSTANCE.getEnabled()) {
+        if (ModuleNoSignRender.INSTANCE.getRunning()) {
             var signText = new OrderedText[4];
             Arrays.fill(signText, OrderedText.EMPTY);
             cir.setReturnValue(signText);

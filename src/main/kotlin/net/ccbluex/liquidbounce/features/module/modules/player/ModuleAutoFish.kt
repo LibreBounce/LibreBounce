@@ -21,9 +21,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.FishingRodItem
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
@@ -37,7 +37,7 @@ import net.minecraft.util.Hand
  * Automatically catches fish when using a rod.
  */
 
-object ModuleAutoFish : Module("AutoFish", Category.PLAYER) {
+object ModuleAutoFish : ClientModule("AutoFish", Category.PLAYER) {
 
     private val reelDelay by intRange("ReelDelay", 5..8, 0..20, "ticks")
 
@@ -55,7 +55,7 @@ object ModuleAutoFish : Module("AutoFish", Category.PLAYER) {
         caughtFish = false
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (caughtFish) {
             for (hand in arrayOf(Hand.MAIN_HAND, Hand.OFF_HAND)) {
                 if (player.getEquippedStack(hand.equipmentSlot).item !is FishingRodItem) {

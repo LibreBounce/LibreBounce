@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
@@ -80,7 +80,7 @@ object ThemeManager : Configurable("theme") {
             ComponentOverlay.insertComponents()
 
             // Update integration browser
-            IntegrationHandler.updateIntegrationBrowser()
+            IntegrationListener.updateIntegrationBrowser()
             ModuleHud.refresh()
             ModuleClickGui.restartView()
         }

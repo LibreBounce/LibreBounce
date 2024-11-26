@@ -22,12 +22,12 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.in
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
@@ -51,7 +51,7 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         private const val BOOST_CONSTANT = 0.003
     }
 
-    private inner class Strafe(parent: Listenable) : ToggleableConfigurable(parent, "Strafe", true) {
+    private inner class Strafe(parent: EventListener) : ToggleableConfigurable(parent, "Strafe", true) {
 
         private val strength by float("Strength", 0.29f, 0.01f..0.29f)
 
@@ -66,7 +66,7 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         }
     }
 
-    private inner class AirBoost(parent: Listenable) : ToggleableConfigurable(parent, "AirBoost", true) {
+    private inner class AirBoost(parent: EventListener) : ToggleableConfigurable(parent, "AirBoost", true) {
 
         private val initialBoostMultiplier by float(
             "InitialBoostMultiplier", 1f,
@@ -74,7 +74,7 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         )
 
         @Suppress("unused")
-        private val tickHandler = repeatable {
+        private val tickHandler = tickHandler {
             if (player.velocity.y > 0.003 && player.isSprinting) {
                 player.velocity.x *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
                 player.velocity.z *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())

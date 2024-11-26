@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
@@ -42,9 +42,9 @@ import net.ccbluex.liquidbounce.utils.movement.zeroXZ
  */
 class SpeedSpartan524(override val parent: ChoiceConfigurable<*>) : Choice("Spartan524") {
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!player.moving) {
-            return@repeatable
+            return@tickHandler
         }
 
         Timer.requestTimerSpeed(1.1f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed)

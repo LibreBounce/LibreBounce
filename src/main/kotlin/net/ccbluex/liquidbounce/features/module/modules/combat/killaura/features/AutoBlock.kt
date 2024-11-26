@@ -71,7 +71,7 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
      * @see net.minecraft.client.render.item.HeldItemRenderer renderFirstPersonItem
      */
     var blockVisual = false
-        get() = field && super.isRunning()
+        get() = field && super.running
 
     val shouldUnblockToHit
         get() = unblockMode != UnblockMode.NONE
@@ -89,8 +89,6 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
 
         blockVisual = true
     }
-
-    var shouldBlink = false
 
     /**
      * Starts blocking.
@@ -130,10 +128,8 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
                 val currentSlot = player.inventory.selectedSlot
                 val nextSlot = (currentSlot + 1) % 8
 
-                shouldBlink = true
                 network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
                 network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
-                shouldBlink = false
 
                 // We interact below as well. I am not sure if this is part of the magic bypass or an oversight.
                 interactWithFront()
@@ -196,7 +192,8 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
         }
     }
 
-    val changeSlot = handler<PacketEvent> {
+    @Suppress("unused")
+    private val changeSlot = handler<PacketEvent> {
         val packet = it.packet
 
         if (packet is UpdateSelectedSlotC2SPacket) {

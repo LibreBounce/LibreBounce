@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.GenericColorMode
 import net.ccbluex.liquidbounce.render.GenericRainbowColorMode
 import net.ccbluex.liquidbounce.render.GenericStaticColorMode
@@ -41,7 +41,7 @@ import net.minecraft.text.Text
  * Changes players names clientside.
  */
 
-object ModuleNameProtect : Module("NameProtect", Category.MISC) {
+object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
 
     private val replacement by text("Replacement", "You")
 
@@ -118,7 +118,7 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
     }
 
     fun replace(original: String): String {
-        if (!enabled) {
+        if (!running) {
             return original
         }
 
@@ -232,7 +232,7 @@ object ModuleNameProtect : Module("NameProtect", Category.MISC) {
 }
 
 fun Text.sanitizeWithNameProtect(): Text {
-    if (!ModuleNameProtect.enabled) {
+    if (!ModuleNameProtect.running) {
         return this
     }
 

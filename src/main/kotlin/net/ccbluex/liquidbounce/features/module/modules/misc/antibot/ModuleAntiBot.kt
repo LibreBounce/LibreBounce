@@ -23,16 +23,15 @@ import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.CustomAntiBotMode
-import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.CustomAntiBotMode.reset
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.HorizonAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.IntaveHeavyAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.MatrixAntiBotMode
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 
-object ModuleAntiBot : Module("AntiBot", Category.MISC) {
+object ModuleAntiBot : ClientModule("AntiBot", Category.MISC) {
 
     val modes = choices("Mode", CustomAntiBotMode, arrayOf(
         CustomAntiBotMode,
@@ -79,7 +78,7 @@ object ModuleAntiBot : Module("AntiBot", Category.MISC) {
      * Check if player might be a bot
      */
     fun isBot(player: Entity): Boolean {
-        if (!enabled) {
+        if (!running) {
             return false
         }
 

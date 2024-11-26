@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isHidingNow
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
@@ -45,7 +45,7 @@ import net.minecraft.client.gui.screen.DisconnectedScreen
  * The client in-game dashboard.
  */
 
-object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
+object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = true) {
 
     private var browserTab: ITab? = null
 
@@ -68,8 +68,8 @@ object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
         tree(Configurable("Custom", customComponents as MutableList<Value<*>>))
     }
 
-    val screenHandler = handler<ScreenEvent>(ignoreCondition = true) {
-        if (!enabled || !inGame || it.screen is DisconnectedScreen || isHidingNow) {
+    val screenHandler = handler<ScreenEvent>(ignoreNotRunning = true) {
+        if (!running || !inGame || it.screen is DisconnectedScreen || isHidingNow) {
             browserTab?.closeTab()
             browserTab = null
         } else if (browserTab == null) {

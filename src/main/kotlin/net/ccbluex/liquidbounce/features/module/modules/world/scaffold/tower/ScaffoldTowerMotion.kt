@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.isBlockBelow
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.towerMode
@@ -49,14 +49,14 @@ object ScaffoldTowerMotion : Choice("Motion") {
         jumpOffPosition = player.y
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!mc.options.jumpKey.isPressed || ModuleScaffold.blockCount <= 0 || !isBlockBelow) {
             jumpOffPosition = Double.NaN
-            return@repeatable
+            return@tickHandler
         }
 
         if (jumpOffPosition.isNaN()) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (player.y > jumpOffPosition + triggerHeight) {

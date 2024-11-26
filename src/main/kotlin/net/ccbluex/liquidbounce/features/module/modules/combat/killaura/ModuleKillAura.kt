@@ -25,10 +25,10 @@ import net.ccbluex.liquidbounce.event.events.InputHandleEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
@@ -68,7 +68,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
  *
  * Automatically attacks enemies.
  */
-object ModuleKillAura : Module("KillAura", Category.COMBAT) {
+object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     object KillAuraClickScheduler : ClickScheduler<ModuleKillAura>(ModuleKillAura, true) {
 
@@ -133,7 +133,6 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         targetTracker.cleanup()
         failedHits.clear()
         AutoBlock.stopBlocking()
-        AutoBlock.shouldBlink = false
         NotifyWhenFail.failedHitsIncrement = 0
     }
 
@@ -175,9 +174,9 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val gameHandler = repeatable {
+    private val gameHandler = tickHandler {
         if (player.isDead || player.isSpectator) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Check if there is target to attack
@@ -185,7 +184,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
 
         if (CombatManager.shouldPauseCombat) {
             AutoBlock.stopBlocking()
-            return@repeatable
+            return@tickHandler
         }
 
         if (target == null) {
@@ -198,17 +197,17 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                 }
                 dealWithFakeSwing(null)
             }
-            return@repeatable
+            return@tickHandler
         }
 
         // Check if the module should (not) continue after the blocking state is updated
         if (!canTargetEnemies) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (player.isSprinting && shouldBlockSprinting()) {
             player.isSprinting = false
-            return@repeatable
+            return@tickHandler
         }
 
         // Determine if we should attack the target or someone else
@@ -465,8 +464,8 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
     private fun checkIfReadyToAttack(choosenEntity: Entity): Boolean {
         val critical = when (criticalsMode) {
             CriticalsMode.IGNORE -> true
-            CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState=true)
-            CriticalsMode.ALWAYS -> ModuleCriticals.wouldCrit()
+            CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState = true)
+            CriticalsMode.ALWAYS -> ModuleCriticals.wouldDoCriticalHit()
         }
         val shielding = attackShielding || choosenEntity !is PlayerEntity || player.mainHandStack.item is AxeItem ||
             !choosenEntity.wouldBlockHit(player)
@@ -495,7 +494,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         val wasBlocking = player.isBlockAction
 
         if (wasBlocking) {
-            if (!AutoBlock.enabled && (!ModuleMultiActions.isRunning() || !ModuleMultiActions.attackingWhileUsing)) {
+            if (!AutoBlock.enabled && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
                 return
             }
 
@@ -506,7 +505,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
                     waitTicks(AutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem && (!ModuleMultiActions.isRunning() || !ModuleMultiActions.attackingWhileUsing)) {
+        } else if (player.isUsingItem && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 
@@ -532,7 +531,7 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         }
     }
 
-    fun shouldBlockSprinting() = enabled && !player.isOnGround &&
+    fun shouldBlockSprinting() = running && !player.isOnGround &&
         criticalsMode != CriticalsMode.IGNORE &&
         targetTracker.lockedOnTarget != null &&
         clickScheduler.isClickOnNextTick(1)

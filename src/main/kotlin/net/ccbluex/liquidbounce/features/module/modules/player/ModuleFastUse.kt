@@ -22,9 +22,9 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
@@ -41,7 +41,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
  * Allows you to use items faster.
  */
 
-object ModuleFastUse : Module("FastUse", Category.PLAYER) {
+object ModuleFastUse : ClientModule("FastUse", Category.PLAYER) {
 
     private val modes = choices("Mode", Immediate, arrayOf(Immediate, ItemUseTime)).apply { tagBy(this) }
 
@@ -107,7 +107,7 @@ object ModuleFastUse : Module("FastUse", Category.PLAYER) {
         val speed by int("Speed", 20, 1..35, "packets")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (accelerateNow) {
                 Timer.requestTimerSpeed(
                     timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFastUse,
@@ -133,7 +133,7 @@ object ModuleFastUse : Module("FastUse", Category.PLAYER) {
         val speed by int("Speed", 20, 1..35, "packets")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (accelerateNow && player.itemUseTime >= consumeTime) {
                 repeat(speed) {
                     network.sendPacket(packetType.generatePacket())

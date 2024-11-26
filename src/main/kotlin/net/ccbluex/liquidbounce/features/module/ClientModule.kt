@@ -22,11 +22,10 @@ import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.loadingNow
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.types.*
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
@@ -42,7 +41,7 @@ import net.minecraft.client.util.InputUtil
  * A module also called 'hack' can be enabled and handle events
  */
 @Suppress("LongParameterList")
-open class Module(
+open class ClientModule(
     name: String, // name parameter in configurable
     @Exclude val category: Category, // module category
     bind: Int = InputUtil.UNKNOWN_KEY.code, // default bind
@@ -52,9 +51,13 @@ open class Module(
     hide: Boolean = false, // default hide
     @Exclude val disableOnQuit: Boolean = false, // disables module when player leaves the world,
     @Exclude val aliases: Array<out String> = emptyArray() // additional names under which the module is known
-) : Listenable, Configurable(name), MinecraftShortcuts {
+) : EventListener, Configurable(name), MinecraftShortcuts {
 
-    val valueEnabled = boolean("Enabled", state).also {
+    /**
+     * Option to enable or disable the module, this DOES NOT mean the module is running. This
+     * should be checked with [running] instead. Only use this for toggling the module!
+     */
+    var enabled by boolean("Enabled", state).also {
         // Might not include the enabled state of the module depending on the category
         if (category == Category.MISC || category == Category.FUN || category == Category.RENDER) {
             if (this is ModuleAntiBot) {
@@ -63,12 +66,7 @@ open class Module(
 
             it.doNotIncludeAlways()
         }
-    }.notAnOption()
-
-    private var calledSinceStartup = false
-
-    // Module options
-    var enabled by valueEnabled.onChange { new ->
+    }.notAnOption().onChange { new ->
         // Check if the module is locked
         locked?.let { locked ->
             if (locked.get()) {
@@ -130,6 +128,12 @@ open class Module(
         new
     }
 
+    /**
+     * If the module is running and in game. Can be overridden to add additional checks.
+     */
+    override val running: Boolean
+        get() = super.running && inGame && enabled
+
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
         .independentDescription()
@@ -161,6 +165,8 @@ open class Module(
     @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
 
+    private var calledSinceStartup = false
+
     /**
      * Called when module is turned on
      */
@@ -177,22 +183,17 @@ open class Module(
     open fun init() {}
 
     /**
-     * Events should be handled when module is enabled
-     */
-    override fun isRunning() = enabled && inGame && !isDestructed
-
-    /**
      * Handles disconnect and if [disableOnQuit] is true disables module
      */
     @Suppress("unused")
-    val onDisconnect = handler<DisconnectEvent>(ignoreCondition = true) {
+    val onDisconnect = handler<DisconnectEvent>(ignoreNotRunning = true) {
         if (enabled && disableOnQuit) {
             enabled = false
         }
     }
 
     @Suppress("unused")
-    val onWorldChange = handler<WorldChangeEvent>(ignoreCondition = true) {
+    val onWorldChange = handler<WorldChangeEvent>(ignoreNotRunning = true) {
         if (enabled && !calledSinceStartup && it.world != null) {
             calledSinceStartup = true
             enable()

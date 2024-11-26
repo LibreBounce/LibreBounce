@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.block.getBlock
@@ -52,16 +52,16 @@ internal object NoFallRettungsplatform : Choice("Rettungsplatform") {
     private val itemToPlatform
         get() = Hotbar.findClosestItem(Items.BLAZE_ROD, Items.MAGMA_CREAM)
 
-    val repatable = repeatable {
+    val repatable = tickHandler {
         if (player.fallDistance > 2f) {
-            val itemToPlatform = itemToPlatform ?: return@repeatable
+            val itemToPlatform = itemToPlatform ?: return@tickHandler
 
             // Are we actually going to fall into the void?
             // todo: check if the fall damage is actually high enough to kill us
             val collision = FallingPlayer.fromPlayer(player).findCollision(90)?.pos
             ModuleDebug.debugParameter(ModuleNoFall, "Collision", collision?.getBlock().toString())
             if (collision != null && collision.getState()?.isAir == false) {
-                return@repeatable
+                return@tickHandler
             }
 
             useHotbarSlotOrOffhand(itemToPlatform)

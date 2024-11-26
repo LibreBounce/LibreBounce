@@ -40,7 +40,7 @@ public class MixinItem {
     @ModifyReturnValue(method = "getUseAction", at = @At("RETURN"))
     private UseAction hookSwordUseAction(UseAction original) {
         // Hooks sword use action
-        if (((Object) this) instanceof SwordItem && ModuleSwordBlock.INSTANCE.getEnabled()
+        if (((Object) this) instanceof SwordItem && ModuleSwordBlock.INSTANCE.getRunning()
                 && !ModuleSwordBlock.INSTANCE.getOnlyVisual()) {
             return UseAction.BLOCK;
         }
@@ -51,7 +51,7 @@ public class MixinItem {
     @ModifyReturnValue(method = "getMaxUseTime", at = @At("RETURN"))
     private int hookMaxUseTime(int original) {
         // Hooks sword max use time
-        if (((Object) this) instanceof SwordItem && ModuleSwordBlock.INSTANCE.getEnabled()
+        if (((Object) this) instanceof SwordItem && ModuleSwordBlock.INSTANCE.getRunning()
                 && !ModuleSwordBlock.INSTANCE.getOnlyVisual()) {
             return 72000;
         }

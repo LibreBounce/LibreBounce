@@ -18,15 +18,15 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 
 /**
  * A rotation manager
  */
-object CombatManager : Listenable {
+object CombatManager : EventListener {
 
     // useful for something like autoSoup
     private var pauseCombat: Int = 0
@@ -79,7 +79,7 @@ object CombatManager : Listenable {
     }
 
     @Suppress("unused")
-    val attackHandler = handler<AttackEvent> {
+    val attackHandler = handler<AttackEntityEvent> {
         // 40 ticks = 2 seconds
         duringCombat = 40
     }

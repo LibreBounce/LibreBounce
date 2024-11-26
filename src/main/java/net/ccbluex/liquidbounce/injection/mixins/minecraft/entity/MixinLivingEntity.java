@@ -119,7 +119,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
             allow = 1
     )
     public boolean hookTravelStatusEffect(boolean original) {
-        if (ModuleAntiLevitation.INSTANCE.getEnabled()) {
+        if (ModuleAntiLevitation.INSTANCE.getRunning()) {
             return false;
         }
 
@@ -128,7 +128,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "hasStatusEffect", at = @At("HEAD"), cancellable = true)
     private void hookAntiNausea(RegistryEntry<StatusEffect> effect, CallbackInfoReturnable<Boolean> cir) {
-        if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getEnabled() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
+        if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
             cir.setReturnValue(false);
             cir.cancel();
         }
@@ -192,7 +192,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "pushAwayFrom", at = @At("HEAD"), cancellable = true)
     private void hookNoPush(CallbackInfo callbackInfo) {
-        if (ModuleNoPush.INSTANCE.getEnabled()) {
+        if (ModuleNoPush.INSTANCE.getRunning()) {
             callbackInfo.cancel();
         }
     }
@@ -200,12 +200,12 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void hookTickMovement(CallbackInfo callbackInfo) {
         // We don't want NoJumpDelay to interfere with AirJump which would lead to a Jetpack-like behavior
-        var noJumpDelay = ModuleNoJumpDelay.INSTANCE.getEnabled() && !ModuleAirJump.INSTANCE.getAllowJump();
+        var noJumpDelay = ModuleNoJumpDelay.INSTANCE.getRunning() && !ModuleAirJump.INSTANCE.getAllowJump();
 
         // The jumping cooldown would lead to very slow tower building
-        var towerActive = ModuleScaffold.INSTANCE.getEnabled() && !(ModuleScaffold.INSTANCE.getTowerMode()
+        var towerActive = ModuleScaffold.INSTANCE.getRunning() && !(ModuleScaffold.INSTANCE.getTowerMode()
                 .getActiveChoice() instanceof NoneChoice) && ModuleScaffold.INSTANCE.getTowerMode()
-                .getActiveChoice().isActive();
+                .getActiveChoice().isSelected();
 
         if (noJumpDelay || towerActive) {
             jumpingCooldown = 0;
@@ -230,7 +230,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
 
         var elytra = isGliding();
-        if (ModuleElytraRecast.INSTANCE.getEnabled() && previousElytra && !elytra) {
+        if (ModuleElytraRecast.INSTANCE.getRunning() && previousElytra && !elytra) {
             MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.id(),
                     SoundCategory.PLAYERS);
             ModuleElytraRecast.INSTANCE.recastElytra();

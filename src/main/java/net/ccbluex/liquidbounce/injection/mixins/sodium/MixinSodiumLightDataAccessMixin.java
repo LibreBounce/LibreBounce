@@ -48,7 +48,7 @@ public class MixinSodiumLightDataAccessMixin {
 //    @ModifyVariable(method = "compute", at = @At(value = "TAIL"), name = "bl")
 //    private int modifyLightLevel(int original) {
 //        var xray = ModuleXRay.INSTANCE;
-//        if (xray.getEnabled() && xray.getFullBright()) {
+//        if (xray.getRunning() && xray.getFullBright()) {
 //            var blockState = level.getBlockState(pos);
 //
 //            if (xray.shouldRender(blockState, pos)) {

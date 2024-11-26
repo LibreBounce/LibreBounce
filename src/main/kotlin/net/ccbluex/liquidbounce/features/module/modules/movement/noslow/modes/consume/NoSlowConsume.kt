@@ -52,13 +52,14 @@ object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
         )
     }
 
-    override fun isRunning(): Boolean {
-        if (!super.isRunning() || !inGame) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (!super.running || !inGame) {
+                return false
+            }
 
-        // Check if we are using a consume item
-        return player.isUsingItem && player.activeItem.isConsumable
-    }
+            // Check if we are using a consume item
+            return player.isUsingItem && player.activeItem.isConsumable
+        }
 
 }

@@ -24,13 +24,13 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 typealias Handler<T> = (T) -> Unit
 
 class EventHook<T : Event>(
-    val handlerClass: Listenable,
+    val handlerClass: EventListener,
     val handler: Handler<T>,
-    val ignoreRunning: Boolean,
+    val ignoreNotRunning: Boolean,
     val priority: Int = 0
 )
 
-interface Listenable {
+interface EventListener {
 
     /**
      * Returns whether the listenable is running or not, this is based on the parent listenable
@@ -39,19 +39,20 @@ interface Listenable {
      * When destructed, the listenable will not handle any events. This is likely to be overridden by
      * the implementing class to provide a toggleable feature.
      *
-     * This can be ignored by handlers when [ignoreRunning] is set to true on the [EventHook].
+     * This can be ignored by handlers when [ignoreNotRunning] is set to true on the [EventHook].
      */
-    fun isRunning(): Boolean = parent()?.isRunning() ?: !isDestructed
+    val running: Boolean
+        get() = parent()?.running ?: !isDestructed
 
     /**
      * Parent listenable
      */
-    fun parent(): Listenable? = null
+    fun parent(): EventListener? = null
 
     /**
      * Children listenables
      */
-    fun children(): List<Listenable> = emptyList()
+    fun children(): List<EventListener> = emptyList()
 
     /**
      * Unregisters the event handler from the manager. This decision is FINAL!
@@ -67,43 +68,45 @@ interface Listenable {
 
 }
 
-inline fun <reified T : Event> Listenable.handler(
-    ignoreCondition: Boolean = false,
+inline fun <reified T : Event> EventListener.handler(
+    ignoreNotRunning: Boolean = false,
     priority: Int = 0,
     noinline handler: Handler<T>
-) {
-    EventManager.registerEventHook(T::class.java, EventHook(this, handler, ignoreCondition, priority))
+): EventHook<T> {
+    return EventManager.registerEventHook(T::class.java,
+        EventHook(this, handler, ignoreNotRunning, priority)
+    )
 }
 
 /**
  * Registers an event hook for events of type [T] and launches a sequence
  */
-inline fun <reified T : Event> Listenable.sequenceHandler(
-    ignoreCondition: Boolean = false,
+inline fun <reified T : Event> EventListener.sequenceHandler(
+    ignoreNotRunning: Boolean = false,
     priority: Int = 0,
     noinline eventHandler: SuspendableHandler<T>
 ) {
-    handler<T>(ignoreCondition, priority) { event -> Sequence(this, eventHandler, event) }
+    handler<T>(ignoreNotRunning, priority) { event -> Sequence(this, eventHandler, event) }
 }
 
 /**
  * Registers a repeatable sequence which repeats the execution of code on GameTickEvent.
  */
-fun Listenable.repeatable(eventHandler: SuspendableHandler<DummyEvent>) {
+fun EventListener.tickHandler(eventHandler: SuspendableHandler<DummyEvent>) {
     // We store our sequence in this variable.
     // That can be done because our variable will survive the scope of this function
     // and can be used in the event handler function. This is a very useful pattern to use in Kotlin.
-    var sequence: RepeatingSequence? = RepeatingSequence(this, eventHandler)
+    var sequence: TickSequence? = TickSequence(this, eventHandler)
 
     // Ignore condition makes sense because we do not want our sequence to run after we do not handle events anymore
-    handler<GameTickEvent>(ignoreCondition = true) {
+    handler<GameTickEvent>(ignoreNotRunning = true) {
         // Check if we should start or stop the sequence
-        if (this.isRunning()) {
+        if (this.running) {
             // Check if the sequence is already running
             if (sequence == null) {
                 // If not, start it
                 // This will start a new repeating sequence which will run until the condition is false
-                sequence = RepeatingSequence(this, eventHandler)
+                sequence = TickSequence(this, eventHandler)
             }
         } else if (sequence != null) { // This condition is only true if the sequence is running
             // If the sequence is running, we should stop it

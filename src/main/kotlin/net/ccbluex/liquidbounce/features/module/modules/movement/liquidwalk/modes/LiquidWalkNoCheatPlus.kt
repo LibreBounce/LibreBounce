@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk.collidesWithAnythingElse
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk.standingOnWater
@@ -63,7 +63,7 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
         }
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.box.isBlockAtPosition { it is FluidBlock } && !mc.options.sneakKey.isPressed) {
             player.velocity.y = 0.08
         }

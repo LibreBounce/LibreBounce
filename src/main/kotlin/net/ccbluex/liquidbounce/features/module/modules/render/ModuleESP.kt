@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager
@@ -39,7 +39,7 @@ import net.minecraft.util.math.Box
  * Allows you to see targets through walls.
  */
 
-object ModuleESP : Module("ESP", Category.RENDER) {
+object ModuleESP : ClientModule("ESP", Category.RENDER) {
 
     override val baseKey: String
         get() = "liquidbounce.module.esp"

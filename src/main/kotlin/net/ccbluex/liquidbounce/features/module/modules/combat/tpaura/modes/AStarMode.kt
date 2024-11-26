@@ -3,17 +3,17 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.clickScheduler
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.desyncPlayerPosition
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.stuckChronometer
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.targetTracker
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.TpAuraChoice
-import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.toBlockPos
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.blockVecPosition
@@ -25,7 +25,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.PositionAndOnGround
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
-import net.minecraft.registry.tag.BlockTags
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3i
 import kotlin.concurrent.thread
@@ -50,11 +49,11 @@ object AStarMode : TpAuraChoice("AStar") {
     private var pathFinderThread: Thread? = null
 
     @Suppress("unused")
-    private val tickHandler = repeatable {
-        val (_, path) = pathCache ?: return@repeatable
+    private val tickHandler = tickHandler {
+        val (_, path) = pathCache ?: return@tickHandler
 
         if (!clickScheduler.goingToClick) {
-            return@repeatable
+            return@tickHandler
         }
 
         travel(path)
@@ -66,7 +65,7 @@ object AStarMode : TpAuraChoice("AStar") {
 
     override fun enable() {
         pathFinderThread = thread(name = "TpAura-AStarPathFinder") {
-            while (ModuleTpAura.enabled) {
+            while (ModuleTpAura.running) {
                 runCatching {
                     val playerPosition = player.pos
 

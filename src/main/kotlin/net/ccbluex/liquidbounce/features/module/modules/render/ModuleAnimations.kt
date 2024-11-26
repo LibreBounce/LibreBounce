@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations.PushdownAnimation.applySwingOffset
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Arm
@@ -40,7 +40,7 @@ import net.minecraft.util.math.RotationAxis
  * Please credit from where you got the animation from and make sure they are willing to contribute.
  * If they are not willing to contribute, please do not add the animation to this module.
  */
-object ModuleAnimations : Module("Animations", Category.RENDER) {
+object ModuleAnimations : ClientModule("Animations", Category.RENDER) {
 
     init {
         tree(MainHand)

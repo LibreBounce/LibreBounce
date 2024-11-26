@@ -35,7 +35,7 @@ public class MixinPowderSnowBlock {
 
     @Inject(method = "onEntityCollision", at = @At("HEAD"), cancellable = true)
     private void hookEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
-        if (ModuleNoSlow.INSTANCE.getEnabled() && NoSlowPowderSnow.INSTANCE.getEnabled()) {
+        if (ModuleNoSlow.INSTANCE.getRunning() && NoSlowPowderSnow.INSTANCE.getEnabled()) {
             ci.cancel();
 
             var multiplier = NoSlowPowderSnow.INSTANCE.getMultiplier();

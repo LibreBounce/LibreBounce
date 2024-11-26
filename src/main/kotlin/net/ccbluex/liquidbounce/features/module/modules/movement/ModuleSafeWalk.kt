@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.isCloseToEdge
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
@@ -37,7 +37,7 @@ import net.ccbluex.liquidbounce.utils.movement.copy
  *
  * Prevents you from falling down as if you were sneaking.
  */
-object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
+object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
 
     @Suppress("UnusedPrivateProperty")
     private val modes = choices("Mode", 1, ::safeWalkChoices) // Default safe mode

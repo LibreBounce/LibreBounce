@@ -53,7 +53,7 @@ public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRend
 
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
     private void shouldRender(T entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir) {
-        if (ModuleCombineMobs.INSTANCE.getEnabled() && ModuleCombineMobs.INSTANCE.trackEntity(entity)) {
+        if (ModuleCombineMobs.INSTANCE.getRunning() && ModuleCombineMobs.INSTANCE.trackEntity(entity)) {
             cir.setReturnValue(false);
         }
     }
@@ -100,7 +100,7 @@ public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRend
     private void disableDuplicateNametagsAndInjectMobOwners(S state, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         // Don't render nametags
         // todo: fix this, entity is not available here anymore
-//        if (ModuleNametags.INSTANCE.getEnabled() && ModuleNametags.shouldRenderNametag(entity)) {
+//        if (ModuleNametags.INSTANCE.getRunning() && ModuleNametags.shouldRenderNametag(entity)) {
 //            ci.cancel();
 //        }
     }

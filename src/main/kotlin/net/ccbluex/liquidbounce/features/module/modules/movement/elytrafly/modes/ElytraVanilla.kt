@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instant
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instantStop
@@ -36,27 +36,27 @@ internal object ElytraVanilla : Choice("Vanilla") {
         get() = ModuleElytraFly.modes
 
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
 
         if (player.vehicle != null) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Find the chest slot
         val chestSlot = player.getEquippedStack(EquipmentSlot.CHEST)
 
         if (player.abilities.creativeMode) {
-            return@repeatable
+            return@tickHandler
         }
 
         // If the player doesn't have an elytra in the chest slot
         if (chestSlot.item != Items.ELYTRA) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (mc.options.sneakKey.isPressed && instantStop) {
             player.stopGliding()
-            return@repeatable
+            return@tickHandler
         }
 
         // If player is flying
@@ -68,7 +68,7 @@ internal object ElytraVanilla : Choice("Vanilla") {
                 player.velocity.y = when {
                     mc.options.jumpKey.isPressed -> ModuleElytraFly.Speed.vertical.toDouble()
                     mc.options.sneakKey.isPressed -> -ModuleElytraFly.Speed.vertical.toDouble()
-                    else -> return@repeatable
+                    else -> return@tickHandler
                 }
             }
             // If the player has an elytra and wants to fly instead

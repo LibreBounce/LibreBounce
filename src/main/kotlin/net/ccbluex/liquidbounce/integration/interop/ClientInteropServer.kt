@@ -22,7 +22,7 @@ package net.ccbluex.liquidbounce.integration.interop
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventHandler
+import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventListener
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.registerInteropFunctions
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -41,7 +41,7 @@ import kotlin.concurrent.thread
 object ClientInteropServer {
 
     internal var httpServer = HttpServer()
-    private var socketEventHandler = SocketEventHandler()
+    private var socketEventHandler = SocketEventListener()
 
     private const val DEFAULT_PORT = 15000
 

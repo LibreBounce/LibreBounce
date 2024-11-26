@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.movement.copy
 
 /**
@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.movement.copy
  *
  * Automatically makes you walk.
  */
-object ModuleAutoWalk : Module("AutoWalk", Category.PLAYER) {
+object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
 
     @Suppress("unused")
     val moveInputHandler = handler<MovementInputEvent>(priority = 1000) {

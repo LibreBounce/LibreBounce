@@ -82,8 +82,8 @@ public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingE
 //    @ModifyExpressionValue(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isInvisibleTo(Lnet/minecraft/entity/player/PlayerEntity;)Z"))
 //    private boolean injectTrueSight(boolean original, T livingEntity) {
 //        // Check if TrueSight is enabled and entities are enabled or ESP is enabled and in glow mode
-//        if (ModuleTrueSight.INSTANCE.getEnabled() && ModuleTrueSight.INSTANCE.getEntities() ||
-//                ModuleESP.INSTANCE.getEnabled() && ModuleESP.INSTANCE.requiresTrueSight(livingEntity)) {
+//        if (ModuleTrueSight.INSTANCE.getRunning() && ModuleTrueSight.INSTANCE.getEntities() ||
+//                ModuleESP.INSTANCE.getRunning() && ModuleESP.INSTANCE.requiresTrueSight(livingEntity)) {
 //            return false;
 //        }
 //

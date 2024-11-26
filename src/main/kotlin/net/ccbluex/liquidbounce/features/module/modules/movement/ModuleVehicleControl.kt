@@ -24,9 +24,9 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.warning
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -43,7 +43,7 @@ import net.minecraft.util.math.Vec3d
  *
  * Move with your vehicle however you want.
  */
-object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT, aliases = arrayOf("BoatFly")) {
+object ModuleVehicleControl : ClientModule("VehicleControl", Category.MOVEMENT, aliases = arrayOf("BoatFly")) {
 
     init {
         enableLock()
@@ -75,10 +75,10 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT, aliase
     }
 
     @Suppress("unused")
-    private val handleVehicleMovement = repeatable {
+    private val handleVehicleMovement = tickHandler {
         val vehicle = player.controllingVehicle ?: run {
             wasInVehicle = false
-            return@repeatable
+            return@tickHandler
         }
 
         // Show explanation message
@@ -140,7 +140,7 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT, aliase
         private var forceAttempt = false
 
         @Suppress("unused")
-        private val handleRehooking = repeatable {
+        private val handleRehooking = tickHandler {
             if (vehicleId >= 0 && !player.hasVehicle()) {
                 val vehicle = world.getEntityById(vehicleId)
 
@@ -149,7 +149,7 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT, aliase
                     if (vehicle.boxedDistanceTo(player) > player.entityInteractionRange) {
                         chat(warning(message("vehicleTooFar")))
                         vehicleId = -1
-                        return@repeatable
+                        return@tickHandler
                     }
 
                     // Enter the vehicle again
@@ -169,7 +169,7 @@ object ModuleVehicleControl : Module("VehicleControl", Category.MOVEMENT, aliase
                 forceAttempt = false
 
                 waitTicks(unhookAfter)
-                vehicleId = player.controllingVehicle?.id ?: return@repeatable
+                vehicleId = player.controllingVehicle?.id ?: return@tickHandler
                 network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY))
                 player.stopRiding()
                 waitTicks(hookAfter - 1)

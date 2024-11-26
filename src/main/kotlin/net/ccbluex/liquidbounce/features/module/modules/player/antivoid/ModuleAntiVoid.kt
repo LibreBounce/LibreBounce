@@ -23,9 +23,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player.antivoid
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidBlinkMode
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidFlagMode
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidGhostBlockMode
@@ -38,7 +38,7 @@ import net.minecraft.util.shape.VoxelShapes
  * AntiVoid module protects the player from falling into the void by simulating
  * future movements and taking action if necessary.
  */
-object ModuleAntiVoid : Module("AntiVoid", Category.PLAYER) {
+object ModuleAntiVoid : ClientModule("AntiVoid", Category.PLAYER) {
 
     val mode = choices("Mode", AntiVoidGhostBlockMode, arrayOf(
         AntiVoidGhostBlockMode,
@@ -120,9 +120,9 @@ object ModuleAntiVoid : Module("AntiVoid", Category.PLAYER) {
      * Executes periodically to check if an anti-void action is required, and triggers it if necessary.
      */
     @Suppress("unused")
-    private val antiVoidListener = repeatable {
+    private val antiVoidListener = tickHandler {
         if (mode.activeChoice.isExempt || !isLikelyFalling) {
-            return@repeatable
+            return@tickHandler
         }
 
         val boundingBox = player.boundingBox.withMinY(voidThreshold.toDouble())

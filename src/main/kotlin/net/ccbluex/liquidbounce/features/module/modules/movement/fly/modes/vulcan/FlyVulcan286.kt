@@ -92,12 +92,12 @@ internal object FlyVulcan286 : Choice("Vulcan286-113") {
         }
     }
 
-    val packetHandler = handler<PacketEvent> {
-        if (it.packet is PlayerPositionLookS2CPacket) {
+    val packetHandler = handler<PacketEvent> { event ->
+        if (event.packet is PlayerPositionLookS2CPacket) {
             flags++
             if (flags == 1) {
-                packet = it.packet
-                it.cancelEvent()
+                packet = event.packet
+                event.cancelEvent()
             } else {
                 ModuleFly.enabled = false
             }

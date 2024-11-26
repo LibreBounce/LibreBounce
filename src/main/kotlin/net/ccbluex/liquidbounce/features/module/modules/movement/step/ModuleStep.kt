@@ -22,17 +22,16 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.step
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.events.PlayerStepEvent
-import net.ccbluex.liquidbounce.event.events.PlayerStepSuccessEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.canStep
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -46,7 +45,7 @@ import net.minecraft.stat.Stats
  * Allows you to step up blocks.
  */
 
-object ModuleStep : Module("Step", Category.MOVEMENT) {
+object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
 
     var modes = choices("Mode", Instant, arrayOf(
         Instant,
@@ -106,7 +105,7 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
         private var ticksWait = 0
 
         @Suppress("unused")
-        private val tickHandler = repeatable {
+        private val tickHandler = tickHandler {
             if (ticksWait > 0) {
                 ticksWait--
             }
@@ -220,7 +219,7 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
         private var baseTimer by float("BaseTimer", 3.0f, 0.1f..5.0f)
         private var recoveryTimer by float("RecoveryTimer", 0.6f, 0.1f..5.0f)
 
-        var stepping = false
+        private var stepping = false
 
         @Suppress("unused")
         private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
@@ -242,12 +241,20 @@ object ModuleStep : Module("Step", Category.MOVEMENT) {
             }
         }
 
+        @Suppress("unused")
+        private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+            if (event.origin == TransferOrigin.SEND && stepping) {
+                event.action = PacketQueueManager.Action.QUEUE
+            }
+        }
+
         override fun disable() {
             stepping = false
             super.disable()
         }
 
-        override fun isRunning() = super.isRunning() && !ModuleSpeed.enabled
+        override val running: Boolean
+            get() = super.running && !ModuleSpeed.running
 
     }
 

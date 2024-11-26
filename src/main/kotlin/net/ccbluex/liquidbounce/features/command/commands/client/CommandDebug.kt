@@ -139,7 +139,7 @@ object CommandDebug {
         addProperty("config", autoConfigPaste)
 
         add("activeModules", JsonArray().apply {
-            ModuleManager.filter { it.enabled }.forEach { module ->
+            ModuleManager.filter { it.running }.forEach { module ->
                 add(JsonPrimitive(module.name))
             }
         })

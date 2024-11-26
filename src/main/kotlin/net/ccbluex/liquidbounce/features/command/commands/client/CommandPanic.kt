@@ -48,7 +48,7 @@ object CommandPanic {
                     .build()
             )
             .handler { command, args ->
-                var modules = ModuleManager.filter { it.enabled }
+                var modules = ModuleManager.filter { it.running }
                 val msg: MutableText
 
                 when (val type = args.getOrNull(0) as String? ?: "nonrender") {
@@ -68,7 +68,9 @@ object CommandPanic {
 
                 AutoConfig.loadingNow = true
                 runCatching {
-                    modules.forEach { it.enabled = false }
+                    for (module in modules) {
+                        module.enabled = false
+                    }
                 }.onSuccess {
                     AutoConfig.loadingNow = false
                     chat(regular(msg))

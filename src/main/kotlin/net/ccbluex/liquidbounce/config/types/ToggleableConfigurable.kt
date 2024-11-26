@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.config.types
 
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 
@@ -31,10 +31,10 @@ import net.ccbluex.liquidbounce.script.ScriptApiRequired
  * it also features [enable] and [disable] which are called when the state is toggled.
  */
 abstract class ToggleableConfigurable(
-    @Exclude @ProtocolExclude val parent: Listenable? = null,
+    @Exclude @ProtocolExclude val parent: EventListener? = null,
     name: String,
     enabled: Boolean
-) : Listenable, Configurable(name, valueType = ValueType.TOGGLEABLE), MinecraftShortcuts {
+) : EventListener, Configurable(name, valueType = ValueType.TOGGLEABLE), MinecraftShortcuts {
 
     // TODO: Make enabled change also call newState
     var enabled by boolean("Enabled", enabled)
@@ -62,7 +62,8 @@ abstract class ToggleableConfigurable(
      * Because we pass the parent to the Listenable, we can simply
      * call the super.handleEvents() and it will return false if the upper-listenable is disabled.
      */
-    override fun isRunning() = super.isRunning() && enabled
+    override val running: Boolean
+        get() = super.running && enabled
 
     override fun parent() = parent
 

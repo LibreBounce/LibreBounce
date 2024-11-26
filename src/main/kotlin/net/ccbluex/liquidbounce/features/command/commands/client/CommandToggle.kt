@@ -48,7 +48,7 @@ object CommandToggle {
                 val module = ModuleManager.find { it.name.equals(name, true) }
                     ?: throw CommandException(command.result("moduleNotFound", name))
 
-                val newState = !module.enabled
+                val newState = !module.running
                 module.enabled = newState
                 chat(
                     regular(

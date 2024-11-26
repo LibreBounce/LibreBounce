@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer.httpServ
 import net.ccbluex.liquidbounce.utils.client.logger
 import kotlin.reflect.KClass
 
-class SocketEventHandler : Listenable {
+class SocketEventListener : EventListener {
 
     private val events = ALL_EVENT_CLASSES
         .filter { it.java.isAnnotationPresent(WebSocketEvent::class.java) }

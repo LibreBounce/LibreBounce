@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render.trajectories
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.toRadians
@@ -42,7 +42,7 @@ import kotlin.math.sin
  * Allows you to see where projectile items will land.
  */
 
-object ModuleTrajectories : Module("Trajectories", Category.RENDER) {
+object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
     private val maxSimulatedTicks by int("MaxSimulatedTicks", 240, 1..1000, "ticks")
     private val alwaysShowBow by boolean("AlwaysShowBow", false)
     private val otherPlayers by boolean("OtherPlayers", true)

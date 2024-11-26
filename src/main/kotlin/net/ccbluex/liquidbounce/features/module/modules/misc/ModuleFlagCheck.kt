@@ -23,9 +23,9 @@ import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -42,7 +42,7 @@ import org.apache.commons.lang3.StringUtils
  *
  * Alerts you about set backs.
  */
-object ModuleFlagCheck : Module("FlagCheck", Category.MISC, aliases = arrayOf("FlagDetect")) {
+object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arrayOf("FlagDetect")) {
 
     private var chatMessage by boolean("ChatMessage", true)
     private var notification by boolean("Notification", false)
@@ -53,7 +53,7 @@ object ModuleFlagCheck : Module("FlagCheck", Category.MISC, aliases = arrayOf("F
         private var afterSeconds by int("After", 30, 1..300, "s")
 
         @Suppress("unused")
-        private val repeatable = repeatable {
+        private val repeatable = tickHandler {
             flagCount = 0
             waitSeconds(afterSeconds)
         }
@@ -136,16 +136,16 @@ object ModuleFlagCheck : Module("FlagCheck", Category.MISC, aliases = arrayOf("F
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (!invalidAttributes) {
-            return@repeatable
+            return@tickHandler
         }
 
         val invalidHeath = player.health <= 0f && player.isAlive
         val invalidHunger = player.hungerManager.foodLevel <= 0
 
         if (!invalidHeath && !invalidHunger) {
-            return@repeatable
+            return@tickHandler
         }
 
         val invalidReasons = mutableListOf<String>()

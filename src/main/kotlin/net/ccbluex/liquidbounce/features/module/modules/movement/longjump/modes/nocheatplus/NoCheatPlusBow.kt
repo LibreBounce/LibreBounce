@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.ModuleLongJump
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -66,7 +66,7 @@ internal object NoCheatPlusBow : Choice("NoCheatPlusBow") {
         }
     }
 
-    val tickJumpHandler = repeatable {
+    val tickJumpHandler = tickHandler {
         if (arrowBoost <= arrowsToShoot) {
             mc.options.useKey.isPressed = true
             RotationManager.aimAt(

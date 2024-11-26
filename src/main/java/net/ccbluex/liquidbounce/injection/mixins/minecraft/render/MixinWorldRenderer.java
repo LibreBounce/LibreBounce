@@ -112,10 +112,10 @@ public abstract class MixinWorldRenderer {
 
         Color4b color;
 
-        if (ModuleESP.INSTANCE.getEnabled() && ModuleESP.OutlineMode.INSTANCE.isActive() &&
+        if (ModuleESP.INSTANCE.getRunning() && ModuleESP.OutlineMode.INSTANCE.isSelected() &&
                 entity instanceof LivingEntity && CombatExtensionsKt.shouldBeShown(entity)) {
             color = ModuleESP.INSTANCE.getColor((LivingEntity) entity);
-        } else if (ModuleItemESP.INSTANCE.getEnabled() && ModuleItemESP.OutlineMode.INSTANCE.isActive()
+        } else if (ModuleItemESP.INSTANCE.getRunning() && ModuleItemESP.OutlineMode.INSTANCE.isSelected()
                 && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             color = ModuleItemESP.INSTANCE.getColor();
         } else {
@@ -144,7 +144,7 @@ public abstract class MixinWorldRenderer {
 
 //    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V"))
 //    private void onDrawOutlines(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
-//        if (!ModuleESP.INSTANCE.getEnabled() || !ModuleESP.OutlineMode.INSTANCE.isActive()) {
+//        if (!ModuleESP.INSTANCE.getRunning() || !ModuleESP.OutlineMode.INSTANCE.isSelected()) {
 //            return;
 //        }
 //
@@ -163,7 +163,7 @@ public abstract class MixinWorldRenderer {
 
     @Inject(method = "renderEntity", at = @At("HEAD"))
     private void injectChamsForEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci) {
-        if (ModuleChams.INSTANCE.getEnabled() && CombatExtensionsKt.getCombatTargetsConfigurable().shouldShow(entity)) {
+        if (ModuleChams.INSTANCE.getRunning() && CombatExtensionsKt.getCombatTargetsConfigurable().shouldShow(entity)) {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1f, -1000000F);
 
@@ -173,7 +173,7 @@ public abstract class MixinWorldRenderer {
 
     @Inject(method = "renderEntity", at = @At("RETURN"))
     private void injectChamsForEntityPost(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci) {
-        if (ModuleChams.INSTANCE.getEnabled() && CombatExtensionsKt.getCombatTargetsConfigurable().shouldShow(entity) && this.isRenderingChams) {
+        if (ModuleChams.INSTANCE.getRunning() && CombatExtensionsKt.getCombatTargetsConfigurable().shouldShow(entity) && this.isRenderingChams) {
             glPolygonOffset(1f, 1000000F);
             glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -199,18 +199,18 @@ public abstract class MixinWorldRenderer {
      */
     @Redirect(method = "getEntitiesToRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
     private boolean injectHasOutline(MinecraftClient instance, Entity entity) {
-        if (ModuleItemESP.INSTANCE.getEnabled() && ModuleItemESP.GlowMode.INSTANCE.isActive() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
+        if (ModuleItemESP.INSTANCE.getRunning() && ModuleItemESP.GlowMode.INSTANCE.isSelected() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             return true;
         }
-        if (ModuleESP.INSTANCE.getEnabled() && ModuleESP.GlowMode.INSTANCE.isActive() && CombatExtensionsKt.shouldBeShown(entity)) {
+        if (ModuleESP.INSTANCE.getRunning() && ModuleESP.GlowMode.INSTANCE.isSelected() && CombatExtensionsKt.shouldBeShown(entity)) {
             return true;
         }
-        if (ModuleTNTTimer.INSTANCE.getEnabled() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
+        if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
             return true;
         }
 
-        if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.isRunning() &&
-                ModuleStorageESP.Glow.INSTANCE.isActive() && ModuleStorageESP.categorize(entity) != null) {
+        if (ModuleStorageESP.INSTANCE.getRunning() && ModuleStorageESP.INSTANCE.getRunning() &&
+                ModuleStorageESP.Glow.INSTANCE.isSelected() && ModuleStorageESP.categorize(entity) != null) {
             return true;
         }
 
@@ -232,24 +232,24 @@ public abstract class MixinWorldRenderer {
      */
     @Redirect(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
     private int injectTeamColor(Entity instance) {
-        if (ModuleItemESP.INSTANCE.getEnabled() && ModuleItemESP.GlowMode.INSTANCE.isActive() && ModuleItemESP.INSTANCE.shouldRender(instance)) {
+        if (ModuleItemESP.INSTANCE.getRunning() && ModuleItemESP.GlowMode.INSTANCE.isSelected() && ModuleItemESP.INSTANCE.shouldRender(instance)) {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
         }
 
-        if (instance instanceof TntEntity && ModuleTNTTimer.INSTANCE.getEnabled() && ModuleTNTTimer.INSTANCE.getEsp()) {
+        if (instance instanceof TntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
             return ModuleTNTTimer.INSTANCE.getTntColor(((TntEntity) instance).getFuse()).toARGB();
         }
 
-        if (ModuleStorageESP.INSTANCE.getEnabled() && ModuleStorageESP.INSTANCE.isRunning()
-                && ModuleStorageESP.Glow.INSTANCE.isActive()) {
+        if (ModuleStorageESP.INSTANCE.getRunning() && ModuleStorageESP.INSTANCE.getRunning()
+                && ModuleStorageESP.Glow.INSTANCE.isSelected()) {
             var categorizedEntity = ModuleStorageESP.categorize(instance);
             if (categorizedEntity != null) {
                 return categorizedEntity.getColor().toARGB();
             }
         }
 
-        if (instance instanceof LivingEntity && ModuleESP.INSTANCE.getEnabled()
-                && ModuleESP.GlowMode.INSTANCE.isActive()) {
+        if (instance instanceof LivingEntity && ModuleESP.INSTANCE.getRunning()
+                && ModuleESP.GlowMode.INSTANCE.isSelected()) {
             final Color4b color = ModuleESP.INSTANCE.getColor((LivingEntity) instance);
             return color.toARGB();
         }
@@ -296,14 +296,14 @@ public abstract class MixinWorldRenderer {
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"), index = 3)
     private boolean renderSetupTerrainModifyArg(boolean spectator) {
-        return ModuleFreeCam.INSTANCE.getEnabled() || spectator;
+        return ModuleFreeCam.INSTANCE.getRunning() || spectator;
     }
 
 //    @ModifyExpressionValue(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
 //    private float removeRainSplashing(float original) {
 //        var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
 //
-//        if (moduleOverrideWeather.getEnabled() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
+//        if (moduleOverrideWeather.getRunning() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
 //            return 0f;
 //        }
 //
@@ -325,7 +325,7 @@ public abstract class MixinWorldRenderer {
         //       BlockPos pos, BlockState state,
         //       int color
 
-        if (!ModuleBlockOutline.INSTANCE.getEnabled()) {
+        if (!ModuleBlockOutline.INSTANCE.getRunning()) {
             return;
         }
 

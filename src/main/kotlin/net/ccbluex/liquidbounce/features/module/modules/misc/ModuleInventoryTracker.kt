@@ -1,12 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.ItemLoreQueryEvent
+import net.ccbluex.liquidbounce.event.events.PlayerEquipmentChangeEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.CommandInvsee
 import net.ccbluex.liquidbounce.features.command.commands.client.NoInteractInventory
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.EquipmentSlot
@@ -16,7 +18,7 @@ import net.minecraft.entity.EquipmentSlot.Type.*
 import net.minecraft.item.ItemStack
 import java.util.*
 
-object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
+object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) {
 
     private val playerMap = HashMap<UUID, TrackedInventory>()
 
@@ -72,7 +74,7 @@ object ModuleInventoryTracker : Module("InventoryTracker", Category.MISC) {
     }
 
     val itemLoreQueryHandler = handler<ItemLoreQueryEvent> { event ->
-        if (!enabled || mc.currentScreen !is NoInteractInventory) return@handler
+        if (!running || mc.currentScreen !is NoInteractInventory) return@handler
         val player = CommandInvsee.viewedPlayer ?: return@handler
         val timeStamp = playerMap[player.uuid]?.timeMap?.getLong(event.itemStack)?.takeIf { it != 0L } ?: return@handler
         val lastSeen = System.currentTimeMillis() - timeStamp

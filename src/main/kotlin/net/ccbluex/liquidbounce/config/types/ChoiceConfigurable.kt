@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.config.types
 
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.mapArray
  * Allows to configure and manage modes
  */
 class ChoiceConfigurable<T : Choice>(
-    @Exclude @ProtocolExclude val listenable: Listenable,
+    @Exclude @ProtocolExclude val eventListener: EventListener,
     name: String,
     activeChoiceCallback: (ChoiceConfigurable<T>) -> T,
     choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
@@ -70,7 +70,7 @@ class ChoiceConfigurable<T : Choice>(
             return
         }
 
-        if (this.activeChoice.isRunning()) {
+        if (this.activeChoice.running) {
             this.activeChoice.disable()
         }
 
@@ -81,7 +81,7 @@ class ChoiceConfigurable<T : Choice>(
             this.activeChoice = it[0] as T
         })
 
-        if (this.activeChoice.isRunning()) {
+        if (this.activeChoice.running) {
             this.activeChoice.enable()
         }
     }
@@ -91,7 +91,7 @@ class ChoiceConfigurable<T : Choice>(
             return
         }
 
-        if (this.activeChoice.isRunning()) {
+        if (this.activeChoice.running) {
             this.activeChoice.disable()
         }
 
@@ -99,7 +99,7 @@ class ChoiceConfigurable<T : Choice>(
             this.activeChoice = it[0] as T
         })
 
-        if (this.activeChoice.isRunning()) {
+        if (this.activeChoice.running) {
             this.activeChoice.enable()
         }
     }
@@ -112,27 +112,31 @@ class ChoiceConfigurable<T : Choice>(
 /**
  * A mode is sub-module to separate different bypasses into extra classes
  */
-abstract class Choice(name: String) : Configurable(name), Listenable, NamedChoice, MinecraftShortcuts {
+abstract class Choice(name: String) : Configurable(name), EventListener, NamedChoice, MinecraftShortcuts {
 
     override val choiceName: String
         get() = this.name
 
-    val isActive: Boolean
-        get() = this.parent.activeChoice === this
-
     abstract val parent: ChoiceConfigurable<*>
 
-    open fun enable() {}
+    open fun enable() { }
 
-    open fun disable() {}
+    open fun disable() { }
+
+    /**
+     * Check if the choice is selected on the parent.
+     */
+    val isSelected: Boolean
+        get() = this.parent.activeChoice === this
 
     /**
      * We check if the parent is active and if the mode is active, if so
      * we handle the events.
      */
-    override fun isRunning() = super.isRunning() && isActive
+    override val running: Boolean
+        get() = super.running && isSelected
 
-    override fun parent() = this.parent.listenable
+    override fun parent() = this.parent.eventListener
 
     protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)

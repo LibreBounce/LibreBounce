@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.render.ui
 
 import com.mojang.blaze3d.systems.ProjectionType
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ResourceReloadEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -39,7 +39,7 @@ private class Atlas(
 /**
  *
  */
-object ItemImageAtlas: Listenable {
+object ItemImageAtlas: EventListener {
 
     private var atlas: Atlas? = null
 

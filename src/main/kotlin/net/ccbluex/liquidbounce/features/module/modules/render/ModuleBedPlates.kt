@@ -23,7 +23,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
@@ -46,7 +46,7 @@ import kotlin.math.sqrt
 private const val ITEM_SIZE: Int = 16
 private const val BACKGROUND_PADDING: Int = 2
 
-object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
+object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
     private val ROMAN_NUMERALS = arrayOf("", "I", "II", "III", "IV", "V")
 
     private val maxLayers by int("MaxLayers", 5, 1..5)

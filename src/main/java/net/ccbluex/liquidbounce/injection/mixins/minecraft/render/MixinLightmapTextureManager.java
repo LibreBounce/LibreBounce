@@ -55,13 +55,13 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
     @ModifyExpressionValue(method = "update(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/SimpleOption;getValue()Ljava/lang/Object;", ordinal = 1))
     private Object injectXRayFullBright(Object original) {
         // If fullBright is enabled, we need to return our own gamma value
-        if (ModuleFullBright.INSTANCE.getEnabled() && ModuleFullBright.FullBrightGamma.INSTANCE.isActive()) {
+        if (ModuleFullBright.INSTANCE.getRunning() && ModuleFullBright.FullBrightGamma.INSTANCE.isSelected()) {
             return ModuleFullBright.FullBrightGamma.INSTANCE.getGamma();
         }
 
         // Xray fullbright
         final ModuleXRay module = ModuleXRay.INSTANCE;
-        if (!module.getEnabled() || !module.getFullBright()) {
+        if (!module.getRunning() || !module.getFullBright()) {
             return original;
         }
 
@@ -72,7 +72,7 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
 
 //    @Inject(method = "update(F)V", at = @At(value = "HEAD"))
 //    private void hookBlendTextureColors(float delta, CallbackInfo ci) {
-//        if (!dirty && ModuleCustomAmbience.INSTANCE.getEnabled() && ModuleCustomAmbience.CustomLightColor.INSTANCE.getEnabled()) {
+//        if (!dirty && ModuleCustomAmbience.INSTANCE.getRunning() && ModuleCustomAmbience.CustomLightColor.INSTANCE.getEnabled()) {
 //            liquid_bounce$dirty = true;
 //            liquid_bounce$currentIndex = 0;
 //            for (int y = 0; y < 16; y++) {
@@ -87,7 +87,7 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
 
     @Inject(method = "update(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDarknessEffectScale()Lnet/minecraft/client/option/SimpleOption;"))
     private void hookResetIndex(float delta, CallbackInfo ci) {
-        if (ModuleCustomAmbience.INSTANCE.getEnabled() && ModuleCustomAmbience.CustomLightColor.INSTANCE.getEnabled()) {
+        if (ModuleCustomAmbience.INSTANCE.getRunning() && ModuleCustomAmbience.CustomLightColor.INSTANCE.getEnabled()) {
             liquid_bounce$dirty = true;
             liquid_bounce$currentIndex = 0;
         }
@@ -126,7 +126,7 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
     private StatusEffectInstance injectAntiDarkness(ClientPlayerEntity instance, RegistryEntry<StatusEffect> registryEntry) {
         final var module = ModuleAntiBlind.INSTANCE;
 
-        if (module.getEnabled() && module.getAntiDarkness()) {
+        if (module.getRunning() && module.getAntiDarkness()) {
             return null;
         }
 

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.`fun`
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.movement.copy
 
 /**
@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.movement.copy
  *
  * Automatically sneaks and unsneaks.
  */
-object ModuleTwerk : Module("Twerk", Category.FUN) {
+object ModuleTwerk : ClientModule("Twerk", Category.FUN) {
 
     /**
      * How long each sneak / normal period is.

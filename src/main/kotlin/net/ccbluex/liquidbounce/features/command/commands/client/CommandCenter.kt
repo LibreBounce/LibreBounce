@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.Command
@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
  *
  * Centers you at your current position.
  */
-object CommandCenter : Listenable {
+object CommandCenter : EventListener {
 
     var state = CenterHandlerState.INACTIVE
 
@@ -59,7 +59,8 @@ object CommandCenter : Listenable {
             state = CenterHandlerState.INACTIVE
         }
 
-    override fun isRunning() = super.isRunning() && inGame && state == CenterHandlerState.APPLY_ON_NEXT_EVENT
+    override val running: Boolean
+        get() = super.running && inGame && state == CenterHandlerState.APPLY_ON_NEXT_EVENT
 
     enum class CenterHandlerState {
         INACTIVE,

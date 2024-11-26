@@ -6,9 +6,9 @@ import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.utils.interpolateHue
@@ -24,7 +24,7 @@ import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import java.util.concurrent.PriorityBlockingQueue
 
-object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
+object ModuleProphuntESP : ClientModule("ProphuntESP", Category.RENDER,
     aliases = arrayOf("BlockUpdateDetector", "FallingBlockESP")) {
 
     private val modes = choices(
@@ -75,7 +75,7 @@ object ModuleProphuntESP : Module("ProphuntESP", Category.RENDER,
     private val renderTicks by float("RenderTicks", 60f, 0f..600f)
 
     @Suppress("unused")
-    private val gameHandler = repeatable {
+    private val gameHandler = tickHandler {
         while (trackedBlocks.isNotEmpty() && trackedBlocks.peek().expirationTime <= world.time) {
             trackedBlocks.poll()
         }

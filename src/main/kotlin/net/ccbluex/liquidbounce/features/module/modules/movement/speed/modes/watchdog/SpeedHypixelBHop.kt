@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
@@ -71,11 +71,11 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : Choice("Hyp
 
     private var wasFlagged = false
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.isOnGround) {
             // Strafe when on ground
             player.strafe()
-            return@repeatable
+            return@tickHandler
         } else {
             // Not much speed boost, but still a little bit - if someone wants to improve this, feel free to do so
             val horizontalMod = if (horizontalAcceleration) {

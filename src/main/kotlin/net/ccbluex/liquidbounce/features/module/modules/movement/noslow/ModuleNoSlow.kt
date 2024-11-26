@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslow
 import net.ccbluex.liquidbounce.event.events.PlayerUseMultiplier
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.bow.NoSlowBow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.consume.NoSlowConsume
@@ -39,7 +39,7 @@ import net.minecraft.item.consume.UseAction
  *
  * Cancels slowness effects caused by blocks and using items.
  */
-object ModuleNoSlow : Module("NoSlow", Category.MOVEMENT) {
+object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
 
     init {
         tree(NoSlowBlock)
