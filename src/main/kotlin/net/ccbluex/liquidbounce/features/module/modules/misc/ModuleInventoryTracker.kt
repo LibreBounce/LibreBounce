@@ -6,21 +6,28 @@ import net.ccbluex.liquidbounce.event.events.PlayerEquipmentChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.CommandInvsee
-import net.ccbluex.liquidbounce.features.command.commands.client.NoInteractInventory
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
+import net.ccbluex.liquidbounce.utils.inventory.ViewedInventoryScreen
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.EquipmentSlot.MAINHAND
 import net.minecraft.entity.EquipmentSlot.OFFHAND
 import net.minecraft.entity.EquipmentSlot.Type.*
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import java.util.*
 
 object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) {
 
-    private val playerMap = HashMap<UUID, TrackedInventory>()
+    /** Saves the non-persistent player object associated with the uuid.
+     * This makes it possible to look up inventories of players which aren't in
+     * the render distance. */
+    private val savePlayers by boolean("SavePlayers", false).onChanged { playerMap.clear() }
+
+    private val inventoryMap = HashMap<UUID, TrackedInventory>()
+    val playerMap = HashMap<UUID, PlayerEntity>()
 
     val playerEquipmentChangeHandler = handler<PlayerEquipmentChangeEvent> { event ->
         val player = event.player
@@ -34,7 +41,10 @@ object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) 
         val mainHandStack = if (updatedSlot == MAINHAND) newItemStack else player.mainHandStack
         val offHandStack = if (updatedSlot == OFFHAND) newItemStack else player.offHandStack
 
-        val trackedInventory = playerMap.getOrPut(player.uuid) { TrackedInventory() }
+        val trackedInventory = inventoryMap.getOrPut(player.uuid) { TrackedInventory() }
+        if (savePlayers) {
+            playerMap[player.uuid] = player
+        }
 
         when (updatedSlot.type) {
             HAND -> {
@@ -64,19 +74,20 @@ object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) 
     val worldChangeHandler = handler<WorldChangeEvent> { reset() }
 
     private fun reset() {
-        playerMap.keys.forEach { uuid ->
+        inventoryMap.keys.forEach { uuid ->
             val player = world.players.find { it.uuid == uuid } ?: return@forEach
             for (i in 1 until player.inventory.main.size) {
                 player.inventory.main[i] = ItemStack.EMPTY
             }
         }
+        inventoryMap.clear()
         playerMap.clear()
     }
 
     val itemLoreQueryHandler = handler<ItemLoreQueryEvent> { event ->
-        if (!running || mc.currentScreen !is NoInteractInventory) return@handler
-        val player = CommandInvsee.viewedPlayer ?: return@handler
-        val timeStamp = playerMap[player.uuid]?.timeMap?.getLong(event.itemStack)?.takeIf { it != 0L } ?: return@handler
+        if (mc.currentScreen !is ViewedInventoryScreen) return@handler
+        val player = CommandInvsee.viewedPlayer
+        val timeStamp = inventoryMap[player]?.timeMap?.getLong(event.itemStack)?.takeIf { it != 0L } ?: return@handler
         val lastSeen = System.currentTimeMillis() - timeStamp
         event.addLore("§7Last Seen: ${toMinutesSeconds(lastSeen)}§r")
     }
