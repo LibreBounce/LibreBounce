@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.module
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
@@ -36,10 +37,12 @@ import kotlin.math.roundToInt
  *
  * Allows you to manage the list of modules that are automatically disabled.
  * It provides subcommands to add, remove, list and clear modules from the auto-disable list.
+ *
+ * Module: [ModuleAutoDisable]
  */
-object CommandAutoDisable {
+object CommandAutoDisable : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("autodisable")
             .hub()
@@ -60,7 +63,7 @@ object CommandAutoDisable {
                             throw CommandException(command.result("moduleIsPresent", name))
                         }
 
-                        chat(regular(command.result("moduleAdded", variable(module.name))))
+                        chat(regular(command.result("moduleAdded", variable(module.name))), command)
                     }
                     .build()
             )
@@ -92,7 +95,8 @@ object CommandAutoDisable {
                                     "moduleRemoved",
                                     variable(module.name)
                                 )
-                            )
+                            ),
+                            command
                         )
                     }
                     .build()
@@ -124,9 +128,18 @@ object CommandAutoDisable {
                             throw CommandException(command.result("pageNumberTooLarge", maxPage))
                         }
 
+                        mc.inGameHud.chatHud.removeMessage("CAutoDisable#global")
+                        val data = MessageMetadata(id = "CAutoDisable#global", remove = false)
+
                         // Print out bindings
-                        chat(command.result("modules").styled { it.withColor(Formatting.RED).withBold(true) })
-                        chat(regular(command.result("page", variable("$page / $maxPage"))))
+                        chat(
+                            command.result("modules").styled { it.withColor(Formatting.RED).withBold(true) },
+                            metadata = data
+                        )
+                        chat(
+                            regular(command.result("page", variable("$page / $maxPage"))),
+                            metadata = data
+                        )
 
                         val iterPage = 8 * page
                         for (module in modules.subList(iterPage - 8, iterPage.coerceAtMost(modules.size))) {
@@ -140,7 +153,8 @@ object CommandAutoDisable {
                                             .styled { it.withColor(Formatting.DARK_GRAY).withBold(true) }
                                     )
                                     .append(")")
-                                    .styled { it.withColor(Formatting.GRAY) }
+                                    .styled { it.withColor(Formatting.GRAY) },
+                                metadata = data
                             )
                         }
                     }
@@ -151,7 +165,10 @@ object CommandAutoDisable {
                     .begin("clear")
                     .handler { command, _ ->
                         ModuleAutoDisable.listOfModules.clear()
-                        chat(command.result("modulesCleared"))
+                        chat(
+                            command.result("modulesCleared"),
+                            metadata = MessageMetadata(id = "CAutoDisable#global")
+                        )
                     }
                     .build()
             )

@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.module.teleport
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleTeleport
@@ -29,13 +30,16 @@ import net.ccbluex.liquidbounce.utils.client.player
  * Teleport Command
  *
  * Allows you to teleport.
+ *
+ * Module: [ModuleTeleport]
  */
-object CommandTeleport {
+object CommandTeleport : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("teleport")
             .alias("tp")
+            .requiresIngame()
             .parameter(
                 ParameterBuilder
                     .begin<Float>("x")

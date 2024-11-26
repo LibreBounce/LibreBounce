@@ -20,9 +20,11 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
@@ -32,9 +34,9 @@ import net.ccbluex.liquidbounce.utils.client.variable
  *
  * Allows you to enable or disable a specific module.
  */
-object CommandToggle {
+object CommandToggle : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("toggle")
             .alias("t")
@@ -57,7 +59,8 @@ object CommandToggle {
                             variable(module.name),
                             variable(if (newState) command.result("enabled") else command.result("disabled"))
                         )
-                    )
+                    ),
+                    metadata = MessageMetadata(id = "CToggle#success${module.name}")
                 )
             }
             .build()

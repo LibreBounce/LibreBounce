@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandXRay
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.getState
@@ -31,8 +32,9 @@ import net.minecraft.util.shape.VoxelShapes
  * XRay module
  *
  * Allows you to see ores through walls.
+ *
+ * Command: [CommandXRay]
  */
-
 object ModuleXRay : ClientModule("XRay", Category.RENDER) {
 
     // Lighting of blocks through walls

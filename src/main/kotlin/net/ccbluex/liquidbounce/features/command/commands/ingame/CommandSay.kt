@@ -19,28 +19,34 @@
  *
  */
 
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.ingame
 
+import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.utils.client.network
 
-object CommandSay {
+object CommandSay : CommandFactory {
 
-    fun createCommand() = CommandBuilder.begin("say")
-        .parameter(
-            ParameterBuilder
-                .begin<String>("message")
-                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                .required()
-                .vararg()
-                .build()
-        )
-        .handler { _, args ->
-            val message = (args[0] as Array<*>).joinToString(" ") { it as String }
+    override fun createCommand(): Command {
+        return CommandBuilder
+            .begin("say")
+            .requiresIngame()
+            .parameter(
+                ParameterBuilder
+                    .begin<String>("message")
+                    .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                    .required()
+                    .vararg()
+                    .build()
+            )
+            .handler { _, args ->
+                val message = (args[0] as Array<*>).joinToString(" ") { it as String }
 
-            network.sendChatMessage(message)
-        }
-        .build()
+                network.sendChatMessage(message)
+            }
+            .build()
+    }
 
 }

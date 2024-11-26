@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
@@ -34,8 +35,9 @@ import net.ccbluex.liquidbounce.utils.input.mouseList
  *
  * Allows you to bind a key to a module, which means that the module will be activated when the key is pressed.
  */
-object CommandBind {
-    fun createCommand(): Command {
+object CommandBind : CommandFactory {
+
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("bind")
             .parameter(
@@ -60,7 +62,10 @@ object CommandBind {
                 if (keyName.equals("none", true)) {
                     module.bind.unbind()
                     ModuleClickGui.reloadView()
-                    chat(regular(command.result("moduleUnbound", variable(module.name))))
+                    chat(
+                        regular(command.result("moduleUnbound", variable(module.name))),
+                        metadata = MessageMetadata(id = "Bind#${module.name}")
+                    )
                     return@handler
                 }
 
@@ -68,12 +73,19 @@ object CommandBind {
                     module.bind.bind(keyName)
                     ModuleClickGui.reloadView()
                 }.onSuccess {
-                    chat(regular(command.result("moduleBound", variable(module.name), variable(module.bind.keyName))))
+                    chat(
+                        regular(command.result("moduleBound", variable(module.name), variable(module.bind.keyName))),
+                        metadata = MessageMetadata(id = "Bind#${module.name}")
+                    )
                 }.onFailure {
-                    chat(markAsError(command.result("keyNotFound", variable(keyName))))
+                    chat(
+                        markAsError(command.result("keyNotFound", variable(keyName))),
+                        metadata = MessageMetadata(id = "Bind#${module.name}")
+                    )
                 }
 
             }
             .build()
     }
+
 }

@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.ingame
 
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.utils.client.*
 
@@ -27,15 +28,17 @@ import net.ccbluex.liquidbounce.utils.client.*
  *
  * Allow verify the latency of the current player.
  */
-object CommandPing {
+object CommandPing : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("ping")
+            .requiresIngame()
             .handler { command, _ ->
                 val ping = network.getPlayerListEntry(player.uuid)!!.latency
-                chat(regular(command.result("pingCheck", variable(ping.toString()))))
+                chat(regular(command.result("pingCheck", variable(ping.toString()))), command)
             }
             .build()
     }
+
 }

@@ -16,14 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.creative
+package net.ccbluex.liquidbounce.features.command.commands.ingame.creative
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.enchantmentParameter
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
+import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.item.addEnchantment
@@ -44,9 +46,9 @@ import kotlin.math.min
  *
  * Allows you to add, remove, clear, and enchant all possible enchantments on an item.
  */
-object CommandItemEnchant : MinecraftShortcuts {
+object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
 
-    val levelParameter= ParameterBuilder
+    private val levelParameter= ParameterBuilder
         .begin<String>("level")
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
         .autocompletedWith {begin ->
@@ -55,9 +57,10 @@ object CommandItemEnchant : MinecraftShortcuts {
         .required()
 
     @Suppress("LongMethod")
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("enchant")
+            .requiresIngame()
             .hub()
             .subcommand(
                 CommandBuilder
@@ -75,7 +78,10 @@ object CommandItemEnchant : MinecraftShortcuts {
                         enchantAnyLevel(itemStack, enchantment, level)
 
                         sendItemPacket(itemStack)
-                        chat(regular(command.resultWithTree("enchantedItem", enchantment.idAsString, level ?: "max")))
+                        chat(
+                            regular(command.resultWithTree("enchantedItem", enchantment.idAsString, level ?: "max")),
+                            metadata = MessageMetadata(id = "CItemEnchant#info")
+                        )
                     }
                     .build()
             )
@@ -93,7 +99,10 @@ object CommandItemEnchant : MinecraftShortcuts {
                         removeEnchantment(itemStack, enchantment)
 
                         sendItemPacket(itemStack)
-                        chat(regular(command.resultWithTree("unenchantedItem", enchantment.idAsString)))
+                        chat(
+                            regular(command.resultWithTree("unenchantedItem", enchantment.idAsString)),
+                            metadata = MessageMetadata(id = "CItemEnchant#info")
+                        )
                     }
                     .build()
 
@@ -124,7 +133,10 @@ object CommandItemEnchant : MinecraftShortcuts {
                         enchantAll(itemStack, false, level)
 
                         sendItemPacket(itemStack)
-                        chat(regular(command.resultWithTree("enchantedItem","all", level ?: "Max")))
+                        chat(
+                            regular(command.resultWithTree("enchantedItem","all", level ?: "Max")),
+                            metadata = MessageMetadata(id = "CItemEnchant#info")
+                        )
                     }
                     .build()
             )
@@ -140,7 +152,10 @@ object CommandItemEnchant : MinecraftShortcuts {
                         enchantAll(itemStack, true, level)
 
                         sendItemPacket(itemStack)
-                        chat(regular(command.resultWithTree("enchantedItem", "all_possible", level ?: "Max")))
+                        chat(
+                            regular(command.resultWithTree("enchantedItem", "all_possible", level ?: "Max")),
+                            metadata = MessageMetadata(id = "CItemEnchant#info")
+                        )
                     }
                     .build()
             )

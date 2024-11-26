@@ -16,12 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.ingame
 
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.playerParameter
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
+import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
@@ -31,25 +33,32 @@ import net.ccbluex.liquidbounce.utils.client.variable
  *
  * Allows you to view from the perspective of another player in the game.
  */
-object CommandRemoteView: MinecraftShortcuts {
+object CommandRemoteView : CommandFactory, MinecraftShortcuts {
 
     private var pName: String? = null
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("remoteview")
             .alias("rv")
             .hub()
+            .requiresIngame()
             .subcommand(
                 CommandBuilder
                     .begin("off")
                     .handler { command, _ ->
                         if (mc.getCameraEntity() != player) {
                             mc.setCameraEntity(player)
-                            chat(regular(command.result("off", variable(pName.toString()))))
+                            chat(
+                                regular(command.result("off", variable(pName.toString()))),
+                                metadata = MessageMetadata(id = "CRemoteView#info")
+                            )
                             pName = null
                         } else {
-                            chat(regular(command.result("alreadyOff")))
+                            chat(
+                                regular(command.result("alreadyOff")),
+                                metadata = MessageMetadata(id = "CRemoteView#info")
+                            )
                         }
                     }
                     .build()
@@ -67,17 +76,30 @@ object CommandRemoteView: MinecraftShortcuts {
                         for (entity in mc.world!!.entities) {
                             if (name.equals(entity.nameForScoreboard, true)) {
                                 if (mc.getCameraEntity() == entity) {
-                                    chat(regular(command.result("alreadyViewing", variable(entity.nameForScoreboard))))
+                                    chat(
+                                        regular(command.result("alreadyViewing", variable(entity.nameForScoreboard))),
+                                        metadata = MessageMetadata(id = "CRemoteView#info")
+                                    )
                                     return@handler
                                 }
+
                                 mc.setCameraEntity(entity)
                                 pName = entity.nameForScoreboard
-                                chat(regular(command.result("viewPlayer", variable(entity.nameForScoreboard))))
-                                chat(regular(command.result("caseOff", variable(entity.nameForScoreboard))))
+                                chat(
+                                    regular(command.result("viewPlayer", variable(entity.nameForScoreboard))),
+                                    metadata = MessageMetadata(id = "CRemoteView#info")
+                                )
+                                chat(
+                                    regular(command.result("caseOff", variable(entity.nameForScoreboard))),
+                                    metadata = MessageMetadata(id = "CRemoteView#info", remove = false)
+                                )
+
+                                break
                             }
                         }
                     }
                     .build()
             ).build()
     }
+
 }

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer
+package net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.event.EventListener
@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.lang.translation
@@ -43,7 +44,7 @@ import java.util.*
  *
  * Allows you to spawn a client side player for testing purposes.
  */
-object CommandFakePlayer : EventListener {
+object CommandFakePlayer : CommandFactory, EventListener {
 
     /**
      * Stores all fake players.
@@ -58,9 +59,10 @@ object CommandFakePlayer : EventListener {
     // the entity ids of fake players shouldn't conflict with real entity ids, so they are negative
     private var fakePlayerId = -1
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("fakeplayer")
+            .requiresIngame()
             .hub()
             .subcommand(spawnCommand())
             .subcommand(removeCommand())
@@ -109,10 +111,13 @@ object CommandFakePlayer : EventListener {
                 val playersToRemove = fakePlayers.filter { fakePlayer -> fakePlayer.name.string == name }
 
                 if (playersToRemove.isEmpty()) {
-                    chat(warning((command.result("noFakePlayerNamed", name))))
-                    chat(regular(command.result("currentlySpawned")))
+                    mc.inGameHud.chatHud.removeMessage("CFakePlayer#info")
+                    val data = MessageMetadata(id = "CFakePlayer#info", remove = false)
+
+                    chat(warning((command.result("noFakePlayerNamed", name))), metadata = data)
+                    chat(regular(command.result("currentlySpawned")), metadata = data)
                     fakePlayers.forEach { fakePlayer ->
-                        chat(regular("- " + fakePlayer.name.string))
+                        chat(regular("- " + fakePlayer.name.string), metadata = data)
                     }
 
                     return@handler
@@ -128,7 +133,8 @@ object CommandFakePlayer : EventListener {
                                 roundToDecimalPlaces(fakePlayer.y),
                                 roundToDecimalPlaces(fakePlayer.z)
                             )
-                        )
+                        ),
+                        metadata = MessageMetadata(id = "CFakePlayer#info")
                     )
                 }
 
@@ -167,7 +173,10 @@ object CommandFakePlayer : EventListener {
                 }
 
                 recording = true
-                chat(regular(command.result("startedRecording")))
+                chat(
+                    regular(command.result("startedRecording")),
+                    metadata = MessageMetadata(id = "CFakePlayer#info")
+                )
                 notification(
                     "FakePlayer",
                     command.result("startedRecordingNotification"),
@@ -218,7 +227,7 @@ object CommandFakePlayer : EventListener {
 
         if (moving) {
             fakePlayer = MovingFakePlayer(
-                snapshots = this.snapshots.map { it }.toTypedArray(),
+                snapshots = snapshots.map { it }.toTypedArray(),
                 world,
                 GameProfile(
                     UUID.randomUUID(),
@@ -256,7 +265,8 @@ object CommandFakePlayer : EventListener {
                     roundToDecimalPlaces(fakePlayer.y),
                     roundToDecimalPlaces(fakePlayer.z)
                 )
-            )
+            ),
+            metadata = MessageMetadata(id = "CFakePlayer#info")
         )
     }
 
@@ -338,7 +348,10 @@ object CommandFakePlayer : EventListener {
         }
 
         if (snapshots.size >= Int.MAX_VALUE - 1) {
-            chat(markAsError(translation("liquidbounce.command.fakeplayer.recordingForTooLong")))
+            chat(
+                markAsError(translation("liquidbounce.command.fakeplayer.recordingForTooLong")),
+                metadata = MessageMetadata(id = "CFakePlayer#info")
+            )
             stopRecording()
             return@handler
         }
