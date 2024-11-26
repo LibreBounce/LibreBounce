@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.List;
 
@@ -310,30 +311,27 @@ public abstract class MixinWorldRenderer {
 //    }
 
 //    TODO: fix this
-//    @ModifyArgs(
-//            method = "drawBlockOutline",
-//            at = @At(
-//                    value = "INVOKE",
-//                    target = "Lnet/minecraft/client/render/WorldRenderer;drawCuboidShapeOutline(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V"
-//            )
-//    )
-//    private void modifyBlockOutlineArgs(Args args) {
-//        // args: MatrixStack matrices,
-//        //		VertexConsumer vertexConsumer,
-//        //		VoxelShape shape,
-//        //		double offsetX,
-//        //		double offsetY,
-//        //		double offsetZ,
-//        //		float red,
-//        //		float green,
-//        //		float blue,
-//        //		float alpha
-//
-//        if (!ModuleBlockOutline.INSTANCE.getEnabled()) {
-//            return;
-//        }
-//
-//        var color = ModuleBlockOutline.INSTANCE.getOutlineColor();
+    @ModifyArgs(
+            method = "drawBlockOutline",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/VertexRendering;drawOutline(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDI)V"
+            )
+    )
+    private void modifyBlockOutlineArgs(Args args) {
+        // args: MatrixStack matrices, VertexConsumer vertexConsumer,
+        //       Entity entity, double cameraX,
+        //       double cameraY, double cameraZ,
+        //       BlockPos pos, BlockState state,
+        //       int color
+
+        if (!ModuleBlockOutline.INSTANCE.getEnabled()) {
+            return;
+        }
+
+        var color = ModuleBlockOutline.INSTANCE.getOutlineColor();
+
+        args.set(6, color.toARGB());
 //        var red = color.getR() / 255f;
 //        var green = color.getG() / 255f;
 //        var blue = color.getB() / 255f;
@@ -343,6 +341,6 @@ public abstract class MixinWorldRenderer {
 //        args.set(7, green);
 //        args.set(8, blue);
 //        args.set(9, alpha);
-//    }
+    }
 
 }
