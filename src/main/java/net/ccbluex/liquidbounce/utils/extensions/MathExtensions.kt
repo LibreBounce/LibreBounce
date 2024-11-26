@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.value.IntegerRangeValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.EnumFacing
@@ -88,6 +89,9 @@ fun Vec3.withY(value: Double): Vec3 {
 
 val Vec3_ZERO: Vec3
     get() = Vec3(0.0, 0.0, 0.0)
+
+val RenderManager.renderPos
+    get() = Vec3(renderPosX, renderPosY, renderPosZ)
 
 fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
 

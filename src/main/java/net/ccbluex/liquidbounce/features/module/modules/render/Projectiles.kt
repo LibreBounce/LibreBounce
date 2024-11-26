@@ -13,6 +13,8 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
 import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
+import net.ccbluex.liquidbounce.utils.extensions.minus
+import net.ccbluex.liquidbounce.utils.extensions.renderPos
 import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
@@ -330,11 +332,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
 
             for ((_, pos, alpha) in positions) {
-                val interpolatePos = Vec3(
-                    pos.xCoord - renderManager.renderPosX,
-                    pos.yCoord - renderManager.renderPosY,
-                    pos.zCoord - renderManager.renderPosZ
-                )
+                val interpolatePos = pos - renderManager.renderPos
 
                 val color = when (entity) {
                     is EntityArrow -> Color(255, 0, 0)

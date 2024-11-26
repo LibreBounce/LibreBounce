@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Disabler
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPosBox
@@ -280,12 +281,10 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
+        val (x, y, z) = pos - renderManager.renderPos
+
         // Translate to block position
-        glTranslated(
-            pos.xCoord - renderManager.renderPosX,
-            pos.yCoord + 2.5 - renderManager.renderPosY,
-            pos.zCoord - renderManager.renderPosZ
-        )
+        glTranslated(x, y + 2.5, z)
 
         glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
         glRotatef(renderManager.playerViewX, 1F, 0F, 0F)

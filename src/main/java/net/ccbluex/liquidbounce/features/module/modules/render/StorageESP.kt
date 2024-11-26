@@ -16,6 +16,8 @@ import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.extensions.toVec
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
@@ -135,19 +137,11 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                     if (onLook && !isLookingOnEntities(tileEntity, maxAngleDifference.toDouble()))
                         continue
 
-                    if (!thruBlocks && !RotationUtils.isVisible(
-                            Vec3(
-                                tileEntityPos.x.toDouble(),
-                                tileEntityPos.y.toDouble(),
-                                tileEntityPos.z.toDouble()
-                            )
-                        )
-                    )
+                    if (!thruBlocks && !RotationUtils.isVisible(tileEntityPos.toVec()))
                         continue
 
                     when (mode) {
                         "OtherBox", "Box" -> drawBlockBox(tileEntity.pos, color, mode != "OtherBox")
-
                         "2D" -> draw2D(tileEntity.pos, color.rgb, Color.BLACK.rgb)
                         "Outline" -> {
                             glColor(color)
@@ -160,7 +154,6 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                             OutlineUtils.renderFour(color)
                             TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderFive()
-
                             OutlineUtils.setColor(Color.WHITE)
                         }
 
@@ -175,20 +168,10 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                             glEnable(GL_BLEND)
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
                             glLineWidth(1.5f)
-
                             glColor(color)
-                            TileEntityRendererDispatcher.instance.renderTileEntity(
-                                tileEntity,
-                                event.partialTicks,
-                                -1
-                            )
+                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             glColor(color)
-                            TileEntityRendererDispatcher.instance.renderTileEntity(
-                                tileEntity,
-                                event.partialTicks,
-                                -1
-                            )
-
+                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             glPopAttrib()
                             glPopMatrix()
                         }
@@ -261,7 +244,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
             glColor(Color(255, 255, 255, 255))
             mc.gameSettings.gammaSetting = gamma
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
     }
 
@@ -282,35 +265,21 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                     GlowShader.startDraw(event.partialTicks, glowRenderScale)
 
                     for (entity in tileEntities) {
-                        val entityPos = entity.pos
-                        val distanceSquared = mc.thePlayer.getDistanceSq(
-                            entityPos.x.toDouble(),
-                            entityPos.y.toDouble(),
-                            entityPos.z.toDouble()
-                        )
+                        val pos = entity.pos.toVec()
+                        val distanceSquared = mc.thePlayer.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord)
 
-                        if (distanceSquared <= maxRenderDistanceSq) {
-                            if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble()))
-                                continue
+                        if (distanceSquared > maxRenderDistanceSq)
+                            continue
 
-                            if (!thruBlocks && !RotationUtils.isVisible(
-                                    Vec3(
-                                        entityPos.x.toDouble(),
-                                        entityPos.y.toDouble(),
-                                        entityPos.z.toDouble()
-                                    )
-                                )
-                            )
-                                continue
+                        if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble()))
+                            continue
 
-                            TileEntityRendererDispatcher.instance.renderTileEntityAt(
-                                entity,
-                                entityPos.x - renderManager.renderPosX,
-                                entityPos.y - renderManager.renderPosY,
-                                entityPos.z - renderManager.renderPosZ,
-                                event.partialTicks
-                            )
-                        }
+                        if (!thruBlocks && !RotationUtils.isVisible(pos))
+                            continue
+
+                        val (x, y, z) = pos - renderManager.renderPos
+
+                        TileEntityRendererDispatcher.instance.renderTileEntityAt(entity, x, y, z, event.partialTicks)
                     }
 
                     GlowShader.stopDraw(color, glowRadius, glowFade, glowTargetAlpha)

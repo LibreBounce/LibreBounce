@@ -15,7 +15,10 @@ import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.extensions.getPing
+import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexturedModalRect
@@ -25,15 +28,12 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
-import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Vec3
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
@@ -150,18 +150,15 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         glPushMatrix()
 
         // Translate to player position
-        val timer = mc.timer
         val renderManager = mc.renderManager
         val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
 
-        glTranslated( // Translate to player position with render pos and interpolate it
-            entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX,
-            entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY + entity.eyeHeight.toDouble() + 0.55,
-            entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
-        )
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - renderManager.renderPos
 
-        glRotatef(-mc.renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(mc.renderManager.playerViewX * rotateX, 1F, 0F, 0F)
+        glTranslated(x, y + entity.eyeHeight.toDouble() + 0.55, z)
+
+        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
+        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
 
         // Disable lightning and depth test
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
