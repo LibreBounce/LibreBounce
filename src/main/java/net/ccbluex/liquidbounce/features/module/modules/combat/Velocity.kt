@@ -551,6 +551,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                 // Credit: @LiquidSquid / Ported from NextGen
                 "blocksmc" -> {
                     if (packet is S12PacketEntityVelocity && packet.entityID == thePlayer.entityId) {
+                        hasReceivedVelocity = true
                         event.cancelEvent()
 
                         sendPacket(C0BPacketEntityAction(thePlayer, START_SNEAKING))
@@ -595,6 +596,13 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
                     hasReceivedVelocity = true
                     event.cancelEvent()
                 }
+            }
+        }
+
+        if (mode == "BlocksMC" && hasReceivedVelocity) {
+            if (packet is C0BPacketEntityAction) {
+                hasReceivedVelocity = false
+                event.cancelEvent()
             }
         }
 

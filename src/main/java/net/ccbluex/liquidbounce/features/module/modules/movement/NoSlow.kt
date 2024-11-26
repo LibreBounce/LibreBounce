@@ -201,7 +201,6 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false, hideM
                 "switchitem" ->
                     if (event.eventState == EventState.PRE) {
                         updateSlot()
-                        chat("work")
                     }
 
                 "invalidc08" -> {
