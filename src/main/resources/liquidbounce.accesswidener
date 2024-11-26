@@ -178,3 +178,5 @@ accessible method net/minecraft/entity/Entity isAlwaysInvulnerableTo (Lnet/minec
 accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V
 
 accessible method net/minecraft/entity/Entity unsetRemoved ()V
+# MixinWeatherRendering
+accessible class net/minecraft/client/render/WeatherRendering$Piece

@@ -91,6 +91,7 @@
     "minecraft.render.MixinRenderTickCounter",
     "minecraft.render.MixinSignText",
     "minecraft.render.MixinTextRenderer",
+    "minecraft.render.MixinWeatherRendering",
     "minecraft.render.MixinWorldRenderer",
     "minecraft.render.entity.feature.MixinDeadmau5FeatureRenderer",
     "minecraft.text.MixinChatHudLine",
