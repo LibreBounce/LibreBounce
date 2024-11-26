@@ -50,7 +50,8 @@ object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = 
 
     // We can receive chat messages before the world is initialized,
     // so we have to handel events even before the that
-    override val running = !HideAppearance.isDestructed && enabled
+    override val running
+        get() = !HideAppearance.isDestructed && enabled
 
     fun login() {
         chat("login")

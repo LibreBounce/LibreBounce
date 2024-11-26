@@ -64,6 +64,7 @@ object InteractionTracker : EventListener {
 
     data class Interaction(val hand: Hand, val action: UseAction)
 
-    override val running = inGame
+    override val running
+        get() = inGame
 
 }
