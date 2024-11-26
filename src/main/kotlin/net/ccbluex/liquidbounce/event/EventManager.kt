@@ -132,7 +132,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerEquipmentChangeEvent::class,
     ClickGuiValueChangeEvent::class,
     BlockAttackEvent::class,
-    FakeLagEvent::class
+    QueuePacketEvent::class
 )
 
 /**

@@ -16,26 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.fakelag
+package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.client.sendPacketSilently
-import net.ccbluex.liquidbounce.utils.client.world
-import net.ccbluex.liquidbounce.utils.entity.RigidPlayerSimulation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
@@ -52,27 +45,33 @@ import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.Vec3d
 
 /**
- * FakeLag
+ * Allows to queue packets and flush them later on demand.
  *
- * Simulates lag by holding back packets.
+ * Fires [QueuePacketEvent] to determine whether a packet should be queued or not. They can be
+ * from origin [TransferOrigin.RECEIVE] or [TransferOrigin.SEND], but will be handled separately.
  */
-object FakeLag : EventListener {
+object PacketQueueManager : EventListener {
+
+    val packetQueue = LinkedHashSet<PacketSnapshot>()
+    val positions
+        get() = packetQueue
+            .map { snapshot -> snapshot.packet }
+            .filterIsInstance<PlayerMoveC2SPacket>()
+            .filter { playerMoveC2SPacket -> playerMoveC2SPacket.changePosition }
+            .map { playerMoveC2SPacket -> Vec3d(playerMoveC2SPacket.x, playerMoveC2SPacket.y, playerMoveC2SPacket.z) }
 
     /**
      * Whether we are lagging.
      */
     val isLagging
-        get() = packetQueue.isNotEmpty() || positions.isNotEmpty()
+        get() = packetQueue.isNotEmpty()
 
     /**
      * Whether we should lag.
      * Implement your module here if you want to enable lag.
      */
     private fun fireEvent(packet: Packet<*>?, origin: TransferOrigin) =
-        EventManager.callEvent(FakeLagEvent(packet, origin)).action
-
-    val packetQueue = LinkedHashSet<DelayData>()
-    val positions = LinkedHashSet<PositionData>()
+        EventManager.callEvent(QueuePacketEvent(packet, origin)).action
 
     @Suppress("unused")
     private val tickHandler = handler<GameTickEvent> {
@@ -80,8 +79,12 @@ object FakeLag : EventListener {
             return@handler
         }
 
+        if (fireEvent(null, TransferOrigin.RECEIVE) == Action.FLUSH) {
+            flush { snapshot -> snapshot.origin == TransferOrigin.RECEIVE }
+        }
+
         if (fireEvent(null, TransferOrigin.SEND) == Action.FLUSH) {
-            flush()
+            flush { snapshot -> snapshot.origin == TransferOrigin.SEND }
         }
     }
 
@@ -95,11 +98,12 @@ object FakeLag : EventListener {
         }
 
         val packet = event.packet
+        val origin = event.origin
 
         // If we shouldn't lag, don't do anything
-        val lagResult = fireEvent(packet, event.origin)
+        val lagResult = fireEvent(packet, origin)
         if (lagResult == Action.FLUSH) {
-            flush()
+            flush { snapshot -> snapshot.origin == origin }
             return@handler
         }
 
@@ -141,29 +145,22 @@ object FakeLag : EventListener {
 
         }
 
-        if (event.origin == TransferOrigin.SEND) {
-            event.cancelEvent()
-            synchronized(packetQueue) {
-                packetQueue.add(DelayData(packet, System.currentTimeMillis()))
-            }
-
-            if (packet is PlayerMoveC2SPacket && packet.changePosition) {
-                synchronized(positions) {
-                    positions.add(
-                        PositionData(
-                            Vec3d(packet.x, packet.y, packet.z), player.velocity,
-                            System.currentTimeMillis()
-                        )
-                    )
-                }
-            }
+        event.cancelEvent()
+        synchronized(packetQueue) {
+            packetQueue.add(
+                PacketSnapshot(
+                    packet,
+                    origin,
+                    System.currentTimeMillis()
+                )
+            )
         }
     }
 
     @Suppress("unused")
-    val worldChangeHandler = handler<WorldChangeEvent> {
+    val worldChangeHandler = handler<WorldChangeEvent> { event ->
         // Clear packets on disconnect
-        if (it.world == null) {
+        if (event.world == null) {
             clear()
         }
     }
@@ -175,19 +172,31 @@ object FakeLag : EventListener {
         // Use LiquidBounce accent color
         val color = Color4b(0x00, 0x80, 0xFF, 0xFF)
 
-        drawStrip(matrixStack, color)
-    }
-
-    fun flush() {
-        synchronized(packetQueue) {
-            packetQueue.removeIf {
-                sendPacketSilently(it.packet)
-                true
+        synchronized(positions) {
+            renderEnvironmentForWorld(matrixStack) {
+                withColor(color) {
+                    @Suppress("SpreadOperator")
+                    drawLineStrip(*positions.mapArray { vec3d ->
+                        Vec3(relativeToCamera(vec3d))
+                    })
+                }
             }
         }
+    }
 
-        synchronized(positions) {
-            positions.clear()
+    fun flush(flushWhen: (PacketSnapshot) -> Boolean = { true }) {
+        synchronized(packetQueue) {
+            packetQueue.removeIf { snapshot ->
+                if (flushWhen(snapshot)) {
+                    when (snapshot.origin) {
+                        TransferOrigin.SEND -> sendPacketSilently(snapshot.packet)
+                        TransferOrigin.RECEIVE -> handlePacket(snapshot.packet)
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
         }
     }
 
@@ -211,22 +220,11 @@ object FakeLag : EventListener {
                 }
             }
         }
-
-        synchronized(positions) {
-            with(positions.iterator()) {
-                var counter = 0
-                while (hasNext() && counter < count) {
-                    remove()
-                    counter++
-                }
-            }
-        }
     }
 
     fun cancel() {
-        firstPosition()?.let { (vec, velocity, _) ->
-            player.setPosition(vec)
-            player.velocity = velocity
+        positions.firstOrNull().let { pos ->
+            player.setPosition(pos)
         }
 
         synchronized(packetQueue) {
@@ -245,39 +243,12 @@ object FakeLag : EventListener {
         synchronized(packetQueue) {
             packetQueue.clear()
         }
-
-        synchronized(positions) {
-            positions.clear()
-        }
-    }
-
-    fun drawStrip(matrixStack: MatrixStack, color: Color4b) {
-        synchronized(positions) {
-            renderEnvironmentForWorld(matrixStack) {
-                withColor(color) {
-                    @Suppress("SpreadOperator")
-                    drawLineStrip(*positions.mapArray { Vec3(relativeToCamera(it.vec)) })
-                }
-            }
-        }
     }
 
     fun isAboveTime(delay: Long): Boolean {
         synchronized(packetQueue) {
-            val entryPacketTime = (packetQueue.firstOrNull()?.delay ?: return false)
+            val entryPacketTime = (packetQueue.firstOrNull()?.timestamp ?: return false)
             return System.currentTimeMillis() - entryPacketTime >= delay
-        }
-    }
-
-    fun entryPacket(): DelayData? {
-        synchronized(packetQueue) {
-            return packetQueue.firstOrNull()
-        }
-    }
-
-    fun firstPosition(): PositionData? {
-        synchronized(positions) {
-            return positions.firstOrNull()
         }
     }
 
@@ -294,73 +265,17 @@ object FakeLag : EventListener {
         flush()
     }
 
-    data class EvadingPacket(
-        val idx: Int,
-        /**
-         * Ticks until impact. Null if evaded
-         */
-        val ticksToImpact: Int?
-    )
-
-    /**
-     * Returns the index of the first position packet that avoids all arrows in the next X seconds
-     */
-    fun findAvoidingArrowPosition(): EvadingPacket? {
-        var packetIndex = 0
-
-        var lastPosition: Vec3d? = null
-
-        var bestPacketPosition: Vec3d? = null
-        var bestPacketIdx: Int? = null
-        var bestTimeToImpact = 0
-
-        for ((packetPosition, _) in this.positions) {
-            packetIndex += 1
-
-            // Process packets only if they are at least some distance away from each other
-            if (lastPosition != null) {
-                if (lastPosition.squaredDistanceTo(packetPosition) < 0.9 * 0.9) {
-                    continue
-                }
-            }
-
-            lastPosition = packetPosition
-
-            val inflictedHit = getInflictedHit(packetPosition)
-
-            if (inflictedHit == null)
-                return EvadingPacket(packetIndex - 1, null)
-            else if (inflictedHit.tickDelta > bestTimeToImpact) {
-                bestTimeToImpact = inflictedHit.tickDelta
-                bestPacketIdx = packetIndex - 1
-                bestPacketPosition = packetPosition
-            }
-        }
-
-        // If the evading packet is less than one player hitbox away from the current position, we should rather
-        // call the evasion a failure
-        if (bestPacketIdx != null && bestPacketPosition!!.squaredDistanceTo(lastPosition!!) > 0.9) {
-            return EvadingPacket(bestPacketIdx, bestTimeToImpact)
-        }
-
-        return null
-    }
-
-    fun getInflictedHit(pos: Vec3d): ModuleAutoDodge.HitInfo? {
-        val arrows = ModuleAutoDodge.findFlyingArrows(world)
-        val playerSimulation = RigidPlayerSimulation(pos)
-
-        return ModuleAutoDodge.getInflictedHits(playerSimulation, arrows, maxTicks = 40)
-    }
-
     enum class Action {
         QUEUE,
         PASS,
-        FLUSH
+        FLUSH,
     }
 
 }
 
-data class DelayData(val packet: Packet<*>, val delay: Long)
+data class PacketSnapshot(
+    val packet: Packet<*>,
+    val origin: TransferOrigin,
+    val timestamp: Long
+)
 
-data class PositionData(val vec: Vec3d, val velocity: Vec3d, val delay: Long)

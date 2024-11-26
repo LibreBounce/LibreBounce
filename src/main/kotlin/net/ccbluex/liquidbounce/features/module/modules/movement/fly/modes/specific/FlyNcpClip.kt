@@ -23,13 +23,14 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.spec
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -127,7 +128,7 @@ object FlyNcpClip : Choice("NcpClip") {
         } else if (startPos.distanceTo(player.pos) > maximumDistance) {
             if (shouldLag) {
                 // If we are lagging, we might abuse this to get us back to safety
-                FakeLag.cancel()
+                PacketQueueManager.cancel()
                 shouldLag = false
             }
 
@@ -183,9 +184,9 @@ object FlyNcpClip : Choice("NcpClip") {
     }
 
     @Suppress("unused")
-    private val fakeLagHandler = handler<FakeLagEvent> { event ->
-        if (blink && shouldLag) {
-            event.action = FakeLag.Action.QUEUE
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (blink && shouldLag && event.origin == TransferOrigin.SEND) {
+            event.action = PacketQueueManager.Action.QUEUE
         }
     }
 

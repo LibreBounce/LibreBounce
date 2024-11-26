@@ -20,16 +20,13 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall.modes
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
@@ -71,7 +68,7 @@ internal object NoFallBlink : Choice("Blink") {
         if (!player.isOnGround) {
             if (waitUntilGround || player.fallDistance > maximumFallDistance) {
                 if (blinkFall) {
-                    FakeLag.rewriteAndFlush<PlayerMoveC2SPacket> { packet ->
+                    PacketQueueManager.rewriteAndFlush<PlayerMoveC2SPacket> { packet ->
                         packet.onGround = false
                     }
 
@@ -140,8 +137,10 @@ internal object NoFallBlink : Choice("Blink") {
     }
 
     @Suppress("unused")
-    private val fakeLagHandler = handler<FakeLagEvent> { event ->
-        event.action = FakeLag.Action.QUEUE
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin == TransferOrigin.SEND) {
+            event.action = PacketQueueManager.Action.QUEUE
+        }
     }
 
     override fun disable() {

@@ -19,13 +19,16 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
@@ -53,7 +56,6 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
     private val range by floatRange("Range", 2f..5f, 0f..10f)
     private val delay by intRange("Delay", 300..600, 0..1000, "ms")
     private val mode by enumChoice("Mode", Mode.DYNAMIC).apply { tagBy(this) }
-    private val evadeArrows by boolean("EvadeArrows", true)
 
     private enum class Mode(override val choiceName: String) : NamedChoice {
         CONSTANT("Constant"),
@@ -68,38 +70,38 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
     private val gameTickHandler = tickHandler {
         isEnemyNearby = world.findEnemy(range) != null
 
-        if (evadeArrows) {
-            val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@tickHandler
+        if (ModuleAutoDodge.running) {
+            val position = PacketQueueManager.positions.firstOrNull() ?: return@tickHandler
 
-            if (FakeLag.getInflictedHit(playerPosition) == null) {
+            if (ModuleAutoDodge.getInflictedHit(position) == null) {
                 return@tickHandler
             }
 
-            val evadingPacket = FakeLag.findAvoidingArrowPosition()
+            val evadingPacket = ModuleAutoDodge.findAvoidingArrowPosition()
 
             // We have found no packet that avoids getting hit? Then we default to blinking.
             // AutoDoge might save the situation...
             if (evadingPacket == null) {
                 notification("FakeLag", "Unable to evade arrow. Blinking.",
                     NotificationEvent.Severity.INFO)
-                FakeLag.flush()
+                PacketQueueManager.flush()
             } else if (evadingPacket.ticksToImpact != null) {
                 notification("FakeLag", "Trying to evade arrow...", NotificationEvent.Severity.INFO)
-                FakeLag.flush(evadingPacket.idx + 1)
+                PacketQueueManager.flush(evadingPacket.idx + 1)
             } else {
                 notification("FakeLag", "Arrow evaded.", NotificationEvent.Severity.INFO)
-                FakeLag.flush(evadingPacket.idx + 1)
+                PacketQueueManager.flush(evadingPacket.idx + 1)
             }
         }
     }
 
     @Suppress("unused")
-    private val fakeLagHandler = handler<FakeLagEvent> { event ->
-        if (player.isDead || player.isTouchingWater || mc.currentScreen != null) {
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin != TransferOrigin.SEND || player.isDead || player.isTouchingWater || mc.currentScreen != null) {
             return@handler
         }
 
-        if (FakeLag.isAboveTime(nextDelay.toLong())) {
+        if (PacketQueueManager.isAboveTime(nextDelay.toLong())) {
             nextDelay = delay.random()
             return@handler
         }
@@ -139,27 +141,27 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
         // Support auto shoot with fake lag
         if (ModuleAutoShoot.running && ModuleAutoShoot.constantLag &&
             ModuleAutoShoot.targetTracker.lockedOnTarget == null) {
-            event.action = FakeLag.Action.QUEUE
+            event.action = PacketQueueManager.Action.QUEUE
             return@handler
         }
 
         event.action = when (mode) {
-            Mode.CONSTANT -> FakeLag.Action.QUEUE
+            Mode.CONSTANT -> PacketQueueManager.Action.QUEUE
             Mode.DYNAMIC -> {
                 // If there is an enemy in range, we want to lag.
                 if (!isEnemyNearby) {
                     return@handler
                 }
 
-                val (playerPosition, _, _) = FakeLag.firstPosition() ?: run {
-                    event.action = FakeLag.Action.QUEUE
+                val position = positions.firstOrNull() ?: run {
+                    event.action = PacketQueueManager.Action.QUEUE
                     return@handler
                 }
-                val playerBox = player.dimensions.getBoxAt(playerPosition)
+                val playerBox = player.dimensions.getBoxAt(position)
 
                 // todo: implement if enemy is facing old player position
 
-                val entities = world.getEntitiesBoxInRange(playerPosition, range.endInclusive.toDouble()) {
+                val entities = world.getEntitiesBoxInRange(position, range.endInclusive.toDouble()) {
                     it != player && it.shouldBeAttacked()
                 }
 
@@ -172,7 +174,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
                     it.box.intersects(playerBox)
                 }
                 val serverDistance = entities.minOfOrNull {
-                    it.pos.distanceTo(playerPosition)
+                    it.pos.distanceTo(position)
                 } ?: return@handler
                 val clientDistance = entities.minOfOrNull {
                     it.pos.distanceTo(player.pos)
@@ -184,7 +186,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
                     return@handler
                 }
 
-                FakeLag.Action.QUEUE
+                PacketQueueManager.Action.QUEUE
             }
         }
     }

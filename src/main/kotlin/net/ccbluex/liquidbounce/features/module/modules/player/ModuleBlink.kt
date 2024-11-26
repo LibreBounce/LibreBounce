@@ -23,12 +23,12 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.Action
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.findAvoidingArrowPosition
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.getInflictedHit
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.client.network.OtherClientPlayerEntity
@@ -46,7 +46,6 @@ object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
 
     private val dummy by boolean("Dummy", false)
     private val ambush by boolean("Ambush", false)
-    private val evadeArrows by boolean("EvadeArrows", true)
     private val autoDisable by boolean("AutoDisable", true)
 
     private object AutoResetOption : ToggleableConfigurable(this, "AutoReset", false) {
@@ -78,7 +77,7 @@ object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
     }
 
     override fun disable() {
-        FakeLag.flush()
+        PacketQueueManager.flush()
         removeClone()
     }
 
@@ -104,14 +103,14 @@ object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
 
     @Suppress("unused")
     private val tickTask = tickHandler {
-        if (evadeArrows) {
-            val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@tickHandler
+        if (ModuleAutoDodge.running) {
+            val playerPosition = positions.firstOrNull() ?: return@tickHandler
 
-            if (getInflictedHit(playerPosition) == null) {
+            if (ModuleAutoDodge.getInflictedHit(playerPosition) == null) {
                 return@tickHandler
             }
 
-            val evadingPacket = findAvoidingArrowPosition()
+            val evadingPacket = ModuleAutoDodge.findAvoidingArrowPosition()
 
             // We have found no packet that avoids getting hit? Then we default to blinking.
             // AutoDoge might save the situation...
@@ -123,21 +122,21 @@ object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
                 enabled = false
             } else if (evadingPacket.ticksToImpact != null) {
                 notification("Blink", "Trying to evade arrow...", NotificationEvent.Severity.INFO)
-                FakeLag.flush(evadingPacket.idx + 1)
+                PacketQueueManager.flush(evadingPacket.idx + 1)
             } else {
                 notification("Blink", "Arrow evaded.", NotificationEvent.Severity.INFO)
-                FakeLag.flush(evadingPacket.idx + 1)
+                PacketQueueManager.flush(evadingPacket.idx + 1)
             }
         }
     }
 
     @Suppress("unused")
     private val playerMoveHandler = handler<PlayerMovementTickEvent> {
-        if (AutoResetOption.enabled && FakeLag.positions.count() > AutoResetOption.resetAfter) {
+        if (AutoResetOption.enabled && positions.count() > AutoResetOption.resetAfter) {
             when (AutoResetOption.action) {
-                ResetAction.RESET -> FakeLag.cancel()
+                ResetAction.RESET -> PacketQueueManager.cancel()
                 ResetAction.BLINK -> {
-                    FakeLag.flush()
+                    PacketQueueManager.flush()
                     dummyPlayer?.copyPositionAndRotation(player)
                 }
             }
@@ -150,8 +149,10 @@ object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
     }
 
     @Suppress("unused")
-    private val fakeLagHandler = handler<FakeLagEvent> { event ->
-        event.action = Action.QUEUE
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin == TransferOrigin.SEND) {
+            event.action = Action.QUEUE
+        }
     }
 
     enum class ResetAction(override val choiceName: String) : NamedChoice {

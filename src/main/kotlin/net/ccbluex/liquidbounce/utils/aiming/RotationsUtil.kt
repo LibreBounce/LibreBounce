@@ -26,10 +26,10 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerVelocityStrafe
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -165,7 +165,7 @@ object RotationManager : EventListener {
     var previousRotation: Rotation? = null
 
     private val fakeLagging
-        get() = FakeLag.isLagging || ModuleBacktrack.isLagging()
+        get() = PacketQueueManager.isLagging || ModuleBacktrack.isLagging()
 
     val serverRotation: Rotation
         get() = if (fakeLagging) theoreticalServerRotation else actualServerRotation

@@ -21,15 +21,16 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.Action
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.firstPosition
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.block.canStandOn
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -53,13 +54,13 @@ object AntiVoidBlinkMode : AntiVoidMode("Blink") {
         val packet = event.packet
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id || packet is ExplosionS2CPacket) {
-            FakeLag.flush()
+            PacketQueueManager.flush()
         }
     }
 
     @Suppress("unused")
-    private val fakeLagHandler = handler<FakeLagEvent> { event ->
-        if (requiresLag) {
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin == TransferOrigin.SEND && requiresLag) {
             event.action = Action.QUEUE
         }
     }
@@ -70,20 +71,22 @@ object AntiVoidBlinkMode : AntiVoidMode("Blink") {
         }
 
         // Check if we have any previous positions to teleport to.
-        firstPosition() ?: return false
+        if (positions.isEmpty()) {
+            return false
+        }
 
         // Teleport the player to the last position.
-        FakeLag.cancel()
+        PacketQueueManager.cancel()
         return true
     }
 
     private fun isWorth(): Boolean {
         // If we do not have any previous positions, we cannot determine if it is worth it,
         // so we assume it is.
-        val (playerPosition, _, _) = firstPosition() ?: return true
+        val position = positions.firstOrNull() ?: return true
 
         // If the first position is not safe, we should not continue to blink and wait for
-        return playerPosition.toBlockPos().down().canStandOn()
+        return position.toBlockPos().down().canStandOn()
     }
 
 }

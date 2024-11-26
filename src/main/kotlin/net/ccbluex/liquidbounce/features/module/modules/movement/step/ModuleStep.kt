@@ -22,19 +22,16 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.step
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.events.PlayerStepEvent
-import net.ccbluex.liquidbounce.event.events.PlayerStepSuccessEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.canStep
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -244,9 +241,9 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         }
 
         @Suppress("unused")
-        private val fakeLagHandler = handler<FakeLagEvent> { event ->
-            if (stepping) {
-                event.action = FakeLag.Action.QUEUE
+        private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+            if (event.origin == TransferOrigin.SEND && stepping) {
+                event.action = PacketQueueManager.Action.QUEUE
             }
         }
 

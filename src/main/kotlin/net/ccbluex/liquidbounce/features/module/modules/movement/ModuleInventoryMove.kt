@@ -19,16 +19,16 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.formatAsTime
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.minecraft.client.gui.screen.ChatScreen
@@ -59,7 +59,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         private val chronometer = Chronometer()
 
         @Suppress("unused")
-        private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        private val fakeLagHandler = handler<QueuePacketEvent> { event ->
             val packet = event.packet
 
             if (mc.currentScreen is HandledScreen<*> && event.origin == TransferOrigin.SEND) {
@@ -68,8 +68,8 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
                     is ButtonClickC2SPacket,
                     is CreativeInventoryActionC2SPacket,
                     is SlotChangedStateC2SPacket,
-                    is CloseHandledScreenC2SPacket -> FakeLag.Action.PASS
-                    else -> FakeLag.Action.QUEUE
+                    is CloseHandledScreenC2SPacket -> PacketQueueManager.Action.PASS
+                    else -> PacketQueueManager.Action.QUEUE
                 }
             }
         }

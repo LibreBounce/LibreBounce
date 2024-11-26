@@ -22,7 +22,6 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.DelayData
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawSolidBox
@@ -31,6 +30,7 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
 import net.ccbluex.liquidbounce.utils.client.handlePacket
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -63,7 +63,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         doNotIncludeAlways()
     }
 
-    private val packetQueue = LinkedHashSet<DelayData>()
+    private val packetQueue = LinkedHashSet<PacketSnapshot>()
     private val chronometer = Chronometer()
     private val trackingBufferChronometer = Chronometer()
 
@@ -139,7 +139,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
             }
 
             event.cancelEvent()
-            packetQueue.add(DelayData(packet, System.currentTimeMillis()))
+            packetQueue.add(PacketSnapshot(packet, event.origin, System.currentTimeMillis()))
         }
     }
 
@@ -290,7 +290,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private fun processPackets(clear: Boolean = false) {
         synchronized(packetQueue) {
             packetQueue.removeIf {
-                if (clear || it.delay <= System.currentTimeMillis() - delay.random()) {
+                if (clear || it.timestamp <= System.currentTimeMillis() - delay.random()) {
                     mc.renderTaskQueue.add { handlePacket(it.packet) }
                     return@removeIf true
                 }

@@ -22,13 +22,13 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.Action
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayerCache
 import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
@@ -141,11 +141,25 @@ object ModuleFreeze : ClientModule("Freeze", Category.MOVEMENT) {
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
+        private val incoming by boolean("Incoming", false)
+        private val outgoing by boolean("Outgoing", true)
+
         @Suppress("unused")
-        private val fakeLagHandler = handler<FakeLagEvent>(
+        private val fakeLagHandler = handler<QueuePacketEvent>(
             priority = EventPriorityConvention.SAFETY_FEATURE
         ) { event ->
-            event.action = Action.QUEUE
+            val isQueue = when (event.origin) {
+                TransferOrigin.RECEIVE -> {
+                    incoming
+                }
+                TransferOrigin.SEND -> {
+                    outgoing
+                }
+            }
+
+            if (isQueue) {
+                event.action = Action.QUEUE
+            }
         }
 
     }

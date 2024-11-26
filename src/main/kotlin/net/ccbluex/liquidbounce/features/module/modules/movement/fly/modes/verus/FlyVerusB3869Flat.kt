@@ -23,14 +23,11 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.veru
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
-import net.ccbluex.liquidbounce.event.events.FakeLagEvent
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.FluidBlock
@@ -77,8 +74,10 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
     }
 
     @Suppress("unused")
-    private val fakeLagHandler = handler<FakeLagEvent> { event ->
-        event.action = FakeLag.Action.QUEUE
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin == TransferOrigin.SEND) {
+            event.action = PacketQueueManager.Action.QUEUE
+        }
     }
 
     override fun disable() {
