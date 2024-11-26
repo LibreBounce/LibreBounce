@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleAntiHunger;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePortalMenu;
@@ -332,6 +333,10 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSprinting()Z")
     )
     private boolean hookNoHungerSprint(boolean original) {
+        if (ModuleCriticals.WhenSprinting.INSTANCE.getRunning() && ModuleCriticals.WhenSprinting.INSTANCE.getStopSprinting() == ModuleCriticals.WhenSprinting.StopSprintingMode.ON_NETWORK) {
+            return false;
+        }
+
         return !(ModuleAntiHunger.INSTANCE.getRunning() && ModuleAntiHunger.INSTANCE.getNoSprint()) && original;
     }
 

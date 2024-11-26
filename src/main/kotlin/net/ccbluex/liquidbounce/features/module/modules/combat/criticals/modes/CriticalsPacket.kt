@@ -48,7 +48,7 @@ object CriticalsPacket : Choice("Packet") {
         }
 
         val ignoreSprinting = !ModuleCriticals.WhenSprinting.enabled ||
-            (ModuleCriticals.WhenSprinting.enabled && ModuleCriticals.WhenSprinting.stopSprinting)
+            (ModuleCriticals.WhenSprinting.enabled && ModuleCriticals.WhenSprinting.stopSprinting != ModuleCriticals.WhenSprinting.StopSprintingMode.NONE)
         if (!canCritNow(true, ignoreSprinting)) {
             return@handler
         }

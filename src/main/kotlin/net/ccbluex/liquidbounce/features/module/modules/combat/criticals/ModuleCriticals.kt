@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.criticals
 
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
@@ -36,6 +37,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.Modu
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
+import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.box
@@ -70,15 +72,27 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
         )
     }.apply(::tagBy)
 
-    object WhenSprinting : ToggleableConfigurable(ModuleCriticals, "WhenSprinting", true) {
+    object WhenSprinting : ToggleableConfigurable(ModuleCriticals, "WhenSprinting", false) {
 
-        val stopSprinting by boolean("StopSprinting", false)
+        enum class StopSprintingMode(override val choiceName: String) : NamedChoice {
+            NONE("None"),
+            LEGIT("Legit"),
+            ON_NETWORK("OnNetwork"),
+            ON_ATTACK("OnAttack")
+        }
+
+        override val running: Boolean
+            get() = super.running && wouldCrit(true)
+                && world.findEnemy(0.0f..enemyInRange) != null
+
+        val stopSprinting by enumChoice("StopSprinting", StopSprintingMode.LEGIT)
+        private val enemyInRange by float("Range", 3.0f, 0.0f..10.0f)
 
         @Suppress("unused")
         private val attackHandler = handler<AttackEntityEvent>(
             priority = EventPriorityConvention.FIRST_PRIORITY
         ) {
-            if (stopSprinting && player.isSprinting) {
+            if (stopSprinting == StopSprintingMode.ON_ATTACK && player.lastSprinting) {
                 network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.STOP_SPRINTING))
                 player.lastSprinting = false
             }
