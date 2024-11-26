@@ -101,13 +101,13 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
                     thePlayer.tryJump()
 
                     // TODO: Improve Timer Balancing
-                    mc.timer.timerSpeed = 6f
+                    mc.timer.timerSpeed = 5f
                     WaitTickUtils.schedule(1) {
-                        mc.timer.timerSpeed = 0.18f
+                        mc.timer.timerSpeed = 0.15f
                     }
                     WaitTickUtils.schedule(2) {
                         strafe(0.27F)
-                        mc.timer.timerSpeed = 5f
+                        mc.timer.timerSpeed = 3f
                     }
                     WaitTickUtils.schedule(3) {
                         thePlayer.motionY = -thePlayer.motionY
@@ -315,11 +315,16 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
     }
 
     private fun couldStep(): Boolean {
+        val player = mc.thePlayer ?: return false
+
+        if (player.isSneaking || mc.gameSettings.keyBindJump.isKeyDown)
+            return false
+
         val yaw = direction
         val heightOffset = 1.001335979112147
 
         for (i in -10..10) {
-            val adjustedYaw = yaw + (i * Math.toRadians(10.0))
+            val adjustedYaw = yaw + (i * Math.toRadians(8.0))
             val x = -sin(adjustedYaw) * 0.2
             val z = cos(adjustedYaw) * 0.2
 
