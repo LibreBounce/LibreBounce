@@ -22,8 +22,10 @@ internal object NoSlowBlockingBlink : Choice("Blink") {
 
         event.action = if (event.packet is PlayerMoveC2SPacket) {
              FakeLag.Action.QUEUE
-        } else {
+        } else if (event.action == FakeLag.Action.FLUSH) {
             FakeLag.Action.PASS
+        } else {
+            return@handler
         }
     }
 
