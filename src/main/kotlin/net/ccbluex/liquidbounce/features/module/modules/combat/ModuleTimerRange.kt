@@ -40,12 +40,14 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
     private val timerBalanceLimit by float("TimerBalanceLimit", 20f, 0f..50f)
     private val normalSpeed by float("NormalSpeed", 0.9F, 0.1F..10F)
     private val inRangeSpeed by float("InRangeSpeed", 0.95F, 0.1F..10F)
+    private val balanceLimitSpeed by float("BalanceLimitSpeed", 0.99F, 0.1F..10F)
     private val boostSpeed by float("BoostTimer", 2F, 0.1F..10F).apply { tagBy(this) }
     private val balanceRecoveryIncrement by float("BalanceRecoveryIncrement", 1f, 1f..10f)
     private val distanceToSpeedUp by float("DistanceToSpeedUp", 3.5f, 0f..10f)
     private val distanceToPause by float("DistanceToPause", 3f, 0f..10f)
     private val distanceToStartWorking by float("DistanceToStartWorking", 100f, 0f..500f)
     private val pauseOnFlag by boolean("PauseOnFlag", true)
+    private val onlyOnGround by boolean("OnlyOnGround", false)
 
     private var reachedTheLimit = false
     private var balanceTimer = 0f
@@ -56,6 +58,10 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
     }
 
     val repeatable = tickHandler {
+        if (onlyOnGround && !player.isOnGround) {
+            return@tickHandler
+        }
+
         val newTimerSpeed = updateTimerSpeed()
 
         if (newTimerSpeed != null) {
@@ -65,6 +71,10 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
         val balanceChange = timerSpeed / balanceRecoveryIncrement - 1
         if ((balanceTimer > 0 || balanceChange > 0) && (balanceTimer < timerBalanceLimit * 2 || balanceChange < 0))
             balanceTimer += balanceChange
+
+        if (balanceTimer <= timerBalanceLimit) {
+            Timer.requestTimerSpeed(balanceLimitSpeed, Priority.IMPORTANT_FOR_USAGE_1, this@ModuleTimerRange)
+        }
 
         if (balanceTimer <= 0) {
             reachedTheLimit = false
