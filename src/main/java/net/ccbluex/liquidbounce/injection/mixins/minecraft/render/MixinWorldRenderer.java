@@ -278,21 +278,20 @@ public abstract class MixinWorldRenderer {
     }
 
 //    TODO: fix this
-//    @ModifyVariable(method = "renderEntities",
-//            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getOutlineVertexConsumers()Lnet/minecraft/client/render/OutlineVertexConsumerProvider;",
-//                    ordinal = 1),
-//            ordinal = 3,
-//            name = "bl3",
-//            require = 1
-//    )
-//    private boolean hookOutlineFlag(boolean bl3) {
-//        if (OutlineFlag.drawOutline) {
-//            OutlineFlag.drawOutline = false;
-//            return true;
-//        }
-//
-//        return bl3;
-//    }
+    @ModifyVariable(method = "renderEntities",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getOutlineVertexConsumers()Lnet/minecraft/client/render/OutlineVertexConsumerProvider;"),
+            ordinal = 0,
+            name = "bl",
+            require = 1
+    )
+    private boolean hookOutlineFlag(boolean original) {
+        if (OutlineFlag.drawOutline) {
+            OutlineFlag.drawOutline = false;
+            return true;
+        }
+
+        return original;
+    }
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"), index = 3)
     private boolean renderSetupTerrainModifyArg(boolean spectator) {
