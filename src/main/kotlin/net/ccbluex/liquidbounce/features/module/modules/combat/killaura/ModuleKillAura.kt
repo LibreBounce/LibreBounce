@@ -495,19 +495,18 @@ object ModuleKillAura : Module("KillAura", Category.COMBAT) {
         val wasBlocking = player.isBlockAction
 
         if (wasBlocking) {
-            if (!AutoBlock.enabled) {
+            if (!AutoBlock.enabled && (!ModuleMultiActions.isRunning() || !ModuleMultiActions.attackingWhileUsing)) {
                 return
             }
 
-            if (AutoBlock.shouldUnblockToHit) {
+            if (AutoBlock.enabled && AutoBlock.shouldUnblockToHit) {
                 // Wait for the tick off time to be over, if it's not 0
                 // Ideally this should not happen.
                 if (AutoBlock.stopBlocking(pauses = true) && AutoBlock.tickOff > 0) {
                     waitTicks(AutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem &&
-            !(ModuleMultiActions.isRunning() && ModuleMultiActions.attackingWhileUsing)) {
+        } else if (player.isUsingItem && (!ModuleMultiActions.isRunning() || !ModuleMultiActions.attackingWhileUsing)) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 

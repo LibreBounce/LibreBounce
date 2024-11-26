@@ -17,7 +17,7 @@ class FontGlyphPageManager(
     additionalFonts: Set<FontManager.FontFace> = emptySet()
 ): Listenable {
 
-    private var staticPage: StaticGlyphPage = StaticGlyphPage.create(baseFonts.flatMap { loadedFont ->
+    private var staticPage: List<StaticGlyphPage> = StaticGlyphPage.createGlyphPages(baseFonts.flatMap { loadedFont ->
         loadedFont.styles.filterNotNull().flatMap { font -> BASIC_CHARS.map { ch -> FontGlyph(ch, font) } }
     })
     private val dynamicPage: DynamicGlyphPage = DynamicGlyphPage(
@@ -35,7 +35,7 @@ class FontGlyphPageManager(
     init {
         this.dynamicFontManager.startThread()
 
-        this.availableFonts = createGlyphRegistries(baseFonts, this.staticPage.glyphs)
+        this.availableFonts = createGlyphRegistries(baseFonts, this.staticPage)
     }
 
     @Suppress("unused")
@@ -51,9 +51,10 @@ class FontGlyphPageManager(
         }
     }
 
+    @Suppress("NestedBlockDepth")
     private fun createGlyphRegistries(
         baseFonts: Set<FontManager.FontFace>,
-        glyphs: Set<Pair<FontManager.FontId, GlyphRenderInfo>>
+        glyphPages: List<StaticGlyphPage>
     ): Map<FontManager.FontFace, FontGlyphRegistry> {
         val fontMap = baseFonts.associateWith {
             Array(4) {
@@ -63,12 +64,14 @@ class FontGlyphPageManager(
 
         baseFonts.forEach { loadedFont ->
             loadedFont.styles.filterNotNull().forEach { fontId ->
-                glyphs
-                    .filter { it.first == fontId }
-                    .forEach { (font, glyphRenderInfo) ->
-                        fontMap[loadedFont]!![font.style][glyphRenderInfo.char] =
-                            GlyphDescriptor(staticPage, glyphRenderInfo)
-                    }
+                glyphPages.forEach { glyphPage ->
+                    glyphPage.glyphs
+                        .filter { it.first == fontId }
+                        .forEach { (font, glyphRenderInfo) ->
+                            fontMap[loadedFont]!![font.style][glyphRenderInfo.char] =
+                                GlyphDescriptor(glyphPage, glyphRenderInfo)
+                        }
+                }
             }
         }
 
@@ -103,7 +106,7 @@ class FontGlyphPageManager(
 
     fun unload() {
         this.dynamicPage.texture.close()
-        this.staticPage.texture.close()
+        this.staticPage.forEach { it.texture.close() }
     }
 
     private class FontGlyphRegistry(

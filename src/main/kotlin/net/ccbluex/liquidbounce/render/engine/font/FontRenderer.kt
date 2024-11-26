@@ -28,10 +28,12 @@ import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextProcessor
 import net.ccbluex.liquidbounce.render.engine.font.processor.MinecraftTextProcessor
 import net.ccbluex.liquidbounce.render.engine.font.processor.TextProcessor
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.text.Text
 import net.minecraft.util.math.Vec3d
+import org.apache.logging.log4j.MarkerManager
 import org.joml.Vector3f
 import java.awt.Font
 import java.util.*
@@ -76,6 +78,7 @@ class FontRenderer(
     private val cache = FontRendererCache()
     override val height: Float = font.styles.firstNotNullOf { it?.height }
     val ascent: Float = font.styles.firstNotNullOf { it?.ascent }
+
 
     override fun begin() {
         if (this.cache.renderedGlyphs.isNotEmpty() || this.cache.lines.isNotEmpty()) {
