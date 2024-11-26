@@ -26,11 +26,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class RequestHandlerTest {
+
+    class TestClientModule(name: String) : ClientModule(name, Category.MISC, state = true) {
+        override val running: Boolean
+            get() = super.running && enabled
+    }
+
     companion object {
-        private val MODULE_1 = ClientModule("module1", Category.MISC, state = true)
-        private val MODULE_2 = ClientModule("module2", Category.MISC, state = true)
-        private val MODULE_3 = ClientModule("module3", Category.MISC, state = true)
-        private val MODULE_4 = ClientModule("module4", Category.MISC, state = true)
+        private val MODULE_1 = TestClientModule("module1")
+        private val MODULE_2 = TestClientModule("module2")
+        private val MODULE_3 = TestClientModule("module3")
+        private val MODULE_4 = TestClientModule("module4")
     }
 
     @BeforeEach
