@@ -2,9 +2,11 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.b
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock.modes
-import net.minecraft.network.packet.Packet
+import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 internal object NoSlowBlockingBlink : Choice("Blink") {
@@ -12,15 +14,16 @@ internal object NoSlowBlockingBlink : Choice("Blink") {
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    fun shouldLag(packet: Packet<*>?): FakeLag.LagResult? {
-        if (!isSelected || !running || !player.isBlocking) {
-            return null
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        if (!player.isBlockAction) {
+            return@handler
         }
 
-        return if (packet is PlayerMoveC2SPacket) {
-            FakeLag.LagResult.QUEUE
+        event.action = if (event.packet is PlayerMoveC2SPacket) {
+             FakeLag.Action.QUEUE
         } else {
-            FakeLag.LagResult.PASS
+            FakeLag.Action.PASS
         }
     }
 

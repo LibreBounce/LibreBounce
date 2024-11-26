@@ -24,10 +24,12 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.veru
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -48,10 +50,8 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val requiresLag
-        get() = this.running
-
-    val packetHandler = handler<PacketEvent> { event ->
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (packet is PlayerMoveC2SPacket) {
@@ -60,19 +60,25 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
     }
 
     @Suppress("unused")
-    val shapeHandler = handler<BlockShapeEvent> { event ->
+    private val shapeHandler = handler<BlockShapeEvent> { event ->
         if (event.state.block !is FluidBlock && event.pos.y < player.y) {
             event.shape = VoxelShapes.fullCube()
         }
     }
 
     @Suppress("unused")
-    val jumpEvent = handler<PlayerJumpEvent> { event ->
+    private val jumpEvent = handler<PlayerJumpEvent> { event ->
         event.cancelEvent()
     }
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        event.action = FakeLag.Action.QUEUE
     }
 
     override fun disable() {

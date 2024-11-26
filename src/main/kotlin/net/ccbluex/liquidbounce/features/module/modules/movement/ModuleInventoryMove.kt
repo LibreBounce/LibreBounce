@@ -19,10 +19,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -33,6 +36,7 @@ import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.ItemGroups
+import net.minecraft.network.packet.c2s.play.*
 
 /**
  * InventoryMove module
@@ -54,8 +58,23 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
         private val chronometer = Chronometer()
 
-        fun shouldLag() = ModuleInventoryMove.running && this.enabled && mc.currentScreen is HandledScreen<*>
+        @Suppress("unused")
+        private val fakeLagHandler = handler<FakeLagEvent> { event ->
+            val packet = event.packet
 
+            if (mc.currentScreen is HandledScreen<*> && event.origin == TransferOrigin.SEND) {
+                event.action = when (packet) {
+                    is ClickSlotC2SPacket,
+                    is ButtonClickC2SPacket,
+                    is CreativeInventoryActionC2SPacket,
+                    is SlotChangedStateC2SPacket,
+                    is CloseHandledScreenC2SPacket -> FakeLag.Action.PASS
+                    else -> FakeLag.Action.QUEUE
+                }
+            }
+        }
+
+        @Suppress("unused")
         val screenHandler = handler<ScreenEvent> {
             if (it.screen is HandledScreen<*>) {
                 chronometer.reset()
@@ -65,8 +84,9 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
             }
         }
 
-        val repeatable = tickHandler {
-            if (shouldLag() && chronometer.hasElapsed(maximumTime.toLong())) {
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
+            if (mc.currentScreen is HandledScreen<*> && chronometer.hasElapsed(maximumTime.toLong())) {
                 player.closeHandledScreen()
                 notification("InventoryMove", message("blinkEnd"), NotificationEvent.Severity.INFO)
             }

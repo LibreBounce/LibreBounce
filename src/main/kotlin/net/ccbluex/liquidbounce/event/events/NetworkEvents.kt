@@ -23,6 +23,7 @@ package net.ccbluex.liquidbounce.event.events
 import io.netty.channel.ChannelPipeline
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.minecraft.network.packet.Packet
 
@@ -31,6 +32,10 @@ class PipelineEvent(val channelPipeline: ChannelPipeline, val local: Boolean) : 
 
 @Nameable("packet")
 class PacketEvent(val origin: TransferOrigin, val packet: Packet<*>, val original: Boolean = true) : CancellableEvent()
+
+@Nameable("fakeLag")
+class FakeLagEvent(val packet: Packet<*>?, val origin: TransferOrigin,
+                   var action: FakeLag.Action = FakeLag.Action.FLUSH) : Event()
 
 enum class TransferOrigin {
     SEND, RECEIVE

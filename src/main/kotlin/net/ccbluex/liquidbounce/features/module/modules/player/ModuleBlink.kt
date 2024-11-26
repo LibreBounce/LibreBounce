@@ -20,13 +20,11 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.PlayerMovementTickEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag.Action
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag.findAvoidingArrowPosition
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag.getInflictedHit
 import net.ccbluex.liquidbounce.features.module.Category
@@ -149,6 +147,11 @@ object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
                 enabled = false
             }
         }
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        event.action = Action.QUEUE
     }
 
     enum class ResetAction(override val choiceName: String) : NamedChoice {

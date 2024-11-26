@@ -133,7 +133,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         targetTracker.cleanup()
         failedHits.clear()
         AutoBlock.stopBlocking()
-        AutoBlock.shouldBlink = false
         NotifyWhenFail.failedHitsIncrement = 0
     }
 

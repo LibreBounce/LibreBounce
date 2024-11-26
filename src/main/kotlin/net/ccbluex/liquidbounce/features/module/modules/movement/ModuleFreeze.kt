@@ -20,12 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
-import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag.LagResult
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag.Action
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawLineStrip
@@ -35,6 +32,7 @@ import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayerCache
 import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -140,27 +138,14 @@ object ModuleFreeze : ClientModule("Freeze", Category.MOVEMENT) {
      */
     object Queue : Choice("Queue") {
 
-        private val incoming by boolean("Incoming", false)
-        private val outgoing by boolean("Outgoing", true)
-
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
-        fun shouldLag(origin: TransferOrigin): LagResult? {
-            if (!running) {
-                return null
-            }
-
-            val isQueue = when (origin) {
-                TransferOrigin.RECEIVE -> {
-                    incoming
-                }
-                TransferOrigin.SEND -> {
-                    outgoing
-                }
-            }
-
-            return if (isQueue) LagResult.QUEUE else LagResult.PASS
+        @Suppress("unused")
+        private val fakeLagHandler = handler<FakeLagEvent>(
+            priority = EventPriorityConvention.SAFETY_FEATURE
+        ) { event ->
+            event.action = Action.QUEUE
         }
 
     }

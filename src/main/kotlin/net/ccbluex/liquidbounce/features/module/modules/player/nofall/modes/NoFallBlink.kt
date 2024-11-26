@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -129,19 +130,23 @@ internal object NoFallBlink : Choice("Blink") {
         }
     }
 
-    val packetHandler = handler<PacketEvent> {
-        val packet = it.packet
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
+        val packet = event.packet
 
         if (packet is PlayerMoveC2SPacket && blinkFall) {
             packet.onGround = true
         }
     }
 
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        event.action = FakeLag.Action.QUEUE
+    }
+
     override fun disable() {
         blinkFall = false
         super.disable()
     }
-
-    fun shouldLag() = running && blinkFall
 
 }

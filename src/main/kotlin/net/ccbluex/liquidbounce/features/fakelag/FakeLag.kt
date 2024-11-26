@@ -19,23 +19,10 @@
 package net.ccbluex.liquidbounce.features.fakelag
 
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleFakeLag
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
-import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleClickTp
-import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerVerusExperimental
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyNcpClip
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.verus.FlyVerusB3869Flat
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlockingBlink
-import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep
-import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
-import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidBlinkMode
-import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallBlink
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldBlinkFeature
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -51,7 +38,9 @@ import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.packet.c2s.play.*
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
+import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket
 import net.minecraft.network.packet.c2s.query.QueryRequestC2SPacket
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket
@@ -79,36 +68,8 @@ object FakeLag : EventListener {
      * Whether we should lag.
      * Implement your module here if you want to enable lag.
      */
-    @Suppress("ReturnCount")
-    private fun shouldLag(packet: Packet<*>?, origin: TransferOrigin): LagResult? {
-        // need this to run even if not in-game
-        if (DisablerVerusExperimental.shouldBlink(packet) || DisablerVerusExperimental.shouldPrepareToFlush(packet)) {
-            return LagResult.QUEUE
-        }
-
-        if (!inGame) {
-            return null
-        }
-
-        @Suppress("ComplexCondition")
-        if (ModuleBlink.running || AntiVoidBlinkMode.requiresLag || ModuleFakeLag.shouldLag(packet)
-            || NoFallBlink.shouldLag() || ModuleInventoryMove.Blink.shouldLag() || ModuleClickTp.requiresLag
-            || FlyNcpClip.shouldLag || ScaffoldBlinkFeature.shouldBlink || FlyVerusB3869Flat.requiresLag
-            || AutoBlock.shouldBlink || ModuleStep.BlocksMC.stepping
-        ) {
-            return LagResult.QUEUE
-        }
-
-        NoSlowBlockingBlink.shouldLag(packet)?.let {
-            return it
-        }
-
-        ModuleFreeze.Queue.shouldLag(origin)?.let {
-            return it
-        }
-
-        return null
-    }
+    private fun fireEvent(packet: Packet<*>?, origin: TransferOrigin) =
+        EventManager.callEvent(FakeLagEvent(packet, origin)).action
 
     val packetQueue = LinkedHashSet<DelayData>()
     val positions = LinkedHashSet<PositionData>()
@@ -119,13 +80,15 @@ object FakeLag : EventListener {
             return@handler
         }
 
-        if (shouldLag(null, TransferOrigin.SEND) == null) {
+        if (fireEvent(null, TransferOrigin.SEND) == Action.FLUSH) {
             flush()
         }
     }
 
     @Suppress("unused")
-    private val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
+    private val packetHandler = handler<PacketEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) { event ->
         // Ignore packets that are already cancelled, as they are already handled
         if (event.isCancelled || !inGame) {
             return@handler
@@ -134,17 +97,18 @@ object FakeLag : EventListener {
         val packet = event.packet
 
         // If we shouldn't lag, don't do anything
-        val lagResult = shouldLag(packet, event.origin)
-        if (lagResult == null) {
+        val lagResult = fireEvent(packet, event.origin)
+        if (lagResult == Action.FLUSH) {
             flush()
             return@handler
         }
 
-        if (lagResult == LagResult.PASS) {
+        if (lagResult == Action.PASS) {
             return@handler
         }
 
         when (packet) {
+
             is HandshakeC2SPacket, is QueryRequestC2SPacket, is QueryPingC2SPacket -> {
                 return@handler
             }
@@ -171,14 +135,6 @@ object FakeLag : EventListener {
             is HealthUpdateS2CPacket -> {
                 if (packet.health <= 0) {
                     flush()
-                    return@handler
-                }
-            }
-
-            // Prevent lagging inventory actions if inventory move blink is enabled
-            is ClickSlotC2SPacket, is ButtonClickC2SPacket, is CreativeInventoryActionC2SPacket,
-            is SlotChangedStateC2SPacket -> {
-                if (ModuleInventoryMove.Blink.shouldLag()) {
                     return@handler
                 }
             }
@@ -397,9 +353,10 @@ object FakeLag : EventListener {
         return ModuleAutoDodge.getInflictedHits(playerSimulation, arrows, maxTicks = 40)
     }
 
-    enum class LagResult {
+    enum class Action {
         QUEUE,
-        PASS
+        PASS,
+        FLUSH
     }
 
 }

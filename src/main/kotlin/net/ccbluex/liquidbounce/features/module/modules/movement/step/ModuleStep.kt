@@ -22,12 +22,14 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.step
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerStepEvent
 import net.ccbluex.liquidbounce.event.events.PlayerStepSuccessEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
@@ -219,7 +221,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         private var baseTimer by float("BaseTimer", 3.0f, 0.1f..5.0f)
         private var recoveryTimer by float("RecoveryTimer", 0.6f, 0.1f..5.0f)
 
-        var stepping = false
+        private var stepping = false
 
         @Suppress("unused")
         private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
@@ -241,13 +243,20 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
             }
         }
 
+        @Suppress("unused")
+        private val fakeLagHandler = handler<FakeLagEvent> { event ->
+            if (stepping) {
+                event.action = FakeLag.Action.QUEUE
+            }
+        }
+
         override fun disable() {
             stepping = false
             super.disable()
         }
 
         override val running: Boolean
-        get() = super.running && !ModuleSpeed.running
+            get() = super.running && !ModuleSpeed.running
 
     }
 

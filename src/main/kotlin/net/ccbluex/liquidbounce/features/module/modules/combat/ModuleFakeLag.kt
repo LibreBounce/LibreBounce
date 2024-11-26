@@ -19,19 +19,19 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.item.isConsumable
-import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
@@ -64,93 +64,6 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
 
     private var isEnemyNearby = false
 
-    fun shouldLag(packet: Packet<*>?): Boolean {
-        if (!running || !inGame || player.isDead || player.isTouchingWater || mc.currentScreen != null) {
-            return false
-        }
-
-        if (FakeLag.isAboveTime(nextDelay.toLong())) {
-            nextDelay = delay.random()
-            return false
-        }
-
-        when (packet) {
-            is PlayerPositionLookS2CPacket, is PlayerInteractBlockC2SPacket,
-            is PlayerActionC2SPacket, is UpdateSignC2SPacket, is PlayerInteractEntityC2SPacket,
-            is ResourcePackStatusC2SPacket -> {
-                return false
-            }
-
-            // Flush on knockback
-            is EntityVelocityUpdateS2CPacket -> {
-                if (packet.entityId == player.id && (packet.velocityX != 0 || packet.velocityY != 0 || packet.velocityZ != 0)) {
-                    return false
-                }
-            }
-
-            // Flush on explosion
-            is ExplosionS2CPacket -> {
-                if (packet.playerVelocityX != 0f || packet.playerVelocityY != 0f || packet.playerVelocityZ != 0f) {
-                    return false
-                }
-            }
-
-            // Flush on damage
-            is HealthUpdateS2CPacket -> {
-                return false
-            }
-        }
-
-        // We don't want to lag when we are using an item that is not a food, milk bucket or potion.
-        if (player.isUsingItem && player.activeItem.isConsumable) {
-            return false
-        }
-
-        // Support auto shoot with fake lag
-        if (ModuleAutoShoot.running && ModuleAutoShoot.constantLag &&
-            ModuleAutoShoot.targetTracker.lockedOnTarget == null) {
-            return true
-        }
-
-        return when (mode) {
-            Mode.CONSTANT -> true
-            Mode.DYNAMIC -> {
-                // If there is an enemy in range, we want to lag.
-                if (!isEnemyNearby) {
-                    return false
-                }
-
-                val (playerPosition, _, _) = FakeLag.firstPosition() ?: return true
-                val playerBox = player.dimensions.getBoxAt(playerPosition)
-
-                // todo: implement if enemy is facing old player position
-
-                val entities = world.getEntitiesBoxInRange(playerPosition, range.endInclusive.toDouble()) {
-                    it != player && it.shouldBeAttacked()
-                }
-
-                // If there are no entities, we don't want to lag.
-                if (entities.isEmpty()) {
-                    return false
-                }
-
-                val intersects = entities.any {
-                    it.box.intersects(playerBox)
-                }
-                val serverDistance = entities.minOfOrNull {
-                    it.pos.distanceTo(playerPosition)
-                } ?: return false
-                val clientDistance = entities.minOfOrNull {
-                    it.pos.distanceTo(player.pos)
-                } ?: return false
-
-                // If the server position is not closer than the client position, we keep lagging.
-                // Also, we don't want to lag if the player is intersecting with an entity.
-                serverDistance >= clientDistance && !intersects
-            }
-        }
-    }
-
     @Suppress("unused")
     private val gameTickHandler = tickHandler {
         isEnemyNearby = world.findEnemy(range) != null
@@ -176,6 +89,102 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
             } else {
                 notification("FakeLag", "Arrow evaded.", NotificationEvent.Severity.INFO)
                 FakeLag.flush(evadingPacket.idx + 1)
+            }
+        }
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        if (player.isDead || player.isTouchingWater || mc.currentScreen != null) {
+            return@handler
+        }
+
+        if (FakeLag.isAboveTime(nextDelay.toLong())) {
+            nextDelay = delay.random()
+            return@handler
+        }
+
+        when (val packet = event.packet) {
+            is PlayerPositionLookS2CPacket, is PlayerInteractBlockC2SPacket,
+            is PlayerActionC2SPacket, is UpdateSignC2SPacket, is PlayerInteractEntityC2SPacket,
+            is ResourcePackStatusC2SPacket -> {
+                return@handler
+            }
+
+            // Flush on knockback
+            is EntityVelocityUpdateS2CPacket -> {
+                if (packet.entityId == player.id && (packet.velocityX != 0 || packet.velocityY != 0 || packet.velocityZ != 0)) {
+                    return@handler
+                }
+            }
+
+            // Flush on explosion
+            is ExplosionS2CPacket -> {
+                if (packet.playerVelocityX != 0f || packet.playerVelocityY != 0f || packet.playerVelocityZ != 0f) {
+                    return@handler
+                }
+            }
+
+            // Flush on damage
+            is HealthUpdateS2CPacket -> {
+                return@handler
+            }
+        }
+
+        // We don't want to lag when we are using an item that is not a food, milk bucket or potion.
+        if (player.isUsingItem && player.activeItem.isConsumable) {
+            return@handler
+        }
+
+        // Support auto shoot with fake lag
+        if (ModuleAutoShoot.running && ModuleAutoShoot.constantLag &&
+            ModuleAutoShoot.targetTracker.lockedOnTarget == null) {
+            event.action = FakeLag.Action.QUEUE
+            return@handler
+        }
+
+        event.action = when (mode) {
+            Mode.CONSTANT -> FakeLag.Action.QUEUE
+            Mode.DYNAMIC -> {
+                // If there is an enemy in range, we want to lag.
+                if (!isEnemyNearby) {
+                    return@handler
+                }
+
+                val (playerPosition, _, _) = FakeLag.firstPosition() ?: run {
+                    event.action = FakeLag.Action.QUEUE
+                    return@handler
+                }
+                val playerBox = player.dimensions.getBoxAt(playerPosition)
+
+                // todo: implement if enemy is facing old player position
+
+                val entities = world.getEntitiesBoxInRange(playerPosition, range.endInclusive.toDouble()) {
+                    it != player && it.shouldBeAttacked()
+                }
+
+                // If there are no entities, we don't want to lag.
+                if (entities.isEmpty()) {
+                    return@handler
+                }
+
+                val intersects = entities.any {
+                    it.box.intersects(playerBox)
+                }
+                val serverDistance = entities.minOfOrNull {
+                    it.pos.distanceTo(playerPosition)
+                } ?: return@handler
+                val clientDistance = entities.minOfOrNull {
+                    it.pos.distanceTo(player.pos)
+                } ?: return@handler
+
+                // If the server position is not closer than the client position, we keep lagging.
+                // Also, we don't want to lag if the player is intersecting with an entity.
+                if (serverDistance < clientDistance || intersects) {
+                    return@handler
+                }
+
+                FakeLag.Action.QUEUE
             }
         }
     }

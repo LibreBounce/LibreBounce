@@ -23,6 +23,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.spec
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -69,11 +70,10 @@ object FlyNcpClip : Choice("NcpClip") {
     private var startPosition: Vec3d? = null
     private var damage = false
 
-    var shouldLag = false
-        private set
-        get() = this.running && blink && field
+    private var shouldLag = false
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    val tickHandler = tickHandler {
         val startPos = startPosition
 
         // If fall damage is required, wait for damage to be true
@@ -148,7 +148,8 @@ object FlyNcpClip : Choice("NcpClip") {
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
     }
 
-    val packetHandler = handler<PacketEvent> {
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> {
         val packet = it.packet
         // 3.5 is the minimum, 5 doesn't flag for nofall
         // Should be a float setting but no easy way to
@@ -178,6 +179,13 @@ object FlyNcpClip : Choice("NcpClip") {
 
         if (packet is EntityDamageS2CPacket && packet.entityId == player.id) {
             damage = true
+        }
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        if (blink && shouldLag) {
+            event.action = FakeLag.Action.QUEUE
         }
     }
 

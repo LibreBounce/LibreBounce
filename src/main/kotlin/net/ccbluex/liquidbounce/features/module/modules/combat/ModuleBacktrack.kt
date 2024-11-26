@@ -73,13 +73,13 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private var position: TrackedPosition? = null
 
     @Suppress("unused")
-    private val packetHandler = handler<PacketEvent> {
+    private val packetHandler = handler<PacketEvent> { event ->
         if (packetQueue.isNotEmpty()) {
             chronometer.waitForAtLeast(nextBacktrackDelay.random().toLong())
         }
 
         synchronized(packetQueue) {
-            if (it.origin != TransferOrigin.RECEIVE || it.isCancelled) {
+            if (event.origin != TransferOrigin.RECEIVE || event.isCancelled) {
                 return@handler
             }
 
@@ -87,7 +87,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            val packet = it.packet
+            val packet = event.packet
 
             when (packet) {
                 // Ignore message-related packets
@@ -138,8 +138,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
                 }
             }
 
-            it.cancelEvent()
-
+            event.cancelEvent()
             packetQueue.add(DelayData(packet, System.currentTimeMillis()))
         }
     }

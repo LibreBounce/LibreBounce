@@ -21,9 +21,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.FakeLagEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
+import net.ccbluex.liquidbounce.features.fakelag.FakeLag.Action
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag.firstPosition
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
@@ -42,7 +44,7 @@ object AntiVoidBlinkMode : AntiVoidMode("Blink") {
         get() = super.isExempt || ModuleScaffold.running
 
     // Whether artificial lag is needed to prevent falling into the void.
-    val requiresLag
+    private val requiresLag
         get() = AntiVoidBlinkMode.running && ModuleAntiVoid.isLikelyFalling
             && !isExempt && isWorth()
 
@@ -52,6 +54,13 @@ object AntiVoidBlinkMode : AntiVoidMode("Blink") {
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id || packet is ExplosionS2CPacket) {
             FakeLag.flush()
+        }
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<FakeLagEvent> { event ->
+        if (requiresLag) {
+            event.action = Action.QUEUE
         }
     }
 
