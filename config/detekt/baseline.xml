@@ -110,6 +110,7 @@
     <ID>LoopWithTooManyJumpStatements:TargetFinding.kt$for</ID>
     <ID>MatchingDeclarationName:ComparatorUtils.kt$ComparatorChain&lt;T> : Comparator</ID>
     <ID>MatchingDeclarationName:MovementUtils.kt$DirectionalInput</ID>
+    <ID>MaxLineLength:CriticalsPacket.kt$CriticalsPacket$(ModuleCriticals.WhenSprinting.enabled &amp;&amp; ModuleCriticals.WhenSprinting.stopSprinting != ModuleCriticals.WhenSprinting.StopSprintingMode.NONE)</ID>
     <ID>MaxLineLength:HttpClient.kt$HttpClient$"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"</ID>
     <ID>MaxLineLength:ModuleAutoBuff.kt$ModuleAutoBuff$object</ID>
     <ID>MaxLineLength:Parameters.kt$fun</ID>
