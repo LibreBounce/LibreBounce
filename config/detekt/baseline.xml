@@ -3,7 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>BracesOnIfStatements:AimDebugRecorder.kt$AimDebugRecorder$else</ID>
-    <ID>BracesOnIfStatements:AutoFarmAutoWalk.kt$AutoFarmAutoWalk$if</ID>
     <ID>BracesOnIfStatements:AutoFarmBlockHandler.kt$AutoFarmBlockTracker$if</ID>
     <ID>BracesOnIfStatements:ClientModule.kt$ClientModule$else</ID>
     <ID>BracesOnIfStatements:ClientModule.kt$ClientModule$if</ID>
@@ -59,8 +58,8 @@
     <ID>CognitiveComplexMethod:CommandManager.kt$CommandManager$fun tokenizeCommand(line: String): Pair&lt;List&lt;String>, List&lt;Int>></ID>
     <ID>CognitiveComplexMethod:CommandScript.kt$CommandScript$override fun createCommand(): Command</ID>
     <ID>CognitiveComplexMethod:ContainerFunctions.kt$@Suppress("UNUSED_PARAMETER") fun postGiveItem(requestObject: RequestObject): FullHttpResponse</ID>
-    <ID>CognitiveComplexMethod:FailSwing.kt$FailSwing$suspend fun Sequence&lt;*>.dealWithFakeSwing(target: Entity?)</ID>
     <ID>CognitiveComplexMethod:ItemCategorization.kt$ItemCategorization$@Suppress("CyclomaticComplexMethod", "LongMethod") fun getItemFacets(slot: ItemSlot): Array&lt;ItemFacet></ID>
+    <ID>CognitiveComplexMethod:KillAuraFailSwing.kt$KillAuraFailSwing$suspend fun Sequence&lt;*>.dealWithFakeSwing(target: Entity?)</ID>
     <ID>CognitiveComplexMethod:ModuleKillAura.kt$ModuleKillAura$internal suspend fun Sequence&lt;*>.prepareAttackEnvironment(rotation: Rotation? = null, attack: () -> Unit)</ID>
     <ID>CognitiveComplexMethod:ModuleKillAura.kt$ModuleKillAura$private suspend fun Sequence&lt;*>.mightAttack(chosenEntity: Entity, rotation: Rotation)</ID>
     <ID>CognitiveComplexMethod:PlacementRenderHandler.kt$PlacementRenderHandler$fun render(event: WorldRenderEvent, time: Long)</ID>
@@ -114,6 +113,7 @@
     <ID>MaxLineLength:CriticalsPacket.kt$CriticalsPacket$(ModuleCriticals.WhenSprinting.enabled &amp;&amp; ModuleCriticals.WhenSprinting.stopSprinting != ModuleCriticals.WhenSprinting.StopSprintingMode.NONE)</ID>
     <ID>MaxLineLength:HttpClient.kt$HttpClient$"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"</ID>
     <ID>MaxLineLength:ModuleAutoBuff.kt$ModuleAutoBuff$object</ID>
+    <ID>MaxLineLength:ModuleKillAura.kt$ModuleKillAura$if</ID>
     <ID>MaxLineLength:Parameters.kt$fun</ID>
     <ID>NestedBlockDepth:AStarMode.kt$AStarMode$private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List&lt;Vec3i></ID>
     <ID>NestedBlockDepth:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
@@ -122,7 +122,6 @@
     <ID>NestedBlockDepth:EntityExtensions.kt$fun LivingEntity.getActualHealth(fromScoreboard: Boolean = true): Float</ID>
     <ID>NestedBlockDepth:ScaffoldGodBridgeTechnique.kt$ScaffoldGodBridgeTechnique$override fun ledge( ledge: Boolean, ledgeSoon: Boolean, target: BlockPlacementTarget?, rotation: Rotation ): LedgeState</ID>
     <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
-    <ID>ReturnCount:AutoFarmBlockHandler.kt$AutoFarmBlockTracker$override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates?</ID>
     <ID>ReturnCount:IntegrationListener.kt$IntegrationListener$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
     <ID>ReturnCount:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
     <ID>SpreadOperator:AStarMode.kt$AStarMode$( Vec3i(-1, 0, 0), // left Vec3i(1, 0, 0), // right *(-9..9).map { Vec3i(0, it, 0) }.toTypedArray(), // up- and down Vec3i(0, 0, -1), // front Vec3i(0, 0, 1) // back )</ID>
