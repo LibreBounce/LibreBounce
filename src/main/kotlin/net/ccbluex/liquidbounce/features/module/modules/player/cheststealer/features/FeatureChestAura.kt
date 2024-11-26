@@ -36,6 +36,9 @@ import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.block.BlockState
+import net.minecraft.block.ChestBlock
+import net.minecraft.block.DoubleBlockProperties
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket
 import net.minecraft.util.ActionResult
@@ -143,13 +146,14 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
 
     // Task that repeats to interact with the target block
     @Suppress("unused")
-    private val interactionRepeatableTask = tickHandler { event ->
+    private val interactionRepeatableTask = tickHandler {
         if (mc.currentScreen is GenericContainerScreen) {
             // Do not proceed if a screen is open which implies player might be in a GUI
             return@tickHandler
         }
 
         val targetBlockPos = currentTargetBlock ?: return@tickHandler
+        val targetState = targetBlockPos.getState() ?: return@tickHandler
         val currentPlayerRotation = RotationManager.serverRotation
 
         // Trace a ray from the player to the target block position
@@ -157,7 +161,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
             interactionRange.toDouble(),
             currentPlayerRotation,
             targetBlockPos,
-            targetBlockPos.getState() ?: return@tickHandler
+            targetState
         )
 
         // Verify if the block is hit and is the correct target
@@ -188,6 +192,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
                 }
             } else {
                 interactedBlocksSet.add(targetBlockPos)
+                targetBlockPos.recordAnotherChestPart(targetState)
                 currentTargetBlock = null
                 wasInteractionSuccessful = true
 
@@ -198,11 +203,25 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
             // Update interacted block set and reset target if successful or exceeded retries
             if (wasInteractionSuccessful || interactionAttempts >= AwaitContainerSettings.maxInteractionRetries) {
                 interactedBlocksSet.add(targetBlockPos)
+                targetBlockPos.recordAnotherChestPart(targetState)
                 currentTargetBlock = null
             } else {
                 interactionAttempts++
             }
         }
+    }
+
+    private fun BlockPos.recordAnotherChestPart(state: BlockState) {
+        if (state.block !is ChestBlock) {
+            return
+        }
+
+        val another = when (ChestBlock.getDoubleBlockType(state)) {
+            DoubleBlockProperties.Type.FIRST, DoubleBlockProperties.Type.SECOND -> offset(ChestBlock.getFacing(state))
+            else -> return
+        }
+
+        interactedBlocksSet.add(another)
     }
 
 }
