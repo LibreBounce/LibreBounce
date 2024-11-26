@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.autoshop
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.player
@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.sumValues
 import net.minecraft.item.PotionItem
 import net.minecraft.registry.Registries
 
-class AutoShopInventoryManager : Listenable {
+class AutoShopInventoryManager : EventHandler {
 
     private val prevInventoryItems = mutableMapOf<String, Int>()
     private val currentInventoryItems = mutableMapOf<String, Int>()

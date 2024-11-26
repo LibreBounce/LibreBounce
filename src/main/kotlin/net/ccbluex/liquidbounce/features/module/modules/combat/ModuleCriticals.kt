@@ -25,9 +25,9 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals.VisualsConfigurable.showCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
@@ -58,7 +58,7 @@ import net.minecraft.util.math.Vec3d
  *
  * Automatically crits every time you attack someone.
  */
-object ModuleCriticals : Module("Criticals", Category.COMBAT) {
+object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
 
     init {
         enableLock()
@@ -90,7 +90,7 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
             get() = modes
 
         val attackHandler = handler<AttackEvent> { event ->
-            if (!enabled || event.enemy !is LivingEntity) {
+            if (!this@ModuleCriticals.running || event.enemy !is LivingEntity) {
                 return@handler
             }
 
@@ -253,7 +253,7 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
     }
 
     fun shouldWaitForJump(initialMotion: Float = 0.42f): Boolean {
-        if (!canCrit(true) || !enabled) {
+        if (!canCrit(true) || !running) {
             return false
         }
 
@@ -324,7 +324,7 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
 
     var ticksOnGround = 0
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.isOnGround) {
             ticksOnGround++
         } else {
@@ -337,15 +337,15 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
     }
 
     fun isActive(): Boolean {
-        if (!enabled)
+        if (!running)
             return false
 
         // if both module checks are disabled, we can safely say that we are active
         if (!JumpCrit.checkKillaura && !JumpCrit.checkAutoClicker)
             return true
 
-        return (ModuleKillAura.enabled && JumpCrit.checkKillaura) ||
-            (ModuleAutoClicker.enabled && JumpCrit.checkAutoClicker)
+        return (ModuleKillAura.running && JumpCrit.checkKillaura) ||
+            (ModuleAutoClicker.running && JumpCrit.checkAutoClicker)
     }
 
     /**
@@ -449,8 +449,8 @@ object ModuleCriticals : Module("Criticals", Category.COMBAT) {
 
         val blockingConditions = booleanArrayOf(
             // Modules
-            ModuleFly.enabled,
-            ModuleLiquidWalk.enabled && ModuleLiquidWalk.standingOnWater(),
+            ModuleFly.running,
+            ModuleLiquidWalk.running && ModuleLiquidWalk.standingOnWater(),
             player.isInLava, player.isTouchingWater, player.hasVehicle(),
             // Cobwebs
             player.box.collideBlockIntersects(checkCollisionShape = false) { it is CobwebBlock },

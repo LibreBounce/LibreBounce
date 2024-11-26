@@ -22,10 +22,10 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.nc
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.client.Timer
@@ -42,7 +42,7 @@ import net.minecraft.entity.effect.StatusEffects
  */
 class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP", parent) {
 
-    private inner class PullDown(parent: Listenable?) : ToggleableConfigurable(parent, "PullDown", true) {
+    private inner class PullDown(parent: EventHandler?) : ToggleableConfigurable(parent, "PullDown", true) {
 
         private val motionMultiplier by float("MotionMultiplier", 1f, 0.01f..10f)
         private val onTick by int("OnTick", 5, 1..9)
@@ -51,10 +51,10 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
         private var ticksInAir = 0
 
         @Suppress("unused")
-        private val repeatable = repeatable {
+        private val repeatable = tickHandler {
             if (player.isOnGround) {
                 ticksInAir = 0
-                return@repeatable
+                return@tickHandler
             } else {
                 ticksInAir++
                 if (ticksInAir == onTick) {
@@ -73,11 +73,11 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
         tree(PullDown(this))
     }
 
-    private inner class Boost(parent: Listenable?) : ToggleableConfigurable(parent, "Boost", true) {
+    private inner class Boost(parent: EventHandler?) : ToggleableConfigurable(parent, "Boost", true) {
         private val initialBoostMultiplier by float("InitialBoostMultiplier", 1f, 0.01f..10f)
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (player.moving) {
                 player.velocity.x *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
                 player.velocity.z *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
@@ -102,7 +102,7 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         val speedMultiplier = player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0
 
         if (player.moving) {

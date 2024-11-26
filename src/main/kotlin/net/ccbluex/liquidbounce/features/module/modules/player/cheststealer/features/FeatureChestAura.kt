@@ -23,7 +23,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.fea
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.ModuleChestStealer
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -143,13 +143,13 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
 
     // Task that repeats to interact with the target block
     @Suppress("unused")
-    private val interactionRepeatableTask = repeatable { event ->
+    private val interactionRepeatableTask = tickHandler { event ->
         if (mc.currentScreen is GenericContainerScreen) {
             // Do not proceed if a screen is open which implies player might be in a GUI
-            return@repeatable
+            return@tickHandler
         }
 
-        val targetBlockPos = currentTargetBlock ?: return@repeatable
+        val targetBlockPos = currentTargetBlock ?: return@tickHandler
         val currentPlayerRotation = RotationManager.serverRotation
 
         // Trace a ray from the player to the target block position
@@ -157,12 +157,12 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
             interactionRange.toDouble(),
             currentPlayerRotation,
             targetBlockPos,
-            targetBlockPos.getState() ?: return@repeatable
+            targetBlockPos.getState() ?: return@tickHandler
         )
 
         // Verify if the block is hit and is the correct target
         if (rayTraceResult?.type != HitResult.Type.BLOCK || rayTraceResult.blockPos != targetBlockPos) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Attempt to interact with the block

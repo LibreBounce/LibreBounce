@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter
 import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter.CenterHandlerState
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.CrystalDestroyFeature
@@ -60,7 +60,7 @@ import kotlin.math.ceil
  *
  * Builds safe holes.
  */
-object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true) {
+object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit = true) {
 
     /**
      * The blocks the surround normal utilizes.

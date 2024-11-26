@@ -19,9 +19,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.OffHandSlot
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
@@ -44,7 +44,7 @@ import net.minecraft.item.Items
  *
  * Automatically repairs your armor.
  */
-object ModuleFastExp : Module(
+object ModuleFastExp : ClientModule(
     "FastExp",
     Category.PLAYER,
     bindAction = InputBind.BindAction.HOLD,
@@ -65,10 +65,10 @@ object ModuleFastExp : Module(
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         val slot = getSlot()
         if (slot == null || player.isDead || InventoryManager.isInventoryOpenServerSide || isRepaired(slot)) {
-            return@repeatable
+            return@tickHandler
         }
 
         CombatManager.pauseCombatForAtLeast(combatPauseTime)

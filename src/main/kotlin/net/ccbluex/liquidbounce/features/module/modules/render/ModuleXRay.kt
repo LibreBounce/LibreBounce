@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks.*
@@ -33,7 +33,7 @@ import net.minecraft.util.math.Direction
  * Allows you to see ores through walls.
  */
 
-object ModuleXRay : Module("XRay", Category.RENDER) {
+object ModuleXRay : ClientModule("XRay", Category.RENDER) {
 
     // Lighting of blocks through walls
     val fullBright by boolean("FullBright", true)

@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -33,13 +33,13 @@ object ScaffoldBlinkFeature : ToggleableConfigurable(ModuleScaffold, "Blink", fa
     private val pulseTimer = Chronometer()
 
     val shouldBlink
-        get() = isRunning() && (!player.isOnGround || !pulseTimer.hasElapsed(pulseTime))
+        get() = this.running && (!player.isOnGround || !pulseTimer.hasElapsed(pulseTime))
 
     fun onBlockPlacement() {
         pulseTime = time.random().toLong()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (fallCancel && player.fallDistance > 0.5f) {
             FakeLag.cancel()
             onBlockPlacement()

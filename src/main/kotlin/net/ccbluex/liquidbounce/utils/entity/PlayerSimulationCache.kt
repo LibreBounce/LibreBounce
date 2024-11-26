@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.utils.entity
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 
-object PlayerSimulationCache: Listenable {
+object PlayerSimulationCache: EventHandler {
     private val otherPlayerCache = ConcurrentHashMap<PlayerEntity, SimulatedPlayerCache>()
     private var localPlayerCache: SimulatedPlayerCache? = null
 

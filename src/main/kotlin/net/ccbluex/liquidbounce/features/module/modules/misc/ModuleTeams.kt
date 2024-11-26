@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.stripMinecraftColorCodes
 import net.ccbluex.liquidbounce.utils.inventory.getArmorColor
@@ -38,7 +38,7 @@ import java.awt.Color
  *
  * Prevents KillAura from attacking teammates.
  */
-object ModuleTeams : Module("Teams", Category.MISC) {
+object ModuleTeams : ClientModule("Teams", Category.MISC) {
 
     private val scoreboard by boolean("ScoreboardTeam", true)
     private val nameColor by boolean("NameColor", true)

@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.DelayData
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.modes
@@ -66,7 +66,7 @@ internal object FlyHycraftDamage : Choice("HycraftDamage") {
         release = false
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         waitTicks(1)
         if (ticks > 0) ticks--
     }

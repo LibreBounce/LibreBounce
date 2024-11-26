@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.Timer
@@ -71,9 +71,9 @@ object FlyNcpClip : Choice("NcpClip") {
 
     var shouldLag = false
         private set
-        get() = this.isRunning() && blink && field
+        get() = this.running && blink && field
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val startPos = startPosition
 
         // If fall damage is required, wait for damage to be true
@@ -123,7 +123,7 @@ object FlyNcpClip : Choice("NcpClip") {
 
             // Disable the module if the player is on ground again
             ModuleFly.enabled = false
-            return@repeatable
+            return@tickHandler
         } else if (startPos.distanceTo(player.pos) > maximumDistance) {
             if (shouldLag) {
                 // If we are lagging, we might abuse this to get us back to safety
@@ -136,7 +136,7 @@ object FlyNcpClip : Choice("NcpClip") {
 
             notification("Fly", "You have exceeded the maximum distance.",
                 NotificationEvent.Severity.ERROR)
-            return@repeatable
+            return@tickHandler
         }
 
         // Strafe the player to improve control

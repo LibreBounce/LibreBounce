@@ -21,14 +21,14 @@
 
 package net.ccbluex.liquidbounce.utils.inventory
 
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ContainerItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
@@ -53,7 +53,7 @@ import kotlin.random.Random
  *  - Progress Bar
  *  - Off-screen actions
  */
-object InventoryManager : Listenable {
+object InventoryManager : EventHandler {
 
     var isInventoryOpenServerSide = false
         internal set
@@ -74,10 +74,10 @@ object InventoryManager : Listenable {
      * and schedule the inventory actions
      */
     @Suppress("unused")
-    private val repeatingSchedulerExecutor = repeatable {
+    private val repeatingSchedulerExecutor = tickHandler {
         // We are not in-game, so we don't need to do anything and throw away the schedule
         if (!inGame) {
-            return@repeatable
+            return@tickHandler
         }
 
         var maximumCloseDelay = 0

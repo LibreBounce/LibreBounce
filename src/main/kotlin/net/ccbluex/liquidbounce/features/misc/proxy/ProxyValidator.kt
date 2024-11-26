@@ -8,13 +8,15 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.handler.timeout.ReadTimeoutHandler
 import net.ccbluex.liquidbounce.api.IpInfoApi
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.minecraft.client.network.*
+import net.minecraft.client.network.Address
+import net.minecraft.client.network.AllowedAddressResolver
+import net.minecraft.client.network.ServerAddress
 import net.minecraft.network.ClientConnection
 import net.minecraft.network.DisconnectionInfo
 import net.minecraft.network.NetworkSide
@@ -56,7 +58,7 @@ import kotlin.jvm.optionals.getOrNull
 private const val PING_SERVER = "ping.liquidproxy.net"
 private const val PING_TIMEOUT = 5
 
-class ClientConnectionTicker(private val clientConnection: ClientConnection) : Listenable {
+class ClientConnectionTicker(private val clientConnection: ClientConnection) : EventHandler {
     @Suppress("unused")
     private val tickHandler = handler<GameTickEvent> {
         clientConnection.tick()

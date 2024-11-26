@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.DelayData
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -49,7 +49,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
-object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
+object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     private val range by floatRange("Range", 1f..3f, 0f..10f)
     private val delay by intRange("Delay", 100..150, 0..1000, "ms")
@@ -328,7 +328,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
             !shouldPause()
     }
 
-    fun isLagging() = enabled && packetQueue.isNotEmpty()
+    fun isLagging() = running && packetQueue.isNotEmpty()
 
     private fun shouldPause() = pauseOnHit && shouldPause
 

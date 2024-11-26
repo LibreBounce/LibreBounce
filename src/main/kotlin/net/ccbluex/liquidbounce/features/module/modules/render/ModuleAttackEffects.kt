@@ -22,14 +22,14 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.block.Blocks
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.entity.LivingEntity
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.sound.SoundEvents
 
-object ModuleAttackEffects : Module("AttackEffects", Category.RENDER) {
+object ModuleAttackEffects : ClientModule("AttackEffects", Category.RENDER) {
 
     enum class Particle(override val choiceName: String) : NamedChoice {
         NONE("None"),

@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -81,7 +81,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     private val attributesSet = IntOpenHashSet()
     private val ageSet = IntOpenHashSet()
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val rangeSquared = AlwaysInRadius.alwaysInRadiusRange.sq()
         for (entity in world.players) {
             if (player.squaredDistanceTo(entity) > rangeSquared) {

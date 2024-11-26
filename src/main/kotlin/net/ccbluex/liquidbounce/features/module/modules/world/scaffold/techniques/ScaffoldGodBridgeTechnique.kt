@@ -64,7 +64,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         target: BlockPlacementTarget?,
         rotation: Rotation
     ): LedgeState {
-        if (!isActive) {
+        if (!isSelected) {
             return LedgeState.NO_LEDGE
         }
 

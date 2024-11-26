@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -65,7 +65,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
         player.strafe(speed = 0.0)
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
 
         if (player.isOnGround) {
             airTicks = 0
@@ -74,7 +74,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             airTicks++
 
             if (!canSpeed) {
-                return@repeatable
+                return@tickHandler
             }
             if (fullStrafe) {
                 if (player.moving) {

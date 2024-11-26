@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isGameProfileUnique
@@ -71,9 +71,9 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
         }
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (suspectList.isEmpty()) {
-            return@repeatable
+            return@tickHandler
         }
 
         for (entity in world.players) {

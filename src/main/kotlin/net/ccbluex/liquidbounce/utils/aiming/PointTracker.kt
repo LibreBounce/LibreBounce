@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
 import net.ccbluex.liquidbounce.utils.entity.*
@@ -41,7 +41,7 @@ class PointTracker(
     lowestPointDefault: PreferredBoxPart = PreferredBoxPart.BODY,
     timeEnemyOffsetDefault: Float = 0.4f,
     timeEnemyOffsetScale: ClosedFloatingPointRange<Float> = -1f..1f
-) : Configurable("PointTracker"), Listenable {
+) : Configurable("PointTracker"), EventHandler {
 
     companion object {
 

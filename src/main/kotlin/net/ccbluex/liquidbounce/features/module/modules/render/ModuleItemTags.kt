@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.GUIRenderEnvironment
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -46,7 +46,7 @@ private const val BACKGROUND_PADDING: Int = 2
  *
  * Show the names and quantities of items in several boxes.
  */
-object ModuleItemTags : Module("ItemTags", Category.RENDER) {
+object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
 
     override val baseKey: String
         get() = "liquidbounce.module.itemTags"

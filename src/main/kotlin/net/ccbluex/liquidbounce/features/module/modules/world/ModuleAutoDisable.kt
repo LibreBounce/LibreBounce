@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoClip
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
@@ -36,7 +36,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  *
  * Automatically disables modules, when special event happens.
  */
-object ModuleAutoDisable : Module("AutoDisable", Category.WORLD) {
+object ModuleAutoDisable : ClientModule("AutoDisable", Category.WORLD) {
 
     val listOfModules = arrayListOf(ModuleFly, ModuleSpeed, ModuleNoClip, ModuleKillAura)
     private val onFlag by boolean("OnFlag", false)
@@ -45,23 +45,25 @@ object ModuleAutoDisable : Module("AutoDisable", Category.WORLD) {
     @Suppress("unused")
     val worldChangesHandler = handler<PacketEvent> {
         if (it.packet is PlayerPositionLookS2CPacket && onFlag) {
-            autoDisabled("flag")
+            disableAndNotify("flag")
         }
     }
 
     @Suppress("unused")
     val deathHandler = handler<DeathEvent> {
-        if (onDeath) autoDisabled("your death")
+        if (onDeath) disableAndNotify("your death")
     }
 
-    fun autoDisabled(reason: String) {
-        listOfModules.filter { it.enabled }.let {
-            if (it.isNotEmpty()) {
-                it.forEach {
-                    it.enabled = false
-                }
-                notification("Notifier", "Disabled modules due to $reason", NotificationEvent.Severity.INFO)
+    private fun disableAndNotify(reason: String) {
+        val modules = listOfModules.filter {
+            module -> module.running
+        }
+
+        if (modules.isNotEmpty()) {
+            for (module in modules) {
+                module.enabled = false
             }
+            notification("Notifier", "Disabled modules due to $reason", NotificationEvent.Severity.INFO)
         }
     }
 }

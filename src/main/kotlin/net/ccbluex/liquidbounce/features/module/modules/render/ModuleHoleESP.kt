@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
@@ -59,7 +59,7 @@ typealias State = Byte
  * Detects and displays safe spots for Crystal PvP.
  */
 
-object ModuleHoleESP : Module("HoleESP", Category.RENDER) {
+object ModuleHoleESP : ClientModule("HoleESP", Category.RENDER) {
 
     private val modes = choices("Mode", GlowingPlane, arrayOf(BoxChoice, GlowingPlane))
 

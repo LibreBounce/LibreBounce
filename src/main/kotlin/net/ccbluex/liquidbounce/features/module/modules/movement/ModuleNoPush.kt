@@ -19,11 +19,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 
 /**
  * NoPush module
  *
  * Disables pushing from other players.
  */
-object ModuleNoPush : Module("NoPush", Category.MOVEMENT)
+object ModuleNoPush : ClientModule("NoPush", Category.MOVEMENT)

@@ -20,10 +20,10 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
@@ -48,7 +48,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Holds back packets to prevent you from being hit by an enemy.
  */
 @Suppress("detekt:all")
-object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
+object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
 
     private val range by floatRange("Range", 2f..5f, 0f..10f)
     private val delay by intRange("Delay", 300..600, 0..1000, "ms")
@@ -65,7 +65,7 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
     private var isEnemyNearby = false
 
     fun shouldLag(packet: Packet<*>?): Boolean {
-        if (!enabled || !inGame || player.isDead || player.isTouchingWater || mc.currentScreen != null) {
+        if (!running || !inGame || player.isDead || player.isTouchingWater || mc.currentScreen != null) {
             return false
         }
 
@@ -107,7 +107,7 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
         }
 
         // Support auto shoot with fake lag
-        if (ModuleAutoShoot.enabled && ModuleAutoShoot.constantLag &&
+        if (ModuleAutoShoot.running && ModuleAutoShoot.constantLag &&
             ModuleAutoShoot.targetTracker.lockedOnTarget == null) {
             return true
         }
@@ -152,14 +152,14 @@ object ModuleFakeLag : Module("FakeLag", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val gameTickHandler = repeatable {
+    private val gameTickHandler = tickHandler {
         isEnemyNearby = world.findEnemy(range) != null
 
         if (evadeArrows) {
-            val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@repeatable
+            val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@tickHandler
 
             if (FakeLag.getInflictedHit(playerPosition) == null) {
-                return@repeatable
+                return@tickHandler
             }
 
             val evadingPacket = FakeLag.findAvoidingArrowPosition()

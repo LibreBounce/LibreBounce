@@ -22,9 +22,9 @@ import it.unimi.dsi.fastutil.objects.ObjectLongMutablePair
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawGradientCircle
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.util.math.Vec3d
 
-object ModuleJumpEffect : Module("JumpEffect", Category.RENDER) {
+object ModuleJumpEffect : ClientModule("JumpEffect", Category.RENDER) {
 
     private val endRadius by floatRange("EndRadius", 0.15F..0.8F, 0F..3F)
 
@@ -48,7 +48,7 @@ object ModuleJumpEffect : Module("JumpEffect", Category.RENDER) {
 
     private val circles = ArrayDeque<ObjectLongMutablePair<Vec3d>>()
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         with(circles.iterator()) {
             while (hasNext()) {
                 val pair = next()

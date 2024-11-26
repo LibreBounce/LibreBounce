@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -37,7 +37,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  *
  * Increases knockback dealt to other entities.
  */
-object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases = arrayOf("WTap")) {
+object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, aliases = arrayOf("WTap")) {
 
     val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap)).apply(::tagBy)
     val hurtTime by int("HurtTime", 10, 0..10)
@@ -63,16 +63,17 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         }
     }
 
-    override fun isRunning(): Boolean {
-        val handleEvents = super.isRunning()
+    override val running: Boolean
+        get() {
+            val running = super.running
 
-        // Reset if the module is not handling events anymore
-        if (!handleEvents) {
-            reset()
+            // Reset if the module is not handling events anymore
+            if (!running) {
+                reset()
+            }
+
+            return running
         }
-
-        return handleEvents
-    }
 
     object Packet : Choice("Packet") {
         override val parent: ChoiceConfigurable<Choice>
@@ -154,9 +155,9 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         }
     }
 
-    fun shouldBlockSprinting() = enabled && SprintTap.isActive && SprintTap.antiSprint
+    fun shouldBlockSprinting() = running && SprintTap.isSelected && SprintTap.antiSprint
 
-    fun shouldStopMoving() = enabled && WTap.isActive && WTap.stopMoving
+    fun shouldStopMoving() = running && WTap.isSelected && WTap.stopMoving
 
     private fun shouldStopSprinting(event: AttackEvent): Boolean {
         val enemy = event.enemy

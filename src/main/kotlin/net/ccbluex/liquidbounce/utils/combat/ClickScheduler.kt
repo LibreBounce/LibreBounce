@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.utils.combat
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -44,7 +44,7 @@ import kotlin.random.nextInt
  * This allows us to predict future actions and behave accordingly.
  */
 open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int = 60, name: String = "ClickScheduler")
-    : Configurable(name), Listenable where T : Listenable {
+    : Configurable(name), EventHandler where T : EventHandler {
 
     companion object {
         val RNG = java.util.Random()
@@ -58,7 +58,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     private val clickTechnique by enumChoice("Technique", ClickTechnique.STABILIZED)
 
     class Cooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", true)
-        where T: Listenable {
+        where T: EventHandler {
 
         val rangeCooldown by floatRange("Timing", 1.0f..1.0f, 0.1f..1f)
 

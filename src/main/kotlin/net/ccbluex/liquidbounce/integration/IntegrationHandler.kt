@@ -21,23 +21,23 @@ package net.ccbluex.liquidbounce.integration
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
+import net.ccbluex.liquidbounce.integration.browser.BrowserManager
+import net.ccbluex.liquidbounce.integration.theme.Theme
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.mcef.progress.MCEFProgressMenu
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.integration.browser.BrowserManager
-import net.ccbluex.liquidbounce.integration.theme.Theme
-import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.TitleScreen
 import org.lwjgl.glfw.GLFW
 
-object IntegrationHandler : Listenable {
+object IntegrationHandler : EventHandler {
 
     /**
      * This tab is always open and initialized. We keep this tab open to make it possible to draw on the screen,

@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag.LagResult
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -45,7 +45,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  *
  * Allows you to freeze yourself without the server knowing.
  */
-object ModuleFreeze : Module("Freeze", Category.MOVEMENT) {
+object ModuleFreeze : ClientModule("Freeze", Category.MOVEMENT) {
 
     private val modes = choices("Mode", Queue, arrayOf(Queue, Cancel, Stationary))
         .apply { tagBy(this) }
@@ -147,7 +147,7 @@ object ModuleFreeze : Module("Freeze", Category.MOVEMENT) {
             get() = modes
 
         fun shouldLag(origin: TransferOrigin): LagResult? {
-            if (!enabled || !isRunning()) {
+            if (!running) {
                 return null
             }
 

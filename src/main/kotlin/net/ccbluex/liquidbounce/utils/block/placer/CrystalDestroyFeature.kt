@@ -19,11 +19,11 @@
 package net.ccbluex.liquidbounce.utils.block.placer
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 
-class CrystalDestroyFeature(listenable: Listenable, private val module: Module) :
-    ToggleableConfigurable(listenable, "DestroyCrystals", true) {
+class CrystalDestroyFeature(eventHandler: EventHandler, private val module: ClientModule) :
+    ToggleableConfigurable(eventHandler, "DestroyCrystals", true) {
 
     private val range by float("Range", 4.5f, 1f..6f)
     private val wallRange by float("WallRange", 4.5f, 0f..6f)
@@ -62,16 +62,16 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
             }
         }
 
-    val repeatable = repeatable {
-        val target = currentTarget ?: return@repeatable
+    val repeatable = tickHandler {
+        val target = currentTarget ?: return@tickHandler
 
         if (!chronometer.hasElapsed(delay.toLong())) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (wouldKill(target)) {
             currentTarget = null
-            return@repeatable
+            return@tickHandler
         }
 
         // find the best spot (and skip if no spot was found)
@@ -81,7 +81,7 @@ class CrystalDestroyFeature(listenable: Listenable, private val module: Module) 
                 target.boundingBox,
                 range = range.toDouble(),
                 wallsRange = wallRange.toDouble(),
-            ) ?: return@repeatable
+            ) ?: return@tickHandler
 
         rotationMode.activeChoice.rotate(rotation, isFinished = {
             facingEnemy(

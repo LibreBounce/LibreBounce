@@ -92,7 +92,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
             val ignoreElytra by boolean("IgnoreElytra", false)
 
             fun getFallDamage(): Float {
-                if (ModuleNoFall.enabled || !FallDamage.enabled || player.fallDistance <= 3f) {
+                if (ModuleNoFall.running || !FallDamage.enabled || player.fallDistance <= 3f) {
                     return 0f
                 }
 

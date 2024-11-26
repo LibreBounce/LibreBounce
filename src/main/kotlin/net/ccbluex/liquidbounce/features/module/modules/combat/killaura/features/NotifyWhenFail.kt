@@ -91,7 +91,7 @@ internal object NotifyWhenFail {
     }
 
     internal fun renderFailedHits(matrixStack: MatrixStack) {
-        if (failedHits.isEmpty() || (!enabled || !Box.isActive)) {
+        if (failedHits.isEmpty() || (!enabled || !Box.isSelected)) {
             failedHits.clear()
             return
         }

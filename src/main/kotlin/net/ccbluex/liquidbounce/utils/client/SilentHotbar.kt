@@ -18,14 +18,14 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 
 /**
  * Manages things like [Scaffold]'s silent mode. Not thread safe, please only use this on the main-thread of minecraft
  */
-object SilentHotbar : Listenable {
+object SilentHotbar : EventHandler {
 
     private var hotbarState: SilentHotbarState? = null
     private var ticksSinceLastUpdate: Int = 0

@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.kotlin
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
@@ -27,10 +27,10 @@ import org.junit.jupiter.api.Test
 
 class RequestHandlerTest {
     companion object {
-        private val MODULE_1 = Module("module1", Category.MISC, state = true)
-        private val MODULE_2 = Module("module2", Category.MISC, state = true)
-        private val MODULE_3 = Module("module3", Category.MISC, state = true)
-        private val MODULE_4 = Module("module4", Category.MISC, state = true)
+        private val MODULE_1 = ClientModule("module1", Category.MISC, state = true)
+        private val MODULE_2 = ClientModule("module2", Category.MISC, state = true)
+        private val MODULE_3 = ClientModule("module3", Category.MISC, state = true)
+        private val MODULE_4 = ClientModule("module4", Category.MISC, state = true)
     }
 
     @BeforeEach

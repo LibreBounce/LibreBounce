@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
@@ -38,7 +38,7 @@ import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
-object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
+object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
     private object AllowRotationChange : ToggleableConfigurable(this, "AllowRotationChange", false) {
         val allowJump by boolean("AllowJump", true)
     }
@@ -55,7 +55,7 @@ object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
     @Suppress("unused")
     val tickRep = handler<MovementInputEvent> { event ->
         // We aren't where we are because of blink. So this module shall not cause any disturbance in that case.
-        if (ModuleBlink.enabled) {
+        if (ModuleBlink.running) {
             return@handler
         }
         if (ModuleMurderMystery.disallowsArrowDodge()) {

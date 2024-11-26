@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.render.FontManager
@@ -15,7 +15,7 @@ private val BASIC_CHARS = '\u0000'..'\u0200'
 class FontGlyphPageManager(
     baseFonts: Set<FontManager.FontFace>,
     additionalFonts: Set<FontManager.FontFace> = emptySet()
-): Listenable {
+): EventHandler {
 
     private var staticPage: List<StaticGlyphPage> = StaticGlyphPage.createGlyphPages(baseFonts.flatMap { loadedFont ->
         loadedFont.styles.filterNotNull().flatMap { font -> BASIC_CHARS.map { ch -> FontGlyph(ch, font) } }

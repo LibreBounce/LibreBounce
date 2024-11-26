@@ -39,11 +39,11 @@ object AntiVoidBlinkMode : AntiVoidMode("Blink") {
 
     // Cases in which the AntiVoid protection should not be active.
     override val isExempt
-        get() = super.isExempt || ModuleScaffold.enabled
+        get() = super.isExempt || ModuleScaffold.running
 
     // Whether artificial lag is needed to prevent falling into the void.
     val requiresLag
-        get() = AntiVoidBlinkMode.isRunning() && ModuleAntiVoid.isLikelyFalling
+        get() = AntiVoidBlinkMode.running && ModuleAntiVoid.isLikelyFalling
             && !isExempt && isWorth()
 
     @Suppress("unused")

@@ -18,13 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.fakelag
 
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
-import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
-import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleFakeLag
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleClickTp
@@ -45,7 +41,10 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.client.inGame
+import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.client.sendPacketSilently
+import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.RigidPlayerSimulation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -68,7 +67,7 @@ import net.minecraft.util.math.Vec3d
  *
  * Simulates lag by holding back packets.
  */
-object FakeLag : Listenable {
+object FakeLag : EventHandler {
 
     /**
      * Whether we are lagging.
@@ -92,7 +91,7 @@ object FakeLag : Listenable {
         }
 
         @Suppress("ComplexCondition")
-        if (ModuleBlink.enabled || AntiVoidBlinkMode.requiresLag || ModuleFakeLag.shouldLag(packet)
+        if (ModuleBlink.running || AntiVoidBlinkMode.requiresLag || ModuleFakeLag.shouldLag(packet)
             || NoFallBlink.shouldLag() || ModuleInventoryMove.Blink.shouldLag() || ModuleClickTp.requiresLag
             || FlyNcpClip.shouldLag || ScaffoldBlinkFeature.shouldBlink || FlyVerusB3869Flat.requiresLag
             || AutoBlock.shouldBlink || ModuleStep.BlocksMC.stepping
@@ -114,9 +113,10 @@ object FakeLag : Listenable {
     val packetQueue = LinkedHashSet<DelayData>()
     val positions = LinkedHashSet<PositionData>()
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = handler<GameTickEvent> {
         if (!inGame) {
-            return@repeatable
+            return@handler
         }
 
         if (shouldLag(null, TransferOrigin.SEND) == null) {
@@ -124,7 +124,8 @@ object FakeLag : Listenable {
         }
     }
 
-    val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
         // Ignore packets that are already cancelled, as they are already handled
         if (event.isCancelled || !inGame) {
             return@handler
@@ -203,6 +204,7 @@ object FakeLag : Listenable {
         }
     }
 
+    @Suppress("unused")
     val worldChangeHandler = handler<WorldChangeEvent> {
         // Clear packets on disconnect
         if (it.world == null) {
@@ -210,6 +212,7 @@ object FakeLag : Listenable {
         }
     }
 
+    @Suppress("unused")
     val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
 

@@ -70,7 +70,7 @@ object AutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false)
      * @see net.minecraft.client.render.item.HeldItemRenderer renderFirstPersonItem
      */
     var blockVisual = false
-        get() = field && super.isRunning()
+        get() = field && super.running
 
     val shouldUnblockToHit
         get() = unblockMode != UnblockMode.NONE

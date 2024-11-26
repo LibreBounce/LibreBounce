@@ -27,8 +27,8 @@ import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -80,7 +80,7 @@ import kotlin.time.measureTime
  *
  * @author kawaiinekololis (@team CCBlueX)
  */
-object LiquidBounce : Listenable {
+object LiquidBounce : EventHandler {
 
     /**
      * CLIENT INFORMATION

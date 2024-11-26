@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.ModuleChestStealer
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features.FeatureChestAura
 import net.ccbluex.liquidbounce.render.*
@@ -53,7 +53,7 @@ import java.awt.Color
  * Allows you to see chests, dispensers, etc. through walls.
  */
 
-object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayOf("ChestESP")) {
+object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = arrayOf("ChestESP")) {
 
     private val modes = choices("Mode", Glow, arrayOf(BoxMode, Glow))
 
@@ -261,12 +261,13 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         }
     }
 
-    override fun isRunning(): Boolean {
-        if (requiresChestStealer && !ModuleChestStealer.enabled) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (requiresChestStealer && !ModuleChestStealer.running) {
+                return false
+            }
 
-        return super.isRunning()
-    }
+            return super.running
+        }
 
 }

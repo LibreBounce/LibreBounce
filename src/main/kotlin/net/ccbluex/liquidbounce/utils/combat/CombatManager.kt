@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.handler
 /**
  * A rotation manager
  */
-object CombatManager : Listenable {
+object CombatManager : EventHandler {
 
     // useful for something like autoSoup
     private var pauseCombat: Int = 0

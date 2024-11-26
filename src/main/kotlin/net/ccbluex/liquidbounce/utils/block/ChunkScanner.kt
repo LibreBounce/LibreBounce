@@ -23,7 +23,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -36,7 +36,7 @@ import net.minecraft.world.chunk.WorldChunk
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
 
-object ChunkScanner : Listenable {
+object ChunkScanner : EventHandler {
 
     private val subscribers = CopyOnWriteArrayList<BlockChangeSubscriber>()
 

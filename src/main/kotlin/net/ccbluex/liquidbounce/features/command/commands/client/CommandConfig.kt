@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.io.HttpClient.get
@@ -184,7 +184,7 @@ object CommandConfig {
             .build()
     }
 
-    fun autoComplete(begin: String, validator: (Module) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         return configsCache?.map { it.settingId }?.filter { it.startsWith(begin, true) } ?: emptyList()
     }
 

@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
@@ -19,7 +19,7 @@ import kotlin.concurrent.thread
 /**
  * Notifies you about staff actions.
  */
-object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
+object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
     object VelocityCheck : ToggleableConfigurable(this, "VelocityCheck", true) {
 
@@ -137,7 +137,7 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
         }
 
         fun shouldShowAsStaffOnTab(username: String): Boolean {
-            if (!showInTabList || !ModuleAntiStaff.enabled || !enabled) {
+            if (!showInTabList || !ModuleAntiStaff.running || !enabled) {
                 return false
             }
 
@@ -153,7 +153,7 @@ object ModuleAntiStaff : Module("AntiStaff", Category.MISC) {
 
         }
 
-        override fun isRunning() = ModuleAntiStaff.enabled && enabled
+        override val running = ModuleAntiStaff.running && enabled
 
     }
 

@@ -68,12 +68,12 @@ public class MixinMouse {
 
     @ModifyExpressionValue(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/Perspective;isFirstPerson()Z"))
     private boolean injectZoomCondition1(boolean original) {
-        return original || ModuleZoom.INSTANCE.getEnabled();
+        return original || ModuleZoom.INSTANCE.getRunning();
     }
 
     @ModifyExpressionValue(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingSpyglass()Z"))
     private boolean injectZoomCondition2(boolean original) {
-        return original || ModuleZoom.INSTANCE.getEnabled();
+        return original || ModuleZoom.INSTANCE.getRunning();
     }
 
     @WrapWithCondition(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"), require = 1, allow = 1)

@@ -149,7 +149,7 @@ object EventManager {
     /**
      * Used by handler methods
      */
-    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>) {
+    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>): EventHook<T> {
         val handlers = registry[eventClass]
             ?: error("The event '${eventClass.name}' is not registered in Events.kt::ALL_EVENT_CLASSES.")
 
@@ -160,6 +160,8 @@ object EventManager {
             // `handlers` is sorted descending by EventHook.priority
             handlers.sortedInsert(hook) { -it.priority }
         }
+
+        return eventHook
     }
 
     /**
@@ -176,7 +178,7 @@ object EventManager {
         registry[eventClass]?.removeAll(hooks.toHashSet())
     }
 
-    fun unregisterEventHandler(eventHandler: Listenable) {
+    fun unregisterEventHandler(eventHandler: EventHandler) {
         registry.values.forEach {
             it.removeIf { it.handlerClass == eventHandler }
         }
@@ -199,7 +201,7 @@ object EventManager {
         for (eventHook in target) {
             EventScheduler.process(event)
 
-            if (!eventHook.ignoreRunning && !eventHook.handlerClass.isRunning()) {
+            if (!eventHook.ignoreNotRunning && !eventHook.handlerClass.running) {
                 continue
             }
 

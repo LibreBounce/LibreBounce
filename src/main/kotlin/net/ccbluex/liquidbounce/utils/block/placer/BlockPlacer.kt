@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.FULL_BOX
@@ -57,11 +57,11 @@ import kotlin.math.max
 
 class BlockPlacer(
     name: String,
-    val module: Module,
+    val module: ClientModule,
     val priority: Priority,
     val slotFinder: (BlockPos?) -> HotbarItemSlot?,
     allowSupportPlacements: Boolean = true
-) : Configurable(name), Listenable {
+) : Configurable(name), EventHandler {
 
     val range by float("Range", 4.5f, 1f..6f)
     val wallRange by float("WallRange", 4.5f, 0f..6f)
@@ -442,6 +442,6 @@ class BlockPlacer(
         inaccessible.clear()
     }
 
-    override fun parent(): Listenable = module
+    override fun parent(): EventHandler = module
 
 }

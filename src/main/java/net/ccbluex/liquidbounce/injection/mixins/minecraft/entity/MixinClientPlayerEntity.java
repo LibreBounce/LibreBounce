@@ -184,7 +184,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @ModifyExpressionValue(method = "tickNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;shouldPause()Z"))
     private boolean hookNetherClosingScreen(boolean original) {
-        if (ModulePortalMenu.INSTANCE.getEnabled()) {
+        if (ModulePortalMenu.INSTANCE.getRunning()) {
             return true;
         }
 
@@ -223,7 +223,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean hookSprintAffectStart(boolean original) {
-        if (ModuleNoSlow.INSTANCE.getEnabled()) {
+        if (ModuleNoSlow.INSTANCE.getRunning()) {
             return false;
         }
 
@@ -254,7 +254,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyReturnValue(method = "isAutoJumpEnabled", at = @At("RETURN"))
     private boolean injectLegitStep(boolean original) {
-        if (ModuleStep.INSTANCE.getEnabled() && ModuleStep.Legit.INSTANCE.isActive()) {
+        if (ModuleStep.INSTANCE.getRunning() && ModuleStep.Legit.INSTANCE.isSelected()) {
             return true;
         }
 
@@ -263,7 +263,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @Inject(method = "swingHand", at = @At("HEAD"), cancellable = true)
     private void swingHand(Hand hand, CallbackInfo ci) {
-        if (ModuleNoSwing.INSTANCE.getEnabled()) {
+        if (ModuleNoSwing.INSTANCE.getRunning()) {
             if (!ModuleNoSwing.INSTANCE.shouldHideForServer()) {
                 networkHandler.sendPacket(new HandSwingC2SPacket(hand));
             }
@@ -277,7 +277,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyReturnValue(method = "getMountJumpStrength", at = @At("RETURN"))
     private float hookMountJumpStrength(float original) {
-        if (ModuleEntityControl.INSTANCE.getEnabled() && ModuleEntityControl.INSTANCE.getEnforceJumpStrength()) {
+        if (ModuleEntityControl.INSTANCE.getRunning() && ModuleEntityControl.INSTANCE.getEnforceJumpStrength()) {
             return 1f;
         }
 
@@ -286,7 +286,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerAbilities;allowFlying:Z"))
     private boolean hookFreeCamPreventCreativeFly(boolean original) {
-        return !ModuleFreeCam.INSTANCE.getEnabled() && original;
+        return !ModuleFreeCam.INSTANCE.getRunning() && original;
     }
 
     @ModifyVariable(method = "sendMovementPackets", at = @At("STORE"), ordinal = 2)
@@ -302,7 +302,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
     private boolean hookAutoSprint(boolean original) {
         return !ModuleSuperKnockback.INSTANCE.shouldBlockSprinting() && !ModuleKillAura.INSTANCE.shouldBlockSprinting()
-                && (ModuleSprint.INSTANCE.getEnabled() || original);
+                && (ModuleSprint.INSTANCE.getRunning() || original);
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isWalking()Z"))
@@ -332,7 +332,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSprinting()Z")
     )
     private boolean hookNoHungerSprint(boolean original) {
-        return !(ModuleAntiHunger.INSTANCE.getEnabled() && ModuleAntiHunger.INSTANCE.getNoSprint()) && original;
+        return !(ModuleAntiHunger.INSTANCE.getRunning() && ModuleAntiHunger.INSTANCE.getNoSprint()) && original;
     }
 
     @WrapWithCondition(method = "closeScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))

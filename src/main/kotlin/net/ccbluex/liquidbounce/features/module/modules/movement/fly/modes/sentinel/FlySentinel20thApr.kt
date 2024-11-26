@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePingSpoof
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
@@ -82,7 +82,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
         player.zeroXZ()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         boost()
         waitTicks(reboostTicks)
 

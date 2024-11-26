@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.clickScheduler
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.desyncPlayerPosition
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.stuckChronometer
@@ -26,14 +26,14 @@ import kotlin.math.floor
 
 object ImmediateMode : TpAuraChoice("Immediate") {
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!clickScheduler.goingToClick) {
-            return@repeatable
+            return@tickHandler
         }
 
         val playerPosition = player.pos
         val enemyPosition = targetTracker.enemies().minByOrNull { it.squaredBoxedDistanceTo(playerPosition) }?.pos
-            ?: return@repeatable
+            ?: return@tickHandler
 
         travel(enemyPosition)
         waitTicks(20)

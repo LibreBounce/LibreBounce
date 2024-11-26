@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.math.levenshtein
 import net.minecraft.client.network.AbstractClientPlayerEntity
@@ -61,7 +61,7 @@ object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMo
     }
 
     val repeatable =
-        repeatable {
+        tickHandler {
             assassinModeBs(player, world)
         }
 

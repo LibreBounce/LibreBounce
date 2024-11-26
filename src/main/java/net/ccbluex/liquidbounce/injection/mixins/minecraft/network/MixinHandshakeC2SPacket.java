@@ -11,7 +11,7 @@ public class MixinHandshakeC2SPacket {
 
     @ModifyExpressionValue(method = "write", at = @At(value = "FIELD", target = "Lnet/minecraft/network/packet/c2s/handshake/HandshakeC2SPacket;address:Ljava/lang/String;"))
     private String modifyAddress(String original) {
-        if (ModuleBungeeSpoofer.INSTANCE.getEnabled()) {
+        if (ModuleBungeeSpoofer.INSTANCE.getRunning()) {
             return ModuleBungeeSpoofer.INSTANCE.modifyHandshakeAddress(original);
         }
 

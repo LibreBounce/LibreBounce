@@ -24,8 +24,8 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.downwards
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -53,7 +53,7 @@ class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
         waitTicks(1)
         player.strafe(speed = if (hasSpeed) 0.595 else 0.28)
     }
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val hasSpeed = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) != 0
         if (!player.isOnGround) {
             if (abs(player.fallDistance) > 0 && hasSpeed) {

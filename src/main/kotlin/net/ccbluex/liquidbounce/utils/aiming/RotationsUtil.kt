@@ -19,15 +19,15 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerVelocityStrafe
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
@@ -57,7 +57,7 @@ import kotlin.math.sqrt
  * Configurable to configure the dynamic rotation engine
  */
 open class RotationsConfigurable(
-    owner: Listenable,
+    owner: EventHandler,
     fixVelocity: Boolean = true,
     changeLook: Boolean = false,
     combatSpecific: Boolean = false
@@ -133,7 +133,7 @@ open class RotationsConfigurable(
 /**
  * A rotation manager
  */
-object RotationManager : Listenable {
+object RotationManager : EventHandler {
 
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.
@@ -195,7 +195,7 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module
+        provider: ClientModule
     ) {
         val (rotation, vec) = vecRotation
         aimAt(configurable.toAimPlan(rotation, vec, entity, considerInventory = considerInventory), priority, provider)
@@ -206,7 +206,7 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module,
+        provider: ClientModule,
         whenReached: RestrictedSingleUseAction? = null
     ) {
         aimAt(configurable.toAimPlan(
@@ -214,7 +214,7 @@ object RotationManager : Listenable {
         ), priority, provider)
     }
 
-    fun aimAt(plan: AimPlan, priority: Priority, provider: Module) {
+    fun aimAt(plan: AimPlan, priority: Priority, provider: ClientModule) {
         if (!allowedToUpdate()) {
             return
         }

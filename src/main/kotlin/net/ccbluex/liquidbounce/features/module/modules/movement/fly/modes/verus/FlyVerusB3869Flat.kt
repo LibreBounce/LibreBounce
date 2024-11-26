@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -49,7 +49,7 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
         get() = ModuleFly.modes
 
     val requiresLag
-        get() = this.isRunning()
+        get() = this.running
 
     val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
@@ -71,7 +71,7 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
         event.cancelEvent()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
     }
 

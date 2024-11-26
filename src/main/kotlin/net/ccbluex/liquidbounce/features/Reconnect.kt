@@ -22,7 +22,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.authlib.account.AlteningAccount
 import net.ccbluex.liquidbounce.authlib.account.CrackedAccount
 import net.ccbluex.liquidbounce.authlib.account.MicrosoftAccount
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.AccountManager
@@ -34,7 +34,7 @@ import net.minecraft.client.network.ServerAddress
 import net.minecraft.client.network.ServerInfo
 import org.apache.commons.lang3.RandomStringUtils
 
-object Reconnect : Listenable {
+object Reconnect : EventHandler {
 
     private var lastServer: ServerInfo? = null
 

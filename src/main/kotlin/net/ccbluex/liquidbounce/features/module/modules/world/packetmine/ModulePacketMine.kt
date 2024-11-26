@@ -25,9 +25,9 @@ import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleAutoTool
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.CivMineMode
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.ImmediateMineMode
@@ -69,7 +69,7 @@ import kotlin.math.max
  * @author ccetl
  */
 @Suppress("TooManyFunctions")
-object ModulePacketMine : Module("PacketMine", Category.WORLD) {
+object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
     val mode = choices<MineMode>(
         this,
@@ -144,16 +144,16 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
-        val blockPos = targetPos ?: return@repeatable
+    private val repeatable = tickHandler {
+        val blockPos = targetPos ?: return@tickHandler
         val state = blockPos.getState()!!
         val invalid = mode.activeChoice.isInvalid(blockPos, state)
         if (invalid || blockPos.getCenterDistanceSquaredEyes() > keepRange.sq()) {
             targetPos = null
-            return@repeatable
+            return@tickHandler
         }
 
-        val rotation = handleRotating(blockPos, state) ?: return@repeatable
+        val rotation = handleRotating(blockPos, state) ?: return@tickHandler
         handleBreaking(blockPos, state, rotation)
     }
 
@@ -268,7 +268,7 @@ object ModulePacketMine : Module("PacketMine", Category.WORLD) {
         }
 
         val shouldSwitch = switchMode.shouldSwitch()
-        if (shouldSwitch && ModuleAutoTool.enabled) {
+        if (shouldSwitch && ModuleAutoTool.running) {
             ModuleAutoTool.switchToBreakBlock(pos)
         } else if (shouldSwitch) {
             SilentHotbar.selectSlotSilently(this, slot.firstInt(), 1)

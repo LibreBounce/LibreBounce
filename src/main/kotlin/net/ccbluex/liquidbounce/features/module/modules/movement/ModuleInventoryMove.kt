@@ -22,9 +22,9 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.formatAsTime
 import net.ccbluex.liquidbounce.utils.client.notification
@@ -40,7 +40,7 @@ import net.minecraft.item.ItemGroups
  * Allows you to walk while an inventory is opened.
  */
 
-object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
+object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
     private val undetectable by boolean("Undetectable", false)
     private val passthroughSneak by boolean("PassthroughSneak", false)
@@ -54,7 +54,7 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
 
         private val chronometer = Chronometer()
 
-        fun shouldLag() = ModuleInventoryMove.enabled && this.enabled && mc.currentScreen is HandledScreen<*>
+        fun shouldLag() = ModuleInventoryMove.running && this.enabled && mc.currentScreen is HandledScreen<*>
 
         val screenHandler = handler<ScreenEvent> {
             if (it.screen is HandledScreen<*>) {
@@ -65,7 +65,7 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
             }
         }
 
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (shouldLag() && chronometer.hasElapsed(maximumTime.toLong())) {
                 player.closeHandledScreen()
                 notification("InventoryMove", message("blinkEnd"), NotificationEvent.Severity.INFO)
@@ -79,7 +79,7 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
     }
 
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {
-        if (!enabled || mc.currentScreen is ChatScreen || isInCreativeSearchField()) {
+        if (!running || mc.currentScreen is ChatScreen || isInCreativeSearchField()) {
             return false
         }
 

@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -40,7 +40,7 @@ object CommandValue {
             .begin("value")
             .parameter(
                 ParameterBuilder
-                    .begin<Module>("moduleName")
+                    .begin<ClientModule>("moduleName")
                     .verifiedBy(ParameterBuilder.MODULE_VALIDATOR)
                     .autocompletedWith(ModuleManager::autoComplete)
                     .required()
@@ -70,7 +70,7 @@ object CommandValue {
                     .build()
             )
             .handler { command, args ->
-                val module = args[0] as Module
+                val module = args[0] as ClientModule
                 val valueName = args[1] as String
                 val valueString = args[2] as String
 

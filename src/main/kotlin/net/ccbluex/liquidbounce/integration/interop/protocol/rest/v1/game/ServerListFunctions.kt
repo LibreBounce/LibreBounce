@@ -28,7 +28,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.ResourcePolicy
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.pingThemAll
@@ -176,7 +176,7 @@ fun postOrderServers(requestObject: RequestObject): FullHttpResponse {
     return httpOk(JsonObject())
 }
 
-object ActiveServerList : Listenable {
+object ActiveServerList : EventHandler {
 
     internal var serverList = ServerList(mc).apply { loadFile() }
 
@@ -231,7 +231,7 @@ object ActiveServerList : Listenable {
         serverListPinger.tick()
     }
 
-    override fun isRunning() = true
+    override val running = true
 
 }
 

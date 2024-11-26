@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.autobuild
 
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.world.autobuild.ModuleAutoBuild.placer
 import net.ccbluex.liquidbounce.utils.block.getState
@@ -43,7 +43,7 @@ object PlatformMode : ModuleAutoBuild.AutoBuildMode("Platform") {
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (disableOnYChange && player.pos.y != startY) {
             ModuleAutoBuild.enabled = false
         }

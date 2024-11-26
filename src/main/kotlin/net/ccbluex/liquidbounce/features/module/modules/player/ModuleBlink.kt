@@ -25,12 +25,12 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMovementTickEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag.findAvoidingArrowPosition
 import net.ccbluex.liquidbounce.features.fakelag.FakeLag.getInflictedHit
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.client.network.OtherClientPlayerEntity
@@ -44,7 +44,7 @@ import java.util.*
  * Makes it look as if you were teleporting to other players.
  */
 
-object ModuleBlink : Module("Blink", Category.PLAYER) {
+object ModuleBlink : ClientModule("Blink", Category.PLAYER) {
 
     private val dummy by boolean("Dummy", false)
     private val ambush by boolean("Ambush", false)
@@ -104,12 +104,13 @@ object ModuleBlink : Module("Blink", Category.PLAYER) {
         }
     }
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickTask = tickHandler {
         if (evadeArrows) {
-            val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@repeatable
+            val (playerPosition, _, _) = FakeLag.firstPosition() ?: return@tickHandler
 
             if (getInflictedHit(playerPosition) == null) {
-                return@repeatable
+                return@tickHandler
             }
 
             val evadingPacket = findAvoidingArrowPosition()
@@ -132,7 +133,8 @@ object ModuleBlink : Module("Blink", Category.PLAYER) {
         }
     }
 
-    val playerMoveHandler = handler<PlayerMovementTickEvent> {
+    @Suppress("unused")
+    private val playerMoveHandler = handler<PlayerMovementTickEvent> {
         if (AutoResetOption.enabled && FakeLag.positions.count() > AutoResetOption.resetAfter) {
             when (AutoResetOption.action) {
                 ResetAction.RESET -> FakeLag.cancel()
@@ -143,8 +145,9 @@ object ModuleBlink : Module("Blink", Category.PLAYER) {
             }
 
             notification("Blink", "Auto reset", NotificationEvent.Severity.INFO)
-            if (autoDisable)
+            if (autoDisable) {
                 enabled = false
+            }
         }
     }
 

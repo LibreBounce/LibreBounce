@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.authlib.yggdrasil.clientIdentifier
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.ListValueType
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.AccountManagerAdditionResultEvent
 import net.ccbluex.liquidbounce.event.events.AccountManagerLoginResultEvent
 import net.ccbluex.liquidbounce.event.events.SessionEvent
@@ -39,7 +39,7 @@ import net.minecraft.client.session.Session
 import java.net.Proxy
 import java.util.*
 
-object AccountManager : Configurable("Accounts"), Listenable {
+object AccountManager : Configurable("Accounts"), EventHandler {
 
     val accounts by value(name, mutableListOf<MinecraftAccount>(), listType = ListValueType.Account)
 

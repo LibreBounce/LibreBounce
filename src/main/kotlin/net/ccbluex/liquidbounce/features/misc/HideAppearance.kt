@@ -20,9 +20,9 @@ package net.ccbluex.liquidbounce.features.misc
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.event.EventHandler
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -43,7 +43,7 @@ import kotlin.concurrent.thread
  *
  * using 2x CRTL + SHIFT to hide and unhide the client
  */
-object HideAppearance : Listenable {
+object HideAppearance : EventHandler {
 
     val shiftChronometer = Chronometer()
 
@@ -68,7 +68,7 @@ object HideAppearance : Listenable {
     }
 
     @Suppress("unused")
-    val keyHandler = handler<KeyboardKeyEvent>(ignoreCondition = true) {
+    val keyHandler = handler<KeyboardKeyEvent>(ignoreNotRunning = true) {
         val keyCode = it.keyCode
         val modifier = it.mods
 
