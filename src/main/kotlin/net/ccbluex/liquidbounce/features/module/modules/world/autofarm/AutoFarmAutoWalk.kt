@@ -24,12 +24,12 @@ import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.inventory.hasInventorySpace
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.ItemEntity
 import net.minecraft.util.math.Vec3d
@@ -39,27 +39,38 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
     // Makes the player move to farmland blocks where there is a need for crop replacement
     private val toPlace by boolean("ToPlace", true)
 
-    private val toItems by boolean("ToItems", true)
+    private val ToItems = object : ToggleableConfigurable(this, "ToItems", true) {
+        private val range by float("Range", 20f, 8f..64f).onChanged {
+            rangeSquared = it.sq()
+        }
+
+        var rangeSquared: Float = range.sq()
+    }
 
     private val autoJump by boolean("AutoJump", false)
+
+    init {
+        tree(ToItems)
+    }
 
     private var invHadSpace = true
 
     var walkTarget: Vec3d? = null
 
-    private fun findWalkToItem() = world.entities.filter { it is ItemEntity && it.squaredDistanceTo(player) < 20 * 20 }
-        .minByOrNull { it.squaredDistanceTo(player) }?.pos
+    private fun findWalkToItem() = world.entities.filter {
+        it is ItemEntity && it.squaredDistanceTo(player) < ToItems.rangeSquared
+    }.minByOrNull { it.squaredDistanceTo(player) }?.pos
 
     fun updateWalkTarget(): Boolean {
         if (!enabled) return false
 
         val invHasSpace = hasInventorySpace()
-        if (!invHasSpace && invHadSpace && toItems) {
+        if (!invHasSpace && invHadSpace && ToItems.enabled) {
             notification("Inventory is Full", "autoFarm wont walk to items", NotificationEvent.Severity.ERROR)
         }
         invHadSpace = invHasSpace
 
-        walkTarget = if (toItems && invHasSpace) {
+        walkTarget = if (ToItems.enabled && invHasSpace) {
             arrayOf(findWalkToBlock(), findWalkToItem()).minByOrNull {
                 it?.squaredDistanceTo(player.pos) ?: Double.MAX_VALUE
             }
