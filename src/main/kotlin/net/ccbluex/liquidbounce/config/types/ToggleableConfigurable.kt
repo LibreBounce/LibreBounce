@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.config.types
 
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 
@@ -31,10 +31,10 @@ import net.ccbluex.liquidbounce.script.ScriptApiRequired
  * it also features [enable] and [disable] which are called when the state is toggled.
  */
 abstract class ToggleableConfigurable(
-    @Exclude @ProtocolExclude val parent: EventHandler? = null,
+    @Exclude @ProtocolExclude val parent: EventListener? = null,
     name: String,
     enabled: Boolean
-) : EventHandler, Configurable(name, valueType = ValueType.TOGGLEABLE), MinecraftShortcuts {
+) : EventListener, Configurable(name, valueType = ValueType.TOGGLEABLE), MinecraftShortcuts {
 
     // TODO: Make enabled change also call newState
     var enabled by boolean("Enabled", enabled)

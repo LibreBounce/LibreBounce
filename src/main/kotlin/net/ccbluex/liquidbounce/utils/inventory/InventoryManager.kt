@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.utils.inventory
 
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
@@ -53,7 +53,7 @@ import kotlin.random.Random
  *  - Progress Bar
  *  - Off-screen actions
  */
-object InventoryManager : EventHandler {
+object InventoryManager : EventListener {
 
     var isInventoryOpenServerSide = false
         internal set

@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -94,7 +94,7 @@ private val modules = ArrayList<ClientModule>(256)
 /**
  * A fairly simple module manager
  */
-object ModuleManager : EventHandler, Iterable<ClientModule> by modules {
+object ModuleManager : EventListener, Iterable<ClientModule> by modules {
 
     val modulesConfigurable = ConfigSystem.root("modules", modules)
 

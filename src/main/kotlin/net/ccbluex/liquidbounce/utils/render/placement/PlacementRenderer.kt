@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.utils.render.placement
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -42,7 +42,7 @@ import net.minecraft.util.math.Box
 open class PlacementRenderer(
     name: String,
     enabled: Boolean,
-    val module: EventHandler,
+    val module: EventListener,
     val keep: Boolean = true,
     clump: Boolean = true,
     defaultColor: Color4b = Color4b(0, 255, 0, 90)

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -32,7 +32,7 @@ object VelocityIntave : Choice("Intave") {
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    private class ReduceOnAttack(parent: EventHandler?) : ToggleableConfigurable(
+    private class ReduceOnAttack(parent: EventListener?) : ToggleableConfigurable(
         parent, "ReduceOnAttack",
         true
     ) {
@@ -54,7 +54,7 @@ object VelocityIntave : Choice("Intave") {
         tree(ReduceOnAttack(this))
     }
 
-    private class JumpReset(parent: EventHandler?) : ToggleableConfigurable(
+    private class JumpReset(parent: EventListener?) : ToggleableConfigurable(
         parent, "JumpReset",
         true
     ) {

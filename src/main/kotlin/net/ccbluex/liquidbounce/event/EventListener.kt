@@ -24,13 +24,13 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 typealias Handler<T> = (T) -> Unit
 
 class EventHook<T : Event>(
-    val handlerClass: EventHandler,
+    val handlerClass: EventListener,
     val handler: Handler<T>,
     val ignoreNotRunning: Boolean,
     val priority: Int = 0
 )
 
-interface EventHandler {
+interface EventListener {
 
     /**
      * Returns whether the listenable is running or not, this is based on the parent listenable
@@ -47,12 +47,12 @@ interface EventHandler {
     /**
      * Parent listenable
      */
-    fun parent(): EventHandler? = null
+    fun parent(): EventListener? = null
 
     /**
      * Children listenables
      */
-    fun children(): List<EventHandler> = emptyList()
+    fun children(): List<EventListener> = emptyList()
 
     /**
      * Unregisters the event handler from the manager. This decision is FINAL!
@@ -68,7 +68,7 @@ interface EventHandler {
 
 }
 
-inline fun <reified T : Event> EventHandler.handler(
+inline fun <reified T : Event> EventListener.handler(
     ignoreNotRunning: Boolean = false,
     priority: Int = 0,
     noinline handler: Handler<T>
@@ -81,7 +81,7 @@ inline fun <reified T : Event> EventHandler.handler(
 /**
  * Registers an event hook for events of type [T] and launches a sequence
  */
-inline fun <reified T : Event> EventHandler.sequenceHandler(
+inline fun <reified T : Event> EventListener.sequenceHandler(
     ignoreNotRunning: Boolean = false,
     priority: Int = 0,
     noinline eventHandler: SuspendableHandler<T>
@@ -92,7 +92,7 @@ inline fun <reified T : Event> EventHandler.sequenceHandler(
 /**
  * Registers a repeatable sequence which repeats the execution of code on GameTickEvent.
  */
-fun EventHandler.tickHandler(eventHandler: SuspendableHandler<DummyEvent>) {
+fun EventListener.tickHandler(eventHandler: SuspendableHandler<DummyEvent>) {
     // We store our sequence in this variable.
     // That can be done because our variable will survive the scope of this function
     // and can be used in the event handler function. This is a very useful pattern to use in Kotlin.

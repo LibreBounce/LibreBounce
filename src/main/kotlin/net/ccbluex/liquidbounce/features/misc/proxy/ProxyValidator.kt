@@ -8,7 +8,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.handler.timeout.ReadTimeoutHandler
 import net.ccbluex.liquidbounce.api.IpInfoApi
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -58,7 +58,7 @@ import kotlin.jvm.optionals.getOrNull
 private const val PING_SERVER = "ping.liquidproxy.net"
 private const val PING_TIMEOUT = 5
 
-class ClientConnectionTicker(private val clientConnection: ClientConnection) : EventHandler {
+class ClientConnectionTicker(private val clientConnection: ClientConnection) : EventListener {
     @Suppress("unused")
     private val tickHandler = handler<GameTickEvent> {
         clientConnection.tick()

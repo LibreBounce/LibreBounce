@@ -22,7 +22,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.nc
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -42,7 +42,7 @@ import net.minecraft.entity.effect.StatusEffects
  */
 class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP", parent) {
 
-    private inner class PullDown(parent: EventHandler?) : ToggleableConfigurable(parent, "PullDown", true) {
+    private inner class PullDown(parent: EventListener?) : ToggleableConfigurable(parent, "PullDown", true) {
 
         private val motionMultiplier by float("MotionMultiplier", 1f, 0.01f..10f)
         private val onTick by int("OnTick", 5, 1..9)
@@ -73,7 +73,7 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
         tree(PullDown(this))
     }
 
-    private inner class Boost(parent: EventHandler?) : ToggleableConfigurable(parent, "Boost", true) {
+    private inner class Boost(parent: EventListener?) : ToggleableConfigurable(parent, "Boost", true) {
         private val initialBoostMultiplier by float("InitialBoostMultiplier", 1f, 0.01f..10f)
 
         @Suppress("unused")

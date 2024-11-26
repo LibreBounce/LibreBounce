@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
@@ -56,7 +56,7 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
  */
 class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom") {
 
-    private class HorizontalModification(parent: EventHandler?) : ToggleableConfigurable(parent,
+    private class HorizontalModification(parent: EventListener?) : ToggleableConfigurable(parent,
         "HorizontalModification", true) {
 
         private val horizontalAcceleration by float("HorizontalAcceleration", 0f, -0.1f..0.2f)
@@ -89,7 +89,7 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
 
     }
 
-    private class VerticalModification(parent: EventHandler?) : ToggleableConfigurable(parent,
+    private class VerticalModification(parent: EventListener?) : ToggleableConfigurable(parent,
         "VerticalModification", true) {
 
         private val jumpHeight by float("JumpHeight", 0.42f, 0.0f..3f)
@@ -114,7 +114,7 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
 
     }
 
-    private class Strafe(parent: EventHandler?) : ToggleableConfigurable(parent, "Strafe", true) {
+    private class Strafe(parent: EventListener?) : ToggleableConfigurable(parent, "Strafe", true) {
 
         private val strength by float("Strength", 1f, 0.1f..1f)
 

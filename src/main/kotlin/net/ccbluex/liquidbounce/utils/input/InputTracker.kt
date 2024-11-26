@@ -19,7 +19,7 @@
 
 package net.ccbluex.liquidbounce.utils.input
 
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -32,7 +32,7 @@ import org.lwjgl.glfw.GLFW
  * It listens for mouse button events and provides utility functions to check if
  * a key or mouse button is currently pressed.
  */
-object InputTracker : EventHandler {
+object InputTracker : EventListener {
 
     // Tracks the state of each mouse button (pressed or not).
     private val mouseStates = mutableMapOf<Int, Boolean>()

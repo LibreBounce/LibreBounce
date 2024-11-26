@@ -20,14 +20,14 @@ package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.event.ALL_EVENT_CLASSES
 import net.ccbluex.liquidbounce.event.Event
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Useful for sending actions to other events.
  */
-object EventScheduler : EventHandler {
+object EventScheduler : EventListener {
 
     /**
      * Maps the event class to the scheduled tasks that currently wait for it.

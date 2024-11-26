@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 /**
  * Executes code right after the client sent the normal movement packet or at the start of the next tick.
  */
-object PostRotationExecutor : EventHandler {
+object PostRotationExecutor : EventListener {
 
     /**
      * This should be used by actions that depend on the rotation sent in the tick movement packet.

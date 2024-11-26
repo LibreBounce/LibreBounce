@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -29,7 +29,7 @@ import net.minecraft.util.math.Vec3d
 import org.joml.Matrix4f
 import org.joml.Vector3f
 
-object WorldToScreen: EventHandler {
+object WorldToScreen: EventListener {
 
     private var mvMatrix: Matrix4f? = null
     private var projectionMatrix: Matrix4f? = null

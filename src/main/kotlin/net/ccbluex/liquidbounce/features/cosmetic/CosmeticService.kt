@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -48,7 +48,7 @@ import kotlin.concurrent.thread
  * shown immediately when account switches, but we can reduce the stress
  * on the API and the connection of the user.
  */
-object CosmeticService : EventHandler, Configurable("Cosmetics") {
+object CosmeticService : EventListener, Configurable("Cosmetics") {
 
     private const val COSMETICS_API = "$API_V3_ENDPOINT/cosmetics"
     private const val CARRIERS_URL = "$COSMETICS_API/carriers"

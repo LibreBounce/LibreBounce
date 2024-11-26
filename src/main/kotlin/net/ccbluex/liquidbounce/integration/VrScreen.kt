@@ -32,11 +32,11 @@ class VrScreen(
     val originalScreen: Screen? = null) : Screen("VS-${screenType.routeName.uppercase()}".asText()) {
 
     override fun init() {
-        IntegrationHandler.virtualOpen(theme, screenType)
+        IntegrationListener.virtualOpen(theme, screenType)
     }
 
     override fun close() {
-        IntegrationHandler.virtualClose()
+        IntegrationListener.virtualClose()
         mc.mouse.lockCursor()
         super.close()
     }

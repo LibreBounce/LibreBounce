@@ -29,7 +29,7 @@ import kotlin.coroutines.suspendCoroutine
 
 typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
 
-object SequenceManager : EventHandler {
+object SequenceManager : EventListener {
 
     // Running sequences
     internal val sequences = Lists.newCopyOnWriteArrayList<Sequence<*>>()
@@ -56,7 +56,7 @@ object SequenceManager : EventHandler {
 
 }
 
-open class Sequence<T : Event>(val owner: EventHandler, val handler: SuspendableHandler<T>, protected val event: T) {
+open class Sequence<T : Event>(val owner: EventListener, val handler: SuspendableHandler<T>, protected val event: T) {
 
     private var coroutine: Job
 
@@ -177,7 +177,7 @@ open class Sequence<T : Event>(val owner: EventHandler, val handler: Suspendable
 
 class DummyEvent : Event()
 
-class TickSequence(owner: EventHandler, handler: SuspendableHandler<DummyEvent>)
+class TickSequence(owner: EventListener, handler: SuspendableHandler<DummyEvent>)
     : Sequence<DummyEvent>(owner, handler, DummyEvent()) {
 
     private var continueLoop = true

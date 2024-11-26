@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.integration.browser
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
@@ -32,7 +32,7 @@ import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 
-class BrowserDrawer(val browser: () -> IBrowser?) : EventHandler {
+class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
 
     private val tabs
         get() = browser()?.getTabs() ?: emptyList()

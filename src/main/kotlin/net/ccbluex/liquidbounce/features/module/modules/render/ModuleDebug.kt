@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
@@ -161,7 +161,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         debuggedOwners.onEach { (owner, parameter) ->
             val ownerName = when (owner) {
                 is ClientModule -> owner.name
-                is EventHandler -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
+                is EventListener -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
                 else -> owner.javaClass.simpleName
             }
 

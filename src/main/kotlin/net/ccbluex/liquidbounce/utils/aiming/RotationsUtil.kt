@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -57,7 +57,7 @@ import kotlin.math.sqrt
  * Configurable to configure the dynamic rotation engine
  */
 open class RotationsConfigurable(
-    owner: EventHandler,
+    owner: EventListener,
     fixVelocity: Boolean = true,
     changeLook: Boolean = false,
     combatSpecific: Boolean = false
@@ -133,7 +133,7 @@ open class RotationsConfigurable(
 /**
  * A rotation manager
  */
-object RotationManager : EventHandler {
+object RotationManager : EventListener {
 
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.

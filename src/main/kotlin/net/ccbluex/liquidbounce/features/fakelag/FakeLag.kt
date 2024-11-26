@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.fakelag
 
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleFakeLag
@@ -67,7 +67,7 @@ import net.minecraft.util.math.Vec3d
  *
  * Simulates lag by holding back packets.
  */
-object FakeLag : EventHandler {
+object FakeLag : EventListener {
 
     /**
      * Whether we are lagging.

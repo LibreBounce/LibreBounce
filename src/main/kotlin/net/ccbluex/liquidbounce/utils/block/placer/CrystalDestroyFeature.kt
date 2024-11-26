@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.block.placer
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 
-class CrystalDestroyFeature(eventHandler: EventHandler, private val module: ClientModule) :
-    ToggleableConfigurable(eventHandler, "DestroyCrystals", true) {
+class CrystalDestroyFeature(eventListener: EventListener, private val module: ClientModule) :
+    ToggleableConfigurable(eventListener, "DestroyCrystals", true) {
 
     private val range by float("Range", 4.5f, 1f..6f)
     private val wallRange by float("WallRange", 4.5f, 0f..6f)

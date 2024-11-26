@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.config.types
 
-import net.ccbluex.liquidbounce.event.EventHandler
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
@@ -244,12 +244,12 @@ open class Configurable(
         ChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this) }
 
     fun <T : Choice> choices(
-        eventHandler: EventHandler,
+        eventListener: EventListener,
         name: String,
         active: T,
         choices: Array<T>
     ): ChoiceConfigurable<T> {
-        return ChoiceConfigurable<T>(eventHandler, name, { active }) { choices }.apply {
+        return ChoiceConfigurable<T>(eventListener, name, { active }) { choices }.apply {
             this@Configurable.inner.add(this)
             this.base = this@Configurable
         }
@@ -260,23 +260,23 @@ open class Configurable(
         ReplaceWith("choices(listenable, name, activeIndex, choicesCallback)")
     )
     fun <T : Choice> choices(
-        eventHandler: EventHandler,
+        eventListener: EventListener,
         name: String,
         activeCallback: (ChoiceConfigurable<T>) -> T,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ): ChoiceConfigurable<T> {
-        return ChoiceConfigurable(eventHandler, name, activeCallback, choicesCallback).apply {
+        return ChoiceConfigurable(eventListener, name, activeCallback, choicesCallback).apply {
             this@Configurable.inner.add(this)
             this.base = this@Configurable
         }
     }
 
     protected fun <T : Choice> choices(
-        eventHandler: EventHandler,
+        eventListener: EventListener,
         name: String,
         activeIndex: Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(eventHandler, name, { it.choices[activeIndex] }, choicesCallback)
+    ) = choices(eventListener, name, { it.choices[activeIndex] }, choicesCallback)
 
     fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }
 

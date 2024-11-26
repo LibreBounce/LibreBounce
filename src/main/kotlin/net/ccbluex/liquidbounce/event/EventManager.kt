@@ -178,9 +178,9 @@ object EventManager {
         registry[eventClass]?.removeAll(hooks.toHashSet())
     }
 
-    fun unregisterEventHandler(eventHandler: EventHandler) {
+    fun unregisterEventHandler(eventListener: EventListener) {
         registry.values.forEach {
-            it.removeIf { it.handlerClass == eventHandler }
+            it.removeIf { it.handlerClass == eventListener }
         }
     }
 
