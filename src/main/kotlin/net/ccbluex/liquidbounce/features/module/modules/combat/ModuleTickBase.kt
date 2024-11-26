@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.render.drawLineStrip
@@ -42,7 +42,7 @@ import kotlin.math.min
  *
  * Calls tick function to speed up, when needed
  */
-internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
+internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
     /**
      * The range defines where we want to tickbase into. The first value is the minimum range, which we can
@@ -70,7 +70,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
     @Suppress("unused")
     private val tickHandler = handler<PlayerTickEvent> {
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.enabled) {
+        if (player.vehicle != null || ModuleBlink.running) {
             return@handler
         }
 
@@ -84,7 +84,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
     @Suppress("unused")
     private val postTickHandler = sequenceHandler<PlayerPostTickEvent> {
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.enabled || duringTickModification) {
+        if (player.vehicle != null || ModuleBlink.running || duringTickModification) {
             return@sequenceHandler
         }
 
@@ -124,7 +124,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
         }
 
         // We do not want to tickbase if killaura is not ready to attack
-        if (requiresKillAura && !(ModuleKillAura.enabled &&
+        if (requiresKillAura && !(ModuleKillAura.running &&
                 ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))) {
             return@sequenceHandler
         }
@@ -147,7 +147,7 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
     @Suppress("unused")
     private val inputHandler = handler<MovementInputEvent> { event ->
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.enabled) {
+        if (player.vehicle != null || ModuleBlink.running) {
             return@handler
         }
 

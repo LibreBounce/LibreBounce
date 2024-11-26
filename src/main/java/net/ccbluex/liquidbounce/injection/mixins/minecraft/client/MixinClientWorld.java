@@ -37,7 +37,7 @@ public class MixinClientWorld {
 
     @ModifyReturnValue(method = "getBlockParticle", at = @At("RETURN"))
     private Block injectBlockParticle(Block original) {
-        if (ModuleTrueSight.INSTANCE.getEnabled() && ModuleTrueSight.INSTANCE.getBarriers()) {
+        if (ModuleTrueSight.INSTANCE.getRunning() && ModuleTrueSight.INSTANCE.getBarriers()) {
             return Blocks.BARRIER;
         }
         return original;

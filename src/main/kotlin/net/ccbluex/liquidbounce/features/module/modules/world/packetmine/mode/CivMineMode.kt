@@ -73,7 +73,7 @@ object CivMineMode : MineMode("Civ", stopOnStateChange = false) {
         val oldSlot = player.inventory.selectedSlot
         val state = world.getBlockState(blockPos)
         var shouldSwitch = switch && state.isToolRequired
-        if (shouldSwitch && ModuleAutoTool.enabled) {
+        if (shouldSwitch && ModuleAutoTool.running) {
             ModuleAutoTool.switchToBreakBlock(blockPos)
             shouldSwitch = false
         } else if (shouldSwitch) {

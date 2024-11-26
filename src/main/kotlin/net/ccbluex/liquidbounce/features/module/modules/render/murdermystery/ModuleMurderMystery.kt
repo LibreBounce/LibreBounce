@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.network.AbstractClientPlayerEntity
@@ -38,7 +38,7 @@ import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket
 import net.minecraft.sound.SoundEvent
 import net.minecraft.util.Identifier
 
-object ModuleMurderMystery : Module("MurderMystery", Category.RENDER) {
+object ModuleMurderMystery : ClientModule("MurderMystery", Category.RENDER) {
     var playHurt = false
     var playBow = false
 
@@ -157,7 +157,7 @@ object ModuleMurderMystery : Module("MurderMystery", Category.RENDER) {
     }
 
     fun disallowsArrowDodge(): Boolean {
-        if (!enabled) {
+        if (!running) {
             return false
         }
 

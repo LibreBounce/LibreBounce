@@ -4,8 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandPlayerTeleport
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandTeleport
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandVClip
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -14,7 +17,14 @@ import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.floor
 
-object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("tp")) {
+/**
+ * Teleport Module
+ *
+ * Configuration for teleport commands.
+ *
+ * Commands: [CommandVClip], [CommandTeleport], [CommandPlayerTeleport]
+ */
+object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arrayOf("tp")) {
 
     private val allFull by boolean("AllFullPacket", false)
     private val paperExploit by boolean("PaperBypass", false)

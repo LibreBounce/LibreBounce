@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.minecraft.entity.player.PlayerEntity
@@ -34,7 +34,7 @@ import net.minecraft.util.Hand
 /**
  * This module allows the user to block with swords. This makes sense to be used on servers with ViaVersion.
  */
-object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayOf("OldBlocking")) {
+object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = arrayOf("OldBlocking")) {
 
     val onlyVisual by boolean("OnlyVisual", false)
     val hideShieldSlot by boolean("HideShieldSlot", false).doNotIncludeAlways()
@@ -45,8 +45,8 @@ object ModuleSwordBlock : Module("SwordBlock", Category.COMBAT, aliases = arrayO
         player: PlayerEntity = this.player,
         offHandItem: Item = player.offHandStack.item,
         mainHandItem: Item = player.mainHandStack.item,
-    ) = (isRunning() || AutoBlock.blockVisual) && offHandItem is ShieldItem
-        && (mainHandItem is SwordItem || player === this.player && isRunning() && alwaysHideShield)
+    ) = (running || AutoBlock.blockVisual) && offHandItem is ShieldItem
+        && (mainHandItem is SwordItem || player === this.player && running && alwaysHideShield)
 
     @Suppress("UNUSED")
     private val packetHandler = sequenceHandler<PacketEvent> {

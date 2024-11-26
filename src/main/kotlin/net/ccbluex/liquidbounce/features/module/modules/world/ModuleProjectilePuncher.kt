@@ -20,9 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
@@ -44,7 +44,7 @@ import net.minecraft.util.math.MathHelper
  *
  * Shoots back incoming projectiles around you.
  */
-object ModuleProjectilePuncher : Module("ProjectilePuncher", Category.WORLD, aliases = arrayOf("AntiFireball")) {
+object ModuleProjectilePuncher : ClientModule("ProjectilePuncher", Category.WORLD, aliases = arrayOf("AntiFireball")) {
 
     private val clickScheduler = tree(ClickScheduler(ModuleProjectilePuncher, false))
 
@@ -70,8 +70,8 @@ object ModuleProjectilePuncher : Module("ProjectilePuncher", Category.WORLD, ali
         updateTarget()
     }
 
-    val repeatable = repeatable {
-        val target = target ?: return@repeatable
+    val repeatable = tickHandler {
+        val target = target ?: return@tickHandler
 
         if (target.squaredBoxedDistanceTo(player) > range * range ||
             !facingEnemy(
@@ -80,7 +80,7 @@ object ModuleProjectilePuncher : Module("ProjectilePuncher", Category.WORLD, ali
                 range = range.toDouble(),
                 wallsRange = 0.0
             )) {
-            return@repeatable
+            return@tickHandler
         }
 
         clickScheduler.clicks {

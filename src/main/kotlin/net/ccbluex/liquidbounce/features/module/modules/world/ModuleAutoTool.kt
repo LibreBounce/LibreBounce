@@ -22,7 +22,7 @@ import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.minecraft.block.BlockState
@@ -35,7 +35,7 @@ import net.minecraft.util.math.BlockPos
  *
  * Automatically chooses the best tool in your inventory to mine a block.
  */
-object ModuleAutoTool : Module("AutoTool", Category.WORLD) {
+object ModuleAutoTool : ClientModule("AutoTool", Category.WORLD) {
 
     // Ignore items with low durability
     private val ignoreDurability by boolean("IgnoreDurability", false)
@@ -72,7 +72,7 @@ object ModuleAutoTool : Module("AutoTool", Category.WORLD) {
     }
 
     fun getTool(inventory: PlayerInventory, blockState: BlockState?): IntObjectImmutablePair<ItemStack>? {
-        if (search || !enabled) {
+        if (search || !running) {
             val (hotbarSlot, stack) =
                 (0..8).map {
                     it to inventory.getStack(it)

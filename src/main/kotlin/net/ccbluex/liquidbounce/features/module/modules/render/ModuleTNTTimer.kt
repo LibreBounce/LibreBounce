@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -40,7 +40,7 @@ import kotlin.math.sin
  *
  * Highlight the active TNTs.
  */
-object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
+object ModuleTNTTimer : ClientModule("TNTTimer", Category.RENDER) {
 
     override val baseKey: String
         get() = "liquidbounce.module.tntTimer"

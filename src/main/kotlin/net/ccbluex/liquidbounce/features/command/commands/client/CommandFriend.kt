@@ -20,27 +20,28 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
-import net.ccbluex.liquidbounce.features.command.builder.*
+import net.ccbluex.liquidbounce.features.command.CommandFactory
+import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
+import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.features.command.builder.playerParameter
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.utils.client.bypassNameProtection
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.util.Formatting
 
 private const val MSG_NO_FRIENDS = "noFriends"
 private const val MSG_SUCCESS = "success"
+private const val MESSAGE_ID = "CFriend#info"
 
 /**
  * Friend Command
  *
  * Provides subcommands related to managing friends, such as adding, removing, aliasing, listing, and clearing friends.
  */
-object CommandFriend {
+object CommandFriend : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("friend")
             .hub()
@@ -61,7 +62,10 @@ object CommandFriend {
                 } else {
                     FriendManager.friends.clear()
 
-                    chat(regular(command.result(MSG_SUCCESS)))
+                    chat(
+                        regular(command.result(MSG_SUCCESS)),
+                        metadata = MessageMetadata(id = MESSAGE_ID)
+                    )
                 }
             }
             .build()
@@ -72,8 +76,14 @@ object CommandFriend {
             .begin("list")
             .handler { command, _ ->
                 if (FriendManager.friends.isEmpty()) {
-                    chat(command.result(MSG_NO_FRIENDS))
+                    chat(
+                        command.result(MSG_NO_FRIENDS),
+                        metadata = MessageMetadata(id = MESSAGE_ID)
+                    )
                 } else {
+                    mc.inGameHud.chatHud.removeMessage(MESSAGE_ID)
+                    val data = MessageMetadata(id = MESSAGE_ID, remove = false)
+
                     FriendManager.friends.forEachIndexed { index, friend ->
                         val alias = friend.alias ?: friend.getDefaultName(index)
                         val copyText = regular("Copy ${friend.name}")
@@ -102,7 +112,8 @@ object CommandFriend {
                             regular(" ("),
                             variable(alias),
                             regular(") "),
-                            removeButton
+                            removeButton,
+                            metadata = data
                         )
                     }
                 }
@@ -142,7 +153,10 @@ object CommandFriend {
                 if (friend != null) {
                     friend.alias = args[1] as String
 
-                    chat(regular(command.result(MSG_SUCCESS, variable(name), variable(args[1] as String))))
+                    chat(
+                        regular(command.result(MSG_SUCCESS, variable(name), variable(args[1] as String))),
+                        metadata = MessageMetadata(id = MESSAGE_ID)
+                    )
                 } else {
                     throw CommandException(command.result("notFriends", variable(name)))
                 }
@@ -164,7 +178,10 @@ object CommandFriend {
                 val friend = FriendManager.Friend(args[0] as String, null)
 
                 if (FriendManager.friends.remove(friend)) {
-                    chat(regular(command.result(MSG_SUCCESS, variable(friend.name))))
+                    chat(
+                        regular(command.result(MSG_SUCCESS, variable(friend.name))),
+                        metadata = MessageMetadata(id = MESSAGE_ID)
+                    )
                 } else {
                     throw CommandException(command.result("notFriends", variable(friend.name)))
                 }
@@ -192,7 +209,10 @@ object CommandFriend {
 
                 if (FriendManager.friends.add(friend)) {
                     if (friend.alias == null) {
-                        chat(regular(command.result(MSG_SUCCESS, variable(friend.name))))
+                        chat(
+                            regular(command.result(MSG_SUCCESS, variable(friend.name))),
+                            metadata = MessageMetadata(id = MESSAGE_ID)
+                        )
                     } else {
                         chat(
                             regular(
@@ -201,7 +221,8 @@ object CommandFriend {
                                     variable(friend.name),
                                     variable(friend.alias!!)
                                 )
-                            )
+                            ),
+                            metadata = MessageMetadata(id = MESSAGE_ID)
                         )
                     }
                 } else {

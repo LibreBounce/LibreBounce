@@ -43,7 +43,7 @@ public class MixinTextHandler {
 
     @Inject(method = "getWidth(Lnet/minecraft/text/StringVisitable;)F", at = @At("HEAD"), cancellable = true)
     private void injectNameProtectWidthB(StringVisitable text, CallbackInfoReturnable<Float> cir) {
-        if (!ModuleNameProtect.INSTANCE.getEnabled()) {
+        if (!ModuleNameProtect.INSTANCE.getRunning()) {
             return;
         }
 

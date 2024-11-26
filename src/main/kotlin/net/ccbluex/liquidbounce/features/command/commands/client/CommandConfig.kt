@@ -25,10 +25,11 @@ import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.io.HttpClient.get
@@ -44,11 +45,11 @@ import kotlin.concurrent.thread
  * such as loading configuration from an external source or an API
  * and listing available configurations.
  */
-object CommandConfig {
+object CommandConfig : CommandFactory {
 
     private const val CONFIGS_URL = "https://github.com/CCBlueX/LiquidCloud/tree/main/LiquidBounce/settings/nextgen"
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("config")
             .hub()
@@ -184,7 +185,7 @@ object CommandConfig {
             .build()
     }
 
-    fun autoComplete(begin: String, validator: (Module) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         return configsCache?.map { it.settingId }?.filter { it.startsWith(begin, true) } ?: emptyList()
     }
 

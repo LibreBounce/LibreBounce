@@ -29,7 +29,7 @@ import kotlin.coroutines.suspendCoroutine
 
 typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
 
-object SequenceManager : Listenable {
+object SequenceManager : EventListener {
 
     // Running sequences
     internal val sequences = Lists.newCopyOnWriteArrayList<Sequence<*>>()
@@ -45,7 +45,7 @@ object SequenceManager : Listenable {
     val tickSequences = handler<GameTickEvent>(priority = 1000) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
-            if (!sequence.owner.isRunning()) {
+            if (!sequence.owner.running) {
                 sequence.cancel()
                 continue
             }
@@ -56,7 +56,7 @@ object SequenceManager : Listenable {
 
 }
 
-open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHandler<T>, protected val event: T) {
+open class Sequence<T : Event>(val owner: EventListener, val handler: SuspendableHandler<T>, protected val event: T) {
 
     private var coroutine: Job
 
@@ -82,7 +82,7 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
     }
 
     internal open suspend fun coroutineRun() {
-        if (owner.isRunning()) {
+        if (owner.running) {
             runCatching {
                 handler(event)
             }.onFailure {
@@ -177,7 +177,7 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
 
 class DummyEvent : Event()
 
-class RepeatingSequence(owner: Listenable, handler: SuspendableHandler<DummyEvent>)
+class TickSequence(owner: EventListener, handler: SuspendableHandler<DummyEvent>)
     : Sequence<DummyEvent>(owner, handler, DummyEvent()) {
 
     private var continueLoop = true
@@ -185,7 +185,7 @@ class RepeatingSequence(owner: Listenable, handler: SuspendableHandler<DummyEven
     override suspend fun coroutineRun() {
         sync()
 
-        while (continueLoop && owner.isRunning()) {
+        while (continueLoop && owner.running) {
             super.coroutineRun()
             sync()
         }

@@ -21,9 +21,9 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -37,7 +37,7 @@ import net.minecraft.util.math.Direction
  *
  * Disables web slowdown.
  */
-object ModuleNoWeb : Module("NoWeb", Category.MOVEMENT) {
+object ModuleNoWeb : ClientModule("NoWeb", Category.MOVEMENT) {
 
     init {
         enableLock()
@@ -45,7 +45,7 @@ object ModuleNoWeb : Module("NoWeb", Category.MOVEMENT) {
 
     private val modes = choices("Mode", Air, arrayOf(Air, GrimBreak, Intave14)).apply { tagBy(this) }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (ModuleAvoidHazards.enabled && ModuleAvoidHazards.cobWebs) {
             ModuleAvoidHazards.enabled = false
 
@@ -64,7 +64,7 @@ object ModuleNoWeb : Module("NoWeb", Category.MOVEMENT) {
      * @return if we should cancel the slowdown effect
      */
     fun handleEntityCollision(pos: BlockPos): Boolean {
-        if (!enabled) {
+        if (!running) {
             return false
         }
 

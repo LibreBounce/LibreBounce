@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 
 /**
@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
  *
  * Override the ambience of the game
  */
-object ModuleCustomAmbience : Module("CustomAmbience", Category.RENDER) {
+object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
 
     val weather = enumChoice("Weather", WeatherType.SUNNY)
     private val time = enumChoice("Time", TimeType.NOON)
@@ -66,7 +66,7 @@ object ModuleCustomAmbience : Module("CustomAmbience", Category.RENDER) {
 
     @JvmStatic
     fun getTime(original: Long): Long {
-        return if (enabled) {
+        return if (running) {
             when (time.get()) {
                 TimeType.NO_CHANGE -> original
                 TimeType.DAWN -> 23041L

@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -43,7 +43,7 @@ import java.awt.Color
  * Draws a line to every entity a certain radius.
  */
 
-object ModuleTracers : Module("Tracers", Category.RENDER) {
+object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
 
     private val modes = choices("ColorMode", 0) {
         arrayOf(
@@ -66,7 +66,7 @@ object ModuleTracers : Module("Tracers", Category.RENDER) {
     val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
 
-        val useDistanceColor = DistanceColor.isActive
+        val useDistanceColor = DistanceColor.isSelected
 
         val viewDistance = 16.0F * MathHelper.SQUARE_ROOT_OF_TWO *
             (if (DistanceColor.useViewDistance) {

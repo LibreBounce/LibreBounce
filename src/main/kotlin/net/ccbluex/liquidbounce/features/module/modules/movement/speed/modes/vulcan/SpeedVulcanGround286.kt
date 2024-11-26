@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -39,7 +39,7 @@ import net.minecraft.util.shape.VoxelShapes
  */
 class SpeedVulcanGround286(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("VulcanGround286", parent) {
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.moving && collidesBottomVertical()) {
             val speedEffect = player.getStatusEffect(StatusEffects.SPEED)
             val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0

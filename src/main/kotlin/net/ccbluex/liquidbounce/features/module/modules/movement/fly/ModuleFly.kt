@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.fireball.FlyFireball
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyGrim2859V
@@ -49,7 +49,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Allows you to fly.
  */
 
-object ModuleFly : Module("Fly", Category.MOVEMENT, aliases = arrayOf("Glide", "Jetpack")) {
+object ModuleFly : ClientModule("Fly", Category.MOVEMENT, aliases = arrayOf("Glide", "Jetpack")) {
 
     init {
         enableLock()

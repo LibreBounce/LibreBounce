@@ -20,13 +20,12 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.utils.client.*
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -35,9 +34,9 @@ import kotlin.math.roundToInt
  *
  * Allows you to hide specific modules.
  */
-object CommandHide {
+object CommandHide : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("hide")
             .hub()
@@ -55,7 +54,10 @@ object CommandHide {
                             ?: throw CommandException(command.result("moduleNotFound"))
 
                         module.hidden = true
-                        chat(command.result("moduleHidden"), variable(module.name))
+                        chat(
+                            command.result("moduleHidden"), variable(module.name),
+                            metadata = MessageMetadata(id = "CHide#info")
+                        )
                     }
                     .build()
             )
@@ -73,7 +75,10 @@ object CommandHide {
                             ?: throw CommandException(command.result("moduleNotFound", name))
 
                         module.hidden = false
-                        chat(regular(command.result("moduleUnhidden", variable(module.name))))
+                        chat(
+                            regular(command.result("moduleUnhidden", variable(module.name))),
+                            metadata = MessageMetadata(id = "CHide#info")
+                        )
                     }
                     .build()
             )
@@ -114,7 +119,10 @@ object CommandHide {
                         for (module in hiddenModules.subList(iterPage - 8, iterPage.coerceAtMost(hiddenModules.size))) {
                             bindingsOut.append("§6> §7${module.name} (§8§l${command.result("hidden")}§7)\n")
                         }
-                        chat(bindingsOut.toString())
+                        chat(
+                            bindingsOut.toString().asText(),
+                            metadata = MessageMetadata(id = "CHide#info")
+                        )
                     }
                     .build()
             )
@@ -123,7 +131,10 @@ object CommandHide {
                     .begin("clear")
                     .handler { command, _ ->
                         ModuleManager.forEach { it.hidden = false }
-                        chat(regular(command.result("modulesUnhidden")))
+                        chat(
+                            regular(command.result("modulesUnhidden")),
+                            metadata = MessageMetadata(id = "CHide#info")
+                        )
                     }
                     .build()
             )

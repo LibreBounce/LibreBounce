@@ -22,8 +22,8 @@ import it.unimi.dsi.fastutil.objects.ObjectDoublePair
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.AttackEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.kotlin.component1
@@ -206,7 +206,7 @@ inline fun ClientWorld.getEntitiesBoxInRange(
 }
 
 fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
-    EventManager.callEvent(AttackEvent(this))
+    EventManager.callEvent(AttackEntityEvent(this))
 
     with (player) {
         // Swing before attacking (on 1.8)
@@ -236,7 +236,7 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
                     this.addEnchantedHitParticles(this@attack)
                 }
 
-                if (ModuleCriticals.wouldCrit(true)) {
+                if (ModuleCriticals.wouldDoCriticalHit(true)) {
                     world.playSound(
                         null, x, y, z, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT,
                         soundCategory, 1.0f, 1.0f

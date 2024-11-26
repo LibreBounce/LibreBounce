@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.RenderEnvironment
@@ -40,7 +40,7 @@ import net.minecraft.entity.Entity
  * Makes player name tags more visible and adds useful information.
  */
 
-object ModuleNametags : Module("Nametags", Category.RENDER) {
+object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
 
     /**
      * Contains the list of toggleable options for the [NametagTextFormatter]

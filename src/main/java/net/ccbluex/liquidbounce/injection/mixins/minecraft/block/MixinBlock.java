@@ -37,7 +37,7 @@ public class MixinBlock {
     @ModifyReturnValue(method = "shouldDrawSide", at = @At("RETURN"))
     private static boolean injectXRay(boolean original, BlockState state, BlockView world, BlockPos pos, Direction side, BlockPos otherPos) {
         var xRay = ModuleXRay.INSTANCE;
-        if (xRay.getEnabled()) {
+        if (xRay.getRunning()) {
             return xRay.shouldRender(state, pos);
         }
 

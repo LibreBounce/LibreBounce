@@ -23,10 +23,10 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.raytraceEntity
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
@@ -42,7 +42,7 @@ import net.minecraft.item.Items
  *
  * Allows you to perform actions with middle clicks.
  */
-object ModuleMiddleClickAction : Module(
+object ModuleMiddleClickAction : ClientModule(
     "MiddleClickAction",
     Category.MISC,
     aliases = arrayOf("FriendClicker", "MiddleClickPearl")
@@ -60,17 +60,17 @@ object ModuleMiddleClickAction : Module(
 
         private var wasPressed = false
 
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (mc.currentScreen != null) {
                 wasPressed = false
-                return@repeatable
+                return@tickHandler
             }
 
             val pickup = mc.options.pickItemKey.isPressed
 
             if (pickup) {
                 // visually select the slot
-                val slot = findHotbarItemSlot(Items.ENDER_PEARL)?.hotbarSlotForServer ?: return@repeatable
+                val slot = findHotbarItemSlot(Items.ENDER_PEARL)?.hotbarSlotForServer ?: return@tickHandler
                 SilentHotbar.selectSlotSilently(this, slot, slotResetDelay)
                 wasPressed = true
             } else if (wasPressed) { // the key was released
@@ -91,7 +91,7 @@ object ModuleMiddleClickAction : Module(
         }
 
         fun cancelPick(): Boolean {
-            return ModuleMiddleClickAction.enabled &&
+            return ModuleMiddleClickAction.running &&
                 mode.activeChoice == this &&
                 findHotbarItemSlot(Items.ENDER_PEARL) != null
         }
@@ -107,11 +107,11 @@ object ModuleMiddleClickAction : Module(
 
         private var clicked = false
 
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             val rotation = player.rotation
 
             val entity = (raytraceEntity(pickUpRange.toDouble(), rotation) { it is PlayerEntity }
-                ?: return@repeatable).entity as PlayerEntity
+                ?: return@tickHandler).entity as PlayerEntity
 
             val facesEnemy = facingEnemy(
                 toEntity = entity, rotation = rotation, range = pickUpRange.toDouble(),

@@ -63,7 +63,7 @@ public abstract class MixinChatHud {
     @Redirect(method = "addMessage(Lnet/minecraft/client/gui/hud/ChatHudLine;)V", at = @At(value = "INVOKE", target = "Ljava/util/List;size()I", ordinal = 0))
     public int hookGetSize2(List<ChatHudLine.Visible> list) {
         var betterChat = ModuleBetterChat.INSTANCE;
-        if (betterChat.getEnabled() && betterChat.getInfiniteLength()) {
+        if (betterChat.getRunning() && betterChat.getInfiniteLength()) {
             return -1;
         }
 
@@ -76,7 +76,7 @@ public abstract class MixinChatHud {
     @Inject(method = "clear", at = @At(value = "HEAD"), cancellable = true)
     public void hookClear(boolean clearHistory, CallbackInfo ci) {
         var betterChat = ModuleBetterChat.INSTANCE;
-        if (betterChat.getEnabled() && betterChat.getAntiClear() && !betterChat.getAntiChatClearPaused()) {
+        if (betterChat.getRunning() && betterChat.getAntiClear() && !betterChat.getAntiChatClearPaused()) {
             ci.cancel();
         }
     }
@@ -108,7 +108,7 @@ public abstract class MixinChatHud {
         }
 
         var betterChat = ModuleBetterChat.INSTANCE;
-        if (!betterChat.getEnabled() || !betterChat.getInfiniteLength()) {
+        if (!betterChat.getRunning() || !betterChat.getInfiniteLength()) {
             while(visibleMessages.size() > 100) {
                 visibleMessages.removeLast();
             }

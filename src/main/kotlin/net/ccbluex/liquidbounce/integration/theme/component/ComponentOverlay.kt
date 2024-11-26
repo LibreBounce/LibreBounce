@@ -21,8 +21,8 @@
 
 package net.ccbluex.liquidbounce.integration.theme.component
 
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.ComponentsUpdate
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
@@ -36,15 +36,15 @@ val customComponents: MutableList<Component> = mutableListOf(
     TextComponent("hello! :)", enabled = false)
 )
 
-object ComponentOverlay : Listenable {
+object ComponentOverlay : EventListener {
 
     @JvmStatic
-    fun isTweakEnabled(tweak: FeatureTweak) = isRunning() && !HideAppearance.isHidingNow &&
+    fun isTweakEnabled(tweak: FeatureTweak) = this.running && !HideAppearance.isHidingNow &&
         components.filterIsInstance<IntegratedComponent>().any { it.enabled && it.tweaks.contains(tweak) }
 
     @JvmStatic
     fun getComponentWithTweak(tweak: FeatureTweak): IntegratedComponent? {
-        if (!isRunning() || HideAppearance.isHidingNow) {
+        if (!running || HideAppearance.isHidingNow) {
             return null
         }
 

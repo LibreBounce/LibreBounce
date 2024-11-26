@@ -45,7 +45,7 @@ public abstract class MixinBackgroundRenderer {
 
             final var module = ModuleAntiBlind.INSTANCE;
 
-            if (!module.getEnabled()) {
+            if (!module.getRunning()) {
                 return true;
             }
 
@@ -57,7 +57,7 @@ public abstract class MixinBackgroundRenderer {
     @Inject(method = "applyFog", at = @At(value = "INVOKE", shift = At.Shift.AFTER, ordinal = 0, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
     private static void injectLiquidsFog(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo callback) {
         ModuleAntiBlind module = ModuleAntiBlind.INSTANCE;
-        if (!module.getEnabled()) {
+        if (!module.getRunning()) {
             return;
         }
 
@@ -78,7 +78,7 @@ public abstract class MixinBackgroundRenderer {
     @Inject(method = "applyFog", at = @At(value = "INVOKE", shift = At.Shift.AFTER, ordinal = 0, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
     private static void injectLiquidsFogEnd(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info) {
         ModuleAntiBlind module = ModuleAntiBlind.INSTANCE;
-        if (!module.getEnabled()) {
+        if (!module.getRunning()) {
             return;
         }
 

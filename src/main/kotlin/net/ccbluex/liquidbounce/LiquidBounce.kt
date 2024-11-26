@@ -27,8 +27,8 @@ import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -42,7 +42,7 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
@@ -80,7 +80,7 @@ import kotlin.time.measureTime
  *
  * @author kawaiinekololis (@team CCBlueX)
  */
-object LiquidBounce : Listenable {
+object LiquidBounce : EventListener {
 
     /**
      * CLIENT INFORMATION
@@ -181,7 +181,7 @@ object LiquidBounce : Listenable {
             // Initialize browser
             logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
 
-            IntegrationHandler
+            IntegrationListener
             BrowserManager.initBrowser()
 
             // Register resource reloader

@@ -38,13 +38,13 @@ public abstract class MixinInGameOverlayRenderer {
         return vertexConsumer.color(red,
                 green,
                 blue,
-                ModuleAntiBlind.INSTANCE.getEnabled() ? ModuleAntiBlind.INSTANCE.getFireOpacity() * alpha : alpha);
+                ModuleAntiBlind.INSTANCE.getRunning() ? ModuleAntiBlind.INSTANCE.getFireOpacity() * alpha : alpha);
     }
 
     @Inject(method = "renderInWallOverlay", at = @At("HEAD"), cancellable = true)
     private static void hookWallOverlay(Sprite sprite, MatrixStack matrices, CallbackInfo ci) {
         var antiBlind = ModuleAntiBlind.INSTANCE;
-        if (antiBlind.getEnabled() && antiBlind.getWallOverlay()) {
+        if (antiBlind.getRunning() && antiBlind.getWallOverlay()) {
             ci.cancel();
         }
     }
