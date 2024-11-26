@@ -76,7 +76,7 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
                 && world.findEnemy(0.0f..enemyInRange) != null
 
         val stopSprinting by enumChoice("StopSprinting", StopSprintingMode.LEGIT)
-        private val enemyInRange by float("Range", 3.0f, 0.0f..10.0f)
+        private val enemyInRange by float("Range", 4.0f, 0.0f..10.0f)
 
         @Suppress("unused")
         private val attackHandler = handler<AttackEntityEvent>(
