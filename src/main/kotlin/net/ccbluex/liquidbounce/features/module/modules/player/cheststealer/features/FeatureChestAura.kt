@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
@@ -61,6 +62,8 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
     private val interactionDelay by int("Delay", 5, 1..80, "ticks")
     private val shouldDisplayVisualSwing by boolean("VisualSwing", true)
 
+    private val notDuringCombat by boolean("NotDuringCombat", true)
+
     // Sub-configurable for managing the await container settings
     private object AwaitContainerSettings : ToggleableConfigurable(this, "AwaitContainer", true) {
         val retryTimeout by int("Timeout", 10, 1..80, "ticks")
@@ -82,13 +85,20 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
     private var interactionAttempts = 0
 
     // Set of block names that are considered as storage blocks
-    private val validStorageBlocks = findBlocksEndingWith("CHEST", "SHULKER_BOX", "BARREL").toHashSet()
+    private val validStorageBlocks = findBlocksEndingWith("CHEST", "SHULKER_BOX", "BARREL")
+        .toHashSet()
 
     // Event handler responsible for updating the target block
-    val simulatedTickHandler = handler<SimulatedTickEvent> {
+    @Suppress("unused")
+    private val simulatedTickHandler = handler<SimulatedTickEvent> {
         val searchRadius = interactionRange + 1
         val searchRadiusSquared = searchRadius * searchRadius
         val playerEyesPosition = player.eyes
+
+        if (notDuringCombat && CombatManager.isInCombat) {
+            currentTargetBlock = null
+            return@handler
+        }
 
         // Select blocks for processing within the search radius
         val nearbyStorageBlocks = playerEyesPosition.searchBlocksInCuboid(searchRadius) { pos, state ->
@@ -132,7 +142,8 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
     }
 
     // Task that repeats to interact with the target block
-    val interactionRepeatableTask = repeatable { event ->
+    @Suppress("unused")
+    private val interactionRepeatableTask = repeatable { event ->
         if (mc.currentScreen is GenericContainerScreen) {
             // Do not proceed if a screen is open which implies player might be in a GUI
             return@repeatable
