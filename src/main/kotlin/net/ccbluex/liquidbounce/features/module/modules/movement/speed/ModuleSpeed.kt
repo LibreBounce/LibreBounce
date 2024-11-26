@@ -116,7 +116,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
             return when {
                 !super.running -> false
                 !passesRequirements() -> false
-                OnlyInCombat.enabled && OnlyInCombat.running -> false
+                OnlyInCombat.enabled && CombatManager.isInCombat -> false
                 OnlyOnPotionEffect.enabled && potionEffects.activeChoice.checkPotionEffects() -> false
                 else -> {
                     true
