@@ -61,18 +61,8 @@ object PacketQueueManager : EventListener {
             .filter { playerMoveC2SPacket -> playerMoveC2SPacket.changePosition }
             .map { playerMoveC2SPacket -> Vec3d(playerMoveC2SPacket.x, playerMoveC2SPacket.y, playerMoveC2SPacket.z) }
 
-    /**
-     * Whether we are lagging.
-     */
     val isLagging
         get() = packetQueue.isNotEmpty()
-
-    /**
-     * Whether we should lag.
-     * Implement your module here if you want to enable lag.
-     */
-    private fun fireEvent(packet: Packet<*>?, origin: TransferOrigin) =
-        EventManager.callEvent(QueuePacketEvent(packet, origin)).action
 
     @Suppress("unused")
     private val flushHandler = handler<GameRenderEvent>(
@@ -246,6 +236,9 @@ object PacketQueueManager : EventListener {
             TransferOrigin.RECEIVE -> handlePacket(snapshot.packet)
         }
     }
+
+    private fun fireEvent(packet: Packet<*>?, origin: TransferOrigin) =
+        EventManager.callEvent(QueuePacketEvent(packet, origin)).action
 
     enum class Action {
         QUEUE,
