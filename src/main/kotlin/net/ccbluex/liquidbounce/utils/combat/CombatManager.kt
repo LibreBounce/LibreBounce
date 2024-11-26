@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.combat
 
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 
@@ -79,7 +79,7 @@ object CombatManager : EventListener {
     }
 
     @Suppress("unused")
-    val attackHandler = handler<AttackEvent> {
+    val attackHandler = handler<AttackEntityEvent> {
         // 40 ticks = 2 seconds
         duringCombat = 40
     }

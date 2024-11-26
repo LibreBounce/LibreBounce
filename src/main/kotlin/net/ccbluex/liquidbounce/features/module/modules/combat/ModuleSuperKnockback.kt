@@ -23,10 +23,11 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.DummyEvent
 import net.ccbluex.liquidbounce.event.Sequence
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -80,8 +81,8 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
             get() = modes
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEvent> { event ->
-            val enemy = event.enemy
+        val attackHandler = handler<AttackEntityEvent> { event ->
+            val enemy = event.entity
 
             if (!shouldOperate(enemy)) {
                 return@handler
@@ -112,8 +113,8 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         var antiSprint = false
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldOperate(event.enemy) || !shouldStopSprinting(event) || sequence != null) {
+        val attackHandler = handler<AttackEntityEvent> { event ->
+            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -140,8 +141,8 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         var stopMoving = false
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldOperate(event.enemy) || !shouldStopSprinting(event) || sequence != null) {
+        val attackHandler = handler<AttackEntityEvent> { event ->
+            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -159,8 +160,8 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
     fun shouldStopMoving() = running && WTap.isSelected && WTap.stopMoving
 
-    private fun shouldStopSprinting(event: AttackEvent): Boolean {
-        val enemy = event.enemy
+    private fun shouldStopSprinting(event: AttackEntityEvent): Boolean {
+        val enemy = event.entity
 
         if (!player.isSprinting || !player.lastSprinting) {
             return false

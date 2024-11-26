@@ -259,8 +259,8 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> { event ->
-        val enemy = event.enemy
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        val enemy = event.entity
 
         shouldPause = enemy is LivingEntity && enemy.hurtTime < 10
 

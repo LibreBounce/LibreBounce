@@ -28,12 +28,11 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent;
 import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleKeepSprint;
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsNoGround;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleAntiReducedDebugInfo;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoClip;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach;
-import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall;
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallNoGround;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleNoSlowBreak;
@@ -166,15 +165,15 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             target = "Lnet/minecraft/entity/player/PlayerEntity;isOnGround()Z"))
     private boolean injectOnAirNoSlow(boolean original) {
         if ((Object) this == MinecraftClient.getInstance().player) {
-            if (ModuleNoSlowBreak.INSTANCE.getRunning() && ModuleNoSlowBreak.INSTANCE.getOnAir()){
+            if (ModuleNoSlowBreak.INSTANCE.getRunning() && ModuleNoSlowBreak.INSTANCE.getOnAir()) {
                 return true;
             }
 
-            if (ModuleNoFall.INSTANCE.getRunning() && NoFallNoGround.INSTANCE.isSelected()) {
+            if (NoFallNoGround.INSTANCE.getRunning()) {
                 return false;
             }
 
-            if (ModuleCriticals.INSTANCE.getRunning() && ModuleCriticals.NoGroundCrit.INSTANCE.isSelected()) {
+            if (CriticalsNoGround.INSTANCE.getRunning()) {
                 return false;
             }
         }

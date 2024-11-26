@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
@@ -41,7 +41,7 @@ object VelocityIntave : Choice("Intave") {
         var lastAttackTime = 0L
 
         @Suppress("unused")
-        private val attackHandler = handler<AttackEvent> {
+        private val attackHandler = handler<AttackEntityEvent> {
             if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
                 player.velocity.x *= reduceFactor
                 player.velocity.z *= reduceFactor

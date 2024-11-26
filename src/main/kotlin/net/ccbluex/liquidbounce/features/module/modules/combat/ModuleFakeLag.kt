@@ -36,10 +36,7 @@ import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.item.isConsumable
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
-import net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket
+import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.network.packet.s2c.play.HealthUpdateS2CPacket
@@ -114,6 +111,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
             is PlayerActionC2SPacket,
             is UpdateSignC2SPacket,
             is PlayerInteractEntityC2SPacket,
+            is HandSwingC2SPacket,
             is ResourcePackStatusC2SPacket -> {
                 return@handler
             }

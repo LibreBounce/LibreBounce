@@ -1,0 +1,62 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2024 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
+package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
+
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.wouldCrit
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
+import net.minecraft.network.packet.c2s.play.*
+
+object CriticalsBlink : Choice("Blink") {
+
+    override val parent: ChoiceConfigurable<*>
+        get() = ModuleCriticals.modes
+
+    private val delay by intRange("Delay", 300..600, 0..1000, "ms")
+    private var nextDelay = delay.random()
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin == TransferOrigin.SEND && !wouldCrit(ignoreSprint = true)) {
+            if (PacketQueueManager.isAboveTime(nextDelay.toLong())) {
+                nextDelay = delay.random()
+                return@handler
+            }
+
+            event.action = when (event.packet) {
+                is PlayerInteractBlockC2SPacket,
+                is PlayerActionC2SPacket,
+                is UpdateSignC2SPacket,
+                is PlayerInteractEntityC2SPacket,
+                is HandSwingC2SPacket,
+                is ResourcePackStatusC2SPacket -> PacketQueueManager.Action.PASS
+                else -> PacketQueueManager.Action.QUEUE
+            }
+        }
+    }
+
+}
+
+

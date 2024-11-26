@@ -22,7 +22,7 @@ import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -91,8 +91,8 @@ object ModuleFocus : ClientModule("Focus", Category.MISC) {
         }
 
         @Suppress("unused")
-        private val attackHandler = handler<AttackEvent> { event ->
-            val target = event.enemy as? AbstractClientPlayerEntity ?: return@handler
+        private val attackHandler = handler<AttackEntityEvent> { event ->
+            val target = event.entity as? AbstractClientPlayerEntity ?: return@handler
 
             if (!focus.containsKey(target.id)) {
                 notification(

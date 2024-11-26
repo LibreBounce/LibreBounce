@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
@@ -37,7 +37,7 @@ object VelocityHylex : Choice("Hylex") {
         get() = modes
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> {
+    private val attackHandler = handler<AttackEntityEvent> {
         if (!player.moving) {
             return@handler
         }

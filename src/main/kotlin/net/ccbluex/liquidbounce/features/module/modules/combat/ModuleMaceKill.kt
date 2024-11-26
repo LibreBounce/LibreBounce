@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -42,7 +42,7 @@ object ModuleMaceKill : ClientModule("MaceKill", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> { event ->
+    private val attackHandler = handler<AttackEntityEvent> { event ->
         // Check if player is holding a mace
         val mainHandStack = player.mainHandStack
 

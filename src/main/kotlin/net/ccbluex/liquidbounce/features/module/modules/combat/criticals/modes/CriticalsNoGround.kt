@@ -16,33 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
+package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.modes
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
-internal object VelocityDexland : Choice("Dexland") {
+/**
+ * Same thing as NoGround NoFall mode
+ */
+object CriticalsNoGround : Choice("NoGround") {
 
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    private val hReduce by float("HReduce", 0.3f, 0f..1f)
-    private val times by int("AttacksToWork", 4, 1..10)
-
-    private var lastAttackTime = 0L
-    var count = 0
-
     @Suppress("unused")
-    private val attackHandler = handler<AttackEntityEvent> {
-        if (player.hurtTime > 0 && ++count % times == 0 && System.currentTimeMillis() - lastAttackTime <= 8000) {
-            player.velocity.x *= hReduce
-            player.velocity.z *= hReduce
+    private val packetHandler = handler<PacketEvent> { event ->
+        val packet = event.packet
+
+        if (packet is PlayerMoveC2SPacket) {
+            packet.onGround = false
         }
 
-        lastAttackTime = System.currentTimeMillis()
     }
 
 }
