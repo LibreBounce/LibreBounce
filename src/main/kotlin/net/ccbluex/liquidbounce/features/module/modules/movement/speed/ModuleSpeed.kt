@@ -21,11 +21,14 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.OnlyInCombat.modes
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.OnlyOnPotionEffect.potionEffects
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.modes
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedCustom
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedLegitHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedSpeedYPort
@@ -100,26 +103,52 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
     private val notDuringScaffold by boolean("NotDuringScaffold", true)
     private val notWhileSneaking by boolean("NotWhileSneaking", false)
 
+    init {
+        tree(OnlyInCombat)
+        tree(OnlyOnPotionEffect)
+    }
+
+    override val running: Boolean
+        get() {
+            // Early return if the module is not ready to be used -
+            // prevents accessing player when it's null below
+            // in case it was forgotten to be checked
+            return when {
+                !super.running -> false
+                !passesRequirements() -> false
+                OnlyInCombat.enabled && OnlyInCombat.running -> false
+                OnlyOnPotionEffect.enabled && potionEffects.activeChoice.checkPotionEffects() -> false
+                else -> {
+                    true
+                }
+            }
+        }
+
+    private fun passesRequirements() = when {
+        // DO NOT REMOVE - PLAYER COULD BE NULL!
+        !inGame || isDestructed -> false
+        notDuringScaffold && ModuleScaffold.running || ModuleFly.running -> false
+        notWhileUsingItem && player.isUsingItem -> false
+        notWhileSneaking && player.isSneaking -> false
+        else -> true
+    }
+
+    fun shouldDelayJump() = !mc.options.jumpKey.isPressed && (SpeedAntiCornerBump.shouldDelayJump()
+        || CriticalsJump.shouldWaitForJump())
+
     private object OnlyInCombat : ToggleableConfigurable(this, "OnlyInCombat", false) {
 
         val modes = choices(this, "Mode", { it.choices[0] },
             ModuleSpeed::initializeSpeeds)
 
+        /**
+         * Controls [modes] activation state.
+         */
         override val running: Boolean
-            get() {
-                // We cannot use our parent super.handleEvents() here, because it has been turned false
-                // when [OnlyInCombat] is enabled
-                if (!ModuleSpeed.running || !enabled || !inGame || !passesRequirements()) {
-                    return false
-                }
-
-                // Only On Potion Effect has a higher priority
-                if (OnlyOnPotionEffect.running) {
-                    return false
-                }
-
-                return CombatManager.isInCombat ||
-                    (ModuleKillAura.running && ModuleKillAura.targetTracker.lockedOnTarget != null)
+            get() = when {
+                !inGame || isDestructed -> false
+                !ModuleSpeed.enabled || !this.enabled || !passesRequirements() -> false
+                else -> CombatManager.isInCombat
             }
 
     }
@@ -136,79 +165,23 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
         val modes = choices(this, "Mode", { it.choices[0] },
             ModuleSpeed::initializeSpeeds)
 
+        /**
+         * Controls [modes] activation state.
+         */
         override val running: Boolean
-            get() {
-                // We cannot use our parent super.handleEvents() here, because it has been turned false
-                // when [OnlyOnPotionEffect] is enabled
-                if (!ModuleSpeed.running || !enabled || !inGame || !passesRequirements()) {
-                    return false
-                }
-
-                return potionEffects.activeChoice.checkPotionEffects()
+            get() = when {
+                !inGame || isDestructed -> false
+                !ModuleSpeed.enabled || !this.enabled || !passesRequirements() -> false
+                else -> potionEffects.activeChoice.checkPotionEffects()
             }
 
-    }
-
-    init {
-        tree(OnlyInCombat)
-        tree(OnlyOnPotionEffect)
-    }
-
-    override val running: Boolean
-        get() {
-            // Early return if the module is not ready to be used - prevents accessing player when it's null below
-            // in case it was forgotten to be checked
-            if (!super.running) {
-                return false
-            }
-
-            if (!passesRequirements()) {
-                return false
-            }
-
-            // We do not want to handle events if the OnlyInCombat is enabled
-            if (OnlyInCombat.enabled && OnlyInCombat.running) {
-                return false
-            }
-
-            // We do not want to handle events if the OnlyOnPotionEffect is enabled
-            if (OnlyOnPotionEffect.enabled && OnlyOnPotionEffect.potionEffects.activeChoice.checkPotionEffects()) {
-                return false
-            }
-
-            return true
-        }
-
-    private fun passesRequirements(): Boolean {
-        if (!inGame) {
-            return false
-        }
-
-        if (notDuringScaffold && ModuleScaffold.running || ModuleFly.running) {
-            return false
-        }
-
-        if (notWhileUsingItem && mc.player?.isUsingItem == true) {
-            return false
-        }
-
-        // Do NOT access player directly, it can be null in this context
-        if (notWhileSneaking && mc.player?.isSneaking == true) {
-            return false
-        }
-
-        return true
-    }
-
-    fun shouldDelayJump(): Boolean {
-        return !mc.options.jumpKey.isPressed && (SpeedAntiCornerBump.shouldDelayJump()
-            || CriticalsJump.shouldWaitForJump())
     }
 
     abstract class PotionEffectChoice(name: String) : Choice(name) {
         override val parent: ChoiceConfigurable<PotionEffectChoice>
-            get() = OnlyOnPotionEffect.potionEffects
+            get() = potionEffects
 
         abstract fun checkPotionEffects(): Boolean
     }
+
 }
