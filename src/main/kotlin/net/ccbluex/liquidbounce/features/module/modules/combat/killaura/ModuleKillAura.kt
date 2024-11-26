@@ -464,8 +464,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     private fun checkIfReadyToAttack(choosenEntity: Entity): Boolean {
         val critical = when (criticalsMode) {
             CriticalsMode.IGNORE -> true
-            CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState=true)
-            CriticalsMode.ALWAYS -> ModuleCriticals.wouldCrit()
+            CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState = true)
+            CriticalsMode.ALWAYS -> ModuleCriticals.wouldDoCriticalHit()
         }
         val shielding = attackShielding || choosenEntity !is PlayerEntity || player.mainHandStack.item is AxeItem ||
             !choosenEntity.wouldBlockHit(player)

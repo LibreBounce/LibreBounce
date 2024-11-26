@@ -236,7 +236,7 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
                     this.addEnchantedHitParticles(this@attack)
                 }
 
-                if (ModuleCriticals.wouldCrit(true)) {
+                if (ModuleCriticals.wouldDoCriticalHit(true)) {
                     world.playSound(
                         null, x, y, z, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT,
                         soundCategory, 1.0f, 1.0f

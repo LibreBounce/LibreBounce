@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.VisualsConfigurable.showCriticals
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.canCritNow
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.canDoCriticalHit
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.modes
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.minecraft.entity.LivingEntity
@@ -49,7 +49,7 @@ object CriticalsPacket : Choice("Packet") {
 
         val ignoreSprinting = !ModuleCriticals.WhenSprinting.enabled ||
             (ModuleCriticals.WhenSprinting.enabled && ModuleCriticals.WhenSprinting.stopSprinting != ModuleCriticals.WhenSprinting.StopSprintingMode.NONE)
-        if (!canCritNow(true, ignoreSprinting)) {
+        if (!canDoCriticalHit(true, ignoreSprinting)) {
             return@handler
         }
 

@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.wouldCrit
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.wouldDoCriticalHit
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
 import net.minecraft.network.packet.c2s.play.*
@@ -37,9 +37,11 @@ object CriticalsBlink : Choice("Blink") {
     private val delay by intRange("Delay", 300..600, 0..1000, "ms")
     private var nextDelay = delay.random()
 
+    var isInState = false
+
     @Suppress("unused")
     private val fakeLagHandler = handler<QueuePacketEvent> { event ->
-        if (event.origin == TransferOrigin.SEND && !wouldCrit(ignoreSprint = true)) {
+        if (event.origin == TransferOrigin.SEND && !wouldDoCriticalHit(ignoreSprint = true)) {
             if (PacketQueueManager.isAboveTime(nextDelay.toLong())) {
                 nextDelay = delay.random()
                 return@handler
@@ -54,7 +56,15 @@ object CriticalsBlink : Choice("Blink") {
                 is ResourcePackStatusC2SPacket -> PacketQueueManager.Action.PASS
                 else -> PacketQueueManager.Action.QUEUE
             }
+            isInState = true
+        } else {
+            isInState = false
         }
+    }
+
+    override fun disable() {
+        isInState = false
+        super.disable()
     }
 
 }

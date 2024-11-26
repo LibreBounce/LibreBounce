@@ -89,7 +89,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
             }
 
             if (enemy is LivingEntity && enemy.hurtTime <= hurtTime && chance >= (0..100).random() &&
-                !ModuleCriticals.wouldCrit()) {
+                !ModuleCriticals.wouldDoCriticalHit()) {
                 if (player.isSprinting) {
                     network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.STOP_SPRINTING))
                 }
@@ -168,7 +168,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         }
 
         return enemy is LivingEntity && enemy.hurtTime <= hurtTime && chance >= (0..100).random()
-            && !ModuleCriticals.wouldCrit()
+            && !ModuleCriticals.wouldDoCriticalHit()
     }
 
     private fun shouldOperate(target: Entity): Boolean {

@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.SpeedAntiCornerBump
 import net.ccbluex.liquidbounce.utils.client.Timer
@@ -204,7 +204,7 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
     }
 
     private fun doOptimizationsPreventJump(): Boolean {
-        if (optimizeForCriticals && ModuleCriticals.shouldWaitForJump(0.42f)) {
+        if (optimizeForCriticals && CriticalsJump.shouldWaitForJump(0.42f)) {
             return true
         }
 
