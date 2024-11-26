@@ -27,8 +27,11 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.ccbluex.liquidbounce.utils.render.WireframePlayer
+import net.minecraft.client.option.Perspective
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
@@ -171,6 +174,15 @@ object PacketQueueManager : EventListener {
                     Vec3(relativeToCamera(vec3d))
                 })
             }
+        }
+
+        val perspectiveEvent = EventManager.callEvent(PerspectiveEvent(mc.options.perspective))
+        if (perspectiveEvent.perspective != Perspective.FIRST_PERSON) {
+            val pos = positions.firstOrNull() ?: return@handler
+            val rotation = RotationManager.actualServerRotation
+
+            val wireframePlayer = WireframePlayer(pos, rotation.yaw, rotation.pitch)
+            wireframePlayer.render(event, Color4b(36, 32, 147, 87), Color4b(36, 32, 147, 255))
         }
     }
 
