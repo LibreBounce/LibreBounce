@@ -67,7 +67,10 @@ object CommandXRay : CommandFactory {
                             throw CommandException(command.result("blockIsPresent", displayName))
                         }
 
-                        chat(regular(command.result("blockAdded", displayName)), command)
+                        chat(
+                            regular(command.result("blockAdded", displayName)),
+                            metadata = MessageMetadata(id = "CXRay#info")
+                        )
                     }
                     .build()
             )
@@ -92,7 +95,10 @@ object CommandXRay : CommandFactory {
                             throw CommandException(command.result("blockNotFound", displayName))
                         }
 
-                        chat(regular(command.result("blockRemoved", displayName)), command)
+                        chat(
+                            regular(command.result("blockRemoved", displayName)),
+                            metadata = MessageMetadata(id = "CXRay#info")
+                        )
                     }
                     .build()
             )
