@@ -68,7 +68,7 @@ internal object NoFallBlink : Choice("Blink") {
         if (!player.isOnGround) {
             if (waitUntilGround || player.fallDistance > maximumFallDistance) {
                 if (blinkFall) {
-                    PacketQueueManager.rewriteAndFlush<PlayerMoveC2SPacket> { packet ->
+                    PacketQueueManager.rewrite<PlayerMoveC2SPacket> { packet ->
                         packet.onGround = false
                     }
 
@@ -138,7 +138,7 @@ internal object NoFallBlink : Choice("Blink") {
 
     @Suppress("unused")
     private val fakeLagHandler = handler<QueuePacketEvent> { event ->
-        if (event.origin == TransferOrigin.SEND) {
+        if (event.origin == TransferOrigin.SEND && blinkFall) {
             event.action = PacketQueueManager.Action.QUEUE
         }
     }

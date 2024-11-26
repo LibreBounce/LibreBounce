@@ -21,7 +21,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
@@ -32,8 +31,6 @@ import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
-import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 
 object AntiVoidBlinkMode : AntiVoidMode("Blink") {
 
@@ -48,15 +45,6 @@ object AntiVoidBlinkMode : AntiVoidMode("Blink") {
     private val requiresLag
         get() = AntiVoidBlinkMode.running && ModuleAntiVoid.isLikelyFalling
             && !isExempt && isWorth()
-
-    @Suppress("unused")
-    private val packetHandler = handler<PacketEvent> { event ->
-        val packet = event.packet
-
-        if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id || packet is ExplosionS2CPacket) {
-            PacketQueueManager.flush()
-        }
-    }
 
     @Suppress("unused")
     private val fakeLagHandler = handler<QueuePacketEvent> { event ->

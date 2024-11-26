@@ -43,6 +43,7 @@ import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.Vec3d
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Allows to queue packets and flush them later on demand.
@@ -52,7 +53,7 @@ import net.minecraft.util.math.Vec3d
  */
 object PacketQueueManager : EventListener {
 
-    val packetQueue = LinkedHashSet<PacketSnapshot>()
+    val packetQueue = ConcurrentLinkedQueue<PacketSnapshot>()
     val positions
         get() = packetQueue
             .map { snapshot -> snapshot.packet }
@@ -74,8 +75,9 @@ object PacketQueueManager : EventListener {
         EventManager.callEvent(QueuePacketEvent(packet, origin)).action
 
     @Suppress("unused")
-    private val tickHandler = handler<GameTickEvent> {
+    private val flushHandler = handler<GameRenderEvent> {
         if (!inGame) {
+            packetQueue.clear()
             return@handler
         }
 
@@ -93,7 +95,7 @@ object PacketQueueManager : EventListener {
         priority = EventPriorityConvention.READ_FINAL_STATE
     ) { event ->
         // Ignore packets that are already cancelled, as they are already handled
-        if (event.isCancelled || !inGame) {
+        if (event.isCancelled) {
             return@handler
         }
 
@@ -124,7 +126,7 @@ object PacketQueueManager : EventListener {
 
             // Flush on teleport or disconnect
             is PlayerPositionLookS2CPacket, is DisconnectS2CPacket -> {
-                flush()
+                flush { snapshot -> snapshot.origin == origin }
                 return@handler
             }
 
@@ -138,7 +140,7 @@ object PacketQueueManager : EventListener {
             // Flush on own death
             is HealthUpdateS2CPacket -> {
                 if (packet.health <= 0) {
-                    flush()
+                    flush { snapshot -> snapshot.origin == origin }
                     return@handler
                 }
             }
@@ -146,78 +148,67 @@ object PacketQueueManager : EventListener {
         }
 
         event.cancelEvent()
-        synchronized(packetQueue) {
-            packetQueue.add(
-                PacketSnapshot(
-                    packet,
-                    origin,
-                    System.currentTimeMillis()
-                )
+        packetQueue.add(
+            PacketSnapshot(
+                packet,
+                origin,
+                System.currentTimeMillis()
             )
-        }
+        )
     }
 
     @Suppress("unused")
-    val worldChangeHandler = handler<WorldChangeEvent> { event ->
+    private val worldChangeHandler = handler<WorldChangeEvent> { event ->
         // Clear packets on disconnect
         if (event.world == null) {
-            clear()
+            packetQueue.clear()
         }
     }
 
     @Suppress("unused")
-    val renderHandler = handler<WorldRenderEvent> { event ->
+    private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
 
         // Use LiquidBounce accent color
         val color = Color4b(0x00, 0x80, 0xFF, 0xFF)
 
-        synchronized(positions) {
-            renderEnvironmentForWorld(matrixStack) {
-                withColor(color) {
-                    @Suppress("SpreadOperator")
-                    drawLineStrip(*positions.mapArray { vec3d ->
-                        Vec3(relativeToCamera(vec3d))
-                    })
-                }
+        renderEnvironmentForWorld(matrixStack) {
+            withColor(color) {
+                @Suppress("SpreadOperator")
+                drawLineStrip(*positions.mapArray { vec3d ->
+                    Vec3(relativeToCamera(vec3d))
+                })
             }
         }
     }
 
-    fun flush(flushWhen: (PacketSnapshot) -> Boolean = { true }) {
-        synchronized(packetQueue) {
-            packetQueue.removeIf { snapshot ->
-                if (flushWhen(snapshot)) {
-                    when (snapshot.origin) {
-                        TransferOrigin.SEND -> sendPacketSilently(snapshot.packet)
-                        TransferOrigin.RECEIVE -> handlePacket(snapshot.packet)
-                    }
-                    true
-                } else {
-                    false
-                }
+    fun flush(flushWhen: (PacketSnapshot) -> Boolean) {
+        packetQueue.removeIf { snapshot ->
+            if (flushWhen(snapshot)) {
+                flushSnapshot(snapshot)
+                true
+            } else {
+                false
             }
         }
     }
 
     fun flush(count: Int) {
-        synchronized(packetQueue) {
-            // Take all packets until the counter of move packets reaches count and send them
-            var counter = 0
+        // Take all packets until the counter of move packets reaches count and send them
+        var counter = 0
 
-            for (packetData in packetQueue.iterator()) {
-                val packet = packetData.packet
+        for (snapshot in packetQueue.iterator()) {
+            val packet = snapshot.packet
 
-                if (packet is PlayerMoveC2SPacket && packet.changePosition) {
-                    counter += 1
-                }
+            if (packet is PlayerMoveC2SPacket && packet.changePosition) {
+                counter += 1
+            }
 
-                sendPacketSilently(packet)
-                packetQueue.remove(packetData)
+            flushSnapshot(snapshot)
+            packetQueue.remove(snapshot)
 
-                if (counter >= count) {
-                    break
-                }
+            if (counter >= count) {
+                break
             }
         }
     }
@@ -227,42 +218,31 @@ object PacketQueueManager : EventListener {
             player.setPosition(pos)
         }
 
-        synchronized(packetQueue) {
-            for (data in packetQueue) {
-                when (val packet = data.packet) {
-                    is PlayerMoveC2SPacket -> continue
-                    else -> sendPacketSilently(packet)
-                }
+        for (snapshot in packetQueue) {
+            when (snapshot.packet) {
+                is PlayerMoveC2SPacket -> continue
+                else -> flushSnapshot(snapshot)
             }
         }
-
-        clear()
-    }
-
-    fun clear() {
-        synchronized(packetQueue) {
-            packetQueue.clear()
-        }
+        packetQueue.clear()
     }
 
     fun isAboveTime(delay: Long): Boolean {
-        synchronized(packetQueue) {
-            val entryPacketTime = (packetQueue.firstOrNull()?.timestamp ?: return false)
-            return System.currentTimeMillis() - entryPacketTime >= delay
-        }
+        val entryPacketTime = (packetQueue.firstOrNull()?.timestamp ?: return false)
+        return System.currentTimeMillis() - entryPacketTime >= delay
     }
 
     inline fun <reified T> rewrite(action: (T) -> Unit) {
-        synchronized(packetQueue) {
-            packetQueue
-                .filterIsInstance<T>()
-                .forEach(action)
-        }
+        packetQueue
+            .filterIsInstance<T>()
+            .forEach(action)
     }
 
-    inline fun <reified T> rewriteAndFlush(action: (T) -> Unit) {
-        rewrite(action)
-        flush()
+    private fun flushSnapshot(snapshot: PacketSnapshot) {
+        when (snapshot.origin) {
+            TransferOrigin.SEND -> sendPacketSilently(snapshot.packet)
+            TransferOrigin.RECEIVE -> handlePacket(snapshot.packet)
+        }
     }
 
     enum class Action {
