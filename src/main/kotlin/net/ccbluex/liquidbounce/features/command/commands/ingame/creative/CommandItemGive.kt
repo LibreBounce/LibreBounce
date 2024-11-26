@@ -16,58 +16,67 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.creative
+package net.ccbluex.liquidbounce.features.command.commands.ingame.creative
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.item.createItem
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket
+import kotlin.math.max
 
 /**
- * CommandItemSkull
+ * ItemGive Command
  *
- * Allows you to create a player skull item with a specified name.
+ * Allows you to give items to the player.
  */
-object CommandItemSkull : MinecraftShortcuts {
+object CommandItemGive : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
-            .begin("skull")
+            .begin("give")
+            .requiresIngame()
             .parameter(
                 ParameterBuilder
-                    .begin<String>("name")
+                    .begin<String>("item")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
                     .required()
                     .build()
             )
+            .parameter(
+                ParameterBuilder
+                    .begin<Int>("amount")
+                    .verifiedBy(ParameterBuilder.POSITIVE_INTEGER_VALIDATOR)
+                    .optional()
+                    .build()
+            )
             .handler { command, args ->
-                val name = args[0] as String
+                val item = args[0] as String
 
-                if (mc.interactionManager?.hasCreativeInventory() == false) {
+                val amount = if (args.size > 2) args[1] as Int else 1 // default one
+
+                if (!interaction.hasCreativeInventory()) {
                     throw CommandException(command.result("mustBeCreative"))
                 }
 
-                val itemStack = createItem("minecraft:player_head{SkullOwner:$name}")
-                val emptySlot = player.inventory!!.emptySlot
+                val itemStack = createItem(item, max(amount, 1))
+                val emptySlot = player.inventory.emptySlot
 
                 if (emptySlot == -1) {
                     throw CommandException(command.result("noEmptySlot"))
                 }
 
-                player.inventory!!.setStack(emptySlot, itemStack)
-                mc.networkHandler!!.sendPacket(
-                    CreativeInventoryActionC2SPacket(
-                        if (emptySlot < 9) emptySlot + 36 else emptySlot,
-                        itemStack
-                    )
+                player.inventory.setStack(emptySlot, itemStack)
+                network.sendPacket(CreativeInventoryActionC2SPacket(if (emptySlot < 9) emptySlot + 36 else emptySlot,
+                    itemStack))
+                chat(
+                    regular(command.result("itemGiven", itemStack.toHoverableText(),
+                        variable(itemStack.count.toString()))),
+                    command
                 )
-                chat(regular(command.result("skullGiven", variable(name))))
             }
             .build()
     }

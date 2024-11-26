@@ -22,6 +22,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.module.Category
@@ -35,9 +36,9 @@ import net.minecraft.text.MutableText
  *
  * Allows you to disable all modules or modules in a specific category.
  */
-object CommandPanic {
+object CommandPanic : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("panic")
             .parameter(
@@ -73,7 +74,7 @@ object CommandPanic {
                     }
                 }.onSuccess {
                     AutoConfig.loadingNow = false
-                    chat(regular(msg))
+                    chat(regular(msg), command)
                 }.onFailure {
                     AutoConfig.loadingNow = false
                     throw CommandException(command.result("panicFailed"))

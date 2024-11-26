@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.ingame
 
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.player
@@ -33,13 +34,14 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
  *
  * Centers you at your current position.
  */
-object CommandCenter : EventListener {
+object CommandCenter : CommandFactory, EventListener {
 
     var state = CenterHandlerState.INACTIVE
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("center")
+            .requiresIngame()
             .handler { _, _ -> state = CenterHandlerState.APPLY_ON_NEXT_EVENT }
             .build()
     }

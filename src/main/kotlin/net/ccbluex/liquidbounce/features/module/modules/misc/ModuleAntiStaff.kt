@@ -153,7 +153,8 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
         }
 
-        override val running = ModuleAntiStaff.running && enabled
+        override val running
+            get() = ModuleAntiStaff.running && enabled
 
     }
 

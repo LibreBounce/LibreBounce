@@ -211,6 +211,7 @@ object ModuleLiquidChat : ClientModule("LiquidChat", Category.CLIENT, hide = tru
     /**
      * Overwrites the condition requirement for being in-game
      */
-    override val running = !isDestructed && enabled
+    override val running
+        get() = !isDestructed && enabled
 
 }

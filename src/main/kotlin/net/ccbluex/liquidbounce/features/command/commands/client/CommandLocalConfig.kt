@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.IncludeConfiguration
 import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -39,9 +40,9 @@ import net.minecraft.util.Util
  *
  * Allows you to load, list, and create local configurations.
  */
-object CommandLocalConfig {
+object CommandLocalConfig : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("localconfig")
             .hub()

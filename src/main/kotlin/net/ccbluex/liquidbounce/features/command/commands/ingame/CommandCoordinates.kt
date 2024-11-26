@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.utility
+package net.ccbluex.liquidbounce.features.command.commands.ingame
 
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.playerParameter
 import net.ccbluex.liquidbounce.utils.client.*
@@ -30,11 +31,14 @@ import org.apache.commons.lang3.StringUtils
  *
  * Copies your coordinates to your clipboard.
  */
-object CommandCoordinates {
+object CommandCoordinates : CommandFactory {
 
-    fun createCommand(): Command {
-        return CommandBuilder.begin("coordinates").alias("position", "coords")
+    override fun createCommand(): Command {
+        return CommandBuilder
+            .begin("coordinates")
+            .alias("position", "coords")
             .hub()
+            .requiresIngame()
             .subcommand(
                 CommandBuilder.begin("whisper")
                     .parameter(

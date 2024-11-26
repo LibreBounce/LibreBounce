@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient.startAuth
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
@@ -57,12 +58,12 @@ import net.minecraft.util.Util
  *
  * Provides subcommands for client management.
  */
-object CommandClient {
+object CommandClient : CommandFactory {
 
     /**
      * Creates client command with a variety of subcommands.
      */
-    fun createCommand() = CommandBuilder.begin("client")
+    override fun createCommand() = CommandBuilder.begin("client")
         .hub()
         .subcommand(infoCommand())
         .subcommand(browserCommand())
@@ -528,7 +529,7 @@ object CommandClient {
         .hub()
         .subcommand(
             CommandBuilder.begin("refresh")
-                .handler { command, _ ->
+                .handler { _, _ ->
                     chat(regular("Refreshing cosmetics..."))
                     CosmeticService.carriersCosmetics.clear()
                     ClientAccountManager.clientAccount.cosmetics = null
