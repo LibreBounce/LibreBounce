@@ -42,7 +42,6 @@ class Armor(
             var x = 1
             var y = if (isInsideWater) -10 else 0
 
-            resetColor()
             glColor4f(1F, 1F, 1F, 1F)
 
             for (index in 3 downTo 0) {
