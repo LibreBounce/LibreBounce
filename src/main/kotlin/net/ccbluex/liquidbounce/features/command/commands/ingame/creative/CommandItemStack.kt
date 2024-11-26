@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.creative
+package net.ccbluex.liquidbounce.features.command.commands.ingame.creative
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
@@ -28,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket
 
-object CommandItemStack : MinecraftShortcuts {
+object CommandItemStack : CommandFactory, MinecraftShortcuts {
 
     private val amountParameter = ParameterBuilder
         .begin<Int>("amount")
@@ -41,9 +42,10 @@ object CommandItemStack : MinecraftShortcuts {
 
 
     @Suppress("detekt:ThrowsCount")
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("stack")
+            .requiresIngame()
             .parameter(amountParameter)
             .handler { command, args ->
                 if (mc.interactionManager?.hasCreativeInventory() == false) {
@@ -63,7 +65,7 @@ object CommandItemStack : MinecraftShortcuts {
 
 
                 if (mainHandStack.count == amount) {
-                    chat(regular(command.result("hasAlreadyAmount", variable(amount.toString()))))
+                    chat(regular(command.result("hasAlreadyAmount", variable(amount.toString()))), command)
                     return@handler
                 }
 
@@ -75,7 +77,7 @@ object CommandItemStack : MinecraftShortcuts {
                         mainHandStack
                     )
                 )
-                chat(regular(command.result("amountChanged", variable(amount.toString()))))
+                chat(regular(command.result("amountChanged", variable(amount.toString()))), command)
             }
             .build()
     }

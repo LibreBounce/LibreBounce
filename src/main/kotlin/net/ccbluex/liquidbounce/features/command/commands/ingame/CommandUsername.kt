@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.utility
+package net.ccbluex.liquidbounce.features.command.commands.ingame
 
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.bypassNameProtection
@@ -34,11 +35,12 @@ import org.lwjgl.glfw.GLFW
  *
  * Displays the current username.
  */
-object CommandUsername : MinecraftShortcuts {
+object CommandUsername : CommandFactory, MinecraftShortcuts {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("username")
+            .requiresIngame()
             .handler { command, _ ->
                 val username = player.name.string
                 val formattedUsername = bypassNameProtection(variable(username))

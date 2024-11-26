@@ -16,19 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client
+package net.ccbluex.liquidbounce.features.command.commands.module
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.blockParameter
 import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay
-import net.ccbluex.liquidbounce.utils.client.asText
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.registry.Registries
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
@@ -39,10 +37,12 @@ import kotlin.math.roundToInt
  * XRay Command
  *
  * Allows you to add, remove, list, clear, and reset blocks for the XRay module.
+ *
+ * Module: [ModuleXRay]
  */
-object CommandXRay {
+object CommandXRay : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("xray")
             .hub()
@@ -67,7 +67,7 @@ object CommandXRay {
                             throw CommandException(command.result("blockIsPresent", displayName))
                         }
 
-                        chat(regular(command.result("blockAdded", displayName)))
+                        chat(regular(command.result("blockAdded", displayName)), command)
                     }
                     .build()
             )
@@ -92,7 +92,7 @@ object CommandXRay {
                             throw CommandException(command.result("blockNotFound", displayName))
                         }
 
-                        chat(regular(command.result("blockRemoved", displayName)))
+                        chat(regular(command.result("blockRemoved", displayName)), command)
                     }
                     .build()
             )
@@ -119,9 +119,18 @@ object CommandXRay {
                             throw CommandException(command.result("pageNumberTooLarge", maxPage))
                         }
 
+                        mc.inGameHud.chatHud.removeMessage("CXRay#global")
+                        val data = MessageMetadata(id = "CXRay#global", remove = false)
+
                         // Print out help page
-                        chat(command.result("list").styled { it.withColor(Formatting.RED).withBold(true) })
-                        chat(regular(command.result("pageCount", variable("$page / $maxPage"))))
+                        chat(
+                            command.result("list").styled { it.withColor(Formatting.RED).withBold(true) },
+                            metadata = data
+                        )
+                        chat(
+                            regular(command.result("pageCount", variable("$page / $maxPage"))),
+                            metadata = data
+                        )
 
                         val iterPage = 8 * page
                         for (block in blocks.subList(iterPage - 8, iterPage.coerceAtMost(blocks.size))) {
@@ -134,7 +143,8 @@ object CommandXRay {
                                     .styled { it.withColor(Formatting.GRAY) }
                                     .append(variable(" ("))
                                     .append(regular(identifier))
-                                    .append(variable(")"))
+                                    .append(variable(")")),
+                                metadata = data
                             )
                         }
 
@@ -143,7 +153,8 @@ object CommandXRay {
                                 .styled { it.withColor(Formatting.DARK_GRAY) }
                                 .append(variable("${CommandManager.Options.prefix}xray list <"))
                                 .append(variable(command.result("page")))
-                                .append(variable(">"))
+                                .append(variable(">")),
+                            metadata = data
                         )
                     }
                     .build()
@@ -153,7 +164,10 @@ object CommandXRay {
                     .begin("clear")
                     .handler { command, _ ->
                         ModuleXRay.blocks.clear()
-                        chat(regular(command.result("blocksCleared")))
+                        chat(
+                            regular(command.result("blocksCleared")),
+                            metadata = MessageMetadata(id = "CXRay#global")
+                        )
                     }
                     .build()
             )
@@ -162,10 +176,14 @@ object CommandXRay {
                     .begin("reset")
                     .handler {command, _ ->
                         ModuleXRay.applyDefaults()
-                        chat(regular(command.result("Reset the blocks to the default values")))
+                        chat(
+                            regular(command.result("Reset the blocks to the default values")),
+                            metadata = MessageMetadata(id = "CXRay#global")
+                        )
                     }
                     .build()
             )
             .build()
     }
+
 }

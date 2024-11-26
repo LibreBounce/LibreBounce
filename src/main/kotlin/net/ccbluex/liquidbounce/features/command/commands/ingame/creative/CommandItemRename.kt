@@ -16,62 +16,56 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.creative
+package net.ccbluex.liquidbounce.features.command.commands.ingame.creative
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.item.createItem
+import net.ccbluex.liquidbounce.utils.item.isNothing
+import net.minecraft.component.DataComponentTypes
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket
-import kotlin.math.max
+import net.minecraft.text.Text
+import net.minecraft.util.Hand
 
 /**
- * ItemGive Command
+ * ItemRename Command
  *
- * Allows you to give items to the player.
+ * Allows you to rename an item held in the player's hand.
  */
-object CommandItemGive {
+object CommandItemRename : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
-            .begin("give")
+            .begin("rename")
+            .requiresIngame()
             .parameter(
                 ParameterBuilder
-                    .begin<String>("item")
+                    .begin<String>("name")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
                     .required()
-                    .build()
-            )
-            .parameter(
-                ParameterBuilder
-                    .begin<Int>("amount")
-                    .verifiedBy(ParameterBuilder.POSITIVE_INTEGER_VALIDATOR)
-                    .optional()
+                    .vararg()
                     .build()
             )
             .handler { command, args ->
-                val item = args[0] as String
-
-                val amount = if (args.size > 2) args[1] as Int else 1 // default one
+                val name = (args[0] as Array<*>).joinToString(" ") { it as String }
 
                 if (!interaction.hasCreativeInventory()) {
                     throw CommandException(command.result("mustBeCreative"))
                 }
 
-                val itemStack = createItem(item, max(amount, 1))
-                val emptySlot = player.inventory.emptySlot
+                val itemStack = player.getStackInHand(Hand.MAIN_HAND)
 
-                if (emptySlot == -1) {
-                    throw CommandException(command.result("noEmptySlot"))
+                if (itemStack.isNothing()) {
+                    throw CommandException(command.result("mustHoldItem"))
                 }
 
-                player.inventory.setStack(emptySlot, itemStack)
-                network.sendPacket(CreativeInventoryActionC2SPacket(if (emptySlot < 9) emptySlot + 36 else emptySlot,
-                    itemStack))
-                chat(regular(command.result("itemGiven", itemStack.toHoverableText(),
-                    variable(itemStack.count.toString()))))
+                itemStack!!.set<Text>(DataComponentTypes.CUSTOM_NAME, name.translateColorCodes().asText())
+
+                network.sendPacket(CreativeInventoryActionC2SPacket(36 + mc.player!!.inventory.selectedSlot, itemStack))
+                chat(regular(command.result("renamedItem", itemStack.item.name, variable(name))), command)
             }
             .build()
     }

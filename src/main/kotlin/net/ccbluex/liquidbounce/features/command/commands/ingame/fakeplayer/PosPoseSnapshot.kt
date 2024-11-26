@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer
+package net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer
 
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.entity.EntityPose
