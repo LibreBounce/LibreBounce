@@ -45,7 +45,7 @@ public abstract class MixinScoreboard {
     @ModifyExpressionValue(method = "addObjective", at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Object2ObjectMap;containsKey(Ljava/lang/Object;)Z", remap = false))
     private boolean noCrash(boolean original) {
         var antiExploit = ModuleAntiExploit.INSTANCE;
-        if (antiExploit.getEnabled() && antiExploit.getVfpScoreboardFix()) {
+        if (antiExploit.getRunning() && antiExploit.getVfpScoreboardFix()) {
             return false;
         } else {
             return original;
@@ -55,7 +55,7 @@ public abstract class MixinScoreboard {
     @Inject(method = "removeScoreHolderFromTeam", at = @At("HEAD"), cancellable = true)
     private void noCrash2(String scoreHolderName, Team team, CallbackInfo ci) {
         var antiExploit = ModuleAntiExploit.INSTANCE;
-        if (antiExploit.getEnabled() && antiExploit.getVfpScoreboardFix() && getScoreHolderTeam(scoreHolderName) != team) {
+        if (antiExploit.getRunning() && antiExploit.getVfpScoreboardFix() && getScoreHolderTeam(scoreHolderName) != team) {
             ci.cancel();
         }
     }
