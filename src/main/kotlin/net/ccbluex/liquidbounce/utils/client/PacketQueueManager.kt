@@ -75,7 +75,9 @@ object PacketQueueManager : EventListener {
         EventManager.callEvent(QueuePacketEvent(packet, origin)).action
 
     @Suppress("unused")
-    private val flushHandler = handler<GameRenderEvent> {
+    private val flushHandler = handler<GameRenderEvent>(
+        priority = EventPriorityConvention.FIRST_PRIORITY
+    ) {
         if (!inGame) {
             packetQueue.clear()
             return@handler
