@@ -1,15 +1,13 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -25,8 +23,8 @@ public abstract class MixinScoreboard {
     public abstract Team getScoreHolderTeam(String scoreHolderName);
 
 
-    @Redirect(method = "addObjective", at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Object2ObjectMap;containsKey(Ljava/lang/Object;)Z", remap = false))
-    private boolean noCrash(Object2ObjectMap<String, ScoreboardObjective> instance, Object o) {
+    @ModifyExpressionValue(method = "addObjective", at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Object2ObjectMap;containsKey(Ljava/lang/Object;)Z", remap = false))
+    private boolean noCrash(boolean original) {
         return false;
     }
 
