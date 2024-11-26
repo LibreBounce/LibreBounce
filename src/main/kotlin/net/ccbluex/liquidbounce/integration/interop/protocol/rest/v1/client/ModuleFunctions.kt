@@ -45,7 +45,7 @@ fun getModules(requestObject: RequestObject): FullHttpResponse {
             addProperty("name", module.name)
             addProperty("category", module.category.readableName)
             add("keyBind", interopGson.toJsonTree(module.bind))
-            addProperty("enabled", module.running)
+            addProperty("enabled", module.enabled)
             addProperty("description", module.description)
             addProperty("tag", module.tag)
             addProperty("hidden", module.hidden)
@@ -102,7 +102,7 @@ data class ModuleRequest(val name: String) {
     fun acceptToggle(method: HttpMethod): FullHttpResponse {
         val module = ModuleManager[name] ?: return httpForbidden("$name not found")
 
-        val supposedNew = method == HttpMethod.PUT || (method == HttpMethod.POST && !module.running)
+        val supposedNew = method == HttpMethod.PUT || (method == HttpMethod.POST && !module.enabled)
 
         if (module.enabled == supposedNew) {
             return httpForbidden("$name already ${if (supposedNew) "enabled" else "disabled"}")
