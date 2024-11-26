@@ -29,7 +29,7 @@ class RequestHandlerTest {
 
     class TestClientModule(name: String) : ClientModule(name, Category.MISC, state = true) {
         override val running: Boolean
-            get() = super.running && enabled
+            get() = enabled
     }
 
     companion object {
