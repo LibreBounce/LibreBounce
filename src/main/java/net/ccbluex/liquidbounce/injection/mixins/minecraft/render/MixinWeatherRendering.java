@@ -34,7 +34,7 @@ public abstract class MixinWeatherRendering {
             Biome.Precipitation original) {
         var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
 
-        if (!moduleOverrideWeather.getEnabled())
+        if (!moduleOverrideWeather.getRunning())
             return original;
 
         return switch (moduleOverrideWeather.getWeather().get()) {
