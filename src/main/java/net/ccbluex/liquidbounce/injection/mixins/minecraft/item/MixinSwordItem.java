@@ -37,7 +37,7 @@ public abstract class MixinSwordItem extends Item  {
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (ModuleSwordBlock.INSTANCE.getEnabled() && !ModuleSwordBlock.INSTANCE.getOnlyVisual()
+        if (ModuleSwordBlock.INSTANCE.getRunning() && !ModuleSwordBlock.INSTANCE.getOnlyVisual()
                 && hand == Hand.MAIN_HAND) {
             user.setCurrentHand(hand);
             return ActionResult.SUCCESS;
