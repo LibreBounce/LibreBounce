@@ -124,7 +124,12 @@ object ChunkRenderer {
                 }
 
             val surfaceBlockPos = BlockPos(x, height, z)
-            val surfaceBlockState = world.getBlockState(surfaceBlockPos)
+            val surfaceBlockState: BlockState
+            try {
+                surfaceBlockState = world.getBlockState(surfaceBlockPos)
+            } catch(_: net.minecraft.world.chunk.EntryMissingException) {
+                return Color4b(255, 207, 179)
+            }
 
             if (surfaceBlockState.isAir) {
                 return Color4b(255, 207, 179)
