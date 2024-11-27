@@ -42,11 +42,13 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
@@ -77,27 +79,24 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         ChunkUpdateFlag.chunkUpdate = false;
     }
 
-    // todo: fix this
-//    @ModifyArgs(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;"))
-//    private void onExplosionVelocity(Args args) {
-//        double x = args.get(0);
-//        double y = args.get(1);
-//        double z = args.get(2);
-//
-//        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
-//            double fixedX = MathHelper.clamp(x, -10.0, 10.0);
-//            double fixedY = MathHelper.clamp(y, -10.0, 10.0);
-//            double fixedZ = MathHelper.clamp(z, -10.0, 10.0);
-//
-//            if (fixedX != x || fixedY != y || fixedZ != z) {
-//                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
-//                        true);
-//                args.set(0, fixedX);
-//                args.set(1, fixedY);
-//                args.set(2, fixedZ);
-//            }
-//        }
-//    }
+    // TODO: test this
+    @Redirect(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;playerKnockback()Ljava/util/Optional;"))
+    private Optional<Vec3d> modifyExplosionKnockback(ExplosionS2CPacket instance) {
+        Vec3d playerKnockback = instance.playerKnockback().orElse(new Vec3d(0.0, 0.0, 0.0));
+
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
+            double fixedX = MathHelper.clamp(playerKnockback.x, -10.0, 10.0);
+            double fixedY = MathHelper.clamp(playerKnockback.y, -10.0, 10.0);
+            double fixedZ = MathHelper.clamp(playerKnockback.z, -10.0, 10.0);
+
+            if (fixedX != playerKnockback.x || fixedY != playerKnockback.y || fixedZ != playerKnockback.z) {
+                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
+                        true);
+                return Optional.of(new Vec3d(fixedX, fixedY, fixedZ));
+            }
+        }
+        return Optional.empty();
+    }
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
     private int onParticleAmount(int original) {
