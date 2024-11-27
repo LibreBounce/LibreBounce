@@ -80,22 +80,21 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     }
 
     // TODO: test this
-    @Redirect(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;playerKnockback()Ljava/util/Optional;"))
-    private Optional<Vec3d> modifyExplosionKnockback(ExplosionS2CPacket instance) {
-        Vec3d playerKnockback = instance.playerKnockback().orElse(new Vec3d(0.0, 0.0, 0.0));
-
+    @ModifyExpressionValue(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;playerKnockback()Ljava/util/Optional;"))
+    private Optional<Vec3d> modifyExplosionKnockback(Optional<Vec3d> original) {
+        Vec3d orig = original.orElse(Vec3d.ZERO);
         if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
-            double fixedX = MathHelper.clamp(playerKnockback.x, -10.0, 10.0);
-            double fixedY = MathHelper.clamp(playerKnockback.y, -10.0, 10.0);
-            double fixedZ = MathHelper.clamp(playerKnockback.z, -10.0, 10.0);
+            double fixedX = MathHelper.clamp(orig.x, -10.0, 10.0);
+            double fixedY = MathHelper.clamp(orig.y, -10.0, 10.0);
+            double fixedZ = MathHelper.clamp(orig.z, -10.0, 10.0);
 
-            if (fixedX != playerKnockback.x || fixedY != playerKnockback.y || fixedZ != playerKnockback.z) {
+            if (fixedX != orig.x || fixedY != orig.y || fixedZ != orig.z) {
                 ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
                         true);
                 return Optional.of(new Vec3d(fixedX, fixedY, fixedZ));
             }
         }
-        return Optional.empty();
+        return original;
     }
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
