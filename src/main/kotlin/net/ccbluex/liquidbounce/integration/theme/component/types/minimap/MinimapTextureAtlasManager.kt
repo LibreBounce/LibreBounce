@@ -26,6 +26,8 @@ import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.math.ChunkPos
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -40,15 +42,18 @@ private const val ATLAS_SIZE: Int = 64
  */
 private const val FULL_UPLOAD_THRESHOLD: Int = 15
 
+private const val MAX_ATLAS_POSITIONS: Int = ATLAS_SIZE * ATLAS_SIZE - 1
+
 private val NOT_LOADED_ATLAS_POSITION = MinimapTextureAtlasManager.AtlasPosition(0, 0)
 
 class MinimapTextureAtlasManager {
     private val texture = NativeImageBackedTexture(ATLAS_SIZE * 16, ATLAS_SIZE * 16, false)
-    private val availableAtlasPositions = ArrayList<AtlasPosition>(ATLAS_SIZE * ATLAS_SIZE - 1)
+    private val availableAtlasPositions = ArrayList<AtlasPosition>(MAX_ATLAS_POSITIONS)
     private val dirtyAtlasPositions = hashSetOf<AtlasPosition>()
     private val chunkPosAtlasPosMap = hashMapOf<ChunkPos, AtlasPosition>()
 
     private val lock = ReentrantReadWriteLock()
+    private val semaphore = Semaphore(MAX_ATLAS_POSITIONS)
 
     private var allocated = false
 
@@ -75,6 +80,8 @@ class MinimapTextureAtlasManager {
     }
 
     private fun allocate(chunkPos: ChunkPos): AtlasPosition {
+        semaphore.acquire()
+
         val atlasPosition = availableAtlasPositions.removeLastOrNull() ?: error("No more space in the texture atlas!")
 
         chunkPosAtlasPosMap[chunkPos] = atlasPosition
@@ -85,13 +92,17 @@ class MinimapTextureAtlasManager {
     fun deallocate(chunkPos: ChunkPos) {
         lock.write {
             chunkPosAtlasPosMap.remove(chunkPos)?.apply(availableAtlasPositions::add)
+            semaphore.release()
         }
     }
 
     fun deallocateAll() {
-        availableAtlasPositions.addAll(chunkPosAtlasPosMap.values)
-        chunkPosAtlasPosMap.clear()
-        dirtyAtlasPositions.clear()
+        lock.write {
+            availableAtlasPositions.addAll(chunkPosAtlasPosMap.values)
+            semaphore.release(chunkPosAtlasPosMap.size)
+            chunkPosAtlasPosMap.clear()
+            dirtyAtlasPositions.clear()
+        }
     }
 
     fun getOrNotLoadedTexture(chunkPos: ChunkPos): AtlasPosition {
