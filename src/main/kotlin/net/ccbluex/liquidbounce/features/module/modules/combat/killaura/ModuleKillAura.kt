@@ -31,14 +31,14 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing.dealWithFakeSwing
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FightBot
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.failedHits
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.hasFailedHit
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.renderFailedHits
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing.dealWithFakeSwing
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFightBot
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.failedHits
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.hasFailedHit
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.renderFailedHits
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -118,22 +118,22 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     internal val simulateInventoryClosing by boolean("SimulateInventoryClosing", true)
 
     init {
-        tree(AutoBlock)
+        tree(KillAuraAutoBlock)
     }
 
     // Target rendering
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
     init {
-        tree(FailSwing)
-        tree(FightBot)
+        tree(KillAuraFailSwing)
+        tree(KillAuraFightBot)
     }
 
     override fun disable() {
         targetTracker.cleanup()
         failedHits.clear()
-        AutoBlock.stopBlocking()
-        NotifyWhenFail.failedHitsIncrement = 0
+        KillAuraAutoBlock.stopBlocking()
+        KillAuraNotifyWhenFail.failedHitsIncrement = 0
     }
 
     private val canTargetEnemies
@@ -183,17 +183,17 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val target = targetTracker.lockedOnTarget
 
         if (CombatManager.shouldPauseCombat) {
-            AutoBlock.stopBlocking()
+            KillAuraAutoBlock.stopBlocking()
             return@tickHandler
         }
 
         if (target == null) {
-            val hasUnblocked = AutoBlock.stopBlocking()
+            val hasUnblocked = KillAuraAutoBlock.stopBlocking()
 
             // Deal with fake swing when there is no target
-            if (FailSwing.enabled && canTargetEnemies) {
+            if (KillAuraFailSwing.enabled && canTargetEnemies) {
                 if (hasUnblocked) {
-                    waitTicks(AutoBlock.tickOff)
+                    waitTicks(KillAuraAutoBlock.tickOff)
                 }
                 dealWithFakeSwing(null)
             }
@@ -242,7 +242,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     private suspend fun Sequence<*>.mightAttack(chosenEntity: Entity, rotation: Rotation) {
         // Make it seem like we are blocking
-        AutoBlock.makeSeemBlock()
+        KillAuraAutoBlock.makeSeemBlock()
 
         if (considerMissCooldown && mc.attackCooldown > 0) {
             return
@@ -259,18 +259,18 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Check if our target is in range, otherwise deal with auto block
         if (!isFacingEnemy) {
-            if (AutoBlock.onScanRange) {
-                AutoBlock.startBlocking()
+            if (KillAuraAutoBlock.onScanRange) {
+                KillAuraAutoBlock.startBlocking()
                 return
             }
 
             // Make sure we are not blocking
-            val hasUnblocked = AutoBlock.stopBlocking()
+            val hasUnblocked = KillAuraAutoBlock.stopBlocking()
 
             // Deal with fake swing
-            if (FailSwing.enabled) {
+            if (KillAuraFailSwing.enabled) {
                 if (hasUnblocked) {
-                    waitTicks(AutoBlock.tickOff)
+                    waitTicks(KillAuraAutoBlock.tickOff)
                 }
 
                 dealWithFakeSwing(chosenEntity)
@@ -291,7 +291,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
                     // Attack enemy
                     chosenEntity.attack(true, keepSprint && !shouldBlockSprinting())
-                    NotifyWhenFail.failedHitsIncrement = 0
+                    KillAuraNotifyWhenFail.failedHitsIncrement = 0
 
                     GenericDebugRecorder.recordDebugInfo(ModuleKillAura, "attackEntity", JsonObject().apply {
                         add("player", GenericDebugRecorder.debugObject(player))
@@ -302,10 +302,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                 }
             }
         } else {
-            if (clickScheduler.isClickOnNextTick(AutoBlock.tickOff) && AutoBlock.shouldUnblockToHit) {
-                AutoBlock.stopBlocking(pauses = true)
+            if (clickScheduler.isClickOnNextTick(KillAuraAutoBlock.tickOff) && KillAuraAutoBlock.shouldUnblockToHit) {
+                KillAuraAutoBlock.stopBlocking(pauses = true)
             } else {
-                AutoBlock.startBlocking()
+                KillAuraAutoBlock.startBlocking()
             }
         }
     }
@@ -385,11 +385,11 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Choose enemy for fight bot
-        if (FightBot.enabled) {
+        if (KillAuraFightBot.enabled) {
             // Because target tracker enemies are sorted by priority, we can just take the first one
             val targetByPriority = targetTracker.enemies().firstOrNull() ?: return
 
-            val rotationToEnemy = FightBot.makeClientSideRotationNeeded(targetByPriority) ?: return
+            val rotationToEnemy = KillAuraFightBot.makeClientSideRotationNeeded(targetByPriority) ?: return
             // lock on target tracker
             RotationManager.aimAt(
                 rotations.toAimPlan(rotationToEnemy, null, targetByPriority, !ignoreOpenInventory,
@@ -494,15 +494,15 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val wasBlocking = player.isBlockAction
 
         if (wasBlocking) {
-            if (!AutoBlock.enabled && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
+            if (!KillAuraAutoBlock.enabled && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
                 return
             }
 
-            if (AutoBlock.enabled && AutoBlock.shouldUnblockToHit) {
+            if (KillAuraAutoBlock.enabled && KillAuraAutoBlock.shouldUnblockToHit) {
                 // Wait for the tick off time to be over, if it's not 0
                 // Ideally this should not happen.
-                if (AutoBlock.stopBlocking(pauses = true) && AutoBlock.tickOff > 0) {
-                    waitTicks(AutoBlock.tickOff)
+                if (KillAuraAutoBlock.stopBlocking(pauses = true) && KillAuraAutoBlock.tickOff > 0) {
+                    waitTicks(KillAuraAutoBlock.tickOff)
                 }
             }
         } else if (player.isUsingItem && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
@@ -526,8 +526,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // If the player was blocking before, we start blocking again after the attack if the tick on is 0
-        if (wasBlocking && AutoBlock.blockImmediate) {
-            AutoBlock.startBlocking()
+        if (wasBlocking && KillAuraAutoBlock.blockImmediate) {
+            KillAuraAutoBlock.startBlocking()
         }
     }
 

@@ -25,8 +25,8 @@ import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.prepareAttackEnvironment
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.Box
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.NotifyWhenFail.Sound
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.Box
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.Sound
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
@@ -37,7 +37,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 
-internal object FailSwing : ToggleableConfigurable(ModuleKillAura, "FailSwing", false) {
+internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "FailSwing", false) {
 
     /**
      * Additional range for fail swing to work
@@ -76,7 +76,7 @@ internal object FailSwing : ToggleableConfigurable(ModuleKillAura, "FailSwing", 
         }
 
         // Make it seem like we are blocking
-        AutoBlock.makeSeemBlock()
+        KillAuraAutoBlock.makeSeemBlock()
 
         if (clickScheduler.goingToClick) {
             prepareAttackEnvironment {
@@ -88,7 +88,7 @@ internal object FailSwing : ToggleableConfigurable(ModuleKillAura, "FailSwing", 
                     player.swingHand(Hand.MAIN_HAND)
 
                     // Notify the user about the failed hit
-                    NotifyWhenFail.notifyForFailedHit(entity, RotationManager.serverRotation)
+                    KillAuraNotifyWhenFail.notifyForFailedHit(entity, RotationManager.serverRotation)
                     true
                 }
             }
