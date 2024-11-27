@@ -237,8 +237,6 @@
         
         "module.noBob.description": "Отключает эффект покачивания изображения.",
         
-        "module.noBooks.description": "Не даёт серверу открывать книги вам в лицо (реклама и т.д.)",
-        
         "module.noClip.description": "Позволяет свободно ходить сквозь блоки (На голову дожен упасть песок).",
         
         "module.noFOV.description": "Отключает изменения FOV(поле зрения), вызванные эффектом скорости и т.д.",
@@ -254,8 +252,6 @@
         "module.noPitchLimit.description": "Позволяет вертеть головой во все стороны.",
         
         "module.noRotateSet.description": "Не даёт серверу поворачивать вашу голову.",
-        
-        "module.noScoreboard.description": "Убирает табло с информацией.",
 
         "module.noSlotSet.description": "Не даёт серверу менять ваш слот.",
         

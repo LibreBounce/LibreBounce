@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
-import net.ccbluex.liquidbounce.features.module.modules.render.NoScoreboard;
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.ClassUtils;
@@ -57,7 +56,7 @@ public abstract class MixinGuiInGame extends Gui {
 
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void renderScoreboard(CallbackInfo callbackInfo) {
-        if (HUD.INSTANCE.handleEvents() || NoScoreboard.INSTANCE.handleEvents())
+        if (HUD.INSTANCE.handleEvents() || AntiBlind.INSTANCE.handleEvents() && AntiBlind.INSTANCE.getScoreboard())
             callbackInfo.cancel();
     }
 

@@ -60,8 +60,6 @@
 
         "module.noFriends.description": "Allows you to attack friends.",
 
-        "module.noAchievement.description": "No Achievement.",
-
         "module.superKnockback.description": "Increases knockback dealt to other entities.",
 
         "module.teleportHit.description": "Allows to hit entities from far away.",
@@ -252,8 +250,6 @@
         
         "module.noBob.description": "Disables the view bobbing effect.",
         
-        "module.noBooks.description": "Blocks server from opening books (forced ads, ...)",
-        
         "module.noClip.description": "Allows you to freely move through walls (A sandblock has to fall on your head).",
         
         "module.noFOV.description": "Disables FOV changes caused by speed effect, etc.",
@@ -271,8 +267,6 @@
         "module.noRotateSet.description": "Prevents the server from rotating your head.",
 
         "module.noSlotSet.description": "Prevents the server from changing your hotbar slot.",
-        
-        "module.noScoreboard.description": "Disables the scoreboard.",
         
         "module.noSlow.description": "Cancels slowness effects caused by Soul Sand and using items.",
         

@@ -233,8 +233,6 @@
 
         "module.noBob.description": "Desativa o efeito de balanço de visão.",
 
-        "module.noBooks.description": "Bloqueia o servidor de abrir livros (anúncios forçados)",
-
         "module.noClip.description": "Permite que você se mova livremente através de paredes (um bloco de areia deve cair em sua cabeça).",
 
         "module.noFOV.description": "Desativa as mudanças de FOV causadas pelo efeito de velocidade, etc.",
@@ -250,8 +248,6 @@
         "module.noPitchLimit.description": "Permite que você gire sua cabeça indefinidamente em todas as direções.",
 
         "module.noRotateSet.description": "Impede que o servidor gire sua cabeça.",
-
-        "module.noScoreboard.description": "Desativa o ScoreBoard.",
 
         "module.noSlotSet.description": "Impede que o servidor altere seu slot.",
 

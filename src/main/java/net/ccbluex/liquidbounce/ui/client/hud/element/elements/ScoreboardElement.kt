@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_WEBSITE
-import net.ccbluex.liquidbounce.features.module.modules.render.NoScoreboard
+import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -61,7 +61,7 @@ class ScoreboardElement(
      * Draw element
      */
     override fun drawElement(): Border? {
-        if (NoScoreboard.handleEvents())
+        if (AntiBlind.handleEvents() && AntiBlind.scoreboard)
             return null
 
         val fontRenderer = font

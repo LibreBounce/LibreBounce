@@ -58,8 +58,6 @@
 
         "module.noFriends.description": "忽略朋友功能。",
 
-        "module.noAchievement.description": "没有成就",
-
         "module.superKnockback.description": "增加对其他生物的击退。",
 
         "module.teleportHit.description": "允许你手动攻击时打击远处的生物。",
@@ -250,8 +248,6 @@
         
         "module.noBob.description": "禁用视角摇晃效果。",
         
-        "module.noBooks.description": "阻止服务器打开书籍 (强制广告，…)。",
-        
         "module.noClip.description": "允许你自由穿行于墙壁 (需要有沙子落在头上)。",
 
         "module.noFOV.description": "禁用由速度等效果引起的视野变化。",
@@ -269,8 +265,6 @@
         "module.noRotateSet.description": "防止服务器旋转你的头。",
 
         "module.noSlotSet.description": "防止服务器更改你的物品栏。",
-        
-        "module.noScoreboard.description": "隐藏记分板。",
         
         "module.noSlow.description": "消除灵魂沙和使用物品造成的减速效果。",
         
