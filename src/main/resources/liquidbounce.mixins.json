@@ -108,5 +108,8 @@
   "server": [],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+    "minecraft.network.MixinExplosionS2CPacket"
+  ]
 }

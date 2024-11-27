@@ -180,3 +180,4 @@ accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraf
 accessible method net/minecraft/entity/Entity unsetRemoved ()V
 # MixinWeatherRendering
 accessible class net/minecraft/client/render/WeatherRendering$Piece
+mutable field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerKnockback Ljava/util/Optional;
