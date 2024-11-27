@@ -41,7 +41,7 @@ import kotlin.math.abs
 /**
  * A fight bot, fights for you, probably better than you. Lol.
  */
-object FightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", false) {
+object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", false) {
 
     private val safeRange by float("SafeRange", 4f, 0.1f..5f)
     private var sideToGo = false
