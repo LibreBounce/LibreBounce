@@ -140,9 +140,7 @@ class TrackedInventory {
      */
     fun update(newItemStack: ItemStack, updatedSlot: EquipmentSlot) {
         items.removeIf { it.count == 0 }
-        if (newItemStack.isEmpty) {
-            return
-        }
+        if (newItemStack.isEmpty) return
 
         items.removeIf { newItemStack.item == it.item && newItemStack.enchantments == it.enchantments }
         if (updatedSlot.type == HAND) {
