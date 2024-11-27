@@ -23,8 +23,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.effect.StatusEffects
-//import net.minecraft.item.ElytraItem
 import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
@@ -47,7 +47,10 @@ object ModuleElytraRecast : ClientModule("ElytraRecast", Category.MOVEMENT) {
 
             return !player.abilities.flying && !player.hasVehicle() && !player.isClimbing &&
                 !player.isTouchingWater && !player.hasStatusEffect(StatusEffects.LEVITATION) &&
-                itemStack.isOf(Items.ELYTRA) /*&& itemStack.canUse(itemStack)*/ && mc.options.jumpKey.isPressed
+                itemStack.isOf(Items.ELYTRA) && LivingEntity.canGlideWith(
+                    itemStack,
+                    EquipmentSlot.CHEST
+                    )  && mc.options.jumpKey.isPressed
         }
 
     /**
