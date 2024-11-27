@@ -25,8 +25,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleNoMissCooldown;
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAction;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
@@ -339,8 +338,7 @@ public abstract class MixinMinecraftClient {
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
     private boolean injectMultiActionsAttackingWhileUsingAndEnforcedBlockingState(boolean isUsingItem) {
         if (isUsingItem) {
-            if (!this.options.useKey.isPressed() && !(ModuleKillAura.INSTANCE.getRunning()
-                    && AutoBlock.INSTANCE.getEnabled() && AutoBlock.INSTANCE.getBlockingStateEnforced())) {
+            if (!this.options.useKey.isPressed() && !(KillAuraAutoBlock.INSTANCE.getRunning() && KillAuraAutoBlock.INSTANCE.getBlockingStateEnforced())) {
                 this.interactionManager.stopUsingItem(this.player);
             }
 

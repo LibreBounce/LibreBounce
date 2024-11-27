@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
@@ -45,7 +45,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
         player: PlayerEntity = this.player,
         offHandItem: Item = player.offHandStack.item,
         mainHandItem: Item = player.mainHandStack.item,
-    ) = (running || AutoBlock.blockVisual) && offHandItem is ShieldItem
+    ) = (running || KillAuraAutoBlock.blockVisual) && offHandItem is ShieldItem
         && (mainHandItem is SwordItem || player === this.player && running && alwaysHideShield)
 
     @Suppress("UNUSED")
