@@ -24,7 +24,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
-import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
@@ -207,7 +206,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     private String handleSendMessage(String content) {
         var result = ModuleBetterChat.INSTANCE.modifyMessage(content);
 
-        if (ModuleDisabler.INSTANCE.getRunning() && DisablerSpigotSpam.INSTANCE.getEnabled()) {
+        if (DisablerSpigotSpam.INSTANCE.getRunning()) {
             return DisablerSpigotSpam.INSTANCE.getMessage() + " " + result;
         }
 

@@ -126,7 +126,7 @@ abstract class Choice(name: String) : Configurable(name), EventListener, NamedCh
     /**
      * Check if the choice is selected on the parent.
      */
-    val isSelected: Boolean
+    internal val isSelected: Boolean
         get() = this.parent.activeChoice === this
 
     /**

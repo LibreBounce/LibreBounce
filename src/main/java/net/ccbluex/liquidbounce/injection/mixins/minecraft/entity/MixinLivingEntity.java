@@ -94,7 +94,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         // If we get anyting other than levitation, the injection went wrong
         assert original != StatusEffects.LEVITATION;
 
-        if (ModuleAntiLevitation.INSTANCE.getEnabled()) {
+        if (ModuleAntiLevitation.INSTANCE.getRunning()) {
             return null;
         }
 
@@ -203,9 +203,9 @@ public abstract class MixinLivingEntity extends MixinEntity {
         var noJumpDelay = ModuleNoJumpDelay.INSTANCE.getRunning() && !ModuleAirJump.INSTANCE.getAllowJump();
 
         // The jumping cooldown would lead to very slow tower building
-        var towerActive = ModuleScaffold.INSTANCE.getRunning() && !(ModuleScaffold.INSTANCE.getTowerMode()
-                .getActiveChoice() instanceof NoneChoice) && ModuleScaffold.INSTANCE.getTowerMode()
-                .getActiveChoice().isSelected();
+        var towerActive = ModuleScaffold.INSTANCE.getRunning() &&
+        !(ModuleScaffold.INSTANCE.getTowerMode().getActiveChoice() instanceof NoneChoice) &&
+        ModuleScaffold.INSTANCE.getTowerMode().getActiveChoice().getRunning();
 
         if (noJumpDelay || towerActive) {
             jumpingCooldown = 0;

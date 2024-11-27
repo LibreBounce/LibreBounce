@@ -21,8 +21,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 import it.unimi.dsi.fastutil.objects.ObjectLongMutablePair
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing.enabled
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.FailSwing.mode
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing.enabled
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing.mode
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.utils.rainbow
@@ -39,7 +39,7 @@ import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
-internal object NotifyWhenFail {
+internal object KillAuraNotifyWhenFail {
 
     internal val failedHits = ArrayDeque<ObjectLongMutablePair<Vec3d>>()
     var hasFailedHit = false

@@ -79,7 +79,7 @@ public abstract class MixinInGameHud {
 
         // Draw after overlay event
         var component = ComponentOverlay.getComponentWithTweak(FeatureTweak.TWEAK_HOTBAR);
-        if (component != null && component.getEnabled() &&
+        if (component != null && component.getRunning() &&
                 client.interactionManager.getCurrentGameMode() != GameMode.SPECTATOR) {
             drawHotbar(context, tickCounter, component);
         }
