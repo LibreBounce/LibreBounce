@@ -38,9 +38,11 @@ object ModuleProphuntESP : ClientModule("ProphuntESP", Category.RENDER,
     @Suppress("unused")
     private val networkHandler = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
-            is BlockUpdateS2CPacket -> renderer.addBlock(packet.pos)
-            is ChunkDeltaUpdateS2CPacket -> packet.visitUpdates { pos, _ ->
-                renderer.addBlock(pos.toImmutable())
+            is BlockUpdateS2CPacket -> mc.renderTaskQueue.add {
+                renderer.addBlock(packet.pos)
+            }
+            is ChunkDeltaUpdateS2CPacket -> mc.renderTaskQueue.add {
+                packet.visitUpdates { pos, _ -> renderer.addBlock(pos.toImmutable()) }
             }
         }
     }
