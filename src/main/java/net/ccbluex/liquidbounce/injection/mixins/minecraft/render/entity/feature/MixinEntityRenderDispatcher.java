@@ -38,7 +38,9 @@ public abstract class MixinEntityRenderDispatcher {
             double z, float tickDelta,
             MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, EntityRenderer<? super E, S> renderer) {
-        ((IEntityRenderState) state).liquid_bounce$setEntity(entity);
+        // TODO: do stuff because just setting the entity via
+        //  casting `state` to an interface with getEntity and set Entity doesn't work
+        //  java momento :rage:
         return state;
     }
 }
