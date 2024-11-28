@@ -27,19 +27,23 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
 @Mixin(value = BlockOcclusionCache.class, remap = false)
 public class MixinSodiumBlockOcclusionCache {
 
-//    @Inject(method = "shouldDrawSide", at = @At("RETURN"), cancellable = true)
-//    private void injectXRay(BlockState selfState, BlockView view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> cir) {
-//        ModuleXRay module = ModuleXRay.INSTANCE;
-//        if (!module.getRunning()) {
-//            return;
-//        }
-//
-//        cir.setReturnValue(module.shouldRender(selfState, pos));
-//        cir.cancel();
-//    }
+    @Inject(method = "shouldDrawSide", at = @At("RETURN"), cancellable = true)
+    private void injectXRay(BlockState selfState, BlockView view, BlockPos selfPos, Direction facing, CallbackInfoReturnable<Boolean> cir) {
+        ModuleXRay module = ModuleXRay.INSTANCE;
+        if (!module.getRunning()) {
+            return;
+        }
+
+        // TODO: get the actual other state
+        cir.setReturnValue(module.allowDrawingSide(selfState, selfState, facing));
+        cir.cancel();
+    }
 }
