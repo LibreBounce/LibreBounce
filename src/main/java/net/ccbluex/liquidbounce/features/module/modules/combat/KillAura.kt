@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.CooldownHelper.getAttackCooldownProgress
 import net.ccbluex.liquidbounce.utils.CooldownHelper.resetLastAttackedTicks
+import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -40,6 +41,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
+import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.enchantment.EnchantmentHelper
@@ -57,11 +59,13 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
+import net.minecraft.util.DamageSource
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import org.lwjgl.input.Keyboard
 import java.awt.Color
+import kotlin.collections.firstOrNull
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -312,6 +316,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val mark by choices("Mark", arrayOf("None", "Platform", "Box"), "Platform", subjective = true)
     private val boxOutline by boolean("Outline", true, subjective = true) { mark == "Box" }
     private val fakeSharp by boolean("FakeSharp", true, subjective = true)
+    private val notifyWhenMitigated by boolean("NotifyWhenMitigated", false)
+    // A couple more options here.
 
     /**
      * MODULE
@@ -814,6 +820,53 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
             thePlayer.attackEntityWithModifiedSprint(entity, affectSprint) { if (swing) thePlayer.swingItem() }
 
+            val attackDamage = run {
+                val item = thePlayer.currentEquippedItem ?: return@run null
+
+                item.attributeModifiers["generic.attackDamage"]?.firstOrNull()?.amount?.toFloat()
+            }
+
+            var f = attackDamage?.plus(1f) ?: 1f
+
+            f += EnchantmentHelper.getModifierForCreature(
+                thePlayer.currentEquippedItem,
+                entity.getCreatureAttribute()
+            );
+
+            if (thePlayer.fallDistance > 0.0F && !thePlayer.onGround && !thePlayer.isOnLadder() && !thePlayer.isInWater() && !thePlayer.isPotionActive(
+                    Potion.blindness
+                ) && thePlayer.ridingEntity == null) {
+                f *= 1.5f
+            }
+
+            val source = DamageSource.causePlayerDamage(thePlayer)
+
+            val damage = run {
+                f = this.applyArmorCalculations(entity, source, f);
+                f = this.applyPotionDamageCalculations(entity, source, f);
+                f = Math.max(f - entity.getAbsorptionAmount(), 0.0F);
+
+                f
+            }
+
+            val health = getHealth(entity, true, true)
+
+            WaitTickUtils.conditionalSchedule(this, 10) {
+                val newHealth = getHealth(entity, true, true)
+
+                if (newHealth != health) {
+                    if (newHealth == health - damage) {
+                        chat("Safe?")
+                    } else {
+                        chat("Not safe? ${newHealth}, ${health}, WITH DAMAGE ${health - damage} DAMAGE: ${damage}")
+                    }
+
+                    return@conditionalSchedule true
+                }
+
+                return@conditionalSchedule false
+            }
+
             // Apply enchantment critical effect if FakeSharp is enabled
             if (EnchantmentHelper.getModifierForCreature(
                     thePlayer.heldItem,
@@ -1244,6 +1297,52 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
             return false
         }
+
+    private fun applyArmorCalculations(
+        entity: EntityLivingBase,
+        damageSource: DamageSource,
+        damage: Float
+    ): Float {
+        var adjustedDamage = damage
+        if (!damageSource.isUnblockable()) {
+            val remainingArmor = 25 - entity.getTotalArmorValue()
+            val scaledDamage = adjustedDamage * remainingArmor
+            adjustedDamage = scaledDamage / 25.0f
+        }
+        return adjustedDamage
+    }
+
+    private fun applyPotionDamageCalculations(
+        entity: EntityLivingBase,
+        damageSource: DamageSource,
+        damage: Float
+    ): Float {
+        var adjustedDamage = damage
+        if (damageSource.isDamageAbsolute()) {
+            return adjustedDamage
+        } else {
+            if (entity.isPotionActive(Potion.resistance) && damageSource != DamageSource.outOfWorld) {
+                val resistanceLevel = (entity.getActivePotionEffect(Potion.resistance)?.amplifier ?: 0) + 1
+                val reductionFactor = (25 - resistanceLevel * 5)
+                adjustedDamage = adjustedDamage * reductionFactor / 25.0f
+            }
+
+            if (adjustedDamage <= 0.0f) {
+                return 0.0f
+            } else {
+                var enchantmentModifier = EnchantmentHelper.getEnchantmentModifierDamage(entity.inventory, damageSource)
+                if (enchantmentModifier > 20) {
+                    enchantmentModifier = 20
+                }
+
+                if (enchantmentModifier in 1..20) {
+                    val reductionFactor = 25 - enchantmentModifier
+                    adjustedDamage = adjustedDamage * reductionFactor / 25.0f
+                }
+            }
+            return adjustedDamage
+        }
+    }
 
     /**
      * Range
