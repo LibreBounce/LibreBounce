@@ -4,6 +4,7 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.resource
 import net.fabricmc.mappings.model.V2MappingsProvider
 
+@Suppress("TooManyFunctions")
 object EnvironmentRemapper {
 
     private var mappings = runCatching {
