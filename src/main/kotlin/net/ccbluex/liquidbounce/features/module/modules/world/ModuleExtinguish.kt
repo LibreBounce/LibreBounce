@@ -64,6 +64,10 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     }
 
     private fun findAction(): PlacementPlan? {
+        if (player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) {
+            return null
+        }
+        
         val pickupSpanStart = (Pickup.pickupSpan.start * 1000.0F).toLong()
         val pickupSpanEnd = (Pickup.pickupSpan.endInclusive * 1000.0F).toLong()
 
