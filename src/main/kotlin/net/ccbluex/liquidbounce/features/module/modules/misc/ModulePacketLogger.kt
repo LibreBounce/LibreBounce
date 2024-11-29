@@ -34,7 +34,9 @@ import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import org.apache.commons.lang3.StringUtils
+import java.lang.reflect.Field
 import java.lang.reflect.Modifier
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 /**
@@ -50,6 +52,14 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
     private val clientbound by boolean("Clientbound", false)
     private val filter by enumChoice("Filter", Filter.BLACKLIST)
     private val packets by textArray("Packets", mutableListOf())
+
+    private val classNames = ConcurrentHashMap<Class<out Packet<*>>, String>()
+    private val fieldNames = ConcurrentHashMap<Field, String>()
+
+    override fun disable() {
+        classNames.clear()
+        fieldNames.clear()
+    }
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
@@ -69,16 +79,7 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
         val clazz = packet::class.java
 
         text.append(" ")
-        val classNames = mutableListOf<String>()
-        classNames.add(getClassName(clazz.name))
-
-        var superclass = clazz.superclass
-        while (superclass != null && superclass != Any::class.java) {
-            classNames.add(getClassName(superclass.name))
-            superclass = superclass.superclass
-        }
-
-        val packetName = classNames.reversed().joinToString(".")
+        val packetName = getPacketName(clazz)
         if (!filter(packetName, packets)) {
             return@handler
         }
@@ -96,8 +97,23 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
         chat(text, metadata = MessageMetadata(prefix = false))
     }
 
-    private fun getClassName(obfuscatedName: String): String {
-        val remapClassName = EnvironmentRemapper.remapClassNameToNamed(obfuscatedName)
+    private fun getPacketName(clazz: Class<out Packet<*>>): String {
+        return classNames.computeIfAbsent(clazz) {
+            val classNames = mutableListOf<String>()
+            classNames.add(getClassName(clazz))
+
+            var superclass = clazz.superclass
+            while (superclass != null && superclass != Any::class.java) {
+                classNames.add(getClassName(superclass))
+                superclass = superclass.superclass
+            }
+
+            classNames.reversed().joinToString(".")
+        }
+    }
+
+    private fun getClassName(clazz: Class<*>): String {
+        val remapClassName = EnvironmentRemapper.remapClass(clazz)
         val lastDotIndex = remapClassName.lastIndexOf('.')
         val lastDollarIndex = remapClassName.lastIndexOf('$')
         return StringUtils.substring(remapClassName, max(lastDotIndex, lastDollarIndex) + 1)
@@ -125,7 +141,10 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
                     text.append("\n")
                 }
 
-                val name = EnvironmentRemapper.remapField(currentClass!!.name, field.name)
+                val name = fieldNames.computeIfAbsent(field) {
+                    EnvironmentRemapper.remapField(currentClass!!.name, field.name)
+                }
+
                 val value = try {
                     field.get(packet)?.toString()
                 } catch (e: IllegalAccessException) {
