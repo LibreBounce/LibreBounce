@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 
 object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", false) {
@@ -27,7 +27,7 @@ object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", fals
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
     @Suppress("unused")
-    val stateUpdateHandler = repeatable {
+    val stateUpdateHandler = tickHandler {
         if (onlyOnGround) {
             if (player.isOnGround) {
                 player.velocity.x *= slowSpeed

@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.spider.modes
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.spider.ModuleSpider
 
 internal object SpiderVanilla : Choice("Vanilla") {
@@ -30,7 +30,7 @@ internal object SpiderVanilla : Choice("Vanilla") {
     override val parent: ChoiceConfigurable<Choice>
         get() = ModuleSpider.modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.horizontalCollision) {
             player.velocity.y = motion.toDouble()
         }

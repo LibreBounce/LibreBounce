@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
@@ -77,7 +77,7 @@ class PolyglotScript(val language: String, val file: File) {
     /**
      * Tracks client modifications made by the script
      */
-    private val registeredModules = mutableListOf<Module>()
+    private val registeredModules = mutableListOf<ClientModule>()
     private val registeredCommands = mutableListOf<Command>()
     private val registeredChoices = mutableListOf<Choice>()
 
@@ -132,7 +132,7 @@ class PolyglotScript(val language: String, val file: File) {
      * @see ScriptModule
      */
     @Suppress("unused")
-    fun registerModule(moduleObject: Map<String, Any>, callback: (Module) -> Unit) {
+    fun registerModule(moduleObject: Map<String, Any>, callback: (ClientModule) -> Unit) {
         val module = ScriptModule(this, moduleObject)
         registeredModules += module
         callback(module)

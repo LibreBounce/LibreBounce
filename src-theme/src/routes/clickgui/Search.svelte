@@ -37,26 +37,31 @@
     }
 
     async function handleKeyDown(e: KeyboardKeyEvent) {
+        if (e.screen === undefined || !e.screen.class.startsWith("net.ccbluex.liquidbounce") ||
+            !(e.screen.title === "ClickGUI" || e.screen.title === "VS-CLICKGUI")) {
+            return;
+        }
+
         if (filteredModules.length === 0 || e.action === 0) {
             return;
         }
 
-        switch (e.keyCode) {
-            case 264:
+        switch (e.key) {
+            case "key.keyboard.down":
                 selectedIndex = (selectedIndex + 1) % filteredModules.length;
                 break;
-            case 265:
+            case "key.keyboard.up":
                 selectedIndex =
                     (selectedIndex - 1 + filteredModules.length) %
                     filteredModules.length;
                 break;
-            case 257:
+            case "key.keyboard.enter":
                 await toggleModule(
                     filteredModules[selectedIndex].name,
                     !filteredModules[selectedIndex].enabled,
                 );
                 break;
-            case 258:
+            case "key.keyboard.tab":
                 const m = filteredModules[selectedIndex]?.name;
                 if (m) {
                     $highlightModuleName = m;
@@ -108,7 +113,7 @@
         }
     });
 
-    listen("toggleModule", (e: ToggleModuleEvent) => {
+    listen("moduleToggle", (e: ToggleModuleEvent) => {
         const mod = filteredModules.find((m) => m.name === e.moduleName);
         if (!mod) {
             return;

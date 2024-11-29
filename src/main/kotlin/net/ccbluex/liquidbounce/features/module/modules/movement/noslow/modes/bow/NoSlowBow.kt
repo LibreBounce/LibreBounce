@@ -43,18 +43,19 @@ internal object NoSlowBow : ToggleableConfigurable(ModuleNoSlow, "Bow", true) {
         )
     }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents() || !inGame) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (!super.running || !inGame) {
+                return false
+            }
 
-        // Check if we are using a block item
-        return player.isUsingItem && player.activeItem.useAction in arrayOf(
-            UseAction.BOW,
-            UseAction.CROSSBOW,
-            UseAction.SPEAR
-        )
-    }
+            // Check if we are using a block item
+            return player.isUsingItem && player.activeItem.useAction in arrayOf(
+                UseAction.BOW,
+                UseAction.CROSSBOW,
+                UseAction.SPEAR
+            )
+        }
 
     @Suppress("unused")
     private val noBlockInteract = tree(NoSlowNoBlockInteract(this) { action ->

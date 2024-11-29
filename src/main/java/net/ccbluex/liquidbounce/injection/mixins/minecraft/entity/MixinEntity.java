@@ -74,7 +74,7 @@ public abstract class MixinEntity {
 
     @ModifyExpressionValue(method = "bypassesLandingEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isSneaking()Z"))
     private boolean hookAntiBounce(boolean original) {
-        return ModuleAntiBounce.INSTANCE.getEnabled() || original;
+        return ModuleAntiBounce.INSTANCE.getRunning() || original;
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class MixinEntity {
      */
     @Redirect(method = "changeLookDirection", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp(FFF)F"))
     public float hookNoPitchLimit(float value, float min, float max) {
-        boolean noLimit = ModuleNoPitchLimit.INSTANCE.getEnabled();
+        boolean noLimit = ModuleNoPitchLimit.INSTANCE.getRunning();
 
         if (noLimit) return value;
         return MathHelper.clamp(value, min, max);

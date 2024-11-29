@@ -25,7 +25,7 @@ import com.google.gson.JsonSerializer
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import java.lang.reflect.Type
 
 class ConfigurableSerializer(
@@ -83,7 +83,7 @@ class ConfigurableSerializer(
         }
 
         // Might check if value is module
-        if (value is Module) {
+        if (value is ClientModule) {
             /**
              * Do not include modules that are heavily user-personalised
              */

@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleFastUse
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
@@ -62,11 +62,11 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
         canFly = false
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val slot = findHotbarSlot(Items.ENDER_PEARL)
 
         if (player.isDead || player.isSpectator || player.abilities.creativeMode) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (!threwPearl && !canFly) {
@@ -102,7 +102,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
                 mc.options.sneakKey.isPressed -> -speed.toDouble()
                 else -> 0.0
             }
-            return@repeatable
+            return@tickHandler
         }
     }
 

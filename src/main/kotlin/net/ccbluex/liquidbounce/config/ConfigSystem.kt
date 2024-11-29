@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.DynamicConfigurable
 import net.ccbluex.liquidbounce.config.types.Value
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -179,7 +179,7 @@ object ConfigSystem {
      * Deserialize module configurable from a reader
      */
     fun deserializeModuleConfigurable(
-        modules: List<Module>,
+        modules: List<ClientModule>,
         reader: Reader,
         gson: Gson = fileGson
     ) {

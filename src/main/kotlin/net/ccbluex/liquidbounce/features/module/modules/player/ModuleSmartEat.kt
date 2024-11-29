@@ -22,9 +22,9 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.PlayerInteractedItem
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
@@ -48,7 +48,7 @@ import kotlin.math.absoluteValue
  * Makes it easier to eat
  */
 
-object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
+object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
     private val HOTBAR_OFFHAND_LEFT_TEXTURE = Identifier.of("hud/hotbar_offhand_left")
 
     private val swapBackDelay by int("SwapBackDelay", 5, 1..20)
@@ -160,13 +160,13 @@ object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
             )
         }
 
-        val tickHandler = repeatable {
+        val tickHandler = tickHandler {
             val useAction = player.activeItem.useAction
 
             if (useAction != UseAction.EAT && useAction != UseAction.DRINK)
-                return@repeatable
+                return@tickHandler
             if (!SilentHotbar.isSlotModifiedBy(this@SilentOffhand))
-                return@repeatable
+                return@tickHandler
 
             // if we are already eating, we want to keep the silent slot
             SilentHotbar.selectSlotSilently(this@SilentOffhand, SilentHotbar.serversideSlot, swapBackDelay)
@@ -180,7 +180,7 @@ object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
     private object AutoEat : ToggleableConfigurable(this, "AutoEat", true) {
         private val minHunger by int("MinHunger", 15, 0..20)
 
-        private val tickHandler = repeatable {
+        private val tickHandler = tickHandler {
 
             if (player.hungerManager.foodLevel < minHunger) {
                 waitUntil {

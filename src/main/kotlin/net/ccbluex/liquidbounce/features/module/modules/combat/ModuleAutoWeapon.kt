@@ -22,11 +22,11 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategorization
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.WeaponItemFacet
@@ -43,7 +43,7 @@ import net.minecraft.item.SwordItem
  *
  * Automatically selects the best weapon in your hotbar
  */
-object ModuleAutoWeapon : Module("AutoWeapon", Category.COMBAT) {
+object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
 
     private val slotMode = choices("SlotMode", BestSlotMode, arrayOf(
         BestSlotMode,
@@ -58,12 +58,12 @@ object ModuleAutoWeapon : Module("AutoWeapon", Category.COMBAT) {
         private val range by float("Range", 4.2f, 1f..8f)
 
         @Suppress("unused")
-        private val prepareHandler = repeatable {
-            val enemy = world.findEnemy(0f..range) ?: return@repeatable
+        private val prepareHandler = tickHandler {
+            val enemy = world.findEnemy(0f..range) ?: return@tickHandler
 
             SilentHotbar.selectSlotSilently(
                 this,
-                determineWeaponSlot(enemy) ?: return@repeatable,
+                determineWeaponSlot(enemy) ?: return@tickHandler,
                 resetDelay
             )
         }
@@ -103,10 +103,10 @@ object ModuleAutoWeapon : Module("AutoWeapon", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    val attackHandler = sequenceHandler<AttackEvent> { event ->
+    val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
         SilentHotbar.selectSlotSilently(
             this,
-            determineWeaponSlot(event.enemy) ?: return@sequenceHandler,
+            determineWeaponSlot(event.entity) ?: return@sequenceHandler,
             resetDelay
         )
     }
@@ -128,7 +128,7 @@ object ModuleAutoWeapon : Module("AutoWeapon", Category.COMBAT) {
             }
         }
 
-        return if (BestSlotMode.isActive) {
+        return if (BestSlotMode.isSelected) {
             val bestSlot = itemMap
                 .filter(BestSlotMode.weaponType.filter)
                 .maxOrNull()

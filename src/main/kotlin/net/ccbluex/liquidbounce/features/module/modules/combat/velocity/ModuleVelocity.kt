@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.*
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
@@ -39,7 +39,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Modifies the amount of velocity you take.
  */
 
-object ModuleVelocity : Module("Velocity", Category.COMBAT) {
+object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
 
     init {
         enableLock()
@@ -66,7 +66,7 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
     private var pause = 0
 
     @Suppress("unused")
-    private val countHandler = handler<GameTickEvent>(ignoreCondition = true) {
+    private val countHandler = handler<GameTickEvent>(ignoreNotRunning = true) {
         if (pause > 0) {
             pause--
         }
@@ -105,6 +105,7 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
         }
     }
 
-    override fun handleEvents() = super.handleEvents() && pause == 0
+    override val running: Boolean
+        get() = super.running && pause == 0
 
 }

@@ -20,39 +20,25 @@ package net.ccbluex.liquidbounce.features.module.modules.world.traps
 
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeInfo
-import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeIntent
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.IgnitionTrapPlanner
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
-import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.minecraft.block.Blocks
-import net.minecraft.item.Items
 import net.minecraft.util.Hand
-import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.Vec3i
 
 /**
  * Ignite module
  *
  * Automatically sets targets around you on fire.
  */
-object ModuleAutoTrap : Module("AutoTrap", Category.WORLD, aliases = arrayOf("Ignite")) {
+object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = arrayOf("Ignite")) {
 
     val range by floatRange("Range", 3.0f..4.5f, 2f..6f)
     private val delay by int("Delay", 20, 0..400, "ticks")
@@ -94,12 +80,12 @@ object ModuleAutoTrap : Module("AutoTrap", Category.WORLD, aliases = arrayOf("Ig
     }
 
     @Suppress("unused")
-    private val placementHandler = repeatable {
-        val plan = currentPlan ?: return@repeatable
-        val raycast = raycast() ?: return@repeatable
+    private val placementHandler = tickHandler {
+        val plan = currentPlan ?: return@tickHandler
+        val raycast = raycast() ?: return@tickHandler
 
         if (!plan.validate(raycast)) {
-            return@repeatable
+            return@tickHandler
         }
 
         CombatManager.pauseCombatForAtLeast(1)

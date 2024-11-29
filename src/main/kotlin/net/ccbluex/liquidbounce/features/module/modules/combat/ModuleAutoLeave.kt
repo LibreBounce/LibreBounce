@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleKick
 
 /**
@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleKick
  *
  * Automatically makes you leave the server whenever your health is low.
  */
-object ModuleAutoLeave : Module("AutoLeave", Category.COMBAT) {
+object ModuleAutoLeave : ClientModule("AutoLeave", Category.COMBAT) {
 
     private val health by float("Health", 8f, 0f..20f)
 
@@ -36,7 +36,7 @@ object ModuleAutoLeave : Module("AutoLeave", Category.COMBAT) {
     private val mode by enumChoice("Mode", ModuleKick.KickModeEnum.QUIT)
 
     @Suppress("unused")
-    val tickRepeatable = repeatable {
+    val tickRepeatable = tickHandler {
         if (player.health <= health && !player.abilities.creativeMode && !mc.isIntegratedServerRunning) {
             // Delay to bypass anti cheat or combat log detections
             waitTicks(delay)

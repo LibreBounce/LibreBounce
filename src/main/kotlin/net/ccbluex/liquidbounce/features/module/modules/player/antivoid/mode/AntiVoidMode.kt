@@ -32,7 +32,7 @@ abstract class AntiVoidMode(name: String) : Choice(name) {
 
     // Cases in which the AntiVoid protection should not be active.
     open val isExempt: Boolean
-        get() = player.isDead || ModuleFly.enabled
+        get() = player.isDead || ModuleFly.running
 
     /**
      * Attempt to safely move the player to a safe location.

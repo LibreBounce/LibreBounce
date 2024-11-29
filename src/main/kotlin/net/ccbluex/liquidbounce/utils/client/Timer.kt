@@ -18,16 +18,16 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.RequestHandler
 
 // Global minecraft timer
-object Timer : Listenable {
+object Timer : EventListener {
     private val requestHandler = RequestHandler<Float>()
 
     /**
@@ -44,7 +44,7 @@ object Timer : Listenable {
      * Requests a timer speed change. If another module requests with a higher priority,
      * the other module is prioritized.
      */
-    fun requestTimerSpeed(timerSpeed: Float, priority: Priority, provider: Module, resetAfterTicks: Int = 1) {
+    fun requestTimerSpeed(timerSpeed: Float, priority: Priority, provider: ClientModule, resetAfterTicks: Int = 1) {
         requestHandler.request(
             RequestHandler.Request(
                 // this prevents requests from being instantly removed

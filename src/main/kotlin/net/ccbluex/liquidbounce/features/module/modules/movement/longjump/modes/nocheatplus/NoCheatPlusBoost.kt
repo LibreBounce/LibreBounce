@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.ModuleLongJump
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.movement.zeroXZ
@@ -41,7 +41,7 @@ internal object NoCheatPlusBoost : Choice("NoCheatPlusBoost") {
 
     val ncpBoost by float("NCPBoost", 4.25f, 1f..10f)
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (ModuleLongJump.canBoost) {
             player.velocity.x *= ncpBoost.toDouble()
             player.velocity.z *= ncpBoost.toDouble()

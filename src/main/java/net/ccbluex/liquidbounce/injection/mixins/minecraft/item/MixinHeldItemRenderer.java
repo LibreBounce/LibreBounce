@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.item;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleSilentHotbar;
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar;
@@ -31,7 +31,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -48,13 +47,13 @@ public abstract class MixinHeldItemRenderer {
 
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;push()V", shift = At.Shift.AFTER))
     private void hookRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-        if (ModuleAnimations.INSTANCE.getEnabled()) {
-            if (Hand.MAIN_HAND == hand && ModuleAnimations.MainHand.INSTANCE.getEnabled()) {
+        if (ModuleAnimations.INSTANCE.getRunning()) {
+            if (Hand.MAIN_HAND == hand && ModuleAnimations.MainHand.INSTANCE.getRunning()) {
                 matrices.translate(ModuleAnimations.MainHand.INSTANCE.getMainHandX(), ModuleAnimations.MainHand.INSTANCE.getMainHandY(), ModuleAnimations.MainHand.INSTANCE.getMainHandItemScale());
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ModuleAnimations.MainHand.INSTANCE.getMainHandPositiveX()));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(ModuleAnimations.MainHand.INSTANCE.getMainHandPositiveY()));
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(ModuleAnimations.MainHand.INSTANCE.getMainHandPositiveZ()));
-            } else if (ModuleAnimations.OffHand.INSTANCE.getEnabled()) {
+            } else if (ModuleAnimations.OffHand.INSTANCE.getRunning()) {
                 matrices.translate(ModuleAnimations.OffHand.INSTANCE.getOffHandX(), ModuleAnimations.OffHand.INSTANCE.getOffHandY(), ModuleAnimations.OffHand.INSTANCE.getOffHandItemScale());
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ModuleAnimations.OffHand.INSTANCE.getOffHandPositiveX()));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(ModuleAnimations.OffHand.INSTANCE.getOffHandPositiveY()));
@@ -84,7 +83,7 @@ public abstract class MixinHeldItemRenderer {
     ))
     private UseAction hookUseAction(ItemStack instance) {
         var item = instance.getItem();
-        if (item instanceof SwordItem && AutoBlock.INSTANCE.getBlockVisual()) {
+        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return UseAction.BLOCK;
         }
 
@@ -99,7 +98,7 @@ public abstract class MixinHeldItemRenderer {
     private boolean hookIsUseItem(AbstractClientPlayerEntity instance) {
         var item = instance.getMainHandStack().getItem();
 
-        if (item instanceof SwordItem && AutoBlock.INSTANCE.getBlockVisual()) {
+        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return true;
         }
 
@@ -114,7 +113,7 @@ public abstract class MixinHeldItemRenderer {
     private Hand hookActiveHand(AbstractClientPlayerEntity instance) {
         var item = instance.getMainHandStack().getItem();
 
-        if (item instanceof SwordItem && AutoBlock.INSTANCE.getBlockVisual()) {
+        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return Hand.MAIN_HAND;
         }
 
@@ -129,7 +128,7 @@ public abstract class MixinHeldItemRenderer {
     private int hookItemUseItem(AbstractClientPlayerEntity instance) {
         var item = instance.getMainHandStack().getItem();
 
-        if (item instanceof SwordItem && AutoBlock.INSTANCE.getBlockVisual()) {
+        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return 7200;
         }
 
@@ -142,7 +141,7 @@ public abstract class MixinHeldItemRenderer {
             ordinal = 4
     ), index = 2)
     private float applyEquipOffset(float equipProgress) {
-        if (ModuleAnimations.INSTANCE.getEnabled() && !ModuleAnimations.INSTANCE.getEquipOffset()) {
+        if (ModuleAnimations.INSTANCE.getRunning() && !ModuleAnimations.INSTANCE.getEquipOffset()) {
             return 0.0F;
         }
 
@@ -156,12 +155,12 @@ public abstract class MixinHeldItemRenderer {
                                                 Hand hand, float swingProgress, ItemStack item, float equipProgress,
                                                 MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
                                                 CallbackInfo ci) {
-        var shouldAnimate = ModuleSwordBlock.INSTANCE.getEnabled() || AutoBlock.INSTANCE.getBlockVisual();
+        var shouldAnimate = ModuleSwordBlock.INSTANCE.getRunning() || KillAuraAutoBlock.INSTANCE.getBlockVisual();
 
         if (shouldAnimate && item.getItem() instanceof SwordItem) {
             final Arm arm = (hand == Hand.MAIN_HAND) ? player.getMainArm() : player.getMainArm().getOpposite();
 
-            if (ModuleAnimations.INSTANCE.getEnabled()) {
+            if (ModuleAnimations.INSTANCE.getRunning()) {
                 var activeChoice = ModuleAnimations.INSTANCE.getBlockAnimationChoice().getActiveChoice();
 
                 activeChoice.transform(matrices, arm, equipProgress, swingProgress);
@@ -175,7 +174,7 @@ public abstract class MixinHeldItemRenderer {
 
     @ModifyExpressionValue(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getMainHandStack()Lnet/minecraft/item/ItemStack;"))
     private ItemStack injectSilentHotbar(ItemStack original) {
-        if (ModuleSilentHotbar.INSTANCE.getEnabled()) {
+        if (ModuleSilentHotbar.INSTANCE.getRunning()) {
             // noinspection DataFlowIssue
             return client.player.getInventory().main.get(SilentHotbar.INSTANCE.getClientsideSlot());
         }
@@ -185,7 +184,7 @@ public abstract class MixinHeldItemRenderer {
 
     @ModifyExpressionValue(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttackCooldownProgress(F)F"))
     private float injectSilentHotbarNoCooldown(float original) {
-        if (ModuleSilentHotbar.INSTANCE.getEnabled() && ModuleSilentHotbar.INSTANCE.getNoCooldownProgress() && SilentHotbar.INSTANCE.isSlotModified()) {
+        if (ModuleSilentHotbar.INSTANCE.getRunning() && ModuleSilentHotbar.INSTANCE.getNoCooldownProgress() && SilentHotbar.INSTANCE.isSlotModified()) {
             return 1f;
         }
 

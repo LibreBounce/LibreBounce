@@ -49,14 +49,15 @@ internal object NoSlowBlock : ToggleableConfigurable(ModuleNoSlow, "Blocking", t
         )
     }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents() || !inGame) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (!super.running || !inGame) {
+                return false
+            }
 
-        // Check if we are using a block item
-        return (player.isUsingItem && player.activeItem.useAction == UseAction.BLOCK) || isBlocking
-    }
+            // Check if we are using a block item
+            return (player.isUsingItem && player.activeItem.useAction == UseAction.BLOCK) || isBlocking
+        }
 
 }
 

@@ -21,15 +21,9 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.getBlock
-import net.minecraft.block.AbstractPressurePlateBlock
-import net.minecraft.block.Block
-import net.minecraft.block.CactusBlock
-import net.minecraft.block.CobwebBlock
-import net.minecraft.block.FireBlock
-import net.minecraft.block.MagmaBlock
-import net.minecraft.block.SweetBerryBushBlock
+import net.minecraft.block.*
 import net.minecraft.fluid.Fluids
 import net.minecraft.util.shape.VoxelShapes
 
@@ -38,7 +32,7 @@ import net.minecraft.util.shape.VoxelShapes
  *
  * Prevents you walking into blocks that might be malicious for you.
  */
-object ModuleAvoidHazards : Module("AvoidHazards", Category.MOVEMENT) {
+object ModuleAvoidHazards : ClientModule("AvoidHazards", Category.MOVEMENT) {
 
     private val cacti by boolean("Cacti", true)
     private val berryBush by boolean("BerryBush", true)

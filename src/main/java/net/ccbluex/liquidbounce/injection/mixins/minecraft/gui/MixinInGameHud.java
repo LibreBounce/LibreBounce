@@ -80,7 +80,7 @@ public abstract class MixinInGameHud {
 
         // Draw after overlay event
         var component = ComponentOverlay.getComponentWithTweak(FeatureTweak.TWEAK_HOTBAR);
-        if (component != null && component.getEnabled() &&
+        if (component != null && component.getRunning() &&
                 client.interactionManager.getCurrentGameMode() != GameMode.SPECTATOR) {
             drawHotbar(context, tickCounter, component);
         }
@@ -89,7 +89,7 @@ public abstract class MixinInGameHud {
     @Inject(method = "renderOverlay", at = @At("HEAD"), cancellable = true)
     private void injectPumpkinBlur(DrawContext context, Identifier texture, float opacity, CallbackInfo callback) {
         ModuleAntiBlind module = ModuleAntiBlind.INSTANCE;
-        if (!module.getEnabled()) {
+        if (!module.getRunning()) {
             return;
         }
 
@@ -105,7 +105,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
     private void hookFreeCamRenderCrosshairInThirdPerson(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if ((ModuleFreeCam.INSTANCE.getEnabled() && ModuleFreeCam.INSTANCE.shouldDisableCrosshair())
+        if ((ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableCrosshair())
                 || ComponentOverlay.isTweakEnabled(FeatureTweak.DISABLE_CROSSHAIR)) {
             ci.cancel();
         }
@@ -114,7 +114,7 @@ public abstract class MixinInGameHud {
     @Inject(method = "renderPortalOverlay", at = @At("HEAD"), cancellable = true)
     private void hookRenderPortalOverlay(CallbackInfo ci) {
         var antiBlind = ModuleAntiBlind.INSTANCE;
-        if (antiBlind.getEnabled() && antiBlind.getPortalOverlay()) {
+        if (antiBlind.getRunning() && antiBlind.getPortalOverlay()) {
             ci.cancel();
         }
     }

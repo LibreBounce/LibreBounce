@@ -20,7 +20,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.effect.StatusEffects
@@ -35,7 +35,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  *
  * @author Pivo1lovv
  */
-object ModuleElytraRecast : Module("ElytraRecast", Category.MOVEMENT) {
+object ModuleElytraRecast : ClientModule("ElytraRecast", Category.MOVEMENT) {
 
     init {
         enableLock()

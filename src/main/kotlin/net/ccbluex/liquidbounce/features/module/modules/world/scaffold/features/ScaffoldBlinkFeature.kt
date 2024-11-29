@@ -19,10 +19,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 
 object ScaffoldBlinkFeature : ToggleableConfigurable(ModuleScaffold, "Blink", false) {
 
@@ -32,21 +35,30 @@ object ScaffoldBlinkFeature : ToggleableConfigurable(ModuleScaffold, "Blink", fa
     private var pulseTime = 0L
     private val pulseTimer = Chronometer()
 
-    val shouldBlink
-        get() = handleEvents() && (!player.isOnGround || !pulseTimer.hasElapsed(pulseTime))
-
     fun onBlockPlacement() {
         pulseTime = time.random().toLong()
     }
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (fallCancel && player.fallDistance > 0.5f) {
-            FakeLag.cancel()
+            PacketQueueManager.cancel()
             onBlockPlacement()
         }
 
         if (pulseTimer.hasElapsed(pulseTime)) {
             pulseTimer.reset()
+        }
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (event.origin != TransferOrigin.SEND) {
+            return@handler
+        }
+
+        if (!player.isOnGround || !pulseTimer.hasElapsed(pulseTime)) {
+            event.action = PacketQueueManager.Action.QUEUE
         }
     }
 

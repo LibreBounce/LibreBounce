@@ -19,9 +19,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.chat
 import org.apache.commons.lang3.RandomStringUtils
 import kotlin.random.Random
@@ -31,7 +31,7 @@ import kotlin.random.Random
  *
  * Spams the chat with a given message.
  */
-object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
+object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = true) {
 
     private val delay by intRange("Delay", 2..4, 0..300, "secs")
     private val mps by intRange("MPS", 1..1, 1..500, "messages")
@@ -50,7 +50,7 @@ object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
 
     private var linear = 0
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         repeat(mps.random()) {
             val chosenMessage = when (pattern) {
                 SpammerPattern.RANDOM -> message.random()
@@ -68,7 +68,7 @@ object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
 
             if (text.length > 256) {
                 chat("Spammer message is too long! (Max 256 characters)")
-                return@repeatable
+                return@tickHandler
             }
 
             // Check if message text is command

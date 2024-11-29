@@ -23,7 +23,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
@@ -39,10 +39,10 @@ object AutoQueuePaper : Choice("Paper") {
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val paper = (findHotbarSlot { it.item == Items.PAPER } ?: -1)
         if (paper == -1) {
-            return@repeatable
+            return@tickHandler
         }
 
         SilentHotbar.selectSlotSilently(ModuleAutoQueue, paper)

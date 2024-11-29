@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.utils.render.placement
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.outlineBox
@@ -42,7 +42,7 @@ import net.minecraft.util.math.Box
 open class PlacementRenderer(
     name: String,
     enabled: Boolean,
-    val module: Listenable,
+    val module: EventListener,
     val keep: Boolean = true,
     clump: Boolean = true,
     defaultColor: Color4b = Color4b(0, 255, 0, 90)
@@ -88,7 +88,7 @@ open class PlacementRenderer(
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (!outAnimationsFinished && placementRenderHandlers.values.all { it.isFinished() }) {
             outAnimationsFinished = true
         }
@@ -180,9 +180,8 @@ open class PlacementRenderer(
     /**
      * Only run when the module and this is enabled or out-animations are running.
      */
-    override fun handleEvents(): Boolean {
-        return module.handleEvents() && enabled || !outAnimationsFinished
-    }
+    override val running: Boolean
+        get() = module.running && enabled || !outAnimationsFinished
 
     /**
      * Returns the box color.

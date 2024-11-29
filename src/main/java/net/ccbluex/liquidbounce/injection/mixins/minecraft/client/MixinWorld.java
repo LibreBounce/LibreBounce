@@ -56,7 +56,7 @@ public class MixinWorld {
     private void injectOverrideWeather(float delta, CallbackInfoReturnable<Float> cir) {
         var module = ModuleCustomAmbience.INSTANCE;
         var desiredWeather = module.getWeather().get();
-        if (module.getEnabled()) {
+        if (module.getRunning()) {
             switch (desiredWeather) {
                 case SUNNY -> cir.setReturnValue(0.0f);
                 case RAINY, THUNDER -> cir.setReturnValue(1.0f);
@@ -69,7 +69,7 @@ public class MixinWorld {
     private void injectOverrideThunder(float delta, CallbackInfoReturnable<Float> cir) {
         var module = ModuleCustomAmbience.INSTANCE;
         var desiredWeather = module.getWeather().get();
-        if (module.getEnabled()) {
+        if (module.getRunning()) {
             switch (desiredWeather) {
                 case SUNNY, RAINY, SNOWY -> cir.setReturnValue(0.0f);
                 case THUNDER -> cir.setReturnValue(1.0f);

@@ -19,17 +19,17 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.block.Blocks
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.entity.LivingEntity
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.sound.SoundEvents
 
-object ModuleAttackEffects : Module("AttackEffects", Category.RENDER) {
+object ModuleAttackEffects : ClientModule("AttackEffects", Category.RENDER) {
 
     enum class Particle(override val choiceName: String) : NamedChoice {
         NONE("None"),
@@ -54,8 +54,8 @@ object ModuleAttackEffects : Module("AttackEffects", Category.RENDER) {
     private val sound by enumChoice("Sound", Sound.ORB)
 
     @Suppress("unused")
-    val onAttack = handler<AttackEvent> { event ->
-        val target = event.enemy
+    val onAttack = handler<AttackEntityEvent> { event ->
+        val target = event.entity
 
         if (target is LivingEntity) {
             repeat(amount) {

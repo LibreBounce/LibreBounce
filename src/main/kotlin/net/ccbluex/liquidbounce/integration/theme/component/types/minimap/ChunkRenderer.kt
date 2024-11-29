@@ -174,7 +174,7 @@ object ChunkRenderer {
                         for (offZ in from.y..to.y) {
                             val (texX, texY) = atlasPosition.getPosOnAtlas(offX, offZ)
 
-                            val color = getColor(offX + otherPos.startX, offZ + otherPos.startZ)
+                            val color = getColor(offX or otherPos.startX, offZ or otherPos.startZ)
 
                             texture.image!!.setColor(texX, texY, color)
                         }

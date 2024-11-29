@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -31,7 +31,7 @@ object CrystalAuraSpeedDebugger : CrystalPostAttackTracker() {
     private var cps = ConcurrentLinkedDeque<Long>()
 
     @Suppress("unused")
-    val repeatable1 = repeatable {
+    val repeatable1 = tickHandler {
         val currentTime = System.currentTimeMillis()
         val cpsTime = currentTime - 1000L
         while (cps.isNotEmpty()) {
@@ -53,6 +53,7 @@ object CrystalAuraSpeedDebugger : CrystalPostAttackTracker() {
         attackedIds.clear()
     }
 
-    override fun handleEvents() = ModuleCrystalAura.handleEvents() && ModuleDebug.enabled
+    override val running
+        get() = ModuleCrystalAura.running && ModuleDebug.running
 
 }

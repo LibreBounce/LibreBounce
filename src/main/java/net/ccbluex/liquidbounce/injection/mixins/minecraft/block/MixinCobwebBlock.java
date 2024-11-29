@@ -39,7 +39,7 @@ public class MixinCobwebBlock {
      */
     @Inject(method = "onEntityCollision", at = @At("HEAD"), cancellable = true)
     private void hookEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo callback) {
-        if (ModuleNoWeb.INSTANCE.getEnabled() && entity == MinecraftClient.getInstance().player &&
+        if (ModuleNoWeb.INSTANCE.getRunning() && entity == MinecraftClient.getInstance().player &&
                 ModuleNoWeb.INSTANCE.handleEntityCollision(pos)) {
             callback.cancel();
         }

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.kotlin
 
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import java.util.*
 
 class RequestHandler<T> {
@@ -40,7 +40,7 @@ class RequestHandler<T> {
     fun getActiveRequestValue(): T? {
         // we remove all outdated requests here
         while ((this.activeRequests.peek() ?: return null).expiresIn <= currentTick ||
-            !this.activeRequests.peek().provider.enabled
+            !this.activeRequests.peek().provider.running
         ) {
             this.activeRequests.remove()
         }
@@ -57,6 +57,6 @@ class RequestHandler<T> {
      * @param provider module which requested value
      */
     class Request<T>(
-        var expiresIn: Int, val priority: Int, val provider: Module, val value: T
+        var expiresIn: Int, val priority: Int, val provider: ClientModule, val value: T
     )
 }

@@ -23,9 +23,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.veru
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.enabled
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.modes
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -45,9 +44,9 @@ internal object FlyVerusB3896Damage : Choice("VerusB3896Damage") {
     override val parent: ChoiceConfigurable<*>
         get() = modes
 
-    var flyTicks = 0
-    var shouldStop = false
-    var gotDamage = false
+    private var flyTicks = 0
+    private var shouldStop = false
+    private var gotDamage = false
 
     override fun enable() {
         network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
@@ -57,7 +56,7 @@ internal object FlyVerusB3896Damage : Choice("VerusB3896Damage") {
     }
 
     @Suppress("unused")
-    val failRepeatable = repeatable {
+    val failRepeatable = tickHandler {
         if (!gotDamage) {
             waitTicks(20)
             if (!gotDamage) {
@@ -66,18 +65,18 @@ internal object FlyVerusB3896Damage : Choice("VerusB3896Damage") {
             }
         }
     }
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.hurtTime > 0) {
             gotDamage = true
         }
 
         if (!gotDamage) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (++flyTicks > 20 || shouldStop) {
-            enabled = false
-            return@repeatable
+            ModuleFly.enabled = false
+            return@tickHandler
         }
 
         player.strafe(speed = 9.95)

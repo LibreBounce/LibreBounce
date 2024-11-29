@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features.FeatureChestAura
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
 import net.ccbluex.liquidbounce.utils.inventory.*
@@ -39,7 +39,7 @@ import kotlin.math.ceil
  * Automatically steals all items from a chest.
  */
 
-object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
+object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
 
     val inventoryConstrains = tree(InventoryConstraints())
     val autoClose by boolean("AutoClose", true)
@@ -195,7 +195,7 @@ object ModuleChestStealer : Module("ChestStealer", Category.PLAYER) {
      * Either asks [ModuleInventoryCleaner] what to do or just takes everything.
      */
     private fun createCleanupPlan(screen: GenericContainerScreen): InventoryCleanupPlan {
-        val cleanupPlan = if (!ModuleInventoryCleaner.enabled) {
+        val cleanupPlan = if (!ModuleInventoryCleaner.running) {
             val usefulItems = findItemsInContainer(screen)
 
             InventoryCleanupPlan(usefulItems.toMutableSet(), mutableListOf(), hashMapOf())

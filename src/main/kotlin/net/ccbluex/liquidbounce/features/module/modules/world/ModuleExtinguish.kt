@@ -3,9 +3,9 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -26,7 +26,7 @@ import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
-object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
+object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
 
     private val cooldown by float("Cooldown", 1.0F, 0.0F..20.0F, "s")
     private val notDuringCombat by boolean("NotDuringCombat", true)
@@ -89,13 +89,13 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
         return planExtinguishing()
     }
 
-    val repeatable = repeatable {
-        val target = currentTarget ?: return@repeatable
+    val repeatable = tickHandler {
+        val target = currentTarget ?: return@tickHandler
 
-        val rayTraceResult = raycast() ?: return@repeatable
+        val rayTraceResult = raycast() ?: return@tickHandler
 
         if (!target.doesCorrespondTo(rayTraceResult)) {
-            return@repeatable
+            return@tickHandler
         }
 
         SilentHotbar.selectSlotSilently(this, target.hotbarItemSlot.hotbarSlotForServer, 1)
