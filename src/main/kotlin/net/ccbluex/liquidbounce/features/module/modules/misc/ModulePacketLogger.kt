@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -44,7 +44,7 @@ import kotlin.math.max
  *
  * @author ccetl
  */
-object ModulePacketLogger : Module("PacketLogger", Category.MISC) {
+object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
 
     private val serverbound by boolean("Serverbound", true)
     private val clientbound by boolean("Clientbound", false)
