@@ -49,7 +49,6 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
     private val mode by choices("Mode", arrayOf("Normal", "Jump", "Port"), "Normal")
 
     private val options = RotationSettings(this).withoutKeepRotation().apply {
-        applyServerSideValue.hideWithState(false)
         resetTicksValue.hideWithState()
 
         immediate = true
@@ -93,9 +92,9 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
             TickScheduler += {
                 SilentHotbar.selectSlotSilently(this,
                     potion - 36,
+                    ticksUntilReset = 1,
                     immediate = true,
-                    render = false,
-                    resetManually = true
+                    render = false
                 )
 
                 if (potion >= 0 && RotationUtils.serverRotation.pitch >= 75F) {
