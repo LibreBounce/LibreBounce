@@ -125,7 +125,7 @@ object ModulePacketLogger : Module("PacketLogger", Category.MISC) {
                     text.append("\n")
                 }
 
-                val name = EnvironmentRemapper.remapField(javaClass, field.name)
+                val name = EnvironmentRemapper.remapField(currentClass!!.name, field.name)
                 val value = try {
                     field.get(packet)?.toString()
                 } catch (e: IllegalAccessException) {
