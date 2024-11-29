@@ -53,6 +53,7 @@ object CrystalAuraSpeedDebugger : CrystalPostAttackTracker() {
         attackedIds.clear()
     }
 
-    override val running = ModuleCrystalAura.running && ModuleDebug.running
+    override val running
+        get() = ModuleCrystalAura.running && ModuleDebug.running
 
 }

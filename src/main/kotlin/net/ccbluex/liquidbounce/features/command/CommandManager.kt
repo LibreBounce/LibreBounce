@@ -26,19 +26,20 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ChatSendEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.*
-import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.CommandFakePlayer
-import net.ccbluex.liquidbounce.features.command.commands.creative.*
-import net.ccbluex.liquidbounce.features.command.commands.utility.CommandAutoAccount
-import net.ccbluex.liquidbounce.features.command.commands.utility.CommandCoordinates
-import net.ccbluex.liquidbounce.features.command.commands.utility.CommandUsername
+import net.ccbluex.liquidbounce.features.command.commands.ingame.*
+import net.ccbluex.liquidbounce.features.command.commands.ingame.creative.*
+import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.CommandFakePlayer
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandAutoAccount
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandAutoDisable
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandInvsee
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandXRay
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandPlayerTeleport
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandTeleport
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandVClip
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.script.CommandScript
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.convertToString
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.markAsError
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting
 import java.util.concurrent.CompletableFuture
@@ -55,37 +56,51 @@ object CommandExecutor : EventListener {
     /**
      * Handles command execution
      */
-
+    @Suppress("unused")
     val chatEventHandler = handler<ChatSendEvent> {
-        if (it.message.startsWith(CommandManager.Options.prefix)) {
-            try {
-                CommandManager.execute(it.message.substring(CommandManager.Options.prefix.length))
-            } catch (e: CommandException) {
-                chat(e.text.styled { it.withColor(Formatting.RED) })
-                chat("§cUsage: ")
+        if (!it.message.startsWith(CommandManager.Options.prefix)) {
+            return@handler
+        }
 
-                if (e.usageInfo != null) {
-                    var first = true
+        try {
+            CommandManager.execute(it.message.substring(CommandManager.Options.prefix.length))
+        } catch (e: CommandException) {
+            mc.inGameHud.chatHud.removeMessage("CommandManager#error")
+            val data = MessageMetadata(id = "CommandManager#error", remove = false)
+            chat(e.text.styled { it.withColor(Formatting.RED) }, metadata = data)
+            chat("Usage: ".asText().styled { it.withColor(Formatting.RED) }, metadata = data)
 
-                    // Zip the usage info together, e.g.
-                    //  .friend add <name> [<alias>]
-                    //  OR .friend remove <name>
-                    e.usageInfo.forEach { usage ->
-                        chat("§c ${if (first) "" else "OR "}.$usage")
+            if (e.usageInfo != null) {
+                var first = true
 
-                        if (first) {
-                            first = false
-                        }
+                // Zip the usage info together, e.g.
+                //  .friend add <name> [<alias>]
+                //  OR .friend remove <name>
+                e.usageInfo.forEach { usage ->
+                    chat(
+                        "${if (first) "" else "OR "}.$usage".asText().styled { it.withColor(Formatting.RED) },
+                        metadata = data
+                    )
+
+                    if (first) {
+                        first = false
                     }
                 }
-            } catch (e: Exception) {
-                chat(markAsError(translation("liquidbounce.commandManager.exceptionOccurred",
-                    e::class.simpleName ?: "Class name missing", e.message ?: "No message")))
-                logger.error("An exception occurred while executing a command", e)
             }
-
-            it.cancelEvent()
+        } catch (e: Exception) {
+            chat(
+                markAsError(
+                    translation(
+                        "liquidbounce.commandManager.exceptionOccurred",
+                        e::class.simpleName ?: "Class name missing", e.message ?: "No message"
+                    )
+                ),
+                metadata = MessageMetadata(id = "CommandManager#error")
+            )
+            logger.error("An exception occurred while executing a command", e)
         }
+
+        it.cancelEvent()
     }
 
 }
@@ -98,10 +113,10 @@ private val commands = mutableListOf<Command>()
  *
  * @author superblaubeere27 (@team CCBlueX)
  */
-
 object CommandManager : Iterable<Command> by commands {
 
     object Options : Configurable("Commands") {
+
         /**
          * The prefix of the commands.
          *
@@ -124,49 +139,48 @@ object CommandManager : Iterable<Command> by commands {
     }
 
     fun registerInbuilt() {
-        // client commands
-        addCommand(CommandClient.createCommand())
-        addCommand(CommandFriend.createCommand())
-        addCommand(CommandToggle.createCommand())
-        addCommand(CommandBind.createCommand())
-        addCommand(CommandCenter.createCommand())
-        addCommand(CommandHelp.createCommand())
-        addCommand(CommandBinds.createCommand())
-        addCommand(CommandClear.createCommand())
-        addCommand(CommandHide.createCommand())
-        addCommand(CommandInvsee.createCommand())
-        addCommand(CommandItems.createCommand())
-        addCommand(CommandPanic.createCommand())
-        addCommand(CommandValue.createCommand())
-        addCommand(CommandPing.createCommand())
-        addCommand(CommandRemoteView.createCommand())
-        addCommand(CommandXRay.createCommand())
-        addCommand(CommandTargets.createCommand())
-        addCommand(CommandConfig.createCommand())
-        addCommand(CommandLocalConfig.createCommand())
-        addCommand(CommandAutoDisable.createCommand())
-        addCommand(CommandScript.createCommand())
-        addCommand(CommandContainers.createCommand())
-        addCommand(CommandSay.createCommand())
-        addCommand(CommandFakePlayer.createCommand())
-        addCommand(CommandAutoAccount.createCommand())
-        addCommand(CommandDebug.createCommand())
+        val commands = arrayOf(
+            CommandClient,
+            CommandFriend,
+            CommandToggle,
+            CommandBind,
+            CommandCenter,
+            CommandHelp,
+            CommandBinds,
+            CommandClear,
+            CommandHide,
+            CommandInvsee,
+            CommandItems,
+            CommandPanic,
+            CommandValue,
+            CommandPing,
+            CommandRemoteView,
+            CommandXRay,
+            CommandTargets,
+            CommandConfig,
+            CommandLocalConfig,
+            CommandAutoDisable,
+            CommandScript,
+            CommandContainers,
+            CommandSay,
+            CommandFakePlayer,
+            CommandAutoAccount,
+            CommandDebug,
+            CommandItemRename,
+            CommandItemGive,
+            CommandItemSkull,
+            CommandItemStack,
+            CommandItemEnchant,
+            CommandUsername,
+            CommandCoordinates,
+            CommandVClip,
+            CommandTeleport,
+            CommandPlayerTeleport
+        )
 
-        // creative commands
-        addCommand(CommandItemRename.createCommand())
-        addCommand(CommandItemGive.createCommand())
-        addCommand(CommandItemSkull.createCommand())
-        addCommand(CommandItemStack.createCommand())
-        addCommand(CommandItemEnchant.createCommand())
-
-        // utility commands
-        addCommand(CommandUsername.createCommand())
-        addCommand(CommandCoordinates.createCommand())
-
-        // movement commands
-        addCommand(CommandVClip.createCommand())
-        addCommand(CommandTeleport.createCommand())
-        addCommand(CommandPlayerTeleport.createCommand())
+        commands.forEach {
+            addCommand(it.createCommand())
+        }
     }
 
     fun addCommand(command: Command) {
@@ -522,7 +536,6 @@ object CommandManager : Iterable<Command> by commands {
 //
 //        return builder.buildFuture()
     }
-
 
 
     operator fun plusAssign(command: Command) {

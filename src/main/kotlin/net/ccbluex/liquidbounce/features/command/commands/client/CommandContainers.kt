@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
@@ -29,9 +30,10 @@ import net.ccbluex.liquidbounce.utils.client.variable
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.util.Formatting
 
-object CommandContainers {
+object CommandContainers : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
+
         return CommandBuilder
             .begin("containers")
             .hub()
@@ -82,7 +84,7 @@ object CommandContainers {
             .subcommand(
                 CommandBuilder
                     .begin("list")
-                    .handler { command, args ->
+                    .handler { command, _ ->
                         val itemStacks = ClientItemGroups.containersAsItemStacks()
 
                         if (itemStacks.isEmpty()) {

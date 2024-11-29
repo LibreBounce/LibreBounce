@@ -255,7 +255,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyReturnValue(method = "isAutoJumpEnabled", at = @At("RETURN"))
     private boolean injectLegitStep(boolean original) {
-        if (ModuleStep.INSTANCE.getRunning() && ModuleStep.Legit.INSTANCE.isSelected()) {
+        if (ModuleStep.Legit.INSTANCE.getRunning()) {
             return true;
         }
 

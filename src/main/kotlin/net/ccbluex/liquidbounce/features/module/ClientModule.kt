@@ -57,7 +57,7 @@ open class ClientModule(
      * Option to enable or disable the module, this DOES NOT mean the module is running. This
      * should be checked with [running] instead. Only use this for toggling the module!
      */
-    var enabled by boolean("Enabled", state).also {
+    internal var enabled by boolean("Enabled", state).also {
         // Might not include the enabled state of the module depending on the category
         if (category == Category.MISC || category == Category.FUN || category == Category.RENDER) {
             if (this is ModuleAntiBot) {
