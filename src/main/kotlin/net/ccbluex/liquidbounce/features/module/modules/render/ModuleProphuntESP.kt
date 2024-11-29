@@ -14,10 +14,8 @@ import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket
 object ModuleProphuntESP : ClientModule("ProphuntESP", Category.RENDER,
     aliases = arrayOf("BlockUpdateDetector", "FallingBlockESP")) {
 
-    private val defaultColor = Color4b(255, 179, 72, 90)
-
     private val renderer = PlacementRenderer("RenderBlockUpdates", true, this,
-        defaultColor = defaultColor, keep = false
+        defaultColor = Color4b(255, 179, 72, 90), keep = false
     )
 
     init {
