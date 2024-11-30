@@ -475,6 +475,7 @@
   "liquidbounce.module.highJump.description": "Allows you to jump higher.",
   "liquidbounce.module.hitbox.description": "Enlarges the hit box of targets.",
   "liquidbounce.module.holeESP.description": "Detects and displays safe spots for crystal PvP.",
+  "liquidbounce.module.holeFiller.description": "Automatically fills safe spots for crystal PvP.",
   "liquidbounce.module.hud.description": "Shows an in-game overlay with various useful tools.",
   "liquidbounce.module.hud.messages.hidingAppearance": "The client appearance is currently hidden. Use '.client appearance show' to re-enable it.",
   "liquidbounce.module.autoTrap.description": "Automatically sets targets on fire or traps them.",
