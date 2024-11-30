@@ -17,6 +17,8 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyl
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.withGCD
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.minecraft.client.gui.GuiScreen
@@ -28,6 +30,7 @@ import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
+import kotlin.math.sign
 
 object RiceGui : GuiScreen() {
     val mainColor = Color(21,20,29).rgb
@@ -55,6 +58,9 @@ object RiceGui : GuiScreen() {
     private var panelStartY = initY
     private var dragStartX = 0f
     private var dragStartY = 0f
+
+    private var isHoldingMidClick = false
+    private var startY: Int? = null
 
     // TODO: Add HUD
     private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
@@ -106,10 +112,10 @@ object RiceGui : GuiScreen() {
             Fonts.font35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
         }
 
-        if (Mouse.hasWheel()) {
-            val wheel = Mouse.getDWheel()
+        if (Mouse.hasWheel() || isHoldingMidClick) {
+            val wheel = if (isHoldingMidClick) (startY ?: y) - y else Mouse.getDWheel()
             if (wheel != 0) {
-                val offset = wheel * 0.08f
+                val offset = wheel * 0.1F
 
                 val firstElement = elements.firstOrNull()
                 val lastElement = elements.lastOrNull()
@@ -155,6 +161,11 @@ object RiceGui : GuiScreen() {
         mouseX = x // (x / scale).roundToInt()
         mouseY = y //(y / scale).roundToInt()
 
+        if (mouseButton == 2) {
+            isHoldingMidClick = true
+            startY = y
+        }
+
         if (mouseButton == 0 &&
             x in panelStartX.toInt()..(panelStartX + widthBg).toInt() &&
             y in panelStartY.toInt()..(panelStartY + dragAreaHeight).toInt()) {
@@ -190,6 +201,9 @@ object RiceGui : GuiScreen() {
     override fun mouseReleased(x: Int, y: Int, state: Int) {
         if (state == 0) {
             dragging = false
+        } else if (state == 2) {
+            isHoldingMidClick = false
+            startY = null
         }
 
         mouseX = x // (x / scale).roundToInt()
