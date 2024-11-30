@@ -17,8 +17,6 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyl
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.chat
-import net.ccbluex.liquidbounce.utils.extensions.withGCD
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.minecraft.client.gui.GuiScreen
@@ -30,15 +28,14 @@ import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
-import kotlin.math.sign
 
 object RiceGui : GuiScreen() {
-    val mainColor = Color(21,20,29).rgb
-    val mainColor2 = Color(28,27,34).rgb
-    val highlightColor = Color(238,150,208).rgb
-    val highlightColorAlpha = Color(238,150,208,100)
-    val accentColor = Color(109,114,175).rgb
-    val referenceColor = Color(82,81,92).rgb
+    val mainColor = Color(21, 20, 29).rgb
+    val mainColor2 = Color(28, 27, 34).rgb
+    val highlightColor = Color(238, 150, 208).rgb
+    val highlightColorAlpha = Color(238, 150, 208, 100)
+    val accentColor = Color(109, 114, 175).rgb
+    val referenceColor = Color(82, 81, 92).rgb
 
     val initX = 130f
     val contentXOffset = 100
@@ -54,12 +51,22 @@ object RiceGui : GuiScreen() {
     private var selectedCategory: Category = Category.COMBAT
 
     private var dragging = false
+        set(value) {
+            if (value) isHoldingMidClick = false
+            field = value
+        }
     private var panelStartX = initX
     private var panelStartY = initY
     private var dragStartX = 0f
     private var dragStartY = 0f
 
     private var isHoldingMidClick = false
+        set(value) {
+            if (!value) startY = null
+
+            field = value
+        }
+
     private var startY: Int? = null
 
     // TODO: Add HUD
@@ -168,7 +175,8 @@ object RiceGui : GuiScreen() {
 
         if (mouseButton == 0 &&
             x in panelStartX.toInt()..(panelStartX + widthBg).toInt() &&
-            y in panelStartY.toInt()..(panelStartY + dragAreaHeight).toInt()) {
+            y in panelStartY.toInt()..(panelStartY + dragAreaHeight).toInt()
+        ) {
 
             // Start dragging
             dragging = true
@@ -203,7 +211,6 @@ object RiceGui : GuiScreen() {
             dragging = false
         } else if (state == 2) {
             isHoldingMidClick = false
-            startY = null
         }
 
         mouseX = x // (x / scale).roundToInt()
