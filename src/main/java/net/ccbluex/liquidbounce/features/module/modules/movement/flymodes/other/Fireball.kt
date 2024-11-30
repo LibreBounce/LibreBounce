@@ -8,18 +8,16 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.other
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.autoFireball
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.options
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.extensions.getVec
-import net.ccbluex.liquidbounce.utils.extensions.isNearEdge
-import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.init.Items
@@ -33,13 +31,13 @@ object Fireball : FlyMode("Fireball") {
 
         val fireballSlot = InventoryUtils.findItem(36, 44, Items.fire_charge) ?: return
 
-        when (Fly.autoFireball.lowercase()) {
-            "pick" -> {
-                player.inventory.currentItem = fireballSlot - 36
-                mc.playerController.updateController()
-            }
-
-            "spoof", "switch" -> serverSlot = fireballSlot - 36
+        if (autoFireball != "Off") {
+            SilentHotbar.selectSlotSilently(this,
+                fireballSlot,
+                immediate = true,
+                render = autoFireball == "Pick",
+                resetManually = true
+            )
         }
 
         if (event.eventState != EventState.POST)
@@ -72,7 +70,8 @@ object Fireball : FlyMode("Fireball") {
         val player = mc.thePlayer ?: return
 
         val fireballSlot = InventoryUtils.findItem(36, 44, Items.fire_charge) ?: return
-        val fireBall = player.inventoryContainer.getSlot(fireballSlot).stack
+
+        val fireBall = player.hotBarSlot(fireballSlot).stack
 
         if (Fly.fireBallThrowMode == "Edge" && !player.isNearEdge(Fly.edgeThreshold))
             return
@@ -81,7 +80,7 @@ object Fireball : FlyMode("Fireball") {
             return
         }
 
-        if (isMoving) {
+        if (player.isMoving) {
             TickedActions.TickScheduler(Fly) += {
                 if (Fly.swing) player.swingItem() else sendPacket(C0APacketAnimation())
 
@@ -91,16 +90,22 @@ object Fireball : FlyMode("Fireball") {
                 }
             }
 
-            WaitTickUtils.scheduleTicks(2) {
-                if (Fly.autoFireball == "Pick") {
-                    player.inventory.currentItem = fireballSlot - 36
-                    mc.playerController.updateController()
-                } else {
-                    serverSlot = fireballSlot - 36
+            WaitTickUtils.schedule(2) {
+                if (autoFireball != "Off") {
+                    SilentHotbar.selectSlotSilently(this,
+                        fireballSlot,
+                        immediate = true,
+                        render = autoFireball == "Pick",
+                        resetManually = true
+                    )
                 }
 
                 Fly.wasFired = true
             }
         }
+    }
+
+    override fun onDisable() {
+        SilentHotbar.resetSlot(this)
     }
 }

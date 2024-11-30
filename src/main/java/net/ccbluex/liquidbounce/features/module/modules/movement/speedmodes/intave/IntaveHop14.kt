@@ -7,9 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.int
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 /*
 * Working on Intave: 14
@@ -18,13 +17,15 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 */
 object IntaveHop14 : SpeedMode("IntaveHop14") {
 
+    private const val BOOST_CONSTANT = 0.003
+
     override fun onUpdate() {
         val player = mc.thePlayer ?: return
 
-        if (!isMoving || player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
+        if (!player.isMoving || player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
 
         if (player.onGround) {
-            player.tryJump()
+            player.motionY = 0.42 - if (Speed.intaveLowHop) 1.7E-14 else 0.0
 
             if (player.isSprinting) strafe(strength = Speed.strafeStrength.toDouble())
 
@@ -34,8 +35,8 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
         }
 
         if (Speed.boost && player.motionY > 0.003 && player.isSprinting) {
-            player.motionX *= 1.0015
-            player.motionZ *= 1.0015
+            player.motionX *= 1f + (BOOST_CONSTANT * Speed.initialBoostMultiplier)
+            player.motionZ *= 1f + (BOOST_CONSTANT * Speed.initialBoostMultiplier)
         }
     }
 }

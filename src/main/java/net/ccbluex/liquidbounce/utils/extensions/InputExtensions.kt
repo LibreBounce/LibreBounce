@@ -13,3 +13,9 @@ fun MovementInput.reset() {
     this.jump = false
     this.sneak = false
 }
+
+val MovementInput.isSideways
+    get() = moveForward != 0f && moveStrafe != 0f
+
+val MovementInput.isMoving
+    get() = moveForward != 0f || moveStrafe != 0f

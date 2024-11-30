@@ -7,11 +7,14 @@ package net.ccbluex.liquidbounce.ui.client
 
 import com.google.gson.JsonParser
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.injection.implementations.IMixinGuiSlot
 import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.requestStream
 import net.ccbluex.liquidbounce.utils.render.CustomTexture
@@ -28,7 +31,6 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.concurrent.thread
 import kotlin.math.sin
 
 class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
@@ -46,10 +48,12 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
 
         failed = false
 
-        thread { loadCredits() }
+        SharedScopes.IO.launch { loadCredits() }
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         list.drawScreen(mouseX, mouseY, partialTicks)
@@ -134,6 +138,8 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
                 drawLoadingCircle(width / 8f, height / 2f - 40)
             }
         }
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

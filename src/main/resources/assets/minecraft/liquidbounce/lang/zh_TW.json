@@ -55,8 +55,6 @@
 
         "module.noFriends.description": "忽略朋友功能。",
 
-        "module.noachievement.description": "沒有成就。",
-
         "module.superKnockback.description": "增加對其他生物的擊退。",
 
         "module.teleportHit.description": "允許你手動攻擊時打擊遠處的生物。",
@@ -245,8 +243,6 @@
        
         "module.noBob.description": "禁用視角搖晃效果。",
        
-        "module.noBooks.description": "阻止伺服器開啟書籍 (強制廣告，…)。",
-       
         "module.noClip.description": "允許你自由穿行於牆壁 (需要有沙子落在頭上)。",
        
         "module.noFOV.description": "禁用速度等效果引起的視野變化。",
@@ -264,8 +260,6 @@
         "module.noRotateSet.description": "防止伺服器旋轉你的頭。",
        
         "module.noSlotSet.description": "防止伺服器更改你的物品欄。",
-
-        "module.noScoreboard.description": "隱藏記分板。",
        
         "module.noSlow.description": "消除靈魂沙和使用物品造成的減速效果。",
        
@@ -320,6 +314,8 @@
         "module.skinDerp.description": "讓你的皮膚閃爍 (需要多層皮膚)。",
 
         "module.slimeJump.description": "允許你在黏液塊上跳得更高。",
+
+        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
        
         "module.sneak.description": "自動保持潛行。",
        

@@ -237,8 +237,6 @@
         
         "module.noBob.description": "Деактивира ефекта на клатене при ходене.",
         
-        "module.noBooks.description": "Блокира сървъра от отваряне на книги (принудителни реклами, ...)",
-        
         "module.noClip.description": "Позволява ви свободно да се движите през стени (пясък трябва да пада на главата ви).",
         
         "module.noFOV.description": "Деактивира промените в FOV, причинени от скоростния ефект и т.н.",
@@ -254,8 +252,6 @@
         "module.noPitchLimit.description": "Позволява ви да завъртите главата си за неопределено време във всяка посока ..",
         
         "module.noRotateSet.description": "Предотвратява сървъра да върти главата ви.",
-        
-        "module.noScoreboard.description": "Деактивира таблото.",
 
         "module.noSlotSet.description": "Предотвратява сървъра да променя слотовете ви.",
         
@@ -312,6 +308,8 @@
         "module.skinDerp.description": "Прави кожата ви мига (изисква многослойна кожа).",
 
         "module.slimeJump.description": "Позволява ви да скочите по-високо на слузните блокове.",
+
+        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "Автоматично се промъква през цялото време.",
         

@@ -6,13 +6,18 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Disabler
-import net.ccbluex.liquidbounce.script.api.global.Chat
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPosBox
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
+import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.gui.GuiGameOver
 import net.minecraft.init.Blocks
 import net.minecraft.network.login.server.S00PacketDisconnect
@@ -20,17 +25,51 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
+import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlin.math.sqrt
 
 object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hideModule = false) {
 
-    private val resetFlagCounterTicks by IntegerValue("ResetCounterTicks", 5000, 1000..10000)
-    private val ghostBlockCheck by BoolValue("GhostBlock-Check", true)
-    private val ghostBlockDelay by IntegerValue("GhostBlockDelay", 750, 500..1000) { ghostBlockCheck }
-    private val rubberbandCheck by BoolValue("Rubberband-Check", false)
-    private val rubberbandThreshold by FloatValue("RubberBandThreshold", 5.0f, 0.05f..10.0f) { rubberbandCheck }
+    // TODO: Model & Wireframe Render
+    private val renderServerPos by choices(
+        "RenderServerPos-Mode",
+        arrayOf("None", "Box"),
+        "None",
+        subjective = true
+    )
+
+    private val resetFlagCounterTicks by int("ResetCounterTicks", 5000, 1000..10000)
+
+    private val ghostBlockCheck by boolean("GhostBlock-Check", true)
+    private val ghostBlockDelay by int("GhostBlockDelay", 750, 500..1000)
+    { ghostBlockCheck }
+
+    private val rubberbandCheck by boolean("Rubberband-Check", false)
+    private val rubberbandThreshold by float("RubberBandThreshold", 5.0f, 0.05f..10.0f)
+    { rubberbandCheck }
+
+    private val colors = ColorSettingsInteger(
+        this,
+        "Text",
+        zeroAlphaCheck = true,
+        alphaApply = true,
+        applyMax = true
+    ) { renderServerPos == "Box" }
+
+    private val boxColors = ColorSettingsInteger(
+        this,
+        "Box",
+        zeroAlphaCheck = true,
+        alphaApply = true,
+        withAlpha = false
+    ) { renderServerPos == "Box" }.with(r = 255, g = 255)
+
+    private val scale by float("Scale", 1F, 1F..6F) { renderServerPos == "Box" }
+    private val font by font("Font", Fonts.font40) { renderServerPos == "Box" }
+    private val fontShadow by boolean("Shadow", true) { renderServerPos == "Box" }
 
     private var lastCheckTime = 0L
 
@@ -45,10 +84,15 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         flagCount = 0
         blockPlacementAttempts.clear()
         successfulPlacements.clear()
+        lastServerPos = null
+        serverPosTime = 0L
     }
 
     private var lagbackDetected = false
     private var forceRotateDetected = false
+
+    private var lastServerPos: Vec3? = null
+    private var serverPosTime = 0L
 
     private var lastMotionX = 0.0
     private var lastMotionY = 0.0
@@ -80,10 +124,13 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
             val deltaYaw = calculateAngleDelta(packet.yaw, lastYaw)
             val deltaPitch = calculateAngleDelta(packet.pitch, lastPitch)
 
+            lastServerPos = Vec3(packet.x, packet.y, packet.z)
+            serverPosTime = System.currentTimeMillis()
+
             if (deltaYaw > 90 || deltaPitch > 90) {
                 forceRotateDetected = true
                 flagCount++
-                Chat.print("§dDetected §3Force-Rotate §e(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°) §b(§c${flagCount}x§b)")
+                chat("§dDetected §3Force-Rotate §e(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°) §b(§c${flagCount}x§b)")
             } else {
                 forceRotateDetected = false
             }
@@ -91,10 +138,10 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
             if (!forceRotateDetected) {
                 lagbackDetected = true
                 flagCount++
-                Chat.print("§dDetected §3Lagback §b(§c${flagCount}x§b)")
+                chat("§dDetected §3Lagback §b(§c${flagCount}x§b)")
             }
 
-            if (mc.thePlayer.ticksExisted % 3 == 0) {
+            if (player.ticksExisted % 3 == 0) {
                 lagbackDetected = false
             }
 
@@ -134,6 +181,11 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
             return
         }
 
+        // LastServerPos Resets | After 5 second
+        if (lastServerPos != null && System.currentTimeMillis() - serverPosTime > 5000) {
+            lastServerPos = null
+        }
+
         // GhostBlock Checks | Checks is disabled when using VerusFly Disabler, to prevent false flag.
         if (ghostBlockCheck && (!Disabler.handleEvents() || (Disabler.handleEvents() && !Disabler.verusFly))) {
             val currentTime = System.currentTimeMillis()
@@ -149,7 +201,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
 
                         if (block == Blocks.air && successfulPlacements.contains(blockPos)) {
                             flagCount++
-                            Chat.print("§dDetected §3GhostBlock §b(§c${flagCount}x§b)")
+                            chat("§dDetected §3GhostBlock §b(§c${flagCount}x§b)")
                             successfulPlacements.clear()
                             return@removeIf true
                         }
@@ -167,7 +219,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         if (invalidReason.isNotEmpty()) {
             flagCount++
             val reasonString = invalidReason.joinToString(" §8|§e ")
-            Chat.print("§dDetected §3Invalid §e$reasonString §b(§c${flagCount}x§b)")
+            chat("§dDetected §3Invalid §e$reasonString §b(§c${flagCount}x§b)")
             invalidReason.clear()
         }
 
@@ -200,7 +252,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         if (rubberbandReason.isNotEmpty()) {
             flagCount++
             val reasonString = rubberbandReason.joinToString(" §8|§e ")
-            Chat.print("§dDetected §3Rubberband §8(§e$reasonString§8) §b(§c${flagCount}x§b)")
+            chat("§dDetected §3Rubberband §8(§e$reasonString§8) §b(§c${flagCount}x§b)")
             rubberbandReason.clear()
         }
 
@@ -212,6 +264,60 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         lastMotionX = motionX
         lastMotionY = motionY
         lastMotionZ = motionZ
+    }
+
+    @EventTarget
+    fun onRender3D(event: Render3DEvent) {
+        val player = mc.thePlayer ?: return
+        val renderManager = mc.renderManager
+        val pos = lastServerPos ?: return
+
+        if (renderServerPos != "Box") return
+
+        val remainingTime = ((6000 - (System.currentTimeMillis() - serverPosTime)) / 1000).coerceAtLeast(0)
+        val text = "Last Position: ${remainingTime}sec"
+
+        // TODO: Fade effect
+        glPushAttrib(GL_ENABLE_BIT)
+        glPushMatrix()
+
+        val (x, y, z) = pos - renderManager.renderPos
+
+        // Translate to block position
+        glTranslated(x, y + 2.5, z)
+
+        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
+        glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
+
+        disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
+        enableGlCap(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        val fontRenderer = font
+
+        // Scale
+        val scale =
+            (((player.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord) / 8F).coerceIn(1.5, 5.0) / 100F) * scale)
+        glScaled(-scale, -scale, scale)
+
+        // Draw text
+        val width = fontRenderer.getStringWidth(text) * 0.5f
+        fontRenderer.drawString(
+            text, -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, colors.color().rgb, fontShadow
+        )
+
+        resetCaps()
+        glPopMatrix()
+        glPopAttrib()
+
+        drawPosBox(
+            lastServerPos!!.xCoord,
+            lastServerPos!!.yCoord,
+            lastServerPos!!.zCoord,
+            0.8F, 2F,
+            boxColors.color(),
+            true
+        )
     }
 
     @EventTarget

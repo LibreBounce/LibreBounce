@@ -7,15 +7,18 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.RotationUtils.isEntityHeightVisible
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.extensions.getPing
+import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexturedModalRect
@@ -24,13 +27,13 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.value.*
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
@@ -40,39 +43,40 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
-    private val health by BoolValue("Health", true)
-        private val healthFromScoreboard by BoolValue("HealthFromScoreboard", false) { health }
-        private val absorption by BoolValue("Absorption", false) { health || healthBar }
-        private val roundedHealth by BoolValue("RoundedHealth", true) { health }
+    private val renderSelf by boolean("RenderSelf", false)
+    private val health by boolean("Health", true)
+    private val healthFromScoreboard by boolean("HealthFromScoreboard", false) { health }
+    private val absorption by boolean("Absorption", false) { health || healthBar }
+    private val roundedHealth by boolean("RoundedHealth", true) { health }
 
-        private val healthPrefix by BoolValue("HealthPrefix", false) { health }
-            private val healthPrefixText by TextValue("HealthPrefixText", "") { health && healthPrefix }
+    private val healthPrefix by boolean("HealthPrefix", false) { health }
+    private val healthPrefixText by text("HealthPrefixText", "") { health && healthPrefix }
 
-        private val healthSuffix by BoolValue("HealthSuffix", true) { health }
-            private val healthSuffixText by TextValue("HealthSuffixText", " HP") { health && healthSuffix }
+    private val healthSuffix by boolean("HealthSuffix", true) { health }
+    private val healthSuffixText by text("HealthSuffixText", " HP") { health && healthSuffix }
 
-    private val ping by BoolValue("Ping", false)
-    private val healthBar by BoolValue("Bar", true)
-    private val distance by BoolValue("Distance", false)
-    private val armor by BoolValue("Armor", true)
-    private val bot by BoolValue("Bots", true)
-    private val potion by BoolValue("Potions", true)
-    private val clearNames by BoolValue("ClearNames", false)
-    private val font by FontValue("Font", Fonts.font40)
-    private val scale by FloatValue("Scale", 1F, 1F..4F)
-    private val fontShadow by BoolValue("Shadow", true)
+    private val ping by boolean("Ping", false)
+    private val healthBar by boolean("Bar", true)
+    private val distance by boolean("Distance", false)
+    private val armor by boolean("Armor", true)
+    private val bot by boolean("Bots", true)
+    private val potion by boolean("Potions", true)
+    private val clearNames by boolean("ClearNames", false)
+    private val font by font("Font", Fonts.font40)
+    private val scale by float("Scale", 1F, 1F..4F)
+    private val fontShadow by boolean("Shadow", true)
 
-    private val background by BoolValue("Background", true)
-        private val backgroundColorRed by IntegerValue("Background-R", 0, 0..255) { background }
-        private val backgroundColorGreen by IntegerValue("Background-G", 0, 0..255) { background }
-        private val backgroundColorBlue by IntegerValue("Background-B", 0, 0..255) { background }
-        private val backgroundColorAlpha by IntegerValue("Background-Alpha", 70, 0..255) { background }
+    private val background by boolean("Background", true)
+    private val backgroundColorRed by int("Background-R", 0, 0..255) { background }
+    private val backgroundColorGreen by int("Background-G", 0, 0..255) { background }
+    private val backgroundColorBlue by int("Background-B", 0, 0..255) { background }
+    private val backgroundColorAlpha by int("Background-Alpha", 70, 0..255) { background }
 
-    private val border by BoolValue("Border", true)
-        private val borderColorRed by IntegerValue("Border-R", 0, 0..255) { border }
-        private val borderColorGreen by IntegerValue("Border-G", 0, 0..255) { border }
-        private val borderColorBlue by IntegerValue("Border-B", 0, 0..255) { border }
-        private val borderColorAlpha by IntegerValue("Border-Alpha", 100, 0..255) { border }
+    private val border by boolean("Border", true)
+    private val borderColorRed by int("Border-R", 0, 0..255) { border }
+    private val borderColorGreen by int("Border-G", 0, 0..255) { border }
+    private val borderColorBlue by int("Border-B", 0, 0..255) { border }
+    private val borderColorAlpha by int("Border-Alpha", 100, 0..255) { border }
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -80,10 +84,10 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         }
     }
 
-    private val onLook by BoolValue("OnLook", false)
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val onLook by boolean("OnLook", false)
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by BoolValue("ThruBlocks", true)
+    private val thruBlocks by boolean("ThruBlocks", true)
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
@@ -113,17 +117,35 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
 
         for (entity in mc.theWorld.loadedEntityList) {
             if (entity !is EntityLivingBase) continue
-            if (!isSelected(entity, false)) continue
+
+            val isRenderingSelf =
+                entity is EntityPlayerSP && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
+
+            if (!isRenderingSelf || !renderSelf) {
+                if (!isSelected(entity, false)) continue
+            }
+
             if (isBot(entity) && !bot) continue
             if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble())) continue
-            if (!thruBlocks && !RotationUtils.isVisible(Vec3(entity.posX, entity.posY, entity.posZ))) continue
+
+            if (!thruBlocks && !isEntityHeightVisible(entity)) continue
 
             val name = entity.displayName.unformattedText ?: continue
 
             val distanceSquared = mc.thePlayer.getDistanceSqToEntity(entity)
 
+            // In case user has FreeCam enabled, we restore the position back to normal,
+            // so it renders the name-tag at the player's body position instead of the FreeCam position.
+            if (isRenderingSelf) {
+                FreeCam.restoreOriginalPosition()
+            }
+
             if (distanceSquared <= maxRenderDistanceSq) {
-                renderNameTag(entity, if (clearNames) ColorUtils.stripColor(name) else name)
+                renderNameTag(entity, isRenderingSelf, if (clearNames) ColorUtils.stripColor(name) else name)
+            }
+
+            if (isRenderingSelf) {
+                FreeCam.useModifiedPosition()
             }
         }
 
@@ -137,7 +159,7 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         glColor4f(1F, 1F, 1F, 1F)
     }
 
-    private fun renderNameTag(entity: EntityLivingBase, name: String) {
+    private fun renderNameTag(entity: EntityLivingBase, isRenderingSelf: Boolean, name: String) {
         val thePlayer = mc.thePlayer ?: return
 
         // Set fontrenderer local
@@ -147,18 +169,15 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         glPushMatrix()
 
         // Translate to player position
-        val timer = mc.timer
         val renderManager = mc.renderManager
         val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
 
-        glTranslated( // Translate to player position with render pos and interpolate it
-            entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX,
-            entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY + entity.eyeHeight.toDouble() + 0.55,
-            entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
-        )
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - renderManager.renderPos
 
-        glRotatef(-mc.renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(mc.renderManager.playerViewX * rotateX, 1F, 0F, 0F)
+        glTranslated(x, y + entity.eyeHeight.toDouble() + 0.55, z)
+
+        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
+        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
 
         // Disable lightning and depth test
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
@@ -173,7 +192,7 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         val playerPing = if (entity is EntityPlayer) entity.getPing() else 0
         val playerDistance = thePlayer.getDistanceToEntity(entity)
 
-        val distanceText = if (distance) "§7${playerDistance.roundToInt()} m " else ""
+        val distanceText = if (distance && !isRenderingSelf) "§7${playerDistance.roundToInt()} m " else ""
         val pingText =
             if (ping && entity is EntityPlayer) "§7[" + (if (playerPing > 200) "§c" else if (playerPing > 100) "§e" else "§a") + playerPing + "ms§7] " else ""
         val healthText = if (health) " " + getHealthString(entity) else ""
@@ -287,13 +306,11 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
 
         if (armor && entity is EntityPlayer) {
             for (index in 0..4) {
-                if (entity.getEquipmentInSlot(index) == null) {
-                    continue
-                }
+                val itemStack = entity.getEquipmentInSlot(index) ?: continue
 
                 mc.renderItem.zLevel = -147F
                 mc.renderItem.renderItemAndEffectIntoGUI(
-                    entity.getEquipmentInSlot(index), -50 + index * 20, if (potion && foundPotion) -42 else -22
+                    itemStack, -50 + index * 20, if (potion && foundPotion) -42 else -22
                 )
             }
 
@@ -332,6 +349,8 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
     }
 
     fun shouldRenderNameTags(entity: Entity) =
-        handleEvents() && entity is EntityLivingBase && (ESP.handleEvents() && ESP.renderNameTags || isSelected(entity, false)
-                && (bot || !isBot(entity)))
+        handleEvents() && entity is EntityLivingBase && (ESP.handleEvents() && ESP.renderNameTags || isSelected(
+            entity,
+            false
+        ) && (bot || !isBot(entity)))
 }

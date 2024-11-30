@@ -11,17 +11,17 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold.searchMode
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold.shouldGoDown
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.blocksAmount
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.stats.StatList
@@ -30,7 +30,7 @@ import kotlin.math.truncate
 
 object Tower : MinecraftInstance(), Listenable {
 
-    val towerModeValues = ListValue(
+    val towerModeValues = choices(
         "TowerMode",
         arrayOf(
             "None",
@@ -49,28 +49,31 @@ object Tower : MinecraftInstance(), Listenable {
         "None"
     )
 
-    val stopWhenBlockAboveValues = BoolValue("StopWhenBlockAbove", false) { towerModeValues.get() != "None" }
+    val stopWhenBlockAboveValues = boolean("StopWhenBlockAbove", false) { towerModeValues.get() != "None" }
 
-    val onJumpValues = BoolValue("TowerOnJump", true) { towerModeValues.get() != "None" }
-    val notOnMoveValues = BoolValue("TowerNotOnMove", false) { towerModeValues.get() != "None" }
+    val onJumpValues = boolean("TowerOnJump", true) { towerModeValues.get() != "None" }
+    val notOnMoveValues = boolean("TowerNotOnMove", false) { towerModeValues.get() != "None" }
 
     // Jump mode
     val jumpMotionValues = FloatValue("JumpMotion", 0.42f, 0.3681289f..0.79f) { towerModeValues.get() == "MotionJump" }
-    val jumpDelayValues = IntegerValue("JumpDelay",
+    val jumpDelayValues = int(
+        "JumpDelay",
         0,
         0..20
     ) { towerModeValues.get() == "MotionJump" || towerModeValues.get() == "Jump" }
 
     // Constant Motion values
-    val constantMotionValues = FloatValue("ConstantMotion",
+    val constantMotionValues = FloatValue(
+        "ConstantMotion",
         0.42f,
         0.1f..1f
     ) { towerModeValues.get() == "ConstantMotion" }
-    val constantMotionJumpGroundValues = FloatValue("ConstantMotionJumpGround",
+    val constantMotionJumpGroundValues = FloatValue(
+        "ConstantMotionJumpGround",
         0.79f,
         0.76f..1f
     ) { towerModeValues.get() == "ConstantMotion" }
-    val constantMotionJumpPacketValues = BoolValue("JumpPacket", true) { towerModeValues.get() == "ConstantMotion" }
+    val constantMotionJumpPacketValues = boolean("JumpPacket", true) { towerModeValues.get() == "ConstantMotion" }
 
     // Pull-down
     val triggerMotionValues = FloatValue("TriggerMotion", 0.1f, 0.0f..0.2f) { towerModeValues.get() == "Pulldown" }
@@ -78,9 +81,9 @@ object Tower : MinecraftInstance(), Listenable {
 
     // Teleport
     val teleportHeightValues = FloatValue("TeleportHeight", 1.15f, 0.1f..5f) { towerModeValues.get() == "Teleport" }
-    val teleportDelayValues = IntegerValue("TeleportDelay", 0, 0..20) { towerModeValues.get() == "Teleport" }
-    val teleportGroundValues = BoolValue("TeleportGround", true) { towerModeValues.get() == "Teleport" }
-    val teleportNoMotionValues = BoolValue("TeleportNoMotion", false) { towerModeValues.get() == "Teleport" }
+    val teleportDelayValues = int("TeleportDelay", 0, 0..20) { towerModeValues.get() == "Teleport" }
+    val teleportGroundValues = boolean("TeleportGround", true) { towerModeValues.get() == "Teleport" }
+    val teleportNoMotionValues = boolean("TeleportNoMotion", false) { towerModeValues.get() == "Teleport" }
 
     var isTowering = false
 
@@ -97,8 +100,9 @@ object Tower : MinecraftInstance(), Listenable {
 
         isTowering = false
 
-        if (towerModeValues.get() == "None" || notOnMoveValues.get() && isMoving ||
-            onJumpValues.get() && !mc.gameSettings.keyBindJump.isKeyDown) {
+        if (towerModeValues.get() == "None" || notOnMoveValues.get() && player.isMoving ||
+            onJumpValues.get() && !mc.gameSettings.keyBindJump.isKeyDown
+        ) {
             return
         }
 
@@ -126,6 +130,8 @@ object Tower : MinecraftInstance(), Listenable {
             if (Scaffold.scaffoldMode == "GodBridge" && (Scaffold.jumpAutomatically) || !Scaffold.shouldJumpOnInput)
                 return
             if (towerModeValues.get() == "None" || towerModeValues.get() == "Jump")
+                return
+            if (notOnMoveValues.get() && mc.thePlayer.isMoving)
                 return
             if (Speed.state || Fly.state)
                 return
@@ -256,7 +262,7 @@ object Tower : MinecraftInstance(), Listenable {
                 if (player.ticksExisted % 2 == 0) {
                     player.motionY = 0.7
                 } else {
-                    player.motionY = if (isMoving) 0.42 else 0.6
+                    player.motionY = if (player.isMoving) 0.42 else 0.6
                 }
             }
 
@@ -289,11 +295,12 @@ object Tower : MinecraftInstance(), Listenable {
         val packet = event.packet
 
         if (towerModeValues.get() == "Vulcan2.9.0" && packet is C04PacketPlayerPosition &&
-            !isMoving && player.ticksExisted % 2 == 0) {
+            !player.isMoving && player.ticksExisted % 2 == 0
+        ) {
             packet.x += 0.1
             packet.z += 0.1
         }
     }
 
-    override fun handleEvents(): Boolean = Scaffold.handleEvents()
+    override fun handleEvents() = Scaffold.handleEvents()
 }

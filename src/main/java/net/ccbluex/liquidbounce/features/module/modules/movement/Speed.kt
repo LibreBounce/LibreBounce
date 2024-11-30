@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac.
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac.AACHop4
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac.AACHop5
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.hypixel.HypixelHop
+import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.hypixel.HypixelLowHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.intave.IntaveHop14
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.intave.IntaveTimer14
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix.MatrixHop
@@ -24,18 +25,19 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.spar
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.spectre.SpectreBHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.spectre.SpectreLowHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.spectre.SpectreOnGround
-import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus.VerusLowHopNew
-import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus.VerusHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus.VerusFHop
+import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus.VerusHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus.VerusLowHop
+import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus.VerusLowHopNew
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulcan.VulcanGround288
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulcan.VulcanHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulcan.VulcanLowHop
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 
 object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
 
@@ -87,6 +89,8 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         // Server specific
         TeleportCubeCraft,
         HypixelHop,
+        HypixelLowHop,
+        BlocksMCHop,
 
         // Other
         Boost,
@@ -113,6 +117,8 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         AACHop3313, AACHop350, AACHop4,
 
         NCPBHop, NCPFHop, SNCPBHop, NCPHop, NCPYPort,
+
+        MiJump, Frame
     )
 
     private val showDeprecatedValue = object : BoolValue("DeprecatedMode", true) {
@@ -126,41 +132,62 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
 
     private var modesList = speedModes
 
-    val mode = ListValue("Mode", modesList.map { it.modeName }.toTypedArray(), "NCPBHop")
+    val mode = choices("Mode", modesList.map { it.modeName }.toTypedArray(), "NCPBHop")
 
     // Custom Speed
-    val customY by FloatValue("CustomY", 0.42f, 0f..4f) { mode.get() == "Custom" }
-    val customGroundStrafe by FloatValue("CustomGroundStrafe", 1.6f, 0f..2f) { mode.get() == "Custom" }
-    val customAirStrafe by FloatValue("CustomAirStrafe", 0f, 0f..2f) { mode.get() == "Custom" }
-    val customGroundTimer by FloatValue("CustomGroundTimer", 1f, 0.1f..2f) { mode.get() == "Custom" }
-    val customAirTimerTick by IntegerValue("CustomAirTimerTick", 5, 1..20) { mode.get() == "Custom" }
-    val customAirTimer by FloatValue("CustomAirTimer", 1f, 0.1f..2f) { mode.get() == "Custom" }
+    val customY by float("CustomY", 0.42f, 0f..4f) { mode.get() == "Custom" }
+    val customGroundStrafe by float("CustomGroundStrafe", 1.6f, 0f..2f) { mode.get() == "Custom" }
+    val customAirStrafe by float("CustomAirStrafe", 0f, 0f..2f) { mode.get() == "Custom" }
+    val customGroundTimer by float("CustomGroundTimer", 1f, 0.1f..2f) { mode.get() == "Custom" }
+    val customAirTimerTick by int("CustomAirTimerTick", 5, 1..20) { mode.get() == "Custom" }
+    val customAirTimer by float("CustomAirTimer", 1f, 0.1f..2f) { mode.get() == "Custom" }
 
     // Extra options
-    val resetXZ by BoolValue("ResetXZ", false) { mode.get() == "Custom" }
-    val resetY by BoolValue("ResetY", false) { mode.get() == "Custom" }
-    val notOnConsuming by BoolValue("NotOnConsuming", false) { mode.get() == "Custom" }
-    val notOnFalling by BoolValue("NotOnFalling", false) { mode.get() == "Custom" }
-    val notOnVoid by BoolValue("NotOnVoid", true) { mode.get() == "Custom" }
+    val resetXZ by boolean("ResetXZ", false) { mode.get() == "Custom" }
+    val resetY by boolean("ResetY", false) { mode.get() == "Custom" }
+    val notOnConsuming by boolean("NotOnConsuming", false) { mode.get() == "Custom" }
+    val notOnFalling by boolean("NotOnFalling", false) { mode.get() == "Custom" }
+    val notOnVoid by boolean("NotOnVoid", true) { mode.get() == "Custom" }
 
     // TeleportCubecraft Speed
-    val cubecraftPortLength by FloatValue("CubeCraft-PortLength", 1f, 0.1f..2f) { mode.get() == "TeleportCubeCraft" }
+    val cubecraftPortLength by float("CubeCraft-PortLength", 1f, 0.1f..2f)
+    { mode.get() == "TeleportCubeCraft" }
 
     // IntaveHop14 Speed
-    val boost by BoolValue("Boost", true) { mode.get() == "IntaveHop14" }
-    val strafeStrength by FloatValue("StrafeStrength", 0.29f, 0.1f..0.29f) { mode.get() == "IntaveHop14" }
-    val groundTimer by FloatValue("GroundTimer", 0.5f, 0.1f..5f) { mode.get() == "IntaveHop14" }
-    val airTimer by FloatValue("AirTimer", 1.09f, 0.1f..5f) { mode.get() == "IntaveHop14" }
+    val boost by boolean("Boost", true) { mode.get() == "IntaveHop14" }
+    val initialBoostMultiplier by float("InitialBoostMultiplier", 1f, 0.01f..10f)
+    { boost && mode.get() == "IntaveHop14" }
+    val intaveLowHop by boolean("LowHop", true) { mode.get() == "IntaveHop14" }
+    val strafeStrength by float("StrafeStrength", 0.29f, 0.1f..0.29f)
+    { mode.get() == "IntaveHop14" }
+    val groundTimer by float("GroundTimer", 0.5f, 0.1f..5f) { mode.get() == "IntaveHop14" }
+    val airTimer by float("AirTimer", 1.09f, 0.1f..5f) { mode.get() == "IntaveHop14" }
 
     // UNCPHopNew Speed
-    private val pullDown by BoolValue("PullDown", true) { mode.get() == "UNCPHopNew" }
-    val onTick by IntegerValue("OnTick", 5, 5..9) { pullDown && mode.get() == "UNCPHopNew" }
-    val onHurt by BoolValue("OnHurt", true) { pullDown && mode.get() == "UNCPHopNew" }
-    val shouldBoost by BoolValue("ShouldBoost", true) { mode.get() == "UNCPHopNew" }
-    val timerBoost by BoolValue("TimerBoost", true) { mode.get() == "UNCPHopNew" }
-    val damageBoost by BoolValue("DamageBoost", true) { mode.get() == "UNCPHopNew" }
-    val lowHop by BoolValue("LowHop", true) { mode.get() == "UNCPHopNew" }
-    val airStrafe by BoolValue("AirStrafe", true) { mode.get() == "UNCPHopNew" }
+    private val pullDown by boolean("PullDown", true) { mode.get() == "UNCPHopNew" }
+    val onTick by int("OnTick", 5, 5..9) { pullDown && mode.get() == "UNCPHopNew" }
+    val onHurt by boolean("OnHurt", true) { pullDown && mode.get() == "UNCPHopNew" }
+    val shouldBoost by boolean("ShouldBoost", true) { mode.get() == "UNCPHopNew" }
+    val timerBoost by boolean("TimerBoost", true) { mode.get() == "UNCPHopNew" }
+    val damageBoost by boolean("DamageBoost", true) { mode.get() == "UNCPHopNew" }
+    val lowHop by boolean("LowHop", true) { mode.get() == "UNCPHopNew" }
+    val airStrafe by boolean("AirStrafe", true) { mode.get() == "UNCPHopNew" }
+
+    // MatrixHop Speed
+    val matrixLowHop by boolean("LowHop", true)
+    { mode.get() == "MatrixHop" || mode.get() == "MatrixSlowHop" }
+    val extraGroundBoost by float("ExtraGroundBoost", 0.2f, 0f..0.5f)
+    { mode.get() == "MatrixHop" || mode.get() == "MatrixSlowHop" }
+
+    // HypixelLowHop Speed
+    val glide by boolean("Glide", true) { mode.get() == "HypixelLowHop" }
+
+    // BlocksMCHop Speed
+    val fullStrafe by boolean("FullStrafe", true) { mode.get() == "BlocksMCHop" }
+    val bmcLowHop by boolean("LowHop", true) { mode.get() == "BlocksMCHop" }
+    val bmcDamageBoost by boolean("DamageBoost", true) { mode.get() == "BlocksMCHop" }
+    val damageLowHop by boolean("DamageLowHop", false) { mode.get() == "BlocksMCHop" }
+    val safeY by boolean("SafeY", true) { mode.get() == "BlocksMCHop" }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
@@ -169,7 +196,7 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         if (thePlayer.isSneaking)
             return
 
-        if (isMoving && !sprintManually)
+        if (thePlayer.isMoving && !sprintManually)
             thePlayer.isSprinting = true
 
         modeModule.onUpdate()
@@ -182,7 +209,7 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         if (thePlayer.isSneaking || event.eventState != EventState.PRE)
             return
 
-        if (isMoving && !sprintManually)
+        if (thePlayer.isMoving && !sprintManually)
             thePlayer.isSprinting = true
 
         modeModule.onMotion()

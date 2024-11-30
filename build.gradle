@@ -33,12 +33,14 @@ minecraft {
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
-    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m -Xms1024m", "-Ddev-mode"]
+    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
 }
 
 configurations {
     include
     implementation.extendsFrom(include)
+
+    runtimeOnly.canBeResolved = true
 }
 
 dependencies {
@@ -68,10 +70,10 @@ dependencies {
 
     include "org.apache.httpcomponents:httpmime:4.5.14"
 
-    include "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    include "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
 
     include fileTree(include: ["*.jar"], dir: "libs")
-    include("org.knowm.xchart:xchart:3.8.0")
+    include("org.knowm.xchart:xchart:3.8.8")
 }
 
 shadowJar {
@@ -102,8 +104,10 @@ processResources {
 
 task moveResources {
     doLast {
-        ant.move file: "${buildDir}/resources/main",
-                todir: "${buildDir}/classes/java"
+        copy {
+            from "${buildDir}/resources/main"
+            into "${buildDir}/classes/java"
+        }
     }
 }
 
@@ -119,7 +123,7 @@ jar {
             "ModSide": "CLIENT",
             "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
             "TweakOrder": "0",
-            "FMLAT": "liquidbounce_at.cfg",
+            "FMLAT": "liquidbounce_at.cfg"
     )
 
     enabled = false
@@ -137,7 +141,9 @@ reobf {
     }
 }
 
-tasks.reobfJar.dependsOn(shadowJar)
+jar.dependsOn("shadowJar")
+
+tasks.reobfShadowJar.mustRunAfter shadowJar
 
 task copyZipInclude(type: Copy) {
     from 'zip_include/'

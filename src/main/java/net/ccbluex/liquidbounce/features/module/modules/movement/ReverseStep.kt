@@ -8,16 +8,16 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
-import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.float
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB
 
 object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
 
-    private val motion by FloatValue("Motion", 1f, 0.21f..1f)
+    private val motion by float("Motion", 1f, 0.21f..1f)
     private var jumped = false
 
     @EventTarget(ignoreCondition = true)
@@ -34,7 +34,16 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
             return
 
         if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid } ||
-            collideBlock(AxisAlignedBB.fromBounds(thePlayer.entityBoundingBox.maxX, thePlayer.entityBoundingBox.maxY, thePlayer.entityBoundingBox.maxZ, thePlayer.entityBoundingBox.minX, thePlayer.entityBoundingBox.minY - 0.01, thePlayer.entityBoundingBox.minZ)) {
+            collideBlock(
+                AxisAlignedBB.fromBounds(
+                    thePlayer.entityBoundingBox.maxX,
+                    thePlayer.entityBoundingBox.maxY,
+                    thePlayer.entityBoundingBox.maxZ,
+                    thePlayer.entityBoundingBox.minX,
+                    thePlayer.entityBoundingBox.minY - 0.01,
+                    thePlayer.entityBoundingBox.minZ
+                )
+            ) {
                 it is BlockLiquid
             }) return
 

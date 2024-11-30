@@ -9,16 +9,12 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.*;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import java.awt.*;
 
@@ -28,84 +24,104 @@ import static net.minecraft.client.renderer.GlStateManager.resetColor;
 @SideOnly(Side.CLIENT)
 public abstract class MixinGuiButton extends Gui {
 
-   @Shadow
-   public boolean visible;
+    @Shadow
+    public boolean visible;
 
-   @Shadow
-   public int xPosition;
+    @Shadow
+    public int xPosition;
 
-   @Shadow
-   public int yPosition;
+    @Shadow
+    public int yPosition;
 
-   @Shadow
-   public int width;
+    @Shadow
+    public int width;
 
-   @Shadow
-   public int height;
+    @Shadow
+    public int height;
 
-   @Shadow
-   protected boolean hovered;
+    @Shadow
+    protected boolean hovered;
 
-   @Shadow
-   public boolean enabled;
+    @Shadow
+    public boolean enabled;
 
-   @Shadow
-   protected abstract void mouseDragged(Minecraft mc, int mouseX, int mouseY);
+    @Shadow
+    protected abstract void mouseDragged(Minecraft mc, int mouseX, int mouseY);
 
-   @Shadow
-   public String displayString;
+    @Shadow
+    public String displayString;
 
-   @Shadow
-   @Final
-   protected static ResourceLocation buttonTextures;
-   private float cut;
-   private float alpha;
+    @Shadow
+    @Final
+    protected static ResourceLocation buttonTextures;
 
-   /**
-    * @author CCBlueX
-    */
-   @Overwrite
-   public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-      if (visible) {
-         hovered = (mouseX >= xPosition && mouseY >= yPosition &&
-                    mouseX < xPosition + width && mouseY < yPosition + height);
-         final float deltaTime = RenderUtils.INSTANCE.getDeltaTime();
+    @Shadow
+    public int id;
 
-         if (enabled && hovered) {
-            cut += 0.05F * deltaTime;
+    @Unique
+    private long startTime = -1L;
 
-            if (cut >= 4) cut = 4;
+    @Unique
+    private boolean lastHover = false;
 
-            alpha += 0.3F * deltaTime;
+    @Unique
+    private float progress = xPosition;
 
-            if (alpha >= 210) alpha = 210;
-         } else {
-            cut -= 0.05F * deltaTime;
+    /**
+     * @author CCBlueX
+     */
+    @Overwrite
+    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+        if (visible) {
+            hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height;
 
-            if (cut <= 0) cut = 0;
+            float supposedWidth = width;
 
-            alpha -= 0.3F * deltaTime;
+            if ((Object) this instanceof GuiOptionSlider) {
+                supposedWidth *= ((GuiOptionSlider) (Object) this).sliderValue;
+                hovered = true;
+            }
 
-            if (alpha <= 120) alpha = 120;
-         }
+            if ((Object) this instanceof GuiScreenOptionsSounds.Button) {
+                supposedWidth *= ((GuiScreenOptionsSounds.Button) (Object) this).field_146156_o;
+                hovered = true;
+            }
 
-         Gui.drawRect(xPosition + (int) cut, yPosition,
-                 xPosition + width - (int) cut, yPosition + height,
-                 enabled ? new Color(0F, 0F, 0F, alpha / 255F).getRGB() :
-                         new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
+            if (hovered != lastHover) {
+                if (System.currentTimeMillis() - startTime > 200L) {
+                    startTime = System.currentTimeMillis();
+                }
+                lastHover = hovered;
+            }
 
-         mc.getTextureManager().bindTexture(buttonTextures);
-         mouseDragged(mc, mouseX, mouseY);
+            long elapsed = System.currentTimeMillis() - startTime;
 
-         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
+            float startingPos = enabled && hovered ? xPosition : progress;
+            float endingPos = enabled && hovered ? xPosition + supposedWidth : xPosition;
 
-         final FontRenderer fontRenderer = Fonts.font35;
-         fontRenderer.drawStringWithShadow(displayString, (float) ((xPosition + width / 2) - fontRenderer.getStringWidth(displayString) / 2),
-                 yPosition + (height - 5) / 2F, 14737632);
+            progress = (int) (startingPos + (endingPos - startingPos) * MathHelper.clamp_float(elapsed / 200f, 0f, 1f));
 
-         AWTFontRenderer.Companion.setAssumeNonVolatile(false);
+            float radius = 2.5F;
 
-         resetColor();
-      }
-   }
+            // Draw original
+            RenderUtils.INSTANCE.drawRoundedRect(xPosition, yPosition, xPosition + width, yPosition + height, enabled ? new Color(0F, 0F, 0F, 120 / 255f).getRGB() : new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB(), radius);
+
+            if (enabled && progress != xPosition) {
+                // Draw blue overlay
+                RenderUtils.INSTANCE.drawRoundedRect(xPosition, yPosition, progress, yPosition + height, new Color(0F, 0F, 1F, 1F).getRGB(), radius);
+            }
+
+            mc.getTextureManager().bindTexture(buttonTextures);
+            mouseDragged(mc, mouseX, mouseY);
+
+            AWTFontRenderer.Companion.setAssumeNonVolatile(true);
+
+            final FontRenderer fontRenderer = Fonts.font35;
+            fontRenderer.drawStringWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getStringWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
+
+            AWTFontRenderer.Companion.setAssumeNonVolatile(false);
+
+            resetColor();
+        }
+    }
 }

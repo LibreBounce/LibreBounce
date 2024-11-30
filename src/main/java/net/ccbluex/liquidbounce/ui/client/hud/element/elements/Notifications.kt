@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.minecraft.client.renderer.GlStateManager.resetColor
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 
@@ -75,11 +76,13 @@ class Notification(private val message: String, private val delay: Float = 60F) 
      * Draw notification
      */
     fun drawNotification() {
+        resetColor()
+        glColor4f(1f, 1f, 1f, 1f)
+
         // Draw notification
         drawRect(-x + 8 + textLength, 0F, -x, -20F, Color.BLACK.rgb)
         drawRect(-x, 0F, -x - 5, -20F, Color(0, 160, 255).rgb)
         Fonts.font35.drawString(message, -x + 4, -14F, Int.MAX_VALUE)
-        glColor4f(1f, 1f, 1f, 1f)
 
         // Animation
         val delta = deltaTime

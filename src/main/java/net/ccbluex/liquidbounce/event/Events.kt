@@ -68,7 +68,7 @@ class KeyEvent(val key: Int) : Event()
  *
  * @param eventState PRE or POST
  */
-class MotionEvent(val eventState: EventState) : Event()
+class MotionEvent(var x: Double, var y: Double, var z: Double, var onGround: Boolean, val eventState: EventState) : Event()
 
 /**
  * Called in "onLivingUpdate" when the player is using a use item.
@@ -133,7 +133,7 @@ class PacketEvent(val packet: Packet<*>, val eventType: EventState) : Cancellabl
 /**
  * Called when a block tries to push you
  */
-class PushOutEvent : CancellableEvent()
+class BlockPushEvent : CancellableEvent()
 
 /**
  * Called when screen is going to be rendered
@@ -175,6 +175,8 @@ class StepConfirmEvent : Event()
  */
 class GameTickEvent : Event()
 
+class TickEndEvent : Event()
+
 /**
  * tick tack for player
  */
@@ -192,6 +194,8 @@ class CameraPositionEvent(
         result = FreeCam.PositionPair(currPos.withY(value), prevPos.withY(value), lastTickPos.withY(value))
     }
 }
+
+class ClientSlotChange(var supposedSlot: Int, var modifiedSlot: Int) : Event()
 
 /**
  * Called when minecraft player will be updated

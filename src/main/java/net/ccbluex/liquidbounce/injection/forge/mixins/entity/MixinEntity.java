@@ -52,6 +52,10 @@ public abstract class MixinEntity implements IMixinEntity {
 
     private double trueX;
 
+    private double lerpX;
+    private double lerpY;
+    private double lerpZ;
+
     public double getTrueX() {
         return trueX;
     }
@@ -255,14 +259,14 @@ public abstract class MixinEntity implements IMixinEntity {
 
     @Inject(method = "isInWater", at = @At("HEAD"), cancellable = true)
     private void isInWater(final CallbackInfoReturnable<Boolean> cir) {
-        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getWater()) {
+        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getWaterValue()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "isInLava", at = @At("HEAD"), cancellable = true)
     private void isInLava(final CallbackInfoReturnable<Boolean> cir) {
-        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getLava()) {
+        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getLavaValue()) {
             cir.setReturnValue(false);
         }
     }
@@ -283,5 +287,35 @@ public abstract class MixinEntity implements IMixinEntity {
 
         if (event.isCancelled())
             ci.cancel();
+    }
+
+    @Override
+    public double getLerpX() {
+        return lerpX;
+    }
+
+    @Override
+    public void setLerpX(double lerpX) {
+        this.lerpX = lerpX;
+    }
+
+    @Override
+    public double getLerpY() {
+        return lerpY;
+    }
+
+    @Override
+    public void setLerpY(double lerpY) {
+        this.lerpY = lerpY;
+    }
+
+    @Override
+    public double getLerpZ() {
+        return lerpZ;
+    }
+
+    @Override
+    public void setLerpZ(double lerpZ) {
+        this.lerpZ = lerpZ;
     }
 }

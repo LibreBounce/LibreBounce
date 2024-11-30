@@ -43,7 +43,9 @@ object TickedActions : Listenable {
 
         for (triple in calledThisTick) {
             triple.third()
-            actions.removeFirst()
+            if (actions.isNotEmpty()) {
+                actions.removeFirst()
+            }
         }
 
         calledThisTick.clear()
@@ -52,15 +54,13 @@ object TickedActions : Listenable {
     @EventTarget
     fun onWorld(event: WorldEvent) = actions.clear()
 
-    override fun handleEvents() = true
-
     class TickScheduler(val module: Module) : MinecraftInstance() {
         fun schedule(id: Int, allowDuplicates: Boolean = false, action: () -> Unit) =
             schedule(id, module, allowDuplicates, action)
 
         fun scheduleClick(slot: Int, button: Int, mode: Int, allowDuplicates: Boolean = false, windowId: Int = mc.thePlayer.openContainer.windowId, action: ((ItemStack?) -> Unit)? = null) =
             schedule(slot, module, allowDuplicates) {
-                val newStack = mc.playerController.windowClick(windowId, slot, button, mode, mc.thePlayer)
+                val newStack = mc.playerController?.windowClick(windowId, slot, button, mode, mc.thePlayer)
                 action?.invoke(newStack)
             }
 

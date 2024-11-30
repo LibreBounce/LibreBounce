@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -20,6 +18,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.BEDWARS_BLOCKS
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockTexture
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
@@ -36,13 +35,14 @@ import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
-    private val renderYOffset by IntegerValue("RenderYOffset", 1, 0..5)
+    private val renderYOffset by int("RenderYOffset", 1, 0..5)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -54,50 +54,48 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val maxLayers by IntegerValue("MaxLayers", 5, 1..10)
-    private val scale by FloatValue("Scale", 3F, 1F..5F)
+    private val maxLayers by int("MaxLayers", 5, 1..10)
+    private val scale by float("Scale", 3F, 1F..5F)
 
-    private val textMode by ListValue("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
-    private val textColors = ColorSettingsInteger(this, "Text", withAlpha = false, applyMax = true) { textMode == "Custom" }
+    private val textMode by choices("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val textColors =
+        ColorSettingsInteger(this, "Text", withAlpha = false, applyMax = true) { textMode == "Custom" }
 
-    private val gradientTextSpeed by FloatValue("Text-Gradient-Speed", 1f, 0.5f..10f) { textMode == "Gradient" }
+    private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textMode == "Gradient" }
 
-    private val maxTextGradientColors by IntegerValue("Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
+    private val maxTextGradientColors by int("Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { textMode == "Gradient" }
     private val textGradColors = ColorSettingsFloat.create(this, "Text-Gradient")
     { textMode == "Gradient" && it <= maxTextGradientColors }
 
-    private val roundedRectRadius by FloatValue("Rounded-Radius", 3F, 0F..5F)
+    private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
 
-    private val backgroundMode by ListValue("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val backgroundMode by choices("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
     private val bgColors = ColorSettingsInteger(this, "Background") { backgroundMode == "Custom" }.with(a = 100)
 
-    private val gradientBackgroundSpeed by FloatValue("Background-Gradient-Speed", 1f, 0.5f..10f)
+    private val gradientBackgroundSpeed by float("Background-Gradient-Speed", 1f, 0.5f..10f)
     { backgroundMode == "Gradient" }
 
-    private val maxBackgroundGradientColors by IntegerValue("Max-Background-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
+    private val maxBackgroundGradientColors by int("Max-Background-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { backgroundMode == "Gradient" }
     private val bgGradColors = ColorSettingsFloat.create(this, "Background-Gradient")
     { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
-    private val textFont by FontValue("Font", Fonts.font35)
-    private val textShadow by BoolValue("ShadowText", true)
+    private val textFont by font("Font", Fonts.font35)
+    private val textShadow by boolean("ShadowText", true)
 
-    private val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
-    private val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
-    private val gradientX by FloatValue("Gradient-X", -1000F, -2000F..2000F) { backgroundMode == "Gradient" }
-    private val gradientY by FloatValue("Gradient-Y", -1000F, -2000F..2000F) { backgroundMode == "Gradient" }
+    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
+    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
+    private val gradientX by float("Gradient-X", -1000F, -2000F..2000F) { backgroundMode == "Gradient" }
+    private val gradientY by float("Gradient-Y", -1000F, -2000F..2000F) { backgroundMode == "Gradient" }
 
     private var bed: Array<BlockPos>? = null
     private val beds: MutableList<BlockPos?> = mutableListOf()
     private val bedBlocks: MutableList<MutableList<Block>> = mutableListOf()
     private var searchJob: Job? = null
 
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-
     override fun onDisable() {
-        if (searchJob?.isActive == true)
-            searchJob?.cancel()
+        searchJob?.cancel()
     }
 
     @EventTarget
@@ -107,20 +105,21 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
 
         try {
             if (searchJob?.isActive != true) {
-                searchJob = coroutineScope.launch {
+                searchJob = SharedScopes.Default.launch {
                     val blockList = mutableListOf<BlockPos>()
                     val bedBlockLists = mutableListOf<MutableList<Block>>()
                     val bedSet = mutableSetOf<BlockPos>()
 
                     val radius = maxRenderDistance
+                    val mutable = BlockPos.MutableBlockPos(0, 0, 0)
                     for (i in -radius..radius) {
                         for (j in -radius..radius) {
                             for (k in -radius..radius) {
-                                val blockPos = BlockPos(player.posX + j, player.posY + i, player.posZ + k)
-                                val blockState: IBlockState = world.getBlockState(blockPos)
+                                mutable.set(player.posX.toInt() + j, player.posY.toInt() + i, player.posZ.toInt() + k)
+                                val blockState: IBlockState = world.getBlockState(mutable)
 
                                 if (blockState.block == Blocks.bed && blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.FOOT) {
-                                    bedBlocks(blockPos, blockList, bedBlockLists, bedSet)
+                                    bedBlocks(mutable.immutable, blockList, bedBlockLists, bedSet)
                                 }
                             }
                         }
@@ -231,7 +230,6 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
             backgroundMode == "Gradient",
             gradientX,
             gradientY,
-            maxBackgroundGradientColors,
             bgGradColors.toColorArray(maxBackgroundGradientColors),
             gradientBackgroundSpeed,
             gradientOffset
@@ -257,7 +255,6 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
             textMode == "Gradient",
             gradientX,
             gradientY,
-            maxTextGradientColors,
             textGradColors.toColorArray(maxTextGradientColors),
             gradientTextSpeed,
             gradientOffset
@@ -306,16 +303,17 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         val world = mc.theWorld ?: return false
         val bedBlock: Block = world.getBlockState(bedPos).block
 
+        if (index < 0) return false
+
         while (bedBlocks.size <= index) {
             bedBlocks.add(mutableListOf())
         }
+        while (beds.size <= index) {
+            beds.add(BlockPos.ORIGIN)
+        }
 
         bedBlocks[index].clear()
-        if (beds.size <= index) {
-            beds.add(bedPos)
-        } else {
-            beds[index] = bedPos
-        }
+        beds[index] = bedPos
 
         if (bedBlock != Blocks.bed) {
             return false

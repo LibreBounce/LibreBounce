@@ -5,15 +5,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.SessionEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
+import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.UserUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.BoolValue
@@ -24,7 +27,6 @@ import net.minecraft.util.IChatComponent
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.regex.Pattern
-import kotlin.concurrent.thread
 
 object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameDetecting = false) {
 
@@ -49,12 +51,12 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
         /**
          * Handle connect to web socket
          */
-        override fun onConnect() = displayChatMessage("§7[§a§lChat§7] §9Connecting to chat server...")
+        override fun onConnect() = chat("§7[§a§lChat§7] §9Connecting to chat server...")
 
         /**
          * Handle connect to web socket
          */
-        override fun onConnected() = displayChatMessage("§7[§a§lChat§7] §9Connected to chat server!")
+        override fun onConnected() = chat("§7[§a§lChat§7] §9Connected to chat server!")
 
         /**
          * Handle handshake
@@ -64,12 +66,12 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
         /**
          * Handle disconnect
          */
-        override fun onDisconnect() = displayChatMessage("§7[§a§lChat§7] §cDisconnected from chat server!")
+        override fun onDisconnect() = chat("§7[§a§lChat§7] §cDisconnected from chat server!")
 
         /**
          * Handle logon to web socket with minecraft account
          */
-        override fun onLogon() = displayChatMessage("§7[§a§lChat§7] §9Logging in...")
+        override fun onLogon() = chat("§7[§a§lChat§7] §9Logging in...")
 
         /**
          * Handle incoming packets
@@ -90,7 +92,8 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
                     thePlayer.addChatMessage(chatComponent)
                 }
-                is ClientPrivateMessagePacket -> displayChatMessage("§7[§a§lChat§7] §c(P)§9 ${packet.user.name}: §7${packet.content}")
+
+                is ClientPrivateMessagePacket -> chat("§7[§a§lChat§7] §c(P)§9 ${packet.user.name}: §7${packet.content}")
                 is ClientErrorPacket -> {
                     val message = when (packet.message) {
                         "NotSupported" -> "This method is not supported!"
@@ -111,25 +114,28 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
                         else -> packet.message
                     }
 
-                    displayChatMessage("§7[§a§lChat§7] §cError: §7$message")
+                    chat("§7[§a§lChat§7] §cError: §7$message")
                 }
+
                 is ClientSuccessPacket -> {
                     when (packet.reason) {
                         "Login" -> {
-                            displayChatMessage("§7[§a§lChat§7] §9Logged in!")
+                            chat("§7[§a§lChat§7] §9Logged in!")
 
-                            displayChatMessage("====================================")
-                            displayChatMessage("§c>> §lLiquidChat")
-                            displayChatMessage("§7Write message: §a.chat <message>")
-                            displayChatMessage("§7Write private message: §a.pchat <user> <message>")
-                            displayChatMessage("====================================")
+                            chat("====================================")
+                            chat("§c>> §lLiquidChat")
+                            chat("§7Write message: §a.chat <message>")
+                            chat("§7Write private message: §a.pchat <user> <message>")
+                            chat("====================================")
 
                             loggedIn = true
                         }
-                        "Ban" -> displayChatMessage("§7[§a§lChat§7] §9Successfully banned user!")
-                        "Unban" -> displayChatMessage("§7[§a§lChat§7] §9Successfully unbanned user!")
+
+                        "Ban" -> chat("§7[§a§lChat§7] §9Successfully banned user!")
+                        "Unban" -> chat("§7[§a§lChat§7] §9Successfully unbanned user!")
                     }
                 }
+
                 is ClientNewJWTPacket -> {
                     jwtToken = packet.token
                     jwt = true
@@ -143,12 +149,13 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
         /**
          * Handle error
          */
-        override fun onError(cause: Throwable) = displayChatMessage("§7[§a§lChat§7] §c§lError: §7${cause.javaClass.name}: ${cause.message}")
+        override fun onError(cause: Throwable) =
+            chat("§7[§a§lChat§7] §c§lError: §7${cause.javaClass.name}: ${cause.message}")
     }
 
     private var loggedIn = false
 
-    private var loginThread: Thread? = null
+    private var loginJob: Job? = null
 
     private val connectTimer = MSTimer()
 
@@ -165,7 +172,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
     @EventTarget
     fun onUpdate(updateEvent: UpdateEvent) {
-        if (client.isConnected() || (loginThread?.isAlive == true)) return
+        if (client.isConnected() || (loginJob?.isActive == true)) return
 
         if (connectTimer.hasTimePassed(5000)) {
             connect()
@@ -174,17 +181,17 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
     }
 
     private fun connect() {
-        if (client.isConnected() || (loginThread?.isAlive == true)) return
+        if (client.isConnected() || (loginJob?.isActive == true)) return
 
         if (jwt && jwtToken.isEmpty()) {
-            displayChatMessage("§7[§a§lChat§7] §cError: §7No token provided!")
+            chat("§7[§a§lChat§7] §cError: §7No token provided!")
             state = false
             return
         }
 
         loggedIn = false
 
-        loginThread = thread {
+        loginJob = SharedScopes.IO.launch {
             try {
                 client.connect()
 
@@ -195,10 +202,10 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
                 }
             } catch (cause: Exception) {
                 LOGGER.error("LiquidChat error", cause)
-                displayChatMessage("§7[§a§lChat§7] §cError: §7${cause.javaClass.name}: ${cause.message}")
+                chat("§7[§a§lChat§7] §cError: §7${cause.javaClass.name}: ${cause.message}")
             }
 
-            loginThread = null
+            loginJob = null
         }
     }
 
@@ -208,7 +215,10 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
      * @author Forge
      */
 
-    private val urlPattern = Pattern.compile("((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_\\.]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))", Pattern.CASE_INSENSITIVE)
+    private val urlPattern = Pattern.compile(
+        "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_\\.]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
+        Pattern.CASE_INSENSITIVE
+    )
 
     private fun toChatComponent(string: String): IChatComponent {
         var component: IChatComponent? = null
@@ -248,7 +258,8 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
                         component.appendSibling(link)
                     continue
                 }
-            } catch (_: URISyntaxException) { }
+            } catch (_: URISyntaxException) {
+            }
 
             if (component == null) {
                 component = ChatComponentText(url)

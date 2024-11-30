@@ -8,31 +8,34 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.extensions.hitBox
+import net.ccbluex.liquidbounce.utils.RotationUtils.isEntityHeightVisible
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.extensions.currPos
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
+import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.renderer.GlStateManager.enableTexture2D
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.vector.Vector3f
 import java.awt.Color
@@ -42,22 +45,23 @@ import kotlin.math.pow
 
 object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
-    val mode by ListValue("Mode",
-        arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Outline", "Glow"), "Box")
+    val mode by choices(
+        "Mode",
+        arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Outline", "Glow"), "Box"
+    )
 
-        val outlineWidth by FloatValue("Outline-Width", 3f, 0.5f..5f) { mode == "Outline" }
+    val outlineWidth by float("Outline-Width", 3f, 0.5f..5f) { mode == "Outline" }
 
-        val wireframeWidth by FloatValue("WireFrame-Width", 2f, 0.5f..5f) { mode == "WireFrame" }
+    val wireframeWidth by float("WireFrame-Width", 2f, 0.5f..5f) { mode == "WireFrame" }
 
-        private val glowRenderScale by FloatValue("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
-        private val glowRadius by IntegerValue("Glow-Radius", 4, 1..5) { mode == "Glow" }
-        private val glowFade by IntegerValue("Glow-Fade", 10, 0..30) { mode == "Glow" }
-        private val glowTargetAlpha by FloatValue("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
+    private val glowRenderScale by float("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
+    private val glowRadius by int("Glow-Radius", 4, 1..5) { mode == "Glow" }
+    private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
+    private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val colorRainbow by BoolValue("Rainbow", false)
-        private val colorRed by IntegerValue("R", 255, 0..255) { !colorRainbow }
-        private val colorGreen by IntegerValue("G", 255, 0..255) { !colorRainbow }
-        private val colorBlue by IntegerValue("B", 255, 0..255) { !colorRainbow }
+    private val espColorMode by choices("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom")
+    private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false)
+    { espColorMode == "Custom" }.with(255, 255, 255)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -65,18 +69,18 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
         }
     }
 
-    private val onLook by BoolValue("OnLook", false)
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val onLook by boolean("OnLook", false)
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
-    private val thruBlocks by BoolValue("ThruBlocks", true)
+    private val thruBlocks by boolean("ThruBlocks", true)
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val colorTeam by BoolValue("Team", false)
-    private val bot by BoolValue("Bots", true)
+    private val colorTeam by boolean("Team", false)
+    private val bot by boolean("Bots", true)
 
     var renderNameTags = true
 
@@ -114,8 +118,7 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
                 if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble()))
                     continue
 
-                if (!thruBlocks && !RotationUtils.isVisible(Vec3(entity.posX, entity.posY, entity.posZ)))
-                    continue
+                if (!thruBlocks && !isEntityHeightVisible(entity)) continue
 
                 if (distanceSquared <= maxRenderDistanceSq) {
                     val color = getColor(entity)
@@ -123,28 +126,22 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
                     when (mode) {
                         "Box", "OtherBox" -> drawEntityBox(entity, color, mode != "OtherBox")
                         "2D" -> {
-                            val renderManager = mc.renderManager
-                            val timer = mc.timer
-                            val posX =
-                                entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX
-                            val posY =
-                                entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY
-                            val posZ =
-                                entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
+                            val (posX, posY, posZ) = entity.lastTickPos.lerpWith(
+                                entity.currPos,
+                                mc.timer.renderPartialTicks
+                            ) - mc.renderManager.renderPos
+
                             draw2D(entity, posX, posY, posZ, color.rgb, Color.BLACK.rgb)
                         }
 
                         "Real2D" -> {
-                            val renderManager = mc.renderManager
-                            val timer = mc.timer
-                            val bb = entity.hitBox
-                                .offset(-entity.posX, -entity.posY, -entity.posZ)
-                                .offset(
-                                    entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks,
-                                    entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks,
-                                    entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
-                                )
-                                .offset(-renderManager.renderPosX, -renderManager.renderPosY, -renderManager.renderPosZ)
+                            val (posX, posY, posZ) = entity.lastTickPos.lerpWith(
+                                entity.currPos,
+                                mc.timer.renderPartialTicks
+                            ) - mc.renderManager.renderPos
+
+                            val bb =
+                                entity.hitBox.offset(-entity.posX, -entity.posY, -entity.posZ).offset(posX, posY, posZ)
                             val boxVertices = arrayOf(
                                 doubleArrayOf(bb.minX, bb.minY, bb.minZ),
                                 doubleArrayOf(bb.minX, bb.maxY, bb.minZ),
@@ -204,8 +201,6 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
         if (mc.theWorld == null || mode != "Glow")
             return
 
-        GlowShader.startDraw(event.partialTicks, glowRenderScale)
-
         renderNameTags = false
 
         try {
@@ -225,8 +220,6 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
         }
 
         renderNameTags = true
-
-        GlowShader.stopDraw(getColor(), glowRadius, glowFade, glowTargetAlpha)
     }
 
     override val tag
@@ -242,10 +235,10 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
         return mc.theWorld.loadedEntityList.asSequence()
             .filterIsInstance<EntityLivingBase>()
-            .filterNot { isBot(it) && bot }
+            .filterNot { isBot(it) && !bot }
             .filter { isSelected(it, false) }
             .filter { player.getDistanceSqToEntity(it) <= maxDistanceSquared }
-            .filter { thruBlocks || RotationUtils.isVisible(Vec3(it.posX, it.posY, it.posZ)) }
+            .filter { thruBlocks || isEntityHeightVisible(it) }
             .toList()
     }
 
@@ -277,8 +270,9 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
             }
         }
 
-        return if (colorRainbow) rainbow() else Color(colorRed, colorGreen, colorBlue)
+        return if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
     }
+
     fun shouldRender(entity: EntityLivingBase): Boolean {
         return (bot || !isBot(entity))
     }

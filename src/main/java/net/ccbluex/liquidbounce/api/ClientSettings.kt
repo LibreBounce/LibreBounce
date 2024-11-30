@@ -6,13 +6,14 @@
 package net.ccbluex.liquidbounce.api
 
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
+import net.ccbluex.liquidbounce.utils.chat
 import java.text.SimpleDateFormat
-
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
+import kotlin.concurrent.withLock
 
 // Define a loadingLock object to synchronize access to the settings loading code
-private val loadingLock = Object()
+private val loadingLock = ReentrantLock()
 
 // Define a mutable list of AutoSetting objects to store the loaded settings
 var autoSettingsList: Array<AutoSettings>? = null
@@ -20,9 +21,9 @@ var autoSettingsList: Array<AutoSettings>? = null
 // Define a function to load settings from a remote GitHub repository
 fun loadSettings(useCached: Boolean, join: Long? = null, callback: (Array<AutoSettings>) -> Unit) {
     // Spawn a new thread to perform the loading operation
-    val thread = thread {
+    val thread = thread(name = "Setting-Loader") {
         // Synchronize access to the loading code to prevent concurrent loading of settings
-        synchronized(loadingLock) {
+        loadingLock.withLock {
             // If cached settings are requested and have been loaded previously, return them immediately
             if (useCached && autoSettingsList != null) {
                 callback(autoSettingsList!!)
@@ -54,7 +55,7 @@ fun loadSettings(useCached: Boolean, join: Long? = null, callback: (Array<AutoSe
                 LOGGER.error("Failed to fetch auto settings list.", e)
 
                 // If an error occurs, display an error message to the user
-                displayChatMessage("Failed to fetch auto settings list.")
+                chat("Failed to fetch auto settings list.")
             }
         }
     }

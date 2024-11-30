@@ -5,18 +5,19 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce.clientRichPresence
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import net.minecraftforge.fml.client.GuiModList
 import org.lwjgl.input.Keyboard
-import kotlin.concurrent.thread
 
 class GuiModsMenu(private val prevGui: GuiScreen) : GuiScreen() {
 
@@ -38,79 +39,82 @@ class GuiModsMenu(private val prevGui: GuiScreen) : GuiScreen() {
 
     override fun actionPerformed(button: GuiButton) {
         when (val id = button.id) {
+            // Forge Mods
             0 -> mc.displayGuiScreen(GuiModList(this))
+
+            // Scripts
             1 -> mc.displayGuiScreen(GuiScripts(this))
+
+            // Toggle
             2 -> {
                 val rpc = clientRichPresence
-                rpc.showRPCValue = when (val state = !rpc.showRPCValue) {
-                    false -> {
-                        rpc.shutdown()
-                        changeDisplayState(id, state)
-                        false
-                    }
-                    true -> {
-                        var value = true
-                        thread {
-                            value = try {
-                                rpc.setup()
-                                true
-                            } catch (throwable: Throwable) {
-                                LOGGER.error("Failed to setup Discord RPC.", throwable)
-                                false
-                            }
+
+                rpc.showRPCValue = if (rpc.showRPCValue) {
+                    rpc.shutdown()
+                    changeDisplayState(id, false)
+                    false
+                } else {
+                    var value = true
+                    SharedScopes.IO.launch {
+                        value = try {
+                            rpc.setup()
+                            true
+                        } catch (throwable: Throwable) {
+                            LOGGER.error("Failed to setup Discord RPC.", throwable)
+                            false
                         }
-                        changeDisplayState(id, value)
-                        value
                     }
+                    changeDisplayState(id, value)
+                    value
                 }
             }
+
+            // Show IP
             3 -> {
                 val rpc = clientRichPresence
-                rpc.showRPCServerIP = when (val state = !rpc.showRPCServerIP) {
-                    false -> {
-                        changeDisplayState(id, state)
-                        false
-                    }
-                    true -> {
-                        var value = true
-                        thread {
-                            value = try {
-                                rpc.update()
-                                true
-                            } catch (throwable: Throwable) {
-                                LOGGER.error("Failed to update Discord RPC.", throwable)
-                                false
-                            }
+                rpc.showRPCServerIP = if (rpc.showRPCServerIP) {
+                    changeDisplayState(id, false)
+                    false
+                } else {
+                    var value = true
+                    SharedScopes.IO.launch {
+                        value = try {
+                            rpc.update()
+                            true
+                        } catch (throwable: Throwable) {
+                            LOGGER.error("Failed to update Discord RPC.", throwable)
+                            false
                         }
-                        changeDisplayState(id, value)
-                        value
                     }
+                    changeDisplayState(id, value)
+                    value
                 }
             }
+
+            // Show Modules Count
             4 -> {
                 val rpc = clientRichPresence
-                rpc.showRPCModulesCount = when (val state = !rpc.showRPCModulesCount) {
-                    false -> {
-                        rpc.shutdown()
-                        changeDisplayState(id, state)
-                        false
-                    }
-                    true -> {
-                        var value = true
-                        thread {
-                            value = try {
-                                rpc.update()
-                                true
-                            } catch (throwable: Throwable) {
-                                LOGGER.error("Failed to update Discord RPC.", throwable)
-                                false
-                            }
+                rpc.showRPCModulesCount = if (rpc.showRPCModulesCount) {
+                    rpc.shutdown()
+                    changeDisplayState(id, false)
+                    false
+                } else {
+                    var value = true
+                    SharedScopes.IO.launch {
+                        value = try {
+                            rpc.update()
+                            true
+                        } catch (throwable: Throwable) {
+                            LOGGER.error("Failed to update Discord RPC.", throwable)
+                            false
                         }
-                        changeDisplayState(id, value)
-                        value
                     }
+                    changeDisplayState(id, value)
+                    value
                 }
             }
+
+            // Back
             5 -> mc.displayGuiScreen(prevGui)
         }
     }

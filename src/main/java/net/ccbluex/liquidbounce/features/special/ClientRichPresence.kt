@@ -11,6 +11,8 @@ import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.IPCListener
 import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.MINECRAFT_VERSION
@@ -20,11 +22,11 @@ import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.ServerUtils
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
-import kotlin.concurrent.thread
 
 object ClientRichPresence : MinecraftInstance() {
 
@@ -61,10 +63,10 @@ object ClientRichPresence : MinecraftInstance() {
                      * @param client The now ready IPCClient.
                      */
                     override fun onReady(client: IPCClient?) {
-                        thread {
+                        SharedScopes.IO.launch {
                             while (running) {
                                 update()
-                                Thread.sleep(1000L)
+                                delay(1000L)
                             }
                         }
                     }
@@ -110,7 +112,8 @@ object ClientRichPresence : MinecraftInstance() {
                 // Set server info
                 if (showRPCServerIP) {
                     setDetails(customRPCText.ifEmpty {
-                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
+                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" 
+                        else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
                     })
                 }
 

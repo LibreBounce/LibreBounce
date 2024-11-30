@@ -14,10 +14,7 @@ import net.ccbluex.liquidbounce.utils.Background;
 import net.ccbluex.liquidbounce.utils.render.ParticleUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -103,7 +100,7 @@ public abstract class MixinGuiScreen {
                 final WorldRenderer worldRenderer = instance.getWorldRenderer();
 
                 GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(BackgroundShader.Companion.getGlowOutline() ? GL11.GL_ONE : GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
                 worldRenderer.begin(7, DefaultVertexFormats.POSITION);
                 worldRenderer.pos(0, height, 0).endVertex();

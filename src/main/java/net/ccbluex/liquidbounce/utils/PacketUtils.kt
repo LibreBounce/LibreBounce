@@ -5,21 +5,25 @@
  */
 package net.ccbluex.liquidbounce.utils
 
+import com.google.common.collect.Queues
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
+import net.minecraft.util.Vec3
 import kotlin.math.roundToInt
 
 object PacketUtils : MinecraftInstance(), Listenable {
 
-    val queuedPackets = mutableListOf<Packet<*>>()
+    val queuedPackets = Queues.newArrayDeque<Packet<*>>()
 
     @EventTarget(priority = 2)
     fun onTick(event: GameTickEvent) {
@@ -27,10 +31,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
             if (entity is EntityLivingBase) {
                 (entity as? IMixinEntity)?.apply {
                     if (!truePos) {
-                        trueX = entity.posX
-                        trueY = entity.posY
-                        trueZ = entity.posZ
-                        truePos = true
+                        updateSpawnPosition(entity.currPos)
                     }
                 }
             }
@@ -43,21 +44,13 @@ object PacketUtils : MinecraftInstance(), Listenable {
         val world = mc.theWorld ?: return
 
         when (packet) {
-            is S0CPacketSpawnPlayer ->
-                (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                    trueX = packet.realX
-                    trueY = packet.realY
-                    trueZ = packet.realZ
-                    truePos = true
-                }
+            is S0CPacketSpawnPlayer -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+            }
 
-            is S0FPacketSpawnMob ->
-                (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                    trueX = packet.realX
-                    trueY = packet.realY
-                    trueZ = packet.realZ
-                    truePos = true
-                }
+            is S0FPacketSpawnMob -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+            }
 
             is S14PacketEntity -> {
                 val entity = packet.getEntity(world)
@@ -65,10 +58,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
                 mixinEntity?.apply {
                     if (!truePos) {
-                        trueX = entity.posX
-                        trueY = entity.posY
-                        trueZ = entity.posZ
-                        truePos = true
+                        updateSpawnPosition(entity.currPos)
                     }
 
                     trueX += packet.realMotionX
@@ -77,27 +67,23 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 }
             }
 
-            is S18PacketEntityTeleport ->
-                (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
-                    trueX = packet.realX
-                    trueY = packet.realY
-                    trueZ = packet.realZ
-                    truePos = true
-                }
+            is S18PacketEntityTeleport -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ), true)
+            }
         }
     }
 
     @EventTarget(priority = -5)
     fun onGameLoop(event: GameLoopEvent) {
         synchronized(queuedPackets) {
-            queuedPackets.forEach {
+            queuedPackets.removeAll {
                 handlePacket(it)
                 val packetEvent = PacketEvent(it, EventState.RECEIVE)
                 FakeLag.onPacket(packetEvent)
                 Velocity.onPacket(packetEvent)
-            }
 
-            queuedPackets.clear()
+                true
+            }
         }
     }
 
@@ -109,8 +95,6 @@ object PacketUtils : MinecraftInstance(), Listenable {
             }
         }
     }
-
-    override fun handleEvents() = true
 
     @JvmStatic
     fun sendPacket(packet: Packet<*>, triggerEvent: Boolean = true) {
@@ -156,6 +140,26 @@ object PacketUtils : MinecraftInstance(), Listenable {
         }
 
     enum class PacketType { CLIENT, SERVER, UNKNOWN }
+}
+
+fun IMixinEntity.updateSpawnPosition(target: Vec3, ignoreInterpolation: Boolean = false) {
+    trueX = target.xCoord
+    trueY = target.yCoord
+    trueZ = target.zCoord
+    if (!ignoreInterpolation) {
+        lerpX = trueX
+        lerpY = trueY
+        lerpZ = trueZ
+    }
+    truePos = true
+}
+
+fun interpolatePosition(entity: IMixinEntity) = entity.run {
+    val delta = RenderUtils.deltaTimeNormalized(150)
+
+    lerpX += (trueX - lerpX) * delta
+    lerpY += (trueY - lerpY) * delta
+    lerpZ += (trueZ - lerpZ) * delta
 }
 
 var S12PacketEntityVelocity.realMotionX
@@ -224,3 +228,23 @@ var C03PacketPlayer.rotation
         yaw = value.yaw
         pitch = value.pitch
     }
+
+var C03PacketPlayer.pos
+    get() = Vec3(x, y, z)
+    set(value) {
+        x = value.xCoord
+        y = value.yCoord
+        z = value.zCoord
+    }
+
+fun schedulePacketProcess(packet: Packet<*>) {
+    synchronized(PacketUtils.queuedPackets) {
+        PacketUtils.queuedPackets.add(packet)
+    }
+}
+
+fun schedulePacketProcess(packets: Collection<Packet<*>>) {
+    synchronized(PacketUtils.queuedPackets) {
+        PacketUtils.queuedPackets.addAll(packets)
+    }
+}

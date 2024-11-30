@@ -87,10 +87,12 @@ object ModuleManager : Listenable {
             Blink,
             BlockESP,
             BlockOverlay,
+            PointerESP,
             ProjectileAimbot,
             Breadcrumbs,
             BufferSpeed,
             CameraClip,
+            CameraView,
             Chams,
             ChestAura,
             ChestStealer,
@@ -148,9 +150,7 @@ object ModuleManager : Listenable {
             MultiActions,
             NameProtect,
             NameTags,
-            NoAchievement,
             NoBob,
-            NoBooks,
             NoClip,
             NoFOV,
             NoFall,
@@ -160,11 +160,11 @@ object ModuleManager : Listenable {
             NoJumpDelay,
             NoPitchLimit,
             NoRotateSet,
-            NoScoreboard,
             NoSlotSet,
             NoSlow,
             NoSlowBreak,
             NoSwing,
+            Notifier,
             NoWeb,
             Nuker,
             PacketDebugger,
@@ -220,7 +220,9 @@ object ModuleManager : Listenable {
             TickBase,
             RotationRecorder,
             ForwardTrack,
-            FreeLook
+            FreeLook,
+            SilentHotbarModule,
+            ClickRecorder
         )
 
         InventoryManager.startCoroutine()
@@ -308,5 +310,5 @@ object ModuleManager : Listenable {
     @EventTarget
     private fun onKey(event: KeyEvent) = modules.forEach { if (it.keyBind == event.key) it.toggle() }
 
-    override fun handleEvents() = true
+    
 }

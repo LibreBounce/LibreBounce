@@ -7,35 +7,29 @@ package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.NoSlotSet
+import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestAura
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.utils.timing.TickedActions
+import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockBush
 import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
-import net.minecraft.network.play.client.*
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.play.client.C0DPacketCloseWindow
+import net.minecraft.network.play.client.C0EPacketClickWindow
+import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.network.play.client.C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT
 import net.minecraft.network.play.server.S09PacketHeldItemChange
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 
 object InventoryUtils : MinecraftInstance(), Listenable {
-
-    // What slot is selected on server-side?
-    // TODO: Is this equal to mc.playerController.currentPlayerItem?
-    var serverSlot
-        get() = _serverSlot
-        set(value) {
-            if (value != _serverSlot) {
-                sendPacket(C09PacketHeldItemChange(value))
-
-                _serverSlot = value
-            }
-        }
-
     // Is inventory open on server-side?
     var serverOpenInventory
         get() = _serverOpenInventory
@@ -54,8 +48,9 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         private set
 
     // Backing fields
-    private var _serverSlot = 0
     private var _serverOpenInventory = false
+
+    var lerpedSlot = 0f
 
     var isFirstInventoryClick = true
 
@@ -89,15 +84,15 @@ object InventoryUtils : MinecraftInstance(), Listenable {
     fun findItemArray(startInclusive: Int, endInclusive: Int, items: Array<Item>): Int? {
         for (i in startInclusive..endInclusive)
             if (mc.thePlayer.openContainer.getSlot(i).stack?.item in items)
-                return i
+                return i - 36
 
         return null
     }
 
-    fun findItem(startInclusive: Int, endInclusive: Int, item: Item): Int? {
-        for (i in startInclusive..endInclusive)
+    fun findItem(start: Int, end: Int, item: Item): Int? {
+        for (i in start..end)
             if (mc.thePlayer.openContainer.getSlot(i).stack?.item == item)
-                return i
+                return i - if (start == 36 && end == 44) 36 else 0
 
         return null
     }
@@ -122,7 +117,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             val block = if (stack.item is ItemBlock) (stack.item as ItemBlock).block else return@filter false
 
             stack.item is ItemBlock && stack.stackSize > 0 && block !in BLOCK_BLACKLIST && block !is BlockBush
-        }.minByOrNull { (inventory.getSlot(it).stack.item as ItemBlock).block.isFullCube }
+        }.minByOrNull { (inventory.getSlot(it).stack.item as ItemBlock).block.isFullCube }?.minus(36)
     }
 
     fun findLargestBlockStackInHotbar(): Int? {
@@ -134,7 +129,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             val block = if (stack.item is ItemBlock) (stack.item as ItemBlock).block else return@filter false
 
             stack.item is ItemBlock && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
-        }.maxByOrNull { inventory.getSlot(it).stack.stackSize }
+        }.maxByOrNull { inventory.getSlot(it).stack.stackSize }?.minus(36)
     }
 
     fun findBlockStackInHotbarGreaterThan(amount: Int): Int? {
@@ -146,7 +141,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             val block = if (stack.item is ItemBlock) (stack.item as ItemBlock).block else return@filter false
 
             stack.item is ItemBlock && stack.stackSize > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
-        }.minByOrNull { (inventory.getSlot(it).stack.item as ItemBlock).block.isFullCube }
+        }.minByOrNull { (inventory.getSlot(it).stack.item as ItemBlock).block.isFullCube }?.minus(36)
     }
 
     // Converts container slot to hotbar slot id, else returns null
@@ -161,7 +156,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         var amount = 0
 
         for (i in 36..44) {
-            val stack = player.inventoryContainer.getSlot(i).stack ?: continue
+            val stack = player.inventorySlot(i).stack ?: continue
             val item = stack.item
             if (item is ItemBlock) {
                 val block = item.block
@@ -177,7 +172,6 @@ object InventoryUtils : MinecraftInstance(), Listenable {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-
         if (event.isCancelled) return
 
         when (val packet = event.packet) {
@@ -211,42 +205,47 @@ object InventoryUtils : MinecraftInstance(), Listenable {
                     ChestAura.tileTarget = null
             }
 
-            is C09PacketHeldItemChange -> {
-                // Support for Singleplayer
-                // (client packets get sent and received, duplicates would get cancelled, making slot changing impossible)
-                if (event.eventType == EventState.RECEIVE) return
-
-                if (packet.slotId == _serverSlot) event.cancelEvent()
-                else _serverSlot = packet.slotId
-            }
-
             is S09PacketHeldItemChange -> {
-                if (_serverSlot == packet.heldItemHotbarIndex)
+                if (SilentHotbar.currentSlot == packet.heldItemHotbarIndex)
                     return
 
-                val prevSlot = _serverSlot
+                SilentHotbar.ignoreSlotChange = true
 
-                _serverSlot = packet.heldItemHotbarIndex
+                val previousSlot = SilentHotbar.currentSlot
 
                 if (NoSlotSet.handleEvents()) {
-                    TickedActions.TickScheduler(NoSlotSet) += {
-                        serverSlot = prevSlot
-                    }
+                    WaitTickUtils.conditionalSchedule {
+                        if (SilentHotbar.currentSlot == packet.heldItemHotbarIndex) {
+                            mc.thePlayer?.inventory?.currentItem = previousSlot
 
-                    event.cancelEvent()
+                            return@conditionalSchedule true
+                        }
+
+                        false
+                    }
                 }
             }
         }
     }
 
     @EventTarget
+    fun onRender3D(event: Render3DEvent) {
+        val module = SilentHotbarModule
+
+        val slotToUse = SilentHotbar.renderSlot(module.handleEvents() && module.keepHotbarSlot)
+
+        lerpedSlot = AnimationUtil.base(lerpedSlot.toDouble(), slotToUse.toDouble(),
+            RenderUtils.deltaTimeNormalized().coerceAtLeast(0.1)
+        ).toFloat()
+    }
+
+    @EventTarget
     fun onWorld(event: WorldEvent) {
-        // Reset flags to prevent de-sync
-        serverSlot = 0
-        if (NoSlotSet.handleEvents()) _serverSlot = 0
+        SilentHotbar.resetSlot()
+
         _serverOpenInventory = false
         serverOpenContainer = false
     }
 
-    override fun handleEvents() = true
+
 }

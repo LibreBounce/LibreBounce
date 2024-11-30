@@ -5,12 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.player.AutoTool
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationSettings
@@ -20,7 +17,13 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
+import net.ccbluex.liquidbounce.utils.extensions.component1
+import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.extensions.eyes
+import net.ccbluex.liquidbounce.utils.extensions.getVec
+import net.ccbluex.liquidbounce.utils.extensions.minus
+import net.ccbluex.liquidbounce.utils.extensions.renderPos
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
@@ -48,34 +51,34 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
      * OPTIONS
      */
 
-    private val allBlocks by BoolValue("AllBlocks", true)
-    private val blocks by BlockValue("Block", 1) { !allBlocks }
+    private val allBlocks by boolean("AllBlocks", true)
+    private val blocks by block("Block", 1) { !allBlocks }
 
-    private val radius by FloatValue("Radius", 5.2F, 1F..6F)
-    private val throughWalls by BoolValue("ThroughWalls", false)
-    private val priority by ListValue("Priority", arrayOf("Distance", "Hardness", "LightOpacity"), "Distance")
+    private val radius by float("Radius", 5.2F, 1F..6F)
+    private val throughWalls by boolean("ThroughWalls", false)
+    private val priority by choices("Priority", arrayOf("Distance", "Hardness", "LightOpacity"), "Distance")
 
     private val options = RotationSettings(this).apply {
         immediate = true
 
-        resetTicksValue.isSupported = { false }
+        resetTicksValue.hideWithState()
         withoutKeepRotation()
     }
 
-    private val layer by BoolValue("Layer", false)
-    private val hitDelay by IntegerValue("HitDelay", 4, 0..20)
-    private val nuke by IntegerValue("Nuke", 1, 1..20)
-    private val nukeDelay by IntegerValue("NukeDelay", 1, 1..20)
+    private val layer by boolean("Layer", false)
+    private val hitDelay by int("HitDelay", 4, 0..20)
+    private val nuke by int("Nuke", 1, 1..20)
+    private val nukeDelay by int("NukeDelay", 1, 1..20)
 
-    private val blockProgress by BoolValue("BlockProgress", true)
+    private val blockProgress by boolean("BlockProgress", true)
 
-    private val scale by FloatValue("Scale", 2F, 1F..6F) { blockProgress }
-    private val font by FontValue("Font", Fonts.font40) { blockProgress }
-    private val fontShadow by BoolValue("Shadow", true) { blockProgress }
+    private val scale by float("Scale", 2F, 1F..6F) { blockProgress }
+    private val font by font("Font", Fonts.font40) { blockProgress }
+    private val fontShadow by boolean("Shadow", true) { blockProgress }
 
-    private val colorRed by IntegerValue("R", 200, 0..255) { blockProgress }
-    private val colorGreen by IntegerValue("G", 100, 0..255) { blockProgress }
-    private val colorBlue by IntegerValue("B", 0, 0..255) { blockProgress }
+    private val colorRed by int("R", 200, 0..255) { blockProgress }
+    private val colorGreen by int("G", 100, 0..255) { blockProgress }
+    private val colorBlue by int("B", 0, 0..255) { blockProgress }
 
     /**
      * VALUES
@@ -188,9 +191,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
                 currentBlock = blockPos
                 attackedBlocks += blockPos
 
-                // Call auto tool
-                if (AutoTool.handleEvents())
-                    AutoTool.switchSlot(blockPos)
+                EventManager.callEvent(ClickBlockEvent(blockPos, EnumFacing.DOWN))
 
                 // Start block breaking
                 if (currentDamage == 0F) {
@@ -270,18 +271,16 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
             if (blockProgress) {
                 if (getBlockName(blocks) == "Air") return
 
-                val progress = ((currentDamage * 100).coerceIn(0f, 100f)).toInt()
+                val progress = (currentDamage * 100).coerceIn(0f, 100f).toInt()
                 val progressText = "%d%%".format(progress)
 
                 glPushAttrib(GL_ENABLE_BIT)
                 glPushMatrix()
 
+                val (x, y, z) = pos.getVec() - renderManager.renderPos
+
                 // Translate to block position
-                glTranslated(
-                    pos.x + 0.5 - renderManager.renderPosX,
-                    pos.y + 0.5 - renderManager.renderPosY,
-                    pos.z + 0.5 - renderManager.renderPosZ
-                )
+                glTranslated(x, y, z)
 
                 glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
                 glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
@@ -294,7 +293,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
                 val color = ((colorRed and 0xFF) shl 16) or ((colorGreen and 0xFF) shl 8) or (colorBlue and 0xFF)
 
                 // Scale
-                val scale = (player.getDistanceSq(pos) / 8F).coerceAtLeast(1.5) / 150F * scale
+                val scale = ((player.getDistanceSq(pos) / 8F).coerceAtLeast(1.5) / 150F) * scale
                 glScaled(-scale, -scale, scale)
 
                 // Draw text

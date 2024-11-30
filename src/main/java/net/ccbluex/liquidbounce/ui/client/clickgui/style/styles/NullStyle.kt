@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.value.*
@@ -25,6 +26,7 @@ import net.minecraft.util.StringUtils
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @SideOnly(Side.CLIENT)
@@ -34,7 +36,15 @@ object NullStyle : Style() {
         drawRect(panel.x - 3, panel.y, panel.x + panel.width + 3, panel.y + 19, guiColor)
 
         if (panel.fade > 0)
-            drawBorderedRect(panel.x, panel.y + 19, panel.x + panel.width, panel.y + 19 + panel.fade, 1, Int.MIN_VALUE, Int.MIN_VALUE)
+            drawBorderedRect(
+                panel.x,
+                panel.y + 19,
+                panel.x + panel.width,
+                panel.y + 19 + panel.fade,
+                1,
+                Int.MIN_VALUE,
+                Int.MIN_VALUE
+            )
 
         val xPos = panel.x - (font35.getStringWidth("§f" + StringUtils.stripControlCodes(panel.name)) - 100) / 2
         font35.drawString(panel.name, xPos, panel.y + 7, getNegatedColor())
@@ -43,7 +53,8 @@ object NullStyle : Style() {
     override fun drawHoverText(mouseX: Int, mouseY: Int, text: String) {
         val lines = text.lines()
 
-        val width = lines.maxOfOrNull { font35.getStringWidth(it) + 14 } ?: return // Makes no sense to render empty lines
+        val width =
+            lines.maxOfOrNull { font35.getStringWidth(it) + 14 } ?: return // Makes no sense to render empty lines
         val height = (font35.fontHeight * lines.size) + 3
 
         // Don't draw hover text beyond window boundaries
@@ -62,7 +73,12 @@ object NullStyle : Style() {
         font35.drawString(buttonElement.displayName, xPos, buttonElement.y + 6, buttonElement.color)
     }
 
-    override fun drawModuleElementAndClick(mouseX: Int, mouseY: Int, moduleElement: ModuleElement, mouseButton: Int?): Boolean {
+    override fun drawModuleElementAndClick(
+        mouseX: Int,
+        mouseY: Int,
+        moduleElement: ModuleElement,
+        mouseButton: Int?
+    ): Boolean {
         val xPos = moduleElement.x - (font35.getStringWidth(moduleElement.displayName) - 100) / 2
         font35.drawString(
             moduleElement.displayName,
@@ -75,7 +91,7 @@ object NullStyle : Style() {
             } else Int.MAX_VALUE
         )
 
-        val moduleValues = moduleElement.module.values.filter { it.isSupported() }
+        val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
         if (moduleValues.isNotEmpty()) {
             font35.drawString(
                 if (moduleElement.showSettings) "-" else "+",
@@ -87,7 +103,7 @@ object NullStyle : Style() {
 
                 val minX = moduleElement.x + moduleElement.width + 4
                 val maxX = moduleElement.x + moduleElement.width + moduleElement.settingsWidth
-                
+
                 for (value in moduleValues) {
                     assumeNonVolatile = value.get() is Number
 
@@ -108,12 +124,14 @@ object NullStyle : Style() {
 
                             drawRect(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
-                            font35.drawString(text, minX + 2, yPos + 4,
+                            font35.drawString(
+                                text, minX + 2, yPos + 4,
                                 if (value.get()) guiColor else Int.MAX_VALUE
                             )
 
                             yPos += 12
                         }
+
                         is ListValue -> {
                             val text = value.name
 
@@ -153,10 +171,12 @@ object NullStyle : Style() {
 
                                     drawRect(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
-                                    font35.drawString(">", minX + 2, yPos + 4,
+                                    font35.drawString(
+                                        ">", minX + 2, yPos + 4,
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
                                     )
-                                    font35.drawString(valueOfList, minX + 10, yPos + 4,
+                                    font35.drawString(
+                                        valueOfList, minX + 10, yPos + 4,
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
                                     )
 
@@ -164,6 +184,7 @@ object NullStyle : Style() {
                                 }
                             }
                         }
+
                         is FloatValue -> {
                             val text = value.name + "§f: §c" + round(value.get())
 
@@ -174,7 +195,11 @@ object NullStyle : Style() {
                                 && mouseY in yPos + 15..yPos + 21
                             ) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
-                                value.set(round(value.minimum + (value.maximum - value.minimum) * percentage).coerceIn(value.range))
+                                value.set(
+                                    round(value.minimum + (value.maximum - value.minimum) * percentage).coerceIn(
+                                        value.range
+                                    )
+                                )
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -187,15 +212,18 @@ object NullStyle : Style() {
                             drawRect(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
 
                             val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
+                            val sliderValue =
+                                (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
                             font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
+
                         is IntegerValue -> {
-                            val text = value.name + "§f: §c" + if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get()
+                            val text =
+                                value.name + "§f: §c" + if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get()
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
@@ -204,7 +232,10 @@ object NullStyle : Style() {
                                 && mouseY in yPos + 15..yPos + 21
                             ) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
-                                value.set((value.minimum + (value.maximum - value.minimum) * percentage).roundToInt().coerceIn(value.range))
+                                value.set(
+                                    (value.minimum + (value.maximum - value.minimum) * percentage).roundToInt()
+                                        .coerceIn(value.range)
+                                )
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -217,20 +248,118 @@ object NullStyle : Style() {
                             drawRect(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
 
                             val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue =
+                                moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
                             font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
+
+                        is IntegerRangeValue -> {
+                            val slider1 = value.get().first
+                            val slider2 = value.get().last
+
+                            val text = "${value.name}§f: §c$slider1 §f- §c$slider2 (Beta)"
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+
+                            if ((mouseButton == 0 || sliderValueHeld == value) && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21) {
+                                val slider1Pos =
+                                    minX + ((slider1 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+                                val slider2Pos =
+                                    minX + ((slider2 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+
+                                val distToSlider1 = mouseX - slider1Pos
+                                val distToSlider2 = mouseX - slider2Pos
+
+                                val percentage = (mouseX - minX - 4F) / (maxX - minX - 8F)
+
+                                if (abs(distToSlider1) <= abs(distToSlider2) && distToSlider2 <= 0) {
+                                    value.setFirst(value.lerpWith(percentage).coerceIn(value.minimum, slider2))
+                                } else value.setLast(value.lerpWith(percentage).coerceIn(slider1, value.maximum))
+
+                                // Keep changing this slider until mouse is unpressed.
+                                sliderValueHeld = value
+
+                                // Stop rendering and interacting only when this event was triggered by a mouse click.
+                                if (mouseButton == 0) return true
+                            }
+
+                            drawRect(minX, yPos + 2, maxX, yPos + 24, Int.MIN_VALUE)
+                            drawRect(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
+
+                            val displayValue1 = value.get().first
+                            val displayValue2 = value.get().last
+
+                            val sliderValue1 =
+                                minX - 4 + (moduleElement.settingsWidth - 12) * (displayValue1 - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue2 =
+                                minX - 4 + (moduleElement.settingsWidth - 12) * (displayValue2 - value.minimum) / (value.maximum - value.minimum)
+
+                            drawRect(8 + sliderValue1, yPos + 15, sliderValue1 + 11, yPos + 21, guiColor)
+                            drawRect(8 + sliderValue2, yPos + 15, sliderValue2 + 11, yPos + 21, guiColor)
+
+                            font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+
+                            yPos += 22
+                        }
+
+                        is FloatRangeValue -> {
+                            val slider1 = value.get().start
+                            val slider2 = value.get().endInclusive
+
+                            val text = "${value.name}§f: §c${round(slider1)} §f- §c${round(slider2)} (Beta)"
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+
+                            if ((mouseButton == 0 || sliderValueHeld == value) && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21) {
+                                val slider1Pos =
+                                    minX + ((slider1 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+                                val slider2Pos =
+                                    minX + ((slider2 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+
+                                val distToSlider1 = mouseX - slider1Pos
+                                val distToSlider2 = mouseX - slider2Pos
+
+                                val percentage = (mouseX - minX - 4F) / (maxX - minX - 8F)
+
+                                if (abs(distToSlider1) <= abs(distToSlider2) && distToSlider2 <= 0) {
+                                    value.setFirst(value.lerpWith(percentage).coerceIn(value.minimum, slider2))
+                                } else value.setLast(value.lerpWith(percentage).coerceIn(slider1, value.maximum))
+
+                                // Keep changing this slider until mouse is unpressed.
+                                sliderValueHeld = value
+
+                                // Stop rendering and interacting only when this event was triggered by a mouse click.
+                                if (mouseButton == 0) return true
+                            }
+
+                            drawRect(minX, yPos + 2, maxX, yPos + 24, Int.MIN_VALUE)
+                            drawRect(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
+
+                            val displayValue1 = value.get().start
+                            val displayValue2 = value.get().endInclusive
+
+                            val sliderValue1 =
+                                minX - 4 + (moduleElement.settingsWidth - 12) * (displayValue1 - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue2 =
+                                minX - 4 + (moduleElement.settingsWidth - 12) * (displayValue2 - value.minimum) / (value.maximum - value.minimum)
+
+                            drawRect(8f + sliderValue1, yPos + 15f, sliderValue1 + 11f, yPos + 21f, guiColor)
+                            drawRect(8f + sliderValue2, yPos + 15f, sliderValue2 + 11f, yPos + 21f, guiColor)
+
+                            font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+
+                            yPos += 22
+                        }
+
                         is FontValue -> {
                             val displayString = value.displayName
                             moduleElement.settingsWidth = font35.getStringWidth(displayString) + 8
 
                             if (mouseButton != null
                                 && mouseX in minX..maxX
-                                && mouseY in yPos + 4 ..yPos + 12
+                                && mouseY in yPos + 4..yPos + 12
                             ) {
                                 // Cycle to next font when left-clicked, previous when right-clicked.
                                 if (mouseButton == 0) value.next()
@@ -245,6 +374,7 @@ object NullStyle : Style() {
 
                             yPos += 11
                         }
+
                         else -> {
                             val text = value.name + "§f: §c" + value.get()
 
@@ -264,7 +394,8 @@ object NullStyle : Style() {
                 if (moduleElement.settingsWidth > 0 && yPos > moduleElement.y + 4) {
                     if (mouseButton != null
                         && mouseX in minX..maxX
-                        && mouseY in moduleElement.y + 6..yPos + 2) return true
+                        && mouseY in moduleElement.y + 6..yPos + 2
+                    ) return true
 
                     drawBorderedRect(minX, moduleElement.y + 6, maxX, yPos + 2, 1, Int.MIN_VALUE, 0)
                 }

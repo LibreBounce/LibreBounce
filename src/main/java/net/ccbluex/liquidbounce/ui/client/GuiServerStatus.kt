@@ -5,8 +5,11 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.responseCode
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.minecraft.client.gui.GuiButton
@@ -14,12 +17,10 @@ import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.io.IOException
-import kotlin.concurrent.thread
 
 class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
     private val status = hashMapOf<String, String?>(
         "https://api.mojang.com" to null,
-        "https://authserver.mojang.com" to null,
         "http://session.minecraft.net" to null,
         "https://textures.minecraft.net" to null,
         "http://minecraft.net" to null,
@@ -35,6 +36,8 @@ class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         var i = height / 4 + 40
@@ -68,6 +71,8 @@ class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
 
         Fonts.fontBold180.drawCenteredString(translationMenu("serverStatus"), width / 2F, height / 8f + 5F, 4673984, true)
 
+        assumeNonVolatile = false
+
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -75,7 +80,7 @@ class GuiServerStatus(private val prevGui: GuiScreen) : GuiScreen() {
         status.replaceAll { _, _ -> null }
 
         for (url in status.keys) {
-            thread {
+            SharedScopes.IO.launch {
                 try {
                     val responseCode = responseCode(url, "GET")
                     status[url] = if (responseCode in 200..499) "green" else "red"

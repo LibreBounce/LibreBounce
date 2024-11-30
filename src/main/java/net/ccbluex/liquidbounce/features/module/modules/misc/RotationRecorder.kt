@@ -5,17 +5,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.lastRotations
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.value.boolean
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChart
 import org.knowm.xchart.XYSeries
@@ -28,7 +30,7 @@ import kotlin.math.absoluteValue
 
 object RotationRecorder : Module("RotationRecorder", Category.MISC) {
 
-    private val captureNegativeNumbers by BoolValue("CaptureNegativeNumbers", false)
+    private val captureNegativeNumbers by boolean("CaptureNegativeNumbers", false)
 
     private val ticks = mutableListOf<Double>()
     private val yawDiffs = mutableListOf<Double>()
@@ -50,16 +52,18 @@ object RotationRecorder : Module("RotationRecorder", Category.MISC) {
                 addSeries("Yaw Differences", ticks.toDoubleArray(), yawDiffs.toDoubleArray()).apply {
                     xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Line
                     lineColor = java.awt.Color.BLUE // Set yaw line color to blue
+                    isSmooth = true
                 }
 
                 addSeries("Pitch Differences", ticks.toDoubleArray(), pitchDiffs.toDoubleArray()).apply {
                     xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Line
                     lineColor = java.awt.Color.RED // Set pitch line color to red
+                    isSmooth = true
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Chat.print("Failed to start recording rotations, disabling module")
+            chat("Failed to start recording rotations, disabling module")
             TickScheduler += {
                 failed = true
                 state = false
@@ -68,7 +72,7 @@ object RotationRecorder : Module("RotationRecorder", Category.MISC) {
             return
         }
 
-        Chat.print("Started recording rotations.")
+        chat("Started recording rotations.")
     }
 
     @EventTarget
@@ -89,7 +93,8 @@ object RotationRecorder : Module("RotationRecorder", Category.MISC) {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
             val formattedDateTime = currentDateTime.format(formatter)
 
-            saveChart("rotations_$formattedDateTime.png", mc.mcDataDir)
+
+            saveChart("rotations_$formattedDateTime.png", FileManager.dir)
         }
 
         failed = false
@@ -107,7 +112,7 @@ object RotationRecorder : Module("RotationRecorder", Category.MISC) {
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
-            Chat.print("Saved as $fileName in $mcDir")
+            chat("Saved as $fileName in $mcDir")
         }
     }
 

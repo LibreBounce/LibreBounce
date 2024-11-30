@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledCircle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
@@ -25,6 +26,7 @@ import net.minecraft.util.StringUtils
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @SideOnly(Side.CLIENT)
@@ -93,23 +95,39 @@ object BlackStyle : Style() {
         font35.drawString(buttonElement.displayName, buttonElement.x + 5, buttonElement.y + 5, Color.WHITE.rgb)
     }
 
-    override fun drawModuleElementAndClick(mouseX: Int, mouseY: Int, moduleElement: ModuleElement, mouseButton: Int?): Boolean {
+    override fun drawModuleElementAndClick(
+        mouseX: Int,
+        mouseY: Int,
+        moduleElement: ModuleElement,
+        mouseButton: Int?
+    ): Boolean {
         drawRect(
-            moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1,
+            moduleElement.x - 1,
+            moduleElement.y - 1,
+            moduleElement.x + moduleElement.width + 1,
+            moduleElement.y + moduleElement.height + 1,
             getHoverColor(Color(40, 40, 40), moduleElement.hoverTime)
         )
         drawRect(
-            moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1,
-            getHoverColor(Color(20, 20, 20, moduleElement.slowlyFade), moduleElement.hoverTime, !moduleElement.module.isActive)
+            moduleElement.x - 1,
+            moduleElement.y - 1,
+            moduleElement.x + moduleElement.width + 1,
+            moduleElement.y + moduleElement.height + 1,
+            getHoverColor(
+                Color(20, 20, 20, moduleElement.slowlyFade),
+                moduleElement.hoverTime,
+                !moduleElement.module.isActive
+            )
         )
 
-        font35.drawString(moduleElement.displayName, moduleElement.x + 5, moduleElement.y + 5,
+        font35.drawString(
+            moduleElement.displayName, moduleElement.x + 5, moduleElement.y + 5,
             if (moduleElement.module.state && !moduleElement.module.isActive) Color(255, 255, 255, 128).rgb
             else Color.WHITE.rgb
         )
 
         // Draw settings
-        val moduleValues = moduleElement.module.values.filter { it.isSupported() }
+        val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
         if (moduleValues.isNotEmpty()) {
             font35.drawString(
                 if (moduleElement.showSettings) "<" else ">",
@@ -213,7 +231,8 @@ object BlackStyle : Style() {
                             val color = Color(20, 20, 20)
 
                             val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = (x + width * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
+                            val sliderValue =
+                                (x + width * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
 
                             if ((mouseButton == 0 || sliderValueHeld == value)
                                 && mouseX in minX..maxX
@@ -276,6 +295,110 @@ object BlackStyle : Style() {
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
                             font35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)
+
+                            yPos += 19
+                        }
+
+                        is IntegerRangeValue -> {
+                            val slider1 = value.get().first
+                            val slider2 = value.get().last
+
+                            val text = "${value.name}§f: $slider1 - $slider2 (Beta)"
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+
+                            val x = minX + 4
+                            val y = yPos + 14
+                            val width = moduleElement.settingsWidth - 12
+                            val color = Color(20, 20, 20)
+
+                            if ((mouseButton == 0 || sliderValueHeld == value) && mouseX in x..x + width && mouseY in y - 2..y + 5) {
+                                val slider1Pos =
+                                    minX + ((slider1 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+                                val slider2Pos =
+                                    minX + ((slider2 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+
+                                val distToSlider1 = mouseX - slider1Pos
+                                val distToSlider2 = mouseX - slider2Pos
+
+                                val percentage = (mouseX - minX - 4F) / (maxX - minX - 8F)
+
+                                if (abs(distToSlider1) <= abs(distToSlider2) && distToSlider2 <= 0) {
+                                    value.setFirst(value.lerpWith(percentage).coerceIn(value.minimum, slider2))
+                                } else value.setLast(value.lerpWith(percentage).coerceIn(slider1, value.maximum))
+
+                                // Keep changing this slider until mouse is unpressed.
+                                sliderValueHeld = value
+
+                                // Stop rendering and interacting only when this event was triggered by a mouse click.
+                                if (mouseButton == 0) return true
+                            }
+
+                            val displayValue1 = value.get().first
+                            val displayValue2 = value.get().last
+
+                            val sliderValue1 =
+                                x + width * (displayValue1 - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue2 =
+                                x + width * (displayValue2 - value.minimum) / (value.maximum - value.minimum)
+
+                            drawRect(x, y, x + width, y + 2, Int.MAX_VALUE)
+                            drawRect(sliderValue1, y, sliderValue2, y + 2, color.rgb)
+                            drawFilledCircle(sliderValue1, y + 1, 3f, color)
+                            drawFilledCircle(sliderValue2, y + 1, 3f, color)
+
+                            font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+
+                            yPos += 19
+                        }
+
+                        is FloatRangeValue -> {
+                            val slider1 = value.get().start
+                            val slider2 = value.get().endInclusive
+
+                            val text = "${value.name}§f: ${round(slider1)} - ${round(slider2)} (Beta)"
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+
+                            val x = minX + 4f
+                            val y = yPos + 14f
+                            val width = moduleElement.settingsWidth - 12f
+                            val color = Color(20, 20, 20)
+
+                            if ((mouseButton == 0 || sliderValueHeld == value) && mouseX.toFloat() in x..x + width && mouseY.toFloat() in y - 2..y + 5) {
+                                val slider1Pos =
+                                    minX + ((slider1 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+                                val slider2Pos =
+                                    minX + ((slider2 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+
+                                val distToSlider1 = mouseX - slider1Pos
+                                val distToSlider2 = mouseX - slider2Pos
+
+                                val percentage = (mouseX - minX - 4F) / (maxX - minX - 8F)
+
+                                if (abs(distToSlider1) <= abs(distToSlider2) && distToSlider2 <= 0) {
+                                    value.setFirst(value.lerpWith(percentage).coerceIn(value.minimum, slider2))
+                                } else value.setLast(value.lerpWith(percentage).coerceIn(slider1, value.maximum))
+
+                                // Keep changing this slider until mouse is unpressed.
+                                sliderValueHeld = value
+
+                                // Stop rendering and interacting only when this event was triggered by a mouse click.
+                                if (mouseButton == 0) return true
+                            }
+
+                            val displayValue1 = value.get().start
+                            val displayValue2 = value.get().endInclusive
+
+                            val sliderValue1 =
+                                x + width * (displayValue1 - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue2 =
+                                x + width * (displayValue2 - value.minimum) / (value.maximum - value.minimum)
+
+                            drawRect(x, y, x + width, y + 2, Int.MAX_VALUE)
+                            drawRect(sliderValue1, y, sliderValue2, y + 2, color.rgb)
+                            drawFilledCircle(sliderValue1.roundToInt(), y.roundToInt() + 1, 3f, color)
+                            drawFilledCircle(sliderValue2.roundToInt(), y.roundToInt() + 1, 3f, color)
+
+                            font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 19
                         }

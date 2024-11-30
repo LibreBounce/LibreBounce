@@ -15,18 +15,20 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.ClassUtils
+import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.Value
+import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
+import java.util.concurrent.CopyOnWriteArraySet
 
 open class Module constructor(
-
     val name: String,
     val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
@@ -43,7 +45,7 @@ open class Module constructor(
     ) : MinecraftInstance(), Listenable {
 
     // Value that determines whether the module should depend on GameDetector
-    private val onlyInGameValue = BoolValue("OnlyInGame", true, subjective = true) { GameDetector.state }
+    private val onlyInGameValue = boolean("OnlyInGame", true, subjective = true) { GameDetector.state }
 
     protected val TickScheduler = TickScheduler(this)
 
@@ -104,11 +106,13 @@ open class Module constructor(
 
             // Play sound and add notification
             if (!isStarting) {
-                mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("random.click"), 1F))
-                addNotification(Notification(translation("notification.module" + if (value) "Enabled" else "Disabled",
-                    getName()
-                )
-                )
+                synchronized(mc.soundHandler) {
+                    mc.soundHandler.playSound(
+                        PositionedSoundRecord.create(ResourceLocation("random.click"), 1F)
+                    )
+                }
+                addNotification(
+                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
                 )
             }
 
@@ -174,17 +178,21 @@ open class Module constructor(
      */
     open val values: Set<Value<*>>
         get() {
-            var orderedValues = mutableSetOf<Value<*>>()
+            val orderedValues = CopyOnWriteArraySet<Value<*>>()
 
-            javaClass.declaredFields.forEach { innerField ->
-                innerField.isAccessible = true
-                val element = innerField[this] ?: return@forEach
+            try {
+                javaClass.declaredFields.forEach { innerField ->
+                    innerField.isAccessible = true
+                    val element = innerField[this] ?: return@forEach
 
-                orderedValues = ClassUtils.findValues(element, configurables, orderedValues)
+                    ClassUtils.findValues(element, configurables, orderedValues)
+                }
+
+                if (gameDetecting) orderedValues += onlyInGameValue
+                if (!hideModule) orderedValues += hideModuleValue
+            } catch (e: Exception) {
+                LOGGER.error(e)
             }
-
-            if (gameDetecting) orderedValues += onlyInGameValue
-            if (!hideModule) orderedValues += hideModuleValue
 
             return orderedValues
         }

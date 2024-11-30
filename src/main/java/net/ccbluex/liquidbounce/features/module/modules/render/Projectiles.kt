@@ -8,9 +8,13 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
+import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
+import net.ccbluex.liquidbounce.utils.extensions.minus
+import net.ccbluex.liquidbounce.utils.extensions.renderPos
 import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
@@ -21,8 +25,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.client.renderer.Tessellator
@@ -48,12 +52,12 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = false, hideModule = false) {
-    private val maxTrailSize by IntegerValue("MaxTrailSize", 20, 1..100)
+    private val maxTrailSize by int("MaxTrailSize", 20, 1..100)
 
-    private val colorMode by ListValue("Color", arrayOf("Custom", "BowPower", "Rainbow"), "Custom")
-        private val colorRed by IntegerValue("R", 0, 0..255) { colorMode == "Custom" }
-        private val colorGreen by IntegerValue("G", 160, 0..255) { colorMode == "Custom" }
-        private val colorBlue by IntegerValue("B", 255, 0..255) { colorMode == "Custom" }
+    private val colorMode by choices("Color", arrayOf("Custom", "BowPower", "Rainbow"), "Custom")
+    private val colorRed by int("R", 0, 0..255) { colorMode == "Custom" }
+    private val colorGreen by int("G", 160, 0..255) { colorMode == "Custom" }
+    private val colorBlue by int("B", 255, 0..255) { colorMode == "Custom" }
 
     private val trailPositions = mutableMapOf<Entity, MutableList<Triple<Long, Vec3, Float>>>()
 
@@ -94,21 +98,25 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                         motionFactor = 3F
                     }
                 }
+
                 is ItemFishingRod -> {
                     gravity = 0.04F
                     size = 0.25F
                     motionSlowdown = 0.92F
                 }
+
                 is ItemPotion -> {
                     if (!heldStack.isSplashPotion()) continue
                     gravity = 0.05F
                     size = 0.25F
                     motionFactor = 0.5F
                 }
+
                 is ItemSnowball, is ItemEnderPearl, is ItemEgg -> {
                     gravity = 0.03F
                     size = 0.25F
                 }
+
                 else -> continue
             }
 
@@ -118,10 +126,12 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             val yawRadians = yaw.toRadiansD()
             val pitchRadians = pitch.toRadiansD()
 
+            val pos = theEntity.interpolatedPosition(theEntity.lastTickPos)
+
             // Positions
-            var posX = theEntity.posX - cos(yawRadians) * 0.16F
-            var posY = theEntity.posY + theEntity.eyeHeight - 0.10000000149011612
-            var posZ = theEntity.posZ - sin(yawRadians) * 0.16F
+            var posX = pos.xCoord - cos(yawRadians) * 0.16F
+            var posY = pos.yCoord + theEntity.eyeHeight - 0.10000000149011612
+            var posZ = pos.zCoord - sin(yawRadians) * 0.16F
 
             // Motions
             var motionX = -sin(yawRadians) * cos(pitchRadians) * if (isBow) 1.0 else 0.4
@@ -182,7 +192,11 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 if (landingPosition != null) {
                     hasLanded = true
                     posAfter =
-                        Vec3(landingPosition.hitVec.xCoord, landingPosition.hitVec.yCoord, landingPosition.hitVec.zCoord)
+                        Vec3(
+                            landingPosition.hitVec.xCoord,
+                            landingPosition.hitVec.yCoord,
+                            landingPosition.hitVec.zCoord
+                        )
                 }
 
                 // Set arrow box
@@ -263,7 +277,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
             glTranslated(
-                posX - renderManager.renderPosX, posY - renderManager.renderPosY,
+                posX - renderManager.renderPosX,
+                posY - renderManager.renderPosY,
                 posZ - renderManager.renderPosZ
             )
 
@@ -317,11 +332,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
 
             for ((_, pos, alpha) in positions) {
-                val interpolatePos = Vec3(
-                    pos.xCoord - renderManager.renderPosX,
-                    pos.yCoord - renderManager.renderPosY,
-                    pos.zCoord - renderManager.renderPosZ
-                )
+                val interpolatePos = pos - renderManager.renderPos
 
                 val color = when (entity) {
                     is EntityArrow -> Color(255, 0, 0)

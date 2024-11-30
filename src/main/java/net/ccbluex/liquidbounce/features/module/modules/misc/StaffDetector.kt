@@ -6,18 +6,19 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.*
-import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
+import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
@@ -27,23 +28,30 @@ import java.util.concurrent.ConcurrentHashMap
 
 object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val staffMode by object : ListValue("StaffMode", arrayOf("BlocksMC", "CubeCraft", "Gamster",
-        "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork"), "BlocksMC") {
+    private val staffMode by object : ListValue(
+        "StaffMode", arrayOf(
+            "BlocksMC", "CubeCraft", "Gamster",
+            "AgeraPvP", "HypeMC", "Hypixel",
+            "SuperCraft", "PikaNetwork", "GommeHD",
+            "CoralMC", "LibreCraft"
+        ), "BlocksMC"
+    ) {
         override fun onUpdate(value: String) {
             loadStaffData()
         }
     }
 
-    private val tab by BoolValue("TAB", true)
-    private val packet by BoolValue("Packet", true)
+    private val tab by boolean("TAB", true)
+    private val packet by boolean("Packet", true)
+    private val velocity by boolean("Velocity", true)
 
-    private val autoLeave by ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
+    private val autoLeave by choices("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
 
-    private val spectator by BoolValue("StaffSpectator", false) { tab || packet }
-    private val otherSpectator by BoolValue("OtherSpectator", false) { tab || packet }
+    private val spectator by boolean("StaffSpectator", false) { tab || packet }
+    private val otherSpectator by boolean("OtherSpectator", false) { tab || packet }
 
-    private val inGame by BoolValue("InGame", true) { autoLeave != "Off" }
-    private val warn by ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
+    private val inGame by boolean("InGame", true) { autoLeave != "Off" }
+    private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private val checkedStaff = ConcurrentHashMap.newKeySet<String>()
     private val checkedSpectator = ConcurrentHashMap.newKeySet<String>()
@@ -85,7 +93,10 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             "hypemc" to "hypemc.pro",
             "hypixel" to "hypixel.net",
             "supercraft" to "supercraft.es",
-            "pikanetwork" to "pika-network.net"
+            "pikanetwork" to "pika-network.net",
+            "gommehd" to "gommehd.net",
+            "coralmc" to "coralmc.it",
+            "librecraft" to "librecraft.com"
         )
 
         serverIp = serverIpMap[staffMode.lowercase()] ?: return
@@ -96,11 +107,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun checkedStaffRemoved() {
-        val onlinePlayers = mc.netHandler?.playerInfoMap?.mapNotNull { it?.gameProfile?.name }
-
-        synchronized(checkedStaff) {
-            onlinePlayers?.toSet()?.let { checkedStaff.retainAll(it) }
-        }
+        mc.netHandler?.playerInfoMap?.mapNotNullTo(hashSetOf()) { it?.gameProfile?.name }?.let(checkedStaff::retainAll)
     }
 
     @EventTarget
@@ -113,7 +120,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         /**
          * OLD BlocksMC Staff Spectator Check
-         * Original By HU & Modified by Eclipses
+         * Credit: @HU & Modified by @EclipsesDev
          *
          * NOTE: Doesn't detect staff spectator all the time.
          */
@@ -144,11 +151,11 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                         val isStaff = player in staffList
 
                         if (isStaff && spectator) {
-                            Chat.print("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
+                            chat("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
                         }
 
                         if (!isStaff && otherSpectator) {
-                            Chat.print("§d${player} §3is using the spectator menu §e(compass/left)")
+                            chat("§d${player} §3is using the spectator menu §e(compass/left)")
                         }
                         checkedSpectator.remove(player)
                     }
@@ -161,6 +168,27 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
             // Handle other packets
             handleOtherChecks(packet)
+        }
+
+        /**
+         * Velocity Check
+         * Credit: @azureskylines / Nextgen
+         *
+         * Check if this is a regular velocity update
+         */
+        if (velocity) {
+            if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer?.entityId) {
+                if (packet.motionX == 0 && packet.motionZ == 0 && packet.motionY / 8000.0 > 0.075) {
+                    attemptLeave = false
+                    autoLeave()
+
+                    if (warn == "Chat") {
+                        chat("§3Staff is Watching")
+                    } else {
+                        hud.addNotification(Notification("§3Staff is Watching", 3000F))
+                    }
+                }
+            }
         }
     }
 
@@ -175,7 +203,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (isStaff && spectator) {
             if (warn == "Chat") {
-                Chat.print("§c[STAFF] §d${player} §3is a spectators")
+                chat("§c[STAFF] §d${player} §3is a spectators")
             } else {
                 hud.addNotification(Notification("§c[STAFF] §d${player} §3is a spectators", 3000F))
             }
@@ -183,7 +211,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (!isStaff && otherSpectator) {
             if (warn == "Chat") {
-                Chat.print("§d${player} §3is a spectators")
+                chat("§d${player} §3is a spectators")
             } else {
                 hud.addNotification(Notification("§d${player} §3is a spectators", 3000F))
             }
@@ -231,19 +259,17 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
             val warnings = "§c[STAFF] §d${player} §3is a staff §b(TAB) $condition"
 
-            synchronized(checkedStaff) {
-                if (isStaff && player !in checkedStaff) {
-                    if (warn == "Chat") {
-                        Chat.print(warnings)
-                    } else {
-                        hud.addNotification(Notification(warnings, 3000F))
-                    }
-
-                    attemptLeave = false
-                    checkedStaff.add(player)
-
-                    autoLeave()
+            if (isStaff && player !in checkedStaff) {
+                if (warn == "Chat") {
+                    chat(warnings)
+                } else {
+                    hud.addNotification(Notification(warnings, 3000F))
                 }
+
+                attemptLeave = false
+                checkedStaff.add(player)
+
+                autoLeave()
             }
         }
     }
@@ -278,6 +304,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     else -> "§c(Ping error)"
                 }
             }
+
             else -> ""
         }
 
@@ -285,19 +312,17 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         val warnings = "§c[STAFF] §d${playerName} §3is a staff §b(Packet) $condition"
 
-        synchronized(checkedStaff) {
-            if (isStaff && playerName !in checkedStaff) {
-                if (warn == "Chat") {
-                    Chat.print(warnings)
-                } else {
-                    hud.addNotification(Notification(warnings, 3000F))
-                }
-
-                attemptLeave = false
-                checkedStaff.add(playerName)
-
-                autoLeave()
+        if (isStaff && playerName !in checkedStaff) {
+            if (warn == "Chat") {
+                chat(warnings)
+            } else {
+                hud.addNotification(Notification(warnings, 3000F))
             }
+
+            attemptLeave = false
+            checkedStaff.add(playerName)
+
+            autoLeave()
         }
     }
 
@@ -323,28 +348,23 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             return
         }
 
-        fun handlePlayer(player: Entity?) {
-            player ?: return
-            handleStaff(player)
-        }
-
         when (packet) {
-            is S01PacketJoinGame -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S0CPacketSpawnPlayer -> handlePlayer(mc.theWorld.getEntityByID(packet.entityID))
-            is S18PacketEntityTeleport -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S1CPacketEntityMetadata -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S1DPacketEntityEffect -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S1EPacketRemoveEntityEffect -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S19PacketEntityStatus -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S19PacketEntityHeadLook -> handlePlayer(packet.getEntity(mc.theWorld))
-            is S49PacketUpdateEntityNBT -> handlePlayer(packet.getEntity(mc.theWorld))
-            is S1BPacketEntityAttach -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S04PacketEntityEquipment -> handlePlayer(mc.theWorld.getEntityByID(packet.entityID))
+            is S01PacketJoinGame -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S0CPacketSpawnPlayer -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
+            is S18PacketEntityTeleport -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S1CPacketEntityMetadata -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S1DPacketEntityEffect -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S1EPacketRemoveEntityEffect -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S19PacketEntityStatus -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S19PacketEntityHeadLook -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
+            is S49PacketUpdateEntityNBT -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
+            is S1BPacketEntityAttach -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is S04PacketEntityEquipment -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
         }
     }
 
-    private fun handleStaff(staff: Entity) {
-        if (mc.thePlayer == null || mc.theWorld == null) {
+    private fun handleStaff(staff: Entity?) {
+        if (mc.thePlayer == null || mc.theWorld == null || staff == null) {
             return
         }
 
@@ -365,20 +385,22 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                         .map { it.trim() }
                         .toSet()
 
-                    Chat.print("§aSuccessfully loaded §9${staffList.size} §astaff names.")
+                    chat("§aSuccessfully loaded §9${staffList.size} §astaff names.")
                     mapOf(url to staffList)
                 }
+
                 404 -> {
-                    Chat.print("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
+                    chat("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
                     emptyMap()
                 }
+
                 else -> {
-                    Chat.print("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
+                    chat("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
                     emptyMap()
                 }
             }
         } catch (e: Exception) {
-            Chat.print("§cFailed to load staff list. §9(${e.message})")
+            chat("§cFailed to load staff list. §9(${e.message})")
             e.printStackTrace()
             emptyMap()
         }

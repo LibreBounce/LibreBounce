@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce
 
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.loadSettings
 import net.ccbluex.liquidbounce.api.messageOfTheDay
@@ -45,11 +46,12 @@ import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.disableFastRender
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
+import net.ccbluex.liquidbounce.utils.timing.WaitMsUtils
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import kotlin.concurrent.thread
 
 object LiquidBounce {
 
@@ -125,6 +127,8 @@ object LiquidBounce {
             registerListener(BPSUtils)
             registerListener(Tower)
             registerListener(WaitTickUtils)
+            registerListener(SilentHotbar)
+            registerListener(WaitMsUtils)
 
             // Load client fonts
             loadFonts()
@@ -179,7 +183,7 @@ object LiquidBounce {
 
             // Setup Discord RPC
             if (showRPCValue) {
-                thread {
+                SharedScopes.IO.launch {
                     try {
                         clientRichPresence.setup()
                     } catch (throwable: Throwable) {
@@ -223,6 +227,9 @@ object LiquidBounce {
     fun stopClient() {
         // Call client shutdown
         callEvent(ClientShutdownEvent())
+
+        // Stop all CoroutineScopes
+        SharedScopes.stop()
 
         // Save all available configs
         saveAllConfigs()

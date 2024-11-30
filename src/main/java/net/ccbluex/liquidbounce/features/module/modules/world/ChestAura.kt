@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationSettings
@@ -21,6 +20,7 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.performRaytrace
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenContainer
 import net.ccbluex.liquidbounce.utils.misc.StringUtils.contains
@@ -28,10 +28,10 @@ import net.ccbluex.liquidbounce.utils.realX
 import net.ccbluex.liquidbounce.utils.realY
 import net.ccbluex.liquidbounce.utils.realZ
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.block.BlockChest
 import net.minecraft.block.BlockEnderChest
 import net.minecraft.entity.player.EntityPlayer
@@ -53,8 +53,8 @@ import kotlin.math.sqrt
 
 object ChestAura : Module("ChestAura", Category.WORLD) {
 
-    private val chest by BoolValue("Chest", true)
-    private val enderChest by BoolValue("EnderChest", false)
+    private val chest by boolean("Chest", true)
+    private val enderChest by boolean("EnderChest", false)
 
     private val range: Float by object : FloatValue("Range", 5F, 1F..5F) {
         override fun onUpdate(value: Float) {
@@ -62,9 +62,9 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
             searchRadiusSq = (value + 1).pow(2)
         }
     }
-    private val delay by IntegerValue("Delay", 200, 50..500)
+    private val delay by int("Delay", 200, 50..500)
 
-    private val throughWalls by BoolValue("ThroughWalls", true)
+    private val throughWalls by boolean("ThroughWalls", true)
     private val wallsRange: Float by object : FloatValue("ThroughWallsRange", 3F, 1F..5F) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(this@ChestAura.range)
 
@@ -81,14 +81,14 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         }
     }
 
-    private val visualSwing by BoolValue("VisualSwing", true, subjective = true)
+    private val visualSwing by boolean("VisualSwing", true, subjective = true)
 
-    private val ignoreLooted by BoolValue("IgnoreLootedChests", true)
-    private val detectRefill by BoolValue("DetectChestRefill", true)
+    private val ignoreLooted by boolean("IgnoreLootedChests", true)
+    private val detectRefill by boolean("DetectChestRefill", true)
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
-    private val openInfo by ListValue("OpenInfo", arrayOf("Off", "Self", "Other", "Everyone"), "Off")
+    private val openInfo by choices("OpenInfo", arrayOf("Off", "Self", "Other", "Everyone"), "Off")
 
     var tileTarget: Triple<Vec3, TileEntity, Double>? = null
     private val timer = MSTimer()
@@ -126,10 +126,12 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
         val eyes = thePlayer.eyes
 
-        val pointsInRange = mc.theWorld.tickableTileEntities
+        mc.theWorld.tickableTileEntities
+            .asSequence()
             // Check if tile entity is correct type, not already clicked, not blocked by a block and in range
             .filter {
-                shouldClickTileEntity(it) && it.getDistanceSq(thePlayer.posX,
+                shouldClickTileEntity(it) && it.getDistanceSq(
+                    thePlayer.posX,
                     thePlayer.posY,
                     thePlayer.posZ
                 ) <= searchRadiusSq
@@ -150,14 +152,14 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                     }
                 }
 
-                points
-                    .map { Triple(it, entity, it.squareDistanceTo(eyes)) }
-                    .filter { it.third <= rangeSq }
+                points.mapNotNull { point ->
+                    val distanceSq = point.squareDistanceTo(eyes)
+
+                    Triple(point, entity, distanceSq).takeIf { distanceSq <= rangeSq}
+                }
 
             }.sortedBy { it.third }
-
-        // Vecs are already sorted by distance
-        val closestClickable = pointsInRange
+            // Vecs are already sorted by distance
             .firstOrNull { (vec, entity) ->
                 // If through walls is enabled and its range is same as normal, just return the first one
                 if (throughWalls && wallsRange >= range)
@@ -167,15 +169,16 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 val distanceSq = result.hitVec.squareDistanceTo(eyes)
 
                 // If chest is behind a wall, check if through walls is enabled and its range
-                if (result.blockPos != entity.pos) throughWalls && distanceSq <= wallsRangeSq
-                else distanceSq <= rangeSq
-            } ?: return
+                if (result.blockPos != entity.pos) {
+                    throughWalls && distanceSq <= wallsRangeSq
+                } else distanceSq <= rangeSq
+            }?.let {
+                tileTarget = it
 
-        tileTarget = closestClickable
-
-        if (options.rotationsActive) {
-            setTargetRotation(toRotation(closestClickable.first), options = options)
-        }
+                if (options.rotationsActive) {
+                    setTargetRotation(toRotation(it.first), options = options)
+                }
+            }
     }
 
     @EventTarget
@@ -222,15 +225,16 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
                     // If chest is not last clicked chest, find a player that might have opened it
                     if (packet.blockPosition != tileTarget?.second?.pos) {
-                        val nearPlayers = mc.theWorld.playerEntities
-                            .mapNotNull {
+                        val nearPlayers = mc.theWorld?.playerEntities
+                            ?.asSequence()
+                            ?.mapNotNull {
                                 val distanceSq = it.getDistanceSqToCenter(packet.blockPosition)
 
                                 if (distanceSq <= 36) it to distanceSq
                                 else null
-                            }.sortedBy { it.second }
+                            }?.sortedBy { it.second }
 
-                        if (nearPlayers.isEmpty())
+                        if (nearPlayers == null)
                             return
 
                         // Find the closest player that is looking at the chest or else just the closest
@@ -255,9 +259,10 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                     val timeTakenMsg = if (packet.data2 == 0 && prevTime != null)
                         ", took §b${decimalFormat.format((System.currentTimeMillis() - prevTime) / 1000.0)} s§3"
                     else ""
-                    val playerMsg = if (player == mc.thePlayer) actionMsg else "§b${player.name} §3${actionMsg.lowercase()}"
+                    val playerMsg =
+                        if (player == mc.thePlayer) actionMsg else "§b${player.name} §3${actionMsg.lowercase()}"
 
-                    displayChatMessage("§8[§9§lChestAura§8] $playerMsg chest from §b$distance m§3$timeTakenMsg.")
+                    chat("§8[§9§lChestAura§8] $playerMsg chest from §b$distance m§3$timeTakenMsg.")
 
                     chestOpenMap[packet.blockPosition] = packet.data2 to System.currentTimeMillis()
                 }

@@ -9,9 +9,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.utils.extensions.stopXZ
-import net.ccbluex.liquidbounce.utils.extensions.toDegreesF
-import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.Vec3
 import kotlin.math.cos
@@ -20,17 +18,18 @@ import kotlin.math.sqrt
 
 object MovementUtils : MinecraftInstance(), Listenable {
 
+    var affectSprintOnAttack: Boolean? = null
+
     var speed
         get() = mc.thePlayer?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
         set(value) {
             strafe(value)
         }
 
-    val isMoving
-        get() = mc.thePlayer?.movementInput?.run { moveForward != 0f || moveStrafe != 0f } ?: false
-
     val hasMotion
-        get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } ?: false
+        get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } == true
+
+    var airTicks = 0
 
     @JvmOverloads
     fun strafe(
@@ -38,7 +37,7 @@ object MovementUtils : MinecraftInstance(), Listenable {
         strength: Double = 1.0,
     ) =
         mc.thePlayer?.run {
-            if (!isMoving) {
+            if (!mc.thePlayer.isMoving) {
                 if (stopWhenNoInput) {
                     moveEvent?.zeroXZ()
                     stopXZ()
@@ -138,5 +137,5 @@ object MovementUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    override fun handleEvents() = true
+    
 }

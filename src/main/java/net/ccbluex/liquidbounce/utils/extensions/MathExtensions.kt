@@ -5,13 +5,21 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
+import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedAngleDelta
+import net.ccbluex.liquidbounce.value.FloatRangeValue
+import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.IntegerRangeValue
+import net.ccbluex.liquidbounce.value.IntegerValue
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import net.minecraft.util.Vec3i
+import javax.vecmath.Vector2f
+import kotlin.math.roundToInt
 
 /**
  * Provides:
@@ -30,6 +38,14 @@ operator fun Vec3i.component3() = z
 operator fun Vec3.component1() = xCoord
 operator fun Vec3.component2() = yCoord
 operator fun Vec3.component3() = zCoord
+
+/**
+ * Provides:
+ * ```
+ * val (x, y) = vec
+ */
+operator fun Vector2f.component1() = x
+operator fun Vector2f.component2() = y
 
 /**
  * Provides:
@@ -74,12 +90,16 @@ fun Vec3.withY(value: Double): Vec3 {
 val Vec3_ZERO: Vec3
     get() = Vec3(0.0, 0.0, 0.0)
 
+val RenderManager.renderPos
+    get() = Vec3(renderPosX, renderPosY, renderPosZ)
+
 fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
 
 fun Float.toRadians() = this * 0.017453292f
 fun Float.toRadiansD() = toRadians().toDouble()
 fun Float.toDegrees() = this * 57.29578f
 fun Float.toDegreesD() = toDegrees().toDouble()
+fun Float.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngleDelta()
 
 /**
  * Prevents possible NaN / (-) Infinity results.
@@ -91,6 +111,7 @@ fun Double.toRadians() = this * 0.017453292
 fun Double.toRadiansF() = toRadians().toFloat()
 fun Double.toDegrees() = this * 57.295779513
 fun Double.toDegreesF() = toDegrees().toFloat()
+fun Double.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngleDelta().toDouble()
 
 /**
  * Provides: (step is 0.1 by default)
@@ -141,3 +162,21 @@ fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3(
     blockBoundsMinY + (blockBoundsMaxY - blockBoundsMinY) * y,
     blockBoundsMinZ + (blockBoundsMaxZ - blockBoundsMinZ) * z
 )
+
+fun Vec3.lerpWith(other: Vec3, tickDelta: Double) = Vec3(
+    xCoord + (other.xCoord - xCoord) * tickDelta,
+    yCoord + (other.yCoord - yCoord) * tickDelta,
+    zCoord + (other.zCoord - zCoord) * tickDelta
+)
+
+fun Vec3.lerpWith(other: Vec3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
+
+fun ClosedFloatingPointRange<Float>.lerpWith(t: Float) = start + (endInclusive - start) * t
+
+fun IntegerRangeValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
+
+fun FloatRangeValue.lerpWith(t: Float) = minimum + (maximum - minimum) * t
+
+fun IntegerValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
+
+fun FloatValue.lerpWith(t: Float) = minimum + (maximum - minimum) * t

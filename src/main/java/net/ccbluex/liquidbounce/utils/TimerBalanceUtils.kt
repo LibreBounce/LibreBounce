@@ -10,7 +10,9 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 object TimerBalanceUtils : MinecraftInstance(), Listenable {
 
-    private var balance = 0L
+    var balance = 0L
+        private set
+
     private var frametime = -1L
     private var prevframetime = -1L
     private var currframetime = -1L
@@ -51,9 +53,5 @@ object TimerBalanceUtils : MinecraftInstance(), Listenable {
         balance = 0
     }
 
-    fun getBalance(): Long {
-        return balance
-    }
-
-    override fun handleEvents() = true
+    
 }

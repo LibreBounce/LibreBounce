@@ -232,8 +232,6 @@
         
         "module.noBob.description": "UNTRANSLATED: Disables the view bobbing effect.",
         
-        "module.noBooks.description": "UNTRANSLATED: Blocks server from opening books (forced ads, ...)",
-        
         "module.noClip.description": "UNTRANSLATED: Allows you to freely move through walls (A sandblock has to fall on your head).",
         
         "module.noFOV.description": "UNTRANSLATED: Disables FOV changes caused by speed effect, etc.",
@@ -249,8 +247,6 @@
         "module.noPitchLimit.description": "UNTRANSLATED: Allows you to rotate your head indefinitely in every direction..",
         
         "module.noRotateSet.description": "UNTRANSLATED: Prevents the server from rotating your head.",
-        
-        "module.noScoreboard.description": "UNTRANSLATED: Disables the scoreboard.",
 
         "module.noSlotSet.description": "Previne que o servidor mude o teu slot de hotbar.",
 
@@ -305,6 +301,8 @@
         "module.skinDerp.description": "UNTRANSLATED: Makes your skin blink (Requires multi-layer skin).",
 
         "module.slimeJump.description": "UNTRANSLATED: Allows you to to jump higher on slime blocks.",
+
+        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "UNTRANSLATED: Automatically sneaks all the time.",
         

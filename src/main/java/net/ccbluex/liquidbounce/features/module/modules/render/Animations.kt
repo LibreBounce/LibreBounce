@@ -7,13 +7,11 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animations
-import net.ccbluex.liquidbounce.features.module.modules.render.Animations.defaultAnimation
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.util.MathHelper
@@ -53,16 +51,16 @@ object Animations : Module("Animations", Category.RENDER, gameDetecting = false,
         SulfurAnimation()
     )
 
-    private val animationMode by ListValue("Mode", animations.map { it.name }.toTypedArray(), "Pushdown")
-    val oddSwing by BoolValue("OddSwing", false)
-    val swingSpeed by IntegerValue("SwingSpeed", 15, 0..20)
+    private val animationMode by choices("Mode", animations.map { it.name }.toTypedArray(), "Pushdown")
+    val oddSwing by boolean("OddSwing", false)
+    val swingSpeed by int("SwingSpeed", 15, 0..20)
 
-    val handItemScale by FloatValue("ItemScale", 0f, -5f..5f)
-    val handX by FloatValue("X", 0f, -5f..5f)
-    val handY by FloatValue("Y", 0f, -5f..5f)
-    val handPosX by FloatValue("PositionRotationX", 0f, -50f..50f)
-    val handPosY by FloatValue("PositionRotationY", 0f, -50f..50f)
-    val handPosZ by FloatValue("PositionRotationZ", 0f, -50f..50f)
+    val handItemScale by float("ItemScale", 0f, -5f..5f)
+    val handX by float("X", 0f, -5f..5f)
+    val handY by float("Y", 0f, -5f..5f)
+    val handPosX by float("PositionRotationX", 0f, -50f..50f)
+    val handPosY by float("PositionRotationY", 0f, -50f..50f)
+    val handPosZ by float("PositionRotationZ", 0f, -50f..50f)
 
     fun getAnimation() = animations.firstOrNull { it.name == animationMode }
 
@@ -230,7 +228,7 @@ class CesiumAnimation : Animation("Cesium") {
         transformFirstPersonItem(f, 0.0f)
         rotate(-c4 * 10.0f / 20.0f, c4 / 2.0f, 0.0f, 4.0f)
         rotate(-c4 * 30.0f, 0.0f, c4 / 3.0f, 0.0f)
-        rotate(-c4 * 10.0f, 1.0f, c4/10.0f, 0.0f)
+        rotate(-c4 * 10.0f, 1.0f, c4 / 10.0f, 0.0f)
         translate(0.0, 0.2, 0.0)
         doBlockTransformations()
     }

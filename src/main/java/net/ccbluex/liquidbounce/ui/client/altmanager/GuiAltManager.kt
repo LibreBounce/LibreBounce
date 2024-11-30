@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager
 
-import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.thealtening.AltService
+import kotlinx.coroutines.launch
 import me.liuli.elixir.account.CrackedAccount
 import me.liuli.elixir.account.MicrosoftAccount
 import me.liuli.elixir.account.MinecraftAccount
@@ -22,9 +22,11 @@ import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiDonatorCape
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginIntoAccount
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiSessionLogin
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.UserUtils.isValidTokenOffline
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
@@ -39,9 +41,6 @@ import java.awt.Color
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.util.*
-import java.util.function.Consumer
-import kotlin.concurrent.thread
-
 
 class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
 
@@ -75,7 +74,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
         // Setup buttons
 
         val startPositionY = 22
-        buttonList.run {
+        with(buttonList) {
             add(GuiButton(1, width - 80, startPositionY + 24, 70, 20, "Add").also { addButton = it })
             add(GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, "Remove").also { removeButton = it })
             add(GuiButton(7, width - 80, startPositionY + 24 * 3, 70, 20, "Import"))
@@ -97,6 +96,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
         altsList.drawScreen(mouseX, mouseY, partialTicks)
         Fonts.font40.drawCenteredString(translationMenu("altManager"), width / 2f, 6f, 0xffffff)
@@ -122,6 +123,9 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
         if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
             "§7Search...", searchField.xPosition + 4f, 17f, 0xffffff
         )
+
+        assumeNonVolatile = false
+
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -149,7 +153,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     randomNameButton.enabled = false
 
                     login(it, {
-                        status = "§aLogged into ${mc.session.username}."
+                        status = "§aLogged into §f§l${mc.session.username}§a."
                     }, { exception ->
                         status = "§cLogin failed due to '${exception.message}'."
                     }, {
@@ -169,7 +173,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     randomNameButton.enabled = false
 
                     login(it, {
-                        status = "§aLogged into ${mc.session.username}."
+                        status = "§aLogged into §f§l${mc.session.username}§a."
                     }, { exception ->
                         status = "§cLogin failed due to '${exception.message}'."
                     }, {
@@ -183,7 +187,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
             }
 
             5 -> { // Random name button
-                status = "§aLogged into ${randomAccount().name}."
+                status = "§aLogged into §f§l${randomAccount().name}§a."
                 altService.switchService(AltService.EnumAltService.MOJANG)
             }
 
@@ -248,16 +252,20 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     return
                 }
 
-                // Format data for other tools
-                val formattedData = when (currentAccount) {
-                    is MojangAccount -> "${currentAccount.email}:${currentAccount.password}" // EMAIL:PASSWORD
-                    is MicrosoftAccount -> "${currentAccount.name}:${currentAccount.session.token}" // NAME:SESSION
-                    else -> currentAccount.name
-                }
+                try {
+                    // Format data for other tools
+                    val formattedData = when (currentAccount) {
+                        is MojangAccount -> "${currentAccount.email}:${currentAccount.password}" // EMAIL:PASSWORD
+                        is MicrosoftAccount -> "${currentAccount.name}:${currentAccount.session.token}" // NAME:SESSION
+                        else -> currentAccount.name
+                    }
 
-                // Copy to clipboard
-                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(formattedData), null)
-                status = "§aCopied account into your clipboard."
+                    // Copy to clipboard
+                    Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(formattedData), null)
+                    status = "§aCopied account into your clipboard."
+                } catch (any: Exception) {
+                    any.printStackTrace()
+                }
             }
 
             9 -> { // Altening Button
@@ -374,7 +382,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     randomNameButton.enabled = false
 
                     login(it, {
-                        status = "§aLogged into ${mc.session.username}."
+                        status = "§aLogged into §f§l${mc.session.username}§a."
                     }, { exception ->
                         status = "§cLogin failed due to '${exception.message}'."
                     }, {
@@ -423,10 +431,9 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 // Check json is valid object
                 if (jsonElement.isJsonObject) {
                     // Get json object of element
-                    val jsonObject = jsonElement.asJsonObject
-                    jsonObject.entrySet().forEach(Consumer { (key, value): Map.Entry<String, JsonElement> ->
+                    jsonElement.asJsonObject.entrySet().forEach { (key, value) ->
                         activeGenerators[key] = value.asBoolean
-                    })
+                    }
                 }
             } catch (throwable: Throwable) {
                 // Print throwable to console
@@ -436,7 +443,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
 
         fun login(
             minecraftAccount: MinecraftAccount, success: () -> Unit, error: (Exception) -> Unit, done: () -> Unit
-        ) = thread(name = "LoginTask") {
+        ) = SharedScopes.IO.launch {
             if (altService.currentService != AltService.EnumAltService.MOJANG) {
                 try {
                     altService.switchService(AltService.EnumAltService.MOJANG)
@@ -455,7 +462,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                     minecraftAccount.session.username,
                     minecraftAccount.session.uuid,
                     minecraftAccount.session.token,
-                    "mojang"
+                    "microsoft"
                 )
                 callEvent(SessionEvent())
 
