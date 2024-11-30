@@ -20,6 +20,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.antivoid
 
+import net.ccbluex.liquidbounce.common.ShapeFlag
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -51,7 +52,6 @@ object ModuleAntiVoid : ClientModule("AntiVoid", Category.PLAYER) {
 
     // Flags indicating if an action has been already taken or needs to be taken.
     var isLikelyFalling = false
-    var isTestingCollision = false
 
     // How many future ticks to simulate to ensure safety.
     private const val SAFE_TICKS_THRESHOLD = 10
@@ -72,10 +72,10 @@ object ModuleAntiVoid : ClientModule("AntiVoid", Category.PLAYER) {
 
         // Analyzes if the player might be falling into the void soon.
         try {
-            isTestingCollision = true
+            ShapeFlag.noShapeChange = true
             isLikelyFalling = isLikelyFalling(simulatedPlayer)
         } finally {
-            isTestingCollision = false
+            ShapeFlag.noShapeChange = false
         }
     }
 

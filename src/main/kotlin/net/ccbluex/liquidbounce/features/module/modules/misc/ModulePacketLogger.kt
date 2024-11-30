@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.MessageMetadata
@@ -158,5 +159,8 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
             currentClass = currentClass.superclass
         }
     }
+
+    override val running: Boolean
+        get() = !isDestructed && enabled
 
 }

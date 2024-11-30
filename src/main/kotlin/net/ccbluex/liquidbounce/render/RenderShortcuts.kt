@@ -204,7 +204,7 @@ inline fun RenderEnvironment.withDisabledCull(draw: RenderEnvironment.() -> Unit
  */
 
 fun RenderEnvironment.drawLines(vararg lines: Vec3) {
-    drawLines(*lines, mode = DrawMode.DEBUG_LINES)
+    drawLines(lines, mode = DrawMode.DEBUG_LINES)
 }
 
 /**
@@ -213,11 +213,11 @@ fun RenderEnvironment.drawLines(vararg lines: Vec3) {
  * @param positions The vectors representing the line strip.
  */
 fun RenderEnvironment.drawLineStrip(vararg positions: Vec3) {
-    drawLines(*positions, mode = DrawMode.DEBUG_LINE_STRIP)
+    drawLines(positions, mode = DrawMode.DEBUG_LINE_STRIP)
 }
-@Suppress("SpreadOperator")
+
 fun RenderEnvironment.drawLineStrip(positions: List<Vec3>) {
-    drawLines(*positions.toTypedArray(), mode = DrawMode.DEBUG_LINE_STRIP)
+    drawLines(positions.toTypedArray(), mode = DrawMode.DEBUG_LINE_STRIP)
 }
 
 /**
@@ -226,7 +226,7 @@ fun RenderEnvironment.drawLineStrip(positions: List<Vec3>) {
  * @param lines The vectors representing the lines.
  * @param mode The draw mode for the lines.
  */
-private fun RenderEnvironment.drawLines(vararg lines: Vec3, mode: DrawMode = DrawMode.DEBUG_LINES) {
+private fun RenderEnvironment.drawLines(lines: Array<out Vec3>, mode: DrawMode = DrawMode.DEBUG_LINES) {
     // If the array of lines is empty, we don't need to draw anything
     if (lines.isEmpty()) {
         return
