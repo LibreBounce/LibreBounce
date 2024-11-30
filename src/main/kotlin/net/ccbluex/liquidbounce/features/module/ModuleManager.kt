@@ -225,6 +225,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleFocus,
             ModuleAntiStaff,
             ModuleFlagCheck,
+            ModulePacketLogger,
 
             // Movement
             ModuleAirJump,

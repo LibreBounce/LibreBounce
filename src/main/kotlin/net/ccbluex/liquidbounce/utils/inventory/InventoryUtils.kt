@@ -191,8 +191,8 @@ fun findItemsInContainer(screen: GenericContainerScreen) =
 fun useHotbarSlotOrOffhand(
     item: HotbarItemSlot,
     ticksUntilReset: Int = 1,
-    yaw: Float = RotationManager.serverRotation.yaw,
-    pitch: Float = RotationManager.serverRotation.pitch
+    yaw: Float = RotationManager.currentRotation?.yaw ?: player.yaw,
+    pitch: Float = RotationManager.currentRotation?.yaw ?: player.pitch,
 ) = when (item) {
     OffHandSlot -> interactItem(Hand.OFF_HAND, yaw, pitch)
     else -> interactItem(Hand.MAIN_HAND, yaw, pitch) {
@@ -202,8 +202,8 @@ fun useHotbarSlotOrOffhand(
 
 fun interactItem(
     hand: Hand,
-    yaw: Float = RotationManager.serverRotation.yaw,
-    pitch: Float = RotationManager.serverRotation.yaw,
+    yaw: Float = RotationManager.currentRotation?.yaw ?: player.yaw,
+    pitch: Float = RotationManager.currentRotation?.yaw ?: player.pitch,
     preInteraction: () -> Unit = { }
 ) {
     preInteraction()

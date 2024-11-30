@@ -81,6 +81,16 @@ object EnvironmentRemapper {
         }?.get("named")?.name ?: name
     }
 
+    fun remapField(clazz: String, name: String): String {
+        environment ?: return name
+
+        val className = clazz.toSlashNotation()
+        return mappings?.fieldEntries?.find { entry ->
+            val intern = entry.get(environment)
+            className == intern.owner && intern.name == name
+        }?.get("named")?.name ?: name
+    }
+
     fun remapMethod(clazz: Class<*>, name: String): String {
         environment ?: return name
 
