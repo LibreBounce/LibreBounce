@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.technique
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -93,7 +94,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
         if (ScaffoldTellyFeature.enabled && ScaffoldTellyFeature.doNotAim) {
-            return null
+            return if (ScaffoldTellyFeature.forceReset) player.rotation else null
         }
 
         if (requiresSight) {

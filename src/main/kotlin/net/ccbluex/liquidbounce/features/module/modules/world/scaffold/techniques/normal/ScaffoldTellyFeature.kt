@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.moving
+import net.ccbluex.liquidbounce.utils.entity.rotation
 
 /**
  * Telly feature
@@ -50,6 +51,7 @@ object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "T
     private var ticksUntilJump = 0
 
     private val straightTicks by int("Straight", 0, 0..5, "ticks")
+    val forceReset by boolean("ForceReset", false)
     private val jumpTicksOpt by intRange("Jump", 0..0, 0..10, "ticks")
     private var jumpTicks = jumpTicksOpt.random()
 
@@ -70,7 +72,10 @@ object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "T
         }
 
         val isStraight = RotationManager.currentRotation == null || straightTicks == 0
-        if (isStraight && ticksUntilJump >= jumpTicks) {
+
+        if (forceReset) {
+            event.jumping = true
+        } else if (isStraight && ticksUntilJump >= jumpTicks) {
             event.jumping = true
         }
     }
