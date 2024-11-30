@@ -39,7 +39,8 @@ import net.minecraft.util.shape.VoxelShapes
  */
 class SpeedVulcanGround286(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("VulcanGround286", parent) {
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val afterJumpHandler = tickHandler {
         if (player.moving && collidesBottomVertical()) {
             val speedEffect = player.getStatusEffect(StatusEffects.SPEED)
             val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0

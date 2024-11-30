@@ -38,7 +38,9 @@ import kotlin.math.abs
  * Tested on both anticheat-test.com and loyisa.cn
  */
 class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Vulcan288", parent) {
-    val afterJumpEvent = sequenceHandler<PlayerAfterJumpEvent> {
+
+    @Suppress("unused")
+    private val afterJumpHandler = sequenceHandler<PlayerAfterJumpEvent> {
         val hasSpeed = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) != 0
 
         player.strafe(speed = if (hasSpeed) 0.771 else 0.5)
@@ -53,7 +55,9 @@ class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
         waitTicks(1)
         player.strafe(speed = if (hasSpeed) 0.595 else 0.28)
     }
-    val repeatable = tickHandler {
+
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         val hasSpeed = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) != 0
         if (!player.isOnGround) {
             if (abs(player.fallDistance) > 0 && hasSpeed) {
@@ -62,10 +66,13 @@ class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
             }
         }
     }
-    val packetHandler = handler<PacketEvent> { event ->
+
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
         if (packet is PlayerMoveC2SPacket && player.velocity.y < 0) {
             packet.onGround = true
         }
     }
+
 }

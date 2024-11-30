@@ -31,8 +31,8 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
 
     @Suppress("unused")
-    val moveInputHandler = handler<MovementInputEvent>(priority = 1000) {
-        it.directionalInput = it.directionalInput.copy(forwards = true)
+    private val moveInputHandler = handler<MovementInputEvent>(priority = 1000) { event ->
+        event.directionalInput = event.directionalInput.copy(forwards = true)
     }
 
 }

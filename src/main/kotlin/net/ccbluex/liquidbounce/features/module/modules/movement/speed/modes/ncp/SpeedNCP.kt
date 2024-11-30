@@ -51,7 +51,7 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
         private var ticksInAir = 0
 
         @Suppress("unused")
-        private val repeatable = tickHandler {
+        private val tickHandler = tickHandler {
             if (player.isOnGround) {
                 ticksInAir = 0
                 return@tickHandler
@@ -74,10 +74,11 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
     }
 
     private inner class Boost(parent: EventListener?) : ToggleableConfigurable(parent, "Boost", true) {
-        private val initialBoostMultiplier by float("InitialBoostMultiplier", 1f, 0.01f..10f)
+        private val initialBoostMultiplier by float("InitialBoostMultiplier", 1f,
+            0.01f..10f)
 
         @Suppress("unused")
-        val repeatable = tickHandler {
+        private val tickHandler = tickHandler {
             if (player.moving) {
                 player.velocity.x *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
                 player.velocity.z *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
@@ -102,7 +103,7 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
     }
 
     @Suppress("unused")
-    private val repeatable = tickHandler {
+    private val tickHandler = tickHandler {
         val speedMultiplier = player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0
 
         if (player.moving) {
@@ -126,9 +127,9 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
     }
 
     @Suppress("unused")
-    private val jumpHandler = handler<PlayerJumpEvent> {
+    private val jumpHandler = handler<PlayerJumpEvent> { event ->
         if (shouldLowHop) {
-            it.motion = 0.4f
+            event.motion = 0.4f
         }
     }
 }

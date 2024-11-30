@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.OnlyInCombat.modes
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.OnlyOnPotionEffect.potionEffects
@@ -106,6 +105,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
     init {
         tree(OnlyInCombat)
         tree(OnlyOnPotionEffect)
+        tree(SpeedYawOffset)
     }
 
     override val running: Boolean
@@ -132,9 +132,6 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
         notWhileSneaking && player.isSneaking -> false
         else -> true
     }
-
-    fun shouldDelayJump() = !mc.options.jumpKey.isPressed && (SpeedAntiCornerBump.shouldDelayJump()
-        || CriticalsJump.shouldWaitForJump())
 
     private object OnlyInCombat : ToggleableConfigurable(this, "OnlyInCombat", false) {
 

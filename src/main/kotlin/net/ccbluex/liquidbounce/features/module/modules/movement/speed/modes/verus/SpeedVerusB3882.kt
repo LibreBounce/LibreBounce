@@ -20,14 +20,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.verus
 
-import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.directionYaw
 import net.ccbluex.liquidbounce.utils.entity.moving
@@ -40,20 +39,16 @@ import net.minecraft.entity.MovementType
  * @anticheatVersion b3882
  * @testedOn eu.anticheat-test.com
  */
-class SpeedVerusB3882(override val parent: ChoiceConfigurable<*>) : Choice("VerusB3882") {
+class SpeedVerusB3882(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("VerusB3882", parent) {
 
-    val movementInputEvent = handler<MovementInputEvent> {
-        if (player.moving) {
-            it.jumping = true
-        }
-    }
-
-    val afterJumpEvent = handler<PlayerAfterJumpEvent> {
+    @Suppress("unused")
+    private val afterJumpHandler = handler<PlayerAfterJumpEvent> {
         player.velocity.x *= 1.1
         player.velocity.z *= 1.1
     }
 
-    val moveHandler = handler<PlayerMoveEvent> { event ->
+    @Suppress("unused")
+    private val moveHandler = handler<PlayerMoveEvent> { event ->
         // Might just strafe when player controls itself
         if (event.type == MovementType.SELF && player.moving) {
             val movement = event.movement
@@ -61,8 +56,10 @@ class SpeedVerusB3882(override val parent: ChoiceConfigurable<*>) : Choice("Veru
         }
     }
 
-    val timerRepeatable = tickHandler {
+    @Suppress("unused")
+    private val timerHandler = tickHandler {
         Timer.requestTimerSpeed(2.0F, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed)
         waitTicks(101)
     }
+
 }

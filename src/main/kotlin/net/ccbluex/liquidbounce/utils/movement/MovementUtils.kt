@@ -59,9 +59,8 @@ data class DirectionalInput(
         return result
     }
 
-    fun isMoving(): Boolean {
-        return forwards || backwards || left || right
-    }
+    val isMoving: Boolean
+        get() = forwards || backwards || left || right
 
     companion object {
         val NONE = DirectionalInput(forwards = false, backwards = false, left = false, right = false)
