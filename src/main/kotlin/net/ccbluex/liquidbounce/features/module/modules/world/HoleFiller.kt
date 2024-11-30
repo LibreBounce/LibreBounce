@@ -48,7 +48,7 @@ import kotlin.math.max
 /**
  * Module HoleFiller
  *
- * Automatically fills holes enemies are about to enter.
+ * Automatically fills holes.
  *
  * @author ccetl
  */
