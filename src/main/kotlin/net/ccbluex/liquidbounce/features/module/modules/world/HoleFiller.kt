@@ -276,7 +276,6 @@ object HoleFiller : ClientModule("HolesFiller", Category.WORLD) {
         return BooleanDoubleImmutablePair(angle >= 0.866, angle)
     }
 
-    @JvmRecord
     data class HoleContext(
         val holes: List<Hole>,
         val selfInHole: Boolean,
