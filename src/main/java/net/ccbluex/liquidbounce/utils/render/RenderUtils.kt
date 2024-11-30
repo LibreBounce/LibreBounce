@@ -28,6 +28,7 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL14
 import java.awt.Color
+import kotlin.Triple
 import kotlin.math.*
 
 object RenderUtils : MinecraftInstance() {
@@ -395,7 +396,8 @@ object RenderUtils : MinecraftInstance() {
         y2: Float,
         color: Int,
         width: Float,
-        radius: Float
+        radius: Float,
+        bottom: Boolean = true
     ) {
         val alpha = (color ushr 24 and 0xFF) / 255.0f
         val red = (color ushr 16 and 0xFF) / 255.0f
@@ -411,7 +413,8 @@ object RenderUtils : MinecraftInstance() {
         glLineWidth(width)
 
         glColor4f(red, green, blue, alpha)
-        glBegin(GL_LINE_LOOP)
+
+        if (bottom) glBegin(GL_LINE_LOOP) else glBegin(GL_LINE_STRIP)
 
         val radiusD = radius.toDouble()
 
@@ -439,6 +442,16 @@ object RenderUtils : MinecraftInstance() {
         glDisable(GL_LINE_SMOOTH)
         glDisable(GL_BLEND)
     }
+
+    fun drawRoundedBorderedWithoutBottom(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        color: Int,
+        width: Float,
+        radius: Float
+    ) = drawRoundedBordered(x1, y1, x2, y2, color, width, radius, false)
 
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float) {
         glBegin(GL_QUADS)
