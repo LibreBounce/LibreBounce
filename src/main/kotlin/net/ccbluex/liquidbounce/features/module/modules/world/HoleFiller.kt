@@ -131,8 +131,10 @@ object HoleFiller : ClientModule("HolesFiller", Category.WORLD) {
         val selfRegion = Region.quadAround(blockPos, fillArea, fillArea)
 
         val blocks = linkedSetOf<BlockPos>()
+        val holeContext = HoleContext(holes, selfInHole, selfRegion, blocks)
+
         if (!smart) {
-            collectHolesSimple(holes, selfInHole, selfRegion, blocks)
+            collectHolesSimple(holeContext)
         } else {
             val availableItems = getAvailableItemsCount()
             if (availableItems == 0) {
@@ -141,7 +143,7 @@ object HoleFiller : ClientModule("HolesFiller", Category.WORLD) {
 
             // the range in which entities are considered as a target
             val range = ceil(max(placer.range, placer.wallRange)).toInt().sq() + 10.0
-            collectHolesSmart(range, holes, selfInHole, selfRegion, availableItems, blocks)
+            collectHolesSmart(range, holeContext, availableItems)
         }
 
         placer.update(blocks)
@@ -159,30 +161,22 @@ object HoleFiller : ClientModule("HolesFiller", Category.WORLD) {
         return itemCount
     }
 
-    private fun collectHolesSimple(
-        holes: List<Hole>,
-        selfInHole: Boolean,
-        selfRegion: Region,
-        blocks: LinkedHashSet<BlockPos>
-    ) {
-        holes.forEach { hole ->
+    private fun collectHolesSimple(holeContext: HoleContext) {
+        holeContext.holes.forEach { hole ->
             val y = hole.positions.from.y + 1.0
-            if (!preventSelfFill || y > player.y || !selfInHole && !hole.positions.intersects(selfRegion)) {
+            if (!preventSelfFill ||
+                y > player.y ||
+                holeContext.selfInHole ||
+                !hole.positions.intersects(holeContext.selfRegion)
+                ) {
                 BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
-                    blocks += it.toImmutable()
+                    holeContext.blocks += it.toImmutable()
                 }
             }
         }
     }
 
-    private fun collectHolesSmart(
-        range: Double,
-        holes: List<Hole>,
-        selfInHole: Boolean,
-        selfRegion: Region,
-        availableItems: Int,
-        blocks: MutableSet<BlockPos>
-    ) {
+    private fun collectHolesSmart(range: Double, holeContext: HoleContext, availableItems: Int) {
         val checkedHoles = hashSetOf<Hole>()
         var remainingItems = availableItems
 
@@ -192,27 +186,59 @@ object HoleFiller : ClientModule("HolesFiller", Category.WORLD) {
             }
 
             val found = hashSetOf<ObjectDoubleImmutablePair<BlockPos>>()
+            remainingItems = iterateHoles(
+                holeContext,
+                checkedHoles,
+                entity,
+                remainingItems,
+                found
+            )
 
-            val region = Region.quadAround(entity.blockPos, fillArea, fillArea)
-            holes.forEach { hole ->
-                if (hole !in checkedHoles) {
-                    val valid = isValidHole(hole, entity, region, selfInHole, selfRegion)
-                    if (valid.firstBoolean()) {
-                        remainingItems -= hole.type.size
-                        if (remainingItems < 0 && !player.abilities.creativeMode) {
-                            return
-                        }
+            holeContext.blocks += found.sortedByDescending { it.rightDouble() }.map { it.left() }
+            if (remainingItems <= 0) {
+                return
+            }
+        }
+    }
 
-                        checkedHoles += hole
-                        BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
-                            found += ObjectDoubleImmutablePair(it.toImmutable(), valid.rightDouble())
-                        }
-                    }
-                }
+    private fun iterateHoles(
+        holeContext: HoleContext,
+        checkedHoles: HashSet<Hole>,
+        entity: Entity,
+        remainingItems: Int,
+        found: HashSet<ObjectDoubleImmutablePair<BlockPos>>
+    ): Int {
+        var remainingItems1 = remainingItems
+        val region = Region.quadAround(entity.blockPos, fillArea, fillArea)
+
+        holeContext.holes.forEach { hole ->
+            if (hole in checkedHoles) {
+               return@forEach
             }
 
-            blocks += found.sortedByDescending { it.rightDouble() }.map { it.left() }
+            val valid = isValidHole(hole, entity, region, holeContext.selfInHole, holeContext.selfRegion)
+            if (!valid.firstBoolean()) {
+                return@forEach
+            }
+
+            val holeSize = hole.type.size
+            remainingItems1 -= holeSize
+            if (remainingItems1 < 0 && !player.abilities.creativeMode) {
+                remainingItems1 += holeSize
+                return@forEach
+            }
+
+            checkedHoles += hole
+            BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
+                found += ObjectDoubleImmutablePair(it.toImmutable(), valid.rightDouble())
+            }
+
+            if (remainingItems1 == 0 && !player.abilities.creativeMode) {
+                return 0
+            }
         }
+
+        return remainingItems
     }
 
     private fun isValidHole(
@@ -249,5 +275,13 @@ object HoleFiller : ClientModule("HolesFiller", Category.WORLD) {
         // cos(30°) = 0.866
         return BooleanDoubleImmutablePair(angle >= 0.866, angle)
     }
+
+    @JvmRecord
+    data class HoleContext(
+        val holes: List<Hole>,
+        val selfInHole: Boolean,
+        val selfRegion: Region,
+        val blocks: MutableSet<BlockPos>
+    )
 
 }
