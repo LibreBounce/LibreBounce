@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.blockVecPosition
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.*
 import net.minecraft.entity.LivingEntity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -106,7 +107,9 @@ object AStarMode : TpAuraChoice("AStar") {
 
         renderEnvironmentForWorld(matrixStack) {
             withColor(Color4b.WHITE) {
-                drawLineStrip(path.map { relativeToCamera(it.toVec3d(0.5, 0.5, 0.5)).toVec3() })
+                drawLineStrip(positions = path.mapArray {
+                    relativeToCamera(it.toVec3d(0.5, 0.5, 0.5)).toVec3()
+                })
             }
         }
     }
@@ -211,19 +214,21 @@ object AStarMode : TpAuraChoice("AStar") {
         val path = mutableListOf<Vec3i>()
         var currentNode = node
         while (currentNode.parent != null) {
-            path.add(0, currentNode.position)
+            path.add(currentNode.position)
             currentNode = currentNode.parent!!
         }
+        path.reverse()
         return path
     }
 
-    private val directions = arrayOf(
-        Vec3i(-1, 0, 0), // left
-        Vec3i(1, 0, 0), // right
-        *(-9..9).map { Vec3i(0, it, 0) }.toTypedArray(), // up and down
-        Vec3i(0, 0, -1), // front
-        Vec3i(0, 0, 1) // back
-    )
+    private val directions = buildList(22) {
+        add(Vec3i(-1, 0, 0)) // left
+        add(Vec3i(1, 0, 0)) // right
+        (-9..-1).mapTo(this) { Vec3i(0, it, 0) } // down
+        (1..9).mapTo(this) { Vec3i(0, it, 0) } // up
+        add(Vec3i(0, 0, -1)) // front
+        add(Vec3i(0, 0, 1)) // back
+    }
 
     private val diagonalDirections = arrayOf(
         Vec3i(-1, 0, -1), // left front
@@ -232,6 +237,7 @@ object AStarMode : TpAuraChoice("AStar") {
         Vec3i(1, 0, 1) // right back
     )
 
+    @Suppress("detekt:CognitiveComplexMethod")
     private fun getAdjacentNodes(node: Node): List<Node> = buildList {
         for (direction in directions) {
             val adjacentPosition = node.position + direction
