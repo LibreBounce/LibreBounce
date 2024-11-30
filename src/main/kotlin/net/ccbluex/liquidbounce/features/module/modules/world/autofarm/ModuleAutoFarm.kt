@@ -24,10 +24,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
-import net.ccbluex.liquidbounce.utils.aiming.raytracePlaceBlock
+import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.notification
@@ -57,11 +54,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
     // TODO Fix this entire module-
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
-        if (it > range) {
-            range
-        } else {
-            it
-        }
+        minOf(it, range)
     }
 
     // The ticks to wait after interacting with something
@@ -75,7 +68,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         val swapBackDelay by intRange("swapBackDelay", 1..2, 1..20, "ticks")
     }
 
-    private val fortune by boolean("fortune", true)
+    private val fortune by boolean("UseFortune", true)
 
     private val autoWalk = tree(AutoFarmAutoWalk)
 
@@ -85,7 +78,6 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
     }
 
     val rotations = tree(RotationsConfigurable(this))
-
 
     val itemsForFarmland = arrayOf(Items.WHEAT_SEEDS, Items.BEETROOT_SEEDS, Items.CARROT, Items.POTATO)
     val itemsForSoulsand = arrayOf(Items.NETHER_WART)
@@ -121,7 +113,6 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         // If there is no currentTarget (a block close enough to be interacted with) walk if wanted
         currentTarget ?: run {
             autoWalk.updateWalkTarget()
-
             return@tickHandler
         }
 
@@ -145,7 +136,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         val blockPos = rayTraceResult.blockPos
 
-        var state = rayTraceResult.blockPos.getState() ?: return@tickHandler
+        var state = blockPos.getState() ?: return@tickHandler
         if (isTargeted(state, blockPos)) {
             if (fortune) {
                 Hotbar.findBestItem(1) { _, itemStack -> itemStack.getEnchantment(Enchantments.FORTUNE) }
@@ -153,17 +144,17 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
                         SilentHotbar.selectSlotSilently(this, slot, 2)
                     } // Swap to a fortune item to increase drops
             }
+
             val direction = rayTraceResult.side
 
             if (interaction.updateBlockBreakingProgress(blockPos, direction)) {
                 player.swingHand(Hand.MAIN_HAND)
             }
+
             if (interaction.blockBreakingProgress == -1) {
                 // Only wait if the block is completely broken
                 waitTicks(interactDelay.random())
             }
-            return@tickHandler
-
         } else {
             val pos = blockPos.offset(rayTraceResult.side).down()
 
@@ -230,15 +221,16 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         val blocksToPlace =
             eyesPos.searchBlocksInCuboid(radius) { pos, state ->
                 !state.isAir && isFarmBlockWithAir(state, pos, allowFarmland, allowSoulsand)
-                        && getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
+                    && getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) <= radiusSquared
             }.map { it.first }.sortedBy { it.getCenterDistanceSquared() }
 
         for (pos in blocksToPlace) {
-            val (rotation, _) = raytracePlaceBlock(
+            // We can only plant on the upper side
+            val (rotation, _) = raytraceUpperBlockSide(
                 player.eyes,
-                pos.up(),
                 range = range.toDouble() - 0.1,
-                wallsRange = wallRange.toDouble() - 0.1
+                wallsRange = wallRange.toDouble() - 0.1,
+                pos
             ) ?: continue // We don't have a free angle at the block? Well, let me see the next.
 
             // set currentTarget to the new target
@@ -270,11 +262,9 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         if (updateTargetToBreakable(radius, radiusSquared, eyesPos))
             return
 
-        if (!AutoPlaceCrops.enabled)
-            return
-
         // Can we find a placeable target?
-        updateTargetToPlaceable(radius, radiusSquared, eyesPos)
+        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos))
+            return
     }
 
     fun isTargeted(state: BlockState, pos: BlockPos): Boolean {
@@ -324,6 +314,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
     override fun disable() {
         ChunkScanner.unsubscribe(AutoFarmBlockTracker)
+        currentTarget = null
     }
 
 }

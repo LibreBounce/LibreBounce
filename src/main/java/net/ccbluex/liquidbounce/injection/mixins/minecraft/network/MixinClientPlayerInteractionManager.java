@@ -90,7 +90,7 @@ public class MixinClientPlayerInteractionManager {
 
     @Inject(method = "hasLimitedAttackSpeed", at = @At("HEAD"), cancellable = true)
     private void injectAutoClicker(CallbackInfoReturnable<Boolean> cir) {
-        if (ModuleAutoClicker.INSTANCE.getRunning() && ModuleAutoClicker.Left.INSTANCE.getEnabled()) {
+        if (ModuleAutoClicker.Left.INSTANCE.getRunning()) {
             cir.setReturnValue(false);
         }
     }

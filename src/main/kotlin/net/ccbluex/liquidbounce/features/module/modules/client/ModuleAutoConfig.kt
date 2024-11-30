@@ -116,6 +116,7 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
     /**
      * Overwrites the condition requirement for being in-game
      */
-    override val running = !isDestructed && enabled
+    override val running
+        get() = !isDestructed && enabled
 
 }

@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -31,6 +33,10 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.ccbluex.liquidbounce.utils.kotlin.proportionOfValue
+import net.ccbluex.liquidbounce.utils.kotlin.valueAtProportion
+import net.ccbluex.liquidbounce.utils.math.*
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.entity.ItemEntity
@@ -51,10 +57,34 @@ object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
     override val baseKey: String
         get() = "liquidbounce.module.itemTags"
 
-    private val boxSize by float("BoxSize", 1.0F, 0.1F..10.0F)
+    private val clusterSizeMode = choices("ClusterSizeMode", ClusterSizeMode.Static,
+        arrayOf(ClusterSizeMode.Static, ClusterSizeMode.Distance))
     private val scale by float("Scale", 1.5F, 0.25F..4F)
-    private val renderY by float("RenderY", 0.0F, -2.0F..2.0F)
-    private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
+    private val renderY by float("RenderY", 0F, -2F..2F)
+    private val maximumDistance by float("MaximumDistance", 128F, 1F..256F)
+
+    private sealed class ClusterSizeMode(name: String) : Choice(name) {
+        override val parent: ChoiceConfigurable<*>
+            get() = clusterSizeMode
+
+        abstract fun size(entity: ItemEntity): Float
+
+        object Static : ClusterSizeMode("Static") {
+            private val size = float("Size", 1F, 0.1F..32F)
+            override fun size(entity: ItemEntity): Float = size.get()
+        }
+
+        object Distance : ClusterSizeMode("Distance") {
+            private val size by floatRange("Size", 1F..16F, 0.1F..32.0F)
+            private val range by floatRange("Range", 32F..64F, 1F..256F)
+            private val curve by curve("Curve", Easing.LINEAR)
+
+            override fun size(entity: ItemEntity): Float {
+                val playerDistance = player.distanceTo(entity)
+                return size.valueAtProportion(curve.transform(range.proportionOfValue(playerDistance)))
+            }
+        }
+    }
 
     private val fontRenderer
         get() = FontManager.FONT_RENDERER
@@ -70,7 +100,7 @@ object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
                     .filter {
                         it.squaredDistanceTo(player) < maxDistSquared
                     }
-                    .clusterWithIn(boxSize.toDouble())
+                    .cluster()
                     .mapNotNull { (center, items) ->
                         val renderPos = WorldToScreen.calculateScreenPos(center.add(0.0, renderY.toDouble(), 0.0))
                             ?: return@mapNotNull null
@@ -150,13 +180,14 @@ object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
     }
 
     @JvmStatic
-    private fun List<ItemEntity>.clusterWithIn(radius: Double): Map<Vec3d, List<ItemStack>> {
+    private fun List<ItemEntity>.cluster(): Map<Vec3d, List<ItemStack>> {
         val groups = arrayListOf<MutableSet<ItemEntity>>()
         val visited = hashSetOf<ItemEntity>()
 
-        val radiusSquared = radius * radius
         for (entity in this) {
             if (entity in visited) continue
+
+            val radiusSquared = clusterSizeMode.activeChoice.size(entity).sq()
 
             // `entity` will also be added
             val group = this.filterTo(hashSetOf()) { other ->
@@ -170,7 +201,7 @@ object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
         return groups.associate { entities ->
             Pair(
                 // Get the center pos of all entities
-                entities.map { it.box.center }.reduce(Vec3d::add).multiply(1.0 / entities.size),
+                entities.mapArray { it.box.center }.reduce(Vec3d::add).multiply(1.0 / entities.size),
                 // Merge stacks with same item, order by count desc
                 entities.groupBy {
                     it.stack.item

@@ -28,6 +28,22 @@ inline infix operator fun IntRange.contains(range: IntRange): Boolean {
     return this.first <= range.first && this.last >= range.last
 }
 
+fun ClosedFloatingPointRange<Float>.valueAtProportion(proportion: Float): Float {
+    return when {
+        proportion >= 1f -> endInclusive
+        proportion <= 0f -> start
+        else -> start + (endInclusive - start) * proportion
+    }
+}
+
+fun ClosedFloatingPointRange<Float>.proportionOfValue(value: Float): Float {
+    return when {
+        value >= endInclusive -> 1f
+        value <= start -> 0f
+        else -> (value - start) / (endInclusive - start)
+    }
+}
+
 // https://stackoverflow.com/questions/44315977/ranges-in-kotlin-using-data-type-double
 infix fun ClosedRange<Double>.step(step: Double): DoubleIterable {
     require(start.isFinite())

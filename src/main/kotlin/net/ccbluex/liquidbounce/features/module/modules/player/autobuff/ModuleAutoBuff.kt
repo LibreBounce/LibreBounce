@@ -21,6 +21,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.player.autobuff
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -75,21 +76,36 @@ object ModuleAutoBuff : ClientModule("AutoBuff", Category.PLAYER, aliases = arra
         tree(Refill)
     }
 
+    internal class AutoBuffRotationsConfigurable : RotationsConfigurable(this) {
+
+        val rotationTiming by enumChoice("RotationTiming", RotationTimingMode.NORMAL)
+
+        enum class RotationTimingMode(override val choiceName: String) : NamedChoice {
+            NORMAL("Normal"),
+            ON_TICK("OnTick"),
+            ON_USE("OnUse")
+        }
+
+    }
+
     /**
      * Rotation Configurable for every feature that depends on rotation change
      */
-    internal val rotations = tree(RotationsConfigurable(this))
+    internal val rotations = tree(AutoBuffRotationsConfigurable())
 
     internal val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val notDuringCombat by boolean("NotDuringCombat", false)
 
-    var canRefill = false
-
     private val activeFeatures
         get() = features.filter { it.enabled }
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (notDuringCombat && CombatManager.isInCombat) {
+            return@tickHandler
+        }
+
+        if (player.isDead || player.isCreative || player.isSpectator || player.age < 20) {
             return@tickHandler
         }
 
@@ -98,11 +114,10 @@ object ModuleAutoBuff : ClientModule("AutoBuff", Category.PLAYER, aliases = arra
                 return@tickHandler
             }
         }
-
-        canRefill = true
     }
 
-    val refiller = handler<ScheduleInventoryActionEvent> {
+    @Suppress("unused")
+    private val refiller = handler<ScheduleInventoryActionEvent> {
         // If no feature was run, we should run refill
         if (Refill.enabled) {
             Refill.execute(it)

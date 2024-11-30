@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.SuspendableHandler
 import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandAutoAccount
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -33,6 +34,8 @@ import net.ccbluex.liquidbounce.utils.client.chat
  * Auto account module
  *
  * Automatically handles logins or registrations on servers when requested.
+ *
+ * Command: [CommandAutoAccount]
  */
 object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = arrayOf("AutoLogin", "AutoRegister")) {
 
@@ -50,7 +53,8 @@ object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = 
 
     // We can receive chat messages before the world is initialized,
     // so we have to handel events even before the that
-    override val running = !HideAppearance.isDestructed && enabled
+    override val running
+        get() = !HideAppearance.isDestructed && enabled
 
     fun login() {
         chat("login")

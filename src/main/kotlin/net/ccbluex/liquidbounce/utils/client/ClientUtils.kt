@@ -133,9 +133,9 @@ fun chat(vararg texts: Text, metadata: MessageMetadata = defaultMessageMetadata)
     chatHud.addMessage(literalText, metadata.id, metadata.count)
 }
 
-fun chat(text: Text, module: ClientModule) = chat(text, metadata = MessageMetadata(id = "${module.name}#info"))
+fun chat(text: Text, module: ClientModule) = chat(text, metadata = MessageMetadata(id = "M${module.name}#info"))
 
-fun chat(text: Text, command: Command) = chat(text, metadata = MessageMetadata(id = "${command.name}#info"))
+fun chat(text: Text, command: Command) = chat(text, metadata = MessageMetadata(id = "C${command.name}#info"))
 
 fun chat(text: String, module: ClientModule) = chat(text.asText(), module)
 

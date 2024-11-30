@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
@@ -41,9 +42,9 @@ import kotlin.math.roundToInt
  * Allows you to manage the bindings of modules to keys.
  * It provides subcommands to add, remove, list and clear bindings.
  */
-object CommandBinds {
+object CommandBinds : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("binds")
             .hub()
@@ -76,7 +77,8 @@ object CommandBinds {
                         module.bind.bind(bindKey)
                         ModuleClickGui.reloadView()
                         chat(regular(command.result("moduleBound", variable(module.name),
-                            variable(module.bind.keyName))))
+                            variable(module.bind.keyName))), metadata = MessageMetadata(id = "Binds#${module.name}")
+                        )
                     }
                     .build()
             )
@@ -99,7 +101,10 @@ object CommandBinds {
 
                         module.bind.unbind()
                         ModuleClickGui.reloadView()
-                        chat(regular(command.result("bindRemoved", variable(module.name))))
+                        chat(
+                            regular(command.result("bindRemoved", variable(module.name))),
+                            metadata = MessageMetadata(id = "Binds#${module.name}")
+                        )
                     }
                     .build()
             )
@@ -132,9 +137,18 @@ object CommandBinds {
                             throw CommandException(command.result("pageNumberTooLarge", maxPage))
                         }
 
+                        mc.inGameHud.chatHud.removeMessage("Binds#global")
+                        val data = MessageMetadata(id = "Binds#global", remove = false)
+
                         // Print out bindings
-                        chat(command.result("bindings").styled { it.withColor(Formatting.RED).withBold(true) })
-                        chat(regular(command.result("page", variable("$page / $maxPage"))))
+                        chat(
+                            command.result("bindings").styled { it.withColor(Formatting.RED).withBold(true) },
+                            metadata = data
+                        )
+                        chat(
+                            regular(command.result("page", variable("$page / $maxPage"))),
+                            metadata = data
+                        )
 
                         val iterPage = 8 * page
                         for (module in bindings.subList(iterPage - 8, iterPage.coerceAtMost(bindings.size))) {
@@ -148,7 +162,8 @@ object CommandBinds {
                                             .styled { it.withColor(Formatting.DARK_GRAY).withBold(true) }
                                     )
                                     .append(")")
-                                    .styled { it.withColor(Formatting.GRAY) }
+                                    .styled { it.withColor(Formatting.GRAY) },
+                                metadata = data
                             )
                         }
                     }
@@ -159,7 +174,7 @@ object CommandBinds {
                     .begin("clear")
                     .handler { command, _ ->
                         ModuleManager.forEach { it.bind.unbind() }
-                        chat(command.result("bindsCleared"))
+                        chat(command.result("bindsCleared"), metadata = MessageMetadata(id = "Binds#global"))
                     }
                     .build()
             )

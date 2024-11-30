@@ -110,11 +110,10 @@ public abstract class MixinWorldRenderer {
 
         Color4b color;
 
-        if (ModuleESP.INSTANCE.getRunning() && ModuleESP.OutlineMode.INSTANCE.isSelected() &&
-                entity instanceof LivingEntity && CombatExtensionsKt.shouldBeShown(entity)) {
+        if (ModuleESP.OutlineMode.INSTANCE.getRunning() && entity instanceof LivingEntity
+                && CombatExtensionsKt.shouldBeShown(entity)) {
             color = ModuleESP.INSTANCE.getColor((LivingEntity) entity);
-        } else if (ModuleItemESP.INSTANCE.getRunning() && ModuleItemESP.OutlineMode.INSTANCE.isSelected()
-                && ModuleItemESP.INSTANCE.shouldRender(entity)) {
+        } else if (ModuleItemESP.OutlineMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             color = ModuleItemESP.INSTANCE.getColor();
         } else {
             return;
@@ -142,7 +141,7 @@ public abstract class MixinWorldRenderer {
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V"))
     private void onDrawOutlines(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
-        if (!ModuleESP.INSTANCE.getRunning() || !ModuleESP.OutlineMode.INSTANCE.isSelected()) {
+        if (!ModuleESP.OutlineMode.INSTANCE.getRunning()) {
             return;
         }
 
@@ -196,18 +195,17 @@ public abstract class MixinWorldRenderer {
      */
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
     private boolean injectHasOutline(MinecraftClient instance, Entity entity) {
-        if (ModuleItemESP.INSTANCE.getRunning() && ModuleItemESP.GlowMode.INSTANCE.isSelected() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
+        if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             return true;
         }
-        if (ModuleESP.INSTANCE.getRunning() && ModuleESP.GlowMode.INSTANCE.isSelected() && CombatExtensionsKt.shouldBeShown(entity)) {
+        if (ModuleESP.GlowMode.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeShown(entity)) {
             return true;
         }
         if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
             return true;
         }
 
-        if (ModuleStorageESP.INSTANCE.getRunning() && ModuleStorageESP.INSTANCE.getRunning() &&
-                ModuleStorageESP.Glow.INSTANCE.isSelected() && ModuleStorageESP.categorize(entity) != null) {
+        if (ModuleStorageESP.Glow.INSTANCE.getRunning() && ModuleStorageESP.categorize(entity) != null) {
             return true;
         }
 
@@ -221,7 +219,7 @@ public abstract class MixinWorldRenderer {
      */
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
     private int injectTeamColor(Entity instance) {
-        if (ModuleItemESP.INSTANCE.getRunning() && ModuleItemESP.GlowMode.INSTANCE.isSelected() && ModuleItemESP.INSTANCE.shouldRender(instance)) {
+        if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(instance)) {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
         }
 
@@ -229,16 +227,14 @@ public abstract class MixinWorldRenderer {
             return ModuleTNTTimer.INSTANCE.getTntColor(((TntEntity) instance).getFuse()).toARGB();
         }
 
-        if (ModuleStorageESP.INSTANCE.getRunning() && ModuleStorageESP.INSTANCE.getRunning()
-                && ModuleStorageESP.Glow.INSTANCE.isSelected()) {
+        if (ModuleStorageESP.Glow.INSTANCE.getRunning()) {
             var categorizedEntity = ModuleStorageESP.categorize(instance);
             if (categorizedEntity != null) {
                 return categorizedEntity.getColor().toARGB();
             }
         }
 
-        if (instance instanceof LivingEntity && ModuleESP.INSTANCE.getRunning()
-                && ModuleESP.GlowMode.INSTANCE.isSelected()) {
+        if (instance instanceof LivingEntity && ModuleESP.GlowMode.INSTANCE.getRunning()) {
             final Color4b color = ModuleESP.INSTANCE.getColor((LivingEntity) instance);
             return color.toARGB();
         }

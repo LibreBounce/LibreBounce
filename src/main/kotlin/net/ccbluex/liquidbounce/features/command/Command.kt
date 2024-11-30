@@ -34,6 +34,7 @@ class Command(
     val subcommands: Array<Command>,
     val executable: Boolean,
     val handler: CommandHandler?,
+    val requiresIngame: Boolean,
     private var parentCommand: Command? = null
 ) : MinecraftShortcuts {
     val translationBaseKey: String
