@@ -60,19 +60,26 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     class Cooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", true)
         where T: EventListener {
 
-        val rangeCooldown by floatRange("Timing", 1.0f..1.0f, 0.1f..1f)
+        private val minimumCooldown by floatRange("Minimum",
+            1.0f..1.0f, 0.0f..2.0f)
 
-        private var nextCooldown = rangeCooldown.random()
+        private var nextCooldown = minimumCooldown.random()
 
         fun readyToAttack(ticks: Int = 0) = !this.enabled || cooldownProgress(ticks) >= nextCooldown
 
-        fun cooldownProgress(ticks: Int = 0) = player.getAttackCooldownProgress(ticks.toFloat())
+        /**
+         * Calculates the current cooldown progress.
+         *
+         * This can be out of percentage range [0, 1] to allow for higher minimum cooldowns.
+         */
+        private fun cooldownProgress(baseTime: Int = 0) =
+            (player.lastAttackedTicks + baseTime).toFloat() / player.attackCooldownProgressPerTick
 
         /**
          * Generates a new cooldown based on the range that was set by the user.
          */
         fun newCooldown() {
-            nextCooldown = rangeCooldown.random()
+            nextCooldown = minimumCooldown.random()
         }
 
     }
