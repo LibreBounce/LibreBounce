@@ -56,6 +56,7 @@ class BoolValueElement(
             boolValue.toggle()
         }
     }
+
     private fun updateElement(){
 
         if (previousValue != null) {

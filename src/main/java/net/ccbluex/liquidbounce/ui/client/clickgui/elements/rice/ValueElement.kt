@@ -1,7 +1,5 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.elements.rice
 
-import net.ccbluex.liquidbounce.value.Value
-
 abstract class ValueElement {
 
     abstract var previousValue: ValueElement?

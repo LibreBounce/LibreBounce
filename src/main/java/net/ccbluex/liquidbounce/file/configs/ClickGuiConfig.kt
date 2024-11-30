@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.elements.rice.RiceModuleElement.Companion.moduleSettingsState
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import java.io.*
 
@@ -42,6 +43,20 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
                 panel.isVisible = panelObject["visible"].asBoolean
                 panel.x = panelObject["posX"].asInt
                 panel.y = panelObject["posY"].asInt
+
+                if (panelObject.has("SettingsState")) {
+                    val settingsStateObject = panelObject.getAsJsonObject("SettingsState")
+                    settingsStateObject.entrySet().forEach { entry ->
+                        val moduleName = entry.key
+                        val isEnabled = entry.value.asBoolean
+
+                        // Find the corresponding module and set its settings state
+                        val moduleElement = panel.elements.find { it is ModuleElement && it.module.name == moduleName }
+                        if (moduleElement != null) {
+                            moduleSettingsState[moduleName] = isEnabled
+                        }
+                    }
+                }
 
                 for (element in panel.elements) {
                     if (element !is ModuleElement) continue
@@ -86,6 +101,12 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
             }
             jsonObject.add(panel.name, panelObject)
         }
+
+        val settingsStateObject = JsonObject()
+        moduleSettingsState.forEach { (moduleName, isEnabled) ->
+            settingsStateObject.addProperty(moduleName, isEnabled)
+        }
+        jsonObject.add("SettingsState", settingsStateObject)
 
         file.writeText(PRETTY_GSON.toJson(jsonObject))
     }

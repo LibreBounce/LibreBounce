@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
@@ -65,7 +66,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         if (screen is GuiChat || screen is GuiIngameMenu)
             return
 
-        if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui))
+        if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui && screen !is RiceGui))
             return
 
         if (notInChests && screen is GuiChest)

@@ -27,7 +27,7 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBeEnabled = false) {
-    private val style by object : ListValue("Style", arrayOf("LiquidBounce", "Null", "Slowly", "Black"), "LiquidBounce") {
+    private val style by object : ListValue("Style", arrayOf("LiquidBounce", "Null", "Slowly", "Black", "Rice"), "LiquidBounce") {
         override fun onChanged(oldValue: String, newValue: String) = updateStyle()
     }
     var scale by float("Scale", 0.8f, 0.5f..1.5f)

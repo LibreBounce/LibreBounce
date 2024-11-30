@@ -4,12 +4,13 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.IntegerValue
 import org.lwjgl.input.Mouse
 import java.awt.Color
 import kotlin.math.roundToLong
 
-class FloatValueElement(
-    var floatValue: FloatValue,
+class IntValueElement(
+    var intValue: IntegerValue,
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
@@ -18,7 +19,7 @@ class FloatValueElement(
     override var margin: Float = 5f
 
     override var height: Float = Fonts.font35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.font35.getStringWidth(floatValue.name).toFloat()
+    override var width: Float = Fonts.font35.getStringWidth(intValue.name).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -34,15 +35,15 @@ class FloatValueElement(
     override fun drawElement() {
         updateElement()
         Fonts.font35.drawString(
-            floatValue.name,
+            intValue.name,
             startX,
             startY,
             Color.WHITE.rgb
         )
 
-        val curValue = floatValue.get()
-        val min = floatValue.minimum
-        val max = floatValue.maximum
+        val curValue = intValue.get()
+        val min = intValue.minimum
+        val max = intValue.maximum
         val progress = (curValue - min) / (max - min)
         val offsetX = 100f * progress
 
@@ -53,7 +54,7 @@ class FloatValueElement(
         net.vitox.particle.util.RenderUtils.drawCircle(circleX, circleY, 3f, RiceGui.highlightColorAlpha.rgb)
         net.vitox.particle.util.RenderUtils.drawCircle(circleX, circleY, 1.5f, RiceGui.highlightColor)
 
-        Fonts.font30.drawString(floatValue.get().toString(), startX + width + 120f, circleY - Fonts.font30.fontHeight/4f, Color.WHITE.rgb)
+        Fonts.font30.drawString(intValue.get().toString(), startX + width + 120f, circleY - Fonts.font30.fontHeight/4f, Color.WHITE.rgb)
     }
 
     private fun updateElement(){
@@ -70,10 +71,10 @@ class FloatValueElement(
            val min = startX + width + 10f
            val max = startX + width + 110f
            val progress = (mouseX - min) / (max - min)
-           var newValue = floatValue.minimum + ((floatValue.maximum - floatValue.minimum) * progress)
+           var newValue = intValue.minimum + ((intValue.maximum - intValue.minimum) * progress)
            //round to 2 decimal places
            newValue = ((newValue * 100f).roundToLong() / 100.0f)
-           floatValue.set(newValue)
+           intValue.set(newValue)
        }
     }
 }

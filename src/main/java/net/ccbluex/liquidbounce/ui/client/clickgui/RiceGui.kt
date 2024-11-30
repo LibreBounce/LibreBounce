@@ -8,39 +8,28 @@ package net.ccbluex.liquidbounce.ui.client.clickgui
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
-//import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
-//import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
-//import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scrolls
 import net.ccbluex.liquidbounce.file.FileManager.clickGuiConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
-import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.rice.RiceModuleElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion
-//import net.ccbluex.liquidbounce.ui.font.Fonts.getFont
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
-import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.disableLighting
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.util.ResourceLocation
-import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
 
 object RiceGui : GuiScreen() {
-
     val mainColor = Color(21,20,29).rgb
     val mainColor2 = Color(28,27,34).rgb
     val highlightColor = Color(238,150,208).rgb
@@ -48,16 +37,26 @@ object RiceGui : GuiScreen() {
     val accentColor = Color(109,114,175).rgb
     val referenceColor = Color(82,81,92).rgb
 
-
     val initX = 130f
     val contentXOffset = 100
     val initY = 60f
     val widthBg = 400f
     val heightBg = 260f
     val marginLeft = 10f
-    val visibleRange = initY..initY + heightBg
+    val visibleRange = initY..initY + heightBg + 20
     val panels = mutableListOf<Panel>()
     val elements = mutableListOf<RiceModuleElement>()
+
+    // Default Category
+    private var selectedCategory: Category = Category.COMBAT
+
+    private var dragging = false
+    private var panelStartX = initX
+    private var panelStartY = initY
+    private var dragStartX = 0f
+    private var dragStartY = 0f
+
+    // TODO: Add HUD
     private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
     var style: Style = LiquidBounceStyle
     private var mouseX = 0
@@ -73,55 +72,69 @@ object RiceGui : GuiScreen() {
     // Caused by keyTyped being called along with onKey that opens the ClickGui.
     private var ignoreClosing = false
 
-
-
     override fun drawScreen(x: Int, y: Int, partialTicks: Float) {
         // Enable DisplayList optimization
         assumeNonVolatile = true
 
-//        val scale = scale.toDouble()
-//        glScaled(scale, scale, scale)
-        mouseX = x
-        mouseY = y
+        val resolution = ScaledResolution(mc)
+        val screenWidth = resolution.scaledWidth
+        val screenHeight = resolution.scaledHeight
 
+        mouseX = x // (x / scale).roundToInt()
+        mouseY = y // (y / scale).roundToInt()
 
-        //Main Background
-        drawBackground(initX,initY,widthBg,heightBg, mainColor)
+        if (dragging) {
+            panelStartX = (x - dragStartX).coerceIn(0f, screenWidth - widthBg)
+            panelStartY = (y - dragStartY).coerceIn(0f, screenHeight - heightBg)
 
-        //Foreground Background
-        drawBackground(initX+contentXOffset,initY,widthBg-contentXOffset,heightBg,mainColor2)
-
-//        var font60  = Fonts.font40
-//        val font60 = GameFontRenderer(getFont("Roboto-Medium.ttf", 40))
-
-        Fonts.font60.drawString("LiquidBounce",initX+marginLeft-2,initY+9,Color.WHITE.rgb)
-        Category.values().forEachIndexed { index, category ->
-            run {
-                Fonts.font35.drawString(category.displayName, initX + marginLeft, initY +40+(Fonts.font35.fontHeight + 10 )*index, Color.WHITE.rgb)
+            elements.forEach { element ->
+                element.startX = panelStartX + contentXOffset
+                element.startY = panelStartY + 20
             }
         }
 
+        // Main Background
+        drawBackground(panelStartX, panelStartY, widthBg, heightBg, mainColor)
+
+        // Foreground Background
+        drawBackground(panelStartX + contentXOffset, panelStartY, widthBg - contentXOffset, heightBg, mainColor2)
+
+        Fonts.font60.drawString("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
+        Category.values().forEachIndexed { index, category ->
+            val categoryY = panelStartY + 40 + (Fonts.font35.fontHeight + 10) * index
+            val categoryColor = if (category == selectedCategory) highlightColor else Color.WHITE.rgb
+            Fonts.font35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
+        }
 
         if (Mouse.hasWheel()) {
             val wheel = Mouse.getDWheel()
             if (wheel != 0) {
-                var offset = wheel * 0.01f
-//                elements.first().startY+=offset
-                //force startY to be in range of visible range
-//                println(elements.first().startY)
-//                println(elements.last().startY)
-                elements.first().startY = (elements.first().startY+offset).coerceIn( - (elements.last().startY- elements.first().startY) + (visibleRange.endInclusive  -visibleRange.start +20),initY+20 )
+                val offset = wheel * 0.08f
 
+                val firstElement = elements.firstOrNull()
+                val lastElement = elements.lastOrNull()
 
+                if (firstElement != null && lastElement != null) {
+                    val contentHeight = lastElement.startY + lastElement.height - firstElement.startY
+
+                    if (contentHeight <= heightBg + 20) return
+
+                    // Define boundaries for scrolling
+                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20))
+                    val maxY = panelStartY + 20
+
+                    // Apply scrolling, ensuring elements stay within bounds
+                    elements.forEach { element ->
+                        element.startY = (element.startY + offset).coerceIn(minY, maxY)
+                    }
+                }
             }
         }
 
         glEnable(GL_SCISSOR_TEST)
-        makeScissorBox(initX+ contentXOffset, initY + 20, initX+ widthBg,initY+heightBg)
-        elements.forEach {element ->element.drawElement()}
+        makeScissorBox(panelStartX + contentXOffset, panelStartY + 20, panelStartX + widthBg, panelStartY + heightBg)
+        elements.forEach { element -> element.drawElement() }
         glDisable(GL_SCISSOR_TEST)
-
-
 
         disableLighting()
         RenderHelper.disableStandardItemLighting()
@@ -132,55 +145,56 @@ object RiceGui : GuiScreen() {
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    private fun drawElement(
-        startX: Float,
-        startY: Float,
-        height: Float,
-        width: Float,
-        margin:Float,
-        mainColor: Int,
-        module:Module
-    ) {
-        drawRoundedRect(
-            startX + margin,
-            startY,
-            startX + width - margin,
-            startY + height,
-            mainColor,
-            3f
-        )
-//        val module = moduleManager.modules.first()
-        Fonts.font40.drawString( module.name,startX+margin+10,startY+10, if(module.state)accentColor else Color.WHITE.rgb)
-        Fonts.font35.drawString( "(${module.category.displayName})",startX+margin+15+Fonts.font40.getStringWidth(module.name),startY+10, referenceColor)
-        Fonts.font35.drawString(module.description,startX+margin+10,startY+Fonts.font40.fontHeight+15, referenceColor)
+    fun drawBackground(x: Float, y: Float, width: Float, height: Float, color: Int) {
+        drawRoundedRect(x, y, x + width, y + height, color, 3f)
     }
 
-    fun drawBackground(x:Float,y:Float,width:Float,height:Float,color:Int){
-        drawRoundedRect(x,y,x+width,y+height, color,3f)
-    }
+    override fun mouseClicked(x: Int, y: Int, mouseButton: Int) {
+        val dragAreaHeight = 40
 
-    public override fun mouseClicked(x: Int, y: Int, mouseButton: Int) {
-        if(mouseY.toFloat() !in visibleRange) return
-        elements.forEach { element -> element.handleClick(mouseX.toFloat(), mouseY.toFloat(), mouseButton) }
+        mouseX = x // (x / scale).roundToInt()
+        mouseY = y //(y / scale).roundToInt()
+
+        if (mouseButton == 0 &&
+            x in panelStartX.toInt()..(panelStartX + widthBg).toInt() &&
+            y in panelStartY.toInt()..(panelStartY + dragAreaHeight).toInt()) {
+
+            // Start dragging
+            dragging = true
+            dragStartX = mouseX - panelStartX
+            dragStartY = mouseY - panelStartY
+        }
+
+        // Handle category selection
+        Category.values().forEachIndexed { index, category ->
+            val categoryY = panelStartY + 40 + (Fonts.font35.fontHeight + 10) * index
+            if (mouseButton == 0 && x in (panelStartX + marginLeft).toInt()..((panelStartX + marginLeft + 80).roundToInt()) &&
+                y in categoryY.toInt()..((categoryY + Fonts.font35.fontHeight).roundToInt())
+            ) {
+                selectedCategory = category // Change to the clicked category
+                initGui() // Refresh elements for the new category
+                return
+            }
+        }
+
+        elements.toList().forEach { element -> element.handleClick(mouseX.toFloat(), mouseY.toFloat(), mouseButton) }
         if (mouseButton == 0 && x in 5..50 && y in height - 50..height - 5) {
             mc.displayGuiScreen(GuiHudDesigner())
             return
         }
 
-        mouseX = x
-        mouseY = y
-
+//        mouseX = (x / scale).roundToInt()
+//        mouseY = (y / scale).roundToInt()
     }
 
-    public override fun mouseReleased(x: Int, y: Int, state: Int) {
-        mouseX = x
-        mouseY = y
-        println("released")
+    override fun mouseReleased(x: Int, y: Int, state: Int) {
+        if (state == 0) {
+            dragging = false
+        }
 
-    }
-
-    override fun updateScreen() {
-        super.updateScreen()
+        mouseX = x // (x / scale).roundToInt()
+        mouseY = y // (y / scale).roundToInt()
+        for (panel in panels) panel.mouseReleased(mouseX, mouseY, state)
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
@@ -202,25 +216,23 @@ object RiceGui : GuiScreen() {
 
     override fun initGui() {
         ignoreClosing = true
-        val startX = initX + contentXOffset
-        val startY = initY + 20
+        val startX = panelStartX + contentXOffset
+        val startY = panelStartY + 20
         elements.clear()
         var previousElement: RiceModuleElement? = null
-        //TODO: Make this better.
-        moduleManager.modules.filter { it.category == Category.COMBAT }.forEachIndexed { index, module ->
-            run {
-                if (previousElement != null){
-                    elements.add(RiceModuleElement(module, startX, previousElement = previousElement))
-                }else{
-                    elements.add(RiceModuleElement(module, startX, startY))
-                }
-                previousElement = elements.last()
+
+        // Filter modules based on the selected category
+        moduleManager.modules.filter { it.category == selectedCategory }.forEachIndexed { _, module ->
+            if (previousElement != null) {
+                elements.add(RiceModuleElement(module, startX, previousElement = previousElement))
+            } else {
+                elements.add(RiceModuleElement(module, startX, startY))
             }
+            previousElement = elements.last()
         }
     }
 
     fun Int.clamp(min: Int, max: Int): Int = this.coerceIn(min, max.coerceAtLeast(0))
 
-    fun clickSound() = MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1f))
     override fun doesGuiPauseGame() = false
 }
