@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
+import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
@@ -64,16 +65,17 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     }
 
     private fun findAction(): PlacementPlan? {
-        if (player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) {
-            return null
-        }
-        
         val pickupSpanStart = (Pickup.pickupSpan.start * 1000.0F).toLong()
         val pickupSpanEnd = (Pickup.pickupSpan.endInclusive * 1000.0F).toLong()
 
         if (lastExtinguishPos != null && lastAttemptTimer.hasElapsed(pickupSpanEnd)) {
             lastExtinguishPos = null
         }
+
+        if (player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) {
+            return null
+        }
+
         if (notDuringCombat && CombatManager.isInCombat) {
             return null
         }
