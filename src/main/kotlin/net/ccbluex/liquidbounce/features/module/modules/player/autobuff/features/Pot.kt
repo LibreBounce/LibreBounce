@@ -191,7 +191,8 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
                 && !player.hasStatusEffect(StatusEffects.REGENERATION)
             StatusEffects.STRENGTH -> strengthPotion && !player.hasStatusEffect(StatusEffects.STRENGTH)
             StatusEffects.SPEED -> speedPotion && !player.hasStatusEffect(StatusEffects.SPEED)
-            StatusEffects.FIRE_RESISTANCE -> fireResistancePotion && !player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)
+            StatusEffects.FIRE_RESISTANCE -> fireResistancePotion &&
+                !player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)
             else -> false
         }
 

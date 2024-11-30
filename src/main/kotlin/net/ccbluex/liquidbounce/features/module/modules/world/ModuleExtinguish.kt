@@ -72,11 +72,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
             lastExtinguishPos = null
         }
 
-        if (player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) {
-            return null
-        }
-
-        if (notDuringCombat && CombatManager.isInCombat) {
+        if (player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE) || (notDuringCombat && CombatManager.isInCombat)) {
             return null
         }
 
