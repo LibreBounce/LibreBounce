@@ -46,6 +46,7 @@
 
 <style lang="scss">
   @use "../../../colors.scss" as colors;
+  @use "sass:color";
 
   .input-wrapper {
     display: grid;
@@ -91,7 +92,7 @@
     transition: ease background-color .2s;
 
     &:hover {
-      background-color: color.adjust(color.adjust(colors.$accent-color, $saturation: 30%), $lightness: -10%);
+      background-color: color.adjust(colors.$accent-color, $saturation: -30%, $lightness: -10%);
     }
   }
 
