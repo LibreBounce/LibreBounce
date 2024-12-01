@@ -91,7 +91,7 @@
     transition: ease background-color .2s;
 
     &:hover {
-      background-color: darken(desaturate(colors.$accent-color, 30%), 10%);
+      background-color: color.adjust(color.adjust(colors.$accent-color, $saturation: 30%), $lightness: -10%);
     }
   }
 

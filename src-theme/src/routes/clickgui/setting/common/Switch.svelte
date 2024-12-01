@@ -42,7 +42,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: darken(colors.$clickgui-text-color, 55%);
+    background-color: color.adjust(colors.$clickgui-text-color, $lightness: -55%);
     transition: ease 0.4s;
     height: 8px;
     border-radius: 4px;
