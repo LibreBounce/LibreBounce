@@ -22,7 +22,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .icon-text-input {
     display: grid;
@@ -32,7 +32,7 @@
   .icon {
     height: 64px;
     width: 64px;
-    background-color: $accent-color;
+    background-color: colors.$accent-color;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,18 +40,18 @@
   }
 
   .input {
-    color: $menu-text-color;
+    color: colors.$menu-text-color;
     font-family: "Inter", sans-serif;
     font-size: 20px;
-    background-color: rgba($menu-base-color, .36);
+    background-color: rgba(colors.$menu-base-color, .36);
     border: none;
     padding: 0 20px 0 18px;
     border-radius: 0 5px 5px 0;
-    border-left: solid 2px $menu-base-color;
+    border-left: solid 2px colors.$menu-base-color;
     width: 100%;
 
     &:invalid {
-      border: solid 2px $menu-error-color;
+      border: solid 2px colors.$menu-error-color;
     }
   }
 

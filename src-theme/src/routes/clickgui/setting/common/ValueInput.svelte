@@ -41,11 +41,11 @@
 <span contenteditable="true" class="value" bind:innerText={inputValue} on:input={handleInput} on:keydown={handleKeyDown} bind:this={inputElement}></span>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .value {
     font-family: monospace;
-    color: $clickgui-text-color;
+    color: colors.$clickgui-text-color;
     font-weight: 500;
     font-size: 12px;
     background-color: transparent;

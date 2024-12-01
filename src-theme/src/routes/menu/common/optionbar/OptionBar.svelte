@@ -7,10 +7,10 @@
 </div>
 
 <style lang="scss">
-    @import "../../../../colors";
+    @use "../../../../colors";
 
     .option-bar {
-      background-color: rgba($menu-base-color, 0.68);
+      background-color: rgba(colors.$menu-base-color, 0.68);
       padding: 15px 30px;
       display: flex;
       border-radius: 5px;

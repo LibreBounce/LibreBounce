@@ -47,10 +47,10 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors";
+  @use "../../../../colors";
 
   .account {
-    background-color: rgba($hotbar-base-color, 0.68);
+    background-color: rgba(colors.$hotbar-base-color, 0.68);
     width: 488px;
     padding: 15px 18px;
     border-radius: 5px;
@@ -72,7 +72,7 @@
 
   .username {
     font-weight: 600;
-    color: $menu-text-color;
+    color: colors.$menu-text-color;
     font-size: 20px;
     grid-area: b;
     align-self: flex-end;
@@ -85,11 +85,11 @@
     align-self: flex-start;
 
     .premium {
-      color: $menu-account-premium-color;
+      color: colors.$menu-account-premium-color;
     }
 
     .offline {
-      color: $menu-text-dimmed-color;
+      color: colors.$menu-text-dimmed-color;
     }
   }
 

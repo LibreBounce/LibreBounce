@@ -31,10 +31,10 @@
 {/if}
 
 <style lang="scss">
-  @import "../../../colors";
+  @use "../../../colors" as colors;
 
   .counter {
-    background-color: rgba($blockcounter-base-color, 0.68);
+    background-color: rgba(colors.$blockcounter-base-color, 0.68);
     border-radius: 5px;
     white-space: nowrap;
     padding: 5px 8px;

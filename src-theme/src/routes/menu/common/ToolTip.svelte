@@ -26,7 +26,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../colors.scss";
+  @use "../../../colors.scss" as colors;
 
   .tooltip {
     color: white;

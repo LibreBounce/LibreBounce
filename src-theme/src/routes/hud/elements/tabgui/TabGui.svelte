@@ -110,7 +110,7 @@
 </div>
 
 <style lang="scss">
-    @import "../../../../colors.scss";
+    @use "../../../../colors.scss" as colors;
 
     .tabgui {
         //position: fixed;
@@ -129,7 +129,7 @@
 
     .modules {
       background-clip: content-box;
-      background-color: rgba($tabgui-base-color, 0.5);
+      background-color: rgba(colors.$tabgui-base-color, 0.5);
       margin-left: 6px;
       border-radius: 5px;
       min-width: 100px;

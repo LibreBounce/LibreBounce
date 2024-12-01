@@ -40,7 +40,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../colors.scss";
+  @use "../../../colors.scss" as colors;
 
   .effect {
     font-weight: 500;

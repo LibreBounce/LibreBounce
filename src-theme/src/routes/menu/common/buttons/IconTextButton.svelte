@@ -18,7 +18,7 @@
 </button>
 
 <style lang="scss">
-    @import "../../../../colors.scss";
+    @use "../../../../colors.scss" as colors;
 
     .icon-text-button {
       display: flex;
@@ -27,7 +27,7 @@
       border-radius: 5px;
       align-items: center;
       overflow: hidden;
-      background: linear-gradient(to left, rgba($menu-base-color, .36) 50%, $accent-color 50%);
+      background: linear-gradient(to left, rgba(colors.$menu-base-color, .36) 50%, colors.$accent-color 50%);
       background-size: 200% 100%;
       background-position: right bottom;
       will-change: background-position;
@@ -48,7 +48,7 @@
     .icon {
       height: 58px;
       width: 58px;
-      background-color: $accent-color;
+      background-color: colors.$accent-color;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -57,7 +57,7 @@
     .title {
       font-size: 20px;
       font-weight: 500;
-      color: $menu-text-color;
+      color: colors.$menu-text-color;
       padding: 0 30px;
     }
 </style>

@@ -70,7 +70,7 @@
 </div>
 
 <style lang="scss">
-    @import "../../../colors.scss";
+    @use "../../../colors.scss" as colors;
 
     .setting {
         padding: 7px 0px;
@@ -89,7 +89,7 @@
         }
     }
     .nested-settings {
-        border-left: solid 2px $accent-color;
+        border-left: solid 2px colors.$accent-color;
         padding-left: 7px;
     }
 </style>

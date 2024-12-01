@@ -60,7 +60,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../colors.scss";
+  @use "../../../colors.scss" as colors;
 
   .arraylist {
     //position: fixed;
@@ -69,18 +69,18 @@
   }
 
   .module {
-    background-color: rgba($arraylist-base-color, 0.68);
-    color: $arraylist-text-color;
+    background-color: rgba(colors.$arraylist-base-color, 0.68);
+    color: colors.$arraylist-text-color;
     font-size: 14px;
     border-radius: 4px 0 0 4px;
     padding: 5px 8px;
-    border-left: solid 4px $accent-color;
+    border-left: solid 4px colors.$accent-color;
     width: max-content;
     font-weight: 500;
     margin-left: auto;
   }
 
   .tag {
-    color: $arraylist-tag-color;
+    color: colors.$arraylist-tag-color;
   }
 </style>

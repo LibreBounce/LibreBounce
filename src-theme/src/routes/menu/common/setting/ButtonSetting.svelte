@@ -30,13 +30,13 @@
 </button>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .button-setting {
     position: relative;
     border: none;
-    background-color: $accent-color;
-    color: $menu-text-color;
+    background-color: colors.$accent-color;
+    color: colors.$menu-text-color;
     font-family: "Inter", sans-serif;
     padding: 20px;
     border-radius: 5px;
@@ -48,15 +48,15 @@
     }
 
     &.secondary {
-      background-color: rgba($menu-base-color, .36);
+      background-color: rgba(colors.$menu-base-color, .36);
     }
 
     &:not([disabled]):hover {
-      background-color: darken(desaturate($accent-color, 30%), 10%);
+      background-color: darken(desaturate(colors.$accent-color, 30%), 10%);
       cursor: pointer;
 
       &.secondary {
-        background-color: darken(desaturate($menu-base-color, 30%), 10%);
+        background-color: darken(desaturate(colors.$menu-base-color, 30%), 10%);
       }
     }
 

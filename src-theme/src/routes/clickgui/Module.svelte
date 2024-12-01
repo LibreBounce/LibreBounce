@@ -113,7 +113,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as colors;
 
   .module {
     position: relative;
@@ -123,7 +123,7 @@
       transition: ease background-color 0.2s,
       ease color 0.2s;
 
-      color: $clickgui-text-dimmed-color;
+      color: colors.$clickgui-text-dimmed-color;
       text-align: center;
       font-size: 12px;
       font-weight: 500;
@@ -137,22 +137,22 @@
         left: 0;
         width: calc(100% - 4px);
         height: calc(100% - 4px);
-        border: solid 2px $accent-color;
+        border: solid 2px colors.$accent-color;
       }
 
       &:hover {
-        background-color: rgba($clickgui-base-color, 0.85);
-        color: $clickgui-text-color;
+        background-color: rgba(colors.$clickgui-base-color, 0.85);
+        color: colors.$clickgui-text-color;
       }
 
       &.enabled {
-        color: $accent-color;
+        color: colors.$accent-color;
       }
     }
 
     .settings {
-      background-color: rgba($clickgui-base-color, 0.5);
-      border-left: solid 4px $accent-color;
+      background-color: rgba(colors.$clickgui-base-color, 0.5);
+      border-left: solid 4px colors.$accent-color;
       padding: 0 11px 0 7px;
     }
 

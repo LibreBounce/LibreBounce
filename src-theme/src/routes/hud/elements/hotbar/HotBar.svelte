@@ -166,7 +166,7 @@
 {/if}
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .hotbar {
     //position: fixed;
@@ -190,13 +190,13 @@
   }
 
   .hotbar-elements {
-    background-color: rgba($hotbar-base-color, 0.68);
+    background-color: rgba(colors.$hotbar-base-color, 0.68);
     position: relative;
     border-radius: 5px;
     overflow: hidden;
 
     .slider {
-      border: solid 2px $accent-color;
+      border: solid 2px colors.$accent-color;
       height: 45px;
       width: 45px;
       position: absolute;
@@ -218,18 +218,18 @@
     height: 45px;
     width: 45px;
     border-radius: 5px;
-    background-color: rgba($hotbar-base-color, 0.68);
+    background-color: rgba(colors.$hotbar-base-color, 0.68);
     position: absolute;
     bottom: 0;
     left: -65px;
   }
 
   .item-name {
-    color: $hotbar-text-color;
+    color: colors.$hotbar-text-color;
     font-size: 14px;
     margin: 0 auto 15px;
     font-weight: 500;
-    background-color: rgba($hotbar-base-color, .68);
+    background-color: rgba(colors.$hotbar-base-color, .68);
     padding: 5px 8px;
     border-radius: 5px;
     width: max-content;
@@ -237,7 +237,7 @@
 
   .overlay-message {
     text-align: center;
-    color: $hotbar-text-color;
+    color: colors.$hotbar-text-color;
     margin-bottom: 15px;
     overflow: hidden;
   }

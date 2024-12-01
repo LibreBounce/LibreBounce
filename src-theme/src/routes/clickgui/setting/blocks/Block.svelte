@@ -26,7 +26,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .block {
     display: grid;
@@ -44,7 +44,7 @@
 
   .name {
     font-size: 12px;
-    color: $clickgui-text-color;
+    color: colors.$clickgui-text-color;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;

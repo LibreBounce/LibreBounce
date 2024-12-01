@@ -40,21 +40,21 @@
 </GenericSelect>
 
 <style lang="scss">
-  @import "../../../../../colors.scss";
+  @use "../../../../../colors.scss" as colors;
 
   .option {
     font-weight: 500;
-    color: $menu-text-dimmed-color;
+    color: colors.$menu-text-dimmed-color;
     font-size: 20px;
     padding: 15px 20px;
     transition: ease color .2s;
 
     &:hover {
-      color: $menu-text-color;
+      color: colors.$menu-text-color;
     }
 
     &.active {
-      color: $accent-color;
+      color: colors.$accent-color;
     }
   }
 </style>

@@ -46,7 +46,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../../colors.scss";
+  @use "../../../../../colors.scss" as colors;
 
   .select {
     cursor: pointer;
@@ -61,7 +61,7 @@
   }
 
   .header {
-    background-color: $accent-color;
+    background-color: colors.$accent-color;
     padding: 20px;
     display: flex;
     column-gap: 20px;
@@ -71,7 +71,7 @@
     transition: ease border-radius .2s;
 
     .title {
-      color: $menu-text-color;
+      color: colors.$menu-text-color;
       font-size: 20px;
       font-weight: 500;
 
@@ -88,6 +88,6 @@
     border-radius: 0 0 5px 5px;
     max-height: 250px;
     overflow: auto;
-    background-color: rgba($menu-base-color, 0.9);
+    background-color: rgba(colors.$menu-base-color, 0.9);
   }
 </style>

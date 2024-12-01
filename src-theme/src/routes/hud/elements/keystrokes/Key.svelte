@@ -22,12 +22,12 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .key {
     height: 50px;
-    background-color: rgba($keystrokes-base-color, .68);
-    color: $keystrokes-text-color;
+    background-color: rgba(colors.$keystrokes-base-color, .68);
+    color: colors.$keystrokes-text-color;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -36,11 +36,11 @@
     font-weight: 500;
     transition: ease box-shadow .2s;
     position: relative;
-    box-shadow: inset 0 0 0 0 $accent-color;
+    box-shadow: inset 0 0 0 0 colors.$accent-color;
     text-align: center;
 
     &.active {
-      box-shadow: inset 0 0 0 25px $accent-color;
+      box-shadow: inset 0 0 0 25px colors.$accent-color;
     }
   }
 </style>

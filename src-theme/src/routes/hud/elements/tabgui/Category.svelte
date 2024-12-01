@@ -27,11 +27,11 @@
 </div>
 
 <style lang="scss">
-    @import "../../../../colors.scss";
+    @use "../../../../colors.scss" as colors;
 
     .name {
         font-weight: 500;
-        color: $tabgui-text-color;
+        color: colors.$tabgui-text-color;
         font-size: 14px;
         width: 100%;
         padding: 7px 12px 7px 12px;
@@ -39,7 +39,7 @@
         background: linear-gradient(
             to left,
             rgba(0, 0, 0, 0.5) 50%,
-            $accent-color 50%
+            colors.$accent-color 50%
         );
         background-size: 200% 100%;
         background-position: right bottom;
@@ -57,7 +57,7 @@
     }
 
     .icon {
-        background-color: rgba($tabgui-base-color, 0.68);
+        background-color: rgba(colors.$tabgui-base-color, 0.68);
         width: 62px;
         position: relative;
 

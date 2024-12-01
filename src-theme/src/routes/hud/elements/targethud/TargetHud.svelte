@@ -75,14 +75,14 @@
 {/if}
 
 <style lang="scss">
-    @import "../../../../colors.scss";
+    @use "../../../../colors.scss" as colors;
 
     .targethud {
         //position: fixed;
         //top: 50%;
         //left: calc(50% + 20px);
         //transform: translateY(-50%); // overwrites the component transform
-        background-color: rgba($targethud-base-color, 0.68);
+        background-color: rgba(colors.$targethud-base-color, 0.68);
         border-radius: 5px;
         overflow: hidden;
     }
@@ -98,7 +98,7 @@
 
     .name {
         grid-area: b;
-        color: $targethud-text-color;
+        color: colors.$targethud-text-color;
         font-weight: 500;
         align-self: flex-end;
     }
@@ -110,7 +110,7 @@
 
         .stat {
             .value {
-                color: $targethud-text-dimmed-color;
+                color: colors.$targethud-text-dimmed-color;
                 font-size: 14px;
                 min-width: 18px;
                 display: inline-block;

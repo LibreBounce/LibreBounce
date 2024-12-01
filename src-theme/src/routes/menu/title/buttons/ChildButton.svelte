@@ -27,28 +27,28 @@
 </div>
 
 <style lang="scss">
-    @import "../../../../colors.scss";
+    @use "../../../../colors.scss" as colors;
 
     .child-button {
       position: relative;
       display: flex;
       align-items: center;
       border-radius: 5px;
-      background-color: $accent-color;
+      background-color: colors.$accent-color;
       transition: ease background-color .2s;
       padding: 15px;
 
       &.parent-hovered {
-        background-color: $menu-text-color;
+        background-color: colors.$menu-text-color;
 
         .title {
-          color: $accent-color;
+          color: colors.$accent-color;
         }
       }
     }
 
     .title {
-      color: $menu-text-color;
+      color: colors.$menu-text-color;
       font-weight: 600;
       font-size: 16px;
       transition: ease color 0.2s;

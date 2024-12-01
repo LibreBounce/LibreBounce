@@ -64,12 +64,12 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as colors;
 
   $GRID_SIZE: 10px;
 
   .clickgui {
-    background-color: rgba($clickgui-base-color, 0.6);
+    background-color: rgba(colors.$clickgui-base-color, 0.6);
     overflow: hidden;
     position: absolute;
     will-change: opacity;
@@ -78,8 +78,8 @@
     top: 0;
 
     &.grid {
-      background-image: linear-gradient(to right, $clickgui-grid-color 1px, transparent 1px),
-      linear-gradient(to bottom, $clickgui-grid-color 1px, transparent 1px);
+      background-image: linear-gradient(to right, colors.$clickgui-grid-color 1px, transparent 1px),
+      linear-gradient(to bottom, colors.$clickgui-grid-color 1px, transparent 1px);
     }
   }
 </style>

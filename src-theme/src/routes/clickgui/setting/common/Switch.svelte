@@ -18,7 +18,7 @@
 
 <style lang="scss">
   @use "sass:color";
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .switch-container {
     display: flex;
@@ -28,7 +28,7 @@
 
   .name {
     font-weight: 500;
-    color: $clickgui-text-color;
+    color: colors.$clickgui-text-color;
     font-size: 12px;
     margin-left: 7px;
     white-space: nowrap;
@@ -42,7 +42,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: darken($clickgui-text-color, 55%);
+    background-color: darken(colors.$clickgui-text-color, 55%);
     transition: ease 0.4s;
     height: 8px;
     border-radius: 4px;
@@ -54,7 +54,7 @@
       width: 12px;
       top: -2px;
       left: 0;
-      background-color: $clickgui-text-color;
+      background-color: colors.$clickgui-text-color;
       transition: ease 0.4s;
       border-radius: 50%;
     }
@@ -71,14 +71,14 @@
 
     input:checked + .slider {
       background-color: color.scale(
-                      desaturate($accent-color, 60%),
+                      desaturate(colors.$accent-color, 60%),
               $lightness: -15%
       );
     }
 
     input:checked + .slider:before {
       transform: translateX(10px);
-      background-color: $accent-color;
+      background-color: colors.$accent-color;
     }
   }
 </style>

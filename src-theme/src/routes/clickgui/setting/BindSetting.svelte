@@ -90,7 +90,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../colors.scss";
+  @use "../../../colors.scss" as colors;
 
   .setting {
     padding: 7px 0px;
@@ -105,12 +105,12 @@
 
   .change-bind {
     background-color: transparent;
-    border: solid 2px $accent-color;
+    border: solid 2px colors.$accent-color;
     border-radius: 3px;
     cursor: pointer;
     padding: 4px;
     font-weight: 500;
-    color: $clickgui-text-color;
+    color: colors.$clickgui-text-color;
     font-size: 12px;
     font-family: "Inter", sans-serif;
     width: 100%;
@@ -123,7 +123,7 @@
     }
 
     .none {
-      color: $clickgui-text-dimmed-color;
+      color: colors.$clickgui-text-dimmed-color;
     }
   }
 </style>

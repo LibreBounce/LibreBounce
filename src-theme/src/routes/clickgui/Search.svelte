@@ -179,19 +179,19 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as colors;
 
   .search {
     position: fixed;
     left: 50%;
     top: 50px;
     transform: translateX(-50%);
-    background-color: rgba($clickgui-base-color, 0.9);
+    background-color: rgba(colors.$clickgui-base-color, 0.9);
     width: 600px;
     border-radius: 30px;
     overflow: hidden;
     transition: ease border-radius 0.2s;
-    box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
+    box-shadow: 0 0 10px rgba(colors.$clickgui-base-color, 0.5);
 
     &.has-results {
       border-radius: 10px;
@@ -203,7 +203,7 @@
   }
 
   .results {
-    border-top: solid 2px $accent-color;
+    border-top: solid 2px colors.$accent-color;
     padding: 5px 25px;
     max-height: 250px;
     overflow: auto;
@@ -217,18 +217,18 @@
       grid-template-columns: max-content 1fr max-content;
 
       .module-name {
-        color: $clickgui-text-dimmed-color;
+        color: colors.$clickgui-text-dimmed-color;
         transition: ease color 0.2s;
       }
 
       &.enabled {
         .module-name {
-          color: $accent-color;
+          color: colors.$accent-color;
         }
       }
 
       .aliases {
-        color: rgba($clickgui-text-dimmed-color, .6);
+        color: rgba(colors.$clickgui-text-dimmed-color, .6);
         margin-left: 10px;
       }
 
@@ -237,18 +237,18 @@
       }
 
       &:hover {
-        color: $clickgui-text-color;
+        color: colors.$clickgui-text-color;
 
         &::after {
           content: "Right-click to locate";
-          color: rgba($clickgui-text-color, 0.4);
+          color: rgba(colors.$clickgui-text-color, 0.4);
           font-size: 12px;
         }
       }
     }
 
     .placeholder {
-      color: $clickgui-text-dimmed-color;
+      color: colors.$clickgui-text-dimmed-color;
       font-size: 16px;
       padding: 10px 0;
     }
@@ -264,7 +264,7 @@
     border: none;
     font-family: "Inter", sans-serif;
     font-size: 16px;
-    color: $clickgui-text-color;
+    color: colors.$clickgui-text-color;
     width: 100%;
   }
 </style>

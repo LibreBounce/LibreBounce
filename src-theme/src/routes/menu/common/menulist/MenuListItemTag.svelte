@@ -7,11 +7,11 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as colors;
 
   .tag {
-    background-color: rgba($menu-base-color, 0.36);
-    color: $menu-text-color;
+    background-color: rgba(colors.$menu-base-color, 0.36);
+    color: colors.$menu-text-color;
     font-size: 12px;
     padding: 3px 10px;
     border-radius: 20px;

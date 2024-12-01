@@ -21,7 +21,7 @@
 {/key}
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as colors;
 
   .description-wrapper {
     position: fixed;
@@ -32,8 +32,8 @@
   .description {
     position: relative;
     border-radius: 5px;
-    background-color: rgba($clickgui-base-color, .9);
-    filter: drop-shadow(0 0 10px rgba($clickgui-base-color, 0.5));
+    background-color: rgba(colors.$clickgui-base-color, .9);
+    filter: drop-shadow(0 0 10px rgba(colors.$clickgui-base-color, 0.5));
 
     &::before {
       content: "";
@@ -43,7 +43,7 @@
       height: 0;
       border-top: 8px solid transparent;
       border-bottom: 8px solid transparent;
-      border-right: 8px solid rgba($clickgui-base-color, .9);
+      border-right: 8px solid rgba(colors.$clickgui-base-color, .9);
       left: -8px;
       top: 50%;
       transform: translateY(-50%);
@@ -53,6 +53,6 @@
   .text {
     font-size: 12px;
     padding: 10px;
-    color: $clickgui-text-color;
+    color: colors.$clickgui-text-color;
   }
 </style>

@@ -5,10 +5,10 @@
   Taken from https://loading.io/css/
  */
 
-  @import "../../../colors";
+  @use "../../../colors" as colors;
 
   .lds-ripple {
-    color: $accent-color;
+    color: colors.$accent-color;
   }
 
   .lds-ripple,

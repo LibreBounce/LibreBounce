@@ -11,7 +11,7 @@
 </div>
 
 <style lang="scss">
-    @import "../../../../colors.scss";
+    @use "../../../../colors.scss" as colors;
 
     .health-progress {
         position: relative;
@@ -19,7 +19,7 @@
 
     .thumb {
         height: 8px;
-        background-color: $hotbar-health-color;
+        background-color: colors.$hotbar-health-color;
         transition: ease width 0.5s;
     }
 </style>

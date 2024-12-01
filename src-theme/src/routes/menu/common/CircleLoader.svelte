@@ -12,7 +12,7 @@
     Taken from https://loading.io/css/
    */
 
-  @import "../../../colors";
+  @use "../../../colors" as colors;
 
   .loader-wrapper {
     position: absolute;
@@ -27,7 +27,7 @@
   .lds-ring div {
     box-sizing: border-box;
     position: relative;
-    color: $menu-button-loader-color;
+    color: colors.$menu-button-loader-color;
   }
 
   .lds-ring {
