@@ -70,10 +70,7 @@
     }
 
     input:checked + .slider {
-      background-color: color.scale(
-                      desaturate(colors.$accent-color, 60%),
-              $lightness: -15%
-      );
+      background-color: color.scale(colors.$accent-color, $lightness: -15%, $saturation: -60%);
     }
 
     input:checked + .slider:before {

@@ -37,7 +37,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: darken(colors.$menu-text-color, 55%);
+    background-color: color.adjust(colors.$menu-text-color, $lightness: -55%);
     transition: ease 0.4s;
     height: 14px;
     border-radius: 10px;
@@ -69,10 +69,7 @@
     }
 
     input:checked + .slider {
-      background-color: color.scale(
-                      desaturate(colors.$accent-color, 60%),
-              $lightness: -15%
-      );
+      background-color: color.scale(colors.$accent-color, $lightness: -15%, $saturation: -60%);
     }
 
     input:checked + .slider:before {
