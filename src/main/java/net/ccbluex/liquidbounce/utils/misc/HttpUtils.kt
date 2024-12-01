@@ -51,7 +51,7 @@ object HttpUtils {
 
     @Throws(IOException::class)
     fun request(url: String, method: String, agent: String = DEFAULT_AGENT, headers: Array<Pair<String, String>> = emptyArray()) =
-        requestStream(url, method, agent, headers).let { (stream, code) -> stream.reader().readText() to code }
+        requestStream(url, method, agent, headers).let { (stream, code) -> stream.bufferedReader().readText() to code }
 
     fun post(url: String, agent: String = DEFAULT_AGENT, headers: Array<Pair<String, String>> = emptyArray(), entity: () -> HttpEntity): String {
         val httpClient = HttpClientBuilder
@@ -67,7 +67,7 @@ object HttpUtils {
         }
 
         val response = httpClient.execute(httpPost)
-        return response.entity.content.reader().readText()
+        return response.entity.content.bufferedReader().readText()
     }
 
     @Throws(IOException::class)

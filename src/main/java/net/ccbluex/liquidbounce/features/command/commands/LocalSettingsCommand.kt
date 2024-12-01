@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.file.FileManager.settingsDir
@@ -13,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.SettingsUtils
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
 import java.awt.Desktop
 import java.io.File
@@ -31,7 +31,7 @@ object LocalSettingsCommand : Command("localsettings", "localsetting", "localcon
             return
         }
 
-        GlobalScope.launch {
+        SharedScopes.IO.launch {
             when (args[1].lowercase()) {
                 "load" -> loadSettings(args)
                 "save" -> saveSettings(args)

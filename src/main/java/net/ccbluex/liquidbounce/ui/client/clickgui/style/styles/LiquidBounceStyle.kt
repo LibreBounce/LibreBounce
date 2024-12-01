@@ -33,7 +33,7 @@ import kotlin.math.roundToInt
 object LiquidBounceStyle : Style() {
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel) {
         drawBorderedRect(
-            panel.x - if (panel.scrollbar) 4 else 0,
+            panel.x,
             panel.y,
             panel.x + panel.width,
             panel.y + panel.height + panel.fade,

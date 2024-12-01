@@ -5,7 +5,9 @@
  */
 package net.ccbluex.liquidbounce.utils
 
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.ui.client.GuiMainMenu
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.minecraft.client.gui.GuiMultiplayer
 import net.minecraft.client.multiplayer.GuiConnecting
 import net.minecraft.client.multiplayer.ServerAddress
@@ -17,9 +19,7 @@ import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.login.client.C00PacketLoginStart
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import org.spongepowered.asm.mixin.Unique
 import java.net.InetAddress
-
 
 @SideOnly(Side.CLIENT)
 object ServerUtils : MinecraftInstance() {
@@ -30,7 +30,7 @@ object ServerUtils : MinecraftInstance() {
         if (serverData == null) return
 
         if (noGLContext) {
-            Thread {
+            SharedScopes.IO.launch {
                 // Code ported from GuiConnecting.connect
                 // Used in AutoAccount's ReconnectDelay.
                 // You cannot do this in the normal way because of required OpenGL context in current thread.
@@ -55,7 +55,7 @@ object ServerUtils : MinecraftInstance() {
                 networkManager.sendPacket(
                     C00PacketLoginStart(mc.session.profile)
                 )
-            }.start()
+            }
         } else mc.displayGuiScreen(GuiConnecting(GuiMultiplayer(GuiMainMenu()), mc, serverData))
     }
 

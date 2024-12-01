@@ -11,6 +11,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication
 import com.thealtening.AltService
 import com.thealtening.api.TheAltening
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.SessionEvent
@@ -20,6 +21,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.TabUtils
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.minecraft.client.gui.GuiButton
@@ -177,7 +179,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : GuiScreen() {
                 loginButton.enabled = false
                 generateButton.enabled = false
 
-                Thread {
+                SharedScopes.IO.launch {
                     try {
                         status = "§cSwitching Alt Service..."
 
@@ -214,7 +216,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : GuiScreen() {
 
                     loginButton.enabled = true
                     generateButton.enabled = true
-                }.start()
+                }
             }
             3 -> MiscUtils.showURL("https://thealtening.com/?ref=liquidbounce")
         }

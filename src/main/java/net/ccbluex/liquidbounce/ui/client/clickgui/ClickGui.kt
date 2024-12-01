@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
 import net.ccbluex.liquidbounce.utils.SettingsUtils
 import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.minecraft.client.audio.PositionedSoundRecord
@@ -75,7 +76,7 @@ object ClickGui : GuiScreen() {
         for (category in Category.values()) {
             panels += object : Panel(category.displayName, 100, yPos, width, height, false) {
                 override val elements = moduleManager.modules.mapNotNull {
-                    it.takeIf { module -> module.category == category }?.let { ModuleElement(it) }
+                    it.takeIf { module -> module.category == category }?.let(::ModuleElement)
                 }
 
             }
@@ -121,10 +122,10 @@ object ClickGui : GuiScreen() {
              * Auto settings list
              */
             override val elements = runBlocking {
-                async(Dispatchers.IO) {
+                SharedScopes.IO.async {
                     autoSettingsList?.map { setting ->
                         ButtonElement(setting.name, { Integer.MAX_VALUE }) {
-                            GlobalScope.launch {
+                            launch {
                                 try {
                                     chat("Loading settings...")
 
