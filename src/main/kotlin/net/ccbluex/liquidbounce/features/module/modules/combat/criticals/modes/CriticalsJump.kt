@@ -232,7 +232,7 @@ object CriticalsJump : Choice("Jump") {
         return ticksTillFall + 1.0f < nextPossibleCrit
     }
 
-    fun isActive(): Boolean {
+    private fun isActive(): Boolean {
         if (!ModuleCriticals.running) {
             return false
         }

@@ -37,8 +37,7 @@ abstract class Buff(
 ) : ToggleableConfigurable(ModuleAutoBuff, name, true) {
 
     internal open val passesRequirements: Boolean
-        get() = enabled && !player.isDead && !InventoryManager.isInventoryOpen
-            && !interaction.currentGameMode.isCreative
+        get() = enabled && !InventoryManager.isInventoryOpen
 
     /**
      * Try to run feature if possible, otherwise return false

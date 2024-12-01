@@ -34,8 +34,10 @@ import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
  */
 class SpeedHylexLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("HylexLowHop", parent) {
 
-    var airTicks = 0
-    val repeatable = tickHandler {
+    private var airTicks = 0
+
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (player.isOnGround) {
             airTicks = 0
             if (player.moving && player.sqrtSpeed < 0.32) {
@@ -82,8 +84,8 @@ class SpeedHylexLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBa
     }
 
     @Suppress("unused")
-    private val jumpHandler = handler<PlayerJumpEvent> {
-        it.motion = 0.33f
+    private val jumpHandler = handler<PlayerJumpEvent> { event ->
+        event.motion = 0.33f
     }
 
 }

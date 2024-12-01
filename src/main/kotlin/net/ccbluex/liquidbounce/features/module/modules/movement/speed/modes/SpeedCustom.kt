@@ -18,20 +18,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes
 
-import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.SpeedAntiCornerBump
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
@@ -54,7 +50,7 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
  * - Avoid edge bump
  *
  */
-class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom") {
+class SpeedCustom(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Custom", parent) {
 
     private class HorizontalModification(parent: EventListener?) : ToggleableConfigurable(parent,
         "HorizontalModification", true) {
@@ -67,7 +63,8 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
          */
         private val ticksToBoostOff by int("TicksToBoostOff", 0, 0..20, "ticks")
 
-        val repeatable = tickHandler {
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
             if (!player.moving) {
                 return@tickHandler
             }
@@ -78,7 +75,8 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
             }
         }
 
-        val onJump = sequenceHandler<PlayerAfterJumpEvent> {
+        @Suppress("unused")
+        private val jumpHandler = sequenceHandler<PlayerAfterJumpEvent> {
             if (horizontalJumpOffModifier != 0f) {
                 waitTicks(ticksToBoostOff)
 
@@ -97,7 +95,8 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
         private val pullDown by float("Pulldown", 0f, 0f..1f)
         private val pullDownDuringFall by float("PullDownDuringFall", 0f, 0f..1f)
 
-        val repeatable = tickHandler {
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
             if (!player.moving) {
                 return@tickHandler
             }
@@ -106,9 +105,10 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
             player.velocity.y -= pullDown
         }
 
-        val onJump = handler<PlayerJumpEvent> {
+        @Suppress("unused")
+        private val jumpHandler = handler<PlayerJumpEvent> { event ->
             if (jumpHeight != 0.42f) {
-                it.motion = jumpHeight
+                event.motion = jumpHeight
             }
         }
 
@@ -143,7 +143,8 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
             }
         }
 
-        val packetHandler = sequenceHandler<PacketEvent> {
+        @Suppress("unused")
+        private val packetHandler = sequenceHandler<PacketEvent> {
             val packet = it.packet
 
             if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
@@ -176,9 +177,6 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
 
     private val timerSpeed by float("TimerSpeed", 1f, 0.1f..10f)
 
-    private val optimizeForCriticals by boolean("OptimizeForCriticals", true)
-    private val avoidEdgeBump by boolean("AvoidEdgeBump", true)
-
     init {
         tree(Strafe(this))
     }
@@ -192,27 +190,6 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : Choice("Custom")
         if (timerSpeed != 1f) {
             Timer.requestTimerSpeed(timerSpeed, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed)
         }
-    }
-
-    @Suppress("unused")
-    private val handleJump = handler<MovementInputEvent> {
-        if (!player.moving || doOptimizationsPreventJump()) {
-            return@handler
-        }
-
-        it.jumping = true
-    }
-
-    private fun doOptimizationsPreventJump(): Boolean {
-        if (optimizeForCriticals && CriticalsJump.shouldWaitForJump(0.42f)) {
-            return true
-        }
-
-        if (avoidEdgeBump && SpeedAntiCornerBump.shouldDelayJump()) {
-            return true
-        }
-
-        return false
     }
 
 }

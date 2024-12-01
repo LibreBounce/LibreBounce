@@ -39,14 +39,11 @@
     <ID>BracesOnIfStatements:ModuleTimerRange.kt$ModuleTimerRange$if</ID>
     <ID>BracesOnIfStatements:RenderShortcuts.kt$else</ID>
     <ID>BracesOnIfStatements:RenderShortcuts.kt$if</ID>
-    <ID>BracesOnIfStatements:SpeedGeneric.kt$SpeedBHopBase$if</ID>
     <ID>BracesOnIfStatements:SpeedGrimCollide.kt$SpeedGrimCollide$if</ID>
-    <ID>BracesOnIfStatements:SpeedHypixelBHop.kt$SpeedHypixelBHop$if</ID>
     <ID>BracesOnIfStatements:SpeedPreventDeadlyJump.kt$SpeedPreventDeadlyJump$if</ID>
     <ID>BracesOnIfStatements:TargetFinding.kt$BlockPlacementTarget$if</ID>
     <ID>BracesOnIfStatements:TargetRenderer.kt$WorldTargetRenderer.GlowingCircle$else</ID>
     <ID>BracesOnIfStatements:TargetRenderer.kt$WorldTargetRenderer.GlowingCircle$if</ID>
-    <ID>CognitiveComplexMethod:AStarMode.kt$AStarMode$override fun enable()</ID>
     <ID>CognitiveComplexMethod:AStarMode.kt$AStarMode$private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List&lt;Vec3i></ID>
     <ID>CognitiveComplexMethod:AutoConfig.kt$AutoConfig$fun handlePossibleAutoConfig(jsonObject: JsonObject)</ID>
     <ID>CognitiveComplexMethod:BlockExtensions.kt$fun Block?.isInteractable(blockState: BlockState?): Boolean</ID>
@@ -124,7 +121,6 @@
     <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
     <ID>ReturnCount:IntegrationListener.kt$IntegrationListener$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
     <ID>ReturnCount:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
-    <ID>SpreadOperator:AStarMode.kt$AStarMode$( Vec3i(-1, 0, 0), // left Vec3i(1, 0, 0), // right *(-9..9).map { Vec3i(0, it, 0) }.toTypedArray(), // up- and down Vec3i(0, 0, -1), // front Vec3i(0, 0, 1) // back )</ID>
     <ID>SpreadOperator:ModuleVomit.kt$ModuleVomit$( *emptySlots.map { slot -> CreativeInventoryAction.performFillSlot(randomStack, slot) } .toTypedArray(), *emptySlots.map { slot -> ClickInventoryAction.performThrow(null, slot) } .toTypedArray() )</ID>
     <ID>StringLiteralDuplication:AutoQueueGommeDuels.kt$AutoQueueGommeDuels$"AutoPlay"</ID>
     <ID>StringLiteralDuplication:ScriptSetting.kt$ScriptSetting$"default"</ID>

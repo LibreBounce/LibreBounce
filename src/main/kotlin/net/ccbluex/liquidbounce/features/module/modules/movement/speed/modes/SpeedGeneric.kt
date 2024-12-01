@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.doOptimizationsPreventJump
 import net.ccbluex.liquidbounce.utils.entity.downwards
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -47,16 +47,16 @@ class SpeedLegitHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
 open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
 
     @Suppress("unused")
-    val handleMovementInput = handler<MovementInputEvent> {
-        if (!player.isOnGround || !player.moving) {
+    private val handleMovementInput = handler<MovementInputEvent> { event ->
+        if (!player.isOnGround || !event.directionalInput.isMoving) {
             return@handler
         }
 
-        // We want the player to be able to jump if he wants to
-        if (!mc.options.jumpKey.isPressed && ModuleSpeed.shouldDelayJump())
+        if (doOptimizationsPreventJump()) {
             return@handler
+        }
 
-        it.jumping = true
+        event.jumping = true
     }
 
 }
