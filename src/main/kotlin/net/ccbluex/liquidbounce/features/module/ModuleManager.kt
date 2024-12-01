@@ -350,6 +350,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleBedDefender,
             ModuleSurround,
             ModulePacketMine,
+            ModuleHoleFiller,
 
             // Client
             ModuleAutoConfig,
