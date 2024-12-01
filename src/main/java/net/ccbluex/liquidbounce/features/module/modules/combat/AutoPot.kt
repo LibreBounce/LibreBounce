@@ -101,7 +101,6 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
 
                 if (potion >= 0 && RotationUtils.serverRotation.pitch >= 75F) {
                     player.sendUseItem(player.heldItem)
-                    sendPacket(C08PacketPlayerBlockPlacement(player.heldItem))
 
                     msTimer.reset()
                     potion = -1
