@@ -115,6 +115,7 @@ object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD) {
 
     override fun disable() {
         HoleManager.unsubscribe(this)
+        placer.disable()
     }
 
     @Suppress("unused")
