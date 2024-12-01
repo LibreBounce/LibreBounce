@@ -21,7 +21,9 @@
     "entity.MixinEntityLivingBase",
     "entity.MixinEntityPlayer",
     "entity.MixinEntityPlayerSP",
+    "entity.MixinInventoryPlayer",
     "entity.MixinPlayerControllerMP",
+    "gui.MixinGui",
     "gui.MixinGuiButton",
     "gui.MixinGuiButtonExt",
     "gui.MixinGuiChat",
@@ -36,6 +38,7 @@
     "gui.MixinGuiNewChat",
     "gui.MixinGuiOptionSlider",
     "gui.MixinGuiScreen",
+    "gui.MixinGuiScreenOptionsSoundsButton",
     "gui.MixinGuiSlider",
     "gui.MixinGuiSlot",
     "gui.MixinGuiSpectator",
@@ -72,6 +75,9 @@
     "block.MixinBlockSlime",
     "gui.MixinGuiAchievement",
     "gui.MixinGuiContainer",
+    "gui.MixinGuiTextField",
+    "render.MixinItemRenderer",
+    "render.MixinRenderGlobal",
     "tweaks.MixinEntityFX"
   ]
 }

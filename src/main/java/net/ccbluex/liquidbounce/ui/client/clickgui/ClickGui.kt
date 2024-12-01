@@ -28,13 +28,13 @@ import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.ClientUtils
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetAnimals
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetDead
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetInvisible
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
 import net.ccbluex.liquidbounce.utils.SettingsUtils
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.minecraft.client.audio.PositionedSoundRecord
@@ -74,8 +74,10 @@ object ClickGui : GuiScreen() {
 
         for (category in Category.values()) {
             panels += object : Panel(category.displayName, 100, yPos, width, height, false) {
-                override val elements =
-                    moduleManager.modules.filter { it.category == category }.map { ModuleElement(it) }
+                override val elements = moduleManager.modules.mapNotNull {
+                    it.takeIf { module -> module.category == category }?.let { ModuleElement(it) }
+                }
+
             }
 
             yPos += 20
@@ -124,24 +126,24 @@ object ClickGui : GuiScreen() {
                         ButtonElement(setting.name, { Integer.MAX_VALUE }) {
                             GlobalScope.launch {
                                 try {
-                                    displayChatMessage("Loading settings...")
+                                    chat("Loading settings...")
 
                                     // Load settings and apply them
                                     val settings = ClientApi.requestSettingsScript(setting.settingId)
 
-                                    displayChatMessage("Applying settings...")
+                                    chat("Applying settings...")
                                     SettingsUtils.applyScript(settings)
 
-                                    displayChatMessage("§6Settings applied successfully")
+                                    chat("§6Settings applied successfully")
                                     HUD.addNotification(Notification("Updated Settings"))
-                                    mc.soundHandler.playSound(
-                                        PositionedSoundRecord.create(
-                                            ResourceLocation("random.anvil_use"), 1F
+                                    synchronized(mc.soundHandler) {
+                                        mc.soundHandler.playSound(
+                                            PositionedSoundRecord.create(ResourceLocation("random.anvil_use"), 1F)
                                         )
-                                    )
+                                    }
                                 } catch (e: Exception) {
                                     ClientUtils.LOGGER.error("Failed to load settings", e)
-                                    displayChatMessage("Failed to load settings: ${e.message}")
+                                    chat("Failed to load settings: ${e.message}")
                                 }
                             }
                         }.apply {

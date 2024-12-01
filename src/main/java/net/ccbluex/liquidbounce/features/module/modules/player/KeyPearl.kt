@@ -6,32 +6,34 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.TickEvent
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.TextValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.text
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 
 object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDetecting = false, hideModule = false) {
 
-    private val delayedSlotSwitch by BoolValue("DelayedSlotSwitch", true)
-    private val mouse by BoolValue("Mouse", false)
-        private val mouseButtonValue = ListValue("MouseButton",
-            arrayOf("Left", "Right", "Middle", "MouseButton4", "MouseButton5"), "Middle") { mouse }
+    private val delayedSlotSwitch by boolean("DelayedSlotSwitch", true)
+    private val mouse by boolean("Mouse", false)
+    private val mouseButtonValue = choices(
+        "MouseButton",
+        arrayOf("Left", "Right", "Middle", "MouseButton4", "MouseButton5"), "Middle"
+    ) { mouse }
 
-        private val keyName by TextValue("KeyName", "X") { !mouse }
+    private val keyName by text("KeyName", "X") { !mouse }
 
-    private val noEnderPearlsMessage by BoolValue("NoEnderPearlsMessage", true)
+    private val noEnderPearlsMessage by boolean("NoEnderPearlsMessage", true)
 
     private var wasMouseDown = false
     private var wasKeyDown = false
@@ -42,39 +44,47 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
 
         if (pearlInHotbar == null) {
             if (noEnderPearlsMessage) {
-                displayChatMessage("§6§lWarning: §aThere are no ender pearls in your hotbar.")
+                chat("§6§lWarning: §aThere are no ender pearls in your hotbar.")
             }
             return
         }
 
         // don't wait before and after throwing if the player is already holding an ender pearl
-        if (!delayedSlotSwitch || mc.thePlayer.inventory.currentItem == pearlInHotbar - 36) {
-            sendPackets(
-                C09PacketHeldItemChange(pearlInHotbar - 36),
-                C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem),
-                C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+        if (!delayedSlotSwitch || SilentHotbar.currentSlot == pearlInHotbar) {
+            SilentHotbar.selectSlotSilently(this,
+                pearlInHotbar,
+                immediate = true,
+                render = false,
+                resetManually = true
+            )
+            sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+            SilentHotbar.resetSlot(this)
             return
         }
 
-        sendPackets(
-            C09PacketHeldItemChange(pearlInHotbar - 36),
-            C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+        SilentHotbar.selectSlotSilently(this,
+            pearlInHotbar,
+            immediate = true,
+            render = false,
+            resetManually = true
+        )
+        sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
         hasThrown = true
     }
 
     @EventTarget
-    fun onTick(event: TickEvent) {
+    fun onTick(event: GameTickEvent) {
         if (hasThrown) {
-            sendPackets(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+            SilentHotbar.resetSlot(this)
             hasThrown = false
-            
         }
 
         if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
-            || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE) return
-			
-		val isMouseDown = Mouse.isButtonDown(mouseButtonValue.values.indexOf(mouseButtonValue.get()))
-		val isKeyDown = Keyboard.isKeyDown(Keyboard.getKeyIndex(keyName.uppercase()))
+            || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE
+        ) return
+
+        val isMouseDown = Mouse.isButtonDown(mouseButtonValue.values.indexOf(mouseButtonValue.get()))
+        val isKeyDown = Keyboard.isKeyDown(Keyboard.getKeyIndex(keyName.uppercase()))
 
         if (mouse && !wasMouseDown && isMouseDown) {
             throwEnderPearl()

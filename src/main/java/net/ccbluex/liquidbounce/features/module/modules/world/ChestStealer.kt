@@ -3,19 +3,25 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
+@file:Suppress("unused")
+
 package net.ccbluex.liquidbounce.features.module.modules.world
 
 import kotlinx.coroutines.delay
+import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeSortedTo
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.isStackUseful
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
+import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.shuffled
@@ -25,11 +31,12 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCur
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerLastSlot
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.entity.EntityLiving.getArmorPosition
@@ -45,11 +52,11 @@ import kotlin.math.sqrt
 
 object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false) {
 
-    private val smartDelay by BoolValue("SmartDelay", false)
-    private val multiplier by IntegerValue("DelayMultiplier", 120, 0..500){ smartDelay }
-    private val smartOrder by BoolValue("SmartOrder", true){ smartDelay }
+    private val smartDelay by boolean("SmartDelay", false)
+    private val multiplier by int("DelayMultiplier", 120, 0..500) { smartDelay }
+    private val smartOrder by boolean("SmartOrder", true) { smartDelay }
 
-    private val simulateShortStop by BoolValue("SimulateShortStop", false)
+    private val simulateShortStop by boolean("SimulateShortStop", false)
 
     private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
         override fun isSupported() = !smartDelay
@@ -60,33 +67,41 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
     }
 
-    private val startDelay by IntegerValue("StartDelay", 50, 0..500)
-    private val closeDelay by IntegerValue("CloseDelay", 50, 0..500)
+    private val startDelay by int("StartDelay", 50, 0..500)
+    private val closeDelay by int("CloseDelay", 50, 0..500)
 
     private val noMove by InventoryManager.noMoveValue
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
-    private val chestTitle by BoolValue("ChestTitle", true)
+    private val chestTitle by boolean("ChestTitle", true)
 
-    private val randomSlot by BoolValue("RandomSlot", true)
+    private val randomSlot by boolean("RandomSlot", true)
 
-    private val progressBar by BoolValue("ProgressBar", true, subjective = true)
+    private val progressBar by boolean("ProgressBar", true, subjective = true)
 
-    val silentGUI by BoolValue("SilentGUI", false, subjective = true)
+    val silentGUI by boolean("SilentGUI", false, subjective = true)
 
-    val highlightSlot by BoolValue("Highlight-Slot", false, subjective = true) { !silentGUI }
+    val highlightSlot by boolean("Highlight-Slot", false, subjective = true) { !silentGUI }
 
-    val backgroundRed by IntegerValue("Background-R", 128, 0..255) { highlightSlot && !silentGUI }
-    val backgroundGreen by IntegerValue("Background-G", 128, 0..255) { highlightSlot && !silentGUI }
-    val backgroundBlue by IntegerValue("Background-B", 128, 0..255) { highlightSlot && !silentGUI }
-    val backgroundAlpha by IntegerValue("Background-Alpha", 255, 0..255) { highlightSlot && !silentGUI }
+    val backgroundRed by int("Background-R", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
+    val backgroundGreen by int("Background-G", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
+    val backgroundBlue by int("Background-B", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
+    val backgroundAlpha by int(
+        "Background-Alpha",
+        255,
+        0..255,
+        subjective = true
+    ) { highlightSlot && !silentGUI }
 
-    val borderStrength by IntegerValue("Border-Strength", 3, 1..5) { highlightSlot && !silentGUI }
-    val borderRed by IntegerValue("Border-R", 128, 0..255) { highlightSlot && !silentGUI }
-    val borderGreen by IntegerValue("Border-G", 128, 0..255) { highlightSlot && !silentGUI }
-    val borderBlue by IntegerValue("Border-B", 128, 0..255) { highlightSlot && !silentGUI }
-    val borderAlpha by IntegerValue("Border-Alpha", 255, 0..255) { highlightSlot && !silentGUI }
+    val borderStrength by int("Border-Strength", 3, 1..5, subjective = true) { highlightSlot && !silentGUI }
+    val borderRed by int("Border-R", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
+    val borderGreen by int("Border-G", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
+    val borderBlue by int("Border-B", 128, 0..255, subjective = true) { highlightSlot && !silentGUI }
+    val borderAlpha by int("Border-Alpha", 255, 0..255, subjective = true) { highlightSlot && !silentGUI }
+
+    private val chestDebug by choices("Chest-Debug", arrayOf("Off", "Text", "Notification"), "Off", subjective = true)
+    private val itemStolenDebug by boolean("ItemStolen-Debug", false, subjective = true) { chestDebug != "Off" }
 
     private var progress: Float? = null
         set(value) {
@@ -145,6 +160,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
         delay(startDelay.toLong())
 
+        debug("Stealing items..")
+
         // Go through the chest multiple times, till there are no useful items anymore
         while (true) {
             if (!shouldOperate())
@@ -157,11 +174,11 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
             val itemsToSteal = getItemsToSteal()
 
-            run scheduler@ {
+            run scheduler@{
                 itemsToSteal.forEachIndexed { index, (slot, stack, sortableTo) ->
                     // Wait for NoMove or cancel click
                     if (!shouldOperate()) {
-                        TickScheduler += { serverSlot = thePlayer.inventory.currentItem }
+                        TickScheduler += { SilentHotbar.resetSlot() }
                         chestStealerCurrentSlot = -1
                         chestStealerLastSlot = -1
                         return
@@ -177,6 +194,16 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
                     // Set current slot being stolen for highlighting
                     chestStealerCurrentSlot = slot
+
+                    val stealingDelay = if (smartDelay && index + 1 < itemsToSteal.size) {
+                        val dist = getSquaredDistanceBwSlots(getCords(slot), getCords(itemsToSteal[index + 1].first))
+                        val trueDelay = sqrt(dist.toDouble()) * multiplier
+                        randomDelay(trueDelay.toInt(), trueDelay.toInt() + 20)
+                    } else {
+                        randomDelay(minDelay, maxDelay)
+                    }
+
+                    if (itemStolenDebug) debug("item: ${stack.displayName.lowercase()} | slot: $slot | delay: ${stealingDelay}ms")
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     TickScheduler.scheduleClick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
@@ -196,12 +223,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                             val hotbarStacks = thePlayer.inventory.mainInventory.take(9)
 
                             // Can't get index of stack instance, because it is different even from the one returned from windowClick()
-                            val newIndex = hotbarStacks.indexOfFirst { it?.getIsItemStackEqual(stack) ?: false }
+                            val newIndex = hotbarStacks.indexOfFirst { it?.getIsItemStackEqual(stack) == true }
 
                             if (newIndex != -1)
                                 AutoArmor.equipFromHotbarInChest(newIndex, stack)
                         }
                     }
+
+                    delay(stealingDelay.toLong())
 
                     if (simulateShortStop && Math.random() > 0.75) {
                         val minDelays = randomDelay(150, 300)
@@ -209,16 +238,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                         val randomDelay = (Math.random() * (maxDelays - minDelays) + minDelays).toLong()
 
                         delay(randomDelay)
-                    }
-
-                    if (smartDelay) {
-                        if (index + 1 < itemsToSteal.size) {
-                            val dist = getSquaredDistanceBwSlots(getCords(slot), getCords(itemsToSteal[index + 1].first))
-                            val trueDelay = sqrt(dist.toDouble()) * multiplier
-                            delay(randomDelay(trueDelay.toInt(), trueDelay.toInt() + 20).toLong())
-                        }
-                    } else {
-                        delay(randomDelay(minDelay, maxDelay).toLong())
                     }
                 }
             }
@@ -228,7 +247,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                 progress = 1f
                 delay(closeDelay.toLong())
 
-                TickScheduler += { serverSlot = thePlayer.inventory.currentItem }
+                TickScheduler += { SilentHotbar.resetSlot() }
                 break
             }
 
@@ -245,17 +264,19 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
             chestStealerLastSlot = -1
             thePlayer.closeScreen()
             progress = null
+
+            debug("Chest closed")
         }
     }
 
-    private fun getCords(slot: Int): Pair<Int,Int> {
+    private fun getCords(slot: Int): Pair<Int, Int> {
         val x = slot % 9
         val y = slot / 9
-        return Pair(x,y)
+        return Pair(x, y)
     }
-    private fun getSquaredDistanceBwSlots(from:Pair<Int,Int>, to:Pair<Int,Int>): Int {
-       val distance = (from.first-to.first)*(from.first-to.first) + (from.second-to.second)*(from.second-to.second)
-        return distance
+
+    private fun getSquaredDistanceBwSlots(from: Pair<Int, Int>, to: Pair<Int, Int>): Int {
+        return (from.first - to.first) * (from.first - to.first) + (from.second - to.second) * (from.second - to.second)
     }
 
     private fun getItemsToSteal(): MutableList<Triple<Int, ItemStack, Int?>> {
@@ -303,7 +324,12 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                         val hotbarStack = stacks.getOrNull(stacks.size - 9 + hotbarIndex)
 
                         // If occupied hotbar slot isn't already sorted or isn't strictly best, sort to it
-                        if (!canBeSortedTo(hotbarIndex, hotbarStack?.item) || !isStackUseful(hotbarStack, stacks, strictlyBest = true)) {
+                        if (!canBeSortedTo(hotbarIndex, hotbarStack?.item) || !isStackUseful(
+                                hotbarStack,
+                                stacks,
+                                strictlyBest = true
+                            )
+                        ) {
                             sortableTo = hotbarIndex
                             sortBlacklist[hotbarIndex] = true
                             break
@@ -324,12 +350,12 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
             .sortedByDescending { it.third != null }
 
             .toMutableList()
-            .also {
+            .also { it ->
                 // Fully prioritise armor pieces when it is possible to equip armor while in chest
                 if (AutoArmor.canEquipFromChest())
                     it.sortByDescending { it.second.item is ItemArmor }
             }
-        if (smartOrder){
+        if (smartOrder) {
             sortBasedOnOptimumPath(itemsToSteal)
         }
         return itemsToSteal
@@ -356,7 +382,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
         }
     }
 
-
     // Progress bar
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
@@ -376,7 +401,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
         drawRect(minX - 2, minY - 2, maxX + 2, maxY + 2, Color(200, 200, 200).rgb)
         drawRect(minX, minY, maxX, maxY, Color(50, 50, 50).rgb)
-        drawRect(minX, minY, minX + (maxX - minX) * easingProgress, maxY, Color.HSBtoRGB(easingProgress / 5, 1f, 1f) or 0xFF0000)
+        drawRect(
+            minX,
+            minY,
+            minX + (maxX - minX) * easingProgress,
+            maxY,
+            Color.HSBtoRGB(easingProgress / 5, 1f, 1f) or 0xFF0000
+        )
     }
 
     @EventTarget
@@ -386,15 +417,29 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                 receivedId = null
                 progress = null
             }
+
             is S30PacketWindowItems -> {
                 // Chests never have windowId 0
                 if (packet.func_148911_c() == 0)
                     return
 
+                if (receivedId != packet.func_148911_c()) {
+                    debug("Chest opened with ${stacks.size} items")
+                }
+
                 receivedId = packet.func_148911_c()
 
                 stacks = packet.itemStacks.toList()
             }
+        }
+    }
+
+    private fun debug(message: String) {
+        if (chestDebug == "Off") return
+
+        when (chestDebug.lowercase()) {
+            "text" -> chat(message)
+            "notification" -> hud.addNotification(Notification(message, 500F))
         }
     }
 }

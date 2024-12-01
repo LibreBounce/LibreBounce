@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.utils.timing
 
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.CoroutineUtils
@@ -37,13 +37,15 @@ object TickedActions : Listenable {
     fun isEmpty(module: Module) = size(module) == 0
 
     @EventTarget(priority = 1)
-    fun onTick(event: TickEvent) {
+    fun onTick(event: GameTickEvent) {
         // Prevent new scheduled ids from getting marked as duplicates even if they are going to be called next tick
         actions.toCollection(calledThisTick)
 
         for (triple in calledThisTick) {
             triple.third()
-            actions.removeFirst()
+            if (actions.isNotEmpty()) {
+                actions.removeFirst()
+            }
         }
 
         calledThisTick.clear()
@@ -52,15 +54,13 @@ object TickedActions : Listenable {
     @EventTarget
     fun onWorld(event: WorldEvent) = actions.clear()
 
-    override fun handleEvents() = true
-
     class TickScheduler(val module: Module) : MinecraftInstance() {
         fun schedule(id: Int, allowDuplicates: Boolean = false, action: () -> Unit) =
             schedule(id, module, allowDuplicates, action)
 
         fun scheduleClick(slot: Int, button: Int, mode: Int, allowDuplicates: Boolean = false, windowId: Int = mc.thePlayer.openContainer.windowId, action: ((ItemStack?) -> Unit)? = null) =
             schedule(slot, module, allowDuplicates) {
-                val newStack = mc.playerController.windowClick(windowId, slot, button, mode, mc.thePlayer)
+                val newStack = mc.playerController?.windowClick(windowId, slot, button, mode, mc.thePlayer)
                 action?.invoke(newStack)
             }
 

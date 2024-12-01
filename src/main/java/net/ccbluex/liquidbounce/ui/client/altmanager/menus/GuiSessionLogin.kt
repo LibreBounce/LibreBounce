@@ -6,17 +6,18 @@
 package net.ccbluex.liquidbounce.ui.client.altmanager.menus
 
 import com.thealtening.AltService
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.LoginUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import org.lwjgl.input.Keyboard
-import kotlin.concurrent.thread
-
 
 class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
 
@@ -57,6 +58,8 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
      * Draw screen
      */
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         // Draw background to screen
         drawBackground(0)
         drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
@@ -70,6 +73,8 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
 
         if (sessionTokenField.text.isEmpty() && !sessionTokenField.isFocused)
             Fonts.font40.drawCenteredString("§7Session Token", width / 2f - 60f, height / 2 - 84f, 0xffffff)
+
+        assumeNonVolatile = false
 
         // Call sub method
         super.drawScreen(mouseX, mouseY, partialTicks)
@@ -87,7 +92,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
                 loginButton.enabled = false
                 status = "§aLogging in..."
 
-                thread {
+                SharedScopes.IO.launch {
                     val loginResult = LoginUtils.loginSessionId(sessionTokenField.text)
 
                     status = when (loginResult) {
@@ -102,11 +107,10 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
                                 }
                             }
 
-                            "§cYour name is now §f§l${mc.session.username}§c"
+                            "§aLogged into §f§l${mc.session.username}§a."
                         }
                         LoginUtils.LoginResult.FAILED_PARSE_TOKEN -> "§cFailed to parse Session ID!"
                         LoginUtils.LoginResult.INVALID_ACCOUNT_DATA -> "§cInvalid Session ID!"
-                        else -> ""
                     }
 
                     loginButton.enabled = true

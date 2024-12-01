@@ -12,71 +12,131 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RotationUtils.getRotationDifference
+import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.RotationUtils.coerceBodyPoint
 import net.ccbluex.liquidbounce.utils.RotationUtils.isFaced
-import net.ccbluex.liquidbounce.utils.RotationUtils.limitAngleChange
+import net.ccbluex.liquidbounce.utils.RotationUtils.performAngleChange
+import net.ccbluex.liquidbounce.utils.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import java.util.*
 import kotlin.math.atan
 
 object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
 
-    private val horizontalAim by BoolValue("HorizontalAim", true)
-    private val verticalAim by BoolValue("VerticalAim", true)
-    private val range by FloatValue("Range", 4.4F, 1F..8F)
-    private val startFirstRotationSlow by BoolValue("StartFirstRotationSlow", true) { horizontalAim || verticalAim }
-    private val turnSpeed by FloatValue("TurnSpeed", 10f, 1F..180F) { horizontalAim || verticalAim }
-    private val inViewTurnSpeed by FloatValue("InViewTurnSpeed", 35f, 1f..180f) { horizontalAim || verticalAim }
-    private val predictClientMovement by IntegerValue("PredictClientMovement", 2, 0..5)
-    private val predictEnemyPosition by FloatValue("PredictEnemyPosition", 1.5f, -1f..2f)
-    private val fov by FloatValue("FOV", 180F, 1F..180F)
-    private val lock by BoolValue("Lock", true) { horizontalAim || verticalAim }
-    private val onClick by BoolValue("OnClick", false) { horizontalAim || verticalAim }
-    private val jitter by BoolValue("Jitter", false)
-    private val yawJitterMultiplier by FloatValue("JitterYawMultiplier", 1f, 0.1f..2.5f)
-    private val pitchJitterMultiplier by FloatValue("JitterPitchMultiplier", 1f, 0.1f..2.5f)
-    private val center by BoolValue("Center", false)
-    private val headLock by BoolValue("Headlock", false) { center && lock }
-    private val headLockBlockHeight by FloatValue("HeadBlockHeight", -1f, -2f..0f) { headLock && center && lock }
-    private val breakBlocks by BoolValue("BreakBlocks", true)
+    private val range by float("Range", 4.4F, 1F..8F)
+    private val horizontalAim by boolean("HorizontalAim", true)
+    private val verticalAim by boolean("VerticalAim", true)
+    private val legitimize by boolean("Legitimize", true) { horizontalAim || verticalAim }
+    private val maxAngleChange by float("MaxAngleChange", 10f, 1F..180F) { horizontalAim || verticalAim }
+    private val inViewMaxAngleChange by float("InViewMaxAngleChange", 35f, 1f..180f) { horizontalAim || verticalAim }
+    private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
+    private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
+    private val highestBodyPointToTargetValue: ListValue = object : ListValue(
+        "HighestBodyPointToTarget",
+        arrayOf("Head", "Body", "Feet"),
+        "Head"
+    ) {
+        override fun isSupported() = verticalAim
+
+        override fun onChange(oldValue: String, newValue: String): String {
+            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
+            val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
+            val coercedPoint = coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
+            return coercedPoint.name
+        }
+    }
+    private val highestBodyPointToTarget by highestBodyPointToTargetValue
+
+    private val lowestBodyPointToTargetValue: ListValue = object : ListValue(
+        "LowestBodyPointToTarget",
+        arrayOf("Head", "Body", "Feet"),
+        "Feet"
+    ) {
+        override fun isSupported() = verticalAim
+
+        override fun onChange(oldValue: String, newValue: String): String {
+            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
+            val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+            val coercedPoint = coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+            return coercedPoint.name
+        }
+    }
+
+    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
+
+    private val maxHorizontalBodySearch: FloatValue = object : FloatValue("MaxHorizontalBodySearch", 1f, 0f..1f) {
+        override fun isSupported() = horizontalAim
+
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalBodySearch.get())
+    }
+
+    private val minHorizontalBodySearch: FloatValue = object : FloatValue("MinHorizontalBodySearch", 0f, 0f..1f) {
+        override fun isSupported() = horizontalAim
+
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
+    }
+
+    private val minRotationDifference by float(
+        "MinRotationDifference",
+        0f,
+        0f..2f
+    ) { verticalAim || horizontalAim }
+
+    private val fov by float("FOV", 180F, 1F..180F)
+    private val lock by boolean("Lock", true) { horizontalAim || verticalAim }
+    private val onClick by boolean("OnClick", false) { horizontalAim || verticalAim }
+    private val jitter by boolean("Jitter", false)
+    private val yawJitterMultiplier by float("JitterYawMultiplier", 1f, 0.1f..2.5f)
+    private val pitchJitterMultiplier by float("JitterPitchMultiplier", 1f, 0.1f..2.5f)
+    private val center by boolean("Center", false)
+    private val headLock by boolean("Headlock", false) { center && lock }
+    private val headLockBlockHeight by float("HeadBlockHeight", -1f, -2f..0f) { headLock && center && lock }
+    private val breakBlocks by boolean("BreakBlocks", true)
 
     private val clickTimer = MSTimer()
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (event.eventState != EventState.POST) return
+        if (event.eventState != EventState.POST)
+            return
 
         val thePlayer = mc.thePlayer ?: return
+        val theWorld = mc.theWorld ?: return
 
         // Clicking delay
-        if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
+        if (mc.gameSettings.keyBindAttack.isKeyDown)
+            clickTimer.reset()
 
-        if (onClick && (clickTimer.hasTimePassed(150) || (!mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents()))) return
+        if (onClick && (clickTimer.hasTimePassed(150) || !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents()))
+            return
 
         // Search for the best enemy to target
-        val entity = mc.theWorld.loadedEntityList.filter {
-            var result = false
+        val entity = theWorld.loadedEntityList.asSequence().mapNotNull { entity ->
+            var isValid = false
 
-            Backtrack.runWithNearestTrackedDistance(it) {
-                result = isSelected(it, true)
-                    && thePlayer.canEntityBeSeen(it)
-                    && thePlayer.getDistanceToEntityBox(it) <= range
-                    && getRotationDifference(it) <= fov
+            Backtrack.runWithNearestTrackedDistance(entity) {
+                isValid = isSelected(entity, true) &&
+                        thePlayer.canEntityBeSeen(entity) &&
+                        thePlayer.getDistanceToEntityBox(entity) <= range &&
+                        rotationDifference(entity) <= fov
             }
 
-            result
-        }.minByOrNull { mc.thePlayer.getDistanceToEntityBox(it) } ?: return
+            entity.takeIf { isValid }
+        }.minByOrNull { thePlayer.getDistanceToEntityBox(it) } ?: return
 
         // Should it always keep trying to lock on the enemy or just try to assist you?
-        if (!lock && isFaced(entity, range.toDouble())) return
+        if (!lock && isFaced(entity, range.toDouble()))
+            return
 
         val random = Random()
 
@@ -86,9 +146,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
             shouldReturn = !findRotation(entity, random)
         }
 
-        if (shouldReturn) {
+        if (shouldReturn)
             return
-        }
 
         // Jitter
         // Some players do jitter on their mouses causing them to shake around. This is trying to simulate this behavior.
@@ -105,6 +164,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
 
     private fun findRotation(entity: Entity, random: Random): Boolean {
         val player = mc.thePlayer ?: return false
+
         if (mc.playerController.isHittingBlock && breakBlocks) {
             return false
         }
@@ -128,13 +188,14 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         val destinationRotation = if (center) {
             toRotation(boundingBox.center, true)
         } else {
-            searchCenter(boundingBox,
+            searchCenter(
+                boundingBox,
                 outborder = false,
-                random = false,
-                gaussianOffset = false,
                 predict = true,
                 lookRange = range,
-                attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f
+                attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
+                bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
+                horizontalSearch = minHorizontalBodySearch.get()..maxHorizontalBodySearch.get(),
             )
         }
 
@@ -156,22 +217,26 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         }
 
         // Figure out the best turn speed suitable for the distance and configured turn speed
-        val rotationDiff = getRotationDifference(playerRotation, destinationRotation)
+        val rotationDiff = rotationDifference(playerRotation, destinationRotation)
 
         // is enemy visible to player on screen. Fov is about to be right with that you can actually see on the screen. Still not 100% accurate, but it is fast check.
         val supposedTurnSpeed = if (rotationDiff < mc.gameSettings.fovSetting) {
-            inViewTurnSpeed
+            inViewMaxAngleChange
         } else {
-            turnSpeed
+            maxAngleChange
         }
 
         val gaussian = random.nextGaussian()
 
         val realisticTurnSpeed = rotationDiff * ((supposedTurnSpeed + (gaussian - 0.5)) / 180)
-        val rotation = limitAngleChange(player.rotation,
+
+        // Directly access performAngleChange since this module does not use RotationSettings
+        val rotation = performAngleChange(
+            player.rotation,
             destinationRotation,
             realisticTurnSpeed.toFloat(),
-            startOffSlow = startFirstRotationSlow
+            legitimize = legitimize,
+            minRotationDiff = minRotationDifference,
         )
 
         rotation.toPlayer(player, horizontalAim, verticalAim)

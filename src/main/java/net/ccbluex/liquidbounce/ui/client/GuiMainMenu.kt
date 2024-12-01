@@ -84,7 +84,7 @@ class GuiMainMenu : GuiScreen() {
             val lines = messageOfTheDay.lines()
             val motdHeight = height / 4f + 190
             val motdWidth = width / 2f - 115
-            val motdHeightEnd = motdHeight + 192 + (Fonts.font35.fontHeight * lines.size)
+            val motdHeightEnd = motdHeight + 2 + (Fonts.font35.fontHeight * lines.size)
 
             if (mouseX >= motdWidth && mouseX <= width / 2f + 115 && mouseY >= motdHeight && mouseY <= motdHeightEnd) {
                 // Open liquidbounce website

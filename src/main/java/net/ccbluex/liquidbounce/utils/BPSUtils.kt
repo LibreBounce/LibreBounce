@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.Listenable
 import kotlin.math.sqrt
 
 object BPSUtils : MinecraftInstance(), Listenable {
@@ -40,5 +40,5 @@ object BPSUtils : MinecraftInstance(), Listenable {
         return bps
     }
 
-    override fun handleEvents() = true
+    
 }

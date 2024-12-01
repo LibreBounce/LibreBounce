@@ -7,30 +7,34 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.FontValue
 import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.font
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.item.EntityTNTPrimed
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.pow
 
 object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", hideModule = false) {
 
-    private val scale by FloatValue("Scale", 3F, 1F..4F)
-    private val font by FontValue("Font", Fonts.font40)
-    private val fontShadow by BoolValue("Shadow", true)
+    private val scale by float("Scale", 3F, 1F..4F)
+    private val font by font("Font", Fonts.font40)
+    private val fontShadow by boolean("Shadow", true)
 
-    private val colorRed by IntegerValue("R", 255, 0..255)
-    private val colorGreen by IntegerValue("G", 255, 0..255)
-    private val colorBlue by IntegerValue("B", 255, 0..255)
+    private val colorRed by int("R", 255, 0..255)
+    private val colorGreen by int("G", 255, 0..255)
+    private val colorBlue by int("B", 255, 0..255)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
@@ -38,17 +42,20 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
         }
     }
 
-    private val onLook by BoolValue("OnLook", false)
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
+    private val onLook by boolean("OnLook", false)
+    private val maxAngleDifference by float("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
 
     private var maxRenderDistanceSq = 0.0
+        set(value) {
+            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
+        }
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
         val player = mc.thePlayer ?: return
         val world = mc.theWorld ?: return
 
-        for (entity in world.loadedEntityList.filterNotNull()) {
+        for (entity in world.loadedEntityList) {
             if (entity is EntityTNTPrimed && player.getDistanceSqToEntity(entity) <= maxRenderDistanceSq) {
                 val explosionTime = entity.fuse / 5
 
@@ -61,20 +68,20 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
 
     private fun renderTNTTimer(tnt: EntityTNTPrimed, timeRemaining: Int) {
         val thePlayer = mc.thePlayer ?: return
+
         val renderManager = mc.renderManager
+        val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
 
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
+        val (x, y, z) = tnt.interpolatedPosition(tnt.lastTickPos) - renderManager.renderPos
+
         // Translate to TNT position
-        glTranslated(
-            tnt.lastTickPosX + (tnt.posX - tnt.lastTickPosX) - renderManager.renderPosX,
-            tnt.lastTickPosY + (tnt.posY - tnt.lastTickPosY) - renderManager.renderPosY + 1.5,
-            tnt.lastTickPosZ + (tnt.posZ - tnt.lastTickPosZ) - renderManager.renderPosZ
-        )
+        glTranslated(x, y + 1.5f, z)
 
         glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
+        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
 
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
 
@@ -88,7 +95,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
         val fontRenderer = font
 
         // Scale
-        val scale = (thePlayer.getDistanceToEntity(tnt) / 4F).coerceAtLeast(1F) / 150F * scale
+        val scale = ((thePlayer.getDistanceToEntity(tnt) / 4F).coerceAtLeast(1F) / 150F) * scale
         glScalef(-scale, -scale, scale)
 
         // Draw text

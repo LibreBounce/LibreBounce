@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.SessionEvent
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.randomUsername
 import net.minecraft.client.gui.GuiButton
@@ -51,6 +52,8 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         drawRect(30, 30, width - 30, height - 30, Int.MIN_VALUE)
@@ -62,6 +65,8 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
 
         if (username.text.isEmpty() && !username.isFocused)
             Fonts.font40.drawCenteredString("§7Username", width / 2 - 72f, height / 2 - 84f, 0xffffff)
+
+        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
@@ -161,7 +166,7 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
                 crackedAccount.session.token, crackedAccount.session.type
             )
             callEvent(SessionEvent())
-            status = "§aLogged into ${mc.session.username}."
+            status = "§aLogged into §f§l${mc.session.username}§a."
         } else {
             accountsConfig.addAccount(crackedAccount)
             saveConfig(accountsConfig)

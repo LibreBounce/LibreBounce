@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.value
 
-import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
@@ -14,6 +13,8 @@ import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.minecraft.client.gui.FontRenderer
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -22,11 +23,17 @@ abstract class Value<T>(
     val name: String,
     protected open var value: T,
     val subjective: Boolean = false,
-    private val isSupported: (() -> Boolean)? = null
+    var isSupported: (() -> Boolean)? = null,
 ) : ReadWriteProperty<Any?, T> {
 
+    var excluded: Boolean = false
+        private set
+
+    var hidden = false
+        private set
+
     fun set(newValue: T): Boolean {
-        if (newValue == value)
+        if (newValue == value || hidden || excluded)
             return false
 
         val oldValue = value
@@ -45,6 +52,28 @@ abstract class Value<T>(
             LOGGER.error("[ValueSystem ($name)]: ${e.javaClass.name} (${e.message}) [$oldValue >> $newValue]")
             return false
         }
+    }
+
+    /**
+     * Use only when you want an option to be hidden while keeping its state.
+     *
+     * [state] the value it will be set to before it is hidden.
+     */
+    fun hideWithState(state: T = value) {
+        set(state)
+
+        hidden = true
+    }
+
+    /**
+     * Excludes the chosen option [value] from the config system.
+     *
+     * [state] the value it will be set to before it is excluded.
+     */
+    fun excludeWithState(state: T = value) {
+        set(state)
+
+        excluded = true
     }
 
     fun get() = value
@@ -70,13 +99,19 @@ abstract class Value<T>(
     protected open fun onUpdate(value: T) {}
     protected open fun onChange(oldValue: T, newValue: T) = newValue
     protected open fun onChanged(oldValue: T, newValue: T) {}
-    open fun isSupported() = isSupported?.invoke() ?: true
+    open fun isSupported() = isSupported?.invoke() != false
+
+    open fun setSupport(value: (Boolean) -> () -> Boolean) {
+        isSupported = value(isSupported())
+    }
 
     // Support for delegating values using the `by` keyword.
     override operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
     override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         set(value)
     }
+
+    fun shouldRender() = isSupported() && !hidden
 }
 
 /**
@@ -86,7 +121,7 @@ open class BoolValue(
     name: String,
     value: Boolean,
     subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
+    isSupported: (() -> Boolean)? = null,
 ) : Value<Boolean>(name, value, subjective, isSupported) {
 
     override fun toJsonF() = JsonPrimitive(value)
@@ -97,8 +132,11 @@ open class BoolValue(
 
     fun toggle() = set(!value)
 
-    fun isActive() = value && isSupported()
+    fun isActive() = value && (isSupported() || hidden)
 
+    override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean {
+        return super.getValue(thisRef, property) && isActive()
+    }
 }
 
 /**
@@ -109,7 +147,7 @@ open class IntegerValue(
     value: Int,
     val range: IntRange = 0..Int.MAX_VALUE,
     subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
+    isSupported: (() -> Boolean)? = null,
 ) : Value<Int>(name, value, subjective, isSupported) {
 
     fun set(newValue: Number) = set(newValue.toInt())
@@ -123,6 +161,82 @@ open class IntegerValue(
 
     val minimum = range.first
     val maximum = range.last
+}
+
+// TODO: Replace Min/Max options with this instead
+open class IntegerRangeValue(
+    name: String,
+    value: IntRange,
+    val range: IntRange = 0..Int.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null,
+) : Value<IntRange>(name, value, subjective, isSupported) {
+
+    fun setFirst(newValue: Int) = set(newValue..value.last)
+    fun setLast(newValue: Int) = set(value.first..newValue)
+
+    override fun toJsonF(): JsonElement {
+        return JsonPrimitive("${value.first}-${value.last}")
+    }
+
+    override fun fromJsonF(element: JsonElement): IntRange? {
+        return element.asJsonPrimitive?.asString?.split("-")?.takeIf { it.size == 2 }?.let {
+            val (start, end) = it
+
+            start.toIntOrNull()?.let { s ->
+                end.toIntOrNull()?.let { e ->
+                    s..e
+                }
+            }
+        }
+    }
+
+    fun isMinimal() = value.first <= minimum
+    fun isMaximal() = value.last >= maximum
+
+    val minimum = range.first
+    val maximum = range.last
+
+    val random
+        get() = nextInt(value.first, value.last)
+}
+
+// TODO: Replace Min/Max options with this instead
+open class FloatRangeValue(
+    name: String,
+    value: ClosedFloatingPointRange<Float>,
+    val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null,
+) : Value<ClosedFloatingPointRange<Float>>(name, value, subjective, isSupported) {
+
+    fun setFirst(newValue: Float) = set(newValue..value.endInclusive)
+    fun setLast(newValue: Float) = set(value.start..newValue)
+
+    override fun toJsonF(): JsonElement {
+        return JsonPrimitive("${value.start}-${value.endInclusive}")
+    }
+
+    override fun fromJsonF(element: JsonElement): ClosedFloatingPointRange<Float>? {
+        return element.asJsonPrimitive?.asString?.split("-")?.takeIf { it.size == 2 }?.let {
+            val (start, end) = it
+
+            start.toFloatOrNull()?.let { s ->
+                end.toFloatOrNull()?.let { e ->
+                    s..e
+                }
+            }
+        }
+    }
+
+    fun isMinimal() = value.start <= minimum
+    fun isMaximal() = value.endInclusive >= maximum
+
+    val minimum = range.start
+    val maximum = range.endInclusive
+
+    val random
+        get() = nextFloat(value.start, value.endInclusive)
 }
 
 /**
@@ -205,7 +319,7 @@ open class FloatValue(
     value: Float,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
     subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
+    isSupported: (() -> Boolean)? = null,
 ) : Value<Float>(name, value, subjective, isSupported) {
 
     fun set(newValue: Number) = set(newValue.toFloat())
@@ -228,7 +342,7 @@ open class TextValue(
     name: String,
     value: String,
     subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
+    isSupported: (() -> Boolean)? = null,
 ) : Value<String>(name, value, subjective, isSupported) {
 
     override fun toJsonF() = JsonPrimitive(value)
@@ -243,7 +357,7 @@ open class FontValue(
     name: String,
     value: FontRenderer,
     subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
+    isSupported: (() -> Boolean)? = null,
 ) : Value<FontRenderer>(name, value, subjective, isSupported) {
 
     override fun toJsonF(): JsonElement? {
@@ -288,18 +402,19 @@ open class FontValue(
 /**
  * Block value represents a value with a block
  */
-open class BlockValue(name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null) :
-    IntegerValue(name, value, 1..197, subjective, isSupported)
+open class BlockValue(
+    name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null,
+) : IntegerValue(name, value, 1..197, subjective, isSupported)
 
 /**
  * List value represents a selectable list of values
  */
 open class ListValue(
     name: String,
-    val values: Array<String>,
+    var values: Array<String>,
     override var value: String,
     subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
+    isSupported: (() -> Boolean)? = null,
 ) : Value<String>(name, value, subjective, isSupported) {
 
     var openList = false
@@ -313,36 +428,76 @@ open class ListValue(
     override fun toJsonF() = JsonPrimitive(value)
 
     override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asString else null
+
+    fun updateValues(newValues: Array<String>) {
+        values = newValues
+    }
 }
 
-/**
- * MultiList value represents multi-selectable list of values
- */
-open class MultiListValue(
+fun int(
     name: String,
-    val values: Array<String>,
-    public override var value: List<String>,
+    value: Int,
+    range: IntRange = 0..Int.MAX_VALUE,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null
-) : Value<List<String>>(name, value, subjective, isSupported) {
+) = IntegerValue(name, value, range, subjective, isSupported)
 
-    var openList = false
+fun float(
+    name: String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = FloatValue(name, value, range, subjective, isSupported)
 
-    operator fun contains(string: String?) = values.any { it.equals(string, true) }
+fun choices(
+    name: String,
+    values: Array<String>,
+    value: String,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = ListValue(name, values, value, subjective, isSupported)
 
-    override fun changeValue(newValue: List<String>) {
-        if (newValue.isEmpty()) return
+fun block(
+    name: String,
+    value: Int,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = BlockValue(name, value, subjective, isSupported)
 
-        val filteredValues = newValue.filter { valueToKeep -> values.any { it.equals(valueToKeep, true) } }
+fun font(
+    name: String,
+    value: FontRenderer,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = FontValue(name, value, subjective, isSupported)
 
-        if (filteredValues.isEmpty()) return
+fun text(
+    name: String,
+    value: String,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = TextValue(name, value, subjective, isSupported)
 
-        value = filteredValues
-    }
+fun boolean(
+    name: String,
+    value: Boolean,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = BoolValue(name, value, subjective, isSupported)
 
-    override fun toJsonF() = JsonArray().apply {
-        value.forEach { add(it) }
-    }
+fun intRange(
+    name: String,
+    value: IntRange,
+    range: IntRange = 0..Int.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = IntegerRangeValue(name, value, range, subjective, isSupported)
 
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonArray) element.asJsonArray.map { it.asString } else null
-}
+fun floatRange(
+    name: String,
+    value: ClosedFloatingPointRange<Float>,
+    range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null
+) = FloatRangeValue(name, value, range, subjective, isSupported)

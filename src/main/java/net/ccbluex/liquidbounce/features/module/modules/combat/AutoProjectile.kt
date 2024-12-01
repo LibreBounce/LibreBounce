@@ -7,25 +7,28 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.init.Items.egg
 import net.minecraft.init.Items.snowball
 
 object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = false) {
-    private val facingEnemy by BoolValue("FacingEnemy", true)
+    private val facingEnemy by boolean("FacingEnemy", true)
 
-    private val mode by ListValue("Mode", arrayOf("Normal", "Smart"), "Normal")
-    private val range by FloatValue("Range", 8F, 1F..20F)
-    private val throwDelay by IntegerValue("ThrowDelay", 1000, 50..2000) { mode != "Smart" }
+    private val mode by choices("Mode", arrayOf("Normal", "Smart"), "Normal")
+    private val range by float("Range", 8F, 1F..20F)
+    private val throwDelay by int("ThrowDelay", 1000, 50..2000) { mode != "Smart" }
 
     private val minThrowDelay: IntegerValue = object : IntegerValue("MinThrowDelay", 1000, 50..2000) {
         override fun isSupported() = mode == "Smart"
@@ -37,7 +40,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minThrowDelay.get())
     }
 
-    private val switchBackDelay by IntegerValue("SwitchBackDelay", 500, 50..2000)
+    private val switchBackDelay by int("SwitchBackDelay", 500, 50..2000)
 
     private val throwTimer = MSTimer()
     private val projectilePullTimer = MSTimer()
@@ -47,16 +50,18 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val usingProjectile = (mc.thePlayer.isUsingItem && (mc.thePlayer.heldItem?.item == snowball || mc.thePlayer.heldItem?.item == egg)) || projectileInUse
+        val player = mc.thePlayer ?: return
+        val usingProjectile =
+            (player.isUsingItem && (player.heldItem?.item == snowball || player.heldItem?.item == egg)) || projectileInUse
 
         if (usingProjectile) {
             if (projectilePullTimer.hasTimePassed(switchBackDelay)) {
-                if (switchBack != -1 && mc.thePlayer.inventory.currentItem != switchBack) {
-                    mc.thePlayer.inventory.currentItem = switchBack
+                if (switchBack != -1 && player.inventory.currentItem != switchBack) {
+                    player.inventory.currentItem = switchBack
 
-                    mc.playerController.updateController()
+                    mc.playerController.syncCurrentPlayItem()
                 } else {
-                    mc.thePlayer.stopUsingItem()
+                    player.stopUsingItem()
                 }
 
                 switchBack = -1
@@ -83,17 +88,13 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
 
             if (throwProjectile) {
                 if (mode == "Normal" && throwTimer.hasTimePassed(throwDelay)) {
-                    if (mc.thePlayer.heldItem?.item != snowball && mc.thePlayer.heldItem?.item != egg) {
-                        val projectile = findProjectile(36, 45)
+                    if (player.heldItem?.item != snowball && player.heldItem?.item != egg) {
+                        val projectile = InventoryUtils.findItemArray(36, 44, arrayOf(snowball, egg)) ?: return
 
-                        if (projectile == -1) {
-                            return
-                        }
+                        switchBack = player.inventory.currentItem
 
-                        switchBack = mc.thePlayer.inventory.currentItem
-
-                        mc.thePlayer.inventory.currentItem = projectile - 36
-                        mc.playerController.updateController()
+                        player.inventory.currentItem = projectile
+                        mc.playerController.syncCurrentPlayItem()
                     }
 
                     throwProjectile()
@@ -101,17 +102,13 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
 
                 val randomThrowDelay = RandomUtils.nextInt(minThrowDelay.get(), maxThrowDelay.get())
                 if (mode == "Smart" && throwTimer.hasTimePassed(randomThrowDelay)) {
-                    if (mc.thePlayer.heldItem?.item != snowball && mc.thePlayer.heldItem?.item != egg) {
-                        val projectile = findProjectile(36, 45)
+                    if (player.heldItem?.item != snowball && player.heldItem?.item != egg) {
+                        val projectile = InventoryUtils.findItemArray(36, 44, arrayOf(snowball, egg)) ?: return
 
-                        if (projectile == -1) {
-                            return
-                        }
+                        switchBack = player.inventory.currentItem
 
-                        switchBack = mc.thePlayer.inventory.currentItem
-
-                        mc.thePlayer.inventory.currentItem = projectile - 36
-                        mc.playerController.updateController()
+                        player.inventory.currentItem = projectile
+                        mc.playerController.syncCurrentPlayItem()
                     }
 
                     throwProjectile()
@@ -124,29 +121,15 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = f
      * Throw projectile (snowball/egg)
      */
     private fun throwProjectile() {
-        val projectile = findProjectile(36, 45)
+        val player = mc.thePlayer ?: return
+        val projectile = InventoryUtils.findItemArray(36, 44, arrayOf(snowball, egg)) ?: return
 
-        mc.thePlayer.inventory.currentItem = projectile - 36
+        player.inventory.currentItem = projectile
 
-        mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventoryContainer.getSlot(projectile).stack)
+        mc.playerController.sendUseItem(player, mc.theWorld, player.hotBarSlot(projectile).stack)
 
         projectileInUse = true
         projectilePullTimer.reset()
-    }
-
-    /**
-     * Find projectile (snowball/egg) in inventory
-     */
-    private fun findProjectile(startSlot: Int, endSlot: Int): Int {
-        for (i in startSlot until endSlot) {
-            val stack = mc.thePlayer?.inventoryContainer?.getSlot(i)?.stack
-            if (stack != null) {
-                if (stack.item == snowball || stack.item == egg) {
-                    return i
-                }
-            }
-        }
-        return -1
     }
 
     /**

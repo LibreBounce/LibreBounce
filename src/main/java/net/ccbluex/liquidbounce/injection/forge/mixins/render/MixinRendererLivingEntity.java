@@ -6,11 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import co.uk.hexeption.utils.OutlineUtils;
-import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot;
-import net.ccbluex.liquidbounce.features.module.modules.render.Chams;
-import net.ccbluex.liquidbounce.features.module.modules.render.ESP;
-import net.ccbluex.liquidbounce.features.module.modules.render.NameTags;
-import net.ccbluex.liquidbounce.features.module.modules.render.TrueSight;
+import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -82,7 +78,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
 
             if (semiVisible) {
                 pushMatrix();
-                color(1f, 1f, 1f, 0.15F);
+                color(1f, 1f, 1f, 0.3F);
                 depthMask(false);
                 glEnable(GL_BLEND);
                 blendFunc(770, 771);
@@ -150,5 +146,15 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         }
 
         ci.cancel();
+    }
+
+    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;prevRotationPitch:F", ordinal = 0, shift = At.Shift.BEFORE))
+    private void injectFreeLookPitchPreMovePrevention(CallbackInfo ci) {
+        FreeLook.INSTANCE.restoreOriginalRotation();
+    }
+
+    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderLivingAt(Lnet/minecraft/entity/EntityLivingBase;DDD)V"))
+    private void injectFreeLookPitchPostMovePrevention(CallbackInfo ci) {
+        FreeLook.INSTANCE.useModifiedRotation();
     }
 }

@@ -17,7 +17,7 @@ import net.minecraft.item.Item
  *
  * @author SenkJu
  */
-class ModuleCommand(val module: Module, val values: List<Value<*>> = module.values) : Command(module.name.lowercase()) {
+class ModuleCommand(val module: Module, val values: Set<Value<*>> = module.values) : Command(module.name.lowercase()) {
 
     init {
         if (values.isEmpty())
@@ -28,9 +28,7 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
      * Execute commands with provided [args]
      */
     override fun execute(args: Array<String>) {
-        val valueNames = values
-            .filter { it !is FontValue }
-            .joinToString(separator = "/") { it.name.lowercase() }
+        val valueNames = values.filter { it !is FontValue }.joinToString(separator = "/") { it.name.lowercase() }
 
         val moduleName = module.name.lowercase()
 
@@ -56,16 +54,23 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
             }
 
             else -> {
-                if (
-                    if (value is TextValue) args.size < 3
-                    else args.size != 3
-                ) {
+                if (if (value is TextValue) args.size < 3 else args.size != 3) {
                     when (value) {
-                        is IntegerValue, is FloatValue, is TextValue ->
+                        is IntegerValue, is FloatValue, is TextValue -> {
                             chatSyntax("$moduleName ${args[1].lowercase()} <value>")
+                        }
 
-                        is ListValue ->
-                            chatSyntax("$moduleName ${args[1].lowercase()} <${value.values.joinToString(separator = "/").lowercase()}>")
+                        is ListValue -> {
+                            chatSyntax(
+                                "$moduleName ${args[1].lowercase()} <${
+                                    value.values.joinToString(separator = "/").lowercase()
+                                }>"
+                            )
+                        }
+
+                        is IntegerRangeValue, is FloatRangeValue -> {
+                            chatSyntax("$moduleName ${args[1].lowercase()} <min>-<max>")
+                        }
                     }
 
                     return
@@ -73,6 +78,68 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
 
                 try {
                     val pair: Pair<Boolean, String> = when (value) {
+                        is IntegerRangeValue -> {
+                            val rangeParts = args[2].split("-").takeIf { it.size == 2 }
+                            if (rangeParts != null) {
+                                val start = rangeParts[0].toIntOrNull()
+                                val end = rangeParts[1].toIntOrNull()
+
+                                if (start != null && end != null) {
+                                    val newRange = start..end
+
+                                    require(start <= end) {
+                                        chat("§7Min ($start) cannot be greater than $end!")
+                                        return
+                                    }
+
+                                    if (newRange.first in value.range && newRange.last in value.range) {
+                                        if (value.set(newRange)) {
+                                            chat("§7${module.getName()} §8${args[1]}§7 was set to §8${newRange.first} - ${newRange.last}§7.")
+                                            playEdit()
+                                        } else chatInvalid("$newRange", value)
+                                    } else {
+                                        chat("§7${module.getName()} §8${args[1]}§7 range is out of bounds (${value.minimum} - ${value.maximum}).")
+                                    }
+                                } else {
+                                    chat("§7Invalid range format for ${args[1]}. Please use <start>-<end> with integer values.")
+                                }
+                            } else {
+                                chat("§7Invalid range format for ${args[1]}. Please use <start>-<end> with integer values.")
+                            }
+                            return
+                        }
+
+                        is FloatRangeValue -> {
+                            val rangeParts = args[2].split("-").takeIf { it.size == 2 }
+                            if (rangeParts != null) {
+                                val start = rangeParts[0].toFloatOrNull()
+                                val end = rangeParts[1].toFloatOrNull()
+
+                                if (start != null && end != null) {
+                                    val newRange = start..end
+
+                                    require(start <= end) {
+                                        chat("§7Min ($start) cannot be greater than $end!")
+                                        return
+                                    }
+
+                                    if (newRange.start in value.range && newRange.endInclusive in value.range) {
+                                        if (value.set(newRange)) {
+                                            chat("§7${module.getName()} §8${args[1]}§7 was set to §8${newRange.start} - ${newRange.endInclusive}§7.")
+                                            playEdit()
+                                        } else chatInvalid("$newRange", value)
+                                    } else {
+                                        chat("§7${module.getName()} §8${args[1]}§7 range is out of bounds (${value.minimum} - ${value.maximum}).")
+                                    }
+                                } else {
+                                    chat("§7Invalid range format for ${args[1]}. Please use <start>-<end> with float values.")
+                                }
+                            } else {
+                                chat("§7Invalid range format for ${args[1]}. Please use <start>-<end> with float values.")
+                            }
+                            return
+                        }
+
                         is BlockValue -> {
                             val id = try {
                                 args[2].toInt()
@@ -97,33 +164,22 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
 
                             return
                         }
+
                         is IntegerValue -> value.set(args[2].toInt()) to args[2]
                         is FloatValue -> value.set(args[2].toFloat()) to args[2]
                         is ListValue -> {
                             if (args[2] !in value) {
-                                chatSyntax("$moduleName ${args[1].lowercase()} <${value.values.joinToString(separator = "/").lowercase()}>")
+                                chatSyntax(
+                                    "$moduleName ${args[1].lowercase()} <${
+                                        value.values.joinToString(separator = "/").lowercase()
+                                    }>"
+                                )
                                 return
                             }
 
                             value.set(args[2]) to args[2]
                         }
-                        is MultiListValue -> {
-                            val newValue = value.value.toMutableList()
-                            val option = args[2]
 
-                            if (option !in value.values) {
-                                chatInvalid(option, value)
-                                return
-                            }
-
-                            if (newValue.contains(option)) {
-                                newValue.remove(option)
-                            } else {
-                                newValue.add(option)
-                            }
-
-                            value.set(newValue) to option
-                        }
                         is TextValue -> {
                             val string = StringUtils.toCompleteString(args, 2)
                             value.set(string) to string
@@ -151,16 +207,21 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
         if (args.isEmpty()) return emptyList()
 
         return when (args.size) {
-            1 -> values
-                .filter { it !is FontValue && it.isSupported() && it.name.startsWith(args[0], true) }
-                .map { it.name.lowercase() }
+            1 -> values.mapNotNull {
+                it.takeIf {
+                    it !is FontValue && it.shouldRender() && it.name.startsWith(args[0], true)
+                }?.name?.lowercase()
+            }
+
             2 -> {
                 when (module[args[0]]) {
                     is BlockValue -> {
-                        return Item.itemRegistry.keys
-                                .map { it.resourcePath.lowercase() }
-                                .filter { it.startsWith(args[1], true) }
+                        return Item.itemRegistry.keys.mapNotNull {
+                            it.resourcePath.lowercase().takeIf { it.startsWith(args[1], true) }
+                        }
+
                     }
+
                     is ListValue -> {
                         values.forEach { value ->
                             if (!value.name.equals(args[0], true))
@@ -170,26 +231,18 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                         }
                         return emptyList()
                     }
-                    is MultiListValue -> {
-                        values.forEach { value ->
-                            if (!value.name.equals(args[0], true))
-                                return@forEach
-                            if (value is MultiListValue)
-                                return value.values.filter { it.startsWith(args[1], true) }
-                        }
-                        return emptyList()
-                    }
+
                     else -> emptyList()
                 }
             }
+
             else -> emptyList()
         }
     }
 
     private fun chatInvalid(arg: String, value: Value<*>, reason: String? = null) {
-        val finalReason = reason ?:
-            if (value.get().toString().equals(arg, true)) "is already the value of"
-            else "isn't a valid value for"
+        val finalReason = reason ?: if (value.get().toString().equals(arg, true)) "is already the value of"
+        else "isn't a valid value for"
 
         chat("§8$arg§7 $finalReason §8${value.name}§7!")
     }

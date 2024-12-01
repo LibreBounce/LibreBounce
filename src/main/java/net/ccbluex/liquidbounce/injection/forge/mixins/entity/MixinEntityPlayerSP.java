@@ -15,12 +15,14 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sneak;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
+import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoSwing;
 import net.ccbluex.liquidbounce.utils.CooldownHelper;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.extensions.MathExtensionsKt;
+import net.ccbluex.liquidbounce.utils.extensions.PlayerExtensionKt;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -48,6 +50,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -125,14 +128,24 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      */
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new MotionEvent(EventState.PRE));
+        MotionEvent motionEvent = new MotionEvent(
+                posX,
+                getEntityBoundingBox().minY,
+                posZ,
+                onGround,
+                EventState.PRE
+        );
+
+        EventManager.INSTANCE.callEvent(motionEvent);
 
         final InventoryMove inventoryMove = InventoryMove.INSTANCE;
         final Sneak sneak = Sneak.INSTANCE;
+        final Derp derp = Derp.INSTANCE;
+
         final boolean fakeSprint = inventoryMove.handleEvents() && inventoryMove.getAacAdditionPro()
                 || AntiHunger.INSTANCE.handleEvents()
-                || sneak.handleEvents() && (!MovementUtils.INSTANCE.isMoving() || !sneak.getStopMove()) && sneak.getMode().equals("MineSecure")
-                || Disabler.INSTANCE.handleEvents() && Disabler.INSTANCE.getMode().equals("StartSprint");
+                || sneak.handleEvents() && (!PlayerExtensionKt.isMoving(mc.thePlayer) || !sneak.getStopMove()) && sneak.getMode().equals("MineSecure")
+                || Disabler.INSTANCE.handleEvents() && Disabler.INSTANCE.getStartSprint();
 
         boolean sprinting = isSprinting() && !fakeSprint;
 
@@ -154,13 +167,18 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             serverSneakState = sneaking;
         }
 
+        if (motionEvent.getOnGround()) {
+            MovementUtils.INSTANCE.setAirTicks(0);
+        } else {
+            MovementUtils.INSTANCE.setAirTicks(MovementUtils.INSTANCE.getAirTicks() + 1);
+        }
+
         if (isCurrentViewEntity()) {
             float yaw = rotationYaw;
             float pitch = rotationPitch;
 
             final Rotation currentRotation = RotationUtils.INSTANCE.getCurrentRotation();
 
-            final Derp derp = Derp.INSTANCE;
             if (derp.handleEvents()) {
                 Rotation rot = derp.getRotation();
                 yaw = rot.getYaw();
@@ -172,38 +190,40 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 pitch = currentRotation.getPitch();
             }
 
-            double xDiff = posX - lastReportedPosX;
-            double yDiff = getEntityBoundingBox().minY - lastReportedPosY;
-            double zDiff = posZ - lastReportedPosZ;
+            double xDiff = motionEvent.getX() - lastReportedPosX;
+            double yDiff = motionEvent.getY() - lastReportedPosY;
+            double zDiff = motionEvent.getZ() - lastReportedPosZ;
             double yawDiff = yaw - this.lastReportedYaw;
             double pitchDiff = pitch - this.lastReportedPitch;
             boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 9.0E-4 || positionUpdateTicks >= 20;
-            boolean rotated = yawDiff != 0 || pitchDiff != 0;
-
-            RotationUtils.INSTANCE.setLastServerRotation(new Rotation(lastReportedYaw, lastReportedPitch));
+            boolean rotated = !FreeCam.INSTANCE.shouldDisableRotations() && (yawDiff != 0 || pitchDiff != 0);
 
             if (ridingEntity == null) {
                 if (moved && rotated) {
-                    sendQueue.addToSendQueue(new C06PacketPlayerPosLook(posX, getEntityBoundingBox().minY, posZ, yaw, pitch, onGround));
+                    sendQueue.addToSendQueue(new C06PacketPlayerPosLook(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), yaw, pitch, motionEvent.getOnGround()));
                 } else if (moved) {
-                    sendQueue.addToSendQueue(new C04PacketPlayerPosition(posX, getEntityBoundingBox().minY, posZ, onGround));
+                    sendQueue.addToSendQueue(new C04PacketPlayerPosition(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getOnGround()));
                 } else if (rotated) {
-                    sendQueue.addToSendQueue(new C05PacketPlayerLook(yaw, pitch, onGround));
+                    sendQueue.addToSendQueue(new C05PacketPlayerLook(yaw, pitch, motionEvent.getOnGround()));
                 } else {
-                    sendQueue.addToSendQueue(new C03PacketPlayer(onGround));
+                    sendQueue.addToSendQueue(new C03PacketPlayer(motionEvent.getOnGround()));
                 }
             } else {
-                sendQueue.addToSendQueue(new C06PacketPlayerPosLook(motionX, -999, motionZ, yaw, pitch, onGround));
+                sendQueue.addToSendQueue(new C06PacketPlayerPosLook(motionX, -999, motionZ, yaw, pitch, motionEvent.getOnGround()));
                 moved = false;
             }
 
             ++positionUpdateTicks;
 
             if (moved) {
-                lastReportedPosX = posX;
-                lastReportedPosY = getEntityBoundingBox().minY;
-                lastReportedPosZ = posZ;
+                lastReportedPosX = motionEvent.getX();
+                lastReportedPosY = motionEvent.getY();
+                lastReportedPosZ = motionEvent.getZ();
                 positionUpdateTicks = 0;
+            }
+
+            if (!FreeCam.INSTANCE.shouldDisableRotations()) {
+                RotationUtils.INSTANCE.setServerRotation(new Rotation(yaw, pitch));
             }
 
             if (rotated) {
@@ -212,9 +232,19 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
         }
 
-        EventManager.INSTANCE.callEvent(new MotionEvent(EventState.POST));
+        EventManager.INSTANCE.callEvent(new MotionEvent(posX, getEntityBoundingBox().minY, posZ, onGround, EventState.POST));
+
+        EventManager.INSTANCE.callEvent(new RotationUpdateEvent());
 
         ci.cancel();
+    }
+
+    @ModifyVariable(method = "sendChatMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    private String handleSendMessage(String content) {
+        if (Disabler.INSTANCE.handleEvents() && Disabler.INSTANCE.getSpigotSpam()) {
+            return Disabler.INSTANCE.getMessage() + " " + content;
+        }
+        return content;
     }
 
     @Inject(method = "swingItem", at = @At("HEAD"), cancellable = true)
@@ -235,7 +265,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
     @Inject(method = "pushOutOfBlocks", at = @At("HEAD"), cancellable = true)
     private void onPushOutOfBlocks(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        PushOutEvent event = new PushOutEvent();
+        BlockPushEvent event = new BlockPushEvent();
         if (noClip) {
             event.cancelEvent();
         }
@@ -751,5 +781,22 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
             worldObj.theProfiler.endSection();
         }
+    }
+
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
+    private void preTickEvent(CallbackInfo ci) {
+        final PlayerTickEvent tickEvent = new PlayerTickEvent(EventState.PRE);
+        EventManager.INSTANCE.callEvent(tickEvent);
+
+        if (tickEvent.isCancelled()) {
+            EventManager.INSTANCE.callEvent(new RotationUpdateEvent());
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.AFTER, ordinal = 0))
+    private void postTickEvent(CallbackInfo ci) {
+        final PlayerTickEvent tickEvent = new PlayerTickEvent(EventState.POST);
+        EventManager.INSTANCE.callEvent(tickEvent);
     }
 }

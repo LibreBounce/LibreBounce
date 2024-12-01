@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 
 object HideCommand : Command("hide") {
     /**
@@ -22,8 +21,8 @@ object HideCommand : Command("hide") {
         when (args[1].lowercase()) {
             "list" -> {
                 chat("§c§lHidden")
-                moduleManager.modules.filter { !it.inArray }.forEach {
-                    displayChatMessage("§6> §c${it.getName()}")
+                moduleManager.modules.forEach {
+                    if (!it.inArray) chat("§6> §c${it.getName()}")
                 }
             }
 
@@ -71,10 +70,7 @@ object HideCommand : Command("hide") {
         val moduleName = args[0]
 
         return when (args.size) {
-            1 -> moduleManager.modules
-                    .map { it.name }
-                    .filter { it.startsWith(moduleName, true) }
-                    .toList()
+            1 -> moduleManager.modules.mapNotNull { it.name.takeIf { it.startsWith(moduleName, true) == true } }
             else -> emptyList()
         }
     }

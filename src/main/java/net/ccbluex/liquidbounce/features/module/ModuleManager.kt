@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.*
 import net.ccbluex.liquidbounce.features.module.modules.render.*
 import net.ccbluex.liquidbounce.features.module.modules.world.*
 import net.ccbluex.liquidbounce.features.module.modules.world.Timer
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import java.util.*
@@ -57,6 +58,7 @@ object ModuleManager : Listenable {
             AntiHunger,
             AntiFireball,
             AntiVanish,
+            AntiVoid,
             AtAllProvider,
             AttackEffects,
             AutoAccount,
@@ -80,15 +82,17 @@ object ModuleManager : Listenable {
             Backtrack,
             BedDefender,
             BedGodMode,
+            BedPlates,
             BedProtectionESP,
             Blink,
             BlockESP,
             BlockOverlay,
-            BowAimbot,
+            PointerESP,
+            ProjectileAimbot,
             Breadcrumbs,
             BufferSpeed,
-            BugUp,
             CameraClip,
+            CameraView,
             Chams,
             ChestAura,
             ChestStealer,
@@ -132,6 +136,7 @@ object ModuleManager : Listenable {
             ItemTeleport,
             KeepAlive,
             KeepContainer,
+            KeepTabList,
             KeyPearl,
             Kick,
             KillAura,
@@ -145,9 +150,7 @@ object ModuleManager : Listenable {
             MultiActions,
             NameProtect,
             NameTags,
-            NoAchievement,
             NoBob,
-            NoBooks,
             NoClip,
             NoFOV,
             NoFall,
@@ -157,11 +160,11 @@ object ModuleManager : Listenable {
             NoJumpDelay,
             NoPitchLimit,
             NoRotateSet,
-            NoScoreboard,
             NoSlotSet,
             NoSlow,
             NoSlowBreak,
             NoSwing,
+            Notifier,
             NoWeb,
             Nuker,
             PacketDebugger,
@@ -213,7 +216,13 @@ object ModuleManager : Listenable {
             Zoot,
             KeepSprint,
             Disabler,
-            OverrideRaycast
+            OverrideRaycast,
+            TickBase,
+            RotationRecorder,
+            ForwardTrack,
+            FreeLook,
+            SilentHotbarModule,
+            ClickRecorder
         )
 
         InventoryManager.startCoroutine()
@@ -301,5 +310,5 @@ object ModuleManager : Listenable {
     @EventTarget
     private fun onKey(event: KeyEvent) = modules.forEach { if (it.keyBind == event.key) it.toggle() }
 
-    override fun handleEvents() = true
+    
 }

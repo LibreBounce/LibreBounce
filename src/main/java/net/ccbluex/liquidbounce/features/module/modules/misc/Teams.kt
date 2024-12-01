@@ -5,25 +5,28 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.item.ItemArmor
 
 object Teams : Module("Teams", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val scoreboard by BoolValue("ScoreboardTeam", true)
-    private val color by BoolValue("Color", true)
-    private val gommeSW by BoolValue("GommeSW", false)
+    private val scoreboard by boolean("ScoreboardTeam", true)
+    private val nameColor by boolean("NameColor", true)
+    private val armorColor by boolean("ArmorColor", true)
+    private val gommeSW by boolean("GommeSW", false)
 
     /**
-     * Check if [entity] is in your own team using scoreboard, name color or team prefix
+     * Check if [entity] is in your own team using scoreboard, name/armor color or team prefix
      */
     fun isInYourTeam(entity: EntityLivingBase): Boolean {
         val thePlayer = mc.thePlayer ?: return false
 
         if (scoreboard && thePlayer.team != null && entity.team != null &&
-                thePlayer.team.isSameTeam(entity.team))
+            thePlayer.team.isSameTeam(entity.team)
+        )
             return true
 
         val displayName = thePlayer.displayName
@@ -36,10 +39,24 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false, hideModule 
                     return targetName[1] == clientName[1]
         }
 
-        if (color && displayName != null && entity.displayName != null) {
+        if (nameColor && displayName != null && entity.displayName != null) {
             val targetName = entity.displayName.formattedText.replace("§r", "")
             val clientName = displayName.formattedText.replace("§r", "")
             return targetName.startsWith("§${clientName[1]}")
+        }
+
+        if (armorColor) {
+            for (i in 0..3) {
+                val playerArmor = thePlayer.getCurrentArmor(i)
+                val entityArmor = entity.getCurrentArmor(i)
+
+                if (playerArmor != null && entityArmor != null) {
+                    val playerArmorColor = (playerArmor.item as ItemArmor).getColor(playerArmor)
+                    val entityArmorColor = (entityArmor.item as ItemArmor).getColor(entityArmor)
+
+                    return entityArmorColor == playerArmorColor
+                }
+            }
         }
 
         return false

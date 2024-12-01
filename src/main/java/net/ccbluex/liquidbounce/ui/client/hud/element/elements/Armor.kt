@@ -9,11 +9,12 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.GlStateManager.*
-import org.lwjgl.opengl.GL11.glPopMatrix
-import org.lwjgl.opengl.GL11.glPushMatrix
+import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
+import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
+import org.lwjgl.opengl.GL11.*
 
 /**
  * CustomHUD Armor element
@@ -21,10 +22,12 @@ import org.lwjgl.opengl.GL11.glPushMatrix
  * Shows a horizontal display of current armor
  */
 @ElementInfo(name = "Armor")
-class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
-            side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
+class Armor(
+    x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
+    side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)
+) : Element(x, y, scale, side) {
 
-    private val modeValue by ListValue("Alignment", arrayOf("Horizontal", "Vertical"), "Horizontal")
+    private val modeValue by choices("Alignment", arrayOf("Horizontal", "Vertical"), "Horizontal")
 
     /**
      * Draw element
@@ -39,11 +42,15 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
             var x = 1
             var y = if (isInsideWater) -10 else 0
 
+            glColor4f(1F, 1F, 1F, 1F)
+
             for (index in 3 downTo 0) {
                 val stack = mc.thePlayer.inventory.armorInventory[index] ?: continue
 
+                enableGUIStandardItemLighting()
                 renderItem.renderItemIntoGUI(stack, x, y)
                 renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
+                disableStandardItemLighting()
 
                 when (modeValue) {
                     "Horizontal" -> x += 18

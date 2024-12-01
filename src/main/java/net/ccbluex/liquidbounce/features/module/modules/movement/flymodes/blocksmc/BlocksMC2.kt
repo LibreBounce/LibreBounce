@@ -1,3 +1,8 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.blocksmc
 
 import net.ccbluex.liquidbounce.event.*
@@ -10,15 +15,15 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnLandi
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnNoMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.script.api.global.Chat
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.schedulePacketProcess
 import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.Packet
+import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S40PacketDisconnect
 import net.minecraft.network.status.client.C00PacketServerQuery
@@ -53,13 +58,13 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
                 if (debugFly)
-                    Chat.print("Ground Detected.. Stopping Fly")
+                    chat("Ground Detected.. Stopping Fly")
                 Fly.state = false
             }
 
-            if (!isMoving && stopOnNoMove) {
+            if (!player.isMoving && stopOnNoMove) {
                 if (debugFly)
-                    Chat.print("No Movement Detected.. Stopping Fly. (Could be flagged)")
+                    chat("No Movement Detected.. Stopping Fly. (Could be flagged)")
                 Fly.state = false
             }
         }
@@ -80,7 +85,7 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
             }
         } else {
             if (debugFly)
-                Chat.print("Pls stand under a block")
+                chat("Pls stand under a block")
         }
     }
 
@@ -124,7 +129,8 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
     }
 
     private fun shouldFly(player: EntityPlayerSP, world: World): Boolean {
-        return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 0.5, 0.0)).isEmpty() || isFlying
+        return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 0.5, 0.0))
+            .isEmpty() || isFlying
     }
 
     private fun handlePlayerFlying(player: EntityPlayerSP) {
@@ -137,6 +143,7 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
                     isNotUnder = false
                 }
             }
+
             1 -> {
                 if (isFlying) {
                     strafe(boostSpeed)
@@ -167,7 +174,7 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
             isBlinked = true
 
             if (debugFly)
-                Chat.print("blinked.. fly now!")
+                chat("blinked.. fly now!")
 
             if (event.eventType == EventState.RECEIVE && mc.thePlayer.ticksExisted > 10) {
                 event.cancelEvent()
@@ -200,7 +207,7 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
 
     private fun blink() {
         synchronized(packetsReceived) {
-            PacketUtils.queuedPackets.addAll(packetsReceived)
+            schedulePacketProcess(packetsReceived)
         }
         synchronized(packets) {
             sendPackets(*packets.toTypedArray(), triggerEvents = false)

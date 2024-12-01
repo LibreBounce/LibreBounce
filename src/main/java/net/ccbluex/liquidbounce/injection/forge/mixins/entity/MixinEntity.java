@@ -5,18 +5,21 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
 import net.ccbluex.liquidbounce.event.EventManager;
+import net.ccbluex.liquidbounce.event.RotationSetEvent;
 import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.NoPitchLimit;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoFluid;
+import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam;
+import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,6 +28,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -47,6 +51,10 @@ public abstract class MixinEntity implements IMixinEntity {
     public double posZ;
 
     private double trueX;
+
+    private double lerpX;
+    private double lerpY;
+    private double lerpZ;
 
     public double getTrueX() {
         return trueX;
@@ -233,17 +241,9 @@ public abstract class MixinEntity implements IMixinEntity {
             callbackInfoReturnable.setReturnValue(0.1F + hitBox.determineSize((Entity) (Object) this));
     }
 
-    @Inject(method = "setAngles", at = @At("HEAD"), cancellable = true)
-    private void setAngles(final float yaw, final float pitch, final CallbackInfo callbackInfo) {
-        if (NoPitchLimit.INSTANCE.handleEvents()) {
-            callbackInfo.cancel();
-
-            prevRotationYaw = rotationYaw;
-            prevRotationPitch = rotationPitch;
-
-            rotationYaw += yaw * 0.15f;
-            rotationPitch -= pitch * 0.15f;
-        }
+    @Redirect(method = "setAngles", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MathHelper;clamp_float(FFF)F"))
+    private float setAngles(float a, float min, float max) {
+        return NoPitchLimit.INSTANCE.handleEvents() ? a : MathHelper.clamp_float(a, min, max);
     }
 
     @Inject(method = "moveFlying", at = @At("HEAD"), cancellable = true)
@@ -259,15 +259,63 @@ public abstract class MixinEntity implements IMixinEntity {
 
     @Inject(method = "isInWater", at = @At("HEAD"), cancellable = true)
     private void isInWater(final CallbackInfoReturnable<Boolean> cir) {
-        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getWater()) {
+        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getWaterValue()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "isInLava", at = @At("HEAD"), cancellable = true)
     private void isInLava(final CallbackInfoReturnable<Boolean> cir) {
-        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getLava()) {
+        if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getLavaValue()) {
             cir.setReturnValue(false);
         }
+    }
+
+    @Inject(method = "getPositionEyes", at = @At("RETURN"), cancellable = true)
+    private void hookFreeCamModifiedRaycast(float tickDelta, CallbackInfoReturnable<Vec3> cir) {
+        cir.setReturnValue(FreeCam.INSTANCE.modifyRaycast(cir.getReturnValue(), (Entity) (Object) this, tickDelta));
+    }
+
+    @Inject(method = "setAngles", at = @At("HEAD"), cancellable = true)
+    private void injectRotationSetEvent(float yaw, float pitch, CallbackInfo ci) {
+        if ((Object) this != mc.thePlayer)
+            return;
+
+        RotationSetEvent event = new RotationSetEvent((float) (yaw * 0.15), (float) (pitch * 0.15));
+
+        EventManager.INSTANCE.callEvent(event);
+
+        if (event.isCancelled())
+            ci.cancel();
+    }
+
+    @Override
+    public double getLerpX() {
+        return lerpX;
+    }
+
+    @Override
+    public void setLerpX(double lerpX) {
+        this.lerpX = lerpX;
+    }
+
+    @Override
+    public double getLerpY() {
+        return lerpY;
+    }
+
+    @Override
+    public void setLerpY(double lerpY) {
+        this.lerpY = lerpY;
+    }
+
+    @Override
+    public double getLerpZ() {
+        return lerpZ;
+    }
+
+    @Override
+    public void setLerpZ(double lerpZ) {
+        this.lerpZ = lerpZ;
     }
 }

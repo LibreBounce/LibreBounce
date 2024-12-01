@@ -14,18 +14,21 @@ import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.utils.ClassUtils
+import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.Value
+import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
+import java.util.concurrent.CopyOnWriteArraySet
 
 open class Module constructor(
-
     val name: String,
     val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
@@ -37,14 +40,21 @@ open class Module constructor(
     val spacedName: String = name.split("(?<=[a-z])(?=[A-Z])".toRegex()).joinToString(separator = " "),
     val subjective: Boolean = category == Category.RENDER,
     val gameDetecting: Boolean = canBeEnabled,
-    val hideModule: Boolean = false
+    val hideModule: Boolean = false,
 
-) : MinecraftInstance(), Listenable {
+    ) : MinecraftInstance(), Listenable {
 
     // Value that determines whether the module should depend on GameDetector
-    private val onlyInGameValue = BoolValue("OnlyInGame", true, subjective = true) { GameDetector.state }
+    private val onlyInGameValue = boolean("OnlyInGame", true, subjective = true) { GameDetector.state }
 
     protected val TickScheduler = TickScheduler(this)
+
+    // List to register additional options from classes
+    private val configurables = mutableListOf<Class<*>>()
+
+    fun addConfigurable(provider: Any) {
+        configurables += provider::class.java
+    }
 
     // Module information
 
@@ -96,8 +106,14 @@ open class Module constructor(
 
             // Play sound and add notification
             if (!isStarting) {
-                mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("random.click"), 1F))
-                addNotification(Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName())))
+                synchronized(mc.soundHandler) {
+                    mc.soundHandler.playSound(
+                        PositionedSoundRecord.create(ResourceLocation("random.click"), 1F)
+                    )
+                }
+                addNotification(
+                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
+                )
             }
 
             // Call on enabled or disabled
@@ -160,20 +176,26 @@ open class Module constructor(
     /**
      * Get all values of module with unique names
      */
-    open val values
-        get() = javaClass.declaredFields
-            .map { field ->
-                field.isAccessible = true
-                field[this]
-            }.filterIsInstance<Value<*>>().toMutableList()
-            .also {
-                if (gameDetecting)
-                    it.add(onlyInGameValue)
+    open val values: Set<Value<*>>
+        get() {
+            val orderedValues = CopyOnWriteArraySet<Value<*>>()
 
-                if (!hideModule)
-                    it.add(hideModuleValue)
+            try {
+                javaClass.declaredFields.forEach { innerField ->
+                    innerField.isAccessible = true
+                    val element = innerField[this] ?: return@forEach
+
+                    ClassUtils.findValues(element, configurables, orderedValues)
+                }
+
+                if (gameDetecting) orderedValues += onlyInGameValue
+                if (!hideModule) orderedValues += hideModuleValue
+            } catch (e: Exception) {
+                LOGGER.error(e)
             }
-            .distinctBy { it.name }
+
+            return orderedValues
+        }
 
     val isActive
         get() = !gameDetecting || !onlyInGameValue.get() || GameDetector.isInGame()

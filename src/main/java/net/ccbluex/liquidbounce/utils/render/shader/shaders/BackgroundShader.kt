@@ -37,6 +37,6 @@ class BackgroundShader : Shader {
         val timeID = getUniform("iTime")
         if (timeID > -1) glUniform1f(timeID, time)
 
-        time += 0.003f * deltaTime
+        time += 0.002f * deltaTime
     }
 }

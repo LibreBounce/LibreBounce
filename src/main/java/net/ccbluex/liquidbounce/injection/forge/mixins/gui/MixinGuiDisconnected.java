@@ -91,7 +91,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                         yggdrasilUserAuthentication.setPassword(CLIENT_NAME);
                         yggdrasilUserAuthentication.logIn();
 
-                        mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang");
+                        mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "microsoft");
                         EventManager.INSTANCE.callEvent(new SessionEvent());
                         ServerUtils.INSTANCE.connectToLastServer();
                         break;

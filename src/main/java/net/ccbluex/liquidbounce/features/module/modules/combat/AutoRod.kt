@@ -7,40 +7,49 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RaycastUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
+import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Items
 
 object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
 
-    private val facingEnemy by BoolValue("FacingEnemy", true)
+    private val facingEnemy by boolean("FacingEnemy", true)
 
-    private val ignoreOnEnemyLowHealth by BoolValue("IgnoreOnEnemyLowHealth", true) { facingEnemy }
-        private val healthFromScoreboard by BoolValue("HealthFromScoreboard", false) { facingEnemy && ignoreOnEnemyLowHealth }
-        private val absorption by BoolValue("Absorption", false) { facingEnemy && ignoreOnEnemyLowHealth }
+    private val ignoreOnEnemyLowHealth by boolean("IgnoreOnEnemyLowHealth", true) { facingEnemy }
+    private val healthFromScoreboard by boolean(
+        "HealthFromScoreboard",
+        false
+    ) { facingEnemy && ignoreOnEnemyLowHealth }
+    private val absorption by boolean("Absorption", false) { facingEnemy && ignoreOnEnemyLowHealth }
 
-    private val activationDistance by FloatValue("ActivationDistance", 8f, 1f..20f)
-    private val enemiesNearby by IntegerValue("EnemiesNearby", 1, 1..5)
+    private val activationDistance by float("ActivationDistance", 8f, 1f..20f)
+    private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
 
     // Improve health check customization
-    private val playerHealthThreshold by IntegerValue("PlayerHealthThreshold", 5, 1..20)
-    private val enemyHealthThreshold by IntegerValue("EnemyHealthThreshold", 5, 1..20) { facingEnemy && ignoreOnEnemyLowHealth }
-    private val escapeHealthThreshold by IntegerValue("EscapeHealthThreshold", 10, 1..20)
+    private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20)
+    private val enemyHealthThreshold by int(
+        "EnemyHealthThreshold",
+        5,
+        1..20
+    ) { facingEnemy && ignoreOnEnemyLowHealth }
+    private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
 
-    private val pushDelay by IntegerValue("PushDelay", 100, 50..1000)
-    private val pullbackDelay by IntegerValue("PullbackDelay", 500, 50..1000)
+    private val pushDelay by int("PushDelay", 100, 50..1000)
+    private val pullbackDelay by int("PullbackDelay", 500, 50..1000)
 
-    private val onUsingItem by BoolValue("OnUsingItem", false)
+    private val onUsingItem by boolean("OnUsingItem", false)
 
     private val pushTimer = MSTimer()
     private val rodPullTimer = MSTimer()
@@ -61,7 +70,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
                 if (switchBack != -1 && mc.thePlayer.inventory.currentItem != switchBack) {
                     // Switch back to previous item
                     mc.thePlayer.inventory.currentItem = switchBack
-                    mc.playerController.updateController()
+                    mc.playerController.syncCurrentPlayItem()
                 } else {
                     // Stop using rod
                     mc.thePlayer.stopUsingItem()
@@ -98,7 +107,12 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
 
                         // Check if the enemy's health is below the threshold.
                         if (ignoreOnEnemyLowHealth) {
-                            if (getHealth(facingEntity as EntityLivingBase, healthFromScoreboard, absorption) >= enemyHealthThreshold) {
+                            if (getHealth(
+                                    facingEntity as EntityLivingBase,
+                                    healthFromScoreboard,
+                                    absorption
+                                ) >= enemyHealthThreshold
+                            ) {
                                 rod = true
                             }
                         } else {
@@ -129,7 +143,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
                     switchBack = mc.thePlayer.inventory.currentItem
 
                     mc.thePlayer.inventory.currentItem = rod - 36
-                    mc.playerController.updateController()
+                    mc.playerController.syncCurrentPlayItem()
                 }
 
                 rod()
@@ -143,9 +157,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
     private fun rod() {
         val rod = findRod(36, 45)
 
-        mc.thePlayer.inventory.currentItem = rod - 36
+        mc.thePlayer.inventory.currentItem = rod
         // We do not need to send our own packet, because sendUseItem will handle it for us.
-        mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventoryContainer.getSlot(rod).stack)
+        mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.hotBarSlot(rod).stack)
 
         rodInUse = true
         rodPullTimer.reset()
@@ -156,9 +170,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
      */
     private fun findRod(startSlot: Int, endSlot: Int): Int {
         for (i in startSlot until endSlot) {
-            val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+            val stack = mc.thePlayer.inventorySlot(i).stack
             if (stack != null && stack.item === Items.fishing_rod) {
-                return i
+                return i - 36
             }
         }
         return -1
@@ -167,9 +181,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
     private fun getAllNearbyEnemies(): List<Entity>? {
         val player = mc.thePlayer ?: return null
 
-        return mc.theWorld.loadedEntityList.toList()
-            .filter { isSelected(it, true) }
-            .filter { player.getDistanceToEntityBox(it) < activationDistance }
+        return mc.theWorld.loadedEntityList.filter {
+            isSelected(it, true) && player.getDistanceToEntityBox(it) < activationDistance
+        }
     }
 
 }

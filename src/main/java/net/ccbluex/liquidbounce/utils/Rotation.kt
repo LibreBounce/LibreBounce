@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.event.StrafeEvent
+import net.ccbluex.liquidbounce.utils.RotationUtils.angleDifferences
 import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedAngleDelta
 import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedSensitivityAngle
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
@@ -14,12 +15,39 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
+import javax.vecmath.Vector2f
 import kotlin.math.*
 
 /**
  * Rotations
  */
 data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
+
+    operator fun minus(other: Rotation): Rotation {
+        return Rotation(yaw - other.yaw, pitch - other.pitch)
+    }
+
+    operator fun plus(other: Rotation): Rotation {
+        return Rotation(yaw + other.yaw, pitch + other.pitch)
+    }
+
+    operator fun times(value: Float): Rotation {
+        return Rotation(yaw * value, pitch * value)
+    }
+
+    operator fun div(value: Float): Rotation {
+        return Rotation(yaw / value, pitch / value)
+    }
+
+    companion object {
+        val ZERO = Rotation(0f, 0f)
+
+        fun of(vec: Vector2f) = Rotation(vec.x, vec.y)
+    }
+
+    fun plusDiff(other: Rotation): Rotation {
+        return this.plus(Rotation.of(angleDifferences(other, this)))
+    }
 
     /**
      * Set rotations to [player]
@@ -46,9 +74,9 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
         val gcd = getFixedAngleDelta(sensitivity)
 
         yaw = getFixedSensitivityAngle(yaw, serverRotation.yaw, gcd)
-        pitch = getFixedSensitivityAngle(pitch, serverRotation.pitch, gcd).coerceIn(-90f, 90f)
+        pitch = getFixedSensitivityAngle(pitch, serverRotation.pitch, gcd)
 
-        return this
+        return this.withLimitedPitch()
     }
 
     /**
@@ -104,6 +132,12 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
             player.motionX += calcStrafe * yawCos - calcForward * yawSin
             player.motionZ += calcForward * yawCos + calcStrafe * yawSin
         }
+    }
+
+    fun withLimitedPitch(value: Float = 90f): Rotation {
+        pitch = pitch.coerceIn(-value, value)
+
+        return this
     }
 }
 

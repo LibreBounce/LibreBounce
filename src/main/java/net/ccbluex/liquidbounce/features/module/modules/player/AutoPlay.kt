@@ -6,30 +6,33 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
 object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hideModule = false) {
 
-    private val mode by ListValue("Mode", arrayOf("Paper", "Hypixel"), "Paper")
+    private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 
     // Hypixel Settings
-    private val hypixelMode by ListValue("HypixelMode", arrayOf("Skywars", "Bedwars"), "Skywars") {
+    private val hypixelMode by choices("HypixelMode", arrayOf("Skywars", "Bedwars"), "Skywars") {
         mode == "Hypixel"
     }
-    private val skywarsMode by ListValue("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
+    private val skywarsMode by choices("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
         hypixelMode == "Skywars"
     }
-    private val bedwarsMode by ListValue("BedwarsMode", arrayOf("Solo", "Double", "Trio", "Quad"), "Solo") {
+    private val bedwarsMode by choices("BedwarsMode", arrayOf("Solo", "Double", "Trio", "Quad"), "Solo") {
         hypixelMode == "Bedwars"
     }
 
-    private val delay by IntegerValue("Delay", 50, 0..200)
+    private val delay by int("Delay", 50, 0..200)
 
     private var delayTick = 0
 
@@ -37,7 +40,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hid
      * Update Event
      */
     @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    fun onGameTick(event: GameTickEvent) {
         val player = mc.thePlayer ?: return
 
         if (!playerInGame() || !player.inventory.hasItemStack(ItemStack(Items.paper))) {
@@ -51,30 +54,25 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hid
 
         when (mode) {
             "Paper" -> {
-                val paper = findPaper()
+                val paper = InventoryUtils.findItem(36, 44, Items.paper) ?: return
 
-                if (paper == -1) {
-                    return
-                }
-
-                mc.thePlayer.inventory.currentItem = (paper - 36)
-                mc.playerController.updateController()
+                SilentHotbar.selectSlotSilently(this, paper, immediate = true, resetManually = true)
 
                 if (delayTick >= delay) {
-                    mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventoryContainer.getSlot(paper).stack)
+                    mc.playerController.sendUseItem(player, mc.theWorld, player.hotBarSlot(paper).stack)
                     delayTick = 0
                 }
             }
 
             "Hypixel" -> {
                 if (delayTick >= delay) {
-                    if (hypixelMode == "Skywars") {
-                        when (skywarsMode) {
+                    when (hypixelMode.lowercase()) {
+                        "skywars" -> when (skywarsMode) {
                             "SoloNormal" -> player.sendChatMessage("/play solo_normal")
                             "SoloInsane" -> player.sendChatMessage("/play solo_insane")
                         }
-                    } else {
-                        when (bedwarsMode) {
+
+                        "bedwars" -> when (bedwarsMode) {
                             "Solo" -> player.sendChatMessage("/play bedwars_eight_one")
                             "Double" -> player.sendChatMessage("/play bedwars_eight_two")
                             "Trio" -> player.sendChatMessage("/play bedwars_four_three")
@@ -88,27 +86,12 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hid
     }
 
     /**
-     * Find paper in inventory
-     */
-    private fun findPaper(): Int {
-        for (i in 36 until 45) {
-            val stack = mc.thePlayer?.inventoryContainer?.getSlot(i)?.stack
-            if (stack != null) {
-                if (stack.item == Items.paper) {
-                    return i
-                }
-            }
-        }
-        return -1
-    }
-
-    /**
      * Check whether player is in game or not
      */
     private fun playerInGame(): Boolean {
         val player = mc.thePlayer ?: return false
 
-        return player.ticksExisted > 10
+        return player.ticksExisted >= 20
                 && (player.capabilities.isFlying
                 || player.capabilities.allowFlying
                 || player.capabilities.disableDamage)

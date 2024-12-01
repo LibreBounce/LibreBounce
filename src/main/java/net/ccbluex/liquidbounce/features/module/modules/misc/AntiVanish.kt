@@ -9,17 +9,17 @@ import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.UPDATE_LATENCY
 
 object AntiVanish : Module("AntiVanish", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val warn by ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
+    private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private var alertClearVanish = false
 
@@ -55,7 +55,7 @@ object AntiVanish : Module("AntiVanish", Category.MISC, gameDetecting = false, h
 
             if (entries.size != playerListSize) {
                 if (warn == "Chat") {
-                    Chat.print("§aA player might be vanished.")
+                    chat("§aA player might be vanished.")
                 } else {
                     hud.addNotification(Notification("§aA player might be vanished.", 3000F))
                 }
@@ -66,7 +66,7 @@ object AntiVanish : Module("AntiVanish", Category.MISC, gameDetecting = false, h
                     return
 
                 if (warn == "Chat") {
-                    Chat.print("§cNo players are vanished")
+                    chat("§cNo players are vanished")
                 } else {
                     hud.addNotification(Notification("§cNo players are vanished", 3000F))
                 }

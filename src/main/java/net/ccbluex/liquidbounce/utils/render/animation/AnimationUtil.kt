@@ -1,3 +1,8 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
 package net.ccbluex.liquidbounce.utils.render.animation
 
 import net.minecraft.client.Minecraft
@@ -8,7 +13,7 @@ object AnimationUtil {
         get() = max(Minecraft.getDebugFPS().toFloat(), 60f)
 
     fun base(current: Double, target: Double, speed: Double): Double {
-        return ((current + (target - current) * speed / (debugFPS / 60)) * 100).toInt().toDouble()/100
+        return ((current + (target - current) * (speed / (debugFPS / 60.0))) * 1000).toInt() / 1000.0
     }
 
     fun linear(startTime: Long, duration: Long, start: Double, end: Double): Double {

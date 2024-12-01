@@ -3,7 +3,8 @@
     "contributors": [
         "1zuna",
         "Zywl",
-        "CzechHek"
+        "CzechHek",
+        "EclipsesDev"
     ],
     "translations": {
         "menu.altManager": "Alt Manager",
@@ -11,6 +12,8 @@
         "menu.serverStatus": "Server Status",
         "menu.configuration": "Configuration",
         "menu.contributors": "Contributors",
+
+        "menu.discordRPC.typeBox": "Type Here..",
 
         "notification.moduleEnabled": "Enabled %s",
         "notification.moduleDisabled": "Disabled %s",
@@ -39,7 +42,11 @@
 
         "module.bedDefender.description": "Automatically defends bed with blocks",
 
-        "module.bowAimbot.description": "Automatically aims at players when using a bow.",
+        "module.bedPlates.description": "Allows you to see blocks around beds.",
+
+        "module.pointerESP.description": "Allows you to see pointed entity positions.",
+
+        "module.projectileAimbot.description": "Automatically aims at players when using a projectile.",
 
         "module.criticals.description": "Automatically deals critical hits.",
 
@@ -87,13 +94,15 @@
         
         "module.antiBot.description": "Prevents KillAura from attacking AntiCheat bots.",
 
-        "module.antiExploit": "Prevents server from crashing you.",
+        "module.antiExploit.description": "Prevents server from crashing you.",
         
         "module.antiCactus.description": "Prevents cacti from damaging you.",
         
         "module.antiFireball.description": "Automatically punches fireballs away from you.",
 
         "module.antiVanish.description": "Automatically detects vanished players.",
+
+        "module.antiVoid.description": "Automatically setbacks you after falling a certain distance.",
         
         "module.atAllProvider.description": "Automatically mentions everyone on the server when using '@a' in your message.",
         
@@ -131,9 +140,9 @@
         
         "module.bufferSpeed.description": "Allows you to walk faster on slabs and stairs.",
         
-        "module.bugUp.description": "Automatically setbacks you after falling a certain distance.",
-        
         "module.cameraClip.description": "Allows you to see through walls in third person view.",
+
+        "module.cameraView.description": "Allows you to modify your camera-Y position.",
         
         "module.chams.description": "Allows you to see targets through blocks.",
         
@@ -176,6 +185,8 @@
         "module.forceUnicodeChat.description": "Allows you to send unicode messages in chat.",
         
         "module.freeCam.description": "Allows you to move out of your body.",
+
+        "module.freeLook.description": "Allows you to see around in third person view.",
         
         "module.freeze.description": "Allows you to stay stuck in mid air.",
         
@@ -211,6 +222,8 @@
         
         "module.keepContainer.description": "Allows you to open a formerly closed inventory container everywhere. (Press INSERT Key to open)",
 
+        "module.keepTabList.description": "Keeps TAB List opened",
+
         "module.keyPearl.description": "Allows you to throw an ender pearl from your hotbar using a certain key.",
 
         "module.kick.description": "Allows you to kick yourself from a server.",
@@ -237,8 +250,6 @@
         
         "module.noBob.description": "Disables the view bobbing effect.",
         
-        "module.noBooks.description": "Blocks server from opening books (forced ads, ...)",
-        
         "module.noClip.description": "Allows you to freely move through walls (A sandblock has to fall on your head).",
         
         "module.noFOV.description": "Disables FOV changes caused by speed effect, etc.",
@@ -257,13 +268,13 @@
 
         "module.noSlotSet.description": "Prevents the server from changing your hotbar slot.",
         
-        "module.noScoreboard.description": "Disables the scoreboard.",
-        
         "module.noSlow.description": "Cancels slowness effects caused by Soul Sand and using items.",
         
         "module.noSlowBreak.description": "Automatically adjusts breaking speed when using modules that influence it.",
         
         "module.noSwing.description": "Disabled swing effect when hitting an entity/mining a block.",
+
+        "module.notifier.description": "Notifies you about all events.",
         
         "module.noWeb.description": "Prevents you from getting slowed down in webs.",
         
@@ -312,6 +323,8 @@
         "module.skinDerp.description": "Makes your skin blink (Requires multi-layer skin).",
 
         "module.slimeJump.description": "Allows you to to jump higher on slime blocks.",
+
+        "module.silentHotbar.description": "Controls in which scenarios the silently selected item should be rendered.",
         
         "module.sneak.description": "Automatically sneaks all the time.",
         
@@ -357,6 +370,14 @@
 
         "module.disabler.description": "Disables either a server or a specific anticheat detection.",
 
-        "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast."
+        "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast.",
+
+        "module.tickBase.description": "Buffers ticks to get early hits of an enemy.",
+
+        "module.rotationRecorder.description": "Records and saves your rotations.",
+
+        "module.forwardTrack.description": "Reveals the actual position of an entity.",
+
+        "module.clickRecorder.description": "Records and saves your clicks."
     }
 }

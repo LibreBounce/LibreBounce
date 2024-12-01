@@ -6,18 +6,21 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
-import net.ccbluex.liquidbounce.utils.extensions.stopXZ
+import net.ccbluex.liquidbounce.utils.RotationUtils.angleDifference
+import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
@@ -26,10 +29,15 @@ import kotlin.math.abs
 
 object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = false) {
 
-    private val delay by IntegerValue("Delay", 0, 0..500)
-    private val hurtTime by IntegerValue("HurtTime", 10, 0..10)
+    private val chance by int("Chance", 100, 0..100)
+    private val delay by int("Delay", 0, 0..500)
+    private val hurtTime by int("HurtTime", 10, 0..10)
 
-    private val mode by ListValue("Mode", arrayOf("SprintTap", "SprintTap2", "WTap", "Old", "Silent", "Packet", "SneakPacket"), "Old")
+    private val mode by choices(
+        "Mode",
+        arrayOf("WTap", "SprintTap", "SprintTap2", "Old", "Silent", "Packet", "SneakPacket"),
+        "Old"
+    )
     private val maxTicksUntilBlock: IntegerValue = object : IntegerValue("MaxTicksUntilBlock", 2, 0..5) {
         override fun isSupported() = mode == "WTap"
 
@@ -52,7 +60,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(reSprintMaxTicks.get())
     }
 
-    private val targetDistance by IntegerValue("TargetDistance", 3, 1..5) { mode == "WTap" }
+    private val targetDistance by int("TargetDistance", 3, 1..5) { mode == "WTap" }
 
     private val stopTicks: IntegerValue = object : IntegerValue("PressBackTicks", 1, 1..5) {
         override fun isSupported() = mode == "SprintTap2"
@@ -65,9 +73,11 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(stopTicks.get())
     }
 
-    private val onlyGround by BoolValue("OnlyGround", false)
-    val onlyMove by BoolValue("OnlyMove", true)
-    val onlyMoveForward by BoolValue("OnlyMoveForward", true) { onlyMove }
+    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f)
+
+    private val onlyGround by boolean("OnlyGround", false)
+    val onlyMove by boolean("OnlyMove", true)
+    val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove }
 
     private var ticks = 0
     private var forceSprintState = 0
@@ -99,22 +109,30 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
         val target = event.targetEntity as? EntityLivingBase ?: return
         val distance = player.getDistanceToEntityBox(target)
 
-        if (event.targetEntity.hurtTime > hurtTime || !timer.hasTimePassed(delay) || (onlyGround && !player.onGround)) return
+        val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
+        val angleDifferenceToPlayer = abs(angleDifference(rotationToPlayer, target.rotationYaw))
 
-        if (onlyMove && (!isMoving || (onlyMoveForward && player.movementInput.moveStrafe != 0f))) return
+        if (event.targetEntity.hurtTime > hurtTime || !timer.hasTimePassed(delay) || onlyGround && !player.onGround || RandomUtils.nextInt(
+                endExclusive = 100
+            ) > chance
+        ) return
+
+        if (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f)) return
+
+        // Is the enemy facing his back on us?
+        if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore && !target.hitBox.isVecInside(player.eyes)) return
 
         when (mode) {
             "Old" -> {
                 // Users reported that this mode is better than the other ones
-
                 if (player.isSprinting) {
-                    sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                    sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
                 }
 
                 sendPackets(
-                    C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SPRINTING),
-                    C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SPRINTING),
-                    C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SPRINTING)
+                    C0BPacketEntityAction(player, START_SPRINTING),
+                    C0BPacketEntityAction(player, STOP_SPRINTING),
+                    C0BPacketEntityAction(player, START_SPRINTING)
                 )
                 player.isSprinting = true
                 player.serverSprintState = true
@@ -143,7 +161,10 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
                 if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
                     val delayMultiplier = 1.0 / (abs(targetDistance - distance) + 1)
 
-                    blockInputTicks = (randomDelay(minTicksUntilBlock.get(), maxTicksUntilBlock.get()) * delayMultiplier).toInt()
+                    blockInputTicks = (randomDelay(
+                        minTicksUntilBlock.get(),
+                        maxTicksUntilBlock.get()
+                    ) * delayMultiplier).toInt()
 
                     blockInput = blockInputTicks == 0
 
@@ -151,7 +172,10 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
                         startWaiting = true
                     }
 
-                    allowInputTicks = (randomDelay(reSprintMinTicks.get(), reSprintMaxTicks.get()) * delayMultiplier).toInt()
+                    allowInputTicks = (randomDelay(
+                        reSprintMinTicks.get(),
+                        reSprintMaxTicks.get()
+                    ) * delayMultiplier).toInt()
                 }
             }
 
@@ -247,7 +271,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = f
 
     override val tag
         get() = mode
-
 
     fun breakSprint() = handleEvents() && forceSprintState == 2 && mode == "SprintTap"
     fun startSprint() = handleEvents() && forceSprintState == 1 && mode == "SprintTap"

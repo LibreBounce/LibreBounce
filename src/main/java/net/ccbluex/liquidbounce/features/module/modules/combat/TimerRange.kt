@@ -7,30 +7,37 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
-import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.BlinkUtils
-import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.PacketUtils.queuedPackets
 import net.ccbluex.liquidbounce.utils.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.utils.schedulePacketProcess
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
-import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.*
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C12PacketUpdateSign
+import net.minecraft.network.play.client.C19PacketResourcePackStatus
+import net.minecraft.network.play.server.S06PacketUpdateHealth
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S27PacketExplosion
 import java.awt.Color
 
 object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
@@ -53,12 +60,12 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     // Condition to prevent getting timer speed stuck
     private var confirmAttack = false
 
-    private val timerBoostMode by ListValue("TimerMode", arrayOf("Normal", "Smart", "Modern"), "Modern")
+    private val timerBoostMode by choices("TimerMode", arrayOf("Normal", "Smart", "Modern"), "Modern")
 
-    private val ticksValue by IntegerValue("Ticks", 10, 1..20)
+    private val ticksValue by int("Ticks", 10, 1..20)
 
     // Min & Max Boost Delay Settings
-    private val timerBoostValue by FloatValue("TimerBoost", 1.5f, 0.01f..35f)
+    private val timerBoostValue by float("TimerBoost", 1.5f, 0.01f..35f)
 
     private val minBoostDelay: FloatValue = object : FloatValue("MinBoostDelay", 0.5f, 0.1f..1.0f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxBoostDelay.get())
@@ -69,7 +76,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     }
 
     // Min & Max Charged Delay Settings
-    private val timerChargedValue by FloatValue("TimerCharged", 0.45f, 0.05f..5f)
+    private val timerChargedValue by float("TimerCharged", 0.45f, 0.05f..5f)
 
     private val minChargedDelay: FloatValue = object : FloatValue("MinChargedDelay", 0.75f, 0.1f..1.0f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxChargedDelay.get())
@@ -80,8 +87,8 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     }
 
     // Normal Mode Settings
-    private val rangeValue by FloatValue("Range", 3.5f, 1f..5f) { timerBoostMode == "Normal" }
-    private val cooldownTickValue by IntegerValue("CooldownTick", 10, 1..50) { timerBoostMode == "Normal" }
+    private val rangeValue by float("Range", 3.5f, 1f..5f) { timerBoostMode == "Normal" }
+    private val cooldownTickValue by int("CooldownTick", 10, 1..50) { timerBoostMode == "Normal" }
 
     // Smart & Modern Mode Range
     private val minRange: FloatValue = object : FloatValue("MinRange", 2.5f, 0f..8f) {
@@ -110,25 +117,25 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     }
 
     // Blink Option
-    private val blink by BoolValue("Blink", false)
+    private val blink by boolean("Blink", false)
 
     // Prediction Settings
-    private val predictClientMovement by IntegerValue("PredictClientMovement", 2, 0..5)
-    private val predictEnemyPosition by FloatValue("PredictEnemyPosition", 1.5f, -1f..2f)
+    private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
+    private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
 
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 5f, 5f..90f) { timerBoostMode == "Modern" }
+    private val maxAngleDifference by float("MaxAngleDifference", 5f, 5f..90f) { timerBoostMode == "Modern" }
 
     // Mark Option
-    private val markMode by ListValue("Mark", arrayOf("Off", "Box", "Platform"), "Off") { timerBoostMode == "Modern" }
-    private val outline by BoolValue("Outline", false) { timerBoostMode == "Modern" && markMode == "Box" }
+    private val markMode by choices("Mark", arrayOf("Off", "Box", "Platform"), "Off") { timerBoostMode == "Modern" }
+    private val outline by boolean("Outline", false) { timerBoostMode == "Modern" && markMode == "Box" }
 
     // Optional
-    private val onWeb by BoolValue("OnWeb", false)
-    private val onWater by BoolValue("OnWater", false)
-    private val resetOnlagBack by BoolValue("ResetOnLagback", false)
-    private val resetOnKnockback by BoolValue("ResetOnKnockback", false)
-    private val chatDebug by BoolValue("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
-    private val notificationDebug by BoolValue("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
+    private val onWeb by boolean("OnWeb", false)
+    private val onWater by boolean("OnWater", false)
+    private val resetOnlagBack by boolean("ResetOnLagback", false)
+    private val resetOnKnockback by boolean("ResetOnKnockback", false)
+    private val chatDebug by boolean("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
+    private val notificationDebug by boolean("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
 
     override fun onDisable() {
         shouldResetTimer()
@@ -263,13 +270,12 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
         player.setPosAndPrevPos(simPlayer.pos)
 
-        val distance = searchCenter(boundingBox,
+        val distance = searchCenter(
+            boundingBox,
             outborder = false,
-            random = false,
-            gaussianOffset = false,
             predict = true,
             lookRange = if (timerBoostMode == "Normal") rangeValue else randomRange,
-            attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f
+            attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
         )
 
         if (distance == null) {
@@ -290,7 +296,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     fun onMotion(event: MotionEvent) {
         if (blink && event.eventState == EventState.POST) {
             synchronized(packetsReceived) {
-                queuedPackets.addAll(packetsReceived)
+                schedulePacketProcess(packetsReceived)
             }
             packetsReceived.clear()
         }
@@ -382,24 +388,17 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     }
 
     /**
-     * Get all entities in the world.
-     */
-    private fun getAllEntities(): List<Entity?>? {
-        return mc.theWorld?.loadedEntityList?.toList()
-            ?.filter { EntityUtils.isSelected(it, true) }
-    }
-
-    /**
      * Find the nearest entity in range.
      */
     private fun getNearestEntityInRange(): Entity? {
         val player = mc.thePlayer ?: return null
 
-        val entitiesInRange = getAllEntities()?.filter { entity ->
+        return mc.theWorld?.loadedEntityList?.asSequence()?.mapNotNull { entity ->
             var isInRange = false
 
-            Backtrack.runWithNearestTrackedDistance(entity!!) {
+            Backtrack.runWithNearestTrackedDistance(entity) {
                 val distance = player.getDistanceToEntityBox(entity)
+
                 isInRange = when (timerBoostMode.lowercase()) {
                     "normal" -> distance <= rangeValue
                     "smart", "modern" -> distance <= scanRange.get() + randomRange
@@ -407,11 +406,8 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
                 }
             }
 
-            isInRange
-        }
-
-        // Find the nearest entity
-        return entitiesInRange?.minByOrNull { player.getDistanceToEntityBox(it!!) }
+            entity.takeIf { isInRange }
+        }?.minByOrNull { player.getDistanceToEntityBox(it) }
     }
 
     /**
@@ -485,7 +481,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
             if (shouldReset) {
                 if (chatDebug) {
-                    Chat.print("Lagback Received | Timer Reset")
+                    chat("Lagback Received | Timer Reset")
                 }
                 if (notificationDebug) {
                     hud.addNotification(Notification("Lagback Received | Timer Reset", 1000F))
@@ -501,7 +497,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
             if (shouldReset) {
                 if (chatDebug) {
-                    Chat.print("Knockback Received | Timer Reset")
+                    chat("Knockback Received | Timer Reset")
                 }
                 if (notificationDebug) {
                     hud.addNotification(Notification("Knockback Received | Timer Reset", 1000F))

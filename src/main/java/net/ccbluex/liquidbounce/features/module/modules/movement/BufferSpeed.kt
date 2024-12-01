@@ -8,16 +8,16 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
 import net.minecraft.block.BlockSlab
 import net.minecraft.block.BlockSlime
 import net.minecraft.block.BlockStairs
@@ -26,36 +26,36 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
 object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false) {
-    private val speedLimit by BoolValue("SpeedLimit", true)
-        private val maxSpeed by FloatValue("MaxSpeed", 2f, 1f..5f) { speedLimit }
+    private val speedLimit by boolean("SpeedLimit", true)
+    private val maxSpeed by float("MaxSpeed", 2f, 1f..5f) { speedLimit }
 
-    private val buffer by BoolValue("Buffer", true)
+    private val buffer by boolean("Buffer", true)
 
-    private val stairs by BoolValue("Stairs", true)
-        private val stairsMode by ListValue("StairsMode", arrayOf("Old", "New"), "New") { stairs }
-        private val stairsBoost by FloatValue("StairsBoost", 1.87f, 1f..2f) { stairs && stairsMode == "Old" }
+    private val stairs by boolean("Stairs", true)
+    private val stairsMode by choices("StairsMode", arrayOf("Old", "New"), "New") { stairs }
+    private val stairsBoost by float("StairsBoost", 1.87f, 1f..2f) { stairs && stairsMode == "Old" }
 
-    private val slabs by BoolValue("Slabs", true)
-        private val slabsMode by ListValue("SlabsMode", arrayOf("Old", "New"), "New") { slabs }
-            private val slabsBoost by FloatValue("SlabsBoost", 1.87f, 1f..2f) { slabs && slabsMode == "Old" }
+    private val slabs by boolean("Slabs", true)
+    private val slabsMode by choices("SlabsMode", arrayOf("Old", "New"), "New") { slabs }
+    private val slabsBoost by float("SlabsBoost", 1.87f, 1f..2f) { slabs && slabsMode == "Old" }
 
-    private val ice by BoolValue("Ice", false)
-        private val iceBoost by FloatValue("IceBoost", 1.342f, 1f..2f) { ice }
+    private val ice by boolean("Ice", false)
+    private val iceBoost by float("IceBoost", 1.342f, 1f..2f) { ice }
 
-    private val snow by BoolValue("Snow", true)
-        private val snowBoost by FloatValue("SnowBoost", 1.87f, 1f..2f) { snow }
-        private val snowPort by BoolValue("SnowPort", true) { snow }
+    private val snow by boolean("Snow", true)
+    private val snowBoost by float("SnowBoost", 1.87f, 1f..2f) { snow }
+    private val snowPort by boolean("SnowPort", true) { snow }
 
-    private val wall by BoolValue("Wall", true)
-        private val wallMode by ListValue("WallMode", arrayOf("Old", "New"), "New") { wall }
-            private val wallBoost by FloatValue("WallBoost", 1.87f, 1f..2f) { wall && wallMode == "Old" }
+    private val wall by boolean("Wall", true)
+    private val wallMode by choices("WallMode", arrayOf("Old", "New"), "New") { wall }
+    private val wallBoost by float("WallBoost", 1.87f, 1f..2f) { wall && wallMode == "Old" }
 
-    private val headBlock by BoolValue("HeadBlock", true)
-        private val headBlockBoost by FloatValue("HeadBlockBoost", 1.87f, 1f..2f) { headBlock }
+    private val headBlock by boolean("HeadBlock", true)
+    private val headBlockBoost by float("HeadBlockBoost", 1.87f, 1f..2f) { headBlock }
 
-    private val slime by BoolValue("Slime", true)
-    private val airStrafe by BoolValue("AirStrafe", false)
-    private val noHurt by BoolValue("NoHurt", true)
+    private val slime by boolean("Slime", true)
+    private val airStrafe by boolean("AirStrafe", false)
+    private val noHurt by boolean("NoHurt", true)
 
     private var speed = 0.0
     private var down = false
@@ -89,7 +89,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
             hadFastHop = false
         }
 
-        if (!isMoving || thePlayer.isSneaking || thePlayer.isInWater || mc.gameSettings.keyBindJump.isKeyDown) {
+        if (!thePlayer.isMoving || thePlayer.isSneaking || thePlayer.isInWater || mc.gameSettings.keyBindJump.isKeyDown) {
             reset()
             return
         }
@@ -113,6 +113,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                         boost(slabsBoost)
                         return
                     }
+
                     "new" -> {
                         fastHop = true
                         if (legitHop) {
@@ -137,6 +138,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                         boost(stairsBoost)
                         return
                     }
+
                     "new" -> {
                         fastHop = true
 
@@ -183,6 +185,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                         boost(wallBoost)
                         return
                     }
+
                     "new" ->
                         if (isNearBlock && !thePlayer.movementInput.jump) {
                             thePlayer.tryJump()
@@ -260,9 +263,10 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                 val collisionBoundingBox = blockState.block.getCollisionBoundingBox(theWorld, blockPos, blockState)
 
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
-                                collisionBoundingBox.minY + 1) &&
-                        !blockState.block.isTranslucent && blockState.block == Blocks.water &&
-                        blockState.block !is BlockSlab || blockState.block == Blocks.barrier) return true
+                            collisionBoundingBox.minY + 1) &&
+                    !blockState.block.isTranslucent && blockState.block == Blocks.water &&
+                    blockState.block !is BlockSlab || blockState.block == Blocks.barrier
+                ) return true
             }
             return false
         }

@@ -14,10 +14,7 @@ import net.ccbluex.liquidbounce.utils.Background;
 import net.ccbluex.liquidbounce.utils.render.ParticleUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -28,6 +25,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -95,10 +93,15 @@ public abstract class MixinGuiScreen {
             if (background == null) {
                 // Use default background shader
 
+                GL11.glPushMatrix();
                 BackgroundShader.Companion.getBACKGROUND_SHADER().startShader();
 
                 final Tessellator instance = Tessellator.getInstance();
                 final WorldRenderer worldRenderer = instance.getWorldRenderer();
+
+                GL11.glEnable(GL11.GL_BLEND);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
                 worldRenderer.begin(7, DefaultVertexFormats.POSITION);
                 worldRenderer.pos(0, height, 0).endVertex();
                 worldRenderer.pos(width, height, 0).endVertex();
@@ -107,6 +110,9 @@ public abstract class MixinGuiScreen {
                 instance.draw();
 
                 BackgroundShader.Companion.getBACKGROUND_SHADER().stopShader();
+
+                GL11.glDisable(GL11.GL_BLEND);
+                GL11.glPopMatrix();
             } else {
                 // Use custom background
                 background.drawBackground(width, height);

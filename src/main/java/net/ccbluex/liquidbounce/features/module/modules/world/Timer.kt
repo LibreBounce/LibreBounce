@@ -8,16 +8,16 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
 
 object Timer : Module("Timer", Category.WORLD, gameDetecting = false, hideModule = false) {
 
-    private val mode by ListValue("Mode", arrayOf("OnMove", "NoMove", "Always"), "OnMove")
-    private val speed by FloatValue("Speed", 2F, 0.1F..10F)
+    private val mode by choices("Mode", arrayOf("OnMove", "NoMove", "Always"), "OnMove")
+    private val speed by float("Speed", 2F, 0.1F..10F)
 
     override fun onDisable() {
         if (mc.thePlayer == null)
@@ -28,7 +28,9 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false, hideModule
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (mode == "Always" || mode == "OnMove" && isMoving || mode == "NoMove" && !isMoving) {
+        val player = mc.thePlayer ?: return
+
+        if (mode == "Always" || mode == "OnMove" && player.isMoving || mode == "NoMove" && !player.isMoving) {
             mc.timer.timerSpeed = speed
             return
         }

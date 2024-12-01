@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client
 
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
+import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
@@ -20,6 +21,8 @@ class GuiWelcome : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        assumeNonVolatile = true
+
         drawBackground(0)
 
         Fonts.font35.run {
@@ -46,6 +49,8 @@ class GuiWelcome : GuiScreen() {
         // Title
         glScalef(2F, 2F, 2F)
         Fonts.font40.drawCenteredString("Welcome!", width / 2 / 2F, 20.0f, Color(0, 140, 255).rgb, true)
+
+        assumeNonVolatile = false
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {

@@ -31,14 +31,10 @@ object RandomUtils {
 
     fun random(length: Int, chars: String) = random(length, chars.toCharArray())
 
-    fun random(length: Int, chars: CharArray): String {
-        val stringBuilder = StringBuilder()
-
+    fun random(length: Int, chars: CharArray): String = buildString(length) {
         repeat(length) {
-            stringBuilder.append(chars[Random.nextInt(chars.size)])
+            append(chars[Random.nextInt(chars.size)])
         }
-
-        return stringBuilder.toString()
     }
 
     @JvmOverloads
@@ -91,8 +87,8 @@ object RandomUtils {
             adjective = ADJECTIVES.filter { it.length <= maxLength - animal.length }.random()
         }
 
-        //Returns raw name if unformatted alts option is enabled.
-        if (raw) return adjective + (if (adjective.length + animal.length < maxLength) "_" else "") + animal
+        //Returns raw name if unformatted alts option is not enabled.
+        if (!raw) return adjective + (if (adjective.length + animal.length < maxLength) "_" else "") + animal
 
         val baseName = leetRandomly(adjective) + (if (adjective.length + animal.length < maxLength) random(
             1,
