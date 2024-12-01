@@ -101,7 +101,7 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
         slot: ItemSlot,
         isInArmorSlot: Boolean
     ): InventoryAction {
-        val canTryHotbarMove = !isInArmorSlot && useHotbar && !InventoryManager.isInventoryOpenServerSide
+        val canTryHotbarMove = !isInArmorSlot && useHotbar && !InventoryManager.isInventoryOpen
         if (slot is HotbarItemSlot && canTryHotbarMove) {
             return UseInventoryAction(slot)
         }

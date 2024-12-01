@@ -25,7 +25,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.NORMAL
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.SAFE
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.formatAsTime
@@ -39,7 +40,7 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.ItemGroups
 import net.minecraft.network.packet.c2s.play.*
-import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
 /**
  * InventoryMove module
@@ -49,7 +50,7 @@ import org.lwjgl.glfw.GLFW.*
 
 object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
-    val behavior by enumChoice("Behavior", NORMAL)
+    private val behavior by enumChoice("Behavior", NORMAL)
 
     enum class Behaviour(override val choiceName: String) : NamedChoice {
         NORMAL("Normal"),
@@ -64,8 +65,8 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         arrayOf(forwardKey, leftKey, backKey, rightKey, jumpKey, sneakKey).associateWith { false }.toMutableMap()
     }
 
-    fun cancelClicks() =
-        behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
+    val cancelClicks
+        get() = behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
 
     object Blink : ToggleableConfigurable(this,"Blink", false) {
 
@@ -139,7 +140,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         movementKeys[key] = pressed
 
         if (behavior == SAFE && mc.currentScreen is InventoryScreen
-        && InventoryManager.isInventoryOpenServerSide && pressed) {
+        && InventoryManager.isInventoryOpen && pressed) {
             closeInventorySilently()
         }
     }
