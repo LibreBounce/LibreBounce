@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
+import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
@@ -94,12 +95,13 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
                     potion - 36,
                     ticksUntilReset = 1,
                     immediate = true,
-                    render = false
+                    render = false,
+                    resetManually = true
                 )
 
                 if (potion >= 0 && RotationUtils.serverRotation.pitch >= 75F) {
+                    player.sendUseItem(player.heldItem)
                     sendPacket(C08PacketPlayerBlockPlacement(player.heldItem))
-                    SilentHotbar.resetSlot(this)
 
                     msTimer.reset()
                     potion = -1
