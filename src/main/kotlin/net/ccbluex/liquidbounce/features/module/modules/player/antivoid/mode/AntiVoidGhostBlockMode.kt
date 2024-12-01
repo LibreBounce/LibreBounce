@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid.isLikelyFalling
-import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid.isTestingCollision
 import net.minecraft.util.shape.VoxelShapes
 
 object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
@@ -35,7 +34,7 @@ object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
 
     @Suppress("unused")
     private val handleBlockShape = handler<BlockShapeEvent> { event ->
-        if (isTestingCollision || !isLikelyFalling || isExempt) {
+        if (!isLikelyFalling || isExempt) {
             return@handler
         }
 

@@ -42,7 +42,8 @@ import net.ccbluex.liquidbounce.utils.movement.zeroXZ
  */
 class SpeedSpartan524(override val parent: ChoiceConfigurable<*>) : Choice("Spartan524") {
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (!player.moving) {
             return@tickHandler
         }

@@ -35,6 +35,18 @@ inline operator fun Vec3i.component3() = this.z
 
 inline fun BlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos(x, y, z)
 
+inline operator fun Vec3i.plus(other: Vec3i): Vec3i {
+    return this.add(other)
+}
+
+inline operator fun Vec3i.minus(other: Vec3i): Vec3i {
+    return this.subtract(other)
+}
+
+inline operator fun Vec3i.times(scalar: Int): Vec3i {
+    return this.multiply(scalar)
+}
+
 inline operator fun Vec3d.plus(other: Vec3d): Vec3d {
     return this.add(other)
 }
@@ -46,6 +58,7 @@ inline operator fun Vec3d.minus(other: Vec3d): Vec3d {
 inline operator fun Vec3d.times(scalar: Double): Vec3d {
     return this.multiply(scalar)
 }
+
 inline operator fun Vec3d.component1(): Double = this.x
 inline operator fun Vec3d.component2(): Double = this.y
 inline operator fun Vec3d.component3(): Double = this.z
@@ -99,6 +112,12 @@ value class Double3Region private constructor(val init: Array<DoubleArray>) {
 operator fun Vec3d.rangeTo(other: Vec3d) = Double3Region(this, other)
 
 fun Vec3i.toVec3d(): Vec3d = Vec3d.of(this)
+fun Vec3i.toVec3d(
+    xOffset: Double = 0.0,
+    yOffset: Double = 0.0,
+    zOffset: Double = 0.0,
+): Vec3d = Vec3d(x + xOffset, y + yOffset, z + zOffset)
+
 fun Vec3d.toVec3() = Vec3(this.x, this.y, this.z)
 fun Vec3d.toVec3i() = Vec3i(this.x.toInt(), this.y.toInt(), this.z.toInt())
 
