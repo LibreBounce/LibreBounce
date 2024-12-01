@@ -23,8 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.SpeedAntiCornerBump
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.doOptimizationsPreventJump
 import net.ccbluex.liquidbounce.utils.entity.downwards
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -47,8 +46,6 @@ class SpeedLegitHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
 
 open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
 
-    private val avoidEdgeBump by boolean("AvoidEdgeBump", true)
-
     @Suppress("unused")
     private val handleMovementInput = handler<MovementInputEvent> { event ->
         if (!player.isOnGround || !event.directionalInput.isMoving) {
@@ -60,18 +57,6 @@ open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*
         }
 
         event.jumping = true
-    }
-
-    private fun doOptimizationsPreventJump(): Boolean {
-        if (CriticalsJump.running && CriticalsJump.shouldWaitForJump(0.42f)) {
-            return true
-        }
-
-        if (avoidEdgeBump && SpeedAntiCornerBump.shouldDelayJump()) {
-            return true
-        }
-
-        return false
     }
 
 }

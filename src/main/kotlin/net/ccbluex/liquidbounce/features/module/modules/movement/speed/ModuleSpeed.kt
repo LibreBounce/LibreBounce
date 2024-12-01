@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.OnlyInCombat.modes
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.OnlyOnPotionEffect.potionEffects
@@ -102,6 +103,8 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
     private val notDuringScaffold by boolean("NotDuringScaffold", true)
     private val notWhileSneaking by boolean("NotWhileSneaking", false)
 
+    private val avoidEdgeBump by boolean("AvoidEdgeBump", true)
+
     init {
         tree(OnlyInCombat)
         tree(OnlyOnPotionEffect)
@@ -179,6 +182,18 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
             get() = potionEffects
 
         abstract fun checkPotionEffects(): Boolean
+    }
+
+    internal fun doOptimizationsPreventJump(): Boolean {
+        if (CriticalsJump.running && CriticalsJump.shouldWaitForJump(0.42f)) {
+            return true
+        }
+
+        if (avoidEdgeBump && SpeedAntiCornerBump.shouldDelayJump()) {
+            return true
+        }
+
+        return false
     }
 
 }
