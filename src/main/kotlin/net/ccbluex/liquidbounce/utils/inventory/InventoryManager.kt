@@ -56,17 +56,14 @@ import kotlin.random.Random
 object InventoryManager : EventListener {
 
     val isInventoryOpen
-        get() = isInventoryOpenClientSide || isInventoryOpenServerSide
-
-    private val isInventoryOpenClientSide
-        get() = mc.currentScreen is InventoryScreen
+        get() = isInInventoryScreen || isInventoryOpenServerSide
 
     var isInventoryOpenServerSide = false
         internal set(value) {
-            field = value
             if (!field && value) {
                 inventoryOpened()
             }
+            field = value
         }
 
     var lastClickedSlot: Int = 0

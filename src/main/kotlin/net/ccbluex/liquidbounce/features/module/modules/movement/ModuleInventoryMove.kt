@@ -31,8 +31,9 @@ import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.formatAsTime
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
+import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -139,8 +140,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         val pressed = shouldHandleInputs(key) && event.action != GLFW_RELEASE
         movementKeys[key] = pressed
 
-        if (behavior == SAFE && mc.currentScreen is InventoryScreen
-        && InventoryManager.isInventoryOpen && pressed) {
+        if (behavior == SAFE && isInInventoryScreen && isInventoryOpenServerSide && pressed) {
             closeInventorySilently()
         }
     }
