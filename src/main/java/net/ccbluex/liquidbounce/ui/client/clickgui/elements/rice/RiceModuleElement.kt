@@ -2,9 +2,9 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.elements.rice
 
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui.accentColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui.elements
 import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui.mainColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui.referenceColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui.visibleRange
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.clickSound
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
@@ -22,7 +22,6 @@ class RiceModuleElement(
     // add properties here name, description, enabled
     var name: String = ""
     var description: String = ""
-    var visible: Boolean = false
     var width: Float = 300f
     val margin: Float = 5f
     private var showSettings: Boolean = false
@@ -39,7 +38,6 @@ class RiceModuleElement(
     init {
         this.name = module.name
         this.description = module.description
-        this.visible = (startY in visibleRange) || ((startY+height) in visibleRange)
         if (previousElement != null) this.startY = previousElement!!.startY + previousElement!!.height + margin
 
         showSettings = moduleSettingsState[name] ?: false
@@ -49,7 +47,6 @@ class RiceModuleElement(
 
     fun drawElement() {
         updateModuleElement()
-        //if (!visible) return
         drawRoundedRect(
             startX + margin,
             startY,
@@ -76,7 +73,6 @@ class RiceModuleElement(
     }
 
     fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        //if (!visible) return
         if (button == 0) {
             if (toggleRangeX.contains(mouseX) && toggleRangeY.contains(mouseY)) {
                 module.toggle()
@@ -92,17 +88,26 @@ class RiceModuleElement(
             height = if (showSettings) settingsHeight + margin * 2 else 40f
 
             moduleSettingsState[name] = showSettings
+
+            if (!showSettings) updateAllElementsLayout()
+        }
+    }
+
+    private fun updateAllElementsLayout() {
+        // TODO: Improve
+        elements.forEach { element ->
+            if (element.startY > startY - settingsHeight) return@forEach
+            element.startY += settingsHeight - Fonts.font40.fontHeight - 30f
         }
     }
 
     private fun updateModuleElement() {
         if (previousElement != null) {
-            this.startY = previousElement!!.startY + previousElement!!.height + margin
-            this.startX = previousElement!!.startX
+            startY = previousElement!!.startY + previousElement!!.height + margin
+            startX = previousElement!!.startX
         }
-        this.toggleRangeY = startY..startY + 20f
-        this.toggleRangeX = startX..startX + 290f
-        this.visible = (startY in visibleRange) || ((startY + height) in visibleRange)
+        toggleRangeY = startY..startY + 20f
+        toggleRangeX = startX..startX + 290f
     }
 
     private fun updateValueElementsRendering() {

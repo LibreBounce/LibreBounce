@@ -9,9 +9,11 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.clickgui.RiceGui.selectedCategory
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.rice.RiceModuleElement.Companion.moduleSettingsState
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
@@ -44,20 +46,6 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
                 panel.x = panelObject["posX"].asInt
                 panel.y = panelObject["posY"].asInt
 
-                if (panelObject.has("SettingsState")) {
-                    val settingsStateObject = panelObject.getAsJsonObject("SettingsState")
-                    settingsStateObject.entrySet().forEach { entry ->
-                        val moduleName = entry.key
-                        val isEnabled = entry.value.asBoolean
-
-                        // Find the corresponding module and set its settings state
-                        val moduleElement = panel.elements.find { it is ModuleElement && it.module.name == moduleName }
-                        if (moduleElement != null) {
-                            moduleSettingsState[moduleName] = isEnabled
-                        }
-                    }
-                }
-
                 for (element in panel.elements) {
                     if (element !is ModuleElement) continue
                     if (!panelObject.has(element.module.name)) continue
@@ -72,6 +60,24 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
                 }
             } catch (e: Exception) {
                 LOGGER.error("Error while loading clickgui panel with the name '" + panel.name + "'.", e)
+            }
+        }
+
+        if (jsonObject.has("ModernGUI")) {
+            val riceGuiObject = jsonObject.getAsJsonObject("ModernGUI")
+
+            if (riceGuiObject.has("Category")) {
+                val categoryName = riceGuiObject["Category"].asString
+                selectedCategory = Category.values().firstOrNull { it.name == categoryName } ?: Category.COMBAT
+            }
+
+            if (riceGuiObject.has("Settings State")) {
+                val settingsStateObject = riceGuiObject.getAsJsonObject("Settings State")
+                settingsStateObject.entrySet().forEach { entry ->
+                    val moduleName = entry.key
+                    val isEnabled = entry.value.asBoolean
+                    moduleSettingsState[moduleName] = isEnabled
+                }
             }
         }
     }
@@ -106,7 +112,12 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
         moduleSettingsState.forEach { (moduleName, isEnabled) ->
             settingsStateObject.addProperty(moduleName, isEnabled)
         }
-        jsonObject.add("SettingsState", settingsStateObject)
+
+        val riceGuiObject = JsonObject()
+        riceGuiObject.addProperty("Category", selectedCategory.name)
+        riceGuiObject.add("Settings State", settingsStateObject)
+
+        jsonObject.add("ModernGUI", riceGuiObject)
 
         file.writeText(PRETTY_GSON.toJson(jsonObject))
     }

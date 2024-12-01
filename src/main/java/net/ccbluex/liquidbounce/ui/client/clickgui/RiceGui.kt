@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.disableLighting
-import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
@@ -43,12 +43,11 @@ object RiceGui : GuiScreen() {
     val widthBg = 400f
     val heightBg = 260f
     val marginLeft = 10f
-    val visibleRange = initY..initY + heightBg + 20
     val panels = mutableListOf<Panel>()
     val elements = mutableListOf<RiceModuleElement>()
 
     // Default Category
-    private var selectedCategory: Category = Category.COMBAT
+    var selectedCategory: Category = Category.COMBAT
 
     private var dragging = false
         set(value) {
@@ -133,7 +132,7 @@ object RiceGui : GuiScreen() {
                     if (contentHeight <= heightBg + 20) return
 
                     // Define boundaries for scrolling
-                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20))
+                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20 - Fonts.font40.fontHeight))
                     val maxY = panelStartY + 20
 
                     // Apply scrolling, ensuring elements stay within bounds
@@ -150,7 +149,7 @@ object RiceGui : GuiScreen() {
         glDisable(GL_SCISSOR_TEST)
 
         disableLighting()
-        RenderHelper.disableStandardItemLighting()
+        disableStandardItemLighting()
         glScaled(1.0, 1.0, 1.0)
 
         assumeNonVolatile = false
