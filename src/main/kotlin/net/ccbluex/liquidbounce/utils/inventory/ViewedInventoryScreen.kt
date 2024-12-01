@@ -84,9 +84,8 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
 
         if (cursorStack.isEmpty && hoveredSlot != null && hoveredSlot.hasStack()) {
             val hoveredItemStack = hoveredSlot.stack
-            context.drawTooltip(
-                textRenderer, getTooltipFromItem(mc, hoveredItemStack),
-                hoveredItemStack.tooltipData, mouseX, mouseY
+            context.drawItemTooltip(
+                textRenderer, hoveredItemStack, mouseX, mouseY
             )
         }
     }
