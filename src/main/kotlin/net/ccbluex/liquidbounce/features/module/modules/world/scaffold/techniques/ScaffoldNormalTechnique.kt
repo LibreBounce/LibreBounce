@@ -51,7 +51,6 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
 
     private val aimMode by enumChoice("RotationMode", AimMode.STABILIZED)
     private val requiresSight by boolean("RequiresSight", false)
-    private val round by float("round", 25f, 0.01f..90f)
 
     init {
         tree(ScaffoldEagleFeature)
