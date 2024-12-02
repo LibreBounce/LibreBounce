@@ -55,8 +55,6 @@ object LongJump : Module("LongJump", Category.MOVEMENT) {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (LadderJump.jumped) speed *= 1.08f
-
         if (jumped) {
             val mode = mode
 
