@@ -74,10 +74,6 @@
         "module.bedGodMode.description": "允許你躺在床上四處走動。(對於1.9)",
 
         "module.clip.description": "允許你clip通過方塊。",
-       
-        "module.airJump.description": "允許你在空中跳躍。",
-       
-        "module.airLadder.description": "允許你在爬上懸空的藤蔓或梯子。",
     
         "module.antiBounce.description": "防止你在方塊上彈跳。",
 
@@ -94,8 +90,6 @@
         "module.antiCactus.description": "防止受到仙人掌傷害。",
        
         "module.antiFireball.description": "自動打走火球。",
-
-        "module.antiVanish.description": "自動偵測消失的玩家。",
 
         "module.antiVoid.description": "墜落一定距離後自動拉回。(虛空回彈)",
        
@@ -220,8 +214,6 @@
         "module.keyPearl.description": "允許你使用快捷鍵扔出在快捷欄中的末影珍珠。",
 
         "module.kick.description": "把自己踢出伺服器。",
-       
-        "module.ladderJump.description": "碰到梯子時把你發射到天上。 (AAC)",
        
         "module.liquidChat.description": "允許你與其他LiquidBounce用戶聊天。",
        
@@ -350,8 +342,6 @@
         "module.vehicleOneHit.description": "允許你一擊就可破壞載具。",
        
         "module.wallClimb.description": "允許你像蜘蛛一樣爬上牆壁。",
-
-        "module.waterSpeed.description": "允許你游得更快。",
        
         "module.xRay.description": "允許你透過牆壁看到礦石。",
        

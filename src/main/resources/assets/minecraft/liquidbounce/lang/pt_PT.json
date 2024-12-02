@@ -69,10 +69,6 @@
         "module.bedGodMode.description": "Permite que tu andes enquanto estás numa cama (Para 1.9)",
 
         "module.clip.description": "UNTRANSLATED: Allows you to clip through blocks.",
-        
-        "module.airJump.description": "Permite que tu saltes no meio do ár",
-        
-        "module.airLadder.description": "UNTRANSLATED: Allows you to climb up ladders/vines without touching them.",
 
         "module.antiBounce.description": "UNTRANSLATED: Prevents you from bouncing on blocks.",
         
@@ -89,8 +85,6 @@
         "module.antiCactus.description": "Prevém cactos de te magoar.",
         
         "module.antiFireBall.description": "Automaticamente ataqua \"\"fireballs\"\" para fora do teu redor.",
-
-        "module.antiVanish.description": "UNTRANSLATED: Automatically detects vanished players.",
 
         "module.antiVoid.description": "UNTRANSLATED: Automatically setbacks you after falling a certain distance.",
         
@@ -209,8 +203,6 @@
         "module.keepTabList.description": "UNTRANSLATED: Keeps TAB List opened",
         
         "module.kick.description": "UNTRANSLATED: Allows you to kick yourself from a server.",
-        
-        "module.ladderJump.description": "UNTRANSLATED: Boosts you up when touching a ladder. (AAC)",
         
         "module.liquidChat.description": "Permite que tu fales com outros utilizadores do LiquidBounce.",
         
@@ -335,8 +327,6 @@
         "module.vehicleOneHit.description": "Permite que tu quebres veículus em um único ataque.",
         
         "module.wallClimb.description": "Permite que tu subas paredes como uma aranha.",
-
-        "module.waterSpeed.description": "Permite que tu nades mais rápido.",
         
         "module.xRay.description": "Permite que tu vejas minérios através de paredes.",
         

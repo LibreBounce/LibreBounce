@@ -79,10 +79,6 @@
         "module.bedGodMode.description": "Allows you to walk around lying in a bed. (For 1.9)",
 
         "module.clip.description": "Allows you to clip through blocks.",
-        
-        "module.airJump.description": "Allows you to jump in the mid air",
-        
-        "module.airLadder.description": "Allows you to climb up ladders/vines without touching them.",
 
         "module.antiBounce.description": "Prevents you from bouncing on blocks.",
 
@@ -99,8 +95,6 @@
         "module.antiCactus.description": "Prevents cacti from damaging you.",
         
         "module.antiFireball.description": "Automatically punches fireballs away from you.",
-
-        "module.antiVanish.description": "Automatically detects vanished players.",
 
         "module.antiVoid.description": "Automatically setbacks you after falling a certain distance.",
         
@@ -227,8 +221,6 @@
         "module.keyPearl.description": "Allows you to throw an ender pearl from your hotbar using a certain key.",
 
         "module.kick.description": "Allows you to kick yourself from a server.",
-        
-        "module.ladderJump.description": "Boosts you up when touching a ladder. (AAC)",
         
         "module.liquidChat.description": "Allows you to chat with other LiquidBounce users.",
         
@@ -359,8 +351,6 @@
         "module.vehicleOneHit.description": "Allows you to break vehicles with a single hit.",
         
         "module.wallClimb.description": "Allows you to climb up walls like a spider.",
-
-        "module.waterSpeed.description": "Allows you to swim faster.",
         
         "module.xRay.description": "Allows you to see ores through walls.",
         

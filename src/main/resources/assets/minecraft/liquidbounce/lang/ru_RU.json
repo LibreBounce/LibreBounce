@@ -70,10 +70,6 @@
         "module.bedGodMode.description": "Позволяет ходить, лёжа в кровати. (Для 1.9)",
 
         "module.clip.description": "Позволяет проходить сквозь блоки.",
-        
-        "module.airJump.description": "Позволяет прыгать в воздухе",
-        
-        "module.airLadder.description": "Позволяет подниматься по лестницам/листве, не касаясь их.",
 
         "module.antiBounce.description": "UNTRANSLATED: Prevents you from bouncing on blocks.",
         
@@ -90,8 +86,6 @@
         "module.antiCactus.description": "Отключает урон от кактусов.",
         
         "module.antiFireball.description": "Автоматически отталкивает фаерболы.",
-
-        "module.antiVanish.description": "UNTRANSLATED: Automatically detects vanished players.",
 
         "module.antiVoid.description": "Автоматически телепортирует назад после падения с некой высоты.",
         
@@ -214,8 +208,6 @@
         "module.keyPearl.description": "Позволяет бросать эндер пёрлы из хотбара, используя определенную клавишу.",
 
         "module.kick.description": "Позволяет кикнуть самого себя с сервера.",
-        
-        "module.ladderJump.description": "Повышает скорость при касании лестницы. (AAC)",
         
         "module.liquidChat.description": "Чат для общения с другими пользователями LiquidBounce.",
         
@@ -342,8 +334,6 @@
         "module.vehicleOneHit.description": "Позволяет ломать транспортные средства одним ударом.",
         
         "module.wallClimb.description": "Позволяет ползать по стенам как паук.",
-
-        "module.waterSpeed.description": "Позволяет плавать быстрее.",
         
         "module.xRay.description": "Позволяет видеть руды сквозь блоки.",
         

@@ -25,6 +25,7 @@ import net.minecraft.init.Items
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.*
 import java.util.concurrent.ConcurrentHashMap
+import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.UPDATE_LATENCY
 
 object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false, hideModule = false) {
 
@@ -44,6 +45,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     private val tab by boolean("TAB", true)
     private val packet by boolean("Packet", true)
     private val velocity by boolean("Velocity", true)
+    private val vanish by boolean("Vanish", true)
 
     private val autoLeave by choices("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
 
@@ -59,6 +61,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
     private var attemptLeave = false
 
+    private var alertClearVanish = false
+
     private var staffList = mapOf<String, Set<String>?>()
     private var serverIp = ""
 
@@ -72,6 +76,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         checkedSpectator.clear()
         playersInSpectatorMode.clear()
         attemptLeave = false
+        alertClearVanish = false
     }
 
     /**
@@ -82,6 +87,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         checkedStaff.clear()
         checkedSpectator.clear()
         playersInSpectatorMode.clear()
+        alertClearVanish = false
     }
 
     private fun loadStaffData() {
@@ -343,6 +349,38 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
     }
 
+    private fun handlePlayerList(packet: S38PacketPlayerListItem) {
+        val action = packet.action
+        val entries = packet.entries
+
+        if (!vanish) return
+
+        if (action == UPDATE_LATENCY) {
+            val playerListSize = mc.netHandler?.playerInfoMap?.size ?: 0
+
+            if (entries.size != playerListSize) {
+                if (warn == "Chat") {
+                    chat("§aA player might be vanished.")
+                } else {
+                    hud.addNotification(Notification("§aA player might be vanished.", 3000F))
+                }
+
+                alertClearVanish = false
+            } else {
+                if (alertClearVanish)
+                    return
+
+                if (warn == "Chat") {
+                    chat("§cNo players are vanished")
+                } else {
+                    hud.addNotification(Notification("§cNo players are vanished", 3000F))
+                }
+
+                alertClearVanish = true
+            }
+        }
+    }
+
     private fun handleOtherChecks(packet: Packet<*>?) {
         if (mc.thePlayer == null || mc.theWorld == null) {
             return
@@ -360,6 +398,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             is S49PacketUpdateEntityNBT -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
             is S1BPacketEntityAttach -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
             is S04PacketEntityEquipment -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
+            is S38PacketPlayerListItem -> handlePlayerList(packet)
         }
     }
 

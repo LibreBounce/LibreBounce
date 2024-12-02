@@ -70,10 +70,6 @@
         "module.bedGodMode.description": "Позволява ви да се разхождате легнали в леглото. (За 1.9)",
 
         "module.clip.description": "Позволява ви да 'клипвате' пред блокове.",
-         
-        "module.airJump.description": "Позволява ви да скачате във въздуха",
-        
-        "module.airLadder.description": "Позволява ви да се изкачвате по стълби/лиани, без да ги докосвате.",
 
         "module.antiBounce.description": "UNTRANSLATED: Prevents you from bouncing on blocks.",
         
@@ -90,8 +86,6 @@
         "module.antiCactus.description": "Предотвратява кактусите да ви навредят.",
         
         "module.antiFireball.description": "Автоматично отблъсква огнени топки от вас.",
-
-        "module.antiVanish.description": "UNTRANSLATED: Automatically detects vanished players.",
 
         "module.antiVoid.description": "Автоматично ви телепортира след падане на определено разстояние.",
         
@@ -214,8 +208,6 @@
         "module.keyPearl.description": "Позволява ви да хвърлите Ender перла от вашия Hotbar, като използвате определен бутон.",
 
         "module.kick.description": "Позволява ви да се кик-нете от сървър.",
-        
-        "module.ladderJump.description": "Прави ви по-бърз, когато докосвате стълба. (AAC)",
         
         "module.liquidChat.description": "Позволява ви да разговаряте с други потребители на Liquidbounce.",
         
@@ -342,8 +334,6 @@
         "module.vehicleOneHit.description": "Позволява ви да разбивате превозни средства с един удар.",
         
         "module.wallClimb.description": "Позволява ви да се изкачвате по стени като паяк.",
-
-        "module.waterSpeed.description": "Позволява ви да плувате по-бързо.",
         
         "module.xRay.description": "Позволява ви да виждате руди през стени.",
         
