@@ -51,7 +51,7 @@ object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "T
     private var offGroundTicks = 0
     private var ticksUntilJump = 0
 
-    val resetMode by enumChoice("RotationReset", Mode.RESET)
+    val resetMode by enumChoice("ResetMode", Mode.RESET)
     private val straightTicks by int("Straight", 0, 0..5, "ticks")
     private val jumpTicksOpt by intRange("Jump", 0..0, 0..10, "ticks")
     private var jumpTicks = jumpTicksOpt.random()
