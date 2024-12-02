@@ -239,6 +239,14 @@ public abstract class MixinMinecraftClient {
     }
 
     /**
+     * Hook game render task queue event
+     */
+    @Inject(method = "render", at = @At("HEAD"))
+    private void hookRenderTaskQueue(CallbackInfo callbackInfo) {
+        EventManager.INSTANCE.callEvent(new GameRenderTaskQueueEvent());
+    }
+
+    /**
      * Hook input handling
      */
     @Inject(method = "handleInputEvents", at = @At("RETURN"))

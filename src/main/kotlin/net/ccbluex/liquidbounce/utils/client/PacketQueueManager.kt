@@ -68,9 +68,7 @@ object PacketQueueManager : EventListener {
         get() = packetQueue.isNotEmpty()
 
     @Suppress("unused")
-    private val flushHandler = handler<GameRenderEvent>(
-        priority = EventPriorityConvention.FIRST_PRIORITY
-    ) {
+    private val flushHandler = handler<GameRenderTaskQueueEvent> {
         if (!inGame) {
             packetQueue.clear()
             return@handler
@@ -87,7 +85,7 @@ object PacketQueueManager : EventListener {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent>(
-        priority = EventPriorityConvention.READ_FINAL_STATE
+        priority = EventPriorityConvention.FINAL_DECISION
     ) { event ->
         // Ignore packets that are already cancelled, as they are already handled
         if (event.isCancelled) {
@@ -186,7 +184,7 @@ object PacketQueueManager : EventListener {
         }
     }
 
-    fun flush(flushWhen: (PacketSnapshot) -> Boolean) {
+    fun flush(flushWhen: (PacketSnapshot) -> Boolean) = mc.renderTaskQueue.add(Runnable {
         packetQueue.removeIf { snapshot ->
             if (flushWhen(snapshot)) {
                 flushSnapshot(snapshot)
@@ -195,9 +193,9 @@ object PacketQueueManager : EventListener {
                 false
             }
         }
-    }
+    })
 
-    fun flush(count: Int) {
+    fun flush(count: Int) = mc.renderTaskQueue.add(Runnable {
         // Take all packets until the counter of move packets reaches count and send them
         var counter = 0
 
@@ -215,7 +213,7 @@ object PacketQueueManager : EventListener {
                 break
             }
         }
-    }
+    })
 
     fun cancel() {
         positions.firstOrNull().let { pos ->

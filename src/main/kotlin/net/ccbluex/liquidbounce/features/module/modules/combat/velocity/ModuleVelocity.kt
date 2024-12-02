@@ -73,17 +73,17 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val packetHandler = sequenceHandler<PacketEvent>(priority = 1) {
-        val packet = it.packet
+    private val packetHandler = sequenceHandler<PacketEvent>(priority = 1) { event ->
+        val packet = event.packet
 
-        if (!it.original) {
+        if (!event.original) {
             return@sequenceHandler
         }
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id || packet is ExplosionS2CPacket) {
             // When delay is above 0, we will delay the velocity update
             if (delay.last > 0) {
-                it.cancelEvent()
+                event.cancelEvent()
 
                 delay.random().let { ticks ->
                     if (ticks > 0) {
