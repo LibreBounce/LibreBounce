@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
+import com.google.common.collect.Queues
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.*
@@ -56,7 +57,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 object PacketQueueManager : EventListener {
 
-    val packetQueue = ConcurrentLinkedQueue<PacketSnapshot>()
+    val packetQueue: ConcurrentLinkedQueue<PacketSnapshot> = Queues.newConcurrentLinkedQueue()
     val positions
         get() = packetQueue
             .map { snapshot -> snapshot.packet }
@@ -184,7 +185,7 @@ object PacketQueueManager : EventListener {
         }
     }
 
-    fun flush(flushWhen: (PacketSnapshot) -> Boolean) = mc.renderTaskQueue.add(Runnable {
+    fun flush(flushWhen: (PacketSnapshot) -> Boolean) {
         packetQueue.removeIf { snapshot ->
             if (flushWhen(snapshot)) {
                 flushSnapshot(snapshot)
@@ -193,9 +194,9 @@ object PacketQueueManager : EventListener {
                 false
             }
         }
-    })
+    }
 
-    fun flush(count: Int) = mc.renderTaskQueue.add(Runnable {
+    fun flush(count: Int) {
         // Take all packets until the counter of move packets reaches count and send them
         var counter = 0
 
@@ -213,7 +214,7 @@ object PacketQueueManager : EventListener {
                 break
             }
         }
-    })
+    }
 
     fun cancel() {
         positions.firstOrNull().let { pos ->
