@@ -100,7 +100,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
             return when (ScaffoldTellyFeature.resetMode) {
                 Mode.REVERSE -> Rotation(
                     round(player.rotation.yaw / 45) * 45,
-                    if (player.pitch > 45f) 45f else player.pitch
+                    if (player.pitch < 45f) 45f else player.pitch
                 )
 
                 Mode.RESET -> null
