@@ -215,7 +215,7 @@ object PacketQueueManager : EventListener {
     }
 
     fun cancel() {
-        positions.firstOrNull().let { pos ->
+        positions.firstOrNull()?.let { pos ->
             player.setPosition(pos)
         }
 
