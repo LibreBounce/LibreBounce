@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
+import com.google.common.collect.Queues
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.*
@@ -56,7 +57,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 object PacketQueueManager : EventListener {
 
-    val packetQueue = ConcurrentLinkedQueue<PacketSnapshot>()
+    val packetQueue: ConcurrentLinkedQueue<PacketSnapshot> = Queues.newConcurrentLinkedQueue()
     val positions
         get() = packetQueue
             .map { snapshot -> snapshot.packet }
@@ -68,9 +69,7 @@ object PacketQueueManager : EventListener {
         get() = packetQueue.isNotEmpty()
 
     @Suppress("unused")
-    private val flushHandler = handler<GameRenderEvent>(
-        priority = EventPriorityConvention.FIRST_PRIORITY
-    ) {
+    private val flushHandler = handler<GameRenderTaskQueueEvent> {
         if (!inGame) {
             packetQueue.clear()
             return@handler
@@ -87,7 +86,7 @@ object PacketQueueManager : EventListener {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent>(
-        priority = EventPriorityConvention.READ_FINAL_STATE
+        priority = EventPriorityConvention.FINAL_DECISION
     ) { event ->
         // Ignore packets that are already cancelled, as they are already handled
         if (event.isCancelled) {

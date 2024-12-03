@@ -38,7 +38,8 @@ class SpeedHylexGround(override val parent: ChoiceConfigurable<*>) : Choice("Hyl
         super.enable()
     }
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (!player.isOnGround) {
             groundTicks = 0
             return@tickHandler

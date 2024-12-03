@@ -112,9 +112,9 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
     }
 
     @Suppress("unused")
-    private val movementInputHandler = handler<MovementInputEvent> {
-        if (player.moving && hasBeenHurt) {
-            it.jumping = true
+    private val movementInputHandler = handler<MovementInputEvent> { event ->
+        if (event.directionalInput.isMoving && hasBeenHurt) {
+            event.jumping = true
         }
     }
 

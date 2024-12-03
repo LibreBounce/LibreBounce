@@ -16,23 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.player
+package net.ccbluex.liquidbounce.utils.block.hole
 
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.block.Region
+import net.minecraft.util.math.BlockPos
 
-/**
- * AutoWalk module
- *
- * Automatically makes you walk.
- */
-object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
+@JvmRecord
+data class Hole(
+    val type: Type,
+    val positions: Region,
+    val blockInvalidators: Region = Region(positions.from, positions.to.up(2)),
+) : Comparable<Hole> {
 
-    @Suppress("unused")
-    private val moveInputHandler = handler<MovementInputEvent>(priority = 1000) { event ->
-        event.directionalInput = event.directionalInput.copy(forwards = true)
+    override fun compareTo(other: Hole): Int =
+        compareValuesBy(this, other) { it.positions.from }
+
+    operator fun contains(pos: BlockPos): Boolean = pos in positions
+
+    enum class Type(val size: Int) {
+        ONE_ONE(1),
+        ONE_TWO(2),
+        TWO_TWO(4),
     }
 
 }

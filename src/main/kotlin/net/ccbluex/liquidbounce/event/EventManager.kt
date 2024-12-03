@@ -30,6 +30,7 @@ import kotlin.reflect.KClass
  */
 val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     GameTickEvent::class,
+    GameRenderTaskQueueEvent::class,
     BlockChangeEvent::class,
     ChunkLoadEvent::class,
     ChunkDeltaUpdateEvent::class,

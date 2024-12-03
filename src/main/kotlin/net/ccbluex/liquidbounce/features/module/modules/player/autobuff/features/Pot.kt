@@ -104,6 +104,7 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
 
     private val strengthPotion by boolean("StrengthPotion", true)
     private val speedPotion by boolean("SpeedPotion", true)
+    private val fireResistancePotion by boolean("FireResistancePotion", true)
 
     private val tillGroundDistance by float("TillGroundDistance", 2f, 1f..5f)
     private val doNotBenefitOthers by boolean("DoNotBenefitOthers", true)
@@ -190,6 +191,8 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
                 && !player.hasStatusEffect(StatusEffects.REGENERATION)
             StatusEffects.STRENGTH -> strengthPotion && !player.hasStatusEffect(StatusEffects.STRENGTH)
             StatusEffects.SPEED -> speedPotion && !player.hasStatusEffect(StatusEffects.SPEED)
+            StatusEffects.FIRE_RESISTANCE -> fireResistancePotion &&
+                !player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)
             else -> false
         }
 
