@@ -51,10 +51,17 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false, hideModule 
                 val entityArmor = entity.getCurrentArmor(i)
 
                 if (playerArmor != null && entityArmor != null) {
-                    val playerArmorColor = (playerArmor.item as ItemArmor).getColor(playerArmor)
-                    val entityArmorColor = (entityArmor.item as ItemArmor).getColor(entityArmor)
+                    val playerItem = playerArmor.item
+                    val entityItem = entityArmor.item
 
-                    return entityArmorColor == playerArmorColor
+                    if (playerItem is ItemArmor && entityItem is ItemArmor) {
+                        val playerArmorColor = playerItem.getColor(playerArmor)
+                        val entityArmorColor = entityItem.getColor(entityArmor)
+
+                        if (entityArmorColor == playerArmorColor) {
+                            return true
+                        }
+                    }
                 }
             }
         }
