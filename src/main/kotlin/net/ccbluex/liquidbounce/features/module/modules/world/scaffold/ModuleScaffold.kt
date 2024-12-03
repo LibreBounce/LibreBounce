@@ -328,7 +328,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         // Debug stuff
         if (optimalLine != null && target != null) {
-            val b = target.placedBlock.toVec3d().add(0.5, 1.0, 0.5)
+            val b = target.placedBlock.toVec3d(0.5, 1.0, 0.5)
             val a = optimalLine.getNearestPointTo(b)
 
             // Debug the line a-b
@@ -527,7 +527,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         }
     }
 
-    private fun findPlaceableSlots() = buildList<IntObjectPair<ItemStack>> {
+    private fun findPlaceableSlots() = buildList<IntObjectPair<ItemStack>>(9) {
         for (i in 0..8) {
             val stack = player.inventory.getStack(i)
 
