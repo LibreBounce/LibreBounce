@@ -61,20 +61,20 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
 
                     inList.iterator().apply {
                         while (hasNext()) {
-                            val entry = next()
+                            val (pos, value) = next()
 
-                            val sizeFactor = startSizeCurve.getFactor(entry.value.first, time, inTime.toFloat())
+                            val sizeFactor = startSizeCurve.getFactor(value.first, time, inTime.toFloat())
                             val expand = MathHelper.lerp(sizeFactor, startSize, 1f)
-                            val box = getBox(if (expand < 1f) 1f - expand else expand, entry.value.third)
-                            val colorFactor = fadeInCurve.getFactor(entry.value.first, time, inTime.toFloat())
+                            val box = getBox(if (expand < 1f) 1f - expand else expand, value.third)
+                            val colorFactor = fadeInCurve.getFactor(value.first, time, inTime.toFloat())
 
-                            drawEntryBox(entry.key, entry.value.second, box, colorFactor)
+                            drawEntryBox(pos, value.second, box, colorFactor)
 
-                            if (time - entry.value.first >= outTime) {
+                            if (time - value.first >= outTime) {
                                 if (keep) {
-                                    currentList[entry.key] = entry.value.second to entry.value.third
+                                    currentList[pos] = value.second to value.third
                                 } else {
-                                    outList[entry.key] = Triple(time, entry.value.second, entry.value.third)
+                                    outList[pos] = Triple(time, value.second, value.third)
                                 }
                                 remove()
                             }
@@ -85,18 +85,18 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
 
                     outList.iterator().apply {
                         while (hasNext()) {
-                            val entry = next()
+                            val (pos, value) = next()
 
-                            val sizeFactor = endSizeCurve.getFactor(entry.value.first, time, outTime.toFloat())
+                            val sizeFactor = endSizeCurve.getFactor(value.first, time, outTime.toFloat())
                             val expand = 1f - MathHelper.lerp(sizeFactor, 1f, endSize)
-                            val box = getBox(expand, entry.value.third)
-                            val colorFactor = 1f - fadeOutCurve.getFactor(entry.value.first, time, outTime.toFloat())
+                            val box = getBox(expand, value.third)
+                            val colorFactor = 1f - fadeOutCurve.getFactor(value.first, time, outTime.toFloat())
 
-                            drawEntryBox(entry.key, entry.value.second, box, colorFactor)
+                            drawEntryBox(pos, value.second, box, colorFactor)
 
-                            if (time - entry.value.first >= outTime) {
+                            if (time - value.first >= outTime) {
                                 remove()
-                                updateNeighbors(entry.key)
+                                updateNeighbors(pos)
                             }
                         }
                     }

@@ -169,10 +169,7 @@ object PacketQueueManager : EventListener {
 
         renderEnvironmentForWorld(matrixStack) {
             withColor(color) {
-                @Suppress("SpreadOperator")
-                drawLineStrip(*positions.mapArray { vec3d ->
-                    Vec3(relativeToCamera(vec3d))
-                })
+                drawLineStrip(positions = positions.mapArray { vec3d -> Vec3(relativeToCamera(vec3d)) })
             }
         }
 
