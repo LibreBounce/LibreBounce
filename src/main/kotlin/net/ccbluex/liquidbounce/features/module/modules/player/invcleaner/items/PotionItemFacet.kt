@@ -38,7 +38,7 @@ class PotionItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
         private object PreferHigherTierPotions : Comparator<PotionItemFacet> {
             override fun compare(o1: PotionItemFacet, o2: PotionItemFacet): Int = compareValuesBy(o1, o2) { o ->
                 o.itemStack.getPotionEffects()
-                    .mapTo(ObjectArrayList()) { it.effectType.value().tier }
+                    .mapTo(ObjectArrayList(8)) { it.effectType.value().tier }
                     .apply { sortDescending() }
             }
         }
