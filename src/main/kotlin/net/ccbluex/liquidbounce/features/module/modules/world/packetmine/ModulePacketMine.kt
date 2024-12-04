@@ -371,6 +371,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         }
     }
 
+    @Suppress("FunctionNaming", "FunctionName")
     fun _resetTarget() {
         targetPos = null
     }
