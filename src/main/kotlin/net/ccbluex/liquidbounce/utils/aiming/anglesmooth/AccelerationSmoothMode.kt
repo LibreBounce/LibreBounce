@@ -17,14 +17,17 @@ import kotlin.math.roundToInt
 
 class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Acceleration") {
 
-    private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..100f)
-    private val pitchAcceleration by floatRange("PitchAcceleration", 20f..25f, 1f..100f)
+    private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..180f)
+    private val pitchAcceleration by floatRange("PitchAcceleration", 20f..25f, 1f..180f)
     // TODO: figure out how to implement lower accel bound
     //private val minAcceleration by float("MinAcceleration", -25f, -100f..0f)
     private val yawAccelerationError by float("YawAccelerationError", 0.1f, 0f..1f)
     private val pitchAccelerationError by float("PitchAccelerationError", 0.1f, 0f..1f)
     private val yawConstantError by float("YawConstantError", 0.1f, 0f..10f)
     private val pitchConstantError by float("PitchConstantError", 0.1f, 0f..10f)
+
+    private val yawAccel = yawAcceleration.random().toFloat()
+    private val pitchAccel = pitchAcceleration.random().toFloat()
 
     override fun limitAngleChange(
         factorModifier: Float,
@@ -85,9 +88,9 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         pitchDiff: Float,
     ): FloatFloatPair {
         val yawAccel = RotationManager.angleDifference(yawDiff, prevYawDiff)
-            .coerceIn(-yawAcceleration.random().toFloat(), yawAcceleration.random().toFloat())
+            .coerceIn(-yawAccel, yawAccel)
         val pitchAccel = RotationManager.angleDifference(pitchDiff, prevPitchDiff)
-            .coerceIn(-pitchAcceleration.random().toFloat(), pitchAcceleration.random().toFloat())
+            .coerceIn(-pitchAccel, pitchAccel)
 
         val yawError = yawAccel * yawErrorMulti() + yawConstantError()
         val pitchError = pitchAccel * pitchErrorMulti() + pitchConstantError()
