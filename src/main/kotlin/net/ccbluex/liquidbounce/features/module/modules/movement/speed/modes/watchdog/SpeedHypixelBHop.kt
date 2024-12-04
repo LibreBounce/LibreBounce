@@ -21,19 +21,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
-import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
-import net.ccbluex.liquidbounce.utils.movement.copy
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -104,18 +100,6 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBa
         }
 
         player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
-    }
-
-    val moveHandler = handler<MovementInputEvent> { event ->
-        if (!player.isOnGround || !player.moving) {
-            return@handler
-        }
-
-        if (ModuleSpeed.shouldDelayJump()) {
-            return@handler
-        }
-
-        event.input = event.input.copy(jump = true)
     }
 
     /**
