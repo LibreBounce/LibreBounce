@@ -107,7 +107,7 @@ object ChunkRenderer {
                 heightmapManager.getHeight(x + offset.x, z + offset.y) > height
             }
 
-            val higherOffsetVec = higherOffsets.fold(Vec2i(0, 0)) { acc, vec -> acc.add(vec) }
+            val higherOffsetVec = higherOffsets.fold(Vec2i.ZERO) { acc, vec -> acc.add(vec) }
 
             val brightness =
                 if (higherOffsets.size < 2) {
