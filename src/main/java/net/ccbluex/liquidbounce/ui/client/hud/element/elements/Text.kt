@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.extensions.getPing
@@ -46,6 +47,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import kotlin.math.max
 
 /**
  * CustomHUD text element
@@ -260,12 +262,13 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
      */
     override fun drawElement(): Border {
         val stack = mc.thePlayer?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
-        val shouldRender = showBlock && stack != null && stack.item is ItemBlock
+        val shouldRender = showBlock && stack?.item is ItemBlock
         val showBlockScale = if (shouldRender) 1.2F else 1F
+        val fontHeight = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT) + if (shouldRender) 1.5F else 0F
 
         assumeNonVolatile = true
 
-        if ((Scaffold.handleEvents() && onScaffold) || !onScaffold) {
+        if ((Scaffold.handleEvents() && onScaffold) || !onScaffold || mc.currentScreen is GuiHudDesigner) {
             val rainbow = textColorMode == "Rainbow"
             val gradient = textColorMode == "Gradient"
 
@@ -290,7 +293,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                         ((-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale)) * (showBlockScale * 1.15F),
                         (-2F * (1F + backgroundScale)) * showBlockScale,
                         ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
-                        (font.FONT_HEIGHT * backgroundScale.coerceIn(1.2F, 2F)) * showBlockScale,
+                        fontHeight * max(backgroundScale, 1F) * showBlockScale,
                         when (backgroundMode) {
                             "Gradient" -> 0
                             "Rainbow" -> 0
@@ -306,7 +309,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                     ((-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale)) * (showBlockScale * 1.15F),
                     (-2F * (1F + backgroundScale)) * showBlockScale,
                     ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
-                    (font.FONT_HEIGHT * backgroundScale.coerceIn(1.2F, 2F)) * showBlockScale,
+                    fontHeight * max(backgroundScale, 1F) * showBlockScale,
                     backgroundBorder,
                     bgBorderColors.color().rgb,
                     roundedBackgroundRadius
@@ -372,10 +375,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
         assumeNonVolatile = false
 
         return Border(
-            ((-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale)) * (showBlockScale * 1.15F),
+            (-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale) * (showBlockScale * 1.15F),
             (-2F * (1F + backgroundScale)) * showBlockScale,
             ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
-            (font.FONT_HEIGHT * backgroundScale.coerceIn(1.2F, 2F)) * showBlockScale,
+            fontHeight * max(backgroundScale, 1F) * showBlockScale
         )
     }
 

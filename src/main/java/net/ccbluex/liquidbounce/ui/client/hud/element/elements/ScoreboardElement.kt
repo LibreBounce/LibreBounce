@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
@@ -21,7 +22,7 @@ import net.ccbluex.liquidbounce.value.*
 import net.minecraft.scoreboard.ScoreObjective
 import net.minecraft.scoreboard.ScorePlayerTeam
 import net.minecraft.util.EnumChatFormatting
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 
 /**
@@ -64,7 +65,7 @@ class ScoreboardElement(
         if (AntiBlind.handleEvents() && AntiBlind.scoreboard)
             return null
 
-        val fontRenderer = font
+        val (fontRenderer, fontHeight) = font to ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT)
         val textColor = textColor().rgb
         val backColor = backgroundColor().rgb
 
@@ -88,10 +89,9 @@ class ScoreboardElement(
         var scoreCollection = scoreboard.getSortedScores(objective)
         val scores = scoreCollection.filter { it.playerName?.startsWith("#") == false }
 
-        scoreCollection = if (scores.size > 15)
+        scoreCollection = if (scores.size > 15) {
             scores.drop(scoreCollection.size - 15)
-        else
-            scores
+        } else scores
 
         var maxWidth = fontRenderer.getStringWidth(objective.displayName)
 
@@ -106,10 +106,10 @@ class ScoreboardElement(
             maxWidth = maxWidth.coerceAtLeast(fontRenderer.getStringWidth(width))
         }
 
-        val maxHeight = scoreCollection.size * fontRenderer.FONT_HEIGHT
+        val maxHeight = scoreCollection.size * fontHeight
         val l1 = -maxWidth - 3 - if (rect) 3 else 0
 
-        drawRoundedRectInt(l1 - 4, -4, 7, (2 + maxHeight + fontRenderer.FONT_HEIGHT), backColor, roundedRectRadius)
+        drawRoundedRectInt(l1 - 4, -4, 7, maxHeight + fontHeight, backColor, roundedRectRadius)
 
         scoreCollection.forEachIndexed { index, score ->
             val team = scoreboard.getPlayersTeam(score.playerName)
@@ -118,7 +118,7 @@ class ScoreboardElement(
             val scorePoints = "${EnumChatFormatting.RED}${score.scorePoints}"
 
             val width = 5 - if (rect) 4 else 0
-            val height = maxHeight - index * fontRenderer.FONT_HEIGHT.toFloat()
+            val height = maxHeight - index * fontHeight.toFloat()
 
             glColor4f(1f, 1f, 1f, 1f)
 
@@ -167,7 +167,7 @@ class ScoreboardElement(
                 fontRenderer.drawString(
                     displayName,
                     (l1 + maxWidth / 2 - fontRenderer.getStringWidth(displayName) / 2).toFloat(),
-                    height - fontRenderer.FONT_HEIGHT,
+                    height - fontHeight,
                     textColor,
                     shadow
                 )
@@ -183,14 +183,14 @@ class ScoreboardElement(
                     2F,
                     if (index == scoreCollection.size - 1) -2F else height,
                     5F,
-                    if (index == 0) fontRenderer.FONT_HEIGHT.toFloat() else height + fontRenderer.FONT_HEIGHT * 2F,
+                    if (index == 0) fontHeight.toFloat() else height + fontHeight * 2F,
                     rectColor,
                     roundedRectRadius
                 )
             }
         }
 
-        return Border(-maxWidth - 5f - if (rect) 3 else 0, -2F, 5F, maxHeight + fontRenderer.FONT_HEIGHT.toFloat())
+        return Border(l1 - 4F, -4F, 7F, maxHeight + fontHeight.toFloat())
     }
 
     private fun backgroundColor() = Color(
