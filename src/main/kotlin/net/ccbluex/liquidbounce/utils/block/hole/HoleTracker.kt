@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.Long2ByteMap
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.Region
+import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.minecraft.block.Block
@@ -37,7 +38,7 @@ private const val AIR = 0.toByte()
 private const val BREAKABLE = 1.toByte()
 
 // BlockState types
-typealias State = Byte
+private typealias State = Byte
 
 object HoleTracker : ChunkScanner.BlockChangeSubscriber {
 
@@ -150,7 +151,7 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber {
         if (containsKey(longValue)) {
             return get(longValue)
         } else {
-            val state = mc.world?.getBlockState(blockPos) ?: return AIR
+            val state = blockPos.getState() ?: return AIR
             val result = when {
                 state.isAir -> AIR
                 state.block in UNBREAKABLE_BLOCKS -> UNBREAKABLE

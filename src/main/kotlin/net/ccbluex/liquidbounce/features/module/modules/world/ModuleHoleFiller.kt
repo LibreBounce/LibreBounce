@@ -52,7 +52,7 @@ import kotlin.math.max
  *
  * @author ccetl
  */
-object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD) {
+object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD), HoleManagerSubscriber {
 
     /**
      * When enabled, only places when entities are about to enter a hole, otherwise fills all holes.
@@ -108,9 +108,13 @@ object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD) {
         allowSupportPlacements = false
     ))
 
+    private val range: Int get() = ceil(max(placer.range, placer.wallRange)).toInt()
+
+    override fun horizontalDistance(): Int = range
+    override fun verticalDistance(): Int = range
+
     override fun enable() {
-        val range = ceil(max(placer.range, placer.wallRange)).toInt()
-        HoleManager.subscribe(this, HoleManagerSubscriber({ range }, { range }))
+        HoleManager.subscribe(this)
     }
 
     override fun disable() {
@@ -229,8 +233,8 @@ object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD) {
             }
 
             checkedHoles += hole
-            BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
-                found += ObjectDoubleImmutablePair(it.toImmutable(), valid.rightDouble())
+            hole.positions.mapTo(found) {
+                ObjectDoubleImmutablePair(it.toImmutable(), valid.rightDouble())
             }
 
             if (remainingItems1 == 0 && !player.abilities.creativeMode) {
