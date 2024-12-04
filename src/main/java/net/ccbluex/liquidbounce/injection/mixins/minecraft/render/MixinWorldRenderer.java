@@ -51,6 +51,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer {
+
     @Shadow
     @Nullable
     public Framebuffer entityOutlinesFramebuffer;
@@ -283,9 +284,38 @@ public abstract class MixinWorldRenderer {
     @ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/biome/Biome;getPrecipitation(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome$Precipitation;"))
     private Biome.Precipitation modifyBiomePrecipitation(Biome.Precipitation original) {
         var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
-
         if (moduleOverrideWeather.getRunning() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
             return Biome.Precipitation.SNOW;
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
+    private float modifyPrecipitationGradient(float original) {
+        var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+        if (precipitation.getRunning() && original != 0f) {
+            return precipitation.getGradient();
+        }
+
+        return original;
+    }
+
+    @ModifyVariable(method = "renderWeather", at = @At(value = "STORE"), ordinal = 3)
+    private int modifyPrecipitationLayers(int original) {
+        var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+        if (precipitation.getRunning()) {
+            return precipitation.getLayers();
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isFancyGraphicsOrBetter()Z"))
+    private boolean modifyPrecipitationLayersSet(boolean original) {
+        var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+        if (precipitation.getRunning()) {
+            return false;
         }
 
         return original;
@@ -294,7 +324,6 @@ public abstract class MixinWorldRenderer {
     @ModifyExpressionValue(method = "tickRainSplashing", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
     private float removeRainSplashing(float original) {
         var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
-
         if (moduleOverrideWeather.getRunning() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
             return 0f;
         }

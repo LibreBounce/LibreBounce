@@ -242,7 +242,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
      * That gets called first, then the client's packets.
      */
     @Suppress("unused")
-    private val tickHandler = handler<GameTickEvent>(priority = 1002) {
+    private val handleRenderTaskQueue = handler<GameRenderTaskQueueEvent> {
         if (shouldCancelPackets()) {
             processPackets()
         } else {

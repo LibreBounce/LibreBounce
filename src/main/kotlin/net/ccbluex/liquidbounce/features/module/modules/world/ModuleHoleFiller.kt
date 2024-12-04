@@ -52,7 +52,7 @@ import kotlin.math.max
  *
  * @author ccetl
  */
-object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD), HoleManagerSubscriber {
+object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManagerSubscriber {
 
     /**
      * When enabled, only places when entities are about to enter a hole, otherwise fills all holes.
@@ -119,6 +119,7 @@ object ModuleHoleFiller : ClientModule("HolesFiller", Category.WORLD), HoleManag
 
     override fun disable() {
         HoleManager.unsubscribe(this)
+        placer.disable()
     }
 
     @Suppress("unused")

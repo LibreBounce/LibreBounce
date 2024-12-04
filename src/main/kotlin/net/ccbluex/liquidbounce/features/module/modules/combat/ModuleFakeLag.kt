@@ -54,6 +54,10 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
     private val delay by intRange("Delay", 300..600, 0..1000, "ms")
     private val mode by enumChoice("Mode", Mode.DYNAMIC).apply { tagBy(this) }
 
+    private val flushOnEntityInteract by boolean("FlushOnEntityInteract", true)
+    private val flushOnBlockInteract by boolean("FlushOnBlockInteract", true)
+    private val flushOnAction by boolean("FlushOnAction", true)
+
     private enum class Mode(override val choiceName: String) : NamedChoice {
         CONSTANT("Constant"),
         DYNAMIC("Dynamic")
@@ -107,13 +111,28 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
         when (val packet = event.packet) {
 
             is PlayerPositionLookS2CPacket,
-            is PlayerInteractBlockC2SPacket,
-            is PlayerActionC2SPacket,
-            is UpdateSignC2SPacket,
-            is PlayerInteractEntityC2SPacket,
-            is HandSwingC2SPacket,
             is ResourcePackStatusC2SPacket -> {
                 return@handler
+            }
+
+            is PlayerInteractEntityC2SPacket,
+            is HandSwingC2SPacket -> {
+                if (flushOnEntityInteract) {
+                    return@handler
+                }
+            }
+
+            is PlayerInteractBlockC2SPacket,
+            is UpdateSignC2SPacket -> {
+                if (flushOnBlockInteract) {
+                    return@handler
+                }
+            }
+
+            is PlayerActionC2SPacket -> {
+                if (flushOnAction) {
+                    return@handler
+                }
             }
 
             // Flush on knockback
