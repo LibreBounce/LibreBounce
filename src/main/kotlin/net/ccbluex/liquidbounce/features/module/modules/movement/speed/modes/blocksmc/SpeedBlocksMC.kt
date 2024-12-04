@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.movement.copy
+import net.ccbluex.liquidbounce.utils.movement.isMoving
 import net.ccbluex.liquidbounce.utils.movement.zeroXZ
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -150,7 +151,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
 
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent> { event ->
-        if (event.directionalInput.isMoving) {
+        if (event.input.isMoving) {
             event.input.copy(jump = true)
         }
     }
