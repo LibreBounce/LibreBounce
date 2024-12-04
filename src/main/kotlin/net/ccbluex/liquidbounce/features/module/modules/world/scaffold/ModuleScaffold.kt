@@ -68,6 +68,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
+import net.ccbluex.liquidbounce.utils.math.copy
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.toVec3d
@@ -125,14 +126,12 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         /**
          * Places blocks at the same Y level as the player
          */
-        ON("On", { blockPos -> BlockPos(blockPos.x, placementY, blockPos.z) }),
+        ON("On", { blockPos -> blockPos.copy(y = placementY) }),
 
         /**
          * Places blocks at the same Y level as the player, but only if the player is not falling
          */
-        FALLING("Falling", { blockPos ->
-            BlockPos(blockPos.x, placementY, blockPos.z).takeIf { player.velocity.y < 0.2 }
-        }),
+        FALLING("Falling", { blockPos -> blockPos.copy(y = placementY).takeIf { player.velocity.y < 0.2 } }),
 
         /**
          * Similar to FALLING, but only when a certain velocity is triggered and after
@@ -142,9 +141,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             if (ModuleScaffold.player.velocity.y == -0.15233518685055708 && jumps >= 2) {
                 jumps = 0
 
-                BlockPos(blockPos.x, startY, blockPos.z)
+                blockPos.copy(y = startY)
             } else {
-                BlockPos(blockPos.x, startY - 1, blockPos.z)
+                blockPos.copy(y = startY - 1)
             }
         })
 
