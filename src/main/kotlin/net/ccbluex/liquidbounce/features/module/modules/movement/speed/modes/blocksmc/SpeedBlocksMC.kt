@@ -66,8 +66,8 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
         player.strafe(speed = 0.0)
     }
 
-    val repeatable = tickHandler {
-
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (player.isOnGround) {
             airTicks = 0
             canSpeed = true
@@ -134,7 +134,8 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
 
     }
 
-    val jumpEvent = handler<PlayerJumpEvent> {
+    @Suppress("unused")
+    private val jumpHandler = handler<PlayerJumpEvent> {
         val atLeast = 0.281 + 0.2 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
         if (!canSpeed) {
             return@handler
@@ -147,9 +148,10 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
         player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast) - 0.01)
     }
 
-    val movementInputEvent = handler<MovementInputEvent> {
-        if (player.moving) {
-            it.input.copy(jump = true)
+    @Suppress("unused")
+    private val movementInputHandler = handler<MovementInputEvent> { event ->
+        if (event.directionalInput.isMoving) {
+            event.input.copy(jump = true)
         }
     }
 

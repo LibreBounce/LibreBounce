@@ -375,10 +375,11 @@ object RotationManager : EventListener {
      * sometimes we update the rotation off chain (e.g. on interactItem)
      * and the player.lastYaw and player.lastPitch are not updated.
      */
-    val packetHandler = handler<PacketEvent>(priority = -1000) { event ->
-        val packet = event.packet
-
-        val rotation = when (packet) {
+    @Suppress("unused")
+    val packetHandler = handler<PacketEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) { event ->
+        val rotation = when (val packet = event.packet) {
             is PlayerMoveC2SPacket -> {
                 // If we are not changing the look, we don't need to update the rotation
                 // but, we want to handle slow start triggers
@@ -399,7 +400,6 @@ object RotationManager : EventListener {
         if (!event.isCancelled) {
             actualServerRotation = rotation
         }
-
         theoreticalServerRotation = rotation
     }
 

@@ -103,9 +103,12 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
     private val notDuringScaffold by boolean("NotDuringScaffold", true)
     private val notWhileSneaking by boolean("NotWhileSneaking", false)
 
+    private val avoidEdgeBump by boolean("AvoidEdgeBump", true)
+
     init {
         tree(OnlyInCombat)
         tree(OnlyOnPotionEffect)
+        tree(SpeedYawOffset)
     }
 
     override val running: Boolean
@@ -132,9 +135,6 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
         notWhileSneaking && player.isSneaking -> false
         else -> true
     }
-
-    fun shouldDelayJump() = !mc.options.jumpKey.isPressed && (SpeedAntiCornerBump.shouldDelayJump()
-        || CriticalsJump.shouldWaitForJump())
 
     private object OnlyInCombat : ToggleableConfigurable(this, "OnlyInCombat", false) {
 
@@ -182,6 +182,18 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
             get() = potionEffects
 
         abstract fun checkPotionEffects(): Boolean
+    }
+
+    internal fun doOptimizationsPreventJump(): Boolean {
+        if (CriticalsJump.running && CriticalsJump.shouldWaitForJump(0.42f)) {
+            return true
+        }
+
+        if (avoidEdgeBump && SpeedAntiCornerBump.shouldDelayJump()) {
+            return true
+        }
+
+        return false
     }
 
 }

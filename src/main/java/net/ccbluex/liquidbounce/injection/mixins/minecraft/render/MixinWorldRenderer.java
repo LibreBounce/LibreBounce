@@ -54,6 +54,10 @@ import static org.lwjgl.opengl.GL11.*;
 public abstract class MixinWorldRenderer {
 
     @Shadow
+    @Nullable
+    public Framebuffer entityOutlinesFramebuffer;
+
+    @Shadow
     protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
 
     @Shadow
@@ -65,10 +69,6 @@ public abstract class MixinWorldRenderer {
     @Shadow
     @Final
     private MinecraftClient client;
-
-    @Shadow
-    @Nullable
-    public Framebuffer entityOutlineFramebuffer;
 
     @Inject(method = "loadEntityOutlinePostProcessor", at = @At("RETURN"))
     private void onLoadEntityOutlineShader(CallbackInfo info) {
@@ -305,7 +305,45 @@ public abstract class MixinWorldRenderer {
 //
 //        return original;
 //    }
+@ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
+private float modifyPrecipitationGradient(float original) {
+    var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+    if (precipitation.getRunning() && original != 0f) {
+        return precipitation.getGradient();
+    }
 
+    return original;
+}
+
+@ModifyVariable(method = "renderWeather", at = @At(value = "STORE"), ordinal = 3)
+private int modifyPrecipitationLayers(int original) {
+    var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+    if (precipitation.getRunning()) {
+        return precipitation.getLayers();
+    }
+
+    return original;
+}
+
+@ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isFancyGraphicsOrBetter()Z"))
+private boolean modifyPrecipitationLayersSet(boolean original) {
+    var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+    if (precipitation.getRunning()) {
+        return false;
+    }
+
+    return original;
+}
+
+@ModifyExpressionValue(method = "tickRainSplashing", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
+private float removeRainSplashing(float original) {
+    var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
+    if (moduleOverrideWeather.getRunning() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
+        return 0f;
+    }
+
+    return original;
+}
 //    TODO: fix this
     @ModifyArgs(
             method = "drawBlockOutline",

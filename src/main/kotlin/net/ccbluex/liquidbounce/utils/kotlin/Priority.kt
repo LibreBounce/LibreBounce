@@ -60,6 +60,11 @@ object EventPriorityConvention {
     const val OBJECTION_AGAINST_EVERYTHING: Int = -100
 
     /**
+     * Used when the event handler should be able to object anything that happened previously
+     */
+    const val FINAL_DECISION: Int = -500
+
+    /**
      * The event should be called last. It should not only be used for events that want to read the final state of the
      * event
      */

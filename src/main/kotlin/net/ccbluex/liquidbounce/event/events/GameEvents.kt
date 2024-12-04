@@ -35,6 +35,14 @@ import net.minecraft.util.PlayerInput
 @Nameable("gameTick")
 class GameTickEvent : Event()
 
+/**
+ * We can use this event to populate the render task queue with tasks that should be
+ * executed in the same frame. This is useful for more responsive task execution
+ * and allows to also schedule tasks off-schedule.
+ */
+@Nameable("gameRenderTaskQueue")
+class GameRenderTaskQueueEvent : Event()
+
 @Nameable("key")
 @WebSocketEvent
 class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()

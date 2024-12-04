@@ -18,11 +18,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.injection.mixins.minecraft.render.MixinBackgroundRenderer
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.minecraft.block.enums.CameraSubmersionType
+import net.minecraft.client.render.BackgroundRenderer.FogType
+import net.minecraft.client.render.Camera
+import net.minecraft.client.render.FogShape
+import net.minecraft.util.math.MathHelper
 
 /**
  * CustomAmbience module
@@ -33,6 +40,53 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
 
     val weather = enumChoice("Weather", WeatherType.SUNNY)
     private val time = enumChoice("Time", TimeType.NOON)
+
+    object Precipitation : ToggleableConfigurable(this, "ModifyPrecipitation", false) {
+        val gradient by float("Gradient", 1f, 0.1f..1f)
+        val layers by int("Layers", 7, 1..15)
+    }
+
+    object Fog : ToggleableConfigurable(this, "Fog", false) {
+
+        private val color by color("Color", Color4b(70, 119, 255, 255))
+        private val fogStart by float("FogStart", 0.25f, -8f..2000f)
+        private val fogEnd by float("FogEnd", 1f, 0f..2000f)
+        private val fogShape by enumChoice("FogShape", Shape.CYLINDER)
+
+        /**
+         * [MixinBackgroundRenderer]
+         */
+        fun modifyFog(camera: Camera, fogType: FogType, viewDistance: Float) {
+            if (!this.running || fogType != FogType.FOG_TERRAIN) {
+                return
+            }
+
+            RenderSystem.setShaderFogStart(MathHelper.clamp(fogStart, -8f, viewDistance))
+            RenderSystem.setShaderFogEnd(MathHelper.clamp(fogEnd, 0f, viewDistance))
+
+            val type = camera.submersionType
+            if (type != CameraSubmersionType.NONE) {
+                return
+            }
+
+            RenderSystem.setShaderFogShape(fogShape.fogShape)
+
+            val color = color
+            RenderSystem.setShaderFogColor(
+                color.r / 255f,
+                color.g / 255f,
+                color.b / 255f,
+                color.a / 255f
+            )
+        }
+
+        @Suppress("unused")
+        private enum class Shape(override val choiceName: String, val fogShape: FogShape) : NamedChoice {
+            SPHERE("Sphere", FogShape.SPHERE),
+            CYLINDER("Cylinder", FogShape.CYLINDER);
+        }
+
+    }
 
     object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", false) {
 
@@ -61,6 +115,8 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
     }
 
     init {
+        tree(Precipitation)
+        tree(Fog)
         tree(CustomLightColor)
     }
 
@@ -81,6 +137,7 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
         }
     }
 
+    @Suppress("unused")
     enum class WeatherType(override val choiceName: String) : NamedChoice {
         NO_CHANGE("NoChange"),
         SUNNY("Sunny"),
