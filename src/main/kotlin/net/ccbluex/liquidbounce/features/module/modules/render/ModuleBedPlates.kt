@@ -231,9 +231,9 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
 
                 val block = state.block
                 if (state.isSolidBlock(world, pos) || block in WHITELIST_NON_SOLID) {
-                    // Count blocks
+                    // Count blocks (getInt default = 0)
                     with(layers[layer - 1]) {
-                        put(block, if (containsKey(block)) getInt(block) + 1 else 1)
+                        put(block, getInt(block) + 1)
                     }
                 }
             }

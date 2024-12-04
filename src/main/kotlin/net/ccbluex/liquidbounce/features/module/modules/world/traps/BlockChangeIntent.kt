@@ -35,10 +35,11 @@ sealed class BlockChangeInfo {
     class PlaceBlock(
         val blockPlacementTarget: BlockPlacementTarget
     ) : BlockChangeInfo()
+
     class InteractWithBlock(
         val itemPredicate: (Item) -> Boolean,
         val side: Direction,
-        val alternativeOffsets: List<Vec3i> = listOf(Vec3i(0, 0, 0))
+        val alternativeOffsets: List<Vec3i> = listOf(Vec3i.ZERO)
     ) : BlockChangeInfo()
 }
 
