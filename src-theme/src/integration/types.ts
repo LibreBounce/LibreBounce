@@ -80,7 +80,6 @@ export interface ColorSetting {
     value: number;
     rainbowMode: string;
     rainbowSpeed: number;
-    temporaryValue: number; // TODO remove
 }
 
 export interface BooleanSetting {
