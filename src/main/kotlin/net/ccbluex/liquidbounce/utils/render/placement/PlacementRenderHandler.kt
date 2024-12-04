@@ -73,7 +73,10 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
 
                     inList.long2ObjectEntrySet().iterator().apply {
                         while (hasNext()) {
-                            val (pos, value) = next()
+                            // Do not use destructuring declaration which returns boxed [Long] values
+                            val entry = next()
+                            val pos = entry.longKey
+                            val value = entry.value
 
                             val sizeFactor = startSizeCurve.getFactor(value.startTime, time, inTime.toFloat())
                             val expand = MathHelper.lerp(sizeFactor, startSize, 1f)
@@ -93,14 +96,17 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
                         }
                     }
 
-                    currentList.long2ObjectEntrySet().forEach {
-                        val (pos, value) = it
+                    currentList.long2ObjectEntrySet().forEach { entry ->
+                        val pos = entry.longKey
+                        val value = entry.value
                         drawEntryBox(blockPosCache.set(pos), value.cullData, value.box, 1f)
                     }
 
                     outList.long2ObjectEntrySet().iterator().apply {
                         while (hasNext()) {
-                            val (pos, value) = next()
+                            val entry = next()
+                            val pos = entry.longKey
+                            val value = entry.value
 
                             val sizeFactor = endSizeCurve.getFactor(value.startTime, time, outTime.toFloat())
                             val expand = 1f - MathHelper.lerp(sizeFactor, 1f, endSize)
@@ -295,11 +301,15 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
      * so that positions don't get updated multiple times.
      */
     fun updateAll() {
-        inList.long2ObjectEntrySet().forEach { (key, value) ->
+        inList.long2ObjectEntrySet().forEach { entry ->
+            val key = entry.longKey
+            val value = entry.value
             inList.put(key, value.copy(cullData = getCullData(blockPosCache.set(key))))
         }
 
-        currentList.long2ObjectEntrySet().forEach { (key, value) ->
+        currentList.long2ObjectEntrySet().forEach { entry ->
+            val key = entry.longKey
+            val value = entry.value
             currentList.put(key, value.copy(cullData = getCullData(blockPosCache.set(key))))
         }
     }
@@ -335,7 +345,9 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
     fun clearSilently() {
         inList.long2ObjectEntrySet().iterator().apply {
             while (hasNext()) {
-                val (pos, value) = next()
+                val entry = next()
+                val pos = entry.longKey
+                val value = entry.value
                 outList.put(pos, value.copy(startTime = System.currentTimeMillis()))
                 remove()
             }
@@ -343,7 +355,9 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
 
         currentList.long2ObjectEntrySet().iterator().apply {
             while (hasNext()) {
-                val (pos, value) = next()
+                val entry = next()
+                val pos = entry.longKey
+                val value = entry.value
                 outList.put(pos, value.toInOut(startTime = System.currentTimeMillis()))
                 remove()
             }
