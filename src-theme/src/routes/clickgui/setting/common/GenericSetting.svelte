@@ -9,7 +9,7 @@
     import IntRangeSetting from "../IntRangeSetting.svelte";
     import IntSetting from "../IntSetting.svelte";
     import TogglableSetting from "../TogglableSetting.svelte";
-    import ColorSetting from "../ColorSetting.svelte";
+    import ColorSetting from "../color/ColorSetting.svelte";
     import TextSetting from "../TextSetting.svelte";
     import BlocksSetting from "../blocks/BlocksSetting.svelte";
     import {slide} from "svelte/transition";

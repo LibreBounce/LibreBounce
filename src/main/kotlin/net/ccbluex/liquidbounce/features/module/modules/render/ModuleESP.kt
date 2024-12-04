@@ -38,7 +38,6 @@ import net.minecraft.util.math.Box
  *
  * Allows you to see targets through walls.
  */
-
 object ModuleESP : ClientModule("ESP", Category.RENDER) {
 
     override val baseKey: String
@@ -48,8 +47,7 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
     private val colorModes = choices("ColorMode", 0) {
         arrayOf(
             GenericEntityHealthColorMode(it),
-            GenericStaticColorMode(it, Color4b.WHITE.alpha(100)),
-            GenericRainbowColorMode(it)
+            GenericStaticColorMode(it, Color4b.WHITE.alpha(100))
         )
     }
 

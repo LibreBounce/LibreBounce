@@ -23,6 +23,7 @@ import net.minecraft.util.math.Vec3i
 import java.awt.Color
 import java.nio.ByteBuffer
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 
 data class Vec4(val x: Float, val y: Float, val z: Float, val w: Float) {
@@ -169,6 +170,24 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     fun blue(blue: Int) = Color4b(this.r, this.g, blue, this.a)
 
     fun alpha(alpha: Int) = Color4b(this.r, this.g, this.b, alpha)
+
+    fun getBrightness() = max(r, max(g, b)).toFloat() / 255f
+
+    fun brightness(brightness: Float): Color4b {
+        require(brightness in 0f..1f) { "Brightness out of range!" }
+        val hsb = FloatArray(3)
+        Color.RGBtoHSB(r, g, b, hsb)
+        val rgb = Color.HSBtoRGB(hsb[0], hsb[1], brightness)
+        return Color4b((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF, a)
+    }
+
+    fun hue(hue: Float): Color4b {
+        require(hue in 0f..1f) { "Hue out of range!" }
+        val hsb = FloatArray(3)
+        Color.RGBtoHSB(r, g, b, hsb)
+        val rgb = Color.HSBtoRGB(hue, hsb[1], hsb[2])
+        return Color4b((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF, a)
+    }
 
     fun toARGB() = (a shl 24) or (r shl 16) or (g shl 8) or b
 

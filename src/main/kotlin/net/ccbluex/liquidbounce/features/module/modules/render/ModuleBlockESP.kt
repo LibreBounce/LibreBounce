@@ -59,8 +59,7 @@ object ModuleBlockESP : ClientModule("BlockESP", Category.RENDER) {
     private val colorMode = choices("ColorMode", 0) {
         arrayOf(
             MapColorMode(it),
-            GenericStaticColorMode(it, Color4b(255, 179, 72, 50)),
-            GenericRainbowColorMode(it)
+            GenericStaticColorMode(it, Color4b(255, 179, 72, 50))
         )
     }
 

@@ -220,7 +220,7 @@ open class Configurable(
 
     fun curve(name: String, default: Easing) = enumChoice(name, default)
 
-    fun color(name: String, default: Color4b) = value(name, default, ValueType.COLOR)
+    fun color(name: String, default: Color4b) = ColorValue(name, default).apply { this@Configurable.inner.add(this) }
 
     fun block(name: String, default: Block) = value(name, default, ValueType.BLOCK)
 

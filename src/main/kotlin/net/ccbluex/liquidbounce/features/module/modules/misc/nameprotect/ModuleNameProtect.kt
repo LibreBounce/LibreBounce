@@ -24,9 +24,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.render.GenericColorMode
-import net.ccbluex.liquidbounce.render.GenericRainbowColorMode
-import net.ccbluex.liquidbounce.render.GenericStaticColorMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.bypassesNameProtection
 import net.ccbluex.liquidbounce.utils.client.toText
@@ -44,33 +41,14 @@ import net.minecraft.text.Text
 object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
 
     private val replacement by text("Replacement", "You")
-
-    private val colorMode = choices<GenericColorMode<Unit>>(
-        "ColorMode",
-        0,
-        {
-            arrayOf(GenericStaticColorMode(it, Color4b(255, 179, 72, 50)), GenericRainbowColorMode(it))
-        }
-    )
+    private val color by color("Color", Color4b(255, 179, 72, 50))
 
     private object ReplaceFriendNames : ToggleableConfigurable(this, "ObfuscateFriends", true) {
-        val colorMode = choices<GenericColorMode<Unit>>(
-            ReplaceFriendNames,
-            "ColorMode",
-            0
-        ) {
-            arrayOf(GenericStaticColorMode(it, Color4b(0, 241, 255)), GenericRainbowColorMode(it))
-        }
+        val color by color("Color", Color4b(0, 241, 255))
     }
 
     private object ReplaceOthers : ToggleableConfigurable(this, "ObfuscateOthers", false) {
-        val colorMode = ReplaceOthers.choices<GenericColorMode<Unit>>(
-            ReplaceOthers,
-            "ColorMode",
-            0
-        ) {
-            arrayOf(GenericStaticColorMode(it, Color4b(71, 71, 71)), GenericRainbowColorMode(it))
-        }
+        val color by color("Color", Color4b(71, 71, 71))
     }
 
     init {
@@ -84,9 +62,9 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
     private val replacementMappings = NameProtectMappings()
 
     private val coloringInfo = NameProtectMappings.ColoringInfo(
-        username = { this.colorMode.activeChoice.getColor(Unit) },
-        friends = { ReplaceFriendNames.colorMode.activeChoice.getColor(Unit) },
-        otherPlayers = { ReplaceOthers.colorMode.activeChoice.getColor(Unit) },
+        username = { color },
+        friends = { ReplaceFriendNames.color },
+        otherPlayers = { ReplaceOthers.color },
     )
 
     @Suppress("unused")

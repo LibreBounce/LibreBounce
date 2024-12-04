@@ -2,10 +2,11 @@
     import "@simonwep/pickr/dist/themes/classic.min.css";
     import "./pickr.scss";
     import {createEventDispatcher, onMount} from "svelte";
-    import type {ColorSetting, ModuleSetting,} from "../../../integration/types.js";
+    import type {ColorSetting, ModuleSetting} from "../../../../integration/types.js";
     import Pickr from "@simonwep/pickr";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
-    import {intToRgba, rgbaToHex, rgbaToInt} from "../../../integration/util";
+    import {convertToSpacedString, spaceSeperatedNames} from "../../../../theme/theme_config";
+    import {intToRgba, rgbaToHex, rgbaToInt} from "../../../../integration/util";
+    import RainbowSpeed from "./Rainbow.svelte";
 
     export let setting: ModuleSetting;
 
@@ -78,19 +79,20 @@
     </div>
     <div class="color-picker" class:hidden>
         <button bind:this={colorPicker} />
+        <RainbowSpeed bind:setting={setting} />
     </div>
 </div>
 
 <style lang="scss">
-    @import "../../../colors.scss";
+  @import "../../../../colors.scss";
 
-    .setting {
-        display: grid;
-        grid-template-areas:
+  .setting {
+    display: grid;
+    grid-template-areas:
             "a b"
             "c c";
-        padding: 7px 0px;
-    }
+    padding: 7px 0px;
+  }
 
     .name {
         grid-area: a;
@@ -124,7 +126,6 @@
     .value-spot {
         grid-area: b;
         display: flex;
-
         align-items: stretch;
     }
 
@@ -140,6 +141,7 @@
         background-color: blue;
         border-style: none;
     }
+
     .color-pickr-button:focus {
         outline: 3px solid #ffffff;
     }

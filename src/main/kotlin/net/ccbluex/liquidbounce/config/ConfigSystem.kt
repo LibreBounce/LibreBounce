@@ -24,10 +24,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.gson.fileGson
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.config.types.DynamicConfigurable
-import net.ccbluex.liquidbounce.config.types.Value
+import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -293,6 +290,10 @@ object ConfigSystem {
         // Otherwise we simply deserialize the value
         runCatching {
             value.deserializeFrom(fileGson, jsonObject["value"])
+            if (value is CustomDeserializing) {
+                value.deserialize(fileGson, jsonObject)
+            }
+
         }.onFailure {
             logger.error("Unable to deserialize value ${value.name}", it)
         }

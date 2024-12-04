@@ -48,8 +48,7 @@ object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
     private val modes = choices("ColorMode", 0) {
         arrayOf(
             DistanceColor,
-            GenericStaticColorMode(it, Color4b(0, 160, 255, 255)),
-            GenericRainbowColorMode(it)
+            GenericStaticColorMode(it, Color4b(0, 160, 255, 255))
         )
     }
 

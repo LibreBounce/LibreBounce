@@ -24,8 +24,10 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.render.BoxRenderer
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.minecraft.entity.Entity
 import net.minecraft.entity.ItemEntity
@@ -44,12 +46,7 @@ object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
         get() = "liquidbounce.module.itemEsp"
 
     private val modes = choices("Mode", OutlineMode, arrayOf(GlowMode, OutlineMode, BoxMode))
-    private val colorMode = choices("ColorMode", 0) {
-        arrayOf(
-            GenericStaticColorMode(it, Color4b(255, 179, 72, 255)),
-            GenericRainbowColorMode(it)
-        )
-    }
+    private val color by color("Color", Color4b(255, 179, 72, 255))
 
     private object BoxMode : Choice("Box") {
 
@@ -62,9 +59,8 @@ object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
         val renderHandler = handler<WorldRenderEvent> { event ->
             val matrixStack = event.matrixStack
 
-            val base = getColor()
-            val baseColor = base.alpha(50)
-            val outlineColor = base.alpha(100)
+            val baseColor = color.alpha(50)
+            val outlineColor = color.alpha(100)
 
             val filtered = world.entities.filter(::shouldRender)
 
@@ -94,5 +90,4 @@ object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
 
     fun shouldRender(it: Entity?) = it is ItemEntity || it is ArrowEntity
 
-    fun getColor() = this.colorMode.activeChoice.getColor(null)
 }

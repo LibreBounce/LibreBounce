@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
@@ -189,7 +188,7 @@ open class Value<T : Any>(
         logger.error("Could not set value ${this.inner}")
     }
 
-    fun get() = inner
+    open fun get() = inner
 
     fun set(t: T) {
         // Do nothing if value is the same
