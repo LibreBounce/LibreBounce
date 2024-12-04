@@ -46,7 +46,7 @@ object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
         get() = "liquidbounce.module.itemEsp"
 
     private val modes = choices("Mode", OutlineMode, arrayOf(GlowMode, OutlineMode, BoxMode))
-    private val color by color("Color", Color4b(255, 179, 72, 255))
+    val color by color("Color", Color4b(255, 179, 72, 255))
 
     private object BoxMode : Choice("Box") {
 
