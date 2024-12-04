@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.entity.upwards
 import net.ccbluex.liquidbounce.utils.movement.copy
+import net.ccbluex.liquidbounce.utils.movement.isMoving
 
 class SpeedSpeedYPort(override val parent: ChoiceConfigurable<*>) : Choice("YPort") {
 
@@ -49,7 +50,7 @@ open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*
 
     @Suppress("unused")
     private val handleMovementInput = handler<MovementInputEvent> { event ->
-        if (!player.isOnGround || !event.isMoving) {
+        if (!player.isOnGround || !event.input.isMoving) {
             return@handler
         }
 
