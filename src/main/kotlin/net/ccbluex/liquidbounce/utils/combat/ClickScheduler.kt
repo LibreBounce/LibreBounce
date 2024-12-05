@@ -18,15 +18,21 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
+import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager.boolean
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.random
+import net.fabricmc.fabric.impl.`object`.builder.FabricEntityTypeImpl.Builder.Living
+import net.minecraft.entity.LivingEntity
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -56,12 +62,16 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
             newClickCycle()
         }
     private val clickTechnique by enumChoice("Technique", ClickTechnique.STABILIZED)
+    private val smart by boolean("Smart", false)
+    private val test by int("test", 5, 1..10)
 
     class Cooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", true)
-        where T: EventListener {
+        where T : EventListener {
 
-        private val minimumCooldown by floatRange("Minimum",
-            1.0f..1.0f, 0.0f..2.0f)
+        private val minimumCooldown by floatRange(
+            "Minimum",
+            1.0f..1.0f, 0.0f..2.0f
+        )
 
         private var nextCooldown = minimumCooldown.random()
 
@@ -114,7 +124,40 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     private fun isOvertime(ticks: Int = 0) = lastClickPassed + (ticks * 50L) > 1000L ||
         (cooldown?.enabled == true && cooldown.readyToAttack(ticks))
 
+    private var shouldClick = true
+    private var currentEnemy: LivingEntity? = null
+
+    val attackHandler = handler<AttackEntityEvent> { event ->
+        val enemy = event.entity
+        if (enemy is LivingEntity) {
+            currentEnemy = enemy
+        }
+
+        shouldClick = player.hurtTime > 0 ||
+            (enemy is LivingEntity && enemy.hurtTime <= test || enemy !is LivingEntity)
+
+        ModuleDebug.debugParameter(this, "ShouldClick", shouldClick)
+    }
+
+    val gameTickHandler = handler<GameTickEvent> {
+        resetEnemyIfInvalid()
+
+        if (currentEnemy != null) {
+            shouldClick = player.hurtTime > 0 || currentEnemy?.hurtTime!! <= 3
+        }
+    }
+
+    private fun resetEnemyIfInvalid() {
+        if (currentEnemy?.isAlive == false) {
+            currentEnemy = null
+        }
+    }
+
     fun clicks(click: () -> Boolean) {
+        if (smart && !shouldClick) {
+            return
+        }
+
         val clicks = clickCycle?.clicksAt(isOvertime = isOvertime()) ?: return
 
         clickCycle?.let { cycle ->
