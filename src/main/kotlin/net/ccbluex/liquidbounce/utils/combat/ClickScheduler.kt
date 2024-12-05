@@ -63,7 +63,6 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         }
     private val clickTechnique by enumChoice("Technique", ClickTechnique.STABILIZED)
     private val smart by boolean("Smart", false)
-    private val test by int("test", 5, 1..10)
 
     class Cooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", true)
         where T : EventListener {
@@ -134,7 +133,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         }
 
         shouldClick = player.hurtTime > 0 ||
-            (enemy is LivingEntity && enemy.hurtTime <= test || enemy !is LivingEntity)
+            (enemy is LivingEntity && enemy.hurtTime <= 3 || enemy !is LivingEntity)
 
         ModuleDebug.debugParameter(this, "ShouldClick", shouldClick)
     }
