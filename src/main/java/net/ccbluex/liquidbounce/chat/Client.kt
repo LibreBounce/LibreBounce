@@ -202,7 +202,7 @@ abstract class Client : ClientListener, MinecraftInstance() {
 
             if (incomingUUID.isBlank()) return ""
 
-            val uuid = StringBuffer(incomingUUID)
+            val uuid = StringBuilder(incomingUUID)
                     .insert(20, '-')
                     .insert(16, '-')
                     .insert(12, '-')
