@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager.boolean
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
@@ -26,12 +25,11 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.random
-import net.fabricmc.fabric.impl.`object`.builder.FabricEntityTypeImpl.Builder.Living
 import net.minecraft.entity.LivingEntity
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -133,7 +131,8 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         }
 
         shouldClick = player.hurtTime > 0 ||
-            (enemy is LivingEntity && enemy.hurtTime <= 3 || enemy !is LivingEntity)
+            (enemy is LivingEntity && enemy.hurtTime <= 3 || enemy !is LivingEntity) ||
+            ModuleCriticals.canDoCriticalHit()
 
         ModuleDebug.debugParameter(this, "ShouldClick", shouldClick)
     }
@@ -142,7 +141,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         resetEnemyIfInvalid()
 
         if (currentEnemy != null) {
-            shouldClick = player.hurtTime > 0 || currentEnemy?.hurtTime!! <= 3
+            shouldClick = player.hurtTime > 0 || currentEnemy?.hurtTime!! <= 3 || ModuleCriticals.canDoCriticalHit()
         }
     }
 
