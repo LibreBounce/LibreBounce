@@ -82,8 +82,10 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
     init {
         mode.onChanged {
-            disable()
-            enable()
+            if (mc.world != null && mc.player != null) {
+                disable()
+                enable()
+            }
         }
     }
 
@@ -281,7 +283,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     private val mouseButtonHandler = handler<MouseButtonEvent> { event ->
         val openScreen = mc.currentScreen != null
         val unchangeableActive = !mode.activeChoice.canManuallyChange && targetPos != null
-        if (openScreen || unchangeableActive) {
+        if (openScreen || unchangeableActive || !player.abilities.allowModifyWorld) {
             return@handler
         }
 
@@ -367,6 +369,11 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         if (finished && mode.activeChoice.canManuallyChange || targetPos == null) {
             targetPos = blockPos
         }
+    }
+
+    @Suppress("FunctionNaming", "FunctionName")
+    fun _resetTarget() {
+        targetPos = null
     }
 
     /* tweaked minecraft code start */

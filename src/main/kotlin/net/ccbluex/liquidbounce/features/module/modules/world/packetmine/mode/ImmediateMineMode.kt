@@ -28,6 +28,8 @@ import net.minecraft.util.math.Direction
 
 object ImmediateMineMode : MineMode("Immediate", canManuallyChange = false, canAbort = false) {
 
+    private val waitForConfirm by boolean("WaitForConfirm", true)
+
     override fun start(blockPos: BlockPos, direction: Direction?) {
         NormalMineMode.start(blockPos, direction)
         network.sendPacket(
@@ -36,7 +38,10 @@ object ImmediateMineMode : MineMode("Immediate", canManuallyChange = false, canA
     }
 
     override fun finish(blockPos: BlockPos, direction: Direction) {
-        /* nothing */
+        if (!waitForConfirm) {
+            ModulePacketMine.finished = true
+            ModulePacketMine._resetTarget()
+        }
     }
 
     override fun shouldUpdate(
