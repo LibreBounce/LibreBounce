@@ -6,8 +6,11 @@
 package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.utils.NBTTagCompound
+import net.ccbluex.liquidbounce.utils.NBTTagList
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
+import net.ccbluex.liquidbounce.utils.set
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -33,20 +36,23 @@ object HoloStandCommand : Command("holostand") {
                 val message = StringUtils.toCompleteString(args, 4)
 
                 val itemStack = ItemStack(Items.armor_stand)
-                val base = NBTTagCompound()
-                val entityTag = NBTTagCompound()
-                entityTag.setInteger("Invisible", 1)
-                entityTag.setString("CustomName", message)
-                entityTag.setInteger("CustomNameVisible", 1)
-                entityTag.setInteger("NoGravity", 1)
-                val position = NBTTagList()
-                position.appendTag(NBTTagDouble(x))
-                position.appendTag(NBTTagDouble(y))
-                position.appendTag(NBTTagDouble(z))
-                entityTag.setTag("Pos", position)
-                base.setTag("EntityTag", entityTag)
-                itemStack.tagCompound = base
+
+                itemStack.tagCompound = NBTTagCompound {
+                    this["EntityTag"] = NBTTagCompound {
+                        this["Invisible"] = 1
+                        this["CustomName"] = message
+                        this["CustomNameVisible"] = 1
+                        this["NoGravity"] = 1
+                        this["Pos"] = NBTTagList {
+                            appendTag(NBTTagDouble(x))
+                            appendTag(NBTTagDouble(y))
+                            appendTag(NBTTagDouble(z))
+                        }
+                    }
+                }
+
                 itemStack.setStackDisplayName("§c§lHolo§eStand")
+
                 sendPacket(C10PacketCreativeInventoryAction(36, itemStack))
 
                 chat("The HoloStand was successfully added to your inventory.")
