@@ -121,7 +121,18 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     private fun isOvertime(ticks: Int = 0) = lastClickPassed + (ticks * 50L) > 1000L ||
         (cooldown?.enabled == true && cooldown.readyToAttack(ticks))
 
-    private var shouldClick = true
+    private val shouldClick: Boolean
+        get() {
+            if (player.hurtTime > 0 || ModuleCriticals.canDoCriticalHit()) return true
+
+            val enemy = currentEnemy
+            if (enemy is LivingEntity) {
+                return enemy.hurtTime <= 3
+            }
+
+            return false
+        }
+
     private var currentEnemy: LivingEntity? = null
 
     val attackHandler = handler<AttackEntityEvent> { event ->
@@ -129,20 +140,11 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         if (enemy is LivingEntity) {
             currentEnemy = enemy
         }
-
-        shouldClick = player.hurtTime > 0 ||
-            (enemy is LivingEntity && enemy.hurtTime <= 3 || enemy !is LivingEntity) ||
-            ModuleCriticals.canDoCriticalHit()
-
         ModuleDebug.debugParameter(this, "ShouldClick", shouldClick)
     }
 
     val gameTickHandler = handler<GameTickEvent> {
         resetEnemyIfInvalid()
-
-        if (currentEnemy != null) {
-            shouldClick = player.hurtTime > 0 || currentEnemy?.hurtTime!! <= 3 || ModuleCriticals.canDoCriticalHit()
-        }
     }
 
     private fun resetEnemyIfInvalid() {
