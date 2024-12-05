@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.value.boolean
@@ -97,7 +97,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
         if (thePlayer.onGround) {
             fastHop = false
 
-            if (slime && (getBlock(blockPos.down()) is BlockSlime || getBlock(blockPos) is BlockSlime)) {
+            if (slime && (blockPos.down().block is BlockSlime || blockPos.block is BlockSlime)) {
                 thePlayer.tryJump()
 
                 thePlayer.motionX = thePlayer.motionY * 1.132
@@ -107,7 +107,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                 down = true
                 return
             }
-            if (slabs && getBlock(blockPos) is BlockSlab) {
+            if (slabs && blockPos.block is BlockSlab) {
                 when (slabsMode.lowercase()) {
                     "old" -> {
                         boost(slabsBoost)
@@ -132,7 +132,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                     }
                 }
             }
-            if (stairs && (getBlock(blockPos.down()) is BlockStairs || getBlock(blockPos) is BlockStairs)) {
+            if (stairs && (blockPos.down().block is BlockStairs || blockPos.block is BlockStairs)) {
                 when (stairsMode.lowercase()) {
                     "old" -> {
                         boost(stairsBoost)
@@ -159,17 +159,17 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
             }
             legitHop = true
 
-            if (headBlock && getBlock(blockPos.up(2)) == Blocks.air) {
+            if (headBlock && blockPos.up(2).block == Blocks.air) {
                 boost(headBlockBoost)
                 return
             }
 
-            if (ice && (getBlock(blockPos.down()) == Blocks.ice || getBlock(blockPos.down()) == Blocks.packed_ice)) {
+            if (ice && (blockPos.down().block == Blocks.ice || blockPos.down().block == Blocks.packed_ice)) {
                 boost(iceBoost)
                 return
             }
 
-            if (snow && getBlock(blockPos) == Blocks.snow_layer && (snowPort || thePlayer.posY - thePlayer.posY.toInt() >= 0.12500)) {
+            if (snow && blockPos.block == Blocks.snow_layer && (snowPort || thePlayer.posY - thePlayer.posY.toInt() >= 0.12500)) {
                 if (thePlayer.posY - thePlayer.posY.toInt() >= 0.12500) {
                     boost(snowBoost)
                 } else {
@@ -181,7 +181,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
 
             if (wall) {
                 when (wallMode.lowercase()) {
-                    "old" -> if (thePlayer.isCollidedVertically && isNearBlock || getBlock(BlockPos(thePlayer).up(2)) != Blocks.air) {
+                    "old" -> if (thePlayer.isCollidedVertically && isNearBlock || BlockPos(thePlayer).up(2).block != Blocks.air) {
                         boost(wallBoost)
                         return
                     }

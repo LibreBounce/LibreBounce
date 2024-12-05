@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.block
 
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
+import net.ccbluex.liquidbounce.utils.extensions.canBeClicked
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
@@ -21,16 +21,21 @@ class PlaceInfo(val blockPos: BlockPos, val enumFacing: EnumFacing,
          */
         fun get(blockPos: BlockPos) =
             when {
-                canBeClicked(blockPos.add(0, -1, 0)) ->
+                blockPos.add(0, -1, 0).canBeClicked() ->
                     PlaceInfo(blockPos.add(0, -1, 0), EnumFacing.UP)
-                canBeClicked(blockPos.add(0, 0, 1)) ->
+
+                blockPos.add(0, 0, 1).canBeClicked() ->
                     PlaceInfo(blockPos.add(0, 0, 1), EnumFacing.NORTH)
-                canBeClicked(blockPos.add(-1, 0, 0)) ->
+
+                blockPos.add(-1, 0, 0).canBeClicked() ->
                     PlaceInfo(blockPos.add(-1, 0, 0), EnumFacing.EAST)
-                canBeClicked(blockPos.add(0, 0, -1)) ->
+
+                blockPos.add(0, 0, -1).canBeClicked() ->
                     PlaceInfo(blockPos.add(0, 0, -1), EnumFacing.SOUTH)
-                canBeClicked(blockPos.add(1, 0, 0)) ->
+
+                blockPos.add(1, 0, 0).canBeClicked() ->
                     PlaceInfo(blockPos.add(1, 0, 0), EnumFacing.WEST)
+
                 else -> null
             }
     }

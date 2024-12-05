@@ -86,7 +86,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
         for (x in 0.0..1.0) {
             for (y in 0.0..1.0) {
                 for (z in 0.0..1.0) {
-                    val block = blockPos.getBlock() ?: return null
+                    val block = blockPos.block ?: return null
 
                     val posVec = startPos.add(block.lerpWith(x, y, z))
 
@@ -581,7 +581,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         val eyes = player.eyes
 
-        return blockPos.getBlock()?.collisionRayTrace(
+        return blockPos.block?.collisionRayTrace(
             world,
             blockPos,
             eyes,
@@ -590,7 +590,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
     }
 
     fun performRayTrace(blockPos: BlockPos, vec: Vec3, eyes: Vec3 = mc.thePlayer.eyes) =
-        mc.theWorld?.let { blockPos.getBlock()?.collisionRayTrace(it, blockPos, eyes, vec) }
+        mc.theWorld?.let { blockPos.block?.collisionRayTrace(it, blockPos, eyes, vec) }
 
     fun syncRotations() {
         val player = mc.thePlayer ?: return

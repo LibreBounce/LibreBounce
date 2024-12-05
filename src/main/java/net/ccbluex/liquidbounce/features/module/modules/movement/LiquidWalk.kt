@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
 import net.ccbluex.liquidbounce.value.float
@@ -43,7 +43,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
             "aac" -> {
                 val blockPos = thePlayer.position.down()
-                if (!thePlayer.onGround && getBlock(blockPos) == Blocks.water || thePlayer.isInWater) {
+                if (!thePlayer.onGround && blockPos.block == Blocks.water || thePlayer.isInWater) {
                     if (!thePlayer.isSprinting) {
                         thePlayer.motionX *= 0.99999
                         thePlayer.motionY *= 0.0
@@ -68,8 +68,8 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
                     thePlayer.motionY += 0.15
                     return
                 }
-                val block = getBlock(BlockPos(thePlayer).up())
-                val blockUp = getBlock(BlockPos(thePlayer.posX, thePlayer.posY + 1.1, thePlayer.posZ))
+                val block = BlockPos(thePlayer).up().block
+                val blockUp = BlockPos(thePlayer.posX, thePlayer.posY + 1.1, thePlayer.posZ).block
 
                 if (blockUp is BlockLiquid) {
                     thePlayer.motionY = 0.1
@@ -87,7 +87,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
                 thePlayer.motionZ *= 1.17
                 if (thePlayer.isCollidedHorizontally)
                     thePlayer.motionY = 0.24
-                else if (getBlock(BlockPos(thePlayer).up()) != Blocks.air)
+                else if (BlockPos(thePlayer).up().block != Blocks.air)
                     thePlayer.motionY += 0.04
             }
 
@@ -153,7 +153,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     fun onJump(event: JumpEvent) {
         val thePlayer = mc.thePlayer ?: return
 
-        val block = getBlock(BlockPos(thePlayer.posX, thePlayer.posY - 0.01, thePlayer.posZ))
+        val block = BlockPos(thePlayer.posX, thePlayer.posY - 0.01, thePlayer.posZ).block
 
         if (noJump && block is BlockLiquid)
             event.cancelEvent()

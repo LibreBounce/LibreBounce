@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.utils.render
 
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
@@ -76,7 +75,7 @@ object RenderUtils : MinecraftInstance() {
 
         var axisAlignedBB = AxisAlignedBB.fromBounds(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 
-        getBlock(blockPos)?.let { block ->
+        blockPos.block?.let { block ->
             val player = mc.thePlayer
 
             val (x, y, z) = player.interpolatedPosition(player.lastTickPos)
@@ -800,7 +799,7 @@ object RenderUtils : MinecraftInstance() {
 
     fun draw2D(blockPos: BlockPos, color: Int, backgroundColor: Int) {
         val renderManager = mc.renderManager
-        val (x, y, z) = blockPos.getVec().offset(EnumFacing.DOWN, 0.5) - renderManager.renderPos
+        val (x, y, z) = blockPos.center.offset(EnumFacing.DOWN, 0.5) - renderManager.renderPos
         glPushMatrix()
         glTranslated(x, y, z)
         glRotated(-renderManager.playerViewY.toDouble(), 0.0, 1.0, 0.0)

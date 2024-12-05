@@ -13,17 +13,9 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationSettings
 import net.ccbluex.liquidbounce.utils.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.component3
-import net.ccbluex.liquidbounce.utils.extensions.eyes
-import net.ccbluex.liquidbounce.utils.extensions.getVec
-import net.ccbluex.liquidbounce.utils.extensions.minus
-import net.ccbluex.liquidbounce.utils.extensions.renderPos
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
@@ -269,7 +261,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
 
         for (pos in attackedBlocks) {
             if (blockProgress) {
-                if (getBlockName(blocks) == "Air") return
+                if (Block.getBlockById(blocks) == air) return
 
                 val progress = (currentDamage * 100).coerceIn(0f, 100f).toInt()
                 val progressText = "%d%%".format(progress)
@@ -277,7 +269,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
                 glPushAttrib(GL_ENABLE_BIT)
                 glPushMatrix()
 
-                val (x, y, z) = pos.getVec() - renderManager.renderPos
+                val (x, y, z) = pos.center - renderManager.renderPos
 
                 // Translate to block position
                 glTranslated(x, y, z)
@@ -314,7 +306,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
         // Safe block
         if (!layer) {
             val safePos = BlockPos(player).down()
-            val safeBlock = getBlock(safePos)
+            val safeBlock = safePos.block
             if (safeBlock != null && validBlock(safeBlock))
                 drawBlockBox(safePos, Color.GREEN, true)
         }

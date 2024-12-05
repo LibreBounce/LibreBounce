@@ -16,9 +16,6 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.isReplaceable
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
@@ -438,7 +435,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
                 val neighbor = blockPos.offset(side)
 
-                if (isReplaceable(neighbor)) {
+                if (neighbor.isReplaceable) {
                     val calcDif = (if (side.axis == EnumFacing.Axis.Z) {
                         abs(neighbor.z + 0.5 - player.posZ)
                     } else {
@@ -452,7 +449,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             }
 
             if (placedBlocksWithoutEagle >= blocksToEagle) {
-                val shouldEagle = isReplaceable(blockPos) || dif < edgeDistance
+                val shouldEagle = blockPos.isReplaceable || dif < edgeDistance
                 if (eagle == "Silent") {
                     if (eagleSneaking != shouldEagle) {
                         sendPacket(
@@ -648,7 +645,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             BlockPos(player).down()
         }
 
-        if (!expand && (!isReplaceable(blockPosition) ||
+        if (!expand && (!blockPosition.isReplaceable ||
                     search(blockPosition, !shouldGoDown, area, shouldPlaceHorizontally))
         ) {
             return
@@ -683,7 +680,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }.sortedBy {
             BlockUtils.getCenterDistance(blockPosition.add(it))
         }.forEach {
-            if (canBeClicked(blockPosition.add(it)) ||
+            if (blockPosition.add(it).canBeClicked() ||
                 search(blockPosition.add(it), !shouldGoDown, area, shouldPlaceHorizontally)
             ) {
                 return
@@ -891,7 +888,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             )
             val placeInfo = PlaceInfo.get(blockPos)
 
-            if (isReplaceable(blockPos) && placeInfo != null) {
+            if (blockPos.isReplaceable && placeInfo != null) {
                 RenderUtils.drawBlockBox(blockPos, Color(68, 117, 255, 100), false)
                 return
             }
@@ -917,7 +914,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         options.instant = false
 
-        if (!isReplaceable(blockPosition)) {
+        if (!blockPosition.isReplaceable) {
             if (autoF5) mc.gameSettings.thirdPersonView = 0
             return false
         } else {
@@ -934,7 +931,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         for (side in EnumFacing.values().filter { !horizontalOnly || it.axis != EnumFacing.Axis.Y }) {
             val neighbor = blockPosition.offset(side)
 
-            if (!canBeClicked(neighbor)) {
+            if (!neighbor.canBeClicked()) {
                 continue
             }
 
@@ -1292,8 +1289,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                 val posInDirection =
                     BlockPos(player.positionVector.offset(EnumFacing.fromAngle(movingYaw.toDouble()), 0.6))
 
-                val isLeaningOffBlock = getBlock(player.position.down()) == air
-                val nextBlockIsAir = getBlock(posInDirection.down()) == air
+                val isLeaningOffBlock = player.position.down().block == air
+                val nextBlockIsAir = posInDirection.down().block == air
 
                 if (isLeaningOffBlock && nextBlockIsAir) {
                     isOnRightSide = !isOnRightSide

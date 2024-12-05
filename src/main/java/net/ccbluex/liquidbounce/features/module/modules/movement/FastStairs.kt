@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.value.boolean
@@ -46,7 +46,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
 
         val blockPos = BlockPos(thePlayer)
 
-        if (getBlock(blockPos) is BlockStairs && !walkingDown) {
+        if (blockPos.block is BlockStairs && !walkingDown) {
             thePlayer.setPosition(thePlayer.posX, thePlayer.posY + 0.5, thePlayer.posZ)
 
             val motion = when (mode) {
@@ -60,7 +60,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
             thePlayer.motionZ *= motion
         }
 
-        if (getBlock(blockPos.down()) is BlockStairs) {
+        if (blockPos.down().block is BlockStairs) {
             if (walkingDown) {
                 when (mode) {
                     "NCP" -> thePlayer.motionY = -1.0

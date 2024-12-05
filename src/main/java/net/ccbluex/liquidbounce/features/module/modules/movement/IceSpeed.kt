@@ -9,9 +9,9 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getMaterial
+import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.material
 import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
@@ -41,7 +41,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
 
         if (thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isSneaking && thePlayer.isSprinting && thePlayer.isMoving) {
             if (mode == "AAC") {
-                getMaterial(thePlayer.position.down()).let {
+                thePlayer.position.down().material.let {
                     if (it == Blocks.ice || it == Blocks.packed_ice) {
                         thePlayer.motionX *= 1.342
                         thePlayer.motionZ *= 1.342
@@ -51,9 +51,9 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
                 }
             }
             if (mode == "Spartan") {
-                getMaterial(thePlayer.position.down()).let {
+                thePlayer.position.down().material.let {
                     if (it == Blocks.ice || it == Blocks.packed_ice) {
-                        val upBlock = getBlock(BlockPos(thePlayer).up(2))
+                        val upBlock = BlockPos(thePlayer).up(2).block
 
                         if (upBlock != Blocks.air) {
                             thePlayer.motionX *= 1.342

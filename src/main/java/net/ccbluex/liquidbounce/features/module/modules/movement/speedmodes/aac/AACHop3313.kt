@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.block.BlockCarpet
@@ -32,7 +32,7 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
             callEvent(JumpEvent(0.405f, EventState.PRE))
             strafe()
         } else if (thePlayer.fallDistance < 0.31f) {
-            if (getBlock(thePlayer.position) is BlockCarpet) // why?
+            if (thePlayer.position.block is BlockCarpet) // why?
                 return
 
             // Motion XZ
