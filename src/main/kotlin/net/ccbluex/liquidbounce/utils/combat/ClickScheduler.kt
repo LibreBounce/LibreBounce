@@ -130,7 +130,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
                 return enemy.hurtTime <= 3
             }
 
-            return false
+            return true
         }
 
     private var currentEnemy: LivingEntity? = null
