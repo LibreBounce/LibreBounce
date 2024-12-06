@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.misc.GameDetector
 import net.ccbluex.liquidbounce.file.FileManager.modulesConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
+import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
@@ -17,6 +18,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
@@ -28,7 +30,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import java.util.concurrent.CopyOnWriteArraySet
 
-open class Module constructor(
+open class Module(
     val name: String,
     val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
@@ -81,6 +83,21 @@ open class Module constructor(
         }
     }
 
+    private val resetValue: BoolValue = object : BoolValue("Reset", false, subjective = true) {
+        override fun onChange(oldValue: Boolean, newValue: Boolean): Boolean {
+            try {
+                values.forEach { if (it != this) it.reset() else return@forEach }
+            } catch (any: Exception) {
+                LOGGER.error("Failed to reset all values", any)
+                chat("Failed to reset all values: ${any.message}")
+            } finally {
+                addNotification(Notification("Successfully reset all settings from ${this@Module.name}"))
+                saveConfig(valuesConfig)
+            }
+            return false
+        }
+    }
+
     var inArray = defaultInArray
         set(value) {
             field = value
@@ -130,7 +147,6 @@ open class Module constructor(
             // Save module state
             saveConfig(modulesConfig)
         }
-
 
     // HUD
     val hue = nextFloat()
@@ -190,6 +206,7 @@ open class Module constructor(
 
                 if (gameDetecting) orderedValues += onlyInGameValue
                 if (!hideModule) orderedValues += hideModuleValue
+                orderedValues += resetValue
             } catch (e: Exception) {
                 LOGGER.error(e)
             }
