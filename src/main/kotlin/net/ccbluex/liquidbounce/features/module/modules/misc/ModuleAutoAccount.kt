@@ -20,9 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.event.DummyEvent
 import net.ccbluex.liquidbounce.event.Sequence
-import net.ccbluex.liquidbounce.event.SuspendableHandler
 import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.launchSequence
 import net.ccbluex.liquidbounce.features.command.commands.module.CommandAutoAccount
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.module.Category
@@ -49,7 +49,7 @@ object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = 
     private val registerRegexString by text("RegisterRegex", "/register")
     private val loginRegexString by text("LoginRegex", "/login")
 
-    var sequence: Sequence<DummyEvent>? = null
+    private var sequence: Sequence<DummyEvent>? = null
 
     // We can receive chat messages before the world is initialized,
     // so we have to handel events even before the that
@@ -63,7 +63,6 @@ object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = 
 
     fun register() {
         chat("register")
-
         network.sendCommand("$registerCommand $password $password")
     }
 
@@ -86,18 +85,16 @@ object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = 
         }
     }
 
-    private fun startDelayedAction(action: SuspendableHandler<DummyEvent>) {
+    private inline fun startDelayedAction(crossinline action: () -> Unit) {
         // cancel the previous sequence
         sequence?.cancel()
 
-        //start the new sequence
-        sequence = Sequence(this, {
+        // start the new sequence
+        sequence = launchSequence {
             waitUntil { mc.networkHandler != null }
-            sync()
             waitTicks(delay.random())
-
-            action(it)
-        }, DummyEvent())
+            action()
+        }
     }
 
 }

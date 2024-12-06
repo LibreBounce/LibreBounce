@@ -69,7 +69,7 @@ object AStarMode : TpAuraChoice("AStar") {
     private val pathFinder = tickHandler {
         waitTicks(1)
 
-        withContext(Dispatchers.Default) {
+        waitFor(Dispatchers.Default) {
             val playerPosition = player.pos
 
             val maximumDistanceSq = maximumDistance.sq()
@@ -89,7 +89,7 @@ object AStarMode : TpAuraChoice("AStar") {
                 pathCache = PathCache(enemy, path)
 
                 // Stop searching when the pathCache is ready
-                return@withContext
+                return@waitFor
             }
         }
     }
