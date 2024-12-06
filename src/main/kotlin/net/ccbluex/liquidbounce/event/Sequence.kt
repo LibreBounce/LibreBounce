@@ -51,7 +51,7 @@ object SequenceManager : EventListener, CoroutineScope by CoroutineScope(Supervi
      * in the same tick
      */
     @Suppress("unused")
-    val tickSequences = handler<GameTickEvent>(priority = 1000) {
+    val tickSequences = handler<GameTickEvent>(priority = Short.MAX_VALUE) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
             if (!sequence.owner.running) {
