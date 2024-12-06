@@ -79,5 +79,6 @@ object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
             NoSlowBow.forwardMultiplier, NoSlowBow.sidewaysMultiplier
         ) else Pair(0.2f, 0.2f)
 
+        UseAction.BUNDLE -> TODO()
     }
 }
