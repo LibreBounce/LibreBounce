@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.DummyEvent
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.launchSequence
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
@@ -55,7 +56,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         tree(OnlyOnMove)
     }
 
-    var sequence: Sequence<DummyEvent>? = null
+    private var sequence: Sequence<DummyEvent>? = null
 
     init {
         modes.onChange {
@@ -118,11 +119,11 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
                 return@handler
             }
 
-            runWithDummyEvent {
+            sequence = launchSequence {
                 antiSprint = true
 
-                it.waitUntil { !player.isSprinting && !player.lastSprinting }
-                it.waitTicks(reSprintTicks.random())
+                waitUntil { !player.isSprinting && !player.lastSprinting }
+                waitTicks(reSprintTicks.random())
 
                 antiSprint = false
             }
@@ -146,11 +147,11 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
                 return@handler
             }
 
-            runWithDummyEvent {
-                it.waitTicks(ticksUntilMovementBlock.random())
+            sequence = launchSequence {
+                waitTicks(ticksUntilMovementBlock.random())
                 stopMoving = true
-                it.waitUntil { !player.input.hasForwardMovement() }
-                it.waitTicks(ticksUntilAllowedMovement.random())
+                waitUntil { !player.input.hasForwardMovement() }
+                waitTicks(ticksUntilAllowedMovement.random())
                 stopMoving = false
             }
         }
@@ -203,14 +204,6 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         WTap.stopMoving = false
         SprintTap.antiSprint = false
-    }
-
-    private fun runWithDummyEvent(action: suspend (Sequence<DummyEvent>) -> Unit) {
-        sequence = Sequence(this, {
-            action(this)
-        }, DummyEvent())
-
-        sequence = null
     }
 
 }

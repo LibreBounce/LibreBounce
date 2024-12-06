@@ -136,7 +136,7 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
         /**
          * Don't block the render thread
          */
-        withContext(Dispatchers.IO) {
+        waitFor(Dispatchers.IO) {
             if (enabled) {
                 connectIpc()
             } else {
@@ -145,7 +145,7 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
 
             // Check ipc client is connected and send rpc
             if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
-                return@withContext
+                return@waitFor
             }
 
             ipcClient!!.sendRichPresence {
