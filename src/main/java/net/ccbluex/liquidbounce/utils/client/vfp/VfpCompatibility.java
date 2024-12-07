@@ -46,7 +46,8 @@ public enum VfpCompatibility {
             VisualSettings visualSettings = VisualSettings.global();
 
             // 1 == off, 0 == on
-            visualSettings.enableSwordBlocking.setValue(1);
+//            TODO: I think this got removed.
+//            visualSettings.enableSwordBlocking.setValue(1);
         } catch (Throwable throwable) {
             LiquidBounce.INSTANCE.getLogger().error("Failed to disable conflicting options", throwable);
         }
