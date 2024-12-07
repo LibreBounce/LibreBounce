@@ -7,6 +7,7 @@
     import {convertToSpacedString, spaceSeperatedNames} from "../../../../theme/theme_config";
     import {intToRgba, rgbaToHex, rgbaToInt} from "../../../../integration/util";
     import RainbowSpeed from "./Rainbow.svelte";
+    import {Color4b} from "./color_utils"
 
     export let setting: ModuleSetting;
 
@@ -19,6 +20,8 @@
     let hidden = true;
 
     let hex = rgbaToHex(intToRgba(cSetting.value));
+    let color = "rgba(255,255,255,0)"
+    let interval;
 
     onMount(() => {
         pickr = Pickr.create({
@@ -53,13 +56,61 @@
             const rgba = [r, g, b, a * 255];
 
             cSetting.value = rgbaToInt(rgba);
-            setting = { ...cSetting };
+            setting = {...cSetting};
             dispatch("change");
         });
+
+         interval = setInterval(() => {
+             if (cSetting) {
+                 setColor();
+             }
+         }, 16);
     });
 
     function handleValueInput() {
         pickr.setColor(hex);
+        setColor()
+    }
+
+    function calculateColorCycle(): string {
+        const currentColor = Color4b.fromPacked(cSetting.value);
+        const time = Date.now();
+        const frequency = getFrequency();
+        currentColor.hue((time % frequency) / frequency);
+        return currentColor.asHex()
+    }
+
+    function calculateColorPulse(): string {
+        const currentColor = Color4b.fromPacked(cSetting.value);
+        const time = Date.now();
+        const frequency = getFrequency();
+        const oscillation = Math.abs((time % (frequency * 2)) - frequency) / frequency;
+        const brightness = 0.3 - 0.3 * oscillation + Math.min(currentColor.getBrightness(), 0.7);
+        currentColor.brightness(brightness);
+        return currentColor.asHex()
+    }
+
+    function getFrequency(): number {
+        return (200 + 1 - cSetting.rainbowSpeed) * 200;
+    }
+
+    function setColor() {
+        switch (cSetting.rainbowMode) {
+            case "None": {
+                color = hex;
+                return
+            }
+            case "Cycle": {
+                color = calculateColorCycle();
+                return;
+            }
+            case "Pulse": {
+                color = calculateColorPulse();
+                return;
+            }
+        }
+
+        color = "rgba(255,255,255,0)";
     }
 </script>
 
@@ -67,19 +118,19 @@
     <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
     <div class="value-spot">
         <input
-            class="value"
-            bind:value={hex}
-            on:input={handleValueInput}
+                class="value"
+                bind:value={hex}
+                on:input={handleValueInput}
         />
         <button
-            class="color-pickr-button"
-            on:click={() => (hidden = !hidden)}
-            style="background-color: {hex};"
+                class="color-pickr-button"
+                on:click={() => (hidden = !hidden)}
+                style="background-color: {color};"
         ></button>
     </div>
     <div class="color-picker" class:hidden>
-        <button bind:this={colorPicker} />
-        <RainbowSpeed bind:setting={setting} />
+        <button bind:this={colorPicker}/>
+        <RainbowSpeed bind:setting={setting} on:change={() => dispatch("change")}/>
     </div>
 </div>
 
@@ -94,55 +145,53 @@
     padding: 7px 0px;
   }
 
-    .name {
-        grid-area: a;
-        font-weight: 500;
-        color: $clickgui-text-color;
-        font-size: 12px;
-    }
+  .name {
+    grid-area: a;
+    font-weight: 500;
+    color: $clickgui-text-color;
+    font-size: 12px;
+  }
 
-    .hidden {
-        height: 0px;
-        display: none;
-    }
+  .hidden {
+    height: 0px;
+    display: none;
+  }
 
-    .value {
-        font-weight: 500;
-        color: $clickgui-text-color;
-        text-align: right;
-        font-size: 12px;
-        cursor: text;
-        text-transform: uppercase;
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        margin: 0;
-        margin-right: 15px;
-        margin-left: auto;
-        width: 70px;
-        font-family: monospace;
-    }
+  .value {
+    font-weight: 500;
+    color: $clickgui-text-color;
+    text-align: right;
+    font-size: 12px;
+    cursor: text;
+    text-transform: uppercase;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0 15px 0 auto;
+    width: 70px;
+    font-family: monospace;
+  }
 
-    .value-spot {
-        grid-area: b;
-        display: flex;
-        align-items: stretch;
-    }
+  .value-spot {
+    grid-area: b;
+    display: flex;
+    align-items: stretch;
+  }
 
-    .color-picker {
-        grid-area: c;
-    }
+  .color-picker {
+    grid-area: c;
+  }
 
-    .color-pickr-button {
-        margin-top: -2px;
-        margin-bottom: -2px;
-        width: 30px;
-        border-radius: 3px;
-        background-color: blue;
-        border-style: none;
-    }
+  .color-pickr-button {
+    margin-top: -2px;
+    margin-bottom: -2px;
+    width: 30px;
+    border-radius: 3px;
+    background-color: blue;
+    border-style: none;
+  }
 
-    .color-pickr-button:focus {
-        outline: 3px solid #ffffff;
-    }
+  .color-pickr-button:focus {
+    outline: 3px solid #ffffff;
+  }
 </style>

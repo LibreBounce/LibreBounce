@@ -17,7 +17,7 @@
     let slider: HTMLElement;
     let apiSlider: API;
 
-    $: if (slider) {
+    $: if (slider && !apiSlider) {
         apiSlider = noUiSlider.create(slider, {
             start: cSetting.rainbowSpeed,
             connect: "lower",
@@ -33,7 +33,7 @@
             setting = {...cSetting};
         });
 
-        apiSlider.on("set", () => { // TODO dispatch on change?
+        apiSlider.on("set", () => {
             dispatch("change");
         });
     }
@@ -49,7 +49,7 @@
           on:change={handleRainbowModeChange}/>
 {#if cSetting.rainbowMode !== "None" }
     <div class="speed">
-        <div class="name">{"Speed"}</div>
+        <div class="name-speed">{"Speed"}</div>
         <div class="speed-value">
             <ValueInput valueType="int" value={cSetting.rainbowSpeed}
                         on:change={(e) => apiSlider.set(e.detail.value)}/>
@@ -80,9 +80,20 @@
     font-size: 12px;
   }
 
+  .name-speed {
+    font-weight: 500;
+    color: $clickgui-text-color;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
   .name {
     grid-area: a;
     font-weight: 500;
+    color: $clickgui-text-color;
+    font-size: 12px;
+    margin-bottom: 5px;
+    margin-top: 5px;
   }
 
   .speed-value {
