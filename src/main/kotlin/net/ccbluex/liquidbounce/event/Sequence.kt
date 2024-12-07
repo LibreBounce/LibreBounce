@@ -18,30 +18,21 @@
  */
 package net.ccbluex.liquidbounce.event
 
+import com.google.common.collect.Lists
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.coroutines.*
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
 
-object SequenceManager : EventListener, CoroutineScope by CoroutineScope(SupervisorJob()) {
+object SequenceManager : EventListener {
 
-    /**
-     * Running sequences
-     *
-     * All sequences will be running on the render thread (main thread)
-     */
-    private val sequences = CopyOnWriteArrayList<Sequence<*>>()
-
-    operator fun plusAssign(sequence: Sequence<*>) {
-        sequences.add(sequence)
-    }
-
-    operator fun minusAssign(sequence: Sequence<*>) {
-        sequences.remove(sequence)
-    }
+    // Running sequences
+    internal val sequences = Lists.newCopyOnWriteArrayList<Sequence<*>>()
 
     /**
      * Tick sequences
@@ -65,17 +56,13 @@ object SequenceManager : EventListener, CoroutineScope by CoroutineScope(Supervi
 
 }
 
-open class Sequence<T : Event>(
-    val owner: EventListener,
-    val handler: SuspendableHandler<T>,
-    protected val event: T
-) {
+open class Sequence<T : Event>(val owner: EventListener, val handler: SuspendableHandler<T>, protected val event: T) {
 
     private var coroutine: Job
 
     open fun cancel() {
         coroutine.cancel()
-        SequenceManager -= this@Sequence
+        SequenceManager.sequences -= this@Sequence
     }
 
     private var continuation: Continuation<Unit>? = null
@@ -87,10 +74,10 @@ open class Sequence<T : Event>(
         // otherwise there is an edge case where the first time a time-dependent suspension occurs it will be
         // overwritten by the initialization of the `totalTicks` field which results in one or less ticks of actual wait
         // time.
-        this.coroutine = SequenceManager.launch {
-            SequenceManager += this@Sequence
+        this.coroutine = GlobalScope.launch(Dispatchers.Unconfined) {
+            SequenceManager.sequences += this@Sequence
             coroutineRun()
-            SequenceManager -= this@Sequence
+            SequenceManager.sequences -= this@Sequence
         }
     }
 
@@ -175,11 +162,10 @@ open class Sequence<T : Event>(
     internal suspend fun sync() = wait { 0 }
 
     /**
-     * Start a task with given context, and wait for its completion.
-     * @see withContext
+     * A custom implementation of `withContext`, which makes the Sequence correctly suspended by the task.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun <T> waitFor(context: CoroutineContext, block: suspend CoroutineScope.() -> T): T {
+    suspend fun <T> withContext(context: CoroutineContext, block: suspend CoroutineScope.() -> T): T {
         // Set parent job as `this.coroutine`
         val deferred = CoroutineScope(coroutine + context).async(context, block = block)
         // Use `waitUntil` to avoid duplicated resumption
@@ -189,10 +175,10 @@ open class Sequence<T : Event>(
 
 }
 
-object DummyEvent : Event()
+class DummyEvent : Event()
 
 class TickSequence(owner: EventListener, handler: SuspendableHandler<DummyEvent>)
-    : Sequence<DummyEvent>(owner, handler, DummyEvent) {
+    : Sequence<DummyEvent>(owner, handler, DummyEvent()) {
 
     private var continueLoop = true
 
