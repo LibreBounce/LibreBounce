@@ -19,6 +19,7 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.common.OutlineFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent;
@@ -55,7 +56,7 @@ public abstract class MixinWorldRenderer {
 
     @Shadow
     @Nullable
-    public Framebuffer entityOutlinesFramebuffer;
+    public Framebuffer entityOutlineFramebuffer;
 
     @Shadow
     protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
@@ -80,7 +81,7 @@ public abstract class MixinWorldRenderer {
     }
 
     @Inject(method = "render", at = @At("HEAD"))
-    private void onRender(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+    private void onRender(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
         try {
             if (!OutlineShader.INSTANCE.isReady()) {
                 return;
@@ -305,46 +306,45 @@ public abstract class MixinWorldRenderer {
 //
 //        return original;
 //    }
-@ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
-private float modifyPrecipitationGradient(float original) {
-    var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
-    if (precipitation.getRunning() && original != 0f) {
-        return precipitation.getGradient();
-    }
-
-    return original;
-}
-
-@ModifyVariable(method = "renderWeather", at = @At(value = "STORE"), ordinal = 3)
-private int modifyPrecipitationLayers(int original) {
-    var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
-    if (precipitation.getRunning()) {
-        return precipitation.getLayers();
-    }
-
-    return original;
-}
-
-@ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isFancyGraphicsOrBetter()Z"))
-private boolean modifyPrecipitationLayersSet(boolean original) {
-    var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
-    if (precipitation.getRunning()) {
-        return false;
-    }
-
-    return original;
-}
-
-@ModifyExpressionValue(method = "tickRainSplashing", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
-private float removeRainSplashing(float original) {
-    var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
-    if (moduleOverrideWeather.getRunning() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
-        return 0f;
-    }
-
-    return original;
-}
-//    TODO: fix this
+//    @ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
+//    private float modifyPrecipitationGradient(float original) {
+//        var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+//        if (precipitation.getRunning() && original != 0f) {
+//            return precipitation.getGradient();
+//        }
+//
+//        return original;
+//    }
+//
+//    @ModifyVariable(method = "renderWeather", at = @At(value = "STORE"), ordinal = 3)
+//    private int modifyPrecipitationLayers(int original) {
+//        var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+//        if (precipitation.getRunning()) {
+//            return precipitation.getLayers();
+//        }
+//
+//        return original;
+//    }
+//
+//    @ModifyExpressionValue(method = "renderWeather", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isFancyGraphicsOrBetter()Z"))
+//    private boolean modifyPrecipitationLayersSet(boolean original) {
+//        var precipitation = ModuleCustomAmbience.Precipitation.INSTANCE;
+//        if (precipitation.getRunning()) {
+//            return false;
+//        }
+//
+//        return original;
+//    }
+//
+//    @ModifyExpressionValue(method = "tickRainSplashing", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"))
+//    private float removeRainSplashing(float original) {
+//        var moduleOverrideWeather = ModuleCustomAmbience.INSTANCE;
+//        if (moduleOverrideWeather.getRunning() && moduleOverrideWeather.getWeather().get() == ModuleCustomAmbience.WeatherType.SNOWY) {
+//            return 0f;
+//        }
+//
+//        return original;
+//    }
     @ModifyArgs(
             method = "drawBlockOutline",
             at = @At(
