@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.render.MixinBackgroundRenderer
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.copy
 import net.minecraft.block.enums.CameraSubmersionType
 import net.minecraft.client.render.BackgroundRenderer.FogType
 import net.minecraft.client.render.Camera
@@ -56,27 +57,29 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
         /**
          * [MixinBackgroundRenderer]
          */
-        fun modifyFog(camera: Camera, fogType: FogType, viewDistance: Float) {
+        fun modifyFog(camera: Camera, fogType: FogType, viewDistance: Float, original: net.minecraft.client.render.Fog) {
             if (!this.running || fogType != FogType.FOG_TERRAIN) {
                 return
             }
 
-            RenderSystem.setShaderFogStart(MathHelper.clamp(fogStart, -8f, viewDistance))
-            RenderSystem.setShaderFogEnd(MathHelper.clamp(fogEnd, 0f, viewDistance))
+            var newFog = original.copy(
+                start = MathHelper.clamp(fogStart, -8f, viewDistance),
+                end = MathHelper.clamp(fogEnd, 0f, viewDistance)
+            )
 
             val type = camera.submersionType
             if (type != CameraSubmersionType.NONE) {
                 return
             }
 
-            RenderSystem.setShaderFogShape(fogShape.fogShape)
+            newFog.copy(shape = fogShape.fogShape)
 
             val color = color
-            RenderSystem.setShaderFogColor(
-                color.r / 255f,
-                color.g / 255f,
-                color.b / 255f,
-                color.a / 255f
+            newFog.copy(
+                red = color.r / 255f,
+                green = color.g / 255f,
+                blue = color.b / 255f,
+                alpha = color.a / 255f
             )
         }
 

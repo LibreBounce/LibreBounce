@@ -86,7 +86,7 @@ class DynamicFontCacheManager(
                             bb.xMin.toInt(), bb.yMin.toInt(),
                             0, 0,
                             width, height,
-                            false, false
+                            false
                         )
                     }
 

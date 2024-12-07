@@ -85,7 +85,7 @@ class StaticGlyphPage(
             val texture = NativeImageBackedTexture(nativeImage)
 
             texture.bindTexture()
-            texture.image!!.upload(0, 0, 0, 0, 0, nativeImage.width, nativeImage.height, true, false, true, false)
+            texture.image!!.upload(0, 0, 0, 0, 0, nativeImage.width, nativeImage.height, false)
 
             return StaticGlyphPage(
                 texture,

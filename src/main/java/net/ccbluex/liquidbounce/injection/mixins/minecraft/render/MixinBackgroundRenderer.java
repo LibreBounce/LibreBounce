@@ -19,14 +19,23 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCustomAmbience;
 import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Fog;
+import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.effect.StatusEffects;
+import org.joml.Vector4f;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -50,8 +59,10 @@ public abstract class MixinBackgroundRenderer {
         });
     }
 
-//    @Inject(method = "applyFog", at = @At(value = "INVOKE", shift = At.Shift.AFTER, ordinal = 0, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
-//    private static void injectLiquidsFog(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info) {
+//    @Inject(method = "applyFog", at = @At(
+//            value = "FIELD", opcode = Opcodes.PUTFIELD,
+//            target = "Lnet/minecraft/client/render/BackgroundRenderer$FogData;fogStart:F", remap = false))
+//    private static void injectLiquidsFog(Camera camera, BackgroundRenderer.FogType fogType, Vector4f color, float viewDistance, boolean thickenFog, float tickDelta, CallbackInfoReturnable<Fog> cir) {
 //        var antiBlind = ModuleAntiBlind.INSTANCE;
 //        var customAmbienceFog = ModuleCustomAmbience.Fog.INSTANCE;
 //        if (!antiBlind.getRunning() || customAmbienceFog.getRunning()) {
@@ -80,9 +91,15 @@ public abstract class MixinBackgroundRenderer {
 //            }
 //        }
 //    }
-//
-//    @Inject(method = "applyFog", at = @At("RETURN"))
-//    private static void injectFog(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo ci) {
-//        ModuleCustomAmbience.Fog.INSTANCE.modifyFog(camera, fogType, viewDistance);
-//    }
+    @WrapOperation(method = "applyFog", at = @At(
+            value = "FIELD", opcode = Opcodes.PUTFIELD,
+            target = "Lnet/minecraft/client/render/BackgroundRenderer$FogData;fogStart:F", remap = false))
+    private static void injectLiquidsFog(BackgroundRenderer.FogData instance, float value, Operation<Void> original) {
+        
+    }
+
+    @Inject(method = "applyFog", at = @At("RETURN"))
+    private static void injectFog(Camera camera, BackgroundRenderer.FogType fogType, Vector4f color, float viewDistance, boolean thickenFog, float tickDelta, CallbackInfoReturnable<Fog> cir) {
+        ModuleCustomAmbience.Fog.INSTANCE.modifyFog(camera, fogType, viewDistance, cir.getReturnValue());
+    }
 }

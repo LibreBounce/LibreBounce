@@ -169,7 +169,7 @@ class MinimapTextureAtlasManager {
                     dirtyAtlasPosition.baseXOnAtlas, dirtyAtlasPosition.baseYOnAtlas,
                     0, 0,
                     16, 16,
-                    false, false
+                    false
                 )
             }
         }

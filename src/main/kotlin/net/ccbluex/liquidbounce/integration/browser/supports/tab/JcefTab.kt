@@ -65,7 +65,6 @@ class JcefTab(
     init {
         mc.textureManager.registerTexture(texture, object : AbstractTexture() {
             override fun getGlId() = mcefBrowser.renderer.textureID
-            override fun load(manager: ResourceManager) { }
         })
     }
 
