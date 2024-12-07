@@ -231,9 +231,10 @@ class Theme(val name: String) {
             return true
         }
 
-        val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = mc.textureManager.registerDynamicTexture("liquidbounce-theme-bg-$name", image)
-        logger.info("Loaded background image for theme $name")
+//        todo: fix this, registerDynamicTexture was removed in 1.21.4
+//        val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
+//        loadedBackgroundImage = mc.textureManager.registerDynamicTexture("liquidbounce-theme-bg-$name", image)
+//        logger.info("Loaded background image for theme $name")
         return true
     }
 
