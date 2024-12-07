@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.event
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.*
 
@@ -51,7 +52,7 @@ object SequenceManager : EventListener, CoroutineScope by CoroutineScope(Supervi
      * in the same tick
      */
     @Suppress("unused")
-    val tickSequences = handler<GameTickEvent>(priority = Short.MAX_VALUE) {
+    val tickSequences = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
             if (!sequence.owner.running) {
