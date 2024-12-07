@@ -199,7 +199,7 @@ object IntegrationListener : EventListener {
         if (!browserIsReady) {
             if (screen !is MCEFProgressMenu) {
                 RenderSystem.recordRenderCall {
-                    mc.setScreen(MCEFProgressMenu(LiquidBounce.CLIENT_NAME))
+                    mc.setScreen(MCEFProgressMenu(LiquidBounce.CLIENT_NAME) as Screen)
                 }
                 return true
             }
