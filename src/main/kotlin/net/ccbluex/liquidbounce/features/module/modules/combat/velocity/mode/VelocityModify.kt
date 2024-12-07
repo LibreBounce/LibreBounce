@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallBlink
-import net.ccbluex.liquidbounce.injection.mixins.minecraft.network.MixinExplosionS2CPacket
 import net.ccbluex.liquidbounce.utils.entity.pressingMovementButton
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -97,14 +96,12 @@ internal object VelocityModify : Choice("Modify") {
             val playerKnockback = packet.playerKnockback.orElse(null) ?: return@handler
 
 //            todo: fix exceptions (it does work lol, I think...)
-            (packet as MixinExplosionS2CPacket).`liquid_bounce$setPlayerKnockback`(
-                Optional<Vec3d>.of(
+            packet.playerKnockback = Optional<Vec3d>.of(
                     playerKnockback.multiply(
                         horizontal.toDouble(),
                         vertical.toDouble(),
                         horizontal.toDouble())
                 )
-            )
 //            packet.playerVelocityY *= vertical
 //            packet.playerVelocityZ *= horizontal
 
