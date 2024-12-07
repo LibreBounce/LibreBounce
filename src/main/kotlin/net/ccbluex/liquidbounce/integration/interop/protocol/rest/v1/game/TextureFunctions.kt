@@ -28,7 +28,6 @@ import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpBadRequest
 import net.ccbluex.netty.http.util.httpFileStream
 import net.ccbluex.netty.http.util.httpInternalServerError
-import net.minecraft.client.texture.PlayerSkinTexture
 import net.minecraft.client.util.DefaultSkinHelper
 import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryKey
@@ -88,19 +87,20 @@ fun getSkin(requestObject: RequestObject) = run {
         ?: DefaultSkinHelper.getSkinTextures(uuid)
     val texture = mc.textureManager.getTexture(skinTextures.texture)
 
-    if (texture is PlayerSkinTexture) {
-        val cacheFile = texture.cacheFile
-            ?: return@run httpInternalServerError("Texture is not cached yet")
-
-        cacheFile.inputStream().use {
-            httpFileStream(it)
-        }
-    } else {
-        val resource = mc.resourceManager.getResource(skinTextures.texture)
-            .getOrNull() ?: return@run httpInternalServerError("Texture not found")
-
-        resource.inputStream.use {
-            httpFileStream(it)
-        }
-    }
+//    TODO: where did this go
+//    if (texture is PlayerSkinTexture) {
+//        val cacheFile = texture.cacheFile
+//            ?: return@run httpInternalServerError("Texture is not cached yet")
+//
+//        cacheFile.inputStream().use {
+//            httpFileStream(it)
+//        }
+//    } else {
+//        val resource = mc.resourceManager.getResource(skinTextures.texture)
+//            .getOrNull() ?: return@run httpInternalServerError("Texture not found")
+//
+//        resource.inputStream.use {
+//            httpFileStream(it)
+//        }
+//    }
 }
