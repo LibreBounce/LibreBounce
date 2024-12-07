@@ -97,11 +97,11 @@ internal object VelocityModify : Choice("Modify") {
 
 //            todo: fix exceptions (it does work lol, I think...)
             packet.playerKnockback = Optional<Vec3d>.of(
-                    playerKnockback.multiply(
-                        horizontal.toDouble(),
-                        vertical.toDouble(),
-                        horizontal.toDouble())
-                )
+                playerKnockback.multiply(
+                    horizontal.toDouble(),
+                    vertical.toDouble(),
+                    horizontal.toDouble())
+            )
 //            packet.playerVelocityY *= vertical
 //            packet.playerVelocityZ *= horizontal
 
