@@ -192,15 +192,16 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
         return original;
     }
 
-    /**
-     * Hook custom sneaking multiplier
-     */
-    @ModifyReturnValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttributeValue(Lnet/minecraft/registry/entry/RegistryEntry;)D"))
-    private double hookCustomSneakingMultiplier(double slowDownFactor) {
-        final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier((float)slowDownFactor);
-        EventManager.INSTANCE.callEvent(playerSneakMultiplier);
-        return playerSneakMultiplier.getMultiplier();
-    }
+//    TODO: revisit this once I'm ready to get spammed with "targeting an invalid insn" errors
+//    /**
+//     * Hook custom sneaking multiplier
+//     */
+//    @ModifyReturnValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttributeValue(Lnet/minecraft/registry/entry/RegistryEntry;)D"))
+//    private double hookCustomSneakingMultiplier(double slowDownFactor) {
+//        final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier((float)slowDownFactor);
+//        EventManager.INSTANCE.callEvent(playerSneakMultiplier);
+//        return playerSneakMultiplier.getMultiplier();
+//    }
 
     /**
      * Hook custom multiplier
