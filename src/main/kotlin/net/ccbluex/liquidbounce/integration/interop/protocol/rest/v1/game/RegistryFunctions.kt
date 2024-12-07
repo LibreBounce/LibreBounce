@@ -170,7 +170,7 @@ fun getRegistries(requestObject: RequestObject) = httpOk(JsonObject().apply {
 
     Registries.BLOCK.forEach {
 //        shut up IntelliJ it's in the access widener
-        val pickStack = it.getPickStack(world, BlockPos.ORIGIN, it.defaultState)
+        val pickStack = it.getPickStack(world, BlockPos.ORIGIN, it.defaultState, false)
         val id = Registries.BLOCK.getId(it)
 
         when (val item = pickStack.item) {
