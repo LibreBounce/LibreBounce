@@ -17,7 +17,7 @@
     let slider: HTMLElement;
     let apiSlider: API;
 
-    onMount(() => {
+    $: if (slider) {
         apiSlider = noUiSlider.create(slider, {
             start: cSetting.rainbowSpeed,
             connect: "lower",
@@ -36,7 +36,7 @@
         apiSlider.on("set", () => { // TODO dispatch on change?
             dispatch("change");
         });
-    });
+    }
 
     function handleRainbowModeChange() {
         setting = {...cSetting};
