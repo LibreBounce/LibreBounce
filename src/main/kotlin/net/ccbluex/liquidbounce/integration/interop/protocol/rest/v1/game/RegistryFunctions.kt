@@ -81,7 +81,7 @@ val ACCEPTED_ITEM_TAGS
         ItemTags.COALS,
         ItemTags.ARROWS,
         ItemTags.COMPASSES,
-        ItemTags.TRIM_TEMPLATES,
+//        ItemTags.TRIM_TEMPLATES,
         ItemTags.SWORDS,
         ItemTags.AXES,
         ItemTags.HOES,
