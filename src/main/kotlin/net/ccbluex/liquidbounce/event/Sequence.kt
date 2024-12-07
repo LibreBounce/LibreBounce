@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.event
 
-import com.google.common.collect.Lists
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -31,7 +30,7 @@ typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
 object SequenceManager : EventListener {
 
     // Running sequences
-    internal val sequences = Lists.newCopyOnWriteArrayList<Sequence<*>>()
+    internal val sequences = CopyOnWriteArrayList<Sequence<*>>()
 
     /**
      * Tick sequences
