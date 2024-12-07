@@ -86,6 +86,7 @@ fun getSkin(requestObject: RequestObject) = run {
     val skinTextures = world.players.find { it.uuid == uuid }?.skinTextures
         ?: DefaultSkinHelper.getSkinTextures(uuid)
     val texture = mc.textureManager.getTexture(skinTextures.texture)
+    httpInternalServerError("not implemented yet lol")
 
 //    TODO: where did this go
 //    if (texture is PlayerSkinTexture) {
