@@ -66,39 +66,40 @@ object CapeCosmeticsManager {
      * Loads a player cape
      */
     fun loadPlayerCape(player: GameProfile, response: ReturnCapeTexture) {
-        Util.getMainWorkerExecutor().execute {
-            runCatching {
-                val uuid = player.id
-
-                CosmeticService.fetchCosmetic(uuid, CosmeticCategory.CAPE) { cosmetic ->
-                    // Get url of cape from cape service
-                    val (name, url) = getCapeDownload(cosmetic) ?: return@fetchCosmetic
-
-                    // Check if the cape is cached
-                    if (cachedCapes.containsKey(name)) {
-                        LiquidBounce.logger.info("Successfully loaded cached cape for ${player.name}")
-                        response.response(cachedCapes[name]!!)
-                        return@fetchCosmetic
-                    }
-
-                    // Request cape texture
-                    val nativeImageBackedTexture = requestCape(url)
-                        ?: return@fetchCosmetic
-
-                    LiquidBounce.logger.info("Successfully loaded cape for ${player.name}")
-
-                    // Register cape texture
-                    val capeTexture = mc.textureManager.registerDynamicTexture("liquidbounce-$name",
-                            nativeImageBackedTexture)
-
-                    // Cache cape texture
-                    cachedCapes[name] = capeTexture
-
-                    // Return cape texture
-                    response.response(capeTexture)
-                }
-            }
-        }
+//        Util.getMainWorkerExecutor().execute {
+//            runCatching {
+//                val uuid = player.id
+//
+//                CosmeticService.fetchCosmetic(uuid, CosmeticCategory.CAPE) { cosmetic ->
+//                    // Get url of cape from cape service
+//                    val (name, url) = getCapeDownload(cosmetic) ?: return@fetchCosmetic
+//
+//                    // Check if the cape is cached
+//                    if (cachedCapes.containsKey(name)) {
+//                        LiquidBounce.logger.info("Successfully loaded cached cape for ${player.name}")
+//                        response.response(cachedCapes[name]!!)
+//                        return@fetchCosmetic
+//                    }
+//
+//                    // Request cape texture
+//                    val nativeImageBackedTexture = requestCape(url)
+//                        ?: return@fetchCosmetic
+//
+//                    LiquidBounce.logger.info("Successfully loaded cape for ${player.name}")
+//
+//                    // Register cape texture
+                      // TODO: fix this, registerDynamicTexture is removed in 1.21.4
+//                    val capeTexture = mc.textureManager.registerDynamicTexture("liquidbounce-$name",
+//                            nativeImageBackedTexture)
+//
+//                    // Cache cape texture
+//                    cachedCapes[name] = capeTexture
+//
+//                    // Return cape texture
+//                    response.response(capeTexture)
+//                }
+//            }
+//        }
     }
 
     /**
