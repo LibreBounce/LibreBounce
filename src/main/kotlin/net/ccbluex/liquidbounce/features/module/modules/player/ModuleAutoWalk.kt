@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 
 /**
  * AutoWalk module
@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
 
     @Suppress("unused")
-    private val moveInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+    private val moveInputHandler = handler<MovementInputEvent>(priority = FIRST_PRIORITY) { event ->
         event.directionalInput = event.directionalInput.copy(forwards = true)
     }
 
