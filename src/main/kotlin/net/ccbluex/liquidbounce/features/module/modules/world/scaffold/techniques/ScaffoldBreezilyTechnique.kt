@@ -86,7 +86,7 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
 
         val ma = 1 - currentEdgeDistanceRandom
         var currentSideways = 0f
-        when (Direction.fromRotation(player.yaw.toDouble())) {
+        when (Direction.fromHorizontalDegrees(player.yaw.toDouble())) {
             Direction.SOUTH -> {
                 if (modX > ma) currentSideways = 1f
                 if (modX < currentEdgeDistanceRandom) currentSideways = -1f
