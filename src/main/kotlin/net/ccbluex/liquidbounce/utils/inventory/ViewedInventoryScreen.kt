@@ -127,9 +127,10 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
         context.matrices.push()
         context.matrices.translate(0f, 0f, 100f)
         if (slot.stack.isEmpty && slot.isEnabled) {
-            val pair = slot.backgroundSprite
-            if (pair != null) {
-                val sprite = mc.getSpriteAtlas(pair.first).apply(pair.second) as Sprite
+            val id = slot.backgroundSprite
+            if (id != null) {
+                // TODO: what is the 1st parameter?
+                val sprite = mc.getSpriteAtlas(id).apply(id) as Sprite
                 context.drawGuiTexture(
                     RenderLayer::getGuiTextured, sprite.atlasId,
                     slot.x, slot.y,
