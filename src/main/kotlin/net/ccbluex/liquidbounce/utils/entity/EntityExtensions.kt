@@ -622,7 +622,12 @@ fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
 
     if (vehicle != null) {
         pos?.let(vehicle::setPosition)
-        network.sendPacket(VehicleMoveC2SPacket(vehicle))
+        network.sendPacket(
+            VehicleMoveC2SPacket(
+                vehicle.pos, vehicle.yaw,
+                vehicle.pitch, vehicle.isOnGround
+            )
+        )
         return
     }
 
