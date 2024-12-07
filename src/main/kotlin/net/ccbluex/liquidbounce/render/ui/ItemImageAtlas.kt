@@ -79,7 +79,7 @@ object ItemImageAtlas: EventListener {
         val map = hashMapOf<Identifier, Identifier>()
 
         Registries.BLOCK.forEach {
-            val pickUpState = it.getPickStack(mc.world!!, BlockPos.ORIGIN, it.defaultState)
+            val pickUpState = it.getPickStack(mc.world!!, BlockPos.ORIGIN, it.defaultState, false)
 
             if (pickUpState.item != it) {
                 val blockId = Registries.BLOCK.getId(it)
