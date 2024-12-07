@@ -90,13 +90,6 @@ inline fun <reified T : Event> EventListener.sequenceHandler(
 }
 
 /**
- * Registers and launches a new sequence with given [eventHandler] for once.
- */
-fun EventListener.launchSequence(eventHandler: SuspendableHandler<DummyEvent>): Sequence<DummyEvent> {
-    return Sequence(this, eventHandler, DummyEvent)
-}
-
-/**
  * Registers a repeatable sequence which repeats the execution of code on GameTickEvent.
  */
 fun EventListener.tickHandler(eventHandler: SuspendableHandler<DummyEvent>) {
