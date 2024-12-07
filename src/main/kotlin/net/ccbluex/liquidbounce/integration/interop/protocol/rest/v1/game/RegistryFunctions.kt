@@ -57,7 +57,7 @@ val ACCEPTED_ITEM_TAGS
         ItemTags.WALLS,
         ItemTags.ANVIL,
         ItemTags.RAILS,
-        ItemTags.FLOWERS,
+        ItemTags.SMALL_FLOWERS,
         ItemTags.SAPLINGS,
         ItemTags.LEAVES,
         ItemTags.TRAPDOORS,
