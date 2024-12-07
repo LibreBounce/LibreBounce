@@ -195,7 +195,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     /**
      * Hook custom sneaking multiplier
      */
-    @ModifyArg(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(ZF)V", ordinal = 0), index = 1)
+    @ModifyArg(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick()V"))
     private float hookCustomSneakingMultiplier(float slowDownFactor) {
         final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier(slowDownFactor);
         EventManager.INSTANCE.callEvent(playerSneakMultiplier);
@@ -311,7 +311,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
         return isOmniWalking();
     }
 
-    @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z"))
+    @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isBlind()Z"))
     private boolean hookSprintIgnoreBlindness(boolean original) {
         return !ModuleSprint.INSTANCE.shouldIgnoreBlindness() && original;
     }
