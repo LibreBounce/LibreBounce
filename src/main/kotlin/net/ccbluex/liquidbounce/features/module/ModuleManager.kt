@@ -35,7 +35,6 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleC
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.dupe.ModuleDupe
@@ -59,6 +58,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.spider.ModuleSp
 import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleReverseStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.terrainspeed.ModuleTerrainSpeed
+import net.ccbluex.liquidbounce.features.module.modules.movement.velocity.ModuleVelocity
 import net.ccbluex.liquidbounce.features.module.modules.player.*
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff
@@ -69,6 +69,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.features.module.modules.render.*
+import net.ccbluex.liquidbounce.features.module.modules.render.itemchams.ModuleItemChams
 import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
 import net.ccbluex.liquidbounce.features.module.modules.render.nametags.ModuleNametags
 import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.ModuleTrajectories
@@ -165,7 +166,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSuperKnockback,
             ModuleTimerRange,
             ModuleTickBase,
-            ModuleVelocity,
             ModuleBacktrack,
             ModuleSwordBlock,
             ModuleAutoShoot,
@@ -262,6 +262,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleVehicleControl,
             ModuleSpider,
             ModuleTargetStrafe,
+            ModuleVelocity,
 
             // Player
             ModuleAntiVoid,

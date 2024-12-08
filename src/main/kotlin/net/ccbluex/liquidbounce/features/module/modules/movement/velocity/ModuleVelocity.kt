@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.velocity
+package net.ccbluex.liquidbounce.features.module.modules.movement.velocity
 
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.velocity.mode.*
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -38,8 +38,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  *
  * Modifies the amount of velocity you take.
  */
-
-object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
+object ModuleVelocity : ClientModule("Velocity", Category.MOVEMENT) {
 
     init {
         enableLock()

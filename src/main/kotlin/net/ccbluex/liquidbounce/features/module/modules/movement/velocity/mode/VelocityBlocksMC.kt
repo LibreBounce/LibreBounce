@@ -16,30 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
+package net.ccbluex.liquidbounce.features.module.modules.movement.velocity.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.movement.velocity.ModuleVelocity.modes
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 
 /**
- *
- * Velocity for AAC4.4.2, pretty sure, it works on other versions
+ * BlocksMC velocity
+ * @author liquidsquid1
  */
-
-internal object VelocityAAC442 : Choice("AAC4.4.2") {
+internal object VelocityBlocksMC : Choice("BlocksMC") {
 
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    private val reduce by float("Reduce", 0.62f, 0f..1f)
-
     @Suppress("unused")
-    private val repeatable = tickHandler {
-        if (player.hurtTime > 0 && !player.isOnGround) {
-            player.velocity.x *= reduce
-            player.velocity.z *= reduce
+    private val packetHandler = handler<PacketEvent> { event ->
+        val packet = event.packet
+
+        // Check if this is a regular velocity update
+        if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
+            event.cancelEvent()
+            network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY))
+            network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY))
         }
     }
 

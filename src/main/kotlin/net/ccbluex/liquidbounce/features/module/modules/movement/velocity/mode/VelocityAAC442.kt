@@ -16,33 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
+package net.ccbluex.liquidbounce.features.module.modules.movement.velocity.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
-import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
+import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.modules.movement.velocity.ModuleVelocity.modes
 
-internal object VelocityDexland : Choice("Dexland") {
+/**
+ *
+ * Velocity for AAC4.4.2, pretty sure, it works on other versions
+ */
+
+internal object VelocityAAC442 : Choice("AAC4.4.2") {
 
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    private val hReduce by float("HReduce", 0.3f, 0f..1f)
-    private val times by int("AttacksToWork", 4, 1..10)
-
-    private var lastAttackTime = 0L
-    var count = 0
+    private val reduce by float("Reduce", 0.62f, 0f..1f)
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEntityEvent> {
-        if (player.hurtTime > 0 && ++count % times == 0 && System.currentTimeMillis() - lastAttackTime <= 8000) {
-            player.velocity.x *= hReduce
-            player.velocity.z *= hReduce
+    private val repeatable = tickHandler {
+        if (player.hurtTime > 0 && !player.isOnGround) {
+            player.velocity.x *= reduce
+            player.velocity.z *= reduce
         }
-
-        lastAttackTime = System.currentTimeMillis()
     }
 
 }
