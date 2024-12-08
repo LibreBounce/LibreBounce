@@ -176,8 +176,6 @@
         
         "module.fly.description": "Allows you to fly in survival mode.",
         
-        "module.forceUnicodeChat.description": "Allows you to send unicode messages in chat.",
-        
         "module.freeCam.description": "Allows you to move out of your body.",
 
         "module.freeLook.description": "Allows you to see around in third person view.",

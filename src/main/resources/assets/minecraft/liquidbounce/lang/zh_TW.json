@@ -168,8 +168,6 @@
         "module.flagCheck.description": "偵測您是否被反作弊標記。",
           
         "module.fly.description": "允許你在生存模式下飛行。",
-
-        "module.forceUnicodeChat.description": "允許你在聊天欄中發送unicode訊息。",
        
         "module.freeCam.description": "允許你離開身體。(靈魂出竅)",
 

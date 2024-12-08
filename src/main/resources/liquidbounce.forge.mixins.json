@@ -76,6 +76,7 @@
     "gui.MixinGuiAchievement",
     "gui.MixinGuiContainer",
     "gui.MixinGuiTextField",
+    "packets.MixinC01PacketChatMessage",
     "render.MixinItemRenderer",
     "render.MixinRenderGlobal",
     "tweaks.MixinEntityFX"

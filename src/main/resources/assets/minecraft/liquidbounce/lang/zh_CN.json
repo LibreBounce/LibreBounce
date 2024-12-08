@@ -173,8 +173,6 @@
         "module.flagCheck.description": "检测您是否被反作弊标记。",
 
         "module.fly.description": "允许你在生存模式下飞行。",
-    
-        "module.forceUnicodeChat.description": "允许你在聊天栏中发送unicode消息。",
         
         "module.freeCam.description": "允许你离开身体。(灵魂出窍)",
 
