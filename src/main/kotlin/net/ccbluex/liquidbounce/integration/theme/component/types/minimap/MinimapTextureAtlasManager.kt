@@ -67,7 +67,7 @@ class MinimapTextureAtlasManager {
                 atlasPositions.add(AtlasPosition(x, y))
             }
         }
-        availableAtlasPositions = ArrayBlockingQueue(MAX_ATLAS_POSITIONS, true, atlasPositions)
+        availableAtlasPositions = ArrayBlockingQueue(MAX_ATLAS_POSITIONS, false, atlasPositions)
 
         for (x in 0..15) {
             for (y in 0..15) {
@@ -81,7 +81,7 @@ class MinimapTextureAtlasManager {
     }
 
     private fun allocate(chunkPos: ChunkPos): AtlasPosition {
-        val atlasPosition = availableAtlasPositions.poll() ?: error("No more space in the texture atlas!")
+        val atlasPosition = availableAtlasPositions.take() ?: error("No more space in the texture atlas!")
 
         chunkPosAtlasPosMap[chunkPos] = atlasPosition
 
