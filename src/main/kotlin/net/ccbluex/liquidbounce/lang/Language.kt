@@ -51,6 +51,8 @@ object LanguageManager : Configurable("lang") {
     private fun loadLanguage(language: String): ClientLanguage? {
         return if (languageMap.containsKey(language)) {
             languageMap[language]!!
+        } else if (language !in knownLanguages) {
+            loadLanguage(COMMON_UNDERSTOOD_LANGUAGE)
         } else {
             runCatching {
                 languageMap.computeIfAbsent(language) {
