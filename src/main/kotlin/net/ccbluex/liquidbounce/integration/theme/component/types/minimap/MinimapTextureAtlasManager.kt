@@ -48,7 +48,7 @@ private val NOT_LOADED_ATLAS_POSITION = MinimapTextureAtlasManager.AtlasPosition
 
 class MinimapTextureAtlasManager {
     private val texture = NativeImageBackedTexture(ATLAS_SIZE * 16, ATLAS_SIZE * 16, false)
-    private val availableAtlasPositions = ArrayBlockingQueue<AtlasPosition>(MAX_ATLAS_POSITIONS)
+    private val availableAtlasPositions: ArrayBlockingQueue<AtlasPosition>
     private val dirtyAtlasPositions = hashSetOf<AtlasPosition>()
     private val chunkPosAtlasPosMap = hashMapOf<ChunkPos, AtlasPosition>()
 
@@ -57,15 +57,17 @@ class MinimapTextureAtlasManager {
     private var allocated = false
 
     init {
+        val atlasPositions = ArrayList<AtlasPosition>(MAX_ATLAS_POSITIONS)
         for (x in 0 until ATLAS_SIZE) {
             for (y in 0 until ATLAS_SIZE) {
                 if (x == 0 && y == 0) {
                     continue
                 }
 
-                availableAtlasPositions.add(AtlasPosition(x, y))
+                atlasPositions.add(AtlasPosition(x, y))
             }
         }
+        availableAtlasPositions = ArrayBlockingQueue(MAX_ATLAS_POSITIONS, true, atlasPositions)
 
         for (x in 0..15) {
             for (y in 0..15) {
