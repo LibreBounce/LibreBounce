@@ -1,10 +1,6 @@
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.WorldEvent
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
@@ -19,7 +15,7 @@ import net.minecraft.network.status.client.C00PacketServerQuery
 import net.minecraft.network.status.client.C01PacketPing
 import net.minecraft.util.Vec3
 
-object BlinkUtils {
+object BlinkUtils : MinecraftInstance(), Listenable {
 
     val publicPacket: Packet<*>? = null
     val packets = mutableListOf<Packet<*>>()
