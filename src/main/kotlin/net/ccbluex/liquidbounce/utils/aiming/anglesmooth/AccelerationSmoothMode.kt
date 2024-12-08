@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
 
 import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
@@ -10,21 +11,33 @@ import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
-import kotlin.math.abs
-import kotlin.math.hypot
-import kotlin.math.min
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Acceleration") {
 
     private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..100f)
     private val pitchAcceleration by floatRange("PitchAcceleration", 20f..25f, 1f..100f)
-    // TODO: figure out how to implement lower accel bound
-    //private val minAcceleration by float("MinAcceleration", -25f, -100f..0f)
     private val yawAccelerationError by float("YawAccelerationError", 0.1f, 0f..1f)
     private val pitchAccelerationError by float("PitchAccelerationError", 0.1f, 0f..1f)
     private val yawConstantError by float("YawConstantError", 0.1f, 0f..10f)
     private val pitchConstantError by float("PitchConstantError", 0.1f, 0f..10f)
+
+    // compute a sigmoid-like deceleration factor
+    private inner class SigmoidDeceleration : ToggleableConfigurable(this, "SigmoidDeceleration", false) {
+        val steepness by float("Steepness", 10f, 0.0f..20f)
+        val midpoint by float("Midpoint", 0.3f, 0.0f..1.0f)
+
+        fun computeDecelerationFactor(rotationDifference: Float): Float {
+            val scaledDifference = rotationDifference / 120f
+            val sigmoid = 1 / (1 + exp((-steepness * (scaledDifference - midpoint)).toDouble()))
+
+            return sigmoid.toFloat()
+                .coerceAtLeast(0f)
+                .coerceAtMost(180f)
+        }
+    }
+
+    private val sigmoidDeceleration = tree(SigmoidDeceleration())
 
     override fun limitAngleChange(
         factorModifier: Float,
@@ -84,10 +97,23 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         yawDiff: Float,
         pitchDiff: Float,
     ): FloatFloatPair {
+        val rotationDifference = hypot(abs(yawDiff), abs(pitchDiff))
+
+        val yawDecelerationFactor =
+            sigmoidDeceleration.computeDecelerationFactor(rotationDifference)
+        val pitchDecelerationFactor =
+            sigmoidDeceleration.computeDecelerationFactor(rotationDifference)
+
         val yawAccel = RotationManager.angleDifference(yawDiff, prevYawDiff)
-            .coerceIn(-yawAcceleration.random().toFloat(), yawAcceleration.random().toFloat())
+            .coerceIn(
+                -yawAcceleration.random().toFloat(),
+                yawAcceleration.random().toFloat()
+            ) * if (sigmoidDeceleration.enabled) yawDecelerationFactor else 1.0f
         val pitchAccel = RotationManager.angleDifference(pitchDiff, prevPitchDiff)
-            .coerceIn(-pitchAcceleration.random().toFloat(), pitchAcceleration.random().toFloat())
+            .coerceIn(
+                -pitchAcceleration.random().toFloat(),
+                pitchAcceleration.random().toFloat()
+            ) * if (sigmoidDeceleration.enabled) pitchDecelerationFactor else 1.0f
 
         val yawError = yawAccel * yawErrorMulti() + yawConstantError()
         val pitchError = pitchAccel * pitchErrorMulti() + pitchConstantError()
