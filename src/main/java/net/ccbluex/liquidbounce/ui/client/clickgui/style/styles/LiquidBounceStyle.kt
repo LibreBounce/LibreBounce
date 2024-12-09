@@ -116,6 +116,8 @@ object LiquidBounceStyle : Style() {
                 for (value in moduleValues) {
                     assumeNonVolatile = value.get() is Number
 
+                    val suffix = value.suffix ?: ""
+
                     when (value) {
                         is BoolValue -> {
                             val text = value.name
@@ -195,7 +197,7 @@ object LiquidBounceStyle : Style() {
                         }
 
                         is FloatValue -> {
-                            val text = value.name + "§f: §c" + round(value.get())
+                            val text = value.name + "§f: §c" + round(value.get()) + " §8${suffix}§c"
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
                             if ((mouseButton == 0 || sliderValueHeld == value)
@@ -230,8 +232,11 @@ object LiquidBounceStyle : Style() {
                         }
 
                         is IntegerValue -> {
-                            val text =
-                                value.name + "§f: §c" + if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get()
+                            val text = value.name + "§f: §c" + if (value is BlockValue) {
+                                getBlockName(value.get()) + " (" + value.get() + ")"
+                            } else {
+                                value.get()
+                            }+ " §8${suffix}"
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
@@ -269,7 +274,7 @@ object LiquidBounceStyle : Style() {
                             val slider1 = value.get().first
                             val slider2 = value.get().last
 
-                            val text = "${value.name}§f: §c$slider1 §f- §c$slider2 (Beta)"
+                            val text = "${value.name}§f: §c$slider1 §f- §c$slider2 §8${suffix}§c (Beta)"
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
                             if ((mouseButton == 0 || sliderValueHeld == value) && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21) {
@@ -317,14 +322,14 @@ object LiquidBounceStyle : Style() {
                             val slider1 = value.get().start
                             val slider2 = value.get().endInclusive
 
-                            val text = "${value.name}§f: §c${round(slider1)} §f- §c${round(slider2)} (Beta)"
+                            val text = "${value.name}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}§c (Beta)"
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
                             if ((mouseButton == 0 || sliderValueHeld == value) && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21) {
                                 val slider1Pos =
-                                    minX + ((slider1 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+                                    minX + (slider1 - value.minimum) / (value.maximum - value.minimum) * (maxX - minX)
                                 val slider2Pos =
-                                    minX + ((slider2 - value.minimum).toFloat() / (value.maximum - value.minimum)) * (maxX - minX)
+                                    minX + ((slider2 - value.minimum) / (value.maximum - value.minimum)) * (maxX - minX)
 
                                 val distToSlider1 = mouseX - slider1Pos
                                 val distToSlider2 = mouseX - slider2Pos

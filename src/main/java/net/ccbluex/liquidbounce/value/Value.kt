@@ -24,8 +24,9 @@ abstract class Value<T>(
     protected open var value: T,
     val subjective: Boolean = false,
     var isSupported: (() -> Boolean)? = null,
+    val suffix: String? = null,
     protected var default: T = value,
-    ) : ReadWriteProperty<Any?, T> {
+) : ReadWriteProperty<Any?, T> {
 
     var excluded: Boolean = false
         private set
@@ -157,9 +158,10 @@ open class IntegerValue(
     name: String,
     value: Int,
     val range: IntRange = 0..Int.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
-) : Value<Int>(name, value, subjective, isSupported) {
+) : Value<Int>(name, value, subjective, isSupported, suffix) {
 
     fun set(newValue: Number) = set(newValue.toInt())
 
@@ -179,9 +181,10 @@ open class IntegerRangeValue(
     name: String,
     value: IntRange,
     val range: IntRange = 0..Int.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
-) : Value<IntRange>(name, value, subjective, isSupported) {
+) : Value<IntRange>(name, value, subjective, isSupported, suffix) {
 
     fun setFirst(newValue: Int) = set(newValue..value.last)
     fun setLast(newValue: Int) = set(value.first..newValue)
@@ -217,9 +220,10 @@ open class FloatRangeValue(
     name: String,
     value: ClosedFloatingPointRange<Float>,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
-) : Value<ClosedFloatingPointRange<Float>>(name, value, subjective, isSupported) {
+) : Value<ClosedFloatingPointRange<Float>>(name, value, subjective, isSupported, suffix) {
 
     fun setFirst(newValue: Float) = set(newValue..value.endInclusive)
     fun setLast(newValue: Float) = set(value.start..newValue)
@@ -257,9 +261,10 @@ open class FloatValue(
     name: String,
     value: Float,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
-) : Value<Float>(name, value, subjective, isSupported) {
+) : Value<Float>(name, value, subjective, isSupported, suffix) {
 
     fun set(newValue: Number) = set(newValue.toFloat())
 
@@ -343,7 +348,7 @@ open class FontValue(
  */
 open class BlockValue(
     name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null,
-) : IntegerValue(name, value, 1..197, subjective, isSupported)
+) : IntegerValue(name, value, 1..197, null, subjective, isSupported)
 
 /**
  * List value represents a selectable list of values
@@ -377,17 +382,19 @@ fun int(
     name: String,
     value: Int,
     range: IntRange = 0..Int.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null
-) = IntegerValue(name, value, range, subjective, isSupported)
+) = IntegerValue(name, value, range, suffix, subjective, isSupported)
 
 fun float(
     name: String,
     value: Float,
     range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null
-) = FloatValue(name, value, range, subjective, isSupported)
+) = FloatValue(name, value, range, suffix, subjective, isSupported)
 
 fun choices(
     name: String,
@@ -429,14 +436,16 @@ fun intRange(
     name: String,
     value: IntRange,
     range: IntRange = 0..Int.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null
-) = IntegerRangeValue(name, value, range, subjective, isSupported)
+) = IntegerRangeValue(name, value, range, suffix, subjective, isSupported)
 
 fun floatRange(
     name: String,
     value: ClosedFloatingPointRange<Float>,
     range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    suffix: String? = null,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null
-) = FloatRangeValue(name, value, range, subjective, isSupported)
+) = FloatRangeValue(name, value, range, suffix, subjective, isSupported)

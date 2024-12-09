@@ -55,7 +55,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         this,
         "Text",
         zeroAlphaCheck = true,
-        alphaApply = true,
+        alphaApply = { true },
         applyMax = true
     ) { renderServerPos == "Box" }
 
@@ -63,7 +63,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         this,
         "Box",
         zeroAlphaCheck = true,
-        alphaApply = true,
+        alphaApply = { true },
         withAlpha = false
     ) { renderServerPos == "Box" }.with(r = 255, g = 255)
 

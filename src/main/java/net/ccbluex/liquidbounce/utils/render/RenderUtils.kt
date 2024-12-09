@@ -8,26 +8,17 @@ package net.ccbluex.liquidbounce.utils.render
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.extensions.hitBox
-import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
-import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
-import net.ccbluex.liquidbounce.utils.extensions.renderPos
-import net.ccbluex.liquidbounce.utils.extensions.toRadians
+import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.Vec3
+import net.minecraft.util.*
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL14
 import java.awt.Color
-import kotlin.Triple
 import kotlin.math.*
 
 object RenderUtils : MinecraftInstance() {
@@ -36,6 +27,14 @@ object RenderUtils : MinecraftInstance() {
     var deltaTime = 0
 
     fun deltaTimeNormalized(ticks: Int = 50) = (deltaTime / ticks.toDouble()).coerceAtMost(1.0)
+
+    private const val CIRCLE_STEPS = 40
+
+    val circlePoints = (0..CIRCLE_STEPS).map {
+        val theta = 2 * PI * it / CIRCLE_STEPS
+
+        Vec3(-sin(theta), 0.0, cos(theta))
+    }
 
     init {
         for (i in DISPLAY_LISTS_2D.indices) {
@@ -133,6 +132,92 @@ object RenderUtils : MinecraftInstance() {
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
         tessellator.draw()
+    }
+
+    fun drawCircle(
+        entity: EntityLivingBase,
+        speed: Float,
+        height: ClosedFloatingPointRange<Float>,
+        size: Float,
+        filled: Boolean,
+        withHeight: Boolean,
+        circleY: ClosedFloatingPointRange<Float>? = null,
+        color: Color
+    ) {
+        val manager = mc.renderManager
+
+        val positions = mutableListOf<DoubleArray>()
+
+        val (renderX, renderY, renderZ) = Triple(manager.viewerPosX, manager.viewerPosY, manager.viewerPosZ)
+
+        glPushAttrib(GL_ALL_ATTRIB_BITS)
+        glPushMatrix()
+
+        glDisable(GL_TEXTURE_2D)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glDisable(GL_DEPTH_TEST)
+        glDisable(GL_CULL_FACE)
+        glEnable(GL_ALPHA_TEST)
+        glAlphaFunc(GL_GREATER, 0.0f)
+        mc.entityRenderer.disableLightmap()
+
+        val breathingT = AnimationUtil.breathe(speed)
+        val entityHeight = (entity.hitBox.maxY - entity.hitBox.minY).toFloat()
+
+        val width = (mc.renderManager.getEntityRenderObject<Entity>(entity)?.shadowSize ?: 0.5F) + size
+        val animatedHeight = (0F..entityHeight).lerpWith(height.lerpWith(breathingT))
+        val animatedCircleY = (0F..entityHeight).lerpWith(circleY?.lerpWith(breathingT) ?: 0F)
+
+        if (filled) {
+            glBegin(GL_TRIANGLE_FAN)
+            glColor(color)
+        }
+
+        entity.interpolatedPosition(entity.prevPos).let { pos ->
+            circlePoints.forEach {
+                val p = pos + Vec3(it.xCoord * width, it.yCoord + animatedCircleY, it.zCoord * width)
+
+                positions += doubleArrayOf(p.xCoord, p.yCoord, p.zCoord)
+
+                if (filled) {
+                    glVertex3d(p.xCoord - renderX, p.yCoord - renderY, p.zCoord - renderZ)
+                }
+            }
+        }
+
+        if (filled) {
+            glEnd()
+            glColor(Color.WHITE)
+        }
+
+        if (withHeight) {
+            glBegin(GL_QUADS)
+            glColor(color)
+
+            positions.forEachIndexed { index, pos ->
+                val endPos = positions.getOrNull(index + 1) ?: return@forEachIndexed
+
+                glVertex3d(pos[0] - renderX, pos[1] - renderY, pos[2] - renderZ)
+                glVertex3d(endPos[0] - renderX, endPos[1] - renderY, endPos[2] - renderZ)
+                glVertex3d(endPos[0] - renderX, endPos[1] - renderY + animatedHeight, endPos[2] - renderZ)
+                glVertex3d(pos[0] - renderX, pos[1] - renderY + animatedHeight, pos[2] - renderZ)
+            }
+
+            glEnd()
+
+            glColor(Color.WHITE)
+        }
+
+        glEnable(GL_CULL_FACE)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_ALPHA_TEST)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glPopMatrix()
+        glPopAttrib()
     }
 
     fun drawEntityBox(entity: Entity, color: Color, outline: Boolean) {
