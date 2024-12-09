@@ -18,21 +18,19 @@
  */
 package net.ccbluex.liquidbounce.event
 
-import com.google.common.collect.Lists
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.*
 
 typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
 
 object SequenceManager : EventListener {
 
     // Running sequences
-    internal val sequences = Lists.newCopyOnWriteArrayList<Sequence<*>>()
+    internal val sequences = CopyOnWriteArrayList<Sequence<*>>()
 
     /**
      * Tick sequences
@@ -42,7 +40,7 @@ object SequenceManager : EventListener {
      * in the same tick
      */
     @Suppress("unused")
-    val tickSequences = handler<GameTickEvent>(priority = 1000) {
+    val tickSequences = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
             if (!sequence.owner.running) {

@@ -42,10 +42,12 @@ import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.item.getEnchantment
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.block.BlockState
+import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.effect.StatusEffects
@@ -80,8 +82,10 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
     init {
         mode.onChanged {
-            disable()
-            enable()
+            if (mc.world != null && mc.player != null) {
+                disable()
+                enable()
+            }
         }
     }
 
@@ -279,7 +283,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     private val mouseButtonHandler = handler<MouseButtonEvent> { event ->
         val openScreen = mc.currentScreen != null
         val unchangeableActive = !mode.activeChoice.canManuallyChange && targetPos != null
-        if (openScreen || unchangeableActive) {
+        if (openScreen || unchangeableActive || !player.abilities.allowModifyWorld) {
             return@handler
         }
 
@@ -367,6 +371,11 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         }
     }
 
+    @Suppress("FunctionNaming", "FunctionName")
+    fun _resetTarget() {
+        targetPos = null
+    }
+
     /* tweaked minecraft code start */
 
     /**
@@ -385,8 +394,13 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     private fun getBlockBreakingSpeed(state: BlockState, stack: ItemStack): Float {
         var speed = stack.getMiningSpeedMultiplier(state)
 
-        if (speed > 1f) {
-            speed += player.getAttributeValue(EntityAttributes.PLAYER_MINING_EFFICIENCY).toFloat()
+        val enchantmentLevel = stack.getEnchantment(Enchantments.EFFICIENCY)
+        if (speed > 1f && enchantmentLevel != 0) {
+            /**
+             * See: [EntityAttributes.PLAYER_MINING_EFFICIENCY]
+             */
+            val enchantmentAddition = enchantmentLevel.sq() + 1f
+            speed += enchantmentAddition.coerceIn(0f..1024f)
         }
 
         if (StatusEffectUtil.hasHaste(player)) {

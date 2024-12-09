@@ -61,6 +61,23 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
     private val constantError = tree(ConstantError())
     private val sigmoidDeceleration = tree(SigmoidDeceleration())
 
+    // compute a sigmoid-like deceleration factor
+    private inner class SigmoidDeceleration : ToggleableConfigurable(this, "SigmoidDeceleration", false) {
+        val steepness by float("Steepness", 10f, 0.0f..20f)
+        val midpoint by float("Midpoint", 0.3f, 0.0f..1.0f)
+
+        fun computeDecelerationFactor(rotationDifference: Float): Float {
+            val scaledDifference = rotationDifference / 120f
+            val sigmoid = 1 / (1 + exp((-steepness * (scaledDifference - midpoint)).toDouble()))
+
+            return sigmoid.toFloat()
+                .coerceAtLeast(0f)
+                .coerceAtMost(180f)
+        }
+    }
+
+    private val sigmoidDeceleration = tree(SigmoidDeceleration())
+
     override fun limitAngleChange(
         factorModifier: Float,
         currentRotation: Rotation,
