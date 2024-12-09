@@ -49,7 +49,7 @@ object ImmediateMineMode : MineMode("Immediate", canManuallyChange = false, canA
         direction: Direction,
         slot: IntObjectImmutablePair<ItemStack>?
     ): Boolean {
-        return ModulePacketMine.progress < 1f
+        return ModulePacketMine.progress < ModulePacketMine.breakDamage
     }
 
 }
