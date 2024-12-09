@@ -147,7 +147,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
             }
 
             // the range in which entities are considered as a target
-            val range = ceil(max(placer.range, placer.wallRange)).toInt().sq() + 10.0
+            val range = this.range.sq() + 10.0
             collectHolesSmart(range, holeContext, availableItems)
         }
 
@@ -174,9 +174,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
                 holeContext.selfInHole ||
                 !hole.positions.intersects(holeContext.selfRegion)
                 ) {
-                BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
-                    holeContext.blocks += it.toImmutable()
-                }
+                hole.positions.mapTo(holeContext.blocks) { it.toImmutable() }
             }
         }
     }
@@ -199,7 +197,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
                 found
             )
 
-            holeContext.blocks += found.sortedByDescending { it.rightDouble() }.map { it.left() }
+            found.sortedByDescending { it.rightDouble() }.mapTo(holeContext.blocks) { it.left() }
             if (remainingItems <= 0) {
                 return
             }
@@ -208,10 +206,10 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
 
     private fun iterateHoles(
         holeContext: HoleContext,
-        checkedHoles: HashSet<Hole>,
+        checkedHoles: MutableSet<Hole>,
         entity: Entity,
         remainingItems: Int,
-        found: HashSet<ObjectDoubleImmutablePair<BlockPos>>
+        found: MutableSet<ObjectDoubleImmutablePair<BlockPos>>
     ): Int {
         var remainingItems1 = remainingItems
         val region = Region.quadAround(entity.blockPos, fillArea, fillArea)
