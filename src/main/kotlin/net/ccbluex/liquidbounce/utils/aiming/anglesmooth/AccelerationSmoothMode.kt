@@ -142,26 +142,20 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
                 -dynamicAcceleration.pitchCrosshairAccel.random().toFloat() to
                     dynamicAcceleration.pitchCrosshairAccel.random().toFloat()
             )
-        } else Pair(
-            -yawAcceleration.random().toFloat() to yawAcceleration.random().toFloat(),
-            -pitchAcceleration.random().toFloat() to pitchAcceleration.random().toFloat()
-        )
+        } else {
+            Pair(
+                -yawAcceleration.random().toFloat() to yawAcceleration.random().toFloat(),
+                -pitchAcceleration.random().toFloat() to pitchAcceleration.random().toFloat()
+            )
+        }
 
         val yawAccel = RotationManager.angleDifference(yawDiff, prevYawDiff)
             .coerceIn(dynamicYawAccel.first, dynamicYawAccel.second) *
-            if (sigmoidDeceleration.enabled) {
-                yawDecelerationFactor
-            } else {
-                1f
-            }
+            if (sigmoidDeceleration.enabled) yawDecelerationFactor else 1f
 
         val pitchAccel = RotationManager.angleDifference(pitchDiff, prevPitchDiff)
             .coerceIn(dynamicPitchAccel.first, dynamicPitchAccel.second) *
-            if (sigmoidDeceleration.enabled) {
-                pitchDecelerationFactor
-            } else {
-                1f
-            }
+            if (sigmoidDeceleration.enabled) pitchDecelerationFactor else 1f
 
         val yawError =
             yawAccel *
