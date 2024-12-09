@@ -118,6 +118,7 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         return (hypot(abs(yawDiff), abs(pitchDiff)) / lowest).roundToInt()
     }
 
+    @Suppress("CognitiveComplexMethod")
     private fun computeTurnSpeed(
         prevYawDiff: Float,
         prevPitchDiff: Float,
@@ -148,10 +149,19 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
 
         val yawAccel = RotationManager.angleDifference(yawDiff, prevYawDiff)
             .coerceIn(dynamicYawAccel.first, dynamicYawAccel.second) *
-            if (sigmoidDeceleration.enabled) yawDecelerationFactor else 1f
+            if (sigmoidDeceleration.enabled) {
+                yawDecelerationFactor
+            } else {
+                1f
+            }
+
         val pitchAccel = RotationManager.angleDifference(pitchDiff, prevPitchDiff)
             .coerceIn(dynamicPitchAccel.first, dynamicPitchAccel.second) *
-            if (sigmoidDeceleration.enabled) pitchDecelerationFactor else 1f
+            if (sigmoidDeceleration.enabled) {
+                pitchDecelerationFactor
+            } else {
+                1f
+            }
 
         val yawError =
             yawAccel *
