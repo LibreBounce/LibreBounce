@@ -34,8 +34,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
     }
 
     private inner class ConstantError : ToggleableConfigurable(this, "ConstantError", true) {
-        val yawConstantError by float("YawConstantError", 0.1f, 0.01f..1f)
-        val pitchConstantError by float("PitchConstantError", 0.1f, 0.01f..1f)
+        val yawConstantError by float("YawConstantError", 0.1f, 0.01f..10f)
+        val pitchConstantError by float("PitchConstantError", 0.1f, 0.01f..10f)
 
         fun yawConstantError() = (-yawConstantError..yawConstantError).random().toFloat()
         fun pitchConstantError() = (-pitchConstantError..pitchConstantError).random().toFloat()
