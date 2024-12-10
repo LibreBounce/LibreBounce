@@ -1,12 +1,13 @@
 package net.ccbluex.liquidbounce.utils.extensions
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 
 object SharedScopes {
+
+    @JvmField
     val Default = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+    @JvmField
     val IO = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun stop() {

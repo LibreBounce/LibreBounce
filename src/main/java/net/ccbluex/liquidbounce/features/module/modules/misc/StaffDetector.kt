@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.ccbluex.liquidbounce.value.ListValue
 import net.ccbluex.liquidbounce.value.boolean
@@ -63,15 +64,14 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
     private var alertClearVanish = false
 
-    private var staffList = mapOf<String, Set<String>?>()
+    private var staffList: Map<String, Set<String>?> = emptyMap()
     private var serverIp = ""
 
-    private val moduleJob = SupervisorJob()
-    private val moduleScope = CoroutineScope(Dispatchers.IO + moduleJob)
+    private var moduleJob: Job? = null
 
     override fun onDisable() {
         serverIp = ""
-        moduleJob.cancel()
+        moduleJob?.cancel()
         checkedStaff.clear()
         checkedSpectator.clear()
         playersInSpectatorMode.clear()
@@ -90,24 +90,24 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         alertClearVanish = false
     }
 
-    private fun loadStaffData() {
-        val serverIpMap = mapOf(
-            "blocksmc" to "blocksmc.com",
-            "cubecraft" to "cubecraft.net",
-            "gamster" to "gamster.org",
-            "agerapvp" to "agerapvp.club",
-            "hypemc" to "hypemc.pro",
-            "hypixel" to "hypixel.net",
-            "supercraft" to "supercraft.es",
-            "pikanetwork" to "pika-network.net",
-            "gommehd" to "gommehd.net",
-            "coralmc" to "coralmc.it",
-            "librecraft" to "librecraft.com"
-        )
+    private val serverIpMap = mapOf(
+        "blocksmc" to "blocksmc.com",
+        "cubecraft" to "cubecraft.net",
+        "gamster" to "gamster.org",
+        "agerapvp" to "agerapvp.club",
+        "hypemc" to "hypemc.pro",
+        "hypixel" to "hypixel.net",
+        "supercraft" to "supercraft.es",
+        "pikanetwork" to "pika-network.net",
+        "gommehd" to "gommehd.net",
+        "coralmc" to "coralmc.it",
+        "librecraft" to "librecraft.com"
+    )
 
+    private fun loadStaffData() {
         serverIp = serverIpMap[staffMode.lowercase()] ?: return
 
-        moduleScope.launch {
+        moduleJob = SharedScopes.IO.launch {
             staffList = loadStaffList("$CLIENT_CLOUD/staffs/$serverIp")
         }
     }
@@ -413,9 +413,9 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         notifyStaffPacket(staff)
     }
 
-    private suspend fun loadStaffList(url: String): Map<String, Set<String>> {
+    private fun loadStaffList(url: String): Map<String, Set<String>> {
         return try {
-            val (response, code) = fetchDataAsync(url)
+            val (response, code) = HttpUtils.get(url)
 
             when (code) {
                 200 -> {
@@ -442,12 +442,6 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             chat("§cFailed to load staff list. §9(${e.message})")
             e.printStackTrace()
             emptyMap()
-        }
-    }
-
-    private suspend fun fetchDataAsync(url: String): Pair<String, Int> {
-        return withContext(Dispatchers.IO) {
-            HttpUtils.request(url, "GET").let { Pair(it.first, it.second) }
         }
     }
 
