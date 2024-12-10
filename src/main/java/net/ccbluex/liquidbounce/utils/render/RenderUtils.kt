@@ -225,7 +225,7 @@ object RenderUtils : MinecraftInstance() {
      *
      * Only [GL_LINES], [GL_TRIANGLES] and [GL_QUADS] are allowed.
      */
-    fun drawDome(pos: Vec3, hRadius: Double, vRadius: Double, color: Color, renderMode: Int) {
+    fun drawDome(pos: Vec3, hRadius: Double, vRadius: Double, lineWidth: Float? = null, color: Color, renderMode: Int) {
         require(renderMode in arrayOf(GL_LINES, GL_TRIANGLES, GL_QUADS))
 
         val manager = mc.renderManager ?: return
@@ -243,6 +243,7 @@ object RenderUtils : MinecraftInstance() {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_LINE_SMOOTH)
+        lineWidth?.let { glLineWidth(it) }
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_CULL_FACE)
         glEnable(GL_ALPHA_TEST)
@@ -251,11 +252,11 @@ object RenderUtils : MinecraftInstance() {
         glBegin(renderMode)
         RenderUtils.glColor(color)
 
-        for (i in 0 until CIRCLE_STEPS / 2) {
+        for (i in -1 until CIRCLE_STEPS / 2) {
             val vAngle1 = i * vStep
             val vAngle2 = (i + 1) * vStep
 
-            for (j in 0 until CIRCLE_STEPS) {
+            for (j in -1 until CIRCLE_STEPS) {
                 val hAngle1 = j * hStep
                 val hAngle2 = (j + 1) * hStep
 

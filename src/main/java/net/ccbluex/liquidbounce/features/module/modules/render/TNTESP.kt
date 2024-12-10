@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawDome
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.value.float
 import net.minecraft.entity.item.EntityTNTPrimed
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -26,6 +27,7 @@ object TNTESP : Module("TNTESP", Category.RENDER, spacedName = "TNT ESP", hideMo
 
     private val dangerZoneDome by boolean("DangerZoneDome", false)
     private val mode by choices("Mode", arrayOf("Lines", "Triangles", "Filled"), "Lines") { dangerZoneDome }
+    private val lineWidth by float("LineWidth", 1F, 0.5F..5F) { mode == "Lines" }
     private val rainbow by boolean("Rainbow", false) { dangerZoneDome }
     private val colors = ColorSettingsInteger(this, "Dome", alphaApply = { dangerZoneDome })
     { !rainbow && dangerZoneDome }
@@ -37,11 +39,13 @@ object TNTESP : Module("TNTESP", Category.RENDER, spacedName = "TNT ESP", hideMo
         val renderMode = renderModes[mode] ?: return
         val color = if (rainbow) ColorUtils.rainbow().withAlpha(colors.color().alpha) else colors.color()
 
+        val width = lineWidth.takeIf { mode == "Lines" }
+
         mc.theWorld.loadedEntityList.forEach {
             if (it !is EntityTNTPrimed) return@forEach
 
             if (dangerZoneDome) {
-                drawDome(it.interpolatedPosition(it.prevPos), 8.0, 8.0, color, renderMode)
+                drawDome(it.interpolatedPosition(it.prevPos), 8.0, 8.0, width, color, renderMode)
             }
 
             drawEntityBox(it, Color.RED, false)
