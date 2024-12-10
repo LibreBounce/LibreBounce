@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.collections.removeEach
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.entity.EntityLivingBase
@@ -76,12 +77,13 @@ object PacketUtils : MinecraftInstance(), Listenable {
     @EventTarget(priority = -5)
     fun onGameLoop(event: GameLoopEvent) {
         synchronized(queuedPackets) {
-            while (queuedPackets.isNotEmpty()) {
-                val packet = queuedPackets.removeFirst()
+            queuedPackets.removeEach { packet ->
                 handlePacket(packet)
                 val packetEvent = PacketEvent(packet, EventState.RECEIVE)
                 FakeLag.onPacket(packetEvent)
                 Velocity.onPacket(packetEvent)
+
+                true
             }
         }
     }
