@@ -15,18 +15,14 @@ import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.ClassUtils
+import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.Value
 import net.ccbluex.liquidbounce.value.boolean
-import net.minecraft.client.audio.PositionedSoundRecord
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -123,11 +119,7 @@ open class Module(
 
             // Play sound and add notification
             if (!isStarting) {
-                synchronized(mc.soundHandler) {
-                    mc.soundHandler.playSound(
-                        PositionedSoundRecord.create(ResourceLocation("random.click"), 1F)
-                    )
-                }
+                mc.playSound("random.click".asResourceLocation())
                 addNotification(
                     Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
                 )

@@ -27,14 +27,12 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
-import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetAnimals
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetDead
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetInvisible
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
 import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
-import net.ccbluex.liquidbounce.utils.SettingsUtils
-import net.ccbluex.liquidbounce.utils.chat
 import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
@@ -137,11 +135,7 @@ object ClickGui : GuiScreen() {
 
                                     chat("§6Settings applied successfully")
                                     HUD.addNotification(Notification("Updated Settings"))
-                                    synchronized(mc.soundHandler) {
-                                        mc.soundHandler.playSound(
-                                            PositionedSoundRecord.create(ResourceLocation("random.anvil_use"), 1F)
-                                        )
-                                    }
+                                    mc.playSound("random.anvil_use".asResourceLocation())
                                 } catch (e: Exception) {
                                     ClientUtils.LOGGER.error("Failed to load settings", e)
                                     chat("Failed to load settings: ${e.message}")

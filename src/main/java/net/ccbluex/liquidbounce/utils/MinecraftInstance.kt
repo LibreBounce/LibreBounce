@@ -6,6 +6,8 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.util.ResourceLocation
 
 open class MinecraftInstance {
     companion object {
@@ -13,3 +15,12 @@ open class MinecraftInstance {
         val mc: Minecraft = Minecraft.getMinecraft()
     }
 }
+
+fun Minecraft.playSound(
+    resourceLocation: ResourceLocation,
+    pitch: Float = 1.0f,
+) = synchronized(this.soundHandler) {
+    this.soundHandler.playSound(PositionedSoundRecord.create(resourceLocation, pitch))
+}
+
+fun String.asResourceLocation() = ResourceLocation(this)
