@@ -161,7 +161,6 @@ public abstract class MixinGuiInGame extends Gui {
                         hud.getRoundedHotbarRadius()
                 );
 
-                // Make sure OpenGL states do not affect other rendering.
                 enableRescaleNormal();
                 glEnable(GL_BLEND);
                 tryBlendFuncSeparate(770, 771, 1, 0);
@@ -173,7 +172,6 @@ public abstract class MixinGuiInGame extends Gui {
                     renderHotbarItem(j, k, l, delta, entityPlayer);
                 }
 
-                // Disable OpenGL settings after rendering the hotbar items.
                 RenderHelper.disableStandardItemLighting();
                 disableRescaleNormal();
                 disableBlend();
