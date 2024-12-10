@@ -76,7 +76,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
     @EventTarget(priority = -5)
     fun onGameLoop(event: GameLoopEvent) {
         synchronized(queuedPackets) {
-            repeat(queuedPackets.size) {
+            while (queuedPackets.isNotEmpty()) {
                 val packet = queuedPackets.removeFirst()
                 handlePacket(packet)
                 val packetEvent = PacketEvent(packet, EventState.RECEIVE)
