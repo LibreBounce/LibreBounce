@@ -92,7 +92,7 @@ object HideAppearance : EventListener {
         isHidingNow = true
         isDestructed = true
 
-        callEvent(ClientShutdownEvent())
+        callEvent(ClientShutdownEvent)
         EventManager.unregisterAll()
 
         // Disable all modules

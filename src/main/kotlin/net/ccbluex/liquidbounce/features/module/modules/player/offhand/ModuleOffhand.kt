@@ -161,7 +161,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         }
 
         if (activeMode != lastTagMode) {
-            EventManager.callEvent(RefreshArrayListEvent())
+            EventManager.callEvent(RefreshArrayListEvent)
             lastTagMode = activeMode
         }
 

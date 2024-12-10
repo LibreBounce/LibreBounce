@@ -128,7 +128,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;onResolutionChanged()V"))
     private void startClient(CallbackInfo callback) {
-        EventManager.INSTANCE.callEvent(new ClientStartEvent());
+        EventManager.INSTANCE.callEvent(ClientStartEvent.INSTANCE);
     }
 
     /**
@@ -138,7 +138,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "stop", at = @At("HEAD"))
     private void stopClient(CallbackInfo callback) {
-        EventManager.INSTANCE.callEvent(new ClientShutdownEvent());
+        EventManager.INSTANCE.callEvent(ClientShutdownEvent.INSTANCE);
     }
 
     @Inject(method = "<init>", at = @At(value = "FIELD",
@@ -235,7 +235,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "tick", at = @At("HEAD"))
     private void hookTickEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new GameTickEvent());
+        EventManager.INSTANCE.callEvent(GameTickEvent.INSTANCE);
     }
 
     /**
@@ -243,7 +243,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "render", at = @At("HEAD"))
     private void hookRenderTaskQueue(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new GameRenderTaskQueueEvent());
+        EventManager.INSTANCE.callEvent(GameRenderTaskQueueEvent.INSTANCE);
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "handleInputEvents", at = @At("RETURN"))
     private void hookHandleInputEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new InputHandleEvent());
+        EventManager.INSTANCE.callEvent(InputHandleEvent.INSTANCE);
     }
 
     /**
@@ -330,7 +330,7 @@ public abstract class MixinMinecraftClient {
 
     @Inject(method = "onFinishedLoading", at = @At("HEAD"))
     private void onFinishedLoading(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new ResourceReloadEvent());
+        EventManager.INSTANCE.callEvent(ResourceReloadEvent.INSTANCE);
     }
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))

@@ -208,7 +208,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
     private fun runWithDummyEvent(action: suspend (Sequence<DummyEvent>) -> Unit) {
         sequence = Sequence(this, {
             action(this)
-        }, DummyEvent())
+        }, DummyEvent)
 
         sequence = null
     }

@@ -100,7 +100,7 @@ public abstract class MixinGameRenderer {
      */
     @Inject(method = "render", at = @At("HEAD"))
     public void hookGameRender(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new GameRenderEvent());
+        EventManager.INSTANCE.callEvent(GameRenderEvent.INSTANCE);
     }
 
     /**

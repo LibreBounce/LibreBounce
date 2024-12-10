@@ -47,6 +47,6 @@ public class MixinKeyBinding {
 
     @Inject(method = "setBoundKey", at = @At("RETURN"))
     private void hookSetBoundKey(InputUtil.Key boundKey, CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new KeybindChangeEvent());
+        EventManager.INSTANCE.callEvent(KeybindChangeEvent.INSTANCE);
     }
 }

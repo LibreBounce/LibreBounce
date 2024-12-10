@@ -129,7 +129,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return;
         }
 
-        EventManager.INSTANCE.callEvent(new PlayerAfterJumpEvent());
+        EventManager.INSTANCE.callEvent(PlayerAfterJumpEvent.INSTANCE);
     }
 
     /**

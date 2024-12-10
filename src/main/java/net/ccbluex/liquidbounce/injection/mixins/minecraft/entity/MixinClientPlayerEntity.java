@@ -103,7 +103,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             shift = At.Shift.AFTER,
             ordinal = 0))
     private void hookPostTickEvent(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new PlayerPostTickEvent());
+        EventManager.INSTANCE.callEvent(PlayerPostTickEvent.INSTANCE);
 
         // Call player statistics change event when statistics change
         var statistics = PlayerData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
@@ -118,7 +118,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void hookMovementTickEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerMovementTickEvent());
+        EventManager.INSTANCE.callEvent(PlayerMovementTickEvent.INSTANCE);
     }
 
     /**

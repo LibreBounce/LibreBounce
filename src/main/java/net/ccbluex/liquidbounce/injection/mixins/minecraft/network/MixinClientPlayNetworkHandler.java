@@ -154,7 +154,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         EventManager.INSTANCE.callEvent(new HealthUpdateEvent(packet.getHealth(), packet.getFood(), packet.getSaturation(), player.getHealth()));
 
         if (packet.getHealth() == 0) {
-            EventManager.INSTANCE.callEvent(new DeathEvent());
+            EventManager.INSTANCE.callEvent(DeathEvent.INSTANCE);
         }
     }
 
