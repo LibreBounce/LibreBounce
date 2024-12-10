@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -56,7 +57,12 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val trackingBuffer by int("TrackingBuffer", 500, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
-    private val pauseOnHit by boolean("PauseOnHit", false)
+    private object PauseOnHurtTime : ToggleableConfigurable(this, "PauseOnHurtTime", false) {
+        val hurtTime by int("HurtTime", 3, 0..10)
+    }
+
+    private val pauseOnHurtTime = tree(PauseOnHurtTime)
+
     private val espMode = choices("EspMode", Wireframe, arrayOf(
         Box, Model, Wireframe, None
     )).apply {
@@ -262,7 +268,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private val attackHandler = handler<AttackEntityEvent> { event ->
         val enemy = event.entity
 
-        shouldPause = enemy is LivingEntity && enemy.hurtTime < 10
+        shouldPause = enemy is LivingEntity && enemy.hurtTime >= pauseOnHurtTime.hurtTime
 
         if (!shouldBacktrack(enemy)) {
             return@handler
@@ -329,7 +335,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     fun isLagging() = running && packetQueue.isNotEmpty()
 
-    private fun shouldPause() = pauseOnHit && shouldPause
+    private fun shouldPause() = pauseOnHurtTime.enabled && shouldPause
 
     private fun shouldCancelPackets() =
         target?.let { target -> target.isAlive && shouldBacktrack(target) } ?: false
