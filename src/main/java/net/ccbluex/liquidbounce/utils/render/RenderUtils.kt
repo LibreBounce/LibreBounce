@@ -30,7 +30,7 @@ object RenderUtils : MinecraftInstance() {
 
     private const val CIRCLE_STEPS = 40
 
-    val circlePoints = (0..CIRCLE_STEPS).map {
+    private val circlePoints = (0..CIRCLE_STEPS).map {
         val theta = 2 * PI * it / CIRCLE_STEPS
 
         Vec3(-sin(theta), 0.0, cos(theta))
@@ -220,6 +220,104 @@ object RenderUtils : MinecraftInstance() {
         glPopAttrib()
     }
 
+    /**
+     * Draws a dome around the specified [pos]
+     *
+     * Only [GL_LINES], [GL_TRIANGLES] and [GL_QUADS] are allowed.
+     */
+    fun drawDome(pos: Vec3, hRadius: Double, vRadius: Double, color: Color, renderMode: Int) {
+        require(renderMode in arrayOf(GL_LINES, GL_TRIANGLES, GL_QUADS))
+
+        val manager = mc.renderManager ?: return
+
+        val (renderX, renderY, renderZ) = Triple(manager.viewerPosX, manager.viewerPosY, manager.viewerPosZ)
+        val (posX, posY, posZ) = pos
+
+        val vStep = Math.PI / (CIRCLE_STEPS / 2)
+        val hStep = 2 * Math.PI / CIRCLE_STEPS
+
+        glPushAttrib(GL_ALL_ATTRIB_BITS)
+        glPushMatrix()
+
+        glDisable(GL_TEXTURE_2D)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glDisable(GL_DEPTH_TEST)
+        glDisable(GL_CULL_FACE)
+        glEnable(GL_ALPHA_TEST)
+        glAlphaFunc(GL_GREATER, 0.0f)
+
+        glBegin(renderMode)
+        RenderUtils.glColor(color)
+
+        for (i in 0 until CIRCLE_STEPS / 2) {
+            val vAngle1 = i * vStep
+            val vAngle2 = (i + 1) * vStep
+
+            for (j in 0 until CIRCLE_STEPS) {
+                val hAngle1 = j * hStep
+                val hAngle2 = (j + 1) * hStep
+
+                val p1 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle1, hRadius, vRadius)
+                val p2 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle1, hRadius, vRadius)
+                val p3 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle2, hRadius, vRadius)
+                val p4 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle2, hRadius, vRadius)
+
+                when (renderMode) {
+                    GL_QUADS -> {
+                        glVertex3d(p1[0] - renderX, p1[1] - renderY, p1[2] - renderZ)
+                        glVertex3d(p2[0] - renderX, p2[1] - renderY, p2[2] - renderZ)
+                        glVertex3d(p3[0] - renderX, p3[1] - renderY, p3[2] - renderZ)
+                        glVertex3d(p4[0] - renderX, p4[1] - renderY, p4[2] - renderZ)
+                    }
+
+                    GL_LINES, GL_TRIANGLES -> {
+                        glVertex3d(p1[0] - renderX, p1[1] - renderY, p1[2] - renderZ)
+                        glVertex3d(p2[0] - renderX, p2[1] - renderY, p2[2] - renderZ)
+
+                        glVertex3d(p2[0] - renderX, p2[1] - renderY, p2[2] - renderZ)
+                        glVertex3d(p3[0] - renderX, p3[1] - renderY, p3[2] - renderZ)
+
+                        glVertex3d(p3[0] - renderX, p3[1] - renderY, p3[2] - renderZ)
+                        glVertex3d(p4[0] - renderX, p4[1] - renderY, p4[2] - renderZ)
+
+                        glVertex3d(p4[0] - renderX, p4[1] - renderY, p4[2] - renderZ)
+                        glVertex3d(p1[0] - renderX, p1[1] - renderY, p1[2] - renderZ)
+                    }
+                }
+            }
+        }
+
+        glEnd()
+
+        glEnable(GL_CULL_FACE)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_ALPHA_TEST)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+
+        glPopMatrix()
+        glPopAttrib()
+    }
+
+    private fun calculateDomeVertex(
+        entityX: Double,
+        entityY: Double,
+        entityZ: Double,
+        theta: Double,
+        phi: Double,
+        horizontalRadius: Double,
+        verticalRadius: Double
+    ): DoubleArray {
+        return doubleArrayOf(
+            entityX + horizontalRadius * sin(theta) * cos(phi),
+            entityY + verticalRadius * cos(theta),
+            entityZ + horizontalRadius * sin(theta) * sin(phi)
+        )
+    }
+
     fun drawEntityBox(entity: Entity, color: Color, outline: Boolean) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         enableGlCap(GL_BLEND)
@@ -256,8 +354,12 @@ object RenderUtils : MinecraftInstance() {
         val (adjustedX, adjustedY, adjustedZ) = Vec3(x, y, z) - mc.renderManager.renderPos
 
         val axisAlignedBB = AxisAlignedBB.fromBounds(
-            adjustedX - width / 2, adjustedY, adjustedZ - width / 2,
-            adjustedX + width / 2, adjustedY + height, adjustedZ + width / 2
+            adjustedX - width / 2,
+            adjustedY,
+            adjustedZ - width / 2,
+            adjustedX + width / 2,
+            adjustedY + height,
+            adjustedZ + width / 2
         )
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -402,28 +504,14 @@ object RenderUtils : MinecraftInstance() {
     }
 
     fun drawRoundedBorderRect(
-        x: Float,
-        y: Float,
-        x2: Float,
-        y2: Float,
-        width: Float,
-        color1: Int,
-        color2: Int,
-        radius: Float
+        x: Float, y: Float, x2: Float, y2: Float, width: Float, color1: Int, color2: Int, radius: Float
     ) {
         drawRoundedRect(x, y, x2, y2, color1, radius)
         drawRoundedBorder(x, y, x2, y2, width, color2, radius)
     }
 
     fun drawRoundedBorderRectInt(
-        x: Int,
-        y: Int,
-        x2: Int,
-        y2: Int,
-        width: Int,
-        color1: Int,
-        color2: Int,
-        radius: Float
+        x: Int, y: Int, x2: Int, y2: Int, width: Int, color1: Int, color2: Int, radius: Float
     ) {
         drawRoundedRectInt(x, y, x2, y2, color1, radius)
         drawRoundedBorderInt(x, y, x2, y2, width.toFloat(), color2, radius)
@@ -474,14 +562,7 @@ object RenderUtils : MinecraftInstance() {
     }
 
     private fun drawRoundedBordered(
-        x1: Float,
-        y1: Float,
-        x2: Float,
-        y2: Float,
-        color: Int,
-        width: Float,
-        radius: Float,
-        bottom: Boolean = true
+        x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, radius: Float, bottom: Boolean = true
     ) {
         val alpha = (color ushr 24 and 0xFF) / 255.0f
         val red = (color ushr 16 and 0xFF) / 255.0f
@@ -528,13 +609,7 @@ object RenderUtils : MinecraftInstance() {
     }
 
     fun drawRoundedBorderedWithoutBottom(
-        x1: Float,
-        y1: Float,
-        x2: Float,
-        y2: Float,
-        color: Int,
-        width: Float,
-        radius: Float
+        x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, radius: Float
     ) = drawRoundedBordered(x1, y1, x2, y2, color, width, radius, false)
 
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float) {
@@ -668,15 +743,7 @@ object RenderUtils : MinecraftInstance() {
     }
 
     private fun drawRoundedRectangle(
-        x1: Float,
-        y1: Float,
-        x2: Float,
-        y2: Float,
-        red: Float,
-        green: Float,
-        blue: Float,
-        alpha: Float,
-        radius: Float
+        x1: Float, y1: Float, x2: Float, y2: Float, red: Float, green: Float, blue: Float, alpha: Float, radius: Float
     ) {
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
@@ -738,8 +805,7 @@ object RenderUtils : MinecraftInstance() {
         while (i >= start) {
             val rad = i.toRadians()
             glVertex2f(
-                x + cos(rad) * (radius * 1.001f),
-                y + sin(rad) * (radius * 1.001f)
+                x + cos(rad) * (radius * 1.001f), y + sin(rad) * (radius * 1.001f)
             )
             i -= 360 / 90f
         }
@@ -781,14 +847,7 @@ object RenderUtils : MinecraftInstance() {
         glColor4f(1f, 1f, 1f, 1f)
         mc.textureManager.bindTexture(image)
         drawModalRectWithCustomSizedTexture(
-            x.toFloat(),
-            y.toFloat(),
-            0f,
-            0f,
-            width.toFloat(),
-            height.toFloat(),
-            width.toFloat(),
-            height.toFloat()
+            x.toFloat(), y.toFloat(), 0f, 0f, width.toFloat(), height.toFloat(), width.toFloat(), height.toFloat()
         )
         glDepthMask(true)
         glDisable(GL_BLEND)
@@ -801,14 +860,7 @@ object RenderUtils : MinecraftInstance() {
      * Draws a textured rectangle at z = 0. Args: x, y, u, v, width, height, textureWidth, textureHeight
      */
     fun drawModalRectWithCustomSizedTexture(
-        x: Float,
-        y: Float,
-        u: Float,
-        v: Float,
-        width: Float,
-        height: Float,
-        textureWidth: Float,
-        textureHeight: Float
+        x: Float, y: Float, u: Float, v: Float, width: Float, height: Float, textureWidth: Float, textureHeight: Float
     ) {
         val f = 1f / textureWidth
         val f1 = 1f / textureHeight
@@ -851,8 +903,7 @@ object RenderUtils : MinecraftInstance() {
 
     fun glColor(color: Color) = glColor(color.red, color.green, color.blue, color.alpha)
 
-    private fun glColor(hex: Int) =
-        glColor(hex shr 16 and 0xFF, hex shr 8 and 0xFF, hex and 0xFF, hex shr 24 and 0xFF)
+    private fun glColor(hex: Int) = glColor(hex shr 16 and 0xFF, hex shr 8 and 0xFF, hex and 0xFF, hex shr 24 and 0xFF)
 
     fun draw2D(entity: EntityLivingBase, posX: Double, posY: Double, posZ: Double, color: Int, backgroundColor: Int) {
         glPushMatrix()

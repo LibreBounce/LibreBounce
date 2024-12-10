@@ -28,6 +28,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,8 +41,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 import static net.minecraft.client.renderer.GlStateManager.*;
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(GuiIngame.class)
 @SideOnly(Side.CLIENT)
@@ -97,6 +97,7 @@ public abstract class MixinGuiInGame extends Gui {
 
                 List<float[]> gradientColors = ColorSettingsKt.toColorArray(hud.getBgGradColors(), hud.getMaxHotbarGradientColors());
 
+                GL11.glPushAttrib(GL_ALL_ATTRIB_BITS);
                 resetColor();
 
                 boolean isGradient = hud.getHotbarMode().equals("Gradient");
@@ -160,6 +161,7 @@ public abstract class MixinGuiInGame extends Gui {
                         hud.getRoundedHotbarRadius()
                 );
 
+                // Make sure OpenGL states do not affect other rendering.
                 enableRescaleNormal();
                 glEnable(GL_BLEND);
                 tryBlendFuncSeparate(770, 771, 1, 0);
@@ -171,9 +173,12 @@ public abstract class MixinGuiInGame extends Gui {
                     renderHotbarItem(j, k, l, delta, entityPlayer);
                 }
 
+                // Disable OpenGL settings after rendering the hotbar items.
                 RenderHelper.disableStandardItemLighting();
                 disableRescaleNormal();
                 disableBlend();
+
+                GL11.glPopAttrib();
 
                 AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 
