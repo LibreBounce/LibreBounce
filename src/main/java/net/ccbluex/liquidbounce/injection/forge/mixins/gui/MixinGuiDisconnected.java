@@ -14,7 +14,7 @@ import com.thealtening.api.TheAltening;
 import com.thealtening.api.data.AccountData;
 import me.liuli.elixir.account.MinecraftAccount;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.SessionEvent;
+import net.ccbluex.liquidbounce.event.SessionUpdateEvent;
 import net.ccbluex.liquidbounce.features.special.AutoReconnect;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
 import net.ccbluex.liquidbounce.file.FileManager;
@@ -92,7 +92,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                         yggdrasilUserAuthentication.logIn();
 
                         mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "microsoft");
-                        EventManager.INSTANCE.callEvent(new SessionEvent());
+                        EventManager.INSTANCE.callEvent(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
                         break;
                     } catch (final Throwable throwable) {
@@ -107,7 +107,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
 
                 mc.displayGuiScreen(new GuiLoginProgress(minecraftAccount, () -> {
                     mc.addScheduledTask(() -> {
-                        EventManager.INSTANCE.callEvent(new SessionEvent());
+                        EventManager.INSTANCE.callEvent(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
                     });
                     return null;

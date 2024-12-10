@@ -231,7 +231,7 @@ object AutoAccount :
                 account.session.username, account.session.uuid,
                 account.session.token, account.session.type
             )
-            callEvent(SessionEvent())
+            callEvent(SessionUpdateEvent)
             return
         }
 

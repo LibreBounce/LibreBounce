@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.SessionEvent
+import net.ccbluex.liquidbounce.event.SessionUpdateEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -165,7 +165,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
     }
 
     @EventTarget
-    fun onSession(sessionEvent: SessionEvent) {
+    fun onSession(sessionEvent: SessionUpdateEvent) {
         client.disconnect()
         connect()
     }
