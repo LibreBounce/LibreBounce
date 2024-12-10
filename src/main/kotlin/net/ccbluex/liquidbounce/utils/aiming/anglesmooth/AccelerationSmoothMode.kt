@@ -19,8 +19,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
     private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..180f)
     private val pitchAcceleration by floatRange("PitchAccelelation", 20f..25f, 1f..180f)
 
-    // implements something similar to ConditionalLinear's coefCrosshair
     private inner class DynamicAccel : ToggleableConfigurable(this, "DynamicAccel", false) {
+        val coefDistance by float("CoefDistance", -1.393f, -2f..2f)
         val yawCrosshairAccel by floatRange("YawCrosshairAccel", 17f..20f, 1f..180f)
         val pitchCrosshairAccel by floatRange("PitchCrosshairAccel", 17f..20f, 1f..180f)
     }
@@ -34,8 +34,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
     }
 
     private inner class ConstantError : ToggleableConfigurable(this, "ConstantError", true) {
-        val yawConstantError by float("YawConstantError", 0.1f, 0.01f..10f)
-        val pitchConstantError by float("PitchConstantError", 0.1f, 0.01f..10f)
+        val yawConstantError by float("YawConstantError", 0.1f, 0.01f..1f)
+        val pitchConstantError by float("PitchConstantError", 0.1f, 0.01f..1f)
 
         fun yawConstantError() = (-yawConstantError..yawConstantError).random().toFloat()
         fun pitchConstantError() = (-pitchConstantError..pitchConstantError).random().toFloat()
@@ -81,7 +81,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
             prevPitchDiff,
             yawDiff,
             pitchDiff,
-            crosshair
+            crosshair,
+            distance
         )
 
         return Rotation(
@@ -102,7 +103,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
             prevPitchDiff,
             yawDiff,
             pitchDiff,
-            false
+            false,
+            0.0
         )
 
         val lowest = min(computedH, computedV)
@@ -118,13 +120,13 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         return (hypot(abs(yawDiff), abs(pitchDiff)) / lowest).roundToInt()
     }
 
-    @Suppress("CognitiveComplexMethod")
     private fun computeTurnSpeed(
         prevYawDiff: Float,
         prevPitchDiff: Float,
         yawDiff: Float,
         pitchDiff: Float,
-        crosshair: Boolean
+        crosshair: Boolean,
+        distance: Double
     ): FloatFloatPair {
         val rotationDifference = hypot(abs(yawDiff), abs(pitchDiff))
 
@@ -133,26 +135,25 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         val pitchDecelerationFactor =
             sigmoidDeceleration.computeDecelerationFactor(rotationDifference)
 
-        val dynamicCheck = dynamicAcceleration.enabled && crosshair
+        val crosshairCheck = dynamicAcceleration.enabled && crosshair
+        val distanceFactor = (dynamicAcceleration.coefDistance * distance).toFloat()
 
-        val (dynamicYawAccel, dynamicPitchAccel) = if (dynamicCheck) {
+        val (dynamicYawAccel, dynamicPitchAccel) = if (crosshairCheck) {
             Pair(
-                -dynamicAcceleration.yawCrosshairAccel.random().toFloat() to
-                    dynamicAcceleration.yawCrosshairAccel.random().toFloat(),
-                -dynamicAcceleration.pitchCrosshairAccel.random().toFloat() to
-                    dynamicAcceleration.pitchCrosshairAccel.random().toFloat()
+                -dynamicAcceleration.yawCrosshairAccel.random().toFloat() + distanceFactor to
+                    dynamicAcceleration.yawCrosshairAccel.random().toFloat() + distanceFactor,
+                -dynamicAcceleration.pitchCrosshairAccel.random().toFloat() + distanceFactor to
+                    dynamicAcceleration.pitchCrosshairAccel.random().toFloat() + distanceFactor
             )
-        } else {
-            Pair(
-                -yawAcceleration.random().toFloat() to yawAcceleration.random().toFloat(),
-                -pitchAcceleration.random().toFloat() to pitchAcceleration.random().toFloat()
-            )
-        }
+        } else Pair(
+            -yawAcceleration.random().toFloat() + distanceFactor to yawAcceleration.random().toFloat() + distanceFactor,
+            -pitchAcceleration.random().toFloat() + distanceFactor to pitchAcceleration.random()
+                .toFloat() + distanceFactor
+        )
 
         val yawAccel = RotationManager.angleDifference(yawDiff, prevYawDiff)
             .coerceIn(dynamicYawAccel.first, dynamicYawAccel.second) *
             if (sigmoidDeceleration.enabled) yawDecelerationFactor else 1f
-
         val pitchAccel = RotationManager.angleDifference(pitchDiff, prevPitchDiff)
             .coerceIn(dynamicPitchAccel.first, dynamicPitchAccel.second) *
             if (sigmoidDeceleration.enabled) pitchDecelerationFactor else 1f
