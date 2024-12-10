@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerLas
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.choices
@@ -196,9 +197,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                     val stealingDelay = if (smartDelay && index + 1 < itemsToSteal.size) {
                         val dist = squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
                         val trueDelay = sqrt(dist.toDouble()) * multiplier
-                        (trueDelay.toInt()..trueDelay.toInt() + 20).random()
+                        randomDelay(trueDelay.toInt(), trueDelay.toInt() + 20)
                     } else {
-                        (minDelay..maxDelay).random()
+                        randomDelay(minDelay, maxDelay)
                     }
 
                     if (itemStolenDebug) debug("item: ${stack.displayName.lowercase()} | slot: $slot | delay: ${stealingDelay}ms")
@@ -231,9 +232,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                     delay(stealingDelay.toLong())
 
                     if (simulateShortStop && Math.random() > 0.75) {
-                        val minDelays = (150..300).random()
-                        val maxDelays = (minDelays..500).random()
-                        val randomDelay = (Math.random() * (maxDelays - minDelays) + minDelays).toLong()
+                        val minDelays = randomDelay(150, 300)
+                        val maxDelays = randomDelay(minDelays, 500)
+                        val randomDelay = randomDelay(minDelays, maxDelays).toLong()
 
                         delay(randomDelay)
                     }
