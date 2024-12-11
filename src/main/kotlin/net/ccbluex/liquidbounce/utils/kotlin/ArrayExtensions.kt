@@ -142,7 +142,7 @@ inline fun <T, reified R> Array<T>.mapArray(transform: (T) -> R): Array<R> = Arr
  * Directly map to a typed array
  */
 inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> = with(iterator()) {
-    return Array(size) {
+    Array(size) {
         transform(next())
     }
 }
@@ -156,4 +156,20 @@ inline fun <T, K : Comparable<K>> MutableList<T>.sortedInsert(item: T, crossinli
     }
 
     add(insertIndex, item)
+}
+
+/**
+ * Transform a String to another String with same length by given [transform]
+ */
+inline fun String.mapString(transform: (Char) -> Char) = String(CharArray(length) {
+    transform(this[it])
+})
+
+/**
+ * Transform a Collection to a String with by given [transform]
+ */
+inline fun <T> Collection<T>.mapString(transform: (T) -> Char) = with(iterator()) {
+    String(CharArray(size) {
+        transform(next())
+    })
 }
