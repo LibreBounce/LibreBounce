@@ -68,6 +68,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private val pauseOnHurtTime = tree(PauseOnHurtTime)
 
     private val targetMode by enumChoice("TargetMode", Mode.ATTACK)
+    private val lastAttackTimeToWork by int("LastAttackTimeToWork", 1000, 0..5000)
 
     enum class Mode(override val choiceName: String) : NamedChoice {
         ATTACK("Attack"),
@@ -85,6 +86,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private val packetQueue = LinkedHashSet<PacketSnapshot>()
     private val chronometer = Chronometer()
     private val trackingBufferChronometer = Chronometer()
+    private val attackChronometer = Chronometer()
 
     private var shouldPause = false
 
@@ -286,6 +288,8 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> { event ->
+        attackChronometer.reset() // Update the last attack time
+
         if (targetMode != Mode.ATTACK) return@handler
 
         val enemy = event.entity
@@ -368,7 +372,8 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
             player.age > 10 &&
             Math.random() * 100 < chance &&
             chronometer.hasElapsed() &&
-            !shouldPause()
+            !shouldPause() &&
+            !attackChronometer.hasElapsed(lastAttackTimeToWork.toLong())
     }
 
     fun isLagging() = running && packetQueue.isNotEmpty()
