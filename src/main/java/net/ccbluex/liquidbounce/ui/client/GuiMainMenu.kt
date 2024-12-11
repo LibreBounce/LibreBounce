@@ -60,7 +60,7 @@ class GuiMainMenu : GuiScreen() {
             drawRoundedBorderRect(width / 2f - 115,
                 height / 4f + 190,
                 width / 2f + 115,
-                height / 4f + 192 + (Fonts.font35.fontHeight * lines.size),
+                height / 4f + 200 + (Fonts.font35.fontHeight * lines.size),
                 2f,
                 Integer.MIN_VALUE,
                 Integer.MIN_VALUE,
@@ -82,7 +82,7 @@ class GuiMainMenu : GuiScreen() {
         val messageOfTheDay = messageOfTheDay?.message
         if (messageOfTheDay?.isNotBlank() == true) {
             val lines = messageOfTheDay.lines()
-            val motdHeight = height / 4f + 190
+            val motdHeight = height / 4f + 198
             val motdWidth = width / 2f - 115
             val motdHeightEnd = motdHeight + 2 + (Fonts.font35.fontHeight * lines.size)
 

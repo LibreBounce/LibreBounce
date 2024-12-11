@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -624,6 +625,17 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                         if (manipulateInventory && isFirstClick) serverOpenInventory = false
                     }
 
+                    val prevCooldown = mc.leftClickCounter
+
+                    // Is any GUI coming from our client?
+                    val isAnyClientGuiActive = mc.currentScreen?.javaClass?.`package`?.name?.contains(
+                        LiquidBounce.CLIENT_NAME, ignoreCase = true
+                    ) == true
+
+                    if (isAnyClientGuiActive) {
+                        mc.leftClickCounter = 0
+                    }
+
                     if (!shouldDelayClick(it.typeOfHit)) {
                         attackTickTimes += it to runTimeTicks
 
@@ -672,6 +684,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                             // serverOpenInventory's backing fields check for same values.
                             if (manipulateInventory) serverOpenInventory = true
                         }
+                    }
+
+                    if (isAnyClientGuiActive) {
+                        mc.leftClickCounter = prevCooldown
                     }
                 }
             }
