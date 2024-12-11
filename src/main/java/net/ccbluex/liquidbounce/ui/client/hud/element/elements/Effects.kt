@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.value.boolean
 import net.ccbluex.liquidbounce.value.font
 import net.minecraft.client.resources.I18n
@@ -36,6 +37,8 @@ class Effects(
     override fun drawElement(): Border {
         var y = 0F
         var width = 0F
+
+        val height = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT).toFloat()
 
         assumeNonVolatile = true
 
@@ -63,7 +66,7 @@ class Effects(
                 width = stringWidth
 
             font.drawString(name, -stringWidth, y, potion.liquidColor, shadow)
-            y -= font.FONT_HEIGHT
+            y -= height
         }
 
         assumeNonVolatile = false
@@ -74,6 +77,6 @@ class Effects(
         if (y == 0F)
             y = -10F
 
-        return Border(2F, font.FONT_HEIGHT.toFloat(), -width - 2F, y + font.FONT_HEIGHT - 2F)
+        return Border(2F, height, -width - 2F, y + height - 2F)
     }
 }
