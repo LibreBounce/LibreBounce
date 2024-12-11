@@ -20,9 +20,11 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawSolidBox
@@ -33,6 +35,7 @@ import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
 import net.ccbluex.liquidbounce.utils.client.handlePacket
+import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
@@ -57,15 +60,25 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val trackingBuffer by int("TrackingBuffer", 500, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
+
     private object PauseOnHurtTime : ToggleableConfigurable(this, "PauseOnHurtTime", false) {
         val hurtTime by int("HurtTime", 3, 0..10)
     }
 
     private val pauseOnHurtTime = tree(PauseOnHurtTime)
 
-    private val espMode = choices("EspMode", Wireframe, arrayOf(
-        Box, Model, Wireframe, None
-    )).apply {
+    private val targetMode by enumChoice("TargetMode", Mode.ATTACK)
+
+    enum class Mode(override val choiceName: String) : NamedChoice {
+        ATTACK("Attack"),
+        RANGE("Range")
+    }
+
+    private val espMode = choices(
+        "EspMode", Wireframe, arrayOf(
+            Box, Model, Wireframe, None
+        )
+    ).apply {
         doNotIncludeAlways()
     }
 
@@ -264,14 +277,39 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         }
     }
 
+    private fun getTargetEntity(): Entity? {
+        return when (targetMode) {
+            Mode.ATTACK -> null // the attack handler will handle this
+            Mode.RANGE -> world.findEnemy(range)
+        }
+    }
+
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> { event ->
-        val enemy = event.entity
+        if (targetMode != Mode.ATTACK) return@handler
 
+        val enemy = event.entity
+        processTarget(enemy)
+    }
+
+    @Suppress("unused")
+    private val rangeTargetHandler = tickHandler {
+        if (targetMode != Mode.RANGE) return@tickHandler
+
+        val enemy = getTargetEntity()
+        if (enemy == null) {
+            clear()
+            return@tickHandler
+        }
+
+        processTarget(enemy)
+    }
+
+    private fun processTarget(enemy: Entity) {
         shouldPause = enemy is LivingEntity && enemy.hurtTime >= pauseOnHurtTime.hurtTime
 
         if (!shouldBacktrack(enemy)) {
-            return@handler
+            return
         }
 
         // Reset on enemy change
