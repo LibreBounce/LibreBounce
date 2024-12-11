@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.CoroutineUtils
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.item.ItemStack
 import java.util.concurrent.CopyOnWriteArrayList
 

@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
-import net.ccbluex.liquidbounce.utils.misc.StringUtils
-import net.ccbluex.liquidbounce.value.*
+import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
+import net.ccbluex.liquidbounce.config.*
 import net.minecraft.block.Block
 import net.minecraft.item.Item
 

@@ -6,10 +6,10 @@
 package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetAnimals
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
 
 object TargetCommand : Command("target") {
     /**

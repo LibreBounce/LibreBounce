@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.material
-import net.ccbluex.liquidbounce.value.choices
+import net.ccbluex.liquidbounce.config.choices
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 

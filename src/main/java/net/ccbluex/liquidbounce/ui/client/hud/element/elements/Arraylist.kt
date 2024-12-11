@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
-import net.ccbluex.liquidbounce.value.*
+import net.ccbluex.liquidbounce.config.*
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import java.awt.Color
 

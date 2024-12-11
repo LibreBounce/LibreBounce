@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.config.float
 
 object FastBreak : Module("FastBreak", Category.WORLD, hideModule = false) {
 
