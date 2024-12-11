@@ -280,6 +280,7 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
         private val searchStart by ThreadLocal.withInitial(BlockPos::Mutable)
         private val searchEnd by ThreadLocal.withInitial(BlockPos::Mutable)
 
+        @Suppress("detekt:CognitiveComplexMethod")
         override fun getStateFor(pos: BlockPos, state: BlockState): BedState? {
             return if (state.isBed) {
                 val part = BedBlock.getBedPart(state)
