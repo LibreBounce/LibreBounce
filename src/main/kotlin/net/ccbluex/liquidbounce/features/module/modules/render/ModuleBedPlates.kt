@@ -280,8 +280,8 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
         private val searchStart by ThreadLocal.withInitial(BlockPos::Mutable)
         private val searchEnd by ThreadLocal.withInitial(BlockPos::Mutable)
 
-        override fun getStateFor(pos: BlockPos, state: BlockState): BedState? = when {
-            state.isBed -> {
+        override fun getStateFor(pos: BlockPos, state: BlockState): BedState? {
+            return if (state.isBed) {
                 val part = BedBlock.getBedPart(state)
                 // Only track the first part (head) of the bed
                 if (part == DoubleBlockProperties.Type.FIRST) {
@@ -289,9 +289,7 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
                 } else {
                     null
                 }
-            }
-
-            else -> {
+            } else {
                 // A non-bed block was updated, we need to update the bed blocks around it
                 val distance = maxLayers
 
