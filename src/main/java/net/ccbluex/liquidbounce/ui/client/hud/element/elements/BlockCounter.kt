@@ -141,11 +141,6 @@ class BlockCounter(x: Double = 520.0, y: Double = 245.0) : Element(x = x, y = y)
             GL11.glPopMatrix()
         }
 
-        return Border(
-            -1F,
-            -1F,
-            width + 1,
-            height + 1
-        )
+        return Border(-1F, -1F, width + 1, height + 1)
     }
 }
