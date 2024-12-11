@@ -19,6 +19,7 @@ import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
+import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import kotlin.math.roundToInt
 
@@ -224,6 +225,9 @@ val S18PacketEntityTeleport.realY
 val S18PacketEntityTeleport.realZ
     get() = z / 32.0
 
+val BlockBBEvent.pos
+    get() = BlockPos(x, y, z)
+
 var C03PacketPlayer.rotation
     get() = Rotation(yaw, pitch)
     set(value) {
@@ -238,6 +242,7 @@ var C03PacketPlayer.pos
         y = value.yCoord
         z = value.zCoord
     }
+
 
 fun schedulePacketProcess(packet: Packet<*>) {
     synchronized(PacketUtils.queuedPackets) {
