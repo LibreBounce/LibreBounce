@@ -130,7 +130,6 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
         private val outline = tree(Outline())
 
-
         override fun render(env: WorldRenderEnvironment, entity: Entity, partialTicks: Float) {
             val height = heightMode.activeChoice.getHeight(entity, partialTicks)
             val pos = entity.interpolateCurrentPosition(partialTicks) + Vec3d(0.0, height, 0.0)
@@ -168,7 +167,6 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
         private val glowHeightSetting by float("GlowHeight", 0.3f, -1f..1f)
 
         private val outline = tree(Outline())
-
 
         override fun render(env: WorldRenderEnvironment, entity: Entity, partialTicks: Float) {
             val height = heightMode.activeChoice.getHeight(entity, partialTicks)
@@ -250,8 +248,6 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     inner class HealthHeight(private val choiceConfigurable: ChoiceConfigurable<*>) : HeightMode("Health") {
         override val parent: ChoiceConfigurable<*>
             get() = choiceConfigurable
-
-
 
         override fun getHeight(entity: Entity, partialTicks: Float): Double {
             if(entity !is LivingEntity) return 0.0

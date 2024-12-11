@@ -64,7 +64,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
         val distance = enemy.boxedDistanceTo(player)
 
         if (clickScheduler.isClickOnNextTick()) {
-            if (distance < ModuleKillAura.range) {
+            if (distance < ModuleKillAura.extendedReach) {
                 ev.directionalInput = DirectionalInput.NONE
                 sideToGo = !sideToGo
             } else {

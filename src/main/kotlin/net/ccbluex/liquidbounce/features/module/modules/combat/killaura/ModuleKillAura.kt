@@ -31,10 +31,9 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing.dealWithFakeSwing
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFightBot
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.failedHits
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.hasFailedHit
@@ -45,6 +44,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
@@ -62,6 +62,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.AxeItem
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
+import org.oryxel.cube.util.MathUtil
 
 /**
  * KillAura module
@@ -119,6 +120,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     init {
         tree(KillAuraAutoBlock)
+        tree(KillAuraVelocityHit)
     }
 
     // Target rendering
@@ -250,7 +252,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Are we actually facing the [chosenEntity]
         val isFacingEnemy = facingEnemy(toEntity = chosenEntity, rotation = rotation,
-            range = range.toDouble(),
+            range = extendedReach.toDouble(),
             wallsRange = wallRange.toDouble())
 
         ModuleDebug.debugParameter(ModuleKillAura, "isFacingEnemy", isFacingEnemy)
@@ -325,7 +327,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      * Update enemy on target tracker
      */
     private fun updateEnemySelection() {
-        targetTracker.validateLock { it.shouldBeAttacked() && it.boxedDistanceTo(player) <= range }
+        targetTracker.validateLock { it.shouldBeAttacked() && it.boxedDistanceTo(player) <= extendedReach }
 
         // Update target tracker, since we want to access
         // the maximumDistance in the next step
@@ -334,7 +336,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         // Maximum range can be higher than the normal range, since we want to scan for enemies
         // which are in our [scanExtraRange] as well
         val maximumRange = if (targetTracker.maximumDistance > range) {
-            range + scanExtraRange
+            range + scanExtraRange.coerceAtLeast(extendedReach)
         } else {
             range
         }
@@ -462,19 +464,25 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     private fun checkIfReadyToAttack(choosenEntity: Entity): Boolean {
+
         val critical = when (criticalsMode) {
             CriticalsMode.IGNORE -> true
             CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState = true)
             CriticalsMode.ALWAYS -> ModuleCriticals.wouldDoCriticalHit()
         }
+
         val shielding = attackShielding || choosenEntity !is PlayerEntity || player.mainHandStack.item is AxeItem ||
             !choosenEntity.wouldBlockHit(player)
         val isInInventoryScreen =
             InventoryManager.isInventoryOpenServerSide || mc.currentScreen is GenericContainerScreen
         val missCooldown = considerMissCooldown && mc.attackCooldown > 0
 
-        return critical && shielding &&
-            !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && !missCooldown
+        var isReady = critical && shielding &&
+            !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && !missCooldown;
+
+        var canUseVelocityHit = KillAuraVelocityHit.enabled && KillAuraVelocityHit.running && KillAuraVelocityHit.isVelocityHitPossible
+
+        return isReady || (isReady && canUseVelocityHit)
     }
 
     /**
@@ -530,6 +538,14 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             KillAuraAutoBlock.startBlocking()
         }
     }
+
+    var extendedReach: Float = range
+        get() {
+            if (KillAuraVelocityHit.enabled && KillAuraVelocityHit.running && KillAuraVelocityHit.isVelocityHitPossible) {
+                return range + KillAuraVelocityHit.extensionRange
+            }
+            return range
+        }
 
     fun shouldBlockSprinting() = running && !player.isOnGround &&
         criticalsMode != CriticalsMode.IGNORE &&
