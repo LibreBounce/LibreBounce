@@ -101,6 +101,8 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     private val rotationMode by enumChoice("Rotate", RotationMode.NEVER)
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
     private val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
+    val breakDamage by float("BreakDamage", 1f, 0f..2f)
+    private val selectDelay by int("SelectDelay", 200, 0..400, "ms")
 
     private val targetRenderer = tree(
         PlacementRenderer(
@@ -230,7 +232,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
             startBreaking(slot, blockPos, direction)
         } else if (mode.activeChoice.shouldUpdate(blockPos, direction, slot)) {
             updateBreakingProgress(blockPos, state, slot)
-            if (progress >= 1f && !finished) {
+            if (progress >= breakDamage && !finished) {
                 mode.activeChoice.finish(blockPos, direction)
             }
         }
@@ -289,7 +291,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
         val isLeftClick = event.button == 0
         // without adding a little delay before being able to unselect / select again, selecting would be impossible
-        val hasTimePassed = chronometer.hasElapsed(200)
+        val hasTimePassed = chronometer.hasElapsed(selectDelay.toLong())
         val hitResult = mc.crosshairTarget
         if (!isLeftClick || !hasTimePassed || hitResult == null || hitResult !is BlockHitResult) {
             return@handler
@@ -448,7 +450,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         NEVER("Never", false, false, false);
 
         fun shouldRotate(): Boolean {
-            return !started && start || end && progress >= 1f || progress < 1f && started && between
+            return !started && start || end && progress >= breakDamage || progress < breakDamage && started && between
         }
 
     }
@@ -460,7 +462,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         NEVER("Never", false, false);
 
         fun shouldSwitch(): Boolean {
-            return between || end && progress >= 1f
+            return between || end && progress >= breakDamage
         }
 
         fun getBlockBreakingDelta(pos: BlockPos, state: BlockState, itemStack: ItemStack?): Float {

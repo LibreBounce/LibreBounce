@@ -280,6 +280,7 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
         private val searchStart by ThreadLocal.withInitial(BlockPos::Mutable)
         private val searchEnd by ThreadLocal.withInitial(BlockPos::Mutable)
 
+        @Suppress("detekt:CognitiveComplexMethod")
         override fun getStateFor(pos: BlockPos, state: BlockState): BedState? {
             return if (state.isBed) {
                 val part = BedBlock.getBedPart(state)
@@ -291,25 +292,34 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
                 }
             } else {
                 // A non-bed block was updated, we need to update the bed blocks around it
-                // Get a sub map of the sorted map
-                trackedBlockMap.subMap(
-                    searchStart.set(pos, -maxLayers, -maxLayers, -maxLayers), true,
-                    // Don't check beds above
-                    searchEnd.set(pos, maxLayers, 0, maxLayers), true,
-                ).keys.forEach {
+                val distance = maxLayers
+
+                // Get a sub map of the sorted map when there are many beds
+                val lookUpMap = if (trackedBlockMap.size > 32) {
+                    trackedBlockMap.subMap(
+                        searchStart.set(pos, -distance, -distance, -distance), true,
+                        // Don't check beds above
+                        searchEnd.set(pos, distance, 0, distance), true,
+                    )
+                } else {
+                    trackedBlockMap
+                }
+
+                lookUpMap.keys.forEach {
                     // Update if the block is close to a bed
-                    if (it.getManhattanDistance(pos) > maxLayers) {
+                    if (it.getManhattanDistance(pos) > distance) {
                         return@forEach
                     }
 
                     val trackedState = it.getState() ?: return@forEach
                     if (!trackedState.isBed) {
                         // The tracked block is not a bed anymore, remove it
-                        trackedBlockMap.remove(it)
+                        lookUpMap.remove(it)
                     } else {
-                        trackedBlockMap[it] = it.getBedPlates(trackedState)
+                        lookUpMap[it] = it.getBedPlates(trackedState)
                     }
                 }
+
                 null
             }
         }

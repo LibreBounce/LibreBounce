@@ -4,6 +4,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.randomUsername
 import org.ahocorasick.trie.Emit
 import org.ahocorasick.trie.Trie
+import java.nio.ByteBuffer
 import java.security.MessageDigest
 import kotlin.random.Random
 
@@ -19,8 +20,8 @@ private const val UPDATE_ON_PLAYER_REMOVAL = false
 class NameProtectMappings {
     private var usernameReplacement: Pair<String, String>? = null
 
-    private val friendMappings = HashMap<String, String>()
-    private val otherPlayerMappings = HashSet<String>()
+    private var friendMappings = emptyMap<String, String>()
+    private var otherPlayerMappings = emptySet<String>()
 
     private var replacementInstructions: ReplacementInstructions? = null
 
@@ -44,11 +45,7 @@ class NameProtectMappings {
         // Make sure we update when the user disables the player name replacement.
         val shouldUpdateOnPlayerRemoval = UPDATE_ON_PLAYER_REMOVAL || otherPlayers.isEmpty()
 
-        if (shouldUpdateOnPlayerRemoval && otherPlayers.size != this.otherPlayerMappings.size) {
-            return true
-        }
-
-        return false
+        return shouldUpdateOnPlayerRemoval && otherPlayers.size != this.otherPlayerMappings.size
     }
 
     fun update(
@@ -61,7 +58,7 @@ class NameProtectMappings {
             return
         }
 
-        val currentMapping = HashMap<String, MappingData>()
+        val currentMapping = HashMap<String, MappingData>(otherPlayers.size + friendMappings.size)
 
         otherPlayers.subList(0, 200.coerceAtMost(otherPlayers.size)).forEach { playerName ->
             // Prevent DoS attacks
@@ -73,15 +70,14 @@ class NameProtectMappings {
 
             currentMapping[playerName] = MappingData(randomUsername(16, rng), coloringInfo.otherPlayers)
         }
+
         friendMappings.forEach { (name, replacement) ->
             currentMapping[name] = MappingData(replacement, coloringInfo.friends)
         }
 
-        this.friendMappings.clear()
-        this.friendMappings.putAll(friendMappings)
+        this.friendMappings = friendMappings.toMap()
 
-        this.otherPlayerMappings.clear()
-        this.otherPlayerMappings.addAll(otherPlayers)
+        this.otherPlayerMappings = otherPlayers.toHashSet()
 
         this.usernameReplacement = username
 
@@ -98,38 +94,23 @@ class NameProtectMappings {
     fun findReplacements(text: String): List<Pair<Emit, MappingData>> {
         val currentInstructions = this.replacementInstructions ?: return emptyList()
 
-        val result = currentInstructions.matcher.parseText(text)
-            .mapTo(ArrayList()) { it to currentInstructions.replacements.get(it.keyword)!! }
-
-        result.sortBy { it.first.start }
-
-        return result
+        return currentInstructions.matcher.parseText(text)
+            .map { it to currentInstructions.replacements[it.keyword]!! }
+            .sortedBy { it.first.start }
     }
 
     /**
      * It is important for synchronization purposes that this is a class with immutable fields
      */
-    private class ReplacementInstructions(val matcher: Trie, val replacements: HashMap<String, MappingData>)
+    private class ReplacementInstructions(val matcher: Trie, val replacements: Map<String, MappingData>)
     class MappingData(val newName: String, val colorGetter: () -> Color4b)
     class ColoringInfo(val username: () -> Color4b, val friends: () -> Color4b, val otherPlayers: () -> Color4b)
 }
 
 private fun getEntropySourceFrom(playerName: String): Random {
-    val hash = MessageDigest.getInstance("MD5");
-
-    hash.update(playerName.toByteArray())
-
-    val buf = hash.digest()
-
-    val l: Long = ((buf[0].toLong() and 0xFF) shl 56) or
-        ((buf.get(1).toLong() and 0xFFL) shl 48) or
-        ((buf.get(2).toLong() and 0xFFL) shl 40) or
-        ((buf.get(3).toLong() and 0xFFL) shl 32) or
-        ((buf.get(4).toLong() and 0xFFL) shl 24) or
-        ((buf.get(5).toLong() and 0xFFL) shl 16) or
-        ((buf.get(6).toLong() and 0xFFL) shl 8) or
-        ((buf.get(7).toLong() and 0xFFL) shl 0)
-
+    val hash = MessageDigest.getInstance("MD5").digest(playerName.toByteArray())
+    // Parse the first 8 bytes to long value
+    val l = ByteBuffer.wrap(hash).long
     return Random(l)
 }
 

@@ -23,11 +23,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCustomAmbience;
-import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Fog;
-import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.effect.StatusEffects;
 import org.joml.Vector4f;
 import org.objectweb.asm.Opcodes;
@@ -95,11 +93,11 @@ public abstract class MixinBackgroundRenderer {
             value = "FIELD", opcode = Opcodes.PUTFIELD,
             target = "Lnet/minecraft/client/render/BackgroundRenderer$FogData;fogStart:F", remap = false))
     private static void injectLiquidsFog(BackgroundRenderer.FogData instance, float value, Operation<Void> original) {
-        
+
     }
 
     @Inject(method = "applyFog", at = @At("RETURN"))
     private static void injectFog(Camera camera, BackgroundRenderer.FogType fogType, Vector4f color, float viewDistance, boolean thickenFog, float tickDelta, CallbackInfoReturnable<Fog> cir) {
-        ModuleCustomAmbience.Fog.INSTANCE.modifyFog(camera, fogType, viewDistance, cir.getReturnValue());
+        ModuleCustomAmbience.Fog.INSTANCE.modifyFog(camera, viewDistance, cir.getReturnValue());
     }
 }
