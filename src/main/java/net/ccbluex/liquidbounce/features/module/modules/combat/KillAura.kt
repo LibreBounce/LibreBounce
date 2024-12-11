@@ -301,7 +301,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     )
 
     // Visuals
-    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Platform", subjective = true)
+    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle", subjective = true)
     private val fakeSharp by boolean("FakeSharp", true, subjective = true)
 
     // Circle options

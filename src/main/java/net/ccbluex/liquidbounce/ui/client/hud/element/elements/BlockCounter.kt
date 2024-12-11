@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.ccbluex.liquidbounce.value.*
 import org.lwjgl.opengl.GL11
 
+// TODO: Should it be removed? Text element does the same thing.
 @ElementInfo(name = "BlockCounter")
 class BlockCounter(x: Double = 520.0, y: Double = 245.0) : Element(x = x, y = y) {
 
