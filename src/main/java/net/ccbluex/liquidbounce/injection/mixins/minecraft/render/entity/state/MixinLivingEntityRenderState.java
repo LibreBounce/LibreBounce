@@ -1,12 +1,12 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render.entity.state;
 
 import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition;
-import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(EntityRenderState.class)
+@Mixin(LivingEntityRenderState.class)
 public class MixinLivingEntityRenderState implements EntityRenderStateAddition<LivingEntity> {
     @Unique
     LivingEntity entity;
