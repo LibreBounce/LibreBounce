@@ -27,10 +27,14 @@ import net.ccbluex.liquidbounce.event.events.TransferOrigin;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.OffThreadException;
+import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.handler.PacketSizeLogger;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.play.ClientTickEndC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,6 +48,9 @@ public abstract class MixinClientConnection {
     protected static <T extends PacketListener> void handlePacket(Packet<T> packet, PacketListener listener) {
     }
 
+    @Shadow
+    protected abstract void sendInternal(Packet<?> packet, @Nullable PacketCallbacks callbacks, boolean flush);
+
     /**
      * Handle sending packets
      *
@@ -53,6 +60,10 @@ public abstract class MixinClientConnection {
     @Inject(method = "send(Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void hookSendingPacket(Packet<?> packet, final CallbackInfo callbackInfo) {
         final PacketEvent event = new PacketEvent(TransferOrigin.SEND, packet, true);
+
+        if (packet instanceof PlayerMoveC2SPacket) {
+            this.sendInternal(new ClientTickEndC2SPacket(), null, true);
+        }
 
         EventManager.INSTANCE.callEvent(event);
 
