@@ -22,8 +22,10 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.config.types.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
+import net.ccbluex.liquidbounce.event.events.PacketEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
+import net.ccbluex.liquidbounce.event.events.TransferOrigin;
 import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.FakePlayer;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
@@ -32,9 +34,11 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -104,6 +108,9 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Shadow
     public abstract boolean isGliding();
 
+
+    @Shadow
+    public abstract boolean addStatusEffect(StatusEffectInstance effect);
 
     /**
      * Disable [StatusEffects.SLOW_FALLING] effect when [ModuleAntiLevitation] is enabled
@@ -313,28 +320,26 @@ public abstract class MixinLivingEntity extends MixinEntity {
      * Allows instances of {@link FakePlayer} to pop infinite totems and
      * bypass {@link net.minecraft.registry.tag.DamageTypeTags.BYPASSES_INVULNERABILITY}
      * damage sources.
-     *
-     * todo: fix this
      */
-//    @SuppressWarnings({"JavadocReference", "UnreachableCode"})
-//    @Inject(method = "tryUseTotem", at = @At(value = "HEAD"), cancellable = true)
-//    private void hookTryUseTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-//        if (LivingEntity.class.cast(this) instanceof FakePlayer) {
-//            addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 900, 1));
-//            addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 100, 1));
-//            addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 800, 0));
-//            setHealth(1.0F);
-//
-//            EntityStatusS2CPacket packet = new EntityStatusS2CPacket(LivingEntity.class.cast(this), (byte) 35);
-//            PacketEvent event = new PacketEvent(TransferOrigin.RECEIVE, packet, true);
-//            EventManager.INSTANCE.callEvent(event);
-//            if (!event.isCancelled()) {
-//                packet.apply(MinecraftClient.getInstance().getNetworkHandler());
-//            }
-//
-//            cir.setReturnValue(true);
-//        }
-//    }
+    @SuppressWarnings({"JavadocReference", "UnreachableCode"})
+    @Inject(method = "tryUseDeathProtector", at = @At(value = "HEAD"), cancellable = true)
+    private void hookTryUseDeathProtector(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+        if (LivingEntity.class.cast(this) instanceof FakePlayer) {
+            addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 900, 1));
+            addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 100, 1));
+            addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 800, 0));
+            setHealth(1.0F);
+
+            EntityStatusS2CPacket packet = new EntityStatusS2CPacket(LivingEntity.class.cast(this), (byte) 35);
+            PacketEvent event = new PacketEvent(TransferOrigin.RECEIVE, packet, true);
+            EventManager.INSTANCE.callEvent(event);
+            if (!event.isCancelled()) {
+                packet.apply(MinecraftClient.getInstance().getNetworkHandler());
+            }
+
+            cir.setReturnValue(true);
+        }
+    }
 
 //    /**
 //     * Allows instances of {@link FakePlayer} to get attacked.
