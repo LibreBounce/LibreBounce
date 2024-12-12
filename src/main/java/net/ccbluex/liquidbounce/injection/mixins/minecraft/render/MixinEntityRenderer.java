@@ -19,7 +19,11 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCombineMobs;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleMobOwners;
+import net.ccbluex.liquidbounce.features.module.modules.render.nametags.ModuleNametags;
+import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.Frustum;
@@ -61,11 +65,12 @@ public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRend
     @Inject(method = "render", at = @At("HEAD"))
     private void renderMobOwners(S state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         // todo: fix this, entity is not available here anymore
-//        var ownerName = ModuleMobOwners.INSTANCE.getOwnerInfoText(entity);
-//
-//        if (ownerName != null) {
-//            renderLabel(entity, ownerName, matrices, vertexConsumers, light);
-//        }
+        Entity entity = ((EntityRenderStateAddition<Entity>)state).liquid_bounce$getEntity();
+        var ownerName = ModuleMobOwners.INSTANCE.getOwnerInfoText(entity);
+
+        if (ownerName != null) {
+            renderLabel(entity, ownerName, matrices, vertexConsumers, light);
+        }
     }
 
     @Unique
@@ -96,13 +101,19 @@ public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRend
         matrices.pop();
     }
 
+    @ModifyReturnValue(method = "getAndUpdateRenderState", at = @At("RETURN"))
+    private S getAndUpdateRenderState(S original, Entity entity) {
+        ((EntityRenderStateAddition<Entity>) original).liquid_bounce$setEntity(entity);
+        return original;
+    }
+
     @Inject(method = "renderLabelIfPresent", at = @At("HEAD"), cancellable = true)
     private void disableDuplicateNametagsAndInjectMobOwners(S state, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         // Don't render nametags
-        // todo: fix this, entity is not available here anymore
-//        if (ModuleNametags.INSTANCE.getRunning() && ModuleNametags.shouldRenderNametag(entity)) {
-//            ci.cancel();
-//        }
+        Entity entity = ((EntityRenderStateAddition<Entity>)state).liquid_bounce$getEntity();
+        if (ModuleNametags.INSTANCE.getRunning() && ModuleNametags.shouldRenderNametag(entity)) {
+            ci.cancel();
+        }
     }
 
 }

@@ -92,6 +92,8 @@
     "minecraft.render.MixinWeatherRendering",
     "minecraft.render.MixinWorldRenderer",
     "minecraft.render.entity.feature.MixinDeadmau5FeatureRenderer",
+    "minecraft.render.entity.state.MixinEntityRenderState",
+    "minecraft.render.entity.state.MixinLivingEntityRenderState",
     "minecraft.text.MixinChatHudLine",
     "minecraft.text.MixinChatHudLineVisible",
     "minecraft.text.MixinTextColor",
