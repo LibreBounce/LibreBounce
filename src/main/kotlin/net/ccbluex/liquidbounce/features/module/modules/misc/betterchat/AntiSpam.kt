@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.text.Text
 import net.minecraft.text.TextVisitFactory
 import net.minecraft.util.Formatting
-import org.apache.commons.lang3.StringUtils
 
 object AntiSpam : ToggleableConfigurable(ModuleBetterChat, "AntiSpam", true) {
 
