@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils
 
 object AntiSpam : ToggleableConfigurable(ModuleBetterChat, "AntiSpam", true) {
 
-    private val regexFilters = mutableListOf<Regex>()
+    private var regexFilters = emptySet<Regex>()
 
     private val stack by boolean("StackMessages", false)
     private val filters by textArray("Filters", mutableListOf()).onChanged {
@@ -22,19 +22,16 @@ object AntiSpam : ToggleableConfigurable(ModuleBetterChat, "AntiSpam", true) {
     }
 
     private fun compileFilters() {
-        regexFilters.clear()
-        filters.forEach {
-            regexFilters.add(Regex(it))
-        }
+        regexFilters = filters.mapTo(HashSet(filters.size, 1.0F), ::Regex)
     }
 
     @Suppress("unused", "CAST_NEVER_SUCCEEDS" /* succeed with mixins */)
     val chatHandler = handler<ChatReceiveEvent> { event ->
         val string = TextVisitFactory.removeFormattingCodes(event.textData)
-        var content = StringUtils.substringAfter(string, ">") ?: string
-        content = content.trim()
 
         if (regexFilters.isNotEmpty()) {
+            val content = string.subSequence(string.indexOf('>') + 1, string.length).trim()
+
             val shouldBeRemoved = regexFilters.any {
                 it.matches(content)
             }
