@@ -64,7 +64,6 @@ public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRend
 
     @Inject(method = "render", at = @At("HEAD"))
     private void renderMobOwners(S state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-        // todo: fix this, entity is not available here anymore
         Entity entity = ((EntityRenderStateAddition<Entity>)state).liquid_bounce$getEntity();
         var ownerName = ModuleMobOwners.INSTANCE.getOwnerInfoText(entity);
 
