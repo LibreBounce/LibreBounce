@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
 import net.ccbluex.liquidbounce.utils.entity.*
@@ -73,6 +74,7 @@ class PointTracker(
         val pitchFactor by floatRange("PitchOffset", 0f..0f, 0.0f..1.0f)
         val dynamicYawFactor by float("DynamicYawFactor", 0f, 0f..10f, "x")
         val dynamicPitchFactor by float("DynamicPitchFactor", 0f, 0f..10f, "x")
+        val dynamicHurtTime by int("DynamicHurtTime", 10, 0..10)
         val chance by int("Chance", 100, 0..100, "%")
         val speed by floatRange("Speed", 0.1f..0.2f, 0.01f..1f)
         val tolerance by float("Tolerance", 0.1f, 0.01f..0.1f)
@@ -91,16 +93,18 @@ class PointTracker(
                 abs(vec1.z - vec2.z) < tolerance
         }
 
-        fun updateGaussianOffset() {
+        fun updateGaussianOffset(entity: Any?) {
+            val dynamicCheck = entity is LivingEntity && entity.hurtTime >= dynamicHurtTime
+
             val yawFactor =
-                if (dynamicYawFactor > 0f) {
+                if (dynamicCheck && dynamicYawFactor > 0f) {
                     (yawFactor.random() + player.sqrtSpeed * dynamicYawFactor)
                 } else {
                     yawFactor.random()
                 }
 
             val pitchFactor =
-                if (dynamicPitchFactor > 0f) {
+                if (dynamicCheck && dynamicPitchFactor > 0f) {
                     (pitchFactor.random() + player.sqrtSpeed * dynamicPitchFactor)
                 } else {
                     pitchFactor.random()
@@ -268,7 +272,7 @@ class PointTracker(
         }
 
         val offset = if (gaussian.enabled && gaussian.factorCheck()) {
-            gaussian.updateGaussianOffset()
+            gaussian.updateGaussianOffset(entity)
             gaussian.currentOffset
         } else {
             Vec3d.ZERO

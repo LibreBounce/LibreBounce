@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.kotlin.mapString
 import org.apache.commons.lang3.RandomStringUtils
 import kotlin.random.Random
 
@@ -61,9 +62,7 @@ object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = tr
                 format(chosenMessage)
             } else {
                 "[${RandomStringUtils.randomAlphabetic(Random.nextInt(4) + 1)}] " +
-                    chosenMessage.toCharArray().joinToString("") {
-                        if (Random.nextBoolean()) it.uppercase() else it.lowercase()
-                    }
+                    MessageConverterMode.RANDOM_CASE_CONVERTER.convert(chosenMessage)
             })
 
             if (text.length > 256) {
@@ -72,7 +71,7 @@ object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = tr
             }
 
             // Check if message text is command
-            if (text.startsWith("/")) {
+            if (text.startsWith('/')) {
                 network.sendCommand(text.substring(1))
             } else {
                 network.sendChatMessage(text)
@@ -118,7 +117,7 @@ object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = tr
             text
         }),
         LEET_CONVERTER("Leet", { text ->
-            text.map { char ->
+            text.mapString { char ->
                 when (char) {
                     'o' -> '0'
                     'l' -> '1'
@@ -128,18 +127,23 @@ object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = tr
                     's' -> 'Z'
                     else -> char
                 }
-            }.joinToString("")
+            }
         }),
         RANDOM_CASE_CONVERTER("Random Case", { text ->
             // Random case the whole string
-            text.map { char ->
-                if (Random.nextBoolean()) char.uppercase() else char.lowercase()
-            }.joinToString("")
+            text.mapString { char ->
+                if (Random.nextBoolean()) char.uppercaseChar() else char.lowercaseChar()
+            }
         }),
         RANDOM_SPACE_CONVERTER("Random Space", { text ->
-            text.map { char ->
-                if (Random.nextBoolean()) "$char " else char.toString()
-            }.joinToString("")
+            buildString(text.length * 2) {
+                for (char in text) {
+                    append(char)
+                    if (Random.nextBoolean()) {
+                        append(' ')
+                    }
+                }
+            }
         }),
     }
 

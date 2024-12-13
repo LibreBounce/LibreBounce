@@ -20,6 +20,7 @@
  */
 package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
 
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.block.BlockState
 import net.minecraft.block.MapColor
@@ -123,15 +124,19 @@ class MinimapHeightmapManager {
 
         val pos = BlockPos.Mutable(x, maxHeight, z)
 
-        while (pos.y > chunk.bottomY) {
-            val state = chunk.getBlockState(pos)
-            if (isSurface(pos, state)) {
-                return pos.y
+        try {
+            while (pos.y > chunk.bottomY) {
+                val state = chunk.getBlockState(pos)
+                if (isSurface(pos, state)) {
+                    return pos.y
+                }
+                pos.y--
             }
-            pos.y--
+        } catch (e: Exception) {
+            logger.warn("Exception in height calculation", e)
         }
 
-        return chunk.bottomY
+        return pos.y
     }
 
     private fun isSurface(
