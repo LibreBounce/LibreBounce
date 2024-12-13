@@ -44,6 +44,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
+import kotlin.math.min
 
 // GET /api/v1/client/player
 @Suppress("UNUSED_PARAMETER")
@@ -93,7 +94,7 @@ data class PlayerData(
             player.maxHealth.fixNaN(),
             player.absorptionAmount.fixNaN(),
             player.armor,
-            player.hungerManager.foodLevel,
+            min(player.hungerManager.foodLevel, 20),
             player.air,
             player.maxAir,
             player.experienceLevel,

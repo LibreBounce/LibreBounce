@@ -19,7 +19,10 @@
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.minecraft.client.network.ClientPlayerEntity
@@ -134,7 +137,12 @@ fun ClientPlayerInteractionManager.interactItem(
 fun handlePacket(packet: Packet<*>) =
     runCatching { (packet as Packet<ClientPlayPacketListener>).apply(mc.networkHandler) }
 
-fun sendPacketSilently(packet: Packet<*>) = mc.networkHandler?.connection?.send(packet, null)
+fun sendPacketSilently(packet: Packet<*>) {
+    // hack fix for the packet handler not being called on Rotation Manager for tracking
+    val packetEvent = PacketEvent(TransferOrigin.SEND, packet, false)
+    RotationManager.packetHandler.handler(packetEvent)
+    mc.networkHandler?.connection?.send(packetEvent.packet, null)
+}
 
 enum class MovePacketType(override val choiceName: String, val generatePacket: () -> PlayerMoveC2SPacket)
     : NamedChoice {

@@ -41,27 +41,32 @@ object EventPriorityConvention {
     /**
      * The event should be called first.
      */
-    const val FIRST_PRIORITY: Int = 1000
+    const val FIRST_PRIORITY: Short = 1000
 
     /**
      * At the stage of modeling what the player is actually going to do after other events added their suggestions
      */
-    const val MODEL_STATE: Int = -10
+    const val MODEL_STATE: Short = -10
 
     /**
      * Should be the one of the last functionalities that run, because the player safety depends on it.
      * Can be objected though by handlers with [OBJECTION_AGAINST_EVERYTHING] priority
      */
-    const val SAFETY_FEATURE: Int = -50
+    const val SAFETY_FEATURE: Short = -50
 
     /**
      * Used when the event handler should be able to object anything that happened previously
      */
-    const val OBJECTION_AGAINST_EVERYTHING: Int = -100
+    const val OBJECTION_AGAINST_EVERYTHING: Short = -100
+
+    /**
+     * Used when the event handler should be able to object anything that happened previously
+     */
+    const val FINAL_DECISION: Short = -500
 
     /**
      * The event should be called last. It should not only be used for events that want to read the final state of the
      * event
      */
-    const val READ_FINAL_STATE: Int = -1000
+    const val READ_FINAL_STATE: Short = -1000
 }

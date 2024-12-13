@@ -153,7 +153,6 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
         }
 
         val targetBlockPos = currentTargetBlock ?: return@tickHandler
-        val targetState = targetBlockPos.getState() ?: return@tickHandler
         val currentPlayerRotation = RotationManager.serverRotation
 
         // Trace a ray from the player to the target block position
@@ -161,7 +160,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
             interactionRange.toDouble(),
             currentPlayerRotation,
             targetBlockPos,
-            targetState
+            targetBlockPos.getState() ?: return@tickHandler
         )
 
         // Verify if the block is hit and is the correct target
@@ -192,7 +191,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
                 }
             } else {
                 interactedBlocksSet.add(targetBlockPos)
-                targetBlockPos.recordAnotherChestPart(targetState)
+                targetBlockPos.recordAnotherChestPart(targetBlockPos.getState())
                 currentTargetBlock = null
                 wasInteractionSuccessful = true
 
@@ -203,7 +202,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
             // Update interacted block set and reset target if successful or exceeded retries
             if (wasInteractionSuccessful || interactionAttempts >= AwaitContainerSettings.maxInteractionRetries) {
                 interactedBlocksSet.add(targetBlockPos)
-                targetBlockPos.recordAnotherChestPart(targetState)
+                targetBlockPos.recordAnotherChestPart(targetBlockPos.getState())
                 currentTargetBlock = null
             } else {
                 interactionAttempts++
@@ -211,8 +210,8 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
         }
     }
 
-    private fun BlockPos.recordAnotherChestPart(state: BlockState) {
-        if (state.block !is ChestBlock) {
+    private fun BlockPos.recordAnotherChestPart(state: BlockState?) {
+        if (state?.block !is ChestBlock) {
             return
         }
 
