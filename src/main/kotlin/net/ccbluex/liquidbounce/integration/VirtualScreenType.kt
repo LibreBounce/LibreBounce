@@ -22,8 +22,11 @@
 package net.ccbluex.liquidbounce.integration
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.openVfpProtocolSelection
+import net.ccbluex.liquidbounce.utils.client.usesFlashback
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.client.gui.screen.Screen
@@ -37,6 +40,7 @@ import net.minecraft.client.gui.screen.option.OptionsScreen
 import net.minecraft.client.gui.screen.world.CreateWorldScreen
 import net.minecraft.client.gui.screen.world.SelectWorldScreen
 import net.minecraft.client.realms.gui.screen.RealmsMainScreen
+import java.nio.file.Path
 
 /**
  * Checks for Lunar client screens
@@ -120,6 +124,24 @@ enum class VirtualScreenType(
     VIAFABRICPLUS_PROTOCOL_SELECTION("viafabricplus_protocol_selection",
         recognizer = { it::class.java.name == "de.florianmichael.viafabricplus.screen.base.ProtocolSelectionScreen" },
         open = { openVfpProtocolSelection() }
+    ),
+
+    FLASHBACK_RECORDS("flashback_records",
+        open = {
+            try {
+                if (!usesFlashback) {
+                    LiquidBounce.logger.error("Flashback is not loaded")
+                } else {
+                    val clazz = Class.forName("com.moulberry.flashback.screen.select_replay.SelectReplayScreen")
+                    val instance = clazz.getDeclaredConstructor(Screen::class.java, Path::class.java)
+                        .newInstance(IntegrationListener.parent, FabricLoader.getInstance().configDir.resolve("flashback").resolve("replays"))
+
+                    mc.setScreen(instance as Screen)
+                }
+            } catch (throwable: Throwable) {
+                LiquidBounce.logger.error("Failed to open Flashback screen", throwable)
+            }
+        }
     ),
 
     BROWSER("browser",
