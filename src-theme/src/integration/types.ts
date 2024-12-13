@@ -364,6 +364,7 @@ export interface ClientInfo {
     gameDir: string;
     inGame: boolean;
     viaFabricPlus: boolean;
+    flashback: boolean;
     hasProtocolHack: boolean;
 }
 

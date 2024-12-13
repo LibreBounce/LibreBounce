@@ -32,6 +32,11 @@ val usesViaFabricPlus = runCatching {
     true
 }.getOrDefault(false)
 
+val usesFlashback = runCatching {
+    Class.forName("com.moulberry.flashback.Flashback")
+    true
+}.getOrDefault(false)
+
 val hasProtocolTranslator = runCatching {
     Class.forName("de.florianmichael.viafabricplus.protocoltranslator.ProtocolTranslator")
     true

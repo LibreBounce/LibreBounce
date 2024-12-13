@@ -7,6 +7,7 @@
     import {
         browse,
         exitClient,
+        getClientInfo,
         getClientUpdate,
         openScreen,
         toggleBackgroundShaderEnabled
@@ -15,11 +16,16 @@
     import {fly} from "svelte/transition";
     import {onMount} from "svelte";
     import {notification} from "../common/header/notification_store";
+    import type {ClientInfo} from "../../../integration/types";
+
+    let clientInfo: ClientInfo | null = null;
 
     let regularButtonsShown = true;
     let clientButtonsShown = false;
 
-    onMount(() => {
+    onMount(async () => {
+        clientInfo = await getClientInfo();
+
         setTimeout(async () => {
             const update = await getClientUpdate();
 
@@ -77,6 +83,10 @@
                 <IconTextButton icon="icon-exit.svg" title="Exit" on:click={exitClient}/>
                 <IconTextButton icon="icon-change-background.svg" title="Toggle Shader"
                                 on:click={toggleBackgroundShaderEnabled}/>
+                {#if clientInfo && clientInfo.flashback}
+                    <IconTextButton icon="icon-camera.svg" title="Flashback records"
+                                    on:click={() => openScreen("flashback_records")}/>
+                {/if}
             </ButtonContainer>
         </div>
 

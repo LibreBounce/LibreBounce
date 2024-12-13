@@ -23,10 +23,7 @@ import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.ClientUpdate
-import net.ccbluex.liquidbounce.utils.client.hasProtocolTranslator
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk
@@ -46,6 +43,7 @@ fun getClientInfo(requestObject: RequestObject) = httpOk(JsonObject().apply {
     addProperty("gameDir", mc.runDirectory.path)
     addProperty("inGame", inGame)
     addProperty("viaFabricPlus", usesViaFabricPlus)
+    addProperty("flashback", usesFlashback)
     addProperty("hasProtocolHack", hasProtocolTranslator)
 })
 

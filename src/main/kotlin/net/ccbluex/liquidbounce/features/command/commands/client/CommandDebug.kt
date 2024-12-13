@@ -36,6 +36,7 @@ import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.usesFlashback
 import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.io.HttpClient
@@ -94,6 +95,7 @@ object CommandDebug : CommandFactory {
             addProperty("branch", LiquidBounce.clientBranch)
             addProperty("development", LiquidBounce.IN_DEVELOPMENT)
             addProperty("usesViaFabricPlus", usesViaFabricPlus)
+            addProperty("flashback", usesFlashback)
         })
 
         add("minecraft", JsonObject().apply {
