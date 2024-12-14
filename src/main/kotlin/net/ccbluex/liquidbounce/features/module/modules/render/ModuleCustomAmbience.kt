@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.render.MixinBackgroundRenderer
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.FloatColor
 import net.ccbluex.liquidbounce.utils.client.copy
 import net.minecraft.block.enums.CameraSubmersionType
 import net.minecraft.client.render.Camera
@@ -79,10 +80,12 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
 
             val color = color
             newFog.copy(
-                red = color.r / 255f,
-                green = color.g / 255f,
-                blue = color.b / 255f,
-                alpha = color.a / 255f
+                color = FloatColor(
+                    color.r / 255f,
+                    color.g / 255f,
+                    color.b / 255f,
+                    color.a / 255f
+                )
             )
         }
 
