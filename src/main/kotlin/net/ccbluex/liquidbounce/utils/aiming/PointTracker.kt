@@ -100,6 +100,7 @@ class PointTracker(
                 abs(vec1.z - vec2.z) < tolerance
         }
 
+        @Suppress("CognitiveComplexMethod")
         fun updateGaussianOffset(entity: Any?) {
             val dynamicCheck = dynamic.enabled && entity is LivingEntity && entity.hurtTime >= dynamic.hurtTime
 
