@@ -5,17 +5,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.config.IntegerValue
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.network.play.client.C01PacketChatMessage
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 object AtAllProvider :
     Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
@@ -32,73 +33,66 @@ object AtAllProvider :
     }
 
     private val retry by boolean("Retry", false)
-    private val sendQueue = LinkedBlockingQueue<String>()
-    private val retryQueue = mutableListOf<String>()
-    private val msTimer = MSTimer()
-    private var delay = randomDelay(minDelay, maxDelay)
+    private val sendQueue = ArrayDeque<String>()
+    private val retryQueue = ArrayDeque<String>()
+
+    private val lock = ReentrantLock()
 
     override fun onDisable() {
-        synchronized(sendQueue) {
+        lock.withLock {
             sendQueue.clear()
-        }
-        synchronized(retryQueue) {
             retryQueue.clear()
         }
 
         super.onDisable()
     }
 
-    val onUpdate = handler<UpdateEvent> {
-        if (!msTimer.hasTimePassed(delay))
-            return@handler
-
-        try {
-            synchronized(sendQueue) {
-                if (sendQueue.isEmpty()) {
-                    if (!retry || retryQueue.isEmpty())
-                        return@handler
-                    else
-                        sendQueue += retryQueue
-                }
-
-                mc.thePlayer.sendChatMessage(sendQueue.take())
-                msTimer.reset()
-
-                delay = randomDelay(minDelay, maxDelay)
+    val onUpdate = loopHandler {
+        lock.withLock {
+            if (sendQueue.isEmpty()) {
+                if (!retry || retryQueue.isEmpty())
+                    return@loopHandler
+                else
+                    sendQueue += retryQueue
             }
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
+
+            mc.thePlayer.sendChatMessage(sendQueue.removeFirst())
         }
+
+        delay(randomDelay(minDelay, maxDelay).toLong())
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet is C01PacketChatMessage) {
-            val message = event.packet.message
+        if (event.packet !is C01PacketChatMessage)
+            return@handler
 
-            if ("@a" in message) {
-                synchronized(sendQueue) {
-                    for (playerInfo in mc.netHandler.playerInfoMap) {
-                        val playerName = playerInfo?.gameProfile?.name
+        val message = event.packet.message
 
-                        if (playerName == mc.thePlayer.name)
-                            continue
+        if ("@a" !in message)
+            return@handler
 
-                        // Replace out illegal characters
-                        val filteredName = playerName?.replace("[^a-zA-Z0-9_]", "")?.let {
-                            message.replace("@a", it)
-                        }
+        lock.withLock {
+            val selfName = mc.thePlayer.name
+            for (playerInfo in mc.netHandler.playerInfoMap) {
+                val playerName = playerInfo?.gameProfile?.name
 
-                        sendQueue += filteredName
-                    }
-                    if (retry) {
-                        synchronized(retryQueue) {
-                            retryQueue.clear()
-                            retryQueue += sendQueue
-                        }
-                    }
-                }
-                event.cancelEvent()
+                if (playerName == selfName)
+                    continue
+
+                // Replace out illegal characters
+                val filteredName = playerName?.replace("[^a-zA-Z0-9_]", "")?.let {
+                    message.replace("@a", it)
+                } ?: continue
+
+                sendQueue += filteredName
+            }
+
+            if (retry) {
+                retryQueue.clear()
+                retryQueue += sendQueue
             }
         }
+
+        event.cancelEvent()
     }
 }
