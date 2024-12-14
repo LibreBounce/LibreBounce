@@ -153,12 +153,24 @@ enum class MovePacketType(override val choiceName: String, val generatePacket: (
         PlayerMoveC2SPacket.OnGroundOnly(player.isOnGround, player.horizontalCollision)
     }),
     POSITION_AND_ON_GROUND("PositionAndOnGround", {
-        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, player.isOnGround, player.horizontalCollision)
+        PlayerMoveC2SPacket.PositionAndOnGround(
+            player.x, player.y,
+            player.z, player.isOnGround,
+            player.horizontalCollision
+        )
     }),
     LOOK_AND_ON_GROUND("LookAndOnGround", {
-        PlayerMoveC2SPacket.LookAndOnGround(player.yaw, player.pitch, player.isOnGround, player.horizontalCollision)
+        PlayerMoveC2SPacket.LookAndOnGround(
+            player.yaw, player.pitch,
+            player.isOnGround,
+            player.horizontalCollision
+        )
     }),
     FULL("Full", {
-        PlayerMoveC2SPacket.Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround, player.horizontalCollision)
+        PlayerMoveC2SPacket.Full(
+            player.x, player.y, player.z,
+            player.yaw, player.pitch,
+            player.isOnGround, player.horizontalCollision
+        )
     });
 }
