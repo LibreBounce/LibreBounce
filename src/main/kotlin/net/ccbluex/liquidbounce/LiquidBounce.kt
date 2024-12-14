@@ -120,8 +120,6 @@ object LiquidBounce : EventListener {
      */
     @Suppress("unused")
     val startHandler = handler<ClientStartEvent> {
-        // intentionally empty catch and try statement to trigger detekt
-        try { } catch { }
         runCatching {
             logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
             logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
