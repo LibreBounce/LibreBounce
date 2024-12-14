@@ -5,9 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.tools
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import net.ccbluex.liquidbounce.ui.font.Fonts
@@ -23,15 +21,11 @@ import java.io.FileWriter
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.swing.JOptionPane
-import kotlin.concurrent.read
-import kotlin.concurrent.write
 
 class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
 
     private val ports = LinkedHashSet<Int>()
-    private val portsLock = ReentrantReadWriteLock()
 
     private lateinit var hostField: GuiTextField
     private lateinit var minPortField: GuiTextField
@@ -97,12 +91,10 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
 
         Fonts.font40.drawString("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
 
-        portsLock.read {
-            var yOffset = 12
-            for (port in ports) {
-                Fonts.minecraftFont.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
-                yOffset += Fonts.minecraftFont.FONT_HEIGHT
-            }
+        var yOffset = 12
+        for (port in ports) {
+            Fonts.minecraftFont.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
+            yOffset += Fonts.minecraftFont.FONT_HEIGHT
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
@@ -157,7 +149,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
                                     socket.connect(InetSocketAddress(host, port), 500)
                                 }
 
-                                portsLock.write {
+                                withContext(Dispatchers.Main) {
                                     ports.add(port)
                                 }
                             } catch (ignored: Exception) {
