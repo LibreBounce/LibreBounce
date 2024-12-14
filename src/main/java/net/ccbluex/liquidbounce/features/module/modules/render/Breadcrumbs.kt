@@ -112,4 +112,4 @@ object Breadcrumbs : Module("Breadcrumbs", Category.RENDER, hideModule = false) 
     }
 }
 
-data class PositionData(val array: DoubleArray, val time: Long)
+private class PositionData(val array: DoubleArray, val time: Long)

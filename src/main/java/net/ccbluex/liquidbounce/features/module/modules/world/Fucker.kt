@@ -109,9 +109,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
         val packet = event.packet
 
         if (packet is S08PacketPlayerPosLook) {
-            val pos = BlockPos(packet.x, packet.y, packet.z)
-
-            spawnLocation = Vec3(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
+            spawnLocation = Vec3(packet.x, packet.y, packet.z)
         }
     }
 
