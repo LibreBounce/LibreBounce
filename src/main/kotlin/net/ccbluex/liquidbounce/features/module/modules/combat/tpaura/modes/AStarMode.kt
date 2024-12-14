@@ -47,7 +47,6 @@ object AStarMode : TpAuraChoice("AStar") {
 
     private val stickAt by int("Stick", 5, 1..10, "ticks")
 
-    @Volatile
     private var pathCache: PathCache? = null
 
     @Suppress("unused")
@@ -69,7 +68,7 @@ object AStarMode : TpAuraChoice("AStar") {
     private val pathFinder = tickHandler {
         waitTicks(1)
 
-        withContext(Dispatchers.Default) {
+        pathCache = waitFor(Dispatchers.Default) {
             val playerPosition = player.pos
 
             val maximumDistanceSq = maximumDistance.sq()
@@ -78,18 +77,16 @@ object AStarMode : TpAuraChoice("AStar") {
                 it.squaredDistanceTo(playerPosition) <= maximumDistanceSq
             }.sortedBy {
                 it.squaredBoxedDistanceTo(playerPosition)
-            }.forEach { enemy ->
+            }.firstNotNullOfOrNull { enemy ->
                 val path = findPath(playerPosition.toVec3i(), enemy.blockVecPosition, maximumCost)
 
                 // Skip if the path is empty
-                if (path.isEmpty()) {
-                    return@forEach
+                if (path.isNotEmpty()) {
+                    // Stop searching when the pathCache is ready
+                    PathCache(enemy, path)
+                } else {
+                    null
                 }
-
-                pathCache = PathCache(enemy, path)
-
-                // Stop searching when the pathCache is ready
-                return@withContext
             }
         }
     }
