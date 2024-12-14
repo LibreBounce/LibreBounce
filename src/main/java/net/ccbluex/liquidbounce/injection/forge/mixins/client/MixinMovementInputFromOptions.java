@@ -38,6 +38,6 @@ public class MixinMovementInputFromOptions extends MixinMovementInput {
 
     @Inject(method = "updatePlayerMoveState", at = @At(value = "FIELD", target = "Lnet/minecraft/util/MovementInputFromOptions;sneak:Z", ordinal = 1))
     private void injectMovementInputEvent(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new MovementInputEvent((MovementInput) (Object) this));
+        EventManager.INSTANCE.call(new MovementInputEvent((MovementInput) (Object) this));
     }
 }

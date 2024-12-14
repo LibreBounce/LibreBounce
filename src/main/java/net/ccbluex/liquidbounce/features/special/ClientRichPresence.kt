@@ -112,8 +112,10 @@ object ClientRichPresence : MinecraftInstance() {
                 // Set server info
                 if (showRPCServerIP) {
                     setDetails(customRPCText.ifEmpty {
-                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" 
-                        else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
+                        "Server: ${
+                            if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer"
+                            else ServerUtils.hideSensitiveInformation(serverData.serverIP)
+                        }"
                     })
                 }
 

@@ -5,14 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 import net.minecraft.network.play.server.S2BPacketChangeGameState
 
@@ -32,8 +32,7 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false, hid
         i = 0
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = loopHandler {
         when (timeMode.lowercase()) {
             "normal" -> {
                 i += changeWorldTimeSpeed
@@ -66,8 +65,7 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false, hid
         }
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (timeMode != "None" && packet is S03PacketTimeUpdate)

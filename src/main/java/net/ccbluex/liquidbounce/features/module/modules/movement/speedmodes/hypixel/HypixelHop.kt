@@ -6,9 +6,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.hypixel
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object HypixelHop : SpeedMode("HypixelHop") {
     override fun onStrafe() {

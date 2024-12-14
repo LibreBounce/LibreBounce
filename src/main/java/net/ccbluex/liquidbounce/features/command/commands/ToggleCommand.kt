@@ -50,9 +50,10 @@ object ToggleCommand : Command("toggle", "t") {
 
         return when (args.size) {
             1 -> moduleManager.modules
-                    .map { it.name }
-                    .filter { it.startsWith(moduleName, true) }
-                    .toList()
+                .map { it.name }
+                .filter { it.startsWith(moduleName, true) }
+                .toList()
+
             else -> emptyList()
         }
     }

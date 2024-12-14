@@ -20,5 +20,4 @@ open class SpeedMode(val modeName: String) : MinecraftInstance() {
     open fun onPacket(event: PacketEvent) {}
     open fun onEnable() {}
     open fun onDisable() {}
-
 }

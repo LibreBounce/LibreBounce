@@ -6,9 +6,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.*
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
@@ -77,8 +77,7 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
     var renderNameTags = true
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
+    val onRender3D = handler<Render3DEvent> {
         val mvMatrix = WorldToScreen.getMatrix(GL_MODELVIEW_MATRIX)
         val projectionMatrix = WorldToScreen.getMatrix(GL_PROJECTION_MATRIX)
         val real2d = mode == "Real2D"
@@ -180,10 +179,9 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
         }
     }
 
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
+    val onRender2D = handler<Render2DEvent> { event ->
         if (mc.theWorld == null || mode != "Glow")
-            return
+            return@handler
 
         renderNameTags = false
 

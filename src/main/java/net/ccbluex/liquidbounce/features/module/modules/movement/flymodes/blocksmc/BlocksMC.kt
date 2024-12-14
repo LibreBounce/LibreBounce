@@ -5,8 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.blocksmc
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.boostSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.debugFly
@@ -16,11 +17,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnLandi
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnNoMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.world.World
@@ -41,7 +42,7 @@ import net.minecraft.world.World
  *
  * @author EclipsesDev
  */
-object BlocksMC : FlyMode("BlocksMC") {
+object BlocksMC : FlyMode("BlocksMC"), Listenable {
 
     private var isFlying = false
     private var isNotUnder = false
@@ -95,8 +96,7 @@ object BlocksMC : FlyMode("BlocksMC") {
         jumped = false
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent> {
         Fly.state = false
     }
 

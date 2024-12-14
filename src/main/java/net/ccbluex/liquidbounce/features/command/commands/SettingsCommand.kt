@@ -5,17 +5,20 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.ClientApi
 import net.ccbluex.liquidbounce.api.Status
 import net.ccbluex.liquidbounce.api.autoSettingsList
 import net.ccbluex.liquidbounce.api.loadSettings
+import net.ccbluex.liquidbounce.config.SettingsUtils
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.config.SettingsUtils
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import java.awt.Toolkit
@@ -131,6 +134,7 @@ object SettingsCommand : Command("autosettings", "autosetting", "settings", "set
                         val stringSelection = StringSelection(response.token)
                         Toolkit.getDefaultToolkit().systemClipboard.setContents(stringSelection, stringSelection)
                     }
+
                     Status.ERROR -> chat("§c${response.message}")
                 }
             } catch (e: Exception) {
@@ -169,12 +173,15 @@ object SettingsCommand : Command("autosettings", "autosetting", "settings", "set
                         return autoSettingsList?.filter { it.settingId.startsWith(args[1], true) }?.map { it.settingId }
                             ?: emptyList()
                     }
+
                     "upload" -> {
                         return listOf("all", "values", "binds", "states").filter { it.startsWith(args[1], true) }
                     }
+
                     else -> emptyList()
                 }
             }
+
             else -> emptyList()
         }
     }

@@ -108,7 +108,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
                     val script = scripts[scriptIndex]
 
-                     scriptManager.deleteScript(script)
+                    scriptManager.deleteScript(script)
 
                     loadConfigs(clickGuiConfig, hudConfig)
 
@@ -159,7 +159,15 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
         if (scriptManager.scripts.isNotEmpty()) {
             chat("§c§lScripts")
-            scriptManager.scripts.forEachIndexed { index, script -> chat("$index: §a§l${script.scriptName} §a§lv${script.scriptVersion} §3by §a§l${script.scriptAuthors.joinToString(", ")}") }
+            scriptManager.scripts.forEachIndexed { index, script ->
+                chat(
+                    "$index: §a§l${script.scriptName} §a§lv${script.scriptVersion} §3by §a§l${
+                        script.scriptAuthors.joinToString(
+                            ", "
+                        )
+                    }"
+                )
+            }
         }
 
         chatSyntax("$usedAlias <import/delete/reload/folder>")
@@ -171,6 +179,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
         return when (args.size) {
             1 -> listOf("delete", "import", "folder", "reload")
                 .filter { it.startsWith(args[0], true) }
+
             else -> emptyList()
         }
     }

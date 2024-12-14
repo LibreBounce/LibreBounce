@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.config.FloatRangeValue
 import net.ccbluex.liquidbounce.config.FloatValue
 import net.ccbluex.liquidbounce.config.IntegerRangeValue
 import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.utils.block.toVec
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution

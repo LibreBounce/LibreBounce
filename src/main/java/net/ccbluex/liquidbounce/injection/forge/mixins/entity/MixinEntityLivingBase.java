@@ -77,7 +77,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Overwrite
     protected void jump() {
         final JumpEvent prejumpEvent = new JumpEvent(getJumpUpwardsMotion(), EventState.PRE);
-        EventManager.INSTANCE.callEvent(prejumpEvent);
+        EventManager.INSTANCE.call(prejumpEvent);
         if (prejumpEvent.isCancelled()) return;
 
         motionY = prejumpEvent.getMotion();
@@ -108,7 +108,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         isAirBorne = true;
 
         final JumpEvent postjumpEvent = new JumpEvent((float) motionY, EventState.POST);
-        EventManager.INSTANCE.callEvent(postjumpEvent);
+        EventManager.INSTANCE.call(postjumpEvent);
     }
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))

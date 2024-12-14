@@ -9,9 +9,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.BoolValue
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -19,7 +20,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.UserUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.config.BoolValue
 import net.minecraft.event.ClickEvent
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.EnumChatFormatting
@@ -164,15 +164,13 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
         client.disconnect()
     }
 
-    @EventTarget
-    fun onSession(sessionEvent: SessionUpdateEvent) {
+    val onSession = handler<SessionUpdateEvent> {
         client.disconnect()
         connect()
     }
 
-    @EventTarget
-    fun onUpdate(updateEvent: UpdateEvent) {
-        if (client.isConnected() || (loginJob?.isActive == true)) return
+    val onUpdate = loopHandler {
+        if (client.isConnected() || (loginJob?.isActive == true)) return@loopHandler
 
         if (connectTimer.hasTimePassed(5000)) {
             connect()

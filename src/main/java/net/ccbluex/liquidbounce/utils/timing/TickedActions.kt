@@ -5,10 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.timing
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.GameTickEvent
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
@@ -36,8 +33,7 @@ object TickedActions : Listenable {
 
     fun isEmpty(module: Module) = size(module) == 0
 
-    @EventTarget(priority = 1)
-    fun onTick(event: GameTickEvent) {
+    val onTick = handler<GameTickEvent>(priority = 1) {
         // Prevent new scheduled ids from getting marked as duplicates even if they are going to be called next tick
         actions.toCollection(calledThisTick)
 
@@ -51,8 +47,9 @@ object TickedActions : Listenable {
         calledThisTick.clear()
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) = actions.clear()
+    val onWorld = handler<WorldEvent> {
+        actions.clear()
+    }
 
     class TickScheduler(val module: Module) : MinecraftInstance() {
         fun schedule(id: Int, allowDuplicates: Boolean = false, action: () -> Unit) =

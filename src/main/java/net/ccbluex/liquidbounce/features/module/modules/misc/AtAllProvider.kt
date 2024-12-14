@@ -5,15 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
 import net.minecraft.network.play.client.C01PacketChatMessage
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -48,16 +48,15 @@ object AtAllProvider :
         super.onDisable()
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         if (!msTimer.hasTimePassed(delay))
-            return
+            return@handler
 
         try {
             synchronized(sendQueue) {
                 if (sendQueue.isEmpty()) {
                     if (!retry || retryQueue.isEmpty())
-                        return
+                        return@handler
                     else
                         sendQueue += retryQueue
                 }
@@ -72,8 +71,7 @@ object AtAllProvider :
         }
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         if (event.packet is C01PacketChatMessage) {
             val message = event.packet.message
 

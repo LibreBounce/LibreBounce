@@ -5,11 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.block.state
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.isSplashPotion
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -18,8 +21,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.client.renderer.Tessellator
@@ -29,11 +30,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityEnderPearl
 import net.minecraft.entity.item.EntityExpBottle
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.projectile.EntityArrow
-import net.minecraft.entity.projectile.EntityEgg
-import net.minecraft.entity.projectile.EntityFireball
-import net.minecraft.entity.projectile.EntityPotion
-import net.minecraft.entity.projectile.EntitySnowball
+import net.minecraft.entity.projectile.*
 import net.minecraft.item.*
 import net.minecraft.util.*
 import org.lwjgl.opengl.GL11.*
@@ -54,9 +51,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
     private val trailPositions = mutableMapOf<Entity, MutableList<Triple<Long, Vec3, Float>>>()
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        val theWorld = mc.theWorld ?: return
+    val onRender3D = handler<Render3DEvent> {
+        val theWorld = mc.theWorld ?: return@handler
         val renderManager = mc.renderManager
 
         for (entity in theWorld.loadedEntityList) {
@@ -354,9 +350,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
         glPopAttrib()
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val world = mc.theWorld ?: return
+    val onUpdate = loopHandler {
+        val world = mc.theWorld ?: return@loopHandler
 
         val currentTime = System.currentTimeMillis()
 

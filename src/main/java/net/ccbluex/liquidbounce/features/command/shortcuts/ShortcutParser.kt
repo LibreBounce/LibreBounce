@@ -43,6 +43,7 @@ object ShortcutParser {
 
                     tokens += StatementEnd()
                 }
+
                 else -> tokenBuf.appendCodePoint(code)
             }
         }

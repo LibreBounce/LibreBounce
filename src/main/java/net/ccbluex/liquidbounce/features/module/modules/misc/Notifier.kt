@@ -5,22 +5,23 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.block.BlockTNT
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemFireball
 import net.minecraft.item.ItemTool
 import net.minecraft.network.play.server.S38PacketPlayerListItem
-import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.*
+import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.ADD_PLAYER
+import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.REMOVE_PLAYER
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
@@ -31,16 +32,15 @@ object Notifier : Module("Notifier", Category.MISC, hideModule = false) {
     private val onPlayerDeath by boolean("Death", true)
     private val onHeldExplosive by boolean("HeldExplosive", true)
     private val onPlayerTool by boolean("HeldTools", false)
-    
+
     private val warnDelay by int("WarnDelay", 5000, 1000..50000)
     { onPlayerDeath || onHeldExplosive || onPlayerTool }
 
     private val recentlyWarned = ConcurrentHashMap<String, Long>()
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         val currentTime = System.currentTimeMillis()
         for (entity in world.playerEntities) {
@@ -71,12 +71,11 @@ object Notifier : Module("Notifier", Category.MISC, hideModule = false) {
         }
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+    val onPacket = handler<PacketEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
-        if (player.ticksExisted < 50) return
+        if (player.ticksExisted < 50) return@handler
 
         when (val packet = event.packet) {
             is S38PacketPlayerListItem -> {
@@ -100,8 +99,7 @@ object Notifier : Module("Notifier", Category.MISC, hideModule = false) {
         }
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent> {
         recentlyWarned.clear()
     }
 }

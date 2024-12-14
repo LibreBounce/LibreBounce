@@ -5,19 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.*
-import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.canUpdateRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
-import net.ccbluex.liquidbounce.utils.block.BlockUtils
-import net.ccbluex.liquidbounce.utils.block.PlaceInfo
+import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.blocksAmount
@@ -30,19 +24,17 @@ import net.ccbluex.liquidbounce.utils.rotation.PlaceRotation
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettingsWithRotationModes
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.canUpdateRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.DelayTimer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.block.BlockBush
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.air
@@ -80,6 +72,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val teleportDelay by Tower.teleportDelayValues
     private val teleportGround by Tower.teleportGroundValues
     private val teleportNoMotion by Tower.teleportNoMotionValues
+
+    init {
+        Tower
+    }
 
     // <--
 
@@ -237,7 +233,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     { eagleValue.isSupported() && eagle != "Off" }
 
     // Rotation Options
-    private val modeList = choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "ReverseYaw", "GodBridge"), "Normal")
+    private val modeList =
+        choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "ReverseYaw", "GodBridge"), "Normal")
 
     private val options = RotationSettingsWithRotationModes(this, modeList).apply {
         strictValue.excludeWithState()
@@ -403,12 +400,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     // Events
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val player = mc.thePlayer ?: return
+    val onUpdate = loopHandler {
+        val player = mc.thePlayer ?: return@loopHandler
 
         if (mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR)
-            return
+            return@loopHandler
 
         mc.timer.timerSpeed = timer
 
@@ -494,8 +490,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
     }
 
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
+    val onStrafe = handler<StrafeEvent> {
         val player = mc.thePlayer
 
         // Jumping needs to be done here, so it doesn't get detected by movement-sensitive anti-cheats.
@@ -507,9 +502,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
     }
 
-    @EventTarget
-    fun onRotationUpdate(event: RotationUpdateEvent) {
-        val player = mc.thePlayer ?: return
+    val onRotationUpdate = handler<RotationUpdateEvent> {
+        val player = mc.thePlayer ?: return@handler
 
         if (player.ticksExisted == 1)
             launchY = player.posY.roundToInt()
@@ -527,11 +521,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive) {
             generateGodBridgeRotations(ticks)
 
-            return
+            return@handler
         }
 
         if (options.rotationsActive && rotation != null) {
-            val placeRotation = this.placeRotation?.rotation ?: rotation
+            val placeRotation = placeRotation?.rotation ?: rotation
 
             if (RotationUtils.resetTicks != 0 || options.keepRotation) {
                 setRotation(placeRotation, ticks)
@@ -539,8 +533,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
+    val onTick = handler<GameTickEvent> {
         val target = placeRotation?.placeInfo
 
         if (extraClicks) {
@@ -557,7 +550,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             if (placeDelayValue.isActive()) {
                 delayTimer.reset()
             }
-            return
+            return@handler
         }
 
         val raycastProperly = !(scaffoldMode == "Expand" && expandLength > 1 || shouldGoDown) && options.rotationsActive
@@ -575,22 +568,20 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
     }
 
-    @EventTarget
-    fun onSneakSlowDown(event: SneakSlowDownEvent) {
+    val onSneakSlowDown = handler<SneakSlowDownEvent> { event ->
         if (!isEagleEnabled || eagle != "Normal") {
-            return
+            return@handler
         }
 
         event.forward *= eagleSpeed / 0.3f
         event.strafe *= eagleSpeed / 0.3f
     }
 
-    @EventTarget
-    fun onMovementInput(event: MovementInputEvent) {
-        val player = mc.thePlayer ?: return
+    val onMovementInput = handler<MovementInputEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
 
         if (!isGodBridgeEnabled || !player.onGround)
-            return
+            return@handler
 
         if (waitForRots) {
             godBridgeTargetRotation?.run {
@@ -835,12 +826,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     // Entity movement event
-    @EventTarget
-    fun onMove(event: MoveEvent) {
-        val player = mc.thePlayer ?: return
+    val onMove = handler<MoveEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
 
         if (!safeWalkValue.isActive() || shouldGoDown) {
-            return
+            return@handler
         }
 
         if (airSafe || player.onGround) {
@@ -848,9 +838,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
     }
 
-    @EventTarget
-    fun onJump(event: JumpEvent) {
-        if (!jumpStrafe) return
+    val jumpHandler = handler<JumpEvent> { event ->
+        if (!jumpStrafe) return@handler
 
         if (event.eventState == EventState.POST) {
             MovementUtils.strafe(if (!isLookingDiagonally) (minJumpStraightStrafe.get()..maxJumpStraightStrafe.get()).random() else (minJumpDiagonalStrafe.get()..maxJumpDiagonalStrafe.get()).random())
@@ -858,9 +847,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     // Visuals
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        val player = mc.thePlayer ?: return
+    val onRender3D = handler<Render3DEvent> {
+        val player = mc.thePlayer ?: return@handler
 
         val shouldBother =
             !(shouldGoDown || scaffoldMode == "Expand" && expandLength > 1) && extraClicks && (player.isMoving || MovementUtils.speed > 0.03)
@@ -882,7 +870,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
 
         if (!mark) {
-            return
+            return@handler
         }
 
         repeat(if (scaffoldMode == "Expand") expandLength + 1 else 2) {
@@ -898,7 +886,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
             if (blockPos.isReplaceable && placeInfo != null) {
                 RenderUtils.drawBlockBox(blockPos, Color(68, 117, 255, 100), false)
-                return
+                return@handler
             }
         }
     }

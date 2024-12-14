@@ -1,12 +1,12 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.event.AttackEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.block.Block
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.effect.EntityLightningBolt
@@ -28,10 +28,8 @@ object AttackEffects : Module("AttackEffects", Category.RENDER, hideModule = fal
     private val volume by float("Volume", 1f, 0.1f..5f) { sound != "None" }
     private val pitch by float("Pitch", 1f, 0.1f..5f) { sound != "None" }
 
-
-    @EventTarget
-    fun onAttack(event: AttackEvent) {
-        val target = event.targetEntity as? EntityLivingBase ?: return
+    val onAttack = handler<AttackEvent> { event ->
+        val target = event.targetEntity as? EntityLivingBase ?: return@handler
 
         repeat(amount) {
             doEffect(target)

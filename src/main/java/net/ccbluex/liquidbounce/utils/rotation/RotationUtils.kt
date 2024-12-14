@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils.rotation
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.FastBow
 import net.ccbluex.liquidbounce.features.module.modules.render.Rotations
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -677,13 +678,12 @@ object RotationUtils : MinecraftInstance(), Listenable {
     /**
      * Handle rotation update
      */
-    @EventTarget(priority = -1)
-    fun onRotationUpdate(event: RotationUpdateEvent) {
+    val onRotationUpdate = handler<RotationUpdateEvent>(priority = -1) {
         activeSettings?.let {
             // Was the rotation update immediate? Allow updates the next tick.
             if (it.immediate) {
                 it.immediate = false
-                return
+                return@handler
             }
         }
 
@@ -693,12 +693,11 @@ object RotationUtils : MinecraftInstance(), Listenable {
     /**
      * Handle strafing
      */
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
-        val data = activeSettings ?: return
+    val onStrafe = handler<StrafeEvent> { event ->
+        val data = activeSettings ?: return@handler
 
         if (!data.strafe) {
-            return
+            return@handler
         }
 
         currentRotation?.let {
@@ -710,17 +709,16 @@ object RotationUtils : MinecraftInstance(), Listenable {
     /**
      * Handle rotation-packet modification
      */
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (packet !is C03PacketPlayer) {
-            return
+            return@handler
         }
 
         if (!packet.rotating) {
             activeSettings?.resetSimulateShortStopData()
-            return
+            return@handler
         }
 
         currentRotation?.let { packet.rotation = it }

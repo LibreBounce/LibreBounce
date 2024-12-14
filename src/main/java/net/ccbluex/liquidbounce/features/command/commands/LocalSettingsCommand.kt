@@ -169,13 +169,20 @@ object LocalSettingsCommand : Command("localsettings", "localsetting", "localcon
                         val settings = settingsDir.listFiles() ?: return emptyList()
                         settings.map { it.name.removeSuffix(".txt") }.filter { it.startsWith(args[1], true) }
                     }
+
                     else -> emptyList()
                 }
             }
 
             3 -> {
                 when (args[0].lowercase()) {
-                    "save" -> listOf("all", "default", "values", "binds", "states").filter { it.startsWith(args[2], true) }
+                    "save" -> listOf("all", "default", "values", "binds", "states").filter {
+                        it.startsWith(
+                            args[2],
+                            true
+                        )
+                    }
+
                     else -> emptyList()
                 }
             }

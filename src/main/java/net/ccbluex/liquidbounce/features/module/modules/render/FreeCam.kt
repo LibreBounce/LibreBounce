@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.Vec3
@@ -47,9 +47,8 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
         originalPos = null
     }
 
-    @EventTarget
-    fun onInputEvent(event: MovementInputEvent) {
-        val speed = this.speed.toDouble()
+    val onInputEvent = handler<MovementInputEvent> { event ->
+        val speed = speed.toDouble()
 
         val yAxisMovement = when {
             event.originalInput.jump -> 1.0f
@@ -83,7 +82,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
         originalPos = PositionPair(player.currPos, player.prevPos, player.lastTickPos)
 
         val event = CameraPositionEvent(player.currPos, player.prevPos, player.lastTickPos)
-        EventManager.callEvent(event)
+        EventManager.call(event)
 
         event.result?.run {
             player.setPosAndPrevPos(pos, lastPos, extraPos)
@@ -114,8 +113,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false, hideM
 
     fun shouldDisableRotations() = handleEvents() && !allowRotationChange
 
-    @EventTarget
-    fun onWorldChange(event: WorldEvent) {
+    val onWorldChange = handler<WorldEvent> {
         // Disable when world changed
         state = false
     }

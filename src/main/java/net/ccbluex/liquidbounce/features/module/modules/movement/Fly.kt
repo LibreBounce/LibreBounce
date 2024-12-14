@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -28,17 +29,12 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan.VulcanGhost
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan.VulcanOld
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.extensions.stop
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -229,13 +225,11 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         modeModule.onDisable()
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         modeModule.onUpdate()
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
+    val onTick = handler<GameTickEvent> {
         if (mode == "Fireball" && wasFired) {
             WaitTickUtils.schedule(2) {
                 state = false
@@ -245,10 +239,9 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         modeModule.onTick()
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
+    val onRender3D = handler<Render3DEvent> { event ->
         if (!mark || mode == "Vanilla" || mode == "SmoothVanilla")
-            return
+            return@handler
 
         val y = startY + 2.0 + (if (mode == "BoostHypixel") 0.42 else 0.0)
         drawPlatform(
@@ -260,37 +253,31 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         modeModule.onRender3D(event)
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mc.thePlayer ?: return
+    val onPacket = handler<PacketEvent> { event ->
+        mc.thePlayer ?: return@handler
 
         modeModule.onPacket(event)
     }
 
-    @EventTarget
-    fun onBB(event: BlockBBEvent) {
-        mc.thePlayer ?: return
+    val onBB = handler<BlockBBEvent> { event ->
+        mc.thePlayer ?: return@handler
 
         modeModule.onBB(event)
     }
 
-    @EventTarget
-    fun onJump(event: JumpEvent) {
+    val onJump = handler<JumpEvent> { event ->
         modeModule.onJump(event)
     }
 
-    @EventTarget
-    fun onStep(event: StepEvent) {
+    val onStep = handler<StepEvent> { event ->
         modeModule.onStep(event)
     }
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
+    val onMotion = handler<MotionEvent> { event ->
         modeModule.onMotion(event)
     }
 
-    @EventTarget
-    fun onMove(event: MoveEvent) {
+    val onMove = handler<MoveEvent> { event ->
         modeModule.onMove(event)
     }
 

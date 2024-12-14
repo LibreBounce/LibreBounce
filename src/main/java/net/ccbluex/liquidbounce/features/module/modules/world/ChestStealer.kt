@@ -9,9 +9,13 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
@@ -19,8 +23,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeSortedTo
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.isStackUseful
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils.waitUntil
-import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
@@ -30,12 +32,10 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCur
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerLastSlot
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.entity.EntityLiving.getArmorPosition
@@ -391,12 +391,11 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
     }
 
     // Progress bar
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
+    val onRender2D = handler<Render2DEvent> { event ->
         if (!progressBar || mc.currentScreen !is GuiChest)
-            return
+            return@handler
 
-        val progress = progress ?: return
+        val progress = progress ?: return@handler
 
         val (scaledWidth, scaledHeight) = ScaledResolution(mc)
 
@@ -418,8 +417,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
         )
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
             is C0DPacketCloseWindow, is S2DPacketOpenWindow, is S2EPacketCloseWindow -> {
                 receivedId = null
@@ -428,14 +426,16 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
             is S30PacketWindowItems -> {
                 // Chests never have windowId 0
-                if (packet.func_148911_c() == 0)
-                    return
+                val packetWindowId = packet.func_148911_c()
 
-                if (receivedId != packet.func_148911_c()) {
+                if (packetWindowId == 0)
+                    return@handler
+
+                if (receivedId != packetWindowId) {
                     debug("Chest opened with ${stacks.size} items")
                 }
 
-                receivedId = packet.func_148911_c()
+                receivedId = packetWindowId
 
                 stacks = packet.itemStacks.toList()
             }

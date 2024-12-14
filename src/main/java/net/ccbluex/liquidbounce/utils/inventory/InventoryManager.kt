@@ -146,6 +146,9 @@ object InventoryManager : MinecraftInstance() {
                 if (!hasScheduledInLastLoop) {
                     action.invoke()
                 }
+            } catch (e: CancellationException) {
+                // The job is canceled from [SharedScopes#stop]
+                return
             } catch (e: Exception) {
                 // TODO: Remove when stable, probably in b86
                 chat("§cReworked coroutine inventory management ran into an issue! Please report this: ${e.message ?: e.cause}")
