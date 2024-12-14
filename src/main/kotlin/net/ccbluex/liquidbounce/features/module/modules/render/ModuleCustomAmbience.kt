@@ -64,8 +64,10 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
             }
 
             var newFog = original.copy(
-                start = MathHelper.clamp(fogStart, -8f, viewDistance),
-                end = MathHelper.clamp(fogStart + density, 0f, viewDistance)
+                positionPair = Pair(
+                    MathHelper.clamp(fogStart, -8f, viewDistance),
+                    MathHelper.clamp(fogStart + density, 0f, viewDistance)
+                ),
             )
 
             val type = camera.submersionType

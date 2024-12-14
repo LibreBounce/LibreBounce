@@ -4,15 +4,14 @@ import net.minecraft.client.render.Fog
 import net.minecraft.client.render.FogShape
 
 fun Fog.copy(
-    start: Float = this.start,
-    end: Float = this.end,
+    positionPair: Pair<Float, Float> = Pair(this.start, this.end),
     shape: FogShape = this.shape,
     red: Float = this.red,
     blue: Float = this.blue,
     green: Float = this.green, alpha: Float = this.alpha
 ): Fog {
     return Fog(
-        start, end,
+        positionPair.first, positionPair.second,
         shape, red,
         blue, green, alpha)
 }
