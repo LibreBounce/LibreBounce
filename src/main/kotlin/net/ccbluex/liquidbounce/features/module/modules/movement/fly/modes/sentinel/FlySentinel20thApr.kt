@@ -130,11 +130,22 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
 
     private fun boost() {
         hasBeenHurt = false
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z,
-            false, player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true, player.horizontalCollision))
+        network.sendPacket(
+            PlayerMoveC2SPacket.PositionAndOnGround(
+                player.x, player.y,
+                player.z, false, player.horizontalCollision))
+        network.sendPacket(
+            PlayerMoveC2SPacket.PositionAndOnGround(
+                player.x, player.y + 3.25,
+                player.z, false, player.horizontalCollision))
+        network.sendPacket(
+            PlayerMoveC2SPacket.PositionAndOnGround(
+                player.x, player.y,
+                player.z, false, player.horizontalCollision))
+        network.sendPacket(
+            PlayerMoveC2SPacket.PositionAndOnGround(
+                player.x, player.y,
+                player.z, true, player.horizontalCollision))
     }
 
 

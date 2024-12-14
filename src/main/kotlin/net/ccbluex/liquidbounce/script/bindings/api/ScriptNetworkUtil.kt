@@ -26,7 +26,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 object ScriptNetworkUtil {
 
     @JvmName("movePlayerGround")
-    fun movePlayerGround(onGround: Boolean) = network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(onGround, player.horizontalCollision))
+    fun movePlayerGround(onGround: Boolean)
+        = network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(onGround, player.horizontalCollision))
 
     @JvmName("movePlayerPosition")
     fun movePlayerPosition(x: Double, y: Double, z: Double, onGround: Boolean) =

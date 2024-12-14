@@ -394,7 +394,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     @Suppress("unused")
-    private val movementInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.SAFETY_FEATURE) { event ->
+    private val movementInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.SAFETY_FEATURE)
+    { event ->
         if (forceSneak > 0) {
             event.input = event.input.copy(sneak = true)
             forceSneak--

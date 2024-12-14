@@ -73,7 +73,8 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
         val packet = event.packet
 
         if (event.origin == TransferOrigin.SEND && packet is PlayerMoveC2SPacket) {
-            if (!mc.options.sneakKey.isPressed && !player.isTouchingWater && standingOnWater() && !collidesWithAnythingElse()) {
+            if (!player.input.playerInput.sneak
+                && !player.isTouchingWater && standingOnWater() && !collidesWithAnythingElse()) {
                 if (shiftDown) {
                     packet.y -= 0.001
                 }

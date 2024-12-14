@@ -69,7 +69,14 @@ internal object VelocityExemptGrim117 : Choice("ExemptGrim117") {
             it.cancelEvent()
             waitTicks(1)
             repeat(if (alternativeBypass) 4 else 1) {
-                network.sendPacket(Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround, true))
+                network.sendPacket(
+                    Full(
+                        player.x, player.y,
+                        player.z, player.yaw,
+                        player.pitch,
+                        player.isOnGround, true
+                    )
+                )
             }
             network.sendPacket(
                 PlayerActionC2SPacket(

@@ -510,14 +510,24 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         if (rotations.rotationTimingMode == RotationTimingMode.ON_TICK && rotation != null) {
-            network.sendPacket(Full(player.x, player.y, player.z, rotation.yaw, rotation.pitch, player.isOnGround, player.horizontalCollision))
+            network.sendPacket(
+                Full(
+                    player.x, player.y,
+                    player.z,
+                    rotation.yaw, rotation.pitch,
+                    player.isOnGround, player.horizontalCollision))
         }
 
         attack()
 
         if (rotations.rotationTimingMode == RotationTimingMode.ON_TICK && rotation != null) {
             network.sendPacket(
-                Full(player.x, player.y, player.z, player.withFixedYaw(rotation), player.pitch, player.isOnGround, player.horizontalCollision)
+                Full(
+                    player.x, player.y,
+                    player.z, player.withFixedYaw(rotation),
+                    player.pitch, player.isOnGround,
+                    player.horizontalCollision
+                )
             )
         }
 
