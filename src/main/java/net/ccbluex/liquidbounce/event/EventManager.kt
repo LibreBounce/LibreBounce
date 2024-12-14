@@ -72,19 +72,36 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         registry.values.forEach { it.removeIf { hook -> hook.owner == listener } }
     }
 
+    private fun <T : Event> EventHook<T>.processEvent(event: T) {
+        if (!this.isActive)
+            return
+
+        when (this) {
+            is EventHook.Blocking -> {
+                try {
+                    action(event)
+                } catch (e: Exception) {
+                    ClientUtils.LOGGER.error("Exception during call event (blocking)", e)
+                }
+            }
+
+            is EventHook.Async -> {
+                launch(dispatcher) {
+                    try {
+                        action(this, event)
+                    } catch (e: Exception) {
+                        ClientUtils.LOGGER.error("Exception during call event (async)", e)
+                    }
+                }
+            }
+        }
+    }
+
     fun <T : Event> call(event: T): T {
         val hooks = registry[event.javaClass]!!
 
         hooks.forEach {
-            if (it.isActive) {
-                launch(it.dispatcher) {
-                    try {
-                        it.action(this, event)
-                    } catch (e: Exception) {
-                        ClientUtils.LOGGER.error("Exception during call event", e)
-                    }
-                }
-            }
+            it.processEvent(event)
         }
 
         return event
@@ -94,14 +111,8 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         val hooks = registry[event.javaClass]!!
 
         hooks.forEach {
-            if (it.owner == listener && it.isActive) {
-                launch(it.dispatcher) {
-                    try {
-                        it.action(this, event)
-                    } catch (e: Exception) {
-                        ClientUtils.LOGGER.error("Exception during call event for $listener", e)
-                    }
-                }
+            if (it.owner == listener) {
+                it.processEvent(event)
             }
         }
 
@@ -120,13 +131,13 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
  * @author MukjepScarlet
  */
 internal object LoopManager : Listenable, CoroutineScope by CoroutineScope(SupervisorJob()) {
-    private val registry = IdentityHashMap<EventHook<UpdateEvent>, Job?>()
+    private val registry = IdentityHashMap<EventHook.Async<UpdateEvent>, Job?>()
 
-    operator fun plusAssign(eventHook: EventHook<UpdateEvent>) {
+    operator fun plusAssign(eventHook: EventHook.Async<UpdateEvent>) {
         registry[eventHook] = null
     }
 
-    operator fun minusAssign(eventHook: EventHook<UpdateEvent>) {
+    operator fun minusAssign(eventHook: EventHook.Async<UpdateEvent>) {
         registry.remove(eventHook)
     }
 

@@ -25,12 +25,20 @@ interface Listenable {
 }
 
 inline fun <reified T : Event> Listenable.handler(
-    dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+    always: Boolean = false,
+    priority: Byte = 0,
+    noinline action: (T) -> Unit
+) {
+    EventManager.registerEventHook(T::class.java, EventHook.Blocking(this, always, priority, action))
+}
+
+inline fun <reified T : Event> Listenable.handler(
+    dispatcher: CoroutineDispatcher,
     always: Boolean = false,
     priority: Byte = 0,
     noinline action: suspend CoroutineScope.(T) -> Unit
 ) {
-    EventManager.registerEventHook(T::class.java, EventHook(this, dispatcher, always, priority, action))
+    EventManager.registerEventHook(T::class.java, EventHook.Async(this, dispatcher, always, priority, action))
 }
 
 fun Listenable.loopHandler(
@@ -39,5 +47,5 @@ fun Listenable.loopHandler(
     priority: Byte = 0,
     action: suspend CoroutineScope.(UpdateEvent) -> Unit
 ) {
-    LoopManager += EventHook(this, dispatcher, always, priority, action)
+    LoopManager += EventHook.Async(this, dispatcher, always, priority, action)
 }
