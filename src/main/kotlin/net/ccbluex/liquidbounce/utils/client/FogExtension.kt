@@ -1,15 +1,15 @@
 package net.ccbluex.liquidbounce.utils.client
 
-import net.ccbluex.liquidbounce.render.engine.Color4b
+//import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.minecraft.client.render.Fog
 import net.minecraft.client.render.FogShape
 
 // could be merged into `Color4b` as generics, but not sure if izuna would be fine with that.
 data class FloatColor(val r: Float, val g: Float, val b: Float, val a: Float) {
-    constructor(color: Color4b) : this(
-        color.r.toFloat(), color.g.toFloat(),
-        color.b.toFloat(), color.a.toFloat()
-    )
+//    constructor(color: Color4b) : this(
+//        color.r.toFloat(), color.g.toFloat(),
+//        color.b.toFloat(), color.a.toFloat()
+//    )
 }
 
 fun Fog.copy(
