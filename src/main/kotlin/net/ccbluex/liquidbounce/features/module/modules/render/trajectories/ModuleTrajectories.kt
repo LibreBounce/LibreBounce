@@ -78,7 +78,9 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
 
         if (otherPlayers) {
             for (otherPlayer in world.players) {
-                drawHypotheticalTrajectory(otherPlayer, event)
+                if (otherPlayer != player) {
+                    drawHypotheticalTrajectory(otherPlayer, event)
+                }
             }
         }
 
