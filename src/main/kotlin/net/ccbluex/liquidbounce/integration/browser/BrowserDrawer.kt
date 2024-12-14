@@ -34,6 +34,7 @@ import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.Identifier
 import net.minecraft.util.TriState
 import net.minecraft.util.Util
+import org.joml.Vector2f
 import java.util.function.Function
 
 class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
@@ -72,7 +73,10 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(event.context, tab.getTexture(), x, y, w, h)
+            renderTexture(
+                event.context, tab.getTexture(),
+                Vector2f(x, y), Vector2f(w, h)
+            )
             tab.drawn = true
         }
     }
@@ -111,7 +115,10 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(event.context, tab.getTexture(), x, y, w, h)
+            renderTexture(
+                event.context, tab.getTexture(),
+                Vector2f(x, y), Vector2f(w, h)
+            )
             tab.drawn = true
         }
     }
@@ -139,9 +146,14 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         RenderSystem.defaultBlendFunc()
     })
 
-    private fun renderTexture(context: DrawContext, texture: Identifier, x: Float, y: Float, width: Float, height: Float) {
-        context.drawTexture(browserTextureLayer, texture, x.toInt(), y.toInt(), 0f, 0f, width.toInt(),
-            height.toInt(), width.toInt(), height.toInt())
+    private fun renderTexture(context: DrawContext, texture: Identifier, pos: Vector2f, size: Vector2f) {
+        context.drawTexture(
+            browserTextureLayer, texture,
+            pos.x.toInt(), pos.y.toInt(),
+            0f, 0f,
+            size.x.toInt(),size.y.toInt(),
+            size.x.toInt(), size.y.toInt()
+        )
     }
 
 }
