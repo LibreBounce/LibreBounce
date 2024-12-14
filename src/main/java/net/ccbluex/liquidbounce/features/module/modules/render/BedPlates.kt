@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
@@ -90,11 +90,6 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
     private var bed: Array<BlockPos>? = null
     private val beds: MutableList<BlockPos?> = mutableListOf()
     private val bedBlocks: MutableList<MutableList<Block>> = mutableListOf()
-    private var searchJob: Job? = null
-
-    override fun onDisable() {
-        searchJob?.cancel()
-    }
 
     val onUpdate = loopHandler(dispatcher = Dispatchers.Default) {
         val player = mc.thePlayer ?: return@loopHandler
@@ -127,6 +122,8 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
                 bedBlocks.addAll(bedBlockLists)
             }
         }
+
+        delay(1000L)
     }
 
     private fun bedBlocks(
