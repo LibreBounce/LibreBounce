@@ -48,7 +48,6 @@ object BindCommand : Command("bind") {
             1 -> moduleManager.modules
                 .map { it.name }
                 .filter { it.startsWith(moduleName, true) }
-                .toList()
 
             else -> emptyList()
         }
