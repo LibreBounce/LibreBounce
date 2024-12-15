@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.minecraft.item.ItemStack
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 
 object TickedActions : Listenable {
     private data class Action(
@@ -19,9 +19,9 @@ object TickedActions : Listenable {
         val action: () -> Unit
     )
 
-    private val actions = CopyOnWriteArrayList<Action>()
+    private val actions = ConcurrentLinkedQueue<Action>()
 
-    private val calledThisTick = mutableListOf<Action>()
+    private val calledThisTick = LinkedHashSet<Action>()
 
     fun schedule(id: Int, module: Module, allowDuplicates: Boolean = false, action: () -> Unit) =
         if (allowDuplicates || !isScheduled(id, module)) {
@@ -30,8 +30,7 @@ object TickedActions : Listenable {
         } else false
 
     fun isScheduled(id: Int, module: Module) =
-        actions.filter { it.owner == module && it.id == id }
-            .any { it !in calledThisTick }
+        actions.any { it.owner == module && it.id == id && it !in calledThisTick }
 
     fun clear(module: Module) = actions.removeIf { it.owner == module }
 
@@ -44,9 +43,9 @@ object TickedActions : Listenable {
         actions.toCollection(calledThisTick)
 
         for (triple in calledThisTick) {
-            triple.action
+            triple.action.invoke()
             if (actions.isNotEmpty()) {
-                actions.removeFirst()
+                actions.remove()
             }
         }
 
