@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.retrieveDe
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.retrievingPos
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.swing
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.block.center
 import net.ccbluex.liquidbounce.utils.block.state
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
@@ -107,8 +108,9 @@ object MLG : NoFallMode("MLG") {
                         bestOffset?.let {
                             suitablePos = pos.add(it)
 
-                            // TODO: Check for water flow above block
-                            if (suitablePos?.state?.block in arrayOf(Blocks.web)) {
+                            if (suitablePos?.state?.block in arrayOf(Blocks.web) ||
+                                suitablePos?.up()?.block == Blocks.water
+                            ) {
                                 return
                             }
                         }
