@@ -67,7 +67,6 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
             }
         }
 
-
         framebuffers[0].clear(false)
         framebuffers[0].beginWrite(true)
     }
