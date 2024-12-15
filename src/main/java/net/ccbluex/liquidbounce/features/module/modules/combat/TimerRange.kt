@@ -17,7 +17,8 @@ import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.schedulePacketProcess
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
@@ -161,7 +162,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
         val targetEntity = event.targetEntity ?: return@handler
         val entityDistance = targetEntity.let { mc.thePlayer.getDistanceToEntityBox(it) }
-        val randomTickDelay = RandomUtils.nextInt(minTickDelay.get(), maxTickDelay.get() + 1)
+        val randomTickDelay = nextInt(minTickDelay.get(), maxTickDelay.get() + 1)
         val shouldReturn = Backtrack.runWithNearestTrackedDistance(targetEntity) { !updateDistance(targetEntity) }
 
         if (shouldReturn || (mc.thePlayer.isInWeb && !onWeb) || (mc.thePlayer.isInWater && !onWater)) {
@@ -199,7 +200,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
         val nearbyEntity = getNearestEntityInRange() ?: return@handler
 
-        val randomTickDelay = RandomUtils.nextInt(minTickDelay.get(), maxTickDelay.get())
+        val randomTickDelay = nextInt(minTickDelay.get(), maxTickDelay.get())
 
         val shouldReturn = Backtrack.runWithNearestTrackedDistance(nearbyEntity) { !updateDistance(nearbyEntity) }
 
@@ -300,11 +301,11 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      */
     val onUpdate = handler<UpdateEvent> {
         // Randomize the timer & charged delay a bit, to bypass some AntiCheat
-        val timerboost = RandomUtils.nextFloat(minBoostDelay.get(), maxBoostDelay.get())
-        val charged = RandomUtils.nextFloat(minChargedDelay.get(), maxChargedDelay.get())
+        val timerboost = nextFloat(minBoostDelay.get(), maxBoostDelay.get())
+        val charged = nextFloat(minChargedDelay.get(), maxChargedDelay.get())
 
         if (mc.thePlayer != null && mc.theWorld != null) {
-            randomRange = RandomUtils.nextFloat(minRange.get(), maxRange.get())
+            randomRange = nextFloat(minRange.get(), maxRange.get())
         }
 
         if (playerTicks <= 0 || confirmStop) {
