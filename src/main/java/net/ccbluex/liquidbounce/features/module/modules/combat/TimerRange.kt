@@ -163,11 +163,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
         val targetEntity = event.targetEntity ?: return
         val entityDistance = targetEntity.let { mc.thePlayer.getDistanceToEntityBox(it) }
         val randomTickDelay = RandomUtils.nextInt(minTickDelay.get(), maxTickDelay.get() + 1)
-        var shouldReturn = false
-
-        Backtrack.runWithNearestTrackedDistance(targetEntity) {
-            shouldReturn = !updateDistance(targetEntity)
-        }
+        val shouldReturn = Backtrack.runWithNearestTrackedDistance(targetEntity) { !updateDistance(targetEntity) }
 
         if (shouldReturn || (mc.thePlayer.isInWeb && !onWeb) || (mc.thePlayer.isInWater && !onWater)) {
             return
@@ -207,11 +203,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
         val randomTickDelay = RandomUtils.nextInt(minTickDelay.get(), maxTickDelay.get())
 
-        var shouldReturn = false
-
-        Backtrack.runWithNearestTrackedDistance(nearbyEntity) {
-            shouldReturn = !updateDistance(nearbyEntity)
-        }
+        val shouldReturn = Backtrack.runWithNearestTrackedDistance(nearbyEntity) { !updateDistance(nearbyEntity) }
 
         if (shouldReturn || (mc.thePlayer.isInWeb && !onWeb) || (mc.thePlayer.isInWater && !onWater)) {
             return
@@ -387,19 +379,17 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
         val player = mc.thePlayer ?: return null
 
         return mc.theWorld?.loadedEntityList?.asSequence()?.mapNotNull { entity ->
-            var isInRange = false
+            entity.takeIf {
+                Backtrack.runWithNearestTrackedDistance(entity) {
+                    val distance = player.getDistanceToEntityBox(entity)
 
-            Backtrack.runWithNearestTrackedDistance(entity) {
-                val distance = player.getDistanceToEntityBox(entity)
-
-                isInRange = when (timerBoostMode.lowercase()) {
-                    "normal" -> distance <= rangeValue
-                    "smart", "modern" -> distance <= scanRange.get() + randomRange
-                    else -> false
+                    when (timerBoostMode.lowercase()) {
+                        "normal" -> distance <= rangeValue
+                        "smart", "modern" -> distance <= scanRange.get() + randomRange
+                        else -> false
+                    }
                 }
             }
-
-            entity.takeIf { isInRange }
         }?.minByOrNull { player.getDistanceToEntityBox(it) }
     }
 
@@ -432,8 +422,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (mc.thePlayer == null || mc.thePlayer.isDead)
-            return
+        if (mc.thePlayer == null || mc.thePlayer.isDead) return
 
         if (blink) {
             if (playerTicks > 0 && !blinked) {

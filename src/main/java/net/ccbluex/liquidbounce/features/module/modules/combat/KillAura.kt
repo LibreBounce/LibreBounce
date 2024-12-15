@@ -762,11 +762,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         for (entity in theWorld.loadedEntityList) {
             if (entity !is EntityLivingBase || !isEnemy(entity) || switchMode && entity.entityId in prevTargetEntities) continue
 
-            var distance = 0.0
-
-            Backtrack.runWithNearestTrackedDistance(entity) {
-                distance = thePlayer.getDistanceToEntityBox(entity)
-            }
+            val distance = Backtrack.runWithNearestTrackedDistance(entity) { thePlayer.getDistanceToEntityBox(entity) }
 
             if (switchMode && distance > range && prevTargetEntities.isNotEmpty()) continue
 
@@ -802,13 +798,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         }
 
         if (bestTarget != null) {
-            var success = false
-
-            Backtrack.runWithNearestTrackedDistance(bestTarget) {
-                success = updateRotations(bestTarget)
-            }
-
-            if (success) {
+            if (Backtrack.runWithNearestTrackedDistance(bestTarget) { updateRotations(bestTarget) }) {
                 target = bestTarget
                 return
             }

@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -28,17 +29,12 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan.VulcanGhost
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan.VulcanOld
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.extensions.stop
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -179,7 +175,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
     ) { fireBallThrowMode == "Edge" && mode == "Fireball" }
 
     val options = RotationSettings(this) { mode == "Fireball" }.apply {
-        resetTicksValue.setSupport { { it && keepRotation } }
+        resetTicksValue.setSupport { it && keepRotation }
     }
 
     val autoJump by boolean("AutoJump", true) { mode == "Fireball" }

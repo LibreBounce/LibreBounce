@@ -16,16 +16,18 @@ object WaitTickUtils : MinecraftInstance(), Listenable {
     private val scheduledActions = mutableListOf<ScheduledAction>()
 
     fun schedule(ticks: Int, requester: Any? = null, action: () -> Unit = { }) =
-        conditionalSchedule(requester, ticks) { action(); true }
+        conditionalSchedule(requester, ticks) { action(); null }
 
-    fun conditionalSchedule(requester: Any? = null, ticks: Int? = null, action: () -> Boolean) {
+    fun conditionalSchedule(requester: Any? = null, ticks: Int? = null, action: (Int) -> Boolean?) {
         if (ticks == 0) {
-            action()
+            action(0)
 
             return
         }
 
-        scheduledActions += ScheduledAction(requester, ClientUtils.runTimeTicks + (ticks ?: 0), action)
+        val time = ticks ?: 0
+
+        scheduledActions += ScheduledAction(requester, time, ClientUtils.runTimeTicks + time, action)
     }
 
     fun hasScheduled(obj: Any) = scheduledActions.firstOrNull { it.requester == obj } != null
@@ -36,14 +38,14 @@ object WaitTickUtils : MinecraftInstance(), Listenable {
         val iterator = scheduledActions.iterator()
 
         while (iterator.hasNext()) {
-            val scheduledAction = iterator.next()
+            val action = iterator.next()
 
-            if (currentTick >= scheduledAction.ticks && scheduledAction.action()) {
+            if (action.action(action.duration - (action.ticks - currentTick)) ?: (currentTick >= action.ticks)) {
                 iterator.remove()
             }
         }
     }
 
-    private data class ScheduledAction(val requester: Any?, val ticks: Int, val action: () -> Boolean)
+    private data class ScheduledAction(val requester: Any?, val duration: Int, val ticks: Int, val action: (Int) -> Boolean?)
 
 }

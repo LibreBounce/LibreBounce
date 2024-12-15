@@ -5,19 +5,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.block
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
-import net.ccbluex.liquidbounce.utils.extensions.block
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -40,7 +40,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
 
     @EventTarget
     fun onBlockClick(event: ClickBlockEvent) {
-        if (event.clickedBlock?.let { it.block } == bedrock) {
+        if (event.clickedBlock?.block == bedrock) {
             return
         }
 
