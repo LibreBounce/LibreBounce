@@ -26,10 +26,7 @@
 
     onMount(async () => {
         configurable = await getModuleSettings(name);
-
-        setTimeout(() => {
-            expanded = localStorage.getItem(path) === "true"
-        }, 500);
+        expanded = localStorage.getItem(path) === "true"
     });
 
     highlightModuleName.subscribe(() => {
@@ -37,15 +34,13 @@
             return;
         }
 
-        setTimeout(() => {
-            if (!moduleNameElement) {
-                return;
-            }
-            moduleNameElement.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
-        }, 1000);
+        if (!moduleNameElement) {
+            return;
+        }
+        moduleNameElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        });
     });
 
     async function updateModuleSettings() {
@@ -95,6 +90,7 @@
             bind:this={moduleNameElement}
             class:enabled
             class:highlight={name === $highlightModuleName}
+            class:dim={$highlightModuleName !== null && name !== $highlightModuleName}
     >
         {#if $spaceSeperatedNames}
             {convertToSpacedString(name)}
@@ -121,7 +117,7 @@
     .name {
       cursor: pointer;
       transition: ease background-color 0.2s,
-      ease color 0.2s;
+      ease color 0.2s, ease filter 0.2s;
 
       color: $clickgui-text-dimmed-color;
       text-align: center;
@@ -129,6 +125,10 @@
       font-weight: 500;
       position: relative;
       padding: 10px;
+
+      &.dim {
+        filter: opacity(50%) blur(1px);
+      }
 
       &.highlight::before {
         content: "";
