@@ -650,3 +650,25 @@ fun ClientPlayerEntity.getFeetBlockPos(): BlockPos {
         MathHelper.floor(MathHelper.lerp(0.5, bb.minZ, bb.maxZ))
     )
 }
+
+/**
+ * Checks whether an entity is aiming at you or not
+ */
+fun Entity.isAimingAt(targetPosition: Vec3d): Boolean {
+    val lookVector = this.getRotationVec(1.0f)
+    val toTarget = targetPosition.subtract(this.pos).normalize()
+    val dotProduct = lookVector.dotProduct(toTarget)
+
+    return dotProduct > 0.95
+}
+
+/**
+ * Checks whether an entity is aiming at you or not
+ */
+fun Entity.isAimingAt(targetPosition: Vec3d, threshold: Float): Boolean {
+    val lookVector = this.getRotationVec(1.0f)
+    val toTarget = targetPosition.subtract(this.pos).normalize()
+    val dotProduct = lookVector.dotProduct(toTarget)
+
+    return dotProduct > threshold.toDouble()
+}

@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.entity.isAimingAt
 import net.ccbluex.liquidbounce.utils.item.isConsumable
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
 import net.minecraft.network.packet.c2s.play.*
@@ -197,9 +198,8 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
                     event.action = PacketQueueManager.Action.QUEUE
                     return@handler
                 }
-                val playerBox = player.dimensions.getBoxAt(position)
 
-                // todo: implement if enemy is facing old player position
+                val playerBox = player.dimensions.getBoxAt(position)
 
                 val entities = world.getEntitiesBoxInRange(position, range.endInclusive.toDouble()) {
                     it != player && it.shouldBeAttacked()
@@ -213,12 +213,23 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
                 val intersects = entities.any {
                     it.box.intersects(playerBox)
                 }
+
                 val serverDistance = entities.minOfOrNull {
                     it.pos.distanceTo(position)
                 } ?: return@handler
+
                 val clientDistance = entities.minOfOrNull {
                     it.pos.distanceTo(player.pos)
                 } ?: return@handler
+
+                val closestEnemy = entities.minByOrNull {
+                    it.pos.distanceTo(position)
+                } ?: return@handler
+
+                // If the closest enemy is aiming at our server-sided position, we don't want to lag.
+                if (closestEnemy.isAimingAt(position)) {
+                    return@handler
+                }
 
                 // If the server position is not closer than the client position, we keep lagging.
                 // Also, we don't want to lag if the player is intersecting with an entity.
