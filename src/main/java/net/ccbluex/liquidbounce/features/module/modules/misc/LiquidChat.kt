@@ -6,6 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
 import net.ccbluex.liquidbounce.config.BoolValue
@@ -157,6 +159,8 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
         client.disconnect()
     }
 
+    private val loginMutex = Mutex()
+
     val onSession = handler<SessionUpdateEvent>(dispatcher = Dispatchers.IO) {
         client.disconnect()
         connect()
@@ -183,12 +187,16 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
         withContext(Dispatchers.IO) {
             try {
-                client.connect()
+                loginMutex.withLock {
+                    if (client.isConnected())
+                        return@withLock
 
-                if (jwt)
-                    client.loginJWT(jwtToken)
-                else if (UserUtils.isValidTokenOffline(mc.session.token)) {
-                    client.loginMojang()
+                    client.connect()
+
+                    when {
+                        jwt -> client.loginJWT(jwtToken)
+                        UserUtils.isValidTokenOffline(mc.session.token) -> client.loginMojang()
+                    }
                 }
             } catch (cause: Exception) {
                 LOGGER.error("LiquidChat error", cause)
