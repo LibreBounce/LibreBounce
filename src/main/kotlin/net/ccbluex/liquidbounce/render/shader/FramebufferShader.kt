@@ -28,11 +28,12 @@ import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL13
+import java.io.Closeable
 
 /**
  * @author ccetl
  */
-open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts {
+open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, Closeable {
 
     private val framebuffers = mutableListOf<SimpleFramebuffer>()
     private var buffer = VertexBuffer(VertexBuffer.Usage.DYNAMIC)
@@ -120,7 +121,7 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts {
         apply()
     }
 
-    fun cleanup() {
+    override fun close() {
         shaders.forEach { it.close() }
         buffer.close()
         framebuffers.forEach { it.delete() }
