@@ -206,7 +206,7 @@ fun EntityPlayerSP.onPlayerRightClick(
     if (clickPos !in worldObj.worldBorder)
         return false
 
-    val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatTriple()
+    val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatArray()
 
     val sendClick = {
         sendPacket(C08PacketPlayerBlockPlacement(clickPos, side.index, stack, facingX, facingY, facingZ))
