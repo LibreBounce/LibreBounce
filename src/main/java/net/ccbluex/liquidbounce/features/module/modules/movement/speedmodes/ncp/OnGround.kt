@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.ncp
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 object OnGround : SpeedMode("OnGround") {
@@ -17,7 +18,7 @@ object OnGround : SpeedMode("OnGround") {
 
         if (thePlayer.fallDistance > 3.994)
             return
-        if (thePlayer.isInWater || thePlayer.isOnLadder || thePlayer.isCollidedHorizontally)
+        if (thePlayer.isInLiquid || thePlayer.isOnLadder || thePlayer.isCollidedHorizontally)
             return
 
         thePlayer.posY -= 0.3993000090122223

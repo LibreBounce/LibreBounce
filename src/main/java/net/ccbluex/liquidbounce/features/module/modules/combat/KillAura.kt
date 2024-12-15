@@ -791,7 +791,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
                 "inweb" -> if (entity.isInWeb) -1.0 else Double.MAX_VALUE
                 "onladder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
-                "inliquid" -> if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
+                "inliquid" -> if (entity.isInLiquid) -1.0 else Double.MAX_VALUE
                 else -> null
             } ?: continue
 

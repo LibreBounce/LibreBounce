@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.ncp
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 object Boost : SpeedMode("Boost") {
@@ -59,5 +60,5 @@ object Boost : SpeedMode("Boost") {
 
 
     private fun shouldSpeedUp() =
-        !mc.thePlayer.isInLava && !mc.thePlayer.isOnLadder && !mc.thePlayer.isSneaking && mc.thePlayer.isMoving
+        !mc.thePlayer.isInLiquid && !mc.thePlayer.isOnLadder && !mc.thePlayer.isSneaking && mc.thePlayer.isMoving
 }

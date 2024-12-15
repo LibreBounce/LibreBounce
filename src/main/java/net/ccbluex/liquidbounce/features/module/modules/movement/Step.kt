@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.minecraft.init.Blocks.*
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
@@ -76,7 +77,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         val mode = mode
         val thePlayer = mc.thePlayer ?: return
 
-        if (thePlayer.isOnLadder || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb) return
+        if (thePlayer.isOnLadder || thePlayer.isInLiquid || thePlayer.isInWeb) return
 
         if (!thePlayer.isMoving) return
 

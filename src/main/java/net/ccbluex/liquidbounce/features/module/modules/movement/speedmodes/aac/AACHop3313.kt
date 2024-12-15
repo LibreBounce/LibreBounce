@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.block
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.block.BlockCarpet
@@ -21,7 +22,7 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
     override fun onUpdate() {
         val thePlayer = mc.thePlayer ?: return
 
-        if (!thePlayer.isMoving || thePlayer.isInWater || thePlayer.isInLava ||
+        if (!thePlayer.isMoving || thePlayer.isInLiquid ||
                 thePlayer.isOnLadder || thePlayer.isRiding || thePlayer.hurtTime > 0) return
         if (thePlayer.onGround && thePlayer.isCollidedVertically) {
             // MotionXYZ

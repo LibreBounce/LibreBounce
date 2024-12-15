@@ -18,12 +18,6 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.runWithModifiedRaycastResult
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
-import net.ccbluex.liquidbounce.utils.extensions.attackEntityWithModifiedSprint
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.rotation
-import net.ccbluex.liquidbounce.utils.extensions.toDegrees
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.client.realMotionX
 import net.ccbluex.liquidbounce.utils.client.realMotionY
@@ -36,6 +30,7 @@ import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.config.intRange
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
@@ -204,7 +199,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     fun onUpdate(event: UpdateEvent) {
         val thePlayer = mc.thePlayer ?: return
 
-        if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb || thePlayer.isDead)
+        if (thePlayer.isInLiquid || thePlayer.isInWeb || thePlayer.isDead)
             return
 
         when (mode.lowercase()) {
@@ -720,7 +715,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     fun onJump(event: JumpEvent) {
         val thePlayer = mc.thePlayer
 
-        if (thePlayer == null || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
+        if (thePlayer == null || thePlayer.isInLiquid || thePlayer.isInWeb)
             return
 
         when (mode.lowercase()) {
