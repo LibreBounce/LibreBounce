@@ -70,42 +70,40 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : GuiScreen() {
      * Draw screen
      */
     override fun drawScreen(mouseX : Int, mouseY : Int, partialTicks : Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            // Draw background to screen
+            drawBackground(0)
+            drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
 
-        // Draw background to screen
-        drawBackground(0)
-        drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
-
-        // Draw title and status
-        Fonts.font40.drawCenteredString("Donator Cape", width / 2f, 45f, 0xffffff)
-        if (loggedIntoAccount) {
-            CapeService.clientCapeUser?.run {
-                Fonts.font40.drawCenteredString("§cCape: §f$capeName", width / 2f, height / 2 - 100f, 0xffffff)
-                Fonts.font40.drawCenteredString("§cVisible to others: §f${if (enabled) "Yes" else "No"}", width / 2f, height / 2 - 90f, 0xffffff)
-                Fonts.font40.drawCenteredString("§cOn account: §f$uuid", width / 2f, height / 2 - 80f, 0xffffff)
+            // Draw title and status
+            Fonts.font40.drawCenteredString("Donator Cape", width / 2f, 45f, 0xffffff)
+            if (loggedIntoAccount) {
+                CapeService.clientCapeUser?.run {
+                    Fonts.font40.drawCenteredString("§cCape: §f$capeName", width / 2f, height / 2 - 100f, 0xffffff)
+                    Fonts.font40.drawCenteredString("§cVisible to others: §f${if (enabled) "Yes" else "No"}", width / 2f, height / 2 - 90f, 0xffffff)
+                    Fonts.font40.drawCenteredString("§cOn account: §f$uuid", width / 2f, height / 2 - 80f, 0xffffff)
+                }
             }
-        }
-        Fonts.font35.drawCenteredString(status, width / 2f, height / 2f - 5, 0xffffff)
+            Fonts.font35.drawCenteredString(status, width / 2f, height / 2f - 5, 0xffffff)
 
-        // Draw fields
-        if (!loggedIntoAccount) {
-            transferCodeField.drawTextBox()
+            // Draw fields
+            if (!loggedIntoAccount) {
+                transferCodeField.drawTextBox()
 
-            if (transferCodeField.text.isEmpty() && !transferCodeField.isFocused) {
-                Fonts.font40.drawCenteredString("§7Transfer Code", width / 2f - 60f, height / 2 - 84f, 0xffffff)
+                if (transferCodeField.text.isEmpty() && !transferCodeField.isFocused) {
+                    Fonts.font40.drawCenteredString("§7Transfer Code", width / 2f - 60f, height / 2 - 84f, 0xffffff)
+                }
             }
+
+            upperButton.displayString = if (!loggedIntoAccount)
+                "Login"
+            else if (CapeService.clientCapeUser?.enabled == true)
+                "Disable visibility"
+            else
+                "Enable visibility"
+
+            lowerButton.displayString = if (loggedIntoAccount) "Logout" else "Donate to get Cape"
         }
-
-        upperButton.displayString = if (!loggedIntoAccount)
-            "Login"
-        else if (CapeService.clientCapeUser?.enabled == true)
-            "Disable visibility"
-        else
-            "Enable visibility"
-
-        lowerButton.displayString = if (loggedIntoAccount) "Logout" else "Donate to get Cape"
-
-        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

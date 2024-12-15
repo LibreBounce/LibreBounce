@@ -58,23 +58,21 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
      * Draw screen
      */
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            // Draw background to screen
+            drawBackground(0)
+            drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
 
-        // Draw background to screen
-        drawBackground(0)
-        drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
+            // Draw title and status
+            Fonts.font40.drawCenteredString("Session Login", width / 2f, height / 2 - 150f, 0xffffff)
+            Fonts.font35.drawCenteredString(status, width / 2f, height / 2f, 0xffffff)
 
-        // Draw title and status
-        Fonts.font40.drawCenteredString("Session Login", width / 2f, height / 2 - 150f, 0xffffff)
-        Fonts.font35.drawCenteredString(status, width / 2f, height / 2f, 0xffffff)
+            // Draw fields
+            sessionTokenField.drawTextBox()
 
-        // Draw fields
-        sessionTokenField.drawTextBox()
-
-        if (sessionTokenField.text.isEmpty() && !sessionTokenField.isFocused)
-            Fonts.font40.drawCenteredString("§7Session Token", width / 2f - 60f, height / 2 - 84f, 0xffffff)
-
-        assumeNonVolatile = false
+            if (sessionTokenField.text.isEmpty() && !sessionTokenField.isFocused)
+                Fonts.font40.drawCenteredString("§7Session Token", width / 2f - 60f, height / 2 - 84f, 0xffffff)
+        }
 
         // Call sub method
         super.drawScreen(mouseX, mouseY, partialTicks)

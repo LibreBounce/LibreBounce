@@ -27,9 +27,7 @@ class GuiUpdate : GuiScreen() {
         }
     }
 
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
-
+    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) = assumeNonVolatile {
         drawBackground(0)
 
         if (!IN_DEV) {
@@ -45,8 +43,6 @@ class GuiUpdate : GuiScreen() {
         // Title
         glScalef(2F, 2F, 2F)
         Fonts.font35.drawCenteredString("New update available!", width / 4f, height / 16f + 20, Color(255, 0, 0).rgb)
-
-        assumeNonVolatile = false
     }
 
     override fun actionPerformed(button: GuiButton) {

@@ -20,9 +20,7 @@ class GuiWelcome : GuiScreen() {
         buttonList.add(GuiButton(1, width / 2 - 100, height - 40, "Ok"))
     }
 
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
-
+    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) = assumeNonVolatile {
         drawBackground(0)
 
         Fonts.font35.run {
@@ -49,8 +47,6 @@ class GuiWelcome : GuiScreen() {
         // Title
         glScalef(2F, 2F, 2F)
         Fonts.font40.drawCenteredString("Welcome!", width / 2 / 2F, 20.0f, Color(0, 140, 255).rgb, true)
-
-        assumeNonVolatile = false
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {

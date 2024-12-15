@@ -81,13 +81,12 @@ class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: ()
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            drawDefaultBackground()
+            drawLoadingCircle(width / 2f, height / 4f + 70)
+            Fonts.font40.drawCenteredString("Logging into account...", width / 2f, height / 2 - 60f, 0xffffff)
 
-        drawDefaultBackground()
-        drawLoadingCircle(width / 2f, height / 4f + 70)
-        Fonts.font40.drawCenteredString("Logging into account...", width / 2f, height / 2 - 60f, 0xffffff)
-
-        assumeNonVolatile = false
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

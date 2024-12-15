@@ -52,21 +52,19 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            drawBackground(0)
 
-        drawBackground(0)
+            drawRect(30, 30, width - 30, height - 30, Int.MIN_VALUE)
+            Fonts.font40.drawCenteredString(if (directLogin) "Direct Login" else "Add Account", width / 2f, height / 2 - 170f, 0xffffff)
+            Fonts.font40.drawCenteredString("§7${if (directLogin) "Login to" else "Add"} an offline account", width / 2f, height / 2 - 110f, 0xffffff)
+            Fonts.font35.drawCenteredString(status, width / 2f, height / 2f - 30, 0xffffff)
 
-        drawRect(30, 30, width - 30, height - 30, Int.MIN_VALUE)
-        Fonts.font40.drawCenteredString(if (directLogin) "Direct Login" else "Add Account", width / 2f, height / 2 - 170f, 0xffffff)
-        Fonts.font40.drawCenteredString("§7${if (directLogin) "Login to" else "Add"} an offline account", width / 2f, height / 2 - 110f, 0xffffff)
-        Fonts.font35.drawCenteredString(status, width / 2f, height / 2f - 30, 0xffffff)
+            username.drawTextBox()
 
-        username.drawTextBox()
-
-        if (username.text.isEmpty() && !username.isFocused)
-            Fonts.font40.drawCenteredString("§7Username", width / 2 - 72f, height / 2 - 84f, 0xffffff)
-
-        assumeNonVolatile = false
+            if (username.text.isEmpty() && !username.isFocused)
+                Fonts.font40.drawCenteredString("§7Username", width / 2 - 72f, height / 2 - 84f, 0xffffff)
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

@@ -18,13 +18,11 @@ class GuiLoginProgress(minecraftAccount: MinecraftAccount, success: () -> Unit, 
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
-
-        drawDefaultBackground()
-        drawLoadingCircle(width / 2f, height / 4f + 70)
-        drawCenteredString(fontRendererObj, "Logging into account...", width / 2, height / 2 - 60, 16777215)
-
-        assumeNonVolatile = false
+        assumeNonVolatile {
+            drawDefaultBackground()
+            drawLoadingCircle(width / 2f, height / 4f + 70)
+            drawCenteredString(fontRendererObj, "Logging into account...", width / 2, height / 2 - 60, 16777215)
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

@@ -96,35 +96,33 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
-
-        drawBackground(0)
-        altsList.drawScreen(mouseX, mouseY, partialTicks)
-        Fonts.font40.drawCenteredString(translationMenu("altManager"), width / 2f, 6f, 0xffffff)
-        Fonts.font35.drawCenteredString(
-            if (searchField.text.isEmpty()) "${accountsConfig.accounts.size} Alts" else altsList.accounts.size.toString() + " Search Results",
-            width / 2f,
-            18f,
-            0xffffff
-        )
-        Fonts.font35.drawCenteredString(status, width / 2f, 32f, 0xffffff)
-        Fonts.font35.drawStringWithShadow(
-            "§7User: §a${mc.getSession().username}", 6f, 6f, 0xffffff
-        )
-        Fonts.font35.drawStringWithShadow(
-            "§7Type: §a${
-                if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
-                        mc.getSession().token
-                    )
-                ) "Premium" else "Cracked"
-            }", 6f, 15f, 0xffffff
-        )
-        searchField.drawTextBox()
-        if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
-            "§7Search...", searchField.xPosition + 4f, 17f, 0xffffff
-        )
-
-        assumeNonVolatile = false
+        assumeNonVolatile {
+            drawBackground(0)
+            altsList.drawScreen(mouseX, mouseY, partialTicks)
+            Fonts.font40.drawCenteredString(translationMenu("altManager"), width / 2f, 6f, 0xffffff)
+            Fonts.font35.drawCenteredString(
+                if (searchField.text.isEmpty()) "${accountsConfig.accounts.size} Alts" else altsList.accounts.size.toString() + " Search Results",
+                width / 2f,
+                18f,
+                0xffffff
+            )
+            Fonts.font35.drawCenteredString(status, width / 2f, 32f, 0xffffff)
+            Fonts.font35.drawStringWithShadow(
+                "§7User: §a${mc.getSession().username}", 6f, 6f, 0xffffff
+            )
+            Fonts.font35.drawStringWithShadow(
+                "§7Type: §a${
+                    if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
+                            mc.getSession().token
+                        )
+                    ) "Premium" else "Cracked"
+                }", 6f, 15f, 0xffffff
+            )
+            searchField.drawTextBox()
+            if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
+                "§7Search...", searchField.xPosition + 4f, 17f, 0xffffff
+            )
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

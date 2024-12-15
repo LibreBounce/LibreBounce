@@ -40,36 +40,34 @@ class Effects(
 
         val height = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT).toFloat()
 
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            for (effect in mc.thePlayer.activePotionEffects) {
+                val potion = Potion.potionTypes[effect.potionID]
 
-        for (effect in mc.thePlayer.activePotionEffects) {
-            val potion = Potion.potionTypes[effect.potionID]
+                val number = when {
+                    effect.amplifier == 1 -> "II"
+                    effect.amplifier == 2 -> "III"
+                    effect.amplifier == 3 -> "IV"
+                    effect.amplifier == 4 -> "V"
+                    effect.amplifier == 5 -> "VI"
+                    effect.amplifier == 6 -> "VII"
+                    effect.amplifier == 7 -> "VIII"
+                    effect.amplifier == 8 -> "IX"
+                    effect.amplifier == 9 -> "X"
+                    effect.amplifier > 10 -> "X+"
+                    else -> "I"
+                }
 
-            val number = when {
-                effect.amplifier == 1 -> "II"
-                effect.amplifier == 2 -> "III"
-                effect.amplifier == 3 -> "IV"
-                effect.amplifier == 4 -> "V"
-                effect.amplifier == 5 -> "VI"
-                effect.amplifier == 6 -> "VII"
-                effect.amplifier == 7 -> "VIII"
-                effect.amplifier == 8 -> "IX"
-                effect.amplifier == 9 -> "X"
-                effect.amplifier > 10 -> "X+"
-                else -> "I"
+                val name = "${I18n.format(potion.name)} $number§f: §7${Potion.getDurationString(effect)}"
+                val stringWidth = font.getStringWidth(name).toFloat()
+
+                if (width < stringWidth)
+                    width = stringWidth
+
+                font.drawString(name, -stringWidth, y, potion.liquidColor, shadow)
+                y -= height
             }
-
-            val name = "${I18n.format(potion.name)} $number§f: §7${Potion.getDurationString(effect)}"
-            val stringWidth = font.getStringWidth(name).toFloat()
-
-            if (width < stringWidth)
-                width = stringWidth
-
-            font.drawString(name, -stringWidth, y, potion.liquidColor, shadow)
-            y -= height
         }
-
-        assumeNonVolatile = false
 
         if (width == 0F)
             width = 40F

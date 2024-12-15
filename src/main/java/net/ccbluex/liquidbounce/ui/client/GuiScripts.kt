@@ -50,15 +50,13 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            drawBackground(0)
 
-        drawBackground(0)
+            list.drawScreen(mouseX, mouseY, partialTicks)
 
-        list.drawScreen(mouseX, mouseY, partialTicks)
-
-        Fonts.font40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
-
-        assumeNonVolatile = false
+            Fonts.font40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
