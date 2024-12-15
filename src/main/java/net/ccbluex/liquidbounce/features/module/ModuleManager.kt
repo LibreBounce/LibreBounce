@@ -217,8 +217,6 @@ object ModuleManager : Listenable {
 
         registerModules(modules = modules)
 
-        InventoryManager.startCoroutine()
-
         LOGGER.info("[ModuleManager] Loaded ${modules.size} modules.")
     }
 

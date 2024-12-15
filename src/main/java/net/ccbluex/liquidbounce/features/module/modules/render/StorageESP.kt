@@ -175,6 +175,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                     }
                 }
             }
+
             for (entity in mc.theWorld.loadedEntityList) {
                 val entityPos = entity.position
 
@@ -252,7 +253,6 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
         try {
             mc.theWorld.loadedTileEntityList
-                .asSequence()
                 .groupBy { getColor(it) }
                 .forEach { (color, tileEntities) ->
                     color ?: return@forEach

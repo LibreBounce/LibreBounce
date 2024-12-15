@@ -44,6 +44,7 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
 import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.movement.BPSUtils
@@ -115,12 +116,15 @@ object LiquidBounce {
             // Load languages
             loadLanguages()
 
+            SharedScopes
+
             // Register listeners
             RotationUtils
             ClientFixes
             BungeeCordSpoof
             CapeService
             InventoryUtils
+            InventoryManager
             MiniMapRegister
             TickedActions
             MovementUtils
