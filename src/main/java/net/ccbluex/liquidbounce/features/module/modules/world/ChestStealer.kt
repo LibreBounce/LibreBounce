@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCurrentSlot
@@ -33,7 +34,6 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerLas
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
-import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.gui.ScaledResolution
@@ -251,7 +251,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
             }
 
             // Wait till all scheduled clicks were sent
-            waitUntil(TickScheduler::isEmpty)
+            waitUntil { TickScheduler.isEmpty() }
 
             // Before closing the chest, check all items once more, whether server hadn't cancelled some of the actions.
             stacks = thePlayer.openContainer.inventory

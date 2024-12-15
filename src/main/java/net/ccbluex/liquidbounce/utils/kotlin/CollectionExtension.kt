@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.extensions
+package net.ccbluex.liquidbounce.utils.kotlin
 
 inline fun <T> MutableCollection<T>.removeEach(max: Int = this.size, predicate: (T) -> Boolean) {
     var i = 0

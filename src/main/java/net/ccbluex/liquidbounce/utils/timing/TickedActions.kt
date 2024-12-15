@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.utils.timing
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.minecraft.item.ItemStack
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -67,15 +67,15 @@ object TickedActions : Listenable {
 
         // Schedule actions to be executed in following ticks, one each tick
         // Thread is frozen until all actions were executed (suitable for coroutines)
-        fun scheduleAndSuspend(vararg actions: () -> Unit) =
+        suspend fun scheduleAndSuspend(vararg actions: () -> Unit) =
             actions.forEach {
                 this += it
-                CoroutineUtils.waitUntil(::isEmpty)
+                waitUntil { isEmpty() }
             }
 
-        fun scheduleAndSuspend(id: Int = -1, allowDuplicates: Boolean = true, action: () -> Unit) {
+        suspend fun scheduleAndSuspend(id: Int = -1, allowDuplicates: Boolean = true, action: () -> Unit) {
             schedule(id, module, allowDuplicates, action)
-            CoroutineUtils.waitUntil(::isEmpty)
+            waitUntil { isEmpty() }
         }
 
         // Checks if id click is scheduled: if (id in TickScheduler)

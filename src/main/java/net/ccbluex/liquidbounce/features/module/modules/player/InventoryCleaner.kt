@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isFullBlock
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.shuffled
+import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
@@ -26,7 +27,6 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.passedPostInven
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
-import net.ccbluex.liquidbounce.utils.kotlin.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.BlockFalling
@@ -208,7 +208,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
 
             // This part isn't fully instant because of the complex vanilla merging behaviour, stack size changes and so on
             // Waits a tick to see how the stacks got merged
-            waitUntil(TickScheduler::isEmpty)
+            waitUntil { TickScheduler.isEmpty() }
         }
     }
 
@@ -343,7 +343,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                 break
 
             // Waits a tick to see how the stacks got repaired
-            waitUntil(TickScheduler::isEmpty)
+            waitUntil { TickScheduler.isEmpty() }
         }
     }
 
@@ -402,7 +402,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                 searchAndSort()
         }
 
-        waitUntil(TickScheduler::isEmpty)
+        waitUntil { TickScheduler.isEmpty() }
     }
 
     // Drop bad items to free up inventory space
@@ -429,7 +429,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                 click(index, 1, 4)
         }
 
-        waitUntil(TickScheduler::isEmpty)
+        waitUntil { TickScheduler.isEmpty() }
     }
 
     private suspend fun click(

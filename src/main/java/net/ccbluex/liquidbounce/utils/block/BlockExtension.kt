@@ -47,3 +47,9 @@ fun BlockPos.canBeClicked(): Boolean {
         else -> true
     }
 }
+
+val Block.id: Int
+    get() = Block.getIdFromBlock(this)
+
+val Int.blockById: Block
+    get() = Block.getBlockById(this)

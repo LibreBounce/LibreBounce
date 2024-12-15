@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.extensions
+package net.ccbluex.liquidbounce.utils.kotlin
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
@@ -42,5 +42,11 @@ private object RenderDispatcher : CoroutineDispatcher() {
         } catch (e: Throwable) {
             context[CoroutineExceptionHandler]?.handleException(context, e) ?: throw e
         }
+    }
+}
+
+suspend fun waitUntil(period: Long = 10L, condition: () -> Boolean) {
+    while (!condition()) {
+        delay(period)
     }
 }
