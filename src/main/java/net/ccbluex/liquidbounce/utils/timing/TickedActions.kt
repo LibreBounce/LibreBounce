@@ -13,23 +13,29 @@ import net.minecraft.item.ItemStack
 import java.util.concurrent.CopyOnWriteArrayList
 
 object TickedActions : Listenable {
-    private val actions = CopyOnWriteArrayList<Triple<Module, Int, () -> Unit>>()
+    private data class Action(
+        val owner: Module,
+        val id: Int,
+        val action: () -> Unit
+    )
 
-    private val calledThisTick = mutableListOf<Triple<Module, Int, () -> Unit>>()
+    private val actions = CopyOnWriteArrayList<Action>()
+
+    private val calledThisTick = mutableListOf<Action>()
 
     fun schedule(id: Int, module: Module, allowDuplicates: Boolean = false, action: () -> Unit) =
         if (allowDuplicates || !isScheduled(id, module)) {
-            actions += Triple(module, id, action)
+            actions += Action(module, id, action)
             true
         } else false
 
     fun isScheduled(id: Int, module: Module) =
-        actions.filter { it.first == module && it.second == id }
+        actions.filter { it.owner == module && it.id == id }
             .any { it !in calledThisTick }
 
-    fun clear(module: Module) = actions.removeIf { it.first == module }
+    fun clear(module: Module) = actions.removeIf { it.owner == module }
 
-    fun size(module: Module) = actions.count { it.first == module }
+    fun size(module: Module) = actions.count { it.owner == module }
 
     fun isEmpty(module: Module) = size(module) == 0
 
@@ -38,7 +44,7 @@ object TickedActions : Listenable {
         actions.toCollection(calledThisTick)
 
         for (triple in calledThisTick) {
-            triple.third()
+            triple.action
             if (actions.isNotEmpty()) {
                 actions.removeFirst()
             }
