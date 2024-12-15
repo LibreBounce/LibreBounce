@@ -92,7 +92,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                         yggdrasilUserAuthentication.logIn();
 
                         mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "microsoft");
-                        EventManager.INSTANCE.callEvent(SessionUpdateEvent.INSTANCE);
+                        EventManager.INSTANCE.call(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
                         break;
                     } catch (final Throwable throwable) {
@@ -107,7 +107,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
 
                 mc.displayGuiScreen(new GuiLoginProgress(minecraftAccount, () -> {
                     mc.addScheduledTask(() -> {
-                        EventManager.INSTANCE.callEvent(SessionUpdateEvent.INSTANCE);
+                        EventManager.INSTANCE.call(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
                     });
                     return null;

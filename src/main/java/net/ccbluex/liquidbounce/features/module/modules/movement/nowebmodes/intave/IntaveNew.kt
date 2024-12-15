@@ -6,9 +6,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.nowebmodes.intave
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.nowebmodes.NoWebMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object IntaveNew : NoWebMode("IntaveNew") {
     override fun onUpdate() {

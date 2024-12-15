@@ -5,17 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.GameTickEvent
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.text
+import net.ccbluex.liquidbounce.event.GameTickEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.world.WorldSettings
@@ -51,7 +51,8 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
 
         // don't wait before and after throwing if the player is already holding an ender pearl
         if (!delayedSlotSwitch || SilentHotbar.currentSlot == pearlInHotbar) {
-            SilentHotbar.selectSlotSilently(this,
+            SilentHotbar.selectSlotSilently(
+                this,
                 pearlInHotbar,
                 immediate = true,
                 render = false,
@@ -62,7 +63,8 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
             return
         }
 
-        SilentHotbar.selectSlotSilently(this,
+        SilentHotbar.selectSlotSilently(
+            this,
             pearlInHotbar,
             immediate = true,
             render = false,
@@ -72,8 +74,7 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
         hasThrown = true
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
+    val onTick = handler<GameTickEvent> {
         if (hasThrown) {
             SilentHotbar.resetSlot(this)
             hasThrown = false
@@ -81,7 +82,7 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
 
         if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
             || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE
-        ) return
+        ) return@handler
 
         val isMouseDown = Mouse.isButtonDown(mouseButtonValue.values.indexOf(mouseButtonValue.get()))
         val isKeyDown = Keyboard.isKeyDown(Keyboard.getKeyIndex(keyName.uppercase()))

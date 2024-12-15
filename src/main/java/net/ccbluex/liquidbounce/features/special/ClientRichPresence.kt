@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
 import org.json.JSONObject
 import java.io.IOException
@@ -112,8 +112,10 @@ object ClientRichPresence : MinecraftInstance() {
                 // Set server info
                 if (showRPCServerIP) {
                     setDetails(customRPCText.ifEmpty {
-                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" 
-                        else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
+                        "Server: ${
+                            if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer"
+                            else ServerUtils.hideSensitiveInformation(serverData.serverIP)
+                        }"
                     })
                 }
 

@@ -5,22 +5,22 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
+import net.ccbluex.liquidbounce.config.FloatValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold.searchMode
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold.shouldGoDown
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.blocksAmount
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
-import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.stats.StatList
@@ -91,18 +91,17 @@ object Tower : MinecraftInstance(), Listenable {
     private var jumpGround = 0.0
 
     // Handle motion events
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
+    val onMotion = handler<MotionEvent> { event ->
         val eventState = event.eventState
 
-        val player = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return@handler
 
         isTowering = false
 
         if (towerModeValues.get() == "None" || notOnMoveValues.get() && player.isMoving ||
             onJumpValues.get() && !mc.gameSettings.keyBindJump.isKeyDown
         ) {
-            return
+            return@handler
         }
 
         isTowering = true
@@ -123,17 +122,16 @@ object Tower : MinecraftInstance(), Listenable {
     }
 
     // Handle jump events
-    @EventTarget
-    fun onJump(event: JumpEvent) {
+    val onJump = handler<JumpEvent> { event ->
         if (onJumpValues.get()) {
             if (Scaffold.scaffoldMode == "GodBridge" && (Scaffold.jumpAutomatically) || !Scaffold.shouldJumpOnInput)
-                return
+                return@handler
             if (towerModeValues.get() == "None" || towerModeValues.get() == "Jump")
-                return
+                return@handler
             if (notOnMoveValues.get() && mc.thePlayer.isMoving)
-                return
+                return@handler
             if (Speed.state || Fly.state)
-                return
+                return@handler
 
             event.cancelEvent()
         }
@@ -287,9 +285,8 @@ object Tower : MinecraftInstance(), Listenable {
         }
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        val player = mc.thePlayer ?: return
+    val onPacket = handler<PacketEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
 
         val packet = event.packet
 

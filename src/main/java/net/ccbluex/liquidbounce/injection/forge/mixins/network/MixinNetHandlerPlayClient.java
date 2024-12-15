@@ -242,7 +242,7 @@ public abstract class MixinNetHandlerPlayClient {
         final Entity entity = packetIn.getEntity(clientWorldController);
 
         if (entity != null)
-            EventManager.INSTANCE.callEvent(new EntityMovementEvent(entity));
+            EventManager.INSTANCE.call(new EntityMovementEvent(entity));
     }
 
     @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))

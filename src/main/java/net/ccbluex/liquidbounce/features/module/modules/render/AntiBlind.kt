@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.network.play.server.S3FPacketCustomPayload
 
 object AntiBlind : Module("AntiBlind", Category.RENDER, gameDetecting = false, hideModule = false) {
@@ -22,9 +22,8 @@ object AntiBlind : Module("AntiBlind", Category.RENDER, gameDetecting = false, h
     val achievements by boolean("Achievements", true)
     val scoreboard by boolean("Scoreboard", false)
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        if (!bookPage) return
+    val onPacket = handler<PacketEvent> { event ->
+        if (!bookPage) return@handler
 
         val packet = event.packet
         if (packet is S3FPacketCustomPayload && packet.channelName == "MC|BOpen") event.cancelEvent()

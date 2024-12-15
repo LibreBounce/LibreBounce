@@ -5,12 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.event.CameraPositionEvent
+import net.ccbluex.liquidbounce.event.EventState
+import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 
 object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false, hideModule = false) {
 
@@ -19,7 +22,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false,
     private val onScaffold by boolean("OnScaffold", true)
     private val onF5 by boolean("OnF5", true)
 
-    private var launchY: Double ?= null
+    private var launchY: Double? = null
 
     override fun onEnable() {
         mc.thePlayer?.run {
@@ -27,9 +30,8 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false,
         }
     }
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (event.eventState != EventState.POST) return
+    val onMotion = handler<MotionEvent> { event ->
+        if (event.eventState != EventState.POST) return@handler
 
         mc.thePlayer?.run {
             if (!saveLastGroundY || (onGround || ticksExisted == 1)) {
@@ -38,12 +40,11 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false,
         }
     }
 
-    @EventTarget
-    fun onCameraUpdate(event: CameraPositionEvent) {
+    val onCameraUpdate = handler<CameraPositionEvent> { event ->
         mc.thePlayer?.run {
-            val currentLaunchY = launchY ?: return
-            if (onScaffold && !Scaffold.handleEvents()) return
-            if (onF5 && mc.gameSettings.thirdPersonView == 0) return
+            val currentLaunchY = launchY ?: return@handler
+            if (onScaffold && !Scaffold.handleEvents()) return@handler
+            if (onF5 && mc.gameSettings.thirdPersonView == 0) return@handler
 
             event.withY(currentLaunchY + customY)
         }

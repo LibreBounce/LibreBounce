@@ -6,15 +6,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.other
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 
 object SlowHop : SpeedMode("SlowHop") {
     override fun onMotion() {
         val player = mc.thePlayer ?: return
         if (player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
-        
+
         if (player.isMoving) {
             if (player.onGround) player.tryJump() else speed *= 1.011f
         } else {

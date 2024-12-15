@@ -5,15 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.extensions.block
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.block.block
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.minecraft.block.BlockStairs
 import net.minecraft.util.BlockPos
 
@@ -26,12 +26,11 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
 
     private var walkingDown = false
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (!thePlayer.isMoving || Speed.handleEvents())
-            return
+            return@handler
 
 
         if (thePlayer.fallDistance > 0 && !walkingDown)
@@ -42,7 +41,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
         val mode = mode
 
         if (!thePlayer.onGround)
-            return
+            return@handler
 
         val blockPos = BlockPos(thePlayer)
 
@@ -67,7 +66,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
                     "AAC3.3.13" -> thePlayer.motionY -= 0.014
                 }
 
-                return
+                return@handler
             }
 
             val motion = when (mode) {

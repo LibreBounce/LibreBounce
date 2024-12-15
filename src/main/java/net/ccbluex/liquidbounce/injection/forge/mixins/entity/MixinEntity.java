@@ -252,7 +252,7 @@ public abstract class MixinEntity implements IMixinEntity {
         if ((Object) this != mc.thePlayer) return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
-        EventManager.INSTANCE.callEvent(strafeEvent);
+        EventManager.INSTANCE.call(strafeEvent);
 
         if (strafeEvent.isCancelled()) callbackInfo.cancel();
     }
@@ -283,7 +283,7 @@ public abstract class MixinEntity implements IMixinEntity {
 
         RotationSetEvent event = new RotationSetEvent((float) (yaw * 0.15), (float) (pitch * 0.15));
 
-        EventManager.INSTANCE.callEvent(event);
+        EventManager.INSTANCE.call(event);
 
         if (event.isCancelled())
             ci.cancel();

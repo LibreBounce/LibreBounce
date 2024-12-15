@@ -6,10 +6,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.pathfinding.PathUtils.findPath
@@ -26,14 +26,13 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT, hideModule = false) 
     private var targetEntity: EntityLivingBase? = null
     private var shouldHit = false
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
+    val onMotion = handler<MotionEvent> { event ->
         if (event.eventState != EventState.PRE)
-            return
+            return@handler
 
         val facedEntity = RaycastUtils.raycastEntity(100.0) { raycastedEntity -> raycastedEntity is EntityLivingBase }
 
-        val thePlayer: EntityPlayerSP = mc.thePlayer ?: return
+        val thePlayer: EntityPlayerSP = mc.thePlayer ?: return@handler
 
         if (mc.gameSettings.keyBindAttack.isKeyDown && isSelected(facedEntity, true)) {
             if (facedEntity?.getDistanceSqToEntity(mc.thePlayer)!! >= 1) targetEntity = facedEntity as EntityLivingBase
@@ -42,7 +41,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT, hideModule = false) 
         targetEntity?.let {
             if (!shouldHit) {
                 shouldHit = true
-                return
+                return@handler
             }
 
             if (thePlayer.fallDistance > 0F) {
@@ -51,7 +50,16 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT, hideModule = false) 
                 val z = mc.thePlayer.posZ + rotationVector.zCoord * (mc.thePlayer.getDistanceToEntity(it) - 1f)
                 val y = it.posY + 0.25
 
-                findPath(x, y + 1, z, 4.0).forEach { pos -> sendPacket(C04PacketPlayerPosition(pos.x, pos.y, pos.z, false)) }
+                findPath(x, y + 1, z, 4.0).forEach { pos ->
+                    sendPacket(
+                        C04PacketPlayerPosition(
+                            pos.x,
+                            pos.y,
+                            pos.z,
+                            false
+                        )
+                    )
+                }
 
                 thePlayer.swingItem()
                 sendPacket(C02PacketUseEntity(it, C02PacketUseEntity.Action.ATTACK))

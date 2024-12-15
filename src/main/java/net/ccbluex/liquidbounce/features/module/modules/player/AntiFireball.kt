@@ -9,9 +9,9 @@ import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
@@ -36,10 +36,9 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER, hideModule = false
 
     private var target: Entity? = null
 
-    @EventTarget
-    fun onRotationUpdate(event: RotationUpdateEvent) {
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+    val onRotationUpdate = handler<RotationUpdateEvent> {
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         target = null
 
@@ -71,10 +70,9 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER, hideModule = false
         }
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
-        val player = mc.thePlayer ?: return
-        val entity = target ?: return
+    val onTick = handler<GameTickEvent> {
+        val player = mc.thePlayer ?: return@handler
+        val entity = target ?: return@handler
 
         val rotation = currentRotation ?: player.rotation
 

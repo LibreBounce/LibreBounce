@@ -9,15 +9,14 @@ import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
@@ -48,17 +47,21 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
             val world = mc.theWorld ?: return null
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
 
-            if (blockPos.block !in arrayOf(Blocks.air, Blocks.water, Blocks.lava) && world.worldBorder.contains(blockPos))
+            if (blockPos.block !in arrayOf(
+                    Blocks.air,
+                    Blocks.water,
+                    Blocks.lava
+                ) && world.worldBorder.contains(blockPos)
+            )
                 return blockPos
 
             return null
         }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        val blockPos = currentBlock ?: return
+    val onRender3D = handler<Render3DEvent> {
+        val blockPos = currentBlock ?: return@handler
 
-        val block = blockPos.block ?: return
+        val block = blockPos.block ?: return@handler
 
         val color = if (colorRainbow) {
             rainbow(alpha = 0.4F)
@@ -76,7 +79,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
         block.setBlockBoundsBasedOnState(mc.theWorld, blockPos)
 
-        val thePlayer = mc.thePlayer ?: return
+        val thePlayer = mc.thePlayer ?: return@handler
 
         val pos = thePlayer.interpolatedPosition(thePlayer.lastTickPos)
 
@@ -97,25 +100,24 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
         resetColor()
     }
 
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        if (info) {
-            val blockPos = currentBlock ?: return
-            val block = blockPos.block ?: return
+    val onRender2D = handler<Render2DEvent> {
+        if (!info) return@handler
 
-            val info = "${block.localizedName} §7ID: ${Block.getIdFromBlock(block)}"
-            val (width, height) = ScaledResolution(mc)
+        val blockPos = currentBlock ?: return@handler
+        val block = blockPos.block ?: return@handler
 
-            drawBorderedRect(
-                width / 2 - 2F,
-                height / 2 + 5F,
-                width / 2 + Fonts.font40.getStringWidth(info) + 2F,
-                height / 2 + 16F,
-                3F, Color.BLACK.rgb, Color.BLACK.rgb
-            )
+        val info = "${block.localizedName} §7ID: ${Block.getIdFromBlock(block)}"
+        val (width, height) = ScaledResolution(mc)
 
-            resetColor()
-            Fonts.font40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
-        }
+        drawBorderedRect(
+            width / 2 - 2F,
+            height / 2 + 5F,
+            width / 2 + Fonts.font40.getStringWidth(info) + 2F,
+            height / 2 + 16F,
+            3F, Color.BLACK.rgb, Color.BLACK.rgb
+        )
+
+        resetColor()
+        Fonts.font40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
     }
 }

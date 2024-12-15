@@ -5,9 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
@@ -17,7 +18,6 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.config.*
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
@@ -64,9 +64,8 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
     private val colorTeam by boolean("TeamColor", false)
     private val bot by boolean("Bots", true)
 
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        if (dimension != "2d") return
+    val onRender2D = handler<Render2DEvent> { event ->
+        if (dimension != "2d") return@handler
 
         val scaledResolution = ScaledResolution(mc)
 
@@ -78,11 +77,10 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
         glPopMatrix()
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        if (dimension == "2d") return
-        
-        val player = mc.thePlayer ?: return
+    val onRender3D = handler<Render3DEvent> { event ->
+        if (dimension == "2d") return@handler
+
+        val player = mc.thePlayer ?: return@handler
 
         glDisable(GL_CULL_FACE)
         glEnable(GL_POLYGON_OFFSET_FILL)
@@ -159,6 +157,7 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
 
                         Color(color)
                     }
+
                     healthMode == "Custom" -> {
                         ColorUtils.interpolateHealthColor(
                             entity,
@@ -170,14 +169,15 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
                             absorption
                         )
                     }
+
                     colorMode == "Rainbow" -> ColorUtils.rainbow()
                     else -> Color(colors.color().red, colors.color().green, colors.color().blue, alpha)
                 }
 
                 glColor4f(
-                    arrowsColor.red / 255f, 
-                    arrowsColor.green / 255f, 
-                    arrowsColor.blue / 255f, 
+                    arrowsColor.red / 255f,
+                    arrowsColor.green / 255f,
+                    arrowsColor.blue / 255f,
                     arrowsColor.alpha / 255f
                 )
 
@@ -187,18 +187,34 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
                     "solid" -> {
                         glBegin(GL_TRIANGLES)
                         glVertex2f(0f, arrowRadius)
-                        glVertex2d(sin(-halfAngle * PI / 180) * arrowSize, arrowRadius + cos(-halfAngle * PI / 180) * arrowSize)
-                        glVertex2d(sin(halfAngle * PI / 180) * arrowSize, arrowRadius + cos(halfAngle * PI / 180) * arrowSize)
+                        glVertex2d(
+                            sin(-halfAngle * PI / 180) * arrowSize,
+                            arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
+                        )
+                        glVertex2d(
+                            sin(halfAngle * PI / 180) * arrowSize,
+                            arrowRadius + cos(halfAngle * PI / 180) * arrowSize
+                        )
                         glEnd()
                     }
+
                     "line", "loopline" -> {
                         glLineWidth(thickness)
                         glBegin(GL_LINE_STRIP)
-                        glVertex2d(sin(-halfAngle * PI / 180) * arrowSize, arrowRadius + cos(-halfAngle * PI / 180) * arrowSize)
+                        glVertex2d(
+                            sin(-halfAngle * PI / 180) * arrowSize,
+                            arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
+                        )
                         glVertex2f(0f, arrowRadius)
-                        glVertex2d(sin(halfAngle * PI / 180) * arrowSize, arrowRadius + cos(halfAngle * PI / 180) * arrowSize)
+                        glVertex2d(
+                            sin(halfAngle * PI / 180) * arrowSize,
+                            arrowRadius + cos(halfAngle * PI / 180) * arrowSize
+                        )
                         if (mode == "LoopLine") {
-                            glVertex2d(sin(-halfAngle * PI / 180) * arrowSize, arrowRadius + cos(-halfAngle * PI / 180) * arrowSize)
+                            glVertex2d(
+                                sin(-halfAngle * PI / 180) * arrowSize,
+                                arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
+                            )
                         }
                         glEnd()
                     }

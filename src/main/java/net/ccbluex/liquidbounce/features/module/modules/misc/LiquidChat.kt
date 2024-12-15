@@ -5,21 +5,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.BoolValue
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.UserUtils
-import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.config.BoolValue
 import net.minecraft.event.ClickEvent
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.EnumChatFormatting
@@ -155,33 +154,28 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
     private var loggedIn = false
 
-    private var loginJob: Job? = null
-
-    private val connectTimer = MSTimer()
-
     override fun onDisable() {
         loggedIn = false
         client.disconnect()
     }
 
-    @EventTarget
-    fun onSession(sessionEvent: SessionUpdateEvent) {
+    private val loginMutex = Mutex()
+
+    val onSession = handler<SessionUpdateEvent>(dispatcher = Dispatchers.IO) {
         client.disconnect()
         connect()
     }
 
-    @EventTarget
-    fun onUpdate(updateEvent: UpdateEvent) {
-        if (client.isConnected() || (loginJob?.isActive == true)) return
+    val onUpdate = loopHandler {
+        if (client.isConnected()) return@loopHandler
 
-        if (connectTimer.hasTimePassed(5000)) {
-            connect()
-            connectTimer.reset()
-        }
+        connect()
+
+        delay(5000L)
     }
 
-    private fun connect() {
-        if (client.isConnected() || (loginJob?.isActive == true)) return
+    private suspend fun connect() {
+        if (client.isConnected()) return
 
         if (jwt && jwtToken.isEmpty()) {
             chat("§7[§a§lChat§7] §cError: §7No token provided!")
@@ -191,21 +185,23 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
         loggedIn = false
 
-        loginJob = SharedScopes.IO.launch {
+        withContext(Dispatchers.IO) {
             try {
-                client.connect()
+                loginMutex.withLock {
+                    if (client.isConnected())
+                        return@withLock
 
-                if (jwt)
-                    client.loginJWT(jwtToken)
-                else if (UserUtils.isValidTokenOffline(mc.session.token)) {
-                    client.loginMojang()
+                    client.connect()
+
+                    when {
+                        jwt -> client.loginJWT(jwtToken)
+                        UserUtils.isValidTokenOffline(mc.session.token) -> client.loginMojang()
+                    }
                 }
             } catch (cause: Exception) {
                 LOGGER.error("LiquidChat error", cause)
                 chat("§7[§a§lChat§7] §cError: §7${cause.javaClass.name}: ${cause.message}")
             }
-
-            loginJob = null
         }
     }
 

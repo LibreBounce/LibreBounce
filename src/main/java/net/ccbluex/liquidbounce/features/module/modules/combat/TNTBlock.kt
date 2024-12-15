@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.item.EntityTNTPrimed
 import net.minecraft.item.ItemSword
@@ -22,10 +22,9 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block", 
     private val autoSword by boolean("AutoSword", true)
     private var blocked = false
 
-    @EventTarget
-    fun onMotionUpdate(event: MotionEvent) {
-        val thePlayer = mc.thePlayer ?: return
-        val theWorld = mc.theWorld ?: return
+    val onMotionUpdate = handler<MotionEvent> {
+        val thePlayer = mc.thePlayer ?: return@handler
+        val theWorld = mc.theWorld ?: return@handler
 
         for (entity in theWorld.loadedEntityList) {
             if (entity is EntityTNTPrimed && mc.thePlayer.getDistanceToEntity(entity) <= range) {
@@ -57,7 +56,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block", 
                         blocked = true
                     }
 
-                    return
+                    return@handler
                 }
             }
         }

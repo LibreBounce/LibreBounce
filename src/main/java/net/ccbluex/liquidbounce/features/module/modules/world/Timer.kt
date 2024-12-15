@@ -5,14 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
 
 object Timer : Module("Timer", Category.WORLD, gameDetecting = false, hideModule = false) {
 
@@ -26,23 +26,19 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false, hideModule
         mc.timer.timerSpeed = 1F
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val player = mc.thePlayer ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val player = mc.thePlayer ?: return@handler
 
         if (mode == "Always" || mode == "OnMove" && player.isMoving || mode == "NoMove" && !player.isMoving) {
             mc.timer.timerSpeed = speed
-            return
+            return@handler
         }
 
         mc.timer.timerSpeed = 1F
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
-        if (event.worldClient != null)
-            return
-
-        state = false
+    val onWorld = handler<WorldEvent> {
+        if (it.worldClient == null)
+            state = false
     }
 }

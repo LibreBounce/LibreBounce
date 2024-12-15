@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
@@ -19,10 +19,9 @@ import org.lwjgl.input.Mouse
 object MidClick : Module("MidClick", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
     private var wasDown = false
 
-    @EventTarget
-    fun onRender(event: Render2DEvent) {
+    val onRender = handler<Render2DEvent> {
         if (mc.currentScreen != null)
-            return
+            return@handler
 
         if (!wasDown && Mouse.isButtonDown(2)) {
             val entity = mc.objectMouseOver.entityHit

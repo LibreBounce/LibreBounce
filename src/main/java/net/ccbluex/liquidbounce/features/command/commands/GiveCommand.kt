@@ -58,6 +58,7 @@ object GiveCommand : Command("give", "item", "i", "get") {
                     .map { it.resourcePath.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }
+
             else -> emptyList()
         }
     }

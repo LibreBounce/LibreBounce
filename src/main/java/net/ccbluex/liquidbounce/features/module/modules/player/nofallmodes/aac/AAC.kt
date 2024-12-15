@@ -30,10 +30,12 @@ object AAC : NoFallMode("AAC") {
                 thePlayer.motionY = 0.1
                 currentState = 4
             }
+
             4 -> {
                 thePlayer.motionY = 0.1
                 currentState = 5
             }
+
             5 -> {
                 thePlayer.motionY = 0.1
                 currentState = 1

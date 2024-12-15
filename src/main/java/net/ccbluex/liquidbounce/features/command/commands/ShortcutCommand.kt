@@ -17,8 +17,10 @@ object ShortcutCommand : Command("shortcut") {
         when {
             args.size > 3 && args[1].equals("add", true) -> {
                 try {
-                    commandManager.registerShortcut(args[2],
-                            StringUtils.toCompleteString(args, 3))
+                    commandManager.registerShortcut(
+                        args[2],
+                        StringUtils.toCompleteString(args, 3)
+                    )
 
                     chat("Successfully added shortcut.")
                 } catch (e: IllegalArgumentException) {

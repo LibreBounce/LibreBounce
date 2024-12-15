@@ -5,10 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.movement
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.MoveEvent
-import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -120,10 +117,9 @@ object MovementUtils : MinecraftInstance(), Listenable {
     var serverY = .0
     var serverZ = .0
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         if (event.isCancelled)
-            return
+            return@handler
 
         val packet = event.packet
 

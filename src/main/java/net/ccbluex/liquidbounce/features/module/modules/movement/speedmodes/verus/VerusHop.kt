@@ -6,9 +6,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.verus
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.potion.Potion
 
 object VerusHop : SpeedMode("VerusHop") {
@@ -18,12 +18,13 @@ object VerusHop : SpeedMode("VerusHop") {
     override fun onUpdate() {
         val player = mc.thePlayer ?: return
         if (player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
-        
+
         if (player.isMoving) {
             if (player.onGround) {
                 speed = if (player.isPotionActive(Potion.moveSpeed)
-                    && player.getActivePotionEffect(Potion.moveSpeed).amplifier >= 1)
-                        0.46f else 0.34f
+                    && player.getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
+                )
+                    0.46f else 0.34f
 
                 player.tryJump()
             } else {

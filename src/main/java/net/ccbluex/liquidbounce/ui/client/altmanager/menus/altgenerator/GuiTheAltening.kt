@@ -13,7 +13,7 @@ import com.thealtening.AltService
 import com.thealtening.api.TheAltening
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.event.EventManager.callEvent
+import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.elements.GuiPasswordField
@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.TabUtils
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.minecraft.client.gui.GuiButton
@@ -149,7 +149,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : GuiScreen() {
                             mc.session = Session(yggdrasilUserAuthentication.selectedProfile.name, yggdrasilUserAuthentication
                                     .selectedProfile.id.toString(),
                                     yggdrasilUserAuthentication.authenticatedToken, "microsoft")
-                            callEvent(SessionUpdateEvent)
+                            call(SessionUpdateEvent)
 
                             prevGui.status = "§aYour name is now §b§l${yggdrasilUserAuthentication.selectedProfile.name}§c."
                             mc.displayGuiScreen(prevGui)
@@ -198,7 +198,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : GuiScreen() {
                             mc.session = Session(yggdrasilUserAuthentication.selectedProfile.name, yggdrasilUserAuthentication
                                     .selectedProfile.id.toString(),
                                     yggdrasilUserAuthentication.authenticatedToken, "microsoft")
-                            callEvent(SessionUpdateEvent)
+                            call(SessionUpdateEvent)
 
                             prevGui.status = "§aYour name is now §b§l${yggdrasilUserAuthentication.selectedProfile.name}§c."
                             mc.displayGuiScreen(prevGui)

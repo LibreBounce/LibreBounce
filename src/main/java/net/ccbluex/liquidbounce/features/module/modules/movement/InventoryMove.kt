@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,8 +16,6 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInLastLoop
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiIngameMenu
 import net.minecraft.client.gui.inventory.GuiChest
@@ -56,20 +56,19 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         mc.gameSettings.keyBindSprint
     )
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val player = mc.thePlayer ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val player = mc.thePlayer ?: return@handler
         val screen = mc.currentScreen
 
         // Don't make player move when chat or ESC menu are open
         if (screen is GuiChat || screen is GuiIngameMenu)
-            return
+            return@handler
 
         if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui))
-            return
+            return@handler
 
         if (notInChests && screen is GuiChest)
-            return
+            return@handler
 
         if (screen is GuiInventory || screen is GuiChest) {
             player.motionX *= inventoryMotion
@@ -86,20 +85,17 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
                 isButtonPressed(affectedBinding) || (affectedBinding == mc.gameSettings.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || mc.thePlayer.isSprinting))
     }
 
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
+    val onStrafe = handler<StrafeEvent> {
         if (isIntave) {
             mc.gameSettings.keyBindSneak.pressed = true
         }
     }
 
-    @EventTarget
-    fun onJump(event: JumpEvent) {
+    val onJump = handler<JumpEvent> { event ->
         if (isIntave) event.cancelEvent()
     }
 
-    @EventTarget
-    fun onClick(event: ClickWindowEvent) {
+    val onClick = handler<ClickWindowEvent> { event ->
         if (!canClickInventory()) event.cancelEvent()
         else if (reopenOnClick) {
             hasScheduledInLastLoop = false

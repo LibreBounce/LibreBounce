@@ -68,7 +68,8 @@ class KeyEvent(val key: Int) : Event()
  *
  * @param eventState PRE or POST
  */
-class MotionEvent(var x: Double, var y: Double, var z: Double, var onGround: Boolean, val eventState: EventState) : Event()
+class MotionEvent(var x: Double, var y: Double, var z: Double, var onGround: Boolean, val eventState: EventState) :
+    Event()
 
 /**
  * Called in "onLivingUpdate" when the player is using a use item.
@@ -195,7 +196,7 @@ class CameraPositionEvent(
     }
 }
 
-class ClientSlotChange(var supposedSlot: Int, var modifiedSlot: Int) : Event()
+class ClientSlotChangeEvent(var supposedSlot: Int, var modifiedSlot: Int) : Event()
 
 /**
  * Called when minecraft player will be updated
@@ -217,3 +218,40 @@ class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicke
  * Called when LiquidBounce finishes starting up
  */
 object StartupEvent : Event()
+
+internal val ALL_EVENT_CLASSES = arrayOf(
+    PlayerTickEvent::class.java,
+    StepConfirmEvent::class.java,
+    SessionUpdateEvent::class.java,
+    MovementInputEvent::class.java,
+    GameLoopEvent::class.java,
+    Render2DEvent::class.java,
+    ClickWindowEvent::class.java,
+    StartupEvent::class.java,
+    SneakSlowDownEvent::class.java,
+    PostSprintUpdateEvent::class.java,
+    KeyEvent::class.java,
+    SlowDownEvent::class.java,
+    TickEndEvent::class.java,
+    JumpEvent::class.java,
+    MoveEvent::class.java,
+    ClientShutdownEvent::class.java,
+    GameTickEvent::class.java,
+    StepEvent::class.java,
+    BlockBBEvent::class.java,
+    ClickBlockEvent::class.java,
+    UpdateEvent::class.java,
+    RotationSetEvent::class.java,
+    EntityMovementEvent::class.java,
+    ClientSlotChangeEvent::class.java,
+    PacketEvent::class.java,
+    CameraPositionEvent::class.java,
+    RotationUpdateEvent::class.java,
+    StrafeEvent::class.java,
+    ScreenEvent::class.java,
+    AttackEvent::class.java,
+    BlockPushEvent::class.java,
+    Render3DEvent::class.java,
+    MotionEvent::class.java,
+    WorldEvent::class.java,
+)

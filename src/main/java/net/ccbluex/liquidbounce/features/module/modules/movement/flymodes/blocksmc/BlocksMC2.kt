@@ -15,12 +15,12 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnLandi
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnNoMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.schedulePacketProcess
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.utils.client.schedulePacketProcess
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.network.Packet
 import net.minecraft.network.handshake.client.C00Handshake
@@ -40,7 +40,7 @@ import net.minecraft.world.World
  *
  * @author EclipsesDev
  */
-object BlocksMC2 : FlyMode("BlocksMC2") {
+object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
 
     private var isFlying = false
     private var isNotUnder = false
@@ -101,8 +101,7 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
         blink()
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent> { event ->
         Fly.state = false
 
         // Clear packets on disconnect
@@ -152,7 +151,6 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
         }
     }
 
-    @EventTarget
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
@@ -191,7 +189,6 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
         }
     }
 
-    @EventTarget
     override fun onMotion(event: MotionEvent) {
         val thePlayer = mc.thePlayer ?: return
 

@@ -16,12 +16,12 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.notOnCons
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.notOnFalling
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.notOnVoid
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.extensions.stopY
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.item.ItemBucketMilk
 import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
@@ -36,10 +36,10 @@ object CustomSpeed : SpeedMode("Custom") {
         if (notOnVoid && fallingPlayer.findCollision(500) == null
             || notOnFalling && player.fallDistance > 2.5f
             || notOnConsuming && player.isUsingItem
-                    && (heldItem.item is ItemFood
+            && (heldItem.item is ItemFood
                     || heldItem.item is ItemPotion
                     || heldItem.item is ItemBucketMilk)
-            ) {
+        ) {
 
             if (player.onGround) player.tryJump()
             mc.timer.timerSpeed = 1f

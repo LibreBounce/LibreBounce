@@ -103,6 +103,7 @@ object XrayCommand : Command("xray") {
                     .map { it.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }
+
             2 -> {
                 when (args[0].lowercase()) {
                     "add" -> {
@@ -112,16 +113,19 @@ object XrayCommand : Command("xray") {
                             .filter { Block.getBlockFromName(it.lowercase()) !in XRay.xrayBlocks }
                             .filter { it.startsWith(args[1], true) }
                     }
+
                     "remove" -> {
                         return Block.blockRegistry.keys
                             .map { it.resourcePath.lowercase() }
                             .filter { Block.getBlockFromName(it) in XRay.xrayBlocks }
                             .filter { it.startsWith(args[1], true) }
                     }
+
                     else -> emptyList()
                 }
 
             }
+
             else -> emptyList()
         }
     }

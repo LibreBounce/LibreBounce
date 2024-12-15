@@ -72,6 +72,7 @@ object EnchantCommand : Command("enchant") {
                     .map { it.resourcePath.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }
+
             else -> emptyList()
         }
     }

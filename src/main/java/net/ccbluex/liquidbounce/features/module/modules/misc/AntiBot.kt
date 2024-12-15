@@ -5,18 +5,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
-import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.server.S0BPacketAnimation
@@ -24,7 +24,7 @@ import net.minecraft.network.play.server.S13PacketDestroyEntities
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.network.play.server.S20PacketEntityProperties
 import net.minecraft.potion.Potion
-import java.util.UUID
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -219,9 +219,8 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         return entity.name.isEmpty() || entity.name == mc.thePlayer.name
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onUpdate(event: UpdateEvent) {
-        val world = mc.theWorld ?: return
+    val onUpdate = handler<UpdateEvent>(always = true) {
+        val world = mc.theWorld ?: return@handler
 
         world.loadedEntityList.asSequence().forEach { entity ->
             if (entity !is EntityPlayer) return@forEach
@@ -240,10 +239,9 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
     }
 
     // Alternative for isBot() check.
-    @EventTarget(ignoreCondition = true)
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent>(always = true) { event ->
         if (mc.thePlayer == null || mc.theWorld == null)
-            return
+            return@handler
 
         val packet = event.packet
 
@@ -352,16 +350,14 @@ object AntiBot : Module("AntiBot", Category.MISC, hideModule = false) {
         }
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onAttack(e: AttackEvent) {
+    val onAttack = handler<AttackEvent>(always = true) { e ->
         val entity = e.targetEntity
 
         if (entity != null && entity is EntityLivingBase && entity.entityId !in hitList)
             hitList += entity.entityId
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent>(always = true) {
         clearAll()
     }
 

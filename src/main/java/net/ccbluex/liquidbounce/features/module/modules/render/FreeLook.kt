@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.RotationSetEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.extensions.prevRotation
 import net.ccbluex.liquidbounce.utils.extensions.rotation
+import net.ccbluex.liquidbounce.utils.rotation.Rotation
 
 object FreeLook : Module("FreeLook", Category.RENDER) {
 
@@ -30,8 +30,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
         }
     }
 
-    @EventTarget
-    fun onRotationSet(event: RotationSetEvent) {
+    val onRotationSet = handler<RotationSetEvent> { event ->
         if (mc.gameSettings.thirdPersonView != 0) {
             event.cancelEvent()
         }

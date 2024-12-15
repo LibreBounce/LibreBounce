@@ -56,6 +56,7 @@ object PanicCommand : Command("panic") {
         return when (args.size) {
             1 -> listOf("all", "nonrender", "combat", "player", "movement", "render", "world", "misc", "exploit", "fun")
                 .filter { it.startsWith(args[0], true) }
+
             else -> emptyList()
         }
     }

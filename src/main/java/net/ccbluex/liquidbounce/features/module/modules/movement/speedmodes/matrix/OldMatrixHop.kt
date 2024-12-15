@@ -6,16 +6,16 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object OldMatrixHop : SpeedMode("OldMatrixHop") {
-    
+
     override fun onUpdate() {
         val player = mc.thePlayer ?: return
         if (player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
-        
+
         if (player.isMoving) {
             if (player.onGround) {
                 player.tryJump()
@@ -23,9 +23,9 @@ object OldMatrixHop : SpeedMode("OldMatrixHop") {
                 mc.timer.timerSpeed = 1.055f
             } else {
                 strafe()
-            }    
+            }
         } else {
-            mc.timer.timerSpeed = 1f    
+            mc.timer.timerSpeed = 1f
         }
     }
 }
