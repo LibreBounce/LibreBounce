@@ -253,7 +253,13 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     ) {
         progress += switchMode.getBlockBreakingDelta(blockPos, state, slot?.second())
         switch(slot, blockPos)
-        val f = progress.toDouble().coerceIn(0.0..1.0) / 2
+        val f = if (breakDamage > 0f) {
+            val breakDamageD = breakDamage.toDouble()
+            progress.toDouble().coerceIn(0.0..breakDamageD) / breakDamageD / 2.0
+        } else {
+            0.5
+        }
+
         val box = blockPos.outlineBox
         val lengthX = box.lengthX
         val lengthY = box.lengthY
