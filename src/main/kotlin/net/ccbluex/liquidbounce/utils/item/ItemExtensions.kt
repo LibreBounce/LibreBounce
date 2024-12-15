@@ -157,8 +157,7 @@ fun ItemStack.getAttributeValue(attribute: RegistryEntry<EntityAttribute>) = ite
     )
     .modifiers()
     .filter { modifier -> modifier.attribute() == attribute }
-    .map { modifier -> modifier.modifier().value() }
-    .firstOrNull()
+    .firstNotNullOfOrNull { modifier -> modifier.modifier().value() }
 
 val ItemStack.attackDamage: Double
     get() {

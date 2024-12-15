@@ -55,8 +55,16 @@ import kotlin.random.Random
  */
 object InventoryManager : EventListener {
 
+    val isInventoryOpen
+        get() = isInInventoryScreen || isInventoryOpenServerSide
+
     var isInventoryOpenServerSide = false
-        internal set
+        internal set(value) {
+            if (!field && value) {
+                inventoryOpened()
+            }
+            field = value
+        }
 
     var lastClickedSlot: Int = 0
         private set
@@ -137,13 +145,13 @@ object InventoryManager : EventListener {
                     // Handle player inventory open requirements
                     val requiresPlayerInventory = action.requiresPlayerInventoryOpen()
                     if (requiresPlayerInventory) {
-                        if (!isInventoryOpenServerSide) {
+                        if (!isInventoryOpen) {
                             openInventorySilently()
                             waitTicks(constraints.startDelay.random())
                         }
                     } else if (canCloseMainInventory) {
                         // When all scheduled actions are done, we can close the inventory
-                        if (isInventoryOpenServerSide) {
+                        if (isInventoryOpen) {
                             waitTicks(constraints.closeDelay.random())
                             closeInventorySilently()
                         }
@@ -181,7 +189,7 @@ object InventoryManager : EventListener {
         } while (schedule.isNotEmpty())
 
         // When all scheduled actions are done, we can close the inventory
-        if (isInventoryOpenServerSide && canCloseMainInventory) {
+        if (isInventoryOpen && canCloseMainInventory) {
             waitTicks(maximumCloseDelay)
             closeInventorySilently()
         }
@@ -233,7 +241,10 @@ object InventoryManager : EventListener {
         }
     }
 
-    val screenHandler = handler<ScreenEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
+    @Suppress("unused")
+    private val screenHandler = handler<ScreenEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) { event ->
         val screen = event.screen
 
         if (event.isCancelled) {
@@ -242,14 +253,11 @@ object InventoryManager : EventListener {
 
         if (screen is InventoryScreen || screen is GenericContainerScreen) {
             inventoryOpened()
-
-            if (screen is InventoryScreen) {
-                isInventoryOpenServerSide = true
-            }
         }
     }
 
-    val handleWorldChange = handler<WorldChangeEvent> {
+    @Suppress("unused")
+    private val handleWorldChange = handler<WorldChangeEvent> {
         isInventoryOpenServerSide = false
     }
 
@@ -382,7 +390,7 @@ data class UseInventoryAction(
 ) : InventoryAction {
 
     override fun canPerformAction(inventoryConstraints: InventoryConstraints) =
-        !InventoryManager.isInventoryOpenServerSide && !isInContainerScreen && !isInInventoryScreen
+        !InventoryManager.isInventoryOpen && !isInContainerScreen && !isInInventoryScreen
 
     override fun performAction(): Boolean {
         useHotbarSlotOrOffhand(hotbarItemSlot)

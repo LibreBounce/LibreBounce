@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.render.engine
 
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import org.lwjgl.opengl.GL20
 import java.awt.Color
 import java.nio.ByteBuffer
 import kotlin.math.cos
@@ -185,5 +186,9 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     fun darker() = Color4b(darkerChannel(r), darkerChannel(g), darkerChannel(b), a)
 
     private fun darkerChannel(value: Int) = (value * 0.7).toInt().coerceAtLeast(0)
+
+    fun putToUniform(pointer: Int) {
+        GL20.glUniform4f(pointer, r / 255f, g / 255f, b / 255f, a / 255f)
+    }
 
 }

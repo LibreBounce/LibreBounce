@@ -57,7 +57,7 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
         fun fromChunkPos(x: Int, z: Int): Region {
             return Region(
                 BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
-                BlockPos(x shl 4 or 15, mc.world!!.height, z shl 4 or 15)
+                BlockPos(x shl 4 or 15, mc.world!!.topYInclusive, z shl 4 or 15)
             )
         }
 

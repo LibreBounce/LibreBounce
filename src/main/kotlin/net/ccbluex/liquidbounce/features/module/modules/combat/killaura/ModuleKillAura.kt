@@ -159,7 +159,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     val rotationUpdateHandler = handler<SimulatedTickEvent> {
         // Make sure killaura-logic is not running while inventory is open
         val isInInventoryScreen =
-            InventoryManager.isInventoryOpenServerSide || mc.currentScreen is GenericContainerScreen
+            InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
 
         val shouldCleanUpTracker = player.isSpectator || player.isDead || !canTargetEnemies
 
@@ -470,7 +470,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val shielding = attackShielding || choosenEntity !is PlayerEntity || player.mainHandStack.item is AxeItem ||
             !choosenEntity.wouldBlockHit(player)
         val isInInventoryScreen =
-            InventoryManager.isInventoryOpenServerSide || mc.currentScreen is GenericContainerScreen
+            InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
         val missCooldown = considerMissCooldown && mc.attackCooldown > 0
 
         return critical && shielding &&
@@ -485,7 +485,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      */
     internal suspend fun Sequence<*>.prepareAttackEnvironment(rotation: Rotation? = null, attack: () -> Unit) {
         val isInInventoryScreen =
-            InventoryManager.isInventoryOpenServerSide || mc.currentScreen is GenericContainerScreen
+            InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
 
         if (simulateInventoryClosing && isInInventoryScreen) {
             network.sendPacket(CloseHandledScreenC2SPacket(0))

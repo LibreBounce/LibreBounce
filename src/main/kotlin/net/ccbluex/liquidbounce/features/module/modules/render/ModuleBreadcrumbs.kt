@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import it.unimi.dsi.fastutil.objects.ObjectFloatPair
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -33,12 +34,13 @@ import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.Camera
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
+import net.minecraft.client.render.*
 import net.minecraft.client.render.VertexFormat.DrawMode
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
-import org.apache.commons.lang3.tuple.MutablePair
-import org.apache.commons.lang3.tuple.Pair
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -142,7 +144,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
         }
 
         lastPositions[entity] = doubleArrayOf(entity.x, entity.y, entity.z)
-        trails.computeIfAbsent(entity) { Trail() }.positions.add(TrailPart(entity.x, entity.y, entity.z, time))
+        trails.getOrPut(entity, ::Trail).positions.add(TrailPart(entity.x, entity.y, entity.z, time))
     }
 
     @Suppress("unused")
@@ -167,7 +169,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
 
     private class Trail {
 
-        var positions = ArrayDeque<TrailPart>()
+        val positions = ArrayDeque<TrailPart>()
 
         fun verifyAndRenderTrail(renderData: RenderData, camera: Camera, entity: Entity, time: Long) {
             val aliveDurationF = TemporaryConfigurable.alive.toFloat()
@@ -198,12 +200,12 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
                 }
 
                 val point = calculatePoint(camera, position.x, position.y, position.z)
-                MutablePair(point, alpha)
+                ObjectFloatPair.of(point, alpha)
             }
 
             val interpolatedPos = entity.getLerpedPos(mc.renderTickCounter.getTickDelta(true))
             val point = calculatePoint(camera, interpolatedPos.x, interpolatedPos.y, interpolatedPos.z)
-            pointsWithAlpha.last().left = point
+            pointsWithAlpha.last().left(point)
 
             addVerticesToBuffer(renderData, pointsWithAlpha)
         }
@@ -214,28 +216,22 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
             return point
         }
 
-        private fun addVerticesToBuffer(renderData: RenderData, list: List<Pair<Vector3f, Float>>) {
+        private fun addVerticesToBuffer(renderData: RenderData, list: List<ObjectFloatPair<Vector3f>>) {
             val red = renderData.color.x
             val green = renderData.color.y
             val blue = renderData.color.z
 
-            for (i in list.indices) {
-                if (i - 1 < 0) {
-                    continue
-                }
+            with(renderData.bufferBuilder) {
+                for (i in 1..<list.size) {
+                    val (v0, alpha0) = list[i]
+                    val (v2, alpha2) = list[i - 1]
 
-                val v0 = list[i]
-                val v2 = list[i - 1]
-
-                renderData.bufferBuilder.vertex(renderData.matrix, v0.left.x, v0.left.y, v0.left.z)
-                    .color(red, green, blue, v0.right)
-                renderData.bufferBuilder.vertex(renderData.matrix, v2.left.x, v2.left.y, v2.left.z)
-                    .color(red, green, blue, v2.right)
-                if (!renderData.lines) {
-                    renderData.bufferBuilder.vertex(renderData.matrix, v2.left.x, v2.left.y + height, v2.left.z)
-                        .color(red, green, blue, v2.right)
-                    renderData.bufferBuilder.vertex(renderData.matrix, v0.left.x, v0.left.y + height, v0.left.z)
-                        .color(red, green, blue, v0.right)
+                    vertex(renderData.matrix, v0.x, v0.y, v0.z).color(red, green, blue, alpha0)
+                    vertex(renderData.matrix, v2.x, v2.y, v2.z).color(red, green, blue, alpha2)
+                    if (!renderData.lines) {
+                        vertex(renderData.matrix, v2.x, v2.y + height, v2.z).color(red, green, blue, alpha2)
+                        vertex(renderData.matrix, v0.x, v0.y + height, v0.z).color(red, green, blue, alpha0)
+                    }
                 }
             }
         }

@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
-import net.ccbluex.liquidbounce.render.shader.Shader
+import net.ccbluex.liquidbounce.render.shader.CanvasShader
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.io.extractZip
@@ -203,7 +203,7 @@ class Theme(val name: String) {
         get() = File(folder, "background.frag")
     private val backgroundImage: File
         get() = File(folder, "background.png")
-    var compiledShaderBackground: Shader? = null
+    var compiledShaderBackground: CanvasShader? = null
         private set
     var loadedBackgroundImage: Identifier? = null
         private set
@@ -214,7 +214,7 @@ class Theme(val name: String) {
         }
 
         readShaderBackground()?.let { shaderBackground ->
-            compiledShaderBackground = Shader(resourceToString("/assets/liquidbounce/shaders/vertex.vert"),
+            compiledShaderBackground = CanvasShader(resourceToString("/assets/liquidbounce/shaders/vertex.vert"),
                 shaderBackground)
             logger.info("Compiled background shader for theme $name")
             return true

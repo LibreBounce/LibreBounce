@@ -37,7 +37,7 @@ abstract class Buff(
 ) : ToggleableConfigurable(ModuleAutoBuff, name, true) {
 
     internal open val passesRequirements: Boolean
-        get() = enabled && !InventoryManager.isInventoryOpenServerSide
+        get() = enabled && !InventoryManager.isInventoryOpen
 
     /**
      * Try to run feature if possible, otherwise return false

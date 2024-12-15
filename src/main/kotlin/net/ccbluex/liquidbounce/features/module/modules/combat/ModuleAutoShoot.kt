@@ -208,7 +208,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         // Check if we are still aiming at the target
         clickScheduler.clicks {
-            if (player.isUsingItem || (considerInventory && InventoryManager.isInventoryOpenServerSide)) {
+            if (player.isUsingItem || (considerInventory && InventoryManager.isInventoryOpen)) {
                 return@clicks false
             }
 

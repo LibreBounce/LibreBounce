@@ -53,11 +53,13 @@ object PlatformMode : ModuleAutoBuild.AutoBuildMode("Platform") {
     private val targetUpdater = handler<SimulatedTickEvent> {
         val blocks1 = hashSetOf<BlockPos>()
         val center = BlockPos.ofFloored(player.pos).down()
+        val pos = center.mutableCopy()
         for (x in center.x - platformSize..center.x + platformSize) {
             for (z in center.z - platformSize..center.z + platformSize) {
-                val pos = BlockPos(x, center.y, z)
+                pos.x = x
+                pos.z = z
                 if (pos.getState()!!.isReplaceable) {
-                    blocks1.add(pos)
+                    blocks1.add(pos.toImmutable())
                 }
             }
         }

@@ -91,7 +91,7 @@ class PlayerInventoryConstraints : InventoryConstraints() {
     override fun passesRequirements(action: InventoryAction) =
         super.passesRequirements(action) &&
             (!action.requiresPlayerInventoryOpen() || !requiresOpenInvenotory ||
-                InventoryManager.isInventoryOpenServerSide)
+                InventoryManager.isInventoryOpen)
 
 }
 

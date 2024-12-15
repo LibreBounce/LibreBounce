@@ -23,6 +23,8 @@ package net.ccbluex.liquidbounce.utils.kotlin
 import it.unimi.dsi.fastutil.doubles.DoubleIterable
 import it.unimi.dsi.fastutil.doubles.DoubleIterator
 import it.unimi.dsi.fastutil.doubles.DoubleIterators
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntList
 
 inline infix operator fun IntRange.contains(range: IntRange): Boolean {
     return this.first <= range.first && this.last >= range.last
@@ -145,6 +147,14 @@ inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> 
     Array(size) {
         transform(next())
     }
+}
+
+inline fun <T> Collection<T>.mapInt(transform: (T) -> Int): IntList {
+    val result = IntArrayList(this.size)
+    for (element in this) {
+        result.add(transform(element))
+    }
+    return result
 }
 
 /**

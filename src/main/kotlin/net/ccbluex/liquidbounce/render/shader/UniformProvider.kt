@@ -16,26 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.block.hole
+package net.ccbluex.liquidbounce.render.shader
 
-import net.ccbluex.liquidbounce.utils.block.Region
-import net.minecraft.util.math.BlockPos
+import net.minecraft.client.gl.GlUniform
 
-@JvmRecord
-data class Hole(
-    val type: Type,
-    val positions: Region,
-    val blockInvalidators: Region = Region(positions.from, positions.to.up(2)),
-) : Comparable<Hole> {
+class UniformProvider(val name: String, val set: (pointer: Int) -> Unit) {
 
-    override fun compareTo(other: Hole): Int = this.positions.from.compareTo(other.positions.from)
+    var pointer = -1
 
-    operator fun contains(pos: BlockPos): Boolean = pos in positions
-
-    enum class Type(val size: Int) {
-        ONE_ONE(1),
-        ONE_TWO(2),
-        TWO_TWO(4),
+    fun init(program: Int) {
+        pointer = GlUniform.getUniformLocation(program, name)
     }
 
 }

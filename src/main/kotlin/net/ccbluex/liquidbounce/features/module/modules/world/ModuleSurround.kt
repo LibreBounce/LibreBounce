@@ -361,7 +361,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         }
 
         val searchOptions = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             ItemStack(Items.SANDSTONE),
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,

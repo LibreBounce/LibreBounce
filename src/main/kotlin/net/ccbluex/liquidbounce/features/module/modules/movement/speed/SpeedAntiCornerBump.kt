@@ -120,10 +120,12 @@ object SpeedAntiCornerBump : MinecraftShortcuts {
             return false
         }
 
+        val jumpOnPos = BlockPos.Mutable(0, blockPos.y, 0)
         for (x in blockPos.x..blockPos2.x) {
             for (z in blockPos.z..blockPos2.z) {
-                val jumpOnPos = BlockPos(x, blockPos.y, z)
-                val jumpOnState = world.getBlockState(jumpOnPos)
+                jumpOnPos.x = x
+                jumpOnPos.z = z
+                val jumpOnState = jumpOnPos.getState()!!
 
                 // Simple check that asserts that we can actually reach the block with a jump.
                 if (jumpOnPos.y + 1 - lastGroundPos.y > 1.3) {

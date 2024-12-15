@@ -241,17 +241,19 @@ fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<In
                 yield(IntObjectPair.of(layer, BlockPos.fromLong(pos)))
             }
 
-            // Search next layer
-            if (layer < layers) {
-                for (direction in directions) {
-                    mutable.set(pos)
-                    mutable.move(direction)
+            if (layer >= layers) {
+                continue
+            }
 
-                    val newLong = mutable.asLong()
-                    if (visited.add(newLong)) {
-                        layerQueue.enqueue(layer + 1)
-                        longValueQueue.enqueue(newLong)
-                    }
+            // Search next layer
+            for (direction in directions) {
+                mutable.set(pos)
+                mutable.move(direction)
+
+                val newLong = mutable.asLong()
+                if (visited.add(newLong)) {
+                    layerQueue.enqueue(layer + 1)
+                    longValueQueue.enqueue(newLong)
                 }
             }
         }

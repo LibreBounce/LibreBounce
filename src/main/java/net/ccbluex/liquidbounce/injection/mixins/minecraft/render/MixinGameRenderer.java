@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
 import net.ccbluex.liquidbounce.render.engine.OverlayRenderer;
+import net.ccbluex.liquidbounce.render.shader.shaders.OutlineEffectShader;
 import net.ccbluex.liquidbounce.utils.aiming.RaytracingExtensionsKt;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
@@ -137,6 +138,22 @@ public abstract class MixinGameRenderer {
         var newMatStack = new MatrixStack();
         newMatStack.multiplyPositionMatrix(matrix4f2);
         EventManager.INSTANCE.callEvent(new WorldRenderEvent(newMatStack, this.camera, tickCounter.getTickDelta(false)));
+    }
+
+    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/LightmapTextureManager;enable()V", shift = At.Shift.AFTER))
+    public void prepareItemCharms(Camera camera, float tickDelta, Matrix4f matrix4f, CallbackInfo ci) {
+        if (ModuleItemChams.INSTANCE.getRunning()) {
+            ModuleItemChams.INSTANCE.setData();
+            OutlineEffectShader.INSTANCE.prepare();
+        }
+    }
+
+    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;Lnet/minecraft/client/network/ClientPlayerEntity;I)V", shift = At.Shift.AFTER))
+    public void drawItemCharms(Camera camera, float tickDelta, Matrix4f matrix4f, CallbackInfo ci) {
+        if (ModuleItemChams.INSTANCE.getActive()) {
+            ModuleItemChams.INSTANCE.setActive(false);
+            OutlineEffectShader.INSTANCE.apply();
+        }
     }
 
     /**

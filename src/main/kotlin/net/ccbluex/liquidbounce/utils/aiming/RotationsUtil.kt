@@ -266,7 +266,7 @@ object RotationManager : EventListener {
         }
 
         // Prevents any rotation changes when inventory is opened
-        val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
+        val allowedRotation = ((!InventoryManager.isInventoryOpen &&
             mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
