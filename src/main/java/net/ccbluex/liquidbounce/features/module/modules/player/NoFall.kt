@@ -116,13 +116,11 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
         modeModule.onDisable()
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
+    val onTick = handler<GameTickEvent> {
         modeModule.onTick()
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         val thePlayer = mc.thePlayer
 
         if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid } || collideBlock(
@@ -135,48 +133,41 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
                     thePlayer.entityBoundingBox.minZ
                 )
             ) { it is BlockLiquid }
-        ) return
+        ) return@handler
 
         modeModule.onUpdate()
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        modeModule.onRender3D(event)
+    val onRender3D = handler<Render3DEvent> {
+        modeModule.onRender3D(it)
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mc.thePlayer ?: return
+    val onPacket = handler<PacketEvent> {
+        mc.thePlayer ?: return@handler
 
-        modeModule.onPacket(event)
+        modeModule.onPacket(it)
     }
 
-    @EventTarget
-    fun onBB(event: BlockBBEvent) {
-        mc.thePlayer ?: return
+    val onBB = handler<BlockBBEvent> {
+        mc.thePlayer ?: return@handler
 
-        modeModule.onBB(event)
+        modeModule.onBB(it)
     }
 
     // Ignore condition used in LAAC mode
-    @EventTarget(ignoreCondition = true)
-    fun onJump(event: JumpEvent) {
-        modeModule.onJump(event)
+    val onJump = handler<JumpEvent>(always = true) {
+        modeModule.onJump(it)
     }
 
-    @EventTarget
-    fun onStep(event: StepEvent) {
-        modeModule.onStep(event)
+    val onStep = handler<StepEvent> {
+        modeModule.onStep(it)
     }
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        modeModule.onMotion(event)
+    val onMotion = handler<MotionEvent> {
+        modeModule.onMotion(it)
     }
 
-    @EventTarget
-    fun onMove(event: MoveEvent) {
+    val onMove = handler<MoveEvent> {
         val thePlayer = mc.thePlayer
 
         if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid }
@@ -190,9 +181,13 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
                     thePlayer.entityBoundingBox.minZ
                 )
             ) { it is BlockLiquid }
-        ) return
+        ) return@handler
 
-        modeModule.onMove(event)
+        modeModule.onMove(it)
+    }
+
+    val onRotationUpdate = handler<RotationUpdateEvent> {
+        modeModule.onRotationUpdate()
     }
 
     override val tag

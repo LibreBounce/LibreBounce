@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other
 
-import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.autoMLG
@@ -17,6 +15,8 @@ import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.retrieveDe
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.retrievingPos
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.swing
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
+import net.ccbluex.liquidbounce.utils.block.center
+import net.ccbluex.liquidbounce.utils.block.state
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
@@ -46,10 +46,8 @@ object MLG : NoFallMode("MLG") {
     private val currRotation
         get() = RotationUtils.serverRotation
 
-    override fun onMotion(event: MotionEvent) {
+    override fun onRotationUpdate() {
         val player = mc.thePlayer ?: return
-
-        if (event.eventState != EventState.POST) return
 
         retrievingPos?.let {
             if (player.hotBarSlot(SilentHotbar.currentSlot).stack?.item != Items.bucket) {

@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
@@ -91,12 +91,11 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
 
     private val clickTimer = MSTimer()
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (event.eventState != EventState.POST) return
+    val onMotion = handler<MotionEvent> { event ->
+        if (event.eventState != EventState.POST) return@handler
 
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         // Clicking delay
         if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
@@ -104,7 +103,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         if (onClick && (clickTimer.hasTimePassed(150) ||
                 !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())
         ) {
-            return
+            return@handler
         }
 
         // Search for the best enemy to target
@@ -116,14 +115,14 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
                     ) <= range && rotationDifference(it) <= fov
                 }
             }
-        }.minByOrNull { player.getDistanceToEntityBox(it) } ?: return
+        }.minByOrNull { player.getDistanceToEntityBox(it) } ?: return@handler
 
         // Should it always keep trying to lock on the enemy or just try to assist you?
-        if (!lock && isFaced(entity, range.toDouble())) return
+        if (!lock && isFaced(entity, range.toDouble())) return@handler
 
         val random = Random()
 
-        if (Backtrack.runWithNearestTrackedDistance(entity) { !findRotation(entity, random) }) return
+        if (Backtrack.runWithNearestTrackedDistance(entity) { !findRotation(entity, random) }) return@handler
 
         // Jitter
         // Some players do jitter on their mouses causing them to shake around. This is trying to simulate this behavior.
