@@ -329,6 +329,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleXRay,
             ModuleDebug,
             ModuleZoom,
+            ModuleItemChams,
 
             // World
             ModuleAutoBuild,
