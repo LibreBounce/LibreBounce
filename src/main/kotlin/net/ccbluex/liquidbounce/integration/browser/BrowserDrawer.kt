@@ -111,7 +111,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     private fun renderTexture(x: Float, y: Float, width: Float, height: Float, texture: Int) {
         RenderSystem.disableDepthTest()
         RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
         RenderSystem.setShader { GameRenderer.getPositionTexColorProgram() }
         RenderSystem.setShaderTexture(0, texture)
         val tessellator = Tessellator.getInstance()
