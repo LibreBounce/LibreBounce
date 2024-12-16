@@ -31,7 +31,9 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.*
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFightBot
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraVelocityHit
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing.dealWithFakeSwing
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail

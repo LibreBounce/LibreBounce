@@ -17,10 +17,10 @@ import net.minecraft.network.packet.s2c.play.*
 
 object KillAuraVelocityHit : ToggleableConfigurable(ModuleKillAura, "VelocityHit", false) {
 
-    private var considerVelocityHit = false;
-    private var damageReceived = false;
-    private var onGroundTicks = 0;
-    private var isPossible = false;
+    private var considerVelocityHit = false
+    private var damageReceived = false
+    private var onGroundTicks = 0
+    private var isPossible = false
 
     val extensionRange by float("Extension", 1.0f, 0.1f..2.0f)
     val onLag by boolean("OnlyWhileLagging", false)
@@ -28,7 +28,7 @@ object KillAuraVelocityHit : ToggleableConfigurable(ModuleKillAura, "VelocityHit
     private var timer: Chronometer = Chronometer()
     private var lastPacketTime: ArrayList<Long> = ArrayList()
 
-    private val sampleSize: Int = 10
+    const val sampleSize = 10
 
     @Suppress("unused")
     private val packetHandler = sequenceHandler<PacketEvent>(priority = 1) { event ->
@@ -40,11 +40,11 @@ object KillAuraVelocityHit : ToggleableConfigurable(ModuleKillAura, "VelocityHit
         }
 
         if (packet is EntityDamageS2CPacket && packet.entityId == player.id) {
-            damageReceived = true;
+            damageReceived = true
         }
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id && damageReceived) {
-            considerVelocityHit = true;
+            considerVelocityHit = true
         }
     }
 
@@ -55,13 +55,14 @@ object KillAuraVelocityHit : ToggleableConfigurable(ModuleKillAura, "VelocityHit
             return@tickHandler
         }
 
-        var enemy: LivingEntity? = ModuleKillAura.targetTracker.lockedOnTarget;
+        var enemy: LivingEntity? = ModuleKillAura.targetTracker.lockedOnTarget
         var lagging: Boolean = isLagging() || PacketQueueManager.isLagging
 
-        if (!onLag)
-            lagging = true;
+        if (!onLag) {
+            lagging = true
+}
 
-        var isTracking: Boolean = enemy != null;
+        var isTracking: Boolean = enemy != null
 
         if (enemy == null) {
             reset()
@@ -83,7 +84,7 @@ object KillAuraVelocityHit : ToggleableConfigurable(ModuleKillAura, "VelocityHit
     }
 
     fun reset() {
-        isPossible = false;
+        isPossible = false
         considerVelocityHit = false
         damageReceived = false
         onGroundTicks = 0

@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.*
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -82,7 +81,6 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
         }
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id || packet is ExplosionS2CPacket) {
-
             // When delay is above 0, we will delay the velocity update
             if (delay.last > 0) {
                 event.cancelEvent()
