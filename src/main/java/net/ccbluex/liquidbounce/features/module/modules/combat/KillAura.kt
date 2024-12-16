@@ -418,7 +418,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     /**
      * Tick event
      */
-    val onTick = handler<GameTickEvent> {
+    val onTick = handler<GameTickEvent>(priority = 2) {
         val player = mc.thePlayer ?: return@handler
 
         if (shouldPrioritize()) {
