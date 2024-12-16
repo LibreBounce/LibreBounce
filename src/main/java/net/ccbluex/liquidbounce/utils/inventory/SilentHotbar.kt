@@ -7,7 +7,10 @@
 
 package net.ccbluex.liquidbounce.utils.inventory
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.ClientSlotChangeEvent
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 

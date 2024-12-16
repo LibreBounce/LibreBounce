@@ -125,6 +125,11 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
+        if (TickBase.duringTickModification && mode == "Modern") {
+            clearPackets()
+            return@handler
+        }
+
         if (Blink.blinkingReceive() || event.isCancelled)
             return@handler
 
