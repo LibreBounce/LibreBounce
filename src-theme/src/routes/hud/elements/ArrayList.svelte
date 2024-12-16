@@ -39,7 +39,7 @@
         await updateEnabledModules();
     });
 
-    listen("toggleModule", async () => {
+    listen("moduleToggle", async () => {
         await updateEnabledModules();
     });
 
@@ -60,13 +60,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../colors.scss";
-
-  .arraylist {
-    //position: fixed;
-    //top: 0;
-    //right: 0;
-  }
+  @use "../../../colors.scss" as *;
 
   .module {
     background-color: rgba($arraylist-base-color, 0.68);

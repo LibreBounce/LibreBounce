@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
 import net.minecraft.entity.Entity
@@ -80,7 +81,7 @@ fun raytraceEntity(
 
 fun raytraceBlock(
     range: Double,
-    rotation: Rotation,
+    rotation: Rotation = RotationManager.currentRotation ?: player.rotation,
     pos: BlockPos,
     state: BlockState,
 ): BlockHitResult? {
@@ -101,7 +102,7 @@ fun raytraceBlock(
 }
 
 fun raycast(
-    rotation: Rotation = RotationManager.serverRotation,
+    rotation: Rotation = RotationManager.currentRotation ?: player.rotation,
     range: Double = max(player.blockInteractionRange, player.entityInteractionRange),
     includeFluids: Boolean = false,
     tickDelta: Float = 1.0f,

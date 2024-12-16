@@ -30,7 +30,7 @@ public abstract class MixinBossBarHud {
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void hookRenderStatusEffectOverlay(CallbackInfo ci) {
-        if (ModuleAntiBlind.INSTANCE.getEnabled() && ModuleAntiBlind.INSTANCE.getBossBars()) {
+        if (ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getBossBars()) {
             ci.cancel();
         }
     }

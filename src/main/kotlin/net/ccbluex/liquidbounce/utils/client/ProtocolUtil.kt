@@ -20,6 +20,7 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility1_8
 import net.minecraft.SharedConstants
@@ -76,11 +77,7 @@ data class ClientProtocolVersion(val name: String, val version: Int)
 val isEqual1_8: Boolean
     get() = runCatching {
         // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
-        if (hasProtocolTranslator) {
-            return@runCatching VfpCompatibility.INSTANCE.isEqual1_8
-        } else {
-            return@runCatching false
-        }
+        hasProtocolTranslator && VfpCompatibility.INSTANCE.isEqual1_8
     }.onFailure {
         logger.error("Failed to check if the server is using old combat", it)
     }.getOrDefault(false)
@@ -88,11 +85,7 @@ val isEqual1_8: Boolean
 val isOlderThanOrEqual1_8: Boolean
     get() = runCatching {
         // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
-        if (hasProtocolTranslator) {
-            return@runCatching VfpCompatibility.INSTANCE.isOlderThanOrEqual1_8
-        } else {
-            return@runCatching false
-        }
+        hasProtocolTranslator && VfpCompatibility.INSTANCE.isOlderThanOrEqual1_8
     }.onFailure {
         logger.error("Failed to check if the server is using old combat", it)
     }.getOrDefault(false)
@@ -100,19 +93,28 @@ val isOlderThanOrEqual1_8: Boolean
 val isOlderThanOrEquals1_7_10: Boolean
     get() = runCatching {
         // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
-        if (hasProtocolTranslator) {
-            return@runCatching VfpCompatibility.INSTANCE.isOlderThanOrEqual1_7_10
-        } else {
-            return@runCatching false
-        }
+        hasProtocolTranslator && VfpCompatibility.INSTANCE.isOlderThanOrEqual1_7_10
     }.onFailure {
         logger.error("Failed to check if the server is using 1.7.10", it)
+    }.getOrDefault(false)
+
+val isNewerThanOrEquals1_16: Boolean
+    get() = runCatching {
+        // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
+        hasProtocolTranslator && VfpCompatibility.INSTANCE.isNewerThanOrEqual1_16
+    }.onFailure {
+        logger.error("Failed to check if the server is using 1.16+", it)
     }.getOrDefault(false)
 
 fun selectProtocolVersion(protocolId: Int) {
     // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
     if (hasProtocolTranslator) {
         VfpCompatibility.INSTANCE.unsafeSelectProtocolVersion(protocolId)
+
+        // Update the window title
+        RenderSystem.recordRenderCall {
+            mc.updateWindowTitle()
+        }
     } else {
         error("ViaFabricPlus is not loaded")
     }
@@ -134,7 +136,7 @@ fun disableConflictingVfpOptions() {
         return
     }
 
-    VfpCompatibility.INSTANCE.unsafeDsableConflictingVfpOptions()
+    VfpCompatibility.INSTANCE.unsafeDisableConflictingVfpOptions()
 }
 
 fun sendSignUpdate(blockPos: BlockPos, lines: Array<String>) {

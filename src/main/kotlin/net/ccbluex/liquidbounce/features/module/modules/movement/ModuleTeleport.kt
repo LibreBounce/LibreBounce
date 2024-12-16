@@ -1,11 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandPlayerTeleport
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandTeleport
+import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandVClip
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -14,7 +17,14 @@ import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.floor
 
-object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("tp")) {
+/**
+ * Teleport Module
+ *
+ * Configuration for teleport commands.
+ *
+ * Commands: [CommandVClip], [CommandTeleport], [CommandPlayerTeleport]
+ */
+object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arrayOf("tp")) {
 
     private val allFull by boolean("AllFullPacket", false)
     private val paperExploit by boolean("PaperBypass", false)
@@ -46,14 +56,11 @@ object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("
                 this.enabled = false
             }
         }
-
-        super.enable()
     }
 
     override fun disable() {
         indicatedTeleport = null
         teleportsToWait = 0
-        super.disable()
     }
 
     fun indicateTeleport(x: Double = player.x, y: Double = player.y, z: Double = player.z) {
@@ -104,11 +111,11 @@ object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("
     }
 
     fun teleport(x: Double = player.x, y: Double = player.y, z: Double = player.z) {
-        val deltaX = x - player.x
-        val deltaY = y - player.y
-        val deltaZ = z - player.z
-
         if (paperExploit) {
+            val deltaX = x - player.x
+            val deltaY = y - player.y
+            val deltaZ = z - player.z
+
             val times = (floor((abs(deltaX) + abs(deltaY) + abs(deltaZ)) / 10) - 1).toInt()
             val packetToSend = if (allFull) MovePacketType.FULL else MovePacketType.POSITION_AND_ON_GROUND
             repeat(times) {
@@ -140,10 +147,11 @@ object ModuleTeleport : Module("Teleport", Category.EXPLOIT, aliases = arrayOf("
             })
         }
 
-        player.updatePosition(x, y, z)
+        val entity = player.vehicle ?: player
+        entity.updatePosition(x, y, z)
 
         if (resetMotion) {
-            player.velocity = player.velocity.multiply(0.0, 0.0, 0.0)
+            entity.velocity = entity.velocity.multiply(0.0, 0.0, 0.0)
         }
 
         chat(regular(

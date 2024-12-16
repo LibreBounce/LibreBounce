@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.api.IpInfoApi;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
-import net.ccbluex.liquidbounce.features.misc.ProxyManager;
+import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager;
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.gui.MixinScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -47,6 +47,8 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
+
+import static net.ccbluex.liquidbounce.utils.client.TextExtensionsKt.hideSensitiveAddress;
 
 @Mixin(ConnectScreen.class)
 public abstract class MixinConnectScreen extends MixinScreen {
@@ -100,10 +102,10 @@ public abstract class MixinConnectScreen extends MixinScreen {
         var socketAddr = getSocketAddress(clientConnection, serverAddress);
         var serverAddr = String.format(
                 "%s:%s",
-                hideSensitiveInformation(serverAddress.getAddress()),
+                hideSensitiveAddress(serverAddress.getAddress()),
                 serverAddress.getPort()
         );
-        var ipInfo = IpInfoApi.INSTANCE.getLocalIpInfo();
+        var ipInfo = IpInfoApi.INSTANCE.getCurrent();
 
         var client = Text.literal("Client").formatted(Formatting.BLUE);
         if (ipInfo != null) {
@@ -153,18 +155,6 @@ public abstract class MixinConnectScreen extends MixinScreen {
             socketAddr = "<unknown>";
         }
         return socketAddr;
-    }
-
-    @Unique
-    private static String hideSensitiveInformation(String address) {
-        // Hide possibly sensitive information from LiquidProxy
-        if (address.endsWith(".liquidbounce.net")) {
-            return "<redacted>.liquidbounce.net";
-        } else if (address.endsWith(".liquidproxy.net")) {
-            return "<redacted>.liquidproxy.net";
-        } else {
-            return address;
-        }
     }
 
 }

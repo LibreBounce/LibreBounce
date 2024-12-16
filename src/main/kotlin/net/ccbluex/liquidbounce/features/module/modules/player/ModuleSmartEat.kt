@@ -18,13 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.KeybindIsPressedEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.PlayerInteractedItem
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
@@ -49,7 +50,7 @@ import kotlin.math.absoluteValue
  * Makes it easier to eat
  */
 
-object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
+object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
     private val HOTBAR_OFFHAND_LEFT_TEXTURE = Identifier.of("hud/hotbar_offhand_left")
 
     private val swapBackDelay by int("SwapBackDelay", 5, 1..20)
@@ -166,13 +167,13 @@ object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
             )
         }
 
-        val tickHandler = repeatable {
+        val tickHandler = tickHandler {
             val useAction = player.activeItem.useAction
 
             if (useAction != UseAction.EAT && useAction != UseAction.DRINK)
-                return@repeatable
-            if (!SilentHotbar.isSlotModified(this@SilentOffhand))
-                return@repeatable
+                return@tickHandler
+            if (!SilentHotbar.isSlotModifiedBy(this@SilentOffhand))
+                return@tickHandler
 
             // if we are already eating, we want to keep the silent slot
             SilentHotbar.selectSlotSilently(this@SilentOffhand, SilentHotbar.serversideSlot, swapBackDelay)
@@ -184,17 +185,26 @@ object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
     }
 
     private object AutoEat : ToggleableConfigurable(this, "AutoEat", true) {
+
         private val minHunger by int("MinHunger", 15, 0..20)
+        private var forceUseKey = false
 
-        private val tickHandler = repeatable {
-
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
             if (player.hungerManager.foodLevel < minHunger) {
                 waitUntil {
                     eat()
                     player.hungerManager.foodLevel > minHunger
                 }
 
-                KeyBinding.setKeyPressed(mc.options.useKey.boundKey, false)
+                forceUseKey = false
+            }
+        }
+
+        @Suppress("unused")
+        private val keyBindIsPressedHandler = handler<KeybindIsPressedEvent> { event ->
+            if (event.keyBinding == mc.options.useKey && forceUseKey) {
+                event.isPressed = true
             }
         }
 
@@ -202,9 +212,9 @@ object ModuleSmartEat : Module("SmartEat", Category.PLAYER) {
             val currentBestFood = Estimator.findBestFood() ?: return
 
             SilentHotbar.selectSlotSilently(AutoEat, currentBestFood.hotbarSlot, swapBackDelay)
-
-            KeyBinding.setKeyPressed(mc.options.useKey.boundKey, true)
+            forceUseKey = true
         }
+
     }
 
 

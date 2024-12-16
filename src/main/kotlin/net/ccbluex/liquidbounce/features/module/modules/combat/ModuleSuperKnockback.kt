@@ -18,15 +18,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.DummyEvent
 import net.ccbluex.liquidbounce.event.Sequence
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.utils.math.minus
+import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
@@ -35,12 +38,14 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  *
  * Increases knockback dealt to other entities.
  */
-object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases = arrayOf("WTap")) {
+object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, aliases = arrayOf("WTap")) {
 
-    val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap))
+    val modes = choices("Mode", Packet, arrayOf(Packet, SprintTap, WTap)).apply(::tagBy)
     val hurtTime by int("HurtTime", 10, 0..10)
     val chance by int("Chance", 100, 0..100, "%")
+    val onlyFacing by boolean("OnlyFacing", false)
     val onlyOnGround by boolean("OnlyOnGround", false)
+    val notInWater by boolean("NotInWater", true)
 
     private object OnlyOnMove : ToggleableConfigurable(this, "OnlyOnMove", true) {
         val onlyForward by boolean("OnlyForward", true)
@@ -59,31 +64,32 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         }
     }
 
-    override fun handleEvents(): Boolean {
-        val handleEvents = super.handleEvents()
+    override val running: Boolean
+        get() {
+            val running = super.running
 
-        // Reset if the module is not handling events anymore
-        if (!handleEvents) {
-            reset()
+            // Reset if the module is not handling events anymore
+            if (!running) {
+                reset()
+            }
+
+            return running
         }
-
-        return handleEvents
-    }
 
     object Packet : Choice("Packet") {
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldOperate()) {
+        val attackHandler = handler<AttackEntityEvent> { event ->
+            val enemy = event.entity
+
+            if (!shouldOperate(enemy)) {
                 return@handler
             }
 
-            val enemy = event.enemy
-
             if (enemy is LivingEntity && enemy.hurtTime <= hurtTime && chance >= (0..100).random() &&
-                !ModuleCriticals.wouldCrit()) {
+                !ModuleCriticals.wouldDoCriticalHit()) {
                 if (player.isSprinting) {
                     network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.STOP_SPRINTING))
                 }
@@ -102,13 +108,13 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
-        val reSprintTicks by intRange("ReSprint", 0..1, 0..10, "ticks")
+        private val reSprintTicks by intRange("ReSprint", 0..1, 0..10, "ticks")
 
         var antiSprint = false
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldOperate() || !shouldStopSprinting(event) || sequence != null) {
+        val attackHandler = handler<AttackEntityEvent> { event ->
+            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -127,16 +133,16 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
-        val ticksUntilMovementBlock by intRange("UntilMovementBlock", 0..1, 0..10,
+        private val ticksUntilMovementBlock by intRange("UntilMovementBlock", 0..1, 0..10,
             "ticks")
-        val ticksUntilAllowedMovement by intRange("UntilAllowedMovement", 0..1, 0..10,
+        private val ticksUntilAllowedMovement by intRange("UntilAllowedMovement", 0..1, 0..10,
             "ticks")
 
         var stopMoving = false
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEvent> { event ->
-            if (!shouldOperate() || !shouldStopSprinting(event) || sequence != null) {
+        val attackHandler = handler<AttackEntityEvent> { event ->
+            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -150,23 +156,27 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
         }
     }
 
-    fun shouldBlockSprinting() = enabled && SprintTap.isActive && SprintTap.antiSprint
+    fun shouldBlockSprinting() = running && SprintTap.isSelected && SprintTap.antiSprint
 
-    fun shouldStopMoving() = enabled && WTap.isActive && WTap.stopMoving
+    fun shouldStopMoving() = running && WTap.isSelected && WTap.stopMoving
 
-    private fun shouldStopSprinting(event: AttackEvent): Boolean {
-        val enemy = event.enemy
+    private fun shouldStopSprinting(event: AttackEntityEvent): Boolean {
+        val enemy = event.entity
 
         if (!player.isSprinting || !player.lastSprinting) {
             return false
         }
 
         return enemy is LivingEntity && enemy.hurtTime <= hurtTime && chance >= (0..100).random()
-            && !ModuleCriticals.wouldCrit()
+            && !ModuleCriticals.wouldDoCriticalHit()
     }
 
-    private fun shouldOperate(): Boolean {
+    private fun shouldOperate(target: Entity): Boolean {
         if (onlyOnGround && !player.isOnGround) {
+            return false
+        }
+
+        if (notInWater && player.isInsideWaterOrBubbleColumn) {
             return false
         }
 
@@ -177,6 +187,11 @@ object ModuleSuperKnockback : Module("SuperKnockback", Category.COMBAT, aliases 
             if (!isMoving || (OnlyOnMove.onlyForward && isMovingSideways)) {
                 return false
             }
+        }
+
+        if (onlyFacing && target.rotationVector.dotProduct(player.pos - target.pos) < 0) {
+            // Target is not facing the player
+            return false
         }
 
         return true

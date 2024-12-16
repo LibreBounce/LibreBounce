@@ -19,15 +19,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes.AutoQueueGommeDuels
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes.AutoQueueHypixelSW
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes.AutoQueuePaper
 
-object ModuleAutoQueue : Module("AutoQueue", Category.PLAYER) {
+object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER) {
     val modes = choices("Mode", AutoQueuePaper, arrayOf(
         AutoQueuePaper,
         AutoQueueHypixelSW,
         AutoQueueGommeDuels
-    ))
+    )).apply(::tagBy)
 }

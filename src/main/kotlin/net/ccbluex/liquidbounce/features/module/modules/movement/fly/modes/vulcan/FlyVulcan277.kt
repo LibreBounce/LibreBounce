@@ -21,9 +21,9 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.modes
 
 /**
@@ -37,7 +37,7 @@ internal object FlyVulcan277 : Choice("Vulcan277") {
     override val parent: ChoiceConfigurable<*>
         get() = modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.fallDistance > 0.1) {
             if (player.age % 2 == 0) {
                 player.velocity.y = -0.155

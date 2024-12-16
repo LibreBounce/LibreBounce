@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.PriorityField
 import net.minecraft.entity.Entity
 
 @Nameable("attack")
-class AttackEvent(val enemy: Entity) : Event()
+class AttackEntityEvent(val entity: Entity) : Event()
 
 @Nameable("entityMargin")
 class EntityMarginEvent(val entity: Entity, var margin: Float) : Event()

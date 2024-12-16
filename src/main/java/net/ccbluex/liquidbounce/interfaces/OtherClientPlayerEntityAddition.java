@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.interfaces;
 
+import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.FakePlayer;
 import net.minecraft.entity.damage.DamageSource;
 
 /**
@@ -27,7 +28,7 @@ public interface OtherClientPlayerEntityAddition {
 
     /**
      * Allows the entity to receive damage.
-     * Used in {@link net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer}.
+     * Used in {@link FakePlayer}.
      */
     @SuppressWarnings("unused")
     boolean liquid_bounce$actuallyDamage(DamageSource source, float amount);

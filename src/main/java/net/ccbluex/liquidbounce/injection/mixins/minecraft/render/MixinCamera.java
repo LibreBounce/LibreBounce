@@ -19,15 +19,13 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleDroneControl;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCameraClip;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleQuickPerspectiveSwap;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
@@ -61,17 +59,31 @@ public abstract class MixinCamera {
     @Shadow
     public abstract void setPos(Vec3d pos);
 
-    @Inject(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V", shift = At.Shift.AFTER))
-    private void injectQuickPerspectiveSwap(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
-        if (ModuleQuickPerspectiveSwap.INSTANCE.getEnabled()) {
-            this.thirdPerson = true;
+    @Inject(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V", shift = At.Shift.AFTER), cancellable = true)
+    private void modifyCameraOrientation(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+        var freeLook = ModuleFreeLook.INSTANCE.getRunning();
+        var qps = ModuleQuickPerspectiveSwap.INSTANCE.getRunning();
+        var rearView = qps && ModuleQuickPerspectiveSwap.INSTANCE.getRearView() && !freeLook && !thirdPerson;
 
-            this.setRotation(this.yaw + 180.0f, -this.pitch);
+        if (freeLook || qps) {
+            if (!rearView) this.thirdPerson = true;
 
-            var desiredCameraDistance = ModuleCameraClip.INSTANCE.getEnabled() ? ModuleCameraClip.INSTANCE.getDistance() : 4f;
+            if (freeLook) {
+                setRotation(ModuleFreeLook.INSTANCE.getCameraYaw(), ModuleFreeLook.INSTANCE.getCameraPitch());
+            }
 
-            this.moveBy(-this.clipToSpace(desiredCameraDistance), 0.0f, 0.0f);
+            if (qps) {
+                setRotation(yaw + 180.0f, freeLook ? pitch : -pitch);
+            }
 
+            float scale = focusedEntity instanceof LivingEntity livingEntity ? livingEntity.getScale() : 1.0F;
+            float desiredCameraDistance = ModuleCameraClip.INSTANCE.getRunning() ? ModuleCameraClip.INSTANCE.getDistance() : 4f;
+
+            if (!rearView) {
+                moveBy(-clipToSpace(desiredCameraDistance * scale), 0.0f, 0.0f);
+            }
+
+            ci.cancel();
             return;
         }
         var screen = ModuleDroneControl.INSTANCE.getScreen();
@@ -81,21 +93,21 @@ public abstract class MixinCamera {
             this.setRotation(screen.getCameraRotation().x, screen.getCameraRotation().y);
         }
 
-        AimPlan aimPlan = RotationManager.INSTANCE.getStoredAimPlan();
+        AimPlan aimPlan = RotationManager.INSTANCE.getWorkingAimPlan();
 
         var previousRotation = RotationManager.INSTANCE.getPreviousRotation();
         var currentRotation = RotationManager.INSTANCE.getCurrentRotation();
 
-        boolean shouldModifyRotation = ModuleRotations.INSTANCE.getEnabled() && ModuleRotations.INSTANCE.getPov()
-                || aimPlan != null && aimPlan.getChangeLook();
+        boolean shouldModifyRotation = ModuleRotations.INSTANCE.getRunning() && ModuleRotations.INSTANCE.getCamera()
+            || aimPlan != null && aimPlan.getChangeLook();
 
         if (currentRotation == null || previousRotation == null || !shouldModifyRotation) {
             return;
         }
 
-        this.setRotation(
-                MathHelper.lerp(tickDelta, previousRotation.getYaw(), currentRotation.getYaw()),
-                MathHelper.lerp(tickDelta, previousRotation.getPitch(), currentRotation.getPitch())
+        setRotation(
+            MathHelper.lerp(tickDelta, previousRotation.getYaw(), currentRotation.getYaw()),
+            MathHelper.lerp(tickDelta, previousRotation.getPitch(), currentRotation.getPitch())
         );
     }
 
@@ -106,11 +118,11 @@ public abstract class MixinCamera {
 
     @ModifyConstant(method = "clipToSpace", constant = @Constant(intValue = 8))
     private int hookCameraClip(int constant) {
-        return ModuleCameraClip.INSTANCE.getEnabled() ? 0 : constant;
+        return ModuleCameraClip.INSTANCE.getRunning() ? 0 : constant;
     }
 
     @ModifyExpressionValue(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;clipToSpace(F)F"))
     private float modifyDesiredCameraDistance(float original) {
-        return ModuleCameraClip.INSTANCE.getEnabled() ? this.clipToSpace(ModuleCameraClip.INSTANCE.getDistance()) : original;
+        return ModuleCameraClip.INSTANCE.getRunning() ? clipToSpace(ModuleCameraClip.INSTANCE.getDistance()) : original;
     }
 }

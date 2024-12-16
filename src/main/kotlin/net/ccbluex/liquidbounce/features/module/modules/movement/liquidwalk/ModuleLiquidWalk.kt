@@ -21,11 +21,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkNoCheatPlus
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVanilla
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVerusB3901
-import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVulcan
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkVulcan291
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.block.isBlockAtPosition
 import net.ccbluex.liquidbounce.utils.entity.box
@@ -36,7 +36,7 @@ import net.minecraft.block.FluidBlock
  *
  * Allows you to walk on water like jesus. Also known as Jesus module.
  */
-object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arrayOf("Jesus", "WaterWalk")) {
+object ModuleLiquidWalk : ClientModule("LiquidWalk", Category.MOVEMENT, aliases = arrayOf("Jesus", "WaterWalk")) {
 
     init {
         enableLock()
@@ -46,8 +46,8 @@ object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arra
         LiquidWalkVanilla,
         LiquidWalkNoCheatPlus,
         LiquidWalkVerusB3901,
-        LiquidWalkVulcan,
-    ))
+        LiquidWalkVulcan291,
+    )).apply { tagBy(this) }
 
     /**
      * Check if player is standing on water
@@ -56,14 +56,14 @@ object ModuleLiquidWalk : Module("LiquidWalk", Category.MOVEMENT, aliases = arra
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.01)
 
-        return isBlockAtPosition(detectionBox) { it is FluidBlock }
+        return detectionBox.isBlockAtPosition { it is FluidBlock }
     }
 
     fun collidesWithAnythingElse(): Boolean {
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.5)
 
-        return collideBlockIntersects(detectionBox) { it !is FluidBlock }
+        return detectionBox.collideBlockIntersects { it !is FluidBlock }
     }
 
 }

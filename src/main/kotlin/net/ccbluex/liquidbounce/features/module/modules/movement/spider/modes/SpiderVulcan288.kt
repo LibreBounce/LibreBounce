@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.spider.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.spider.ModuleSpider
 
 /**
@@ -42,7 +42,7 @@ internal object SpiderVulcan288 : Choice("Vulcan288") {
 
     private var requiresStop = false
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.horizontalCollision) {
             if (!player.isClimbing) {
                 requiresStop = true

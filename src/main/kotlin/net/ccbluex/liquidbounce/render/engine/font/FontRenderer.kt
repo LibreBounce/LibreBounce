@@ -19,12 +19,20 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.ModuleNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.render.FontManager.DEFAULT_FONT_SIZE
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.render.engine.font.processor.MinecraftTextProcessor
+import net.ccbluex.liquidbounce.render.engine.font.processor.TextProcessor
+import net.ccbluex.liquidbounce.utils.client.asText
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
+import net.minecraft.text.Text
 import net.minecraft.util.math.Vec3d
+import org.joml.Vector3f
 import java.awt.Font
 import java.util.*
 import kotlin.math.max
@@ -32,7 +40,7 @@ import kotlin.random.Random
 
 data class RenderedGlyph(
     val style: Int,
-    val glyph: Glyph,
+    val glyph: GlyphDescriptor,
     val x1: Float,
     val y1: Float,
     val x2: Float,
@@ -60,93 +68,15 @@ class FontRenderer(
      *
      * [Font.BOLD] | [Font.ITALIC] -> 3 (Can be null)
      */
-    val glyphPages: Array<GlyphPage?>,
-    override val size: Float
-) : AbstractFontRenderer() {
+    val font: FontManager.FontFace,
+    val glyphManager: FontGlyphPageManager,
+    override val size: Float = DEFAULT_FONT_SIZE
+) : AbstractFontRenderer<TextProcessor.ProcessedText>() {
 
     private val cache = FontRendererCache()
-    override val height: Float
-    val ascent: Float
+    override val height: Float = font.styles.firstNotNullOf { it?.height }
+    val ascent: Float = font.styles.firstNotNullOf { it?.ascent }
 
-    init {
-        require(this.glyphPages[0] != null) {
-            "glyphPages[0] must not be null."
-        }
-
-        this.height = glyphPages.maxByOrNull { it?.height ?: 0.0f }!!.height
-        this.ascent = glyphPages.maxByOrNull { it?.ascent ?: 0.0f }!!.ascent
-    }
-
-    companion object {
-        /**
-         * Contains the chars for the `§k` formatting
-         */
-        val RANDOM_CHARS = "1234567890abcdefghijklmnopqrstuvwxyz~!@#\$%^&*()-=_+{}[]".toCharArray()
-
-        @JvmStatic
-        val hexColors: Array<Color4b> = Array(16) { i ->
-            val baseColor = (i shr 3 and 1) * 85
-            val red = (i shr 2 and 1) * 170 + baseColor + if (i == 6) 85 else 0
-            val green = (i shr 1 and 1) * 170 + baseColor
-            val blue = (i and 1) * 170 + baseColor
-
-            Color4b(red, green, blue, 255)
-        }
-
-        /**
-         * Creates a FontRenderer that can render every ASCII character.
-         *
-         * It generates glyph pages for all possible styles.
-         */
-        fun createFontRenderer(font: Font): FontRenderer {
-            return FontRenderer(
-                Array(4) { style -> GlyphPage.create('\u0000'..'\u00FF', font.deriveFont(style)) },
-                font.size.toFloat()
-            )
-        }
-
-        /**
-         * Creates a FontRenderer that can render every ASCII character.
-         *
-         * It generates glyph pages for all possible styles.
-         */
-        fun createFontRenderer(name: String, size: Int): FontRenderer {
-            return FontRenderer(
-                Array(4) { style -> GlyphPage.create('\u0000'..'\u00FF', Font(name, style, size)) },
-                size.toFloat()
-            )
-        }
-
-        /**
-         * Creates a FontRenderer that can render every ASCII character.
-         *
-         * It generates glyph pages for all possible styles.
-         */
-        fun createFontRendererWithStyles(font: Font, vararg styles: Int): FontRenderer {
-            return FontRenderer(
-                Array(4) { style ->
-                    if (style != 0 && !styles.contains(style)) {
-                        null
-                    } else GlyphPage.create(
-                        '\u0000'..'\u00FF',
-                        font.deriveFont(style)
-                    )
-                },
-                font.size.toFloat()
-            )
-        }
-
-        private fun getColorIndex(type: Char): Int {
-            return when (type) {
-                in '0'..'9' -> type - '0'
-                in 'a'..'f' -> type - 'a' + 10
-                in 'k'..'o' -> type - 'k' + 16
-                'r' -> 21
-                else -> -1
-            }
-        }
-
-    }
 
     override fun begin() {
         if (this.cache.renderedGlyphs.isNotEmpty() || this.cache.lines.isNotEmpty()) {
@@ -156,24 +86,34 @@ class FontRenderer(
         }
     }
 
+    override fun process(text: String, defaultColor: Color4b): TextProcessor.ProcessedText {
+        return process(text.asText(), defaultColor)
+    }
+
+    override fun process(text: Text, defaultColor: Color4b): TextProcessor.ProcessedText {
+        return MinecraftTextProcessor(text.sanitizeForeignInput(), defaultColor, Random.nextLong()).process()
+    }
+
     override fun draw(
-        text: String,
+        text: TextProcessor.ProcessedText,
         x0: Float,
         y0: Float,
-        defaultColor: Color4b,
         shadow: Boolean,
         z: Float,
         scale: Float
     ): Float {
         var len = 0.0f
-        // Create a common seed for rendering random fonts
-        val seed = Random.nextLong()
 
         if (shadow) {
-            len = drawInternal(text, x0 + 2.0f * scale, y0 + 2.0f * scale, Color4b(0, 0, 0, 150), true, seed, z, scale)
+            len = drawInternal(
+                text,
+                pos = Vector3f(x0 + 2.0f * scale, y0 + 2.0f * scale, z),
+                scale,
+                overrideColor = Color4b(0, 0, 0, 150)
+            )
         }
 
-        return max(len, drawInternal(text, x0, y0, defaultColor, false, seed, z * 2.0F, scale))
+        return max(len, drawInternal(text, Vector3f(x0, y0, z * 2.0F), scale))
     }
 
     /**
@@ -185,211 +125,99 @@ class FontRenderer(
      * @return The resulting x value
      */
     private fun drawInternal(
-        text: String,
-        x0: Float,
-        y0: Float,
-        defaultColor: Color4b,
-        shadow: Boolean,
-        obfuscatedSeed: Long,
-        z: Float,
-        scale: Float
+        text: TextProcessor.ProcessedText,
+        pos: Vector3f,
+        scale: Float,
+        overrideColor: Color4b? = null
     ): Float {
-        if (text.isEmpty()) {
-            return x0
+        if (text.chars.isEmpty()) {
+            return pos.x
         }
 
-        // Used for obfuscated strings
-        val obfuscatedRandom = Random(obfuscatedSeed)
+        val underlineStack = ArrayList<IntRange>(text.underlines.asReversed())
+        val strikethroughStack = ArrayList<IntRange>(text.strikeThroughs.asReversed())
 
-        var x = x0
-        var y = y0 + this.ascent * scale
+        var x = pos.x
+        var y = pos.y + this.ascent * scale
 
-        var strikeThroughStart = 0.0f
-        var underlineStart = 0.0f
+        var strikeThroughStartX: Float? = null
+        var underlineStartX: Float? = null
 
-        // Was the last read character a §?
-        var wasParagraph = false
+        val fallbackGlyph = this.glyphManager.getFallbackGlyph(this.font)
 
-        // Which style are we rendering atm?
-        var style = 0
+        text.chars.forEachIndexed { charIdx, processedChar ->
+            val glyph = this.glyphManager.requestGlyph(this.font, processedChar.font, processedChar.char)
+                ?: fallbackGlyph
+            val color = overrideColor ?: processedChar.color
 
-        // Are we supposed to render random characters?
-        var obfuscated = false
-
-        var underline = false
-        var strikeThrough = false
-
-        var currentColor = defaultColor
-
-        val defaultStyle = this.glyphPages[0]!!
-
-        for (codepoint in text.chars()) {
-            val char = codepoint.toChar()
-
-            // Don't draw paragraph characters, but remember that we found them
-            if (char == '§') {
-                wasParagraph = true
-                continue
+            if (underlineStack.lastOrNull()?.start == charIdx) {
+                underlineStartX = x
             }
-
-            if (wasParagraph) {
-                wasParagraph = false
-
-                var shouldContinue = false
-
-                when (val colorIndex = getColorIndex(char)) {
-                    in 0..15 -> {
-                        // Don't change the color of a shadow pls
-                        if (!shadow) {
-                            currentColor = hexColors[colorIndex]
-                        }
-
-                        if (underline) {
-                            drawLine(underlineStart, x, y, z, currentColor, false)
-                        }
-                        if (strikeThrough) {
-                            drawLine(strikeThroughStart, x, y, z, currentColor, true)
-                        }
-
-                        style = 0
-                        obfuscated = false
-                        underline = false
-                        strikeThrough = false
-                    }
-                    16 -> obfuscated = true
-                    17 -> style = style or Font.BOLD
-                    18 -> {
-                        if (!underline) {
-                            strikeThroughStart = x
-                            strikeThrough = true
-                        }
-                    }
-                    19 -> {
-                        if (!underline) {
-                            underlineStart = x
-                            underline = true
-                        }
-                    }
-                    20 -> style = style or Font.ITALIC
-                    21 -> {
-                        currentColor = defaultColor
-
-                        if (underline) {
-                            drawLine(underlineStart, x, y, z, currentColor, false)
-                        }
-                        if (strikeThrough) {
-                            drawLine(strikeThroughStart, x, y, z, currentColor, true)
-                        }
-
-                        style = 0
-                        obfuscated = false
-                        underline = false
-                        strikeThrough = false
-                    }
-                    else -> shouldContinue = true
-                }
-
-                if (!shouldContinue) {
-                    continue
-                }
+            if (strikethroughStack.lastOrNull()?.start == charIdx) {
+                strikeThroughStartX = x
             }
-
-            val glyphPage = glyphPages[style] ?: defaultStyle
-
-            // Decide which char we are *really* rendering
-            val currentChar = if (obfuscated) RANDOM_CHARS.random(obfuscatedRandom) else char
-
-            val glyph = glyphPage.glyphs[currentChar] ?: glyphPage.glyphs['?']!!
 
             // We don't need to render whitespaces.
-            if (!glyph.isWhitespace) {
-                this.cache.renderedGlyphs.add(
-                    RenderedGlyph(
-                        style,
-                        glyph,
-                        x + glyph.glyphBounds.xMin * scale,
-                        y + glyph.glyphBounds.yMin * scale,
-                        x + (glyph.glyphBounds.xMin + glyph.atlasWidth) * scale,
-                        y + (glyph.glyphBounds.yMin + glyph.atlasHeight) * scale,
-                        z,
-                        currentColor
-                    )
+            val renderInfo = glyph.renderInfo
+            val atlasLocation = renderInfo.atlasLocation
+
+            // We don't need to render whitespaces.
+            if (atlasLocation != null) {
+                val renderedGlyph = RenderedGlyph(
+                    processedChar.font,
+                    glyph,
+                    x + renderInfo.glyphBounds.xMin * scale,
+                    y + renderInfo.glyphBounds.yMin * scale,
+                    x + (renderInfo.glyphBounds.xMin + atlasLocation.atlasWidth) * scale,
+                    y + (renderInfo.glyphBounds.yMin + atlasLocation.atlasHeight) * scale,
+                    pos.z,
+                    color
                 )
+
+                this.cache.renderedGlyphs.add(renderedGlyph)
             }
 
-            x += glyph.advanceX * scale
-            y += glyph.advanceY * scale
-        }
+            val layoutInfo =
+                if (!processedChar.obfuscated) renderInfo.layoutInfo else fallbackGlyph.renderInfo.layoutInfo
 
-        if (underline) {
-            drawLine(underlineStart, x, y, z, currentColor, false)
-        }
-        if (strikeThrough) {
-            drawLine(strikeThroughStart, x, y, z, currentColor, true)
+            x += layoutInfo.advanceX * scale
+            y += layoutInfo.advanceY * scale
+
+            if (underlineStack.lastOrNull()?.endInclusive == charIdx) {
+                underlineStack.removeLast()
+
+                drawLine(underlineStartX!!, x, y, pos.z, color, false)
+            }
+            if (strikethroughStack.lastOrNull()?.endInclusive == charIdx) {
+                strikethroughStack.removeLast()
+
+                drawLine(strikeThroughStartX!!, x, y, pos.z, color, true)
+            }
         }
 
         return x
     }
 
     override fun getStringWidth(
-        text: String,
+        text: TextProcessor.ProcessedText,
         shadow: Boolean
     ): Float {
-        if (text.isEmpty()) {
+        if (text.chars.isEmpty()) {
             return 0.0f
         }
 
         var x = 0.0f
 
-        // Was the last read character a §?
-        var wasParagraph = false
+        val fallbackGlyph = this.glyphManager.getFallbackGlyph(this.font)
 
-        // Which style are we rendering atm?
-        var style = 0
+        for (processedChar in text.chars) {
+            val glyph = this.glyphManager.requestGlyph(this.font, processedChar.font, processedChar.char)
+                ?: fallbackGlyph
 
-        // Are we supposed to render random characters?
-        var obfuscated = false
+            val layoutInfo =
+                if (!processedChar.obfuscated) glyph.renderInfo.layoutInfo else fallbackGlyph.renderInfo.layoutInfo
 
-        val defaultStyle = this.glyphPages[0]!!
-
-        for (codepoint in text.chars()) {
-            val char = codepoint.toChar()
-
-            // Don't draw paragraph characters, but remember that we found them
-            if (char == '§') {
-                wasParagraph = true
-                continue
-            }
-
-            if (wasParagraph) {
-                wasParagraph = false
-
-                var shouldContinue = false
-
-                when (val colorIndex = getColorIndex(char)) {
-                    in 0..15, 21 -> {
-                        style = 0
-                        obfuscated = false
-                    }
-                    16 -> obfuscated = true
-                    17 -> style = style or Font.BOLD
-                    20 -> style = style or Font.ITALIC
-                    else -> shouldContinue = true
-                }
-
-                if (!shouldContinue) {
-                    continue
-                }
-            }
-
-            val glyphPage = glyphPages[style] ?: defaultStyle
-
-            // Decide which char we are *really* rendering
-            val currentChar = if (obfuscated) '_' else char
-
-            val glyph = glyphPage.glyphs[currentChar] ?: glyphPage.glyphs['?']!!
-
-            x += glyph.advanceX
+            x += layoutInfo.advanceX
         }
 
         return if (shadow) {
@@ -431,24 +259,21 @@ class FontRenderer(
         env: RenderEnvironment,
         buffers: FontRendererBuffers,
     ) {
-        val renderTasks = this.cache.renderedGlyphs.groupByTo(TreeMap<Int, MutableList<RenderedGlyph>>()) { it.style }
+        this.cache.renderedGlyphs.forEach { renderedGlyph ->
+            val glyphDescriptor = renderedGlyph.glyph
+            val renderBuffer = buffers.getTextBufferForGlyphPage(glyphDescriptor.page)
 
-        for ((style, glyphs) in renderTasks) {
-            val textBuilder = buffers.textBuffers[style]
+            val color = renderedGlyph.color
+            val atlasLocation = glyphDescriptor.renderInfo.atlasLocation!!
 
-            for (glyph in glyphs) {
-                val color = glyph.color
-                val atlasLocation = glyph.glyph.atlasLocation!!
-
-                textBuilder.drawQuad(
-                    env,
-                    Vec3d(glyph.x1.toDouble(), glyph.y1.toDouble(), glyph.z.toDouble()),
-                    atlasLocation.min,
-                    Vec3d(glyph.x2.toDouble(), glyph.y2.toDouble(), glyph.z.toDouble()),
-                    atlasLocation.max,
-                    color
-                )
-            }
+            renderBuffer.drawQuad(
+                env,
+                Vec3d(renderedGlyph.x1.toDouble(), renderedGlyph.y1.toDouble(), renderedGlyph.z.toDouble()),
+                atlasLocation.uvCoordinatesOnTexture.min,
+                Vec3d(renderedGlyph.x2.toDouble(), renderedGlyph.y2.toDouble(), renderedGlyph.z.toDouble()),
+                atlasLocation.uvCoordinatesOnTexture.max,
+                color
+            )
         }
 
         if (this.cache.lines.isNotEmpty()) {
@@ -467,17 +292,31 @@ class FontRenderer(
 class FontRendererBuffers {
     companion object {
         private val TEXT_TESSELATORS = Array(5) { Tessellator(0xA00000) }
+        private var currentTessellatorIndex = 1
+
+        private val textTesselatorMap = HashMap<GlyphPage, Tessellator>()
+
+        fun getTesselatorForGlyphPage(glyphPage: GlyphPage): Tessellator {
+            return textTesselatorMap.computeIfAbsent(glyphPage) { TEXT_TESSELATORS[currentTessellatorIndex++] }
+        }
     }
 
-    val textBuffers = Array(4) {
-        RenderBufferBuilder(VertexFormat.DrawMode.QUADS, VertexInputType.PosTexColor, TEXT_TESSELATORS[it + 1])
+    val textBuffers = HashMap<GlyphPage, RenderBufferBuilder<VertexInputType.PosTexColor>>()
+
+    fun getTextBufferForGlyphPage(glyphPage: GlyphPage): RenderBufferBuilder<VertexInputType.PosTexColor> {
+        return this.textBuffers.computeIfAbsent(glyphPage) {
+            val tessellator = getTesselatorForGlyphPage(glyphPage)
+
+            RenderBufferBuilder(VertexFormat.DrawMode.QUADS, VertexInputType.PosTexColor, tessellator)
+        }
     }
+
     val lineBufferBuilder =
         RenderBufferBuilder(VertexFormat.DrawMode.DEBUG_LINES, VertexInputType.PosColor, TEXT_TESSELATORS[0])
 
-    fun draw(renderer: FontRenderer) {
-        this.textBuffers.forEachIndexed { style, bufferBuilder ->
-            val tex = renderer.glyphPages[style]!!.texture
+    fun draw() {
+        this.textBuffers.forEach { (glyphPage, bufferBuilder) ->
+            val tex = glyphPage.texture
 
             RenderSystem.bindTexture(tex.glId)
 
@@ -490,10 +329,11 @@ class FontRendererBuffers {
     }
 
     fun reset() {
-        this.textBuffers.forEachIndexed { style, bufferBuilder ->
+        this.textBuffers.forEach { (_, bufferBuilder) ->
             bufferBuilder.reset()
         }
 
         this.lineBufferBuilder.reset()
     }
 }
+

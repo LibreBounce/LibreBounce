@@ -43,31 +43,19 @@ public class MixinWorld {
         }
 
         // IMPORTANT: BlockPos might be a BlockPos.Mutable, so we need to create a new BlockPos instance to issues
-        var blockPos = new BlockPos(pos);
-        EventManager.INSTANCE.callEvent(new BlockChangeEvent(blockPos, state));
+        EventManager.INSTANCE.callEvent(new BlockChangeEvent(pos.toImmutable(), state));
     }
 
     @ModifyReturnValue(method = "getTimeOfDay", at = @At("RETURN"))
     private long injectOverrideTime(long original) {
-        var module = ModuleCustomAmbience.INSTANCE;
-        if (module.getEnabled()) {
-            return switch (module.getTime().get()) {
-                case NO_CHANGE -> original;
-                case DAY -> 1000L;
-                case NOON -> 6000L;
-                case NIGHT -> 13000L;
-                case MID_NIGHT -> 18000L;
-            };
-        }
-
-        return original;
+        return ModuleCustomAmbience.getTime(original);
     }
 
     @Inject(method = "getRainGradient", cancellable = true, at = @At("HEAD"))
     private void injectOverrideWeather(float delta, CallbackInfoReturnable<Float> cir) {
         var module = ModuleCustomAmbience.INSTANCE;
         var desiredWeather = module.getWeather().get();
-        if (module.getEnabled()) {
+        if (module.getRunning()) {
             switch (desiredWeather) {
                 case SUNNY -> cir.setReturnValue(0.0f);
                 case RAINY, THUNDER -> cir.setReturnValue(1.0f);
@@ -80,7 +68,7 @@ public class MixinWorld {
     private void injectOverrideThunder(float delta, CallbackInfoReturnable<Float> cir) {
         var module = ModuleCustomAmbience.INSTANCE;
         var desiredWeather = module.getWeather().get();
-        if (module.getEnabled()) {
+        if (module.getRunning()) {
             switch (desiredWeather) {
                 case SUNNY, RAINY, SNOWY -> cir.setReturnValue(0.0f);
                 case THUNDER -> cir.setReturnValue(1.0f);

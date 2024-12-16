@@ -16,30 +16,36 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.event.events.ScreenRenderEvent;
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleDroneControl;
 import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
+import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
 import net.ccbluex.liquidbounce.interfaces.PostEffectPassTextureAddition;
 import net.ccbluex.liquidbounce.render.engine.UIRenderer;
+import net.ccbluex.liquidbounce.render.shader.shaders.OutlineEffectShader;
 import net.ccbluex.liquidbounce.utils.aiming.RaytracingExtensionsKt;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.PostEffectProcessor;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -52,7 +58,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -61,7 +66,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer {
@@ -90,6 +94,10 @@ public abstract class MixinGameRenderer {
     @Shadow
     public abstract void tick();
 
+    @Shadow
+    @Final
+    private LightmapTextureManager lightmapTextureManager;
+
     /**
      * Hook game render event
      */
@@ -109,12 +117,12 @@ public abstract class MixinGameRenderer {
 
         var rotation = (RotationManager.INSTANCE.getCurrentRotation() != null) ?
                 RotationManager.INSTANCE.getCurrentRotation() :
-                ModuleFreeCam.INSTANCE.getEnabled() ?
+                ModuleFreeCam.INSTANCE.getRunning() ?
                         RotationManager.INSTANCE.getServerRotation() :
-                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta));
+                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta), true);
 
         return RaytracingExtensionsKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
-                ModuleLiquidPlace.INSTANCE.getEnabled(), tickDelta);
+                ModuleLiquidPlace.INSTANCE.getRunning(), tickDelta);
     }
 
     @ModifyExpressionValue(method = "findCrosshairTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getRotationVec(F)Lnet/minecraft/util/math/Vec3d;"))
@@ -130,8 +138,8 @@ public abstract class MixinGameRenderer {
     /**
      * Hook world render event
      */
-    @Inject(method = "renderWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z", opcode = Opcodes.GETFIELD, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void hookWorldRender(RenderTickCounter tickCounter, CallbackInfo ci, float f, boolean bl, Camera camera, Entity entity, float g, double d, Matrix4f matrix4f, MatrixStack matrixStack, float h, float i, Quaternionf quaternionf, Matrix4f matrix4f2) {
+    @Inject(method = "renderWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z", opcode = Opcodes.GETFIELD, ordinal = 0))
+    public void hookWorldRender(RenderTickCounter tickCounter, CallbackInfo ci, @Local(ordinal = 1) Matrix4f matrix4f2) {
         // TODO: Improve this
         var newMatStack = new MatrixStack();
 
@@ -140,31 +148,47 @@ public abstract class MixinGameRenderer {
         EventManager.INSTANCE.callEvent(new WorldRenderEvent(newMatStack, this.camera, tickCounter.getTickDelta(false)));
     }
 
+    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/LightmapTextureManager;enable()V", shift = At.Shift.AFTER))
+    public void prepareItemCharms(Camera camera, float tickDelta, Matrix4f matrix4f, CallbackInfo ci) {
+        if (ModuleItemChams.INSTANCE.getRunning()) {
+            ModuleItemChams.INSTANCE.setData();
+            OutlineEffectShader.INSTANCE.prepare();
+        }
+    }
+
+    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;Lnet/minecraft/client/network/ClientPlayerEntity;I)V", shift = At.Shift.AFTER))
+    public void drawItemCharms(Camera camera, float tickDelta, Matrix4f matrix4f, CallbackInfo ci) {
+        if (ModuleItemChams.INSTANCE.getActive()) {
+            ModuleItemChams.INSTANCE.setActive(false);
+            OutlineEffectShader.INSTANCE.apply();
+        }
+    }
+
     /**
      * Hook screen render event
      */
     @Inject(method = "render", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
             shift = At.Shift.AFTER))
-    public void hookScreenRender(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new ScreenRenderEvent());
+    public void hookScreenRender(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local DrawContext drawContext) {
+        EventManager.INSTANCE.callEvent(new ScreenRenderEvent(drawContext, tickCounter.getTickDelta(false)));
     }
 
     @Inject(method = "tiltViewWhenHurt", at = @At("HEAD"), cancellable = true)
     private void injectHurtCam(MatrixStack matrixStack, float f, CallbackInfo callbackInfo) {
-        if (ModuleNoHurtCam.INSTANCE.getEnabled()) {
+        if (ModuleNoHurtCam.INSTANCE.getRunning()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
     private void injectBobView(MatrixStack matrixStack, float f, CallbackInfo callbackInfo) {
-        if (ModuleNoBob.INSTANCE.getEnabled() || ModuleTracers.INSTANCE.getEnabled()) {
+        if (ModuleNoBob.INSTANCE.getRunning() || ModuleTracers.INSTANCE.getRunning()) {
             callbackInfo.cancel();
             return;
         }
 
-        if (!ModuleDankBobbing.INSTANCE.getEnabled()) {
+        if (!ModuleDankBobbing.INSTANCE.getRunning()) {
             return;
         }
 
@@ -243,9 +267,69 @@ public abstract class MixinGameRenderer {
 
     @Inject(method = "showFloatingItem", at = @At("HEAD"), cancellable = true)
     private void hookShowFloatingItem(ItemStack floatingItem, CallbackInfo ci) {
-        if (ModuleAntiBlind.INSTANCE.getEnabled() && ModuleAntiBlind.INSTANCE.getFloatingItems()) {
+        if (ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getFloatingItems()) {
             ci.cancel();
         }
+    }
+
+    @Inject(method = "renderWorld", at = @At(value = "RETURN"))
+    private void hookRestoreLightMap(RenderTickCounter tickCounter, CallbackInfo ci) {
+        ((LightmapTextureManagerAddition) lightmapTextureManager).liquid_bounce$restoreLightMap();
+    }
+
+    @ModifyExpressionValue(method = "getFov", at = @At(value = "INVOKE", target = "Ljava/lang/Integer;intValue()I", remap = false))
+    private int hookGetFov(int original) {
+        int result;
+
+        if (ModuleZoom.INSTANCE.getRunning()) {
+            return ModuleZoom.INSTANCE.getFov(true, 0);
+        } else {
+            result = ModuleZoom.INSTANCE.getFov(false, original);
+        }
+
+        if (ModuleNoFov.INSTANCE.getRunning() && result == original) {
+            return ModuleNoFov.INSTANCE.getFov(result);
+        }
+
+        return result;
+    }
+
+    @Inject(method = "renderNausea", at = @At("HEAD"), cancellable = true)
+    private void hookNauseaOverlay(DrawContext context, float distortionStrength, CallbackInfo ci) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getRunning() && antiBlind.getAntiNausea()) {
+            ci.cancel();
+        }
+    }
+
+    @ModifyExpressionValue(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerp(FFF)F"))
+    private float hookNausea(float original) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getRunning() && antiBlind.getAntiNausea()) {
+            return 0f;
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "renderWorld",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnCamera(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
+    }
+
+    @ModifyExpressionValue(method = "renderHand",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/option/GameOptions;getPerspective()Lnet/minecraft/client/option/Perspective;"
+            )
+    )
+    private Perspective hookPerspectiveEventOnHand(Perspective original) {
+        return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
     }
 
     @ModifyReturnValue(method = "getFov", at = @At("RETURN"))

@@ -21,12 +21,12 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.modes
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -65,7 +65,7 @@ internal object FlyVulcan286Teleport : Choice("Vulcan286-Teleport-18") {
      * After damage, vulcan gives leniency to all sorts of stuff like
      * motion, and teleporting.
      */
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         jumping = true
 
         repeat(3) {

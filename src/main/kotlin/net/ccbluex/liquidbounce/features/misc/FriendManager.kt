@@ -19,20 +19,21 @@
 package net.ccbluex.liquidbounce.features.misc
 
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.ListValueType
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ListValueType
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 import java.util.*
 
-object FriendManager : Configurable("Friends"), Listenable {
+object FriendManager : Configurable("Friends"), EventListener {
 
     val friends by value(name, TreeSet<Friend>(), listType = ListValueType.Friend)
 
-    val tagEntityEvent = handler<TagEntityEvent> {
+    @Suppress("unused")
+    private val tagEntityEvent = handler<TagEntityEvent> {
         if (isFriend(it.entity)) {
             it.assumeFriend()
         }
@@ -58,6 +59,8 @@ object FriendManager : Configurable("Friends"), Listenable {
         }
 
         override fun compareTo(other: Friend): Int = this.name.compareTo(other.name)
+
+        fun getDefaultName(id: Int): String = "Friend $id"
 
     }
 

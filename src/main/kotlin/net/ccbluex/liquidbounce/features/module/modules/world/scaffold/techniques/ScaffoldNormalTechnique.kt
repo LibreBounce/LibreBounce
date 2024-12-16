@@ -21,18 +21,27 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniqu
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.getTargetedPosition
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldCeilingFeature
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldHeadHitterFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldDownFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldEagleFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldStabilizeMovementFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldTellyFeature
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldTellyFeature.Mode
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
+import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import kotlin.math.round
 import kotlin.random.Random
 
 /**
@@ -41,16 +50,19 @@ import kotlin.random.Random
 object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
 
     private val aimMode by enumChoice("RotationMode", AimMode.STABILIZED)
+    private val requiresSight by boolean("RequiresSight", false)
 
     init {
         tree(ScaffoldEagleFeature)
         tree(ScaffoldTellyFeature)
         tree(ScaffoldDownFeature)
         tree(ScaffoldStabilizeMovementFeature)
+        tree(ScaffoldCeilingFeature)
+        tree(ScaffoldHeadHitterFeature)
     }
 
-    private val INVESTIGATE_DOWN_OFFSETS: List<Vec3i> = commonOffsetToInvestigate(listOf(0, -1, 1, -2, 2))
-    internal val NORMAL_INVESTIGATION_OFFSETS: List<Vec3i> = commonOffsetToInvestigate(listOf(0, -1, 1))
+    private val INVESTIGATE_DOWN_OFFSETS: List<Vec3i> = commonOffsetToInvestigate(intArrayOf(0, -1, 1, -2, 2))
+    internal val NORMAL_INVESTIGATION_OFFSETS: List<Vec3i> = commonOffsetToInvestigate(intArrayOf(0, -1, 1))
 
     private var randomization = Random.nextDouble(-0.02, 0.02)
 
@@ -82,6 +94,30 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
         return findBestBlockPlacementTarget(getTargetedPosition(predictedPos.toBlockPos()), searchOptions)
     }
 
+    override fun getRotations(target: BlockPlacementTarget?): Rotation? {
+        if (ScaffoldTellyFeature.enabled && ScaffoldTellyFeature.doNotAim) {
+            return when (ScaffoldTellyFeature.resetMode) {
+                Mode.REVERSE -> Rotation(
+                    round(player.rotation.yaw / 45) * 45,
+                    if (player.pitch < 45f) 45f else player.pitch
+                )
+
+                Mode.RESET -> null
+            }
+        }
+
+        if (requiresSight) {
+            val target = target ?: return null
+            val raycast = raycast(rotation = target.rotation) ?: return null
+
+            if (raycast.type == HitResult.Type.BLOCK && raycast.blockPos == target.interactedBlockPos) {
+                return target.rotation
+            }
+        }
+
+        return super.getRotations(target)
+    }
+
     fun getFacePositionFactoryForConfig(predictedPos: Vec3d, predictedPose: EntityPose, optimalLine: Line?):
         FaceTargetPositionFactory {
         val config = PositionFactoryConfiguration(
@@ -103,15 +139,13 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
         randomization = Random.nextDouble(-0.01, 0.01)
     }
 
-    private fun commonOffsetToInvestigate(xzOffsets: List<Int>): List<Vec3i> {
-        return xzOffsets.flatMap { x ->
-            xzOffsets.flatMap { z ->
-                (0 downTo -1).flatMap { y ->
-                    listOf(Vec3i(x, y, z))
-                }
+    private fun commonOffsetToInvestigate(xzOffsets: IntArray): List<Vec3i> = buildList(xzOffsets.size.sq() * 2) {
+        for (x in xzOffsets) {
+            for (z in xzOffsets) {
+                add(Vec3i(x, 0, z))
+                add(Vec3i(x, -1, z))
             }
         }
     }
-
 
 }

@@ -185,8 +185,6 @@
 	"liquidbounce.command.panic.result.nonRender": "非レンダリング",
 	"liquidbounce.command.ping.description": " ping をチェックします。",
 	"liquidbounce.command.ping.result.pingCheck": "あなたの ping は %sms です。",
-	"liquidbounce.command.position.description": "現在の座標をクリップボードにコピーします。",
-	"liquidbounce.command.position.result.position": "位置: %s ",
 	"liquidbounce.command.prefix.description": "コマンドのプレフィックスを変更します。",
 	"liquidbounce.command.prefix.parameter.prefix.description": "新しいコマンドプレフィックス。",
 	"liquidbounce.command.prefix.result.prefixChanged": "コマンド プレフィックスを「%s」に正常に変更しました。",
@@ -350,7 +348,6 @@
 	"liquidbounce.module.autoRespawn.description": "死亡後に自動的にリスポーンします。",
 	"liquidbounce.module.autoShoot.description": "自動的に卵や雪玉をターゲットに投げつけたり、QuakeCraftでシュートしたりします。",
 	"liquidbounce.module.autoTool.description": "ブロックを採掘するためにインベントリ内の最適なツールを自動的に選択します。",
-	"liquidbounce.module.autoTotem.description": "トーテムを自動的にオフハンドに置きます。",
 	"liquidbounce.module.autoWalk.description": "向いている方向に自動的に歩きます。",
 	"liquidbounce.module.autoWeapon.description": "ホットバーから最適な武器を自動的に選択します。",
 	"liquidbounce.module.avoidHazards.description": "悪意のある可能性のあるブロックに入るのを防ぎます。",
@@ -417,7 +414,7 @@
 	"liquidbounce.module.hitbox.description": "他のエンティティの当たり判定を拡大します。",
 	"liquidbounce.module.holeESP.description": "クリスタルPvPのための安全な場所を表示します。",
 	"liquidbounce.module.hud.description": "さまざまな便利なツールを備えたゲーム内オーバーレイを表示します。",
-	"liquidbounce.module.ignite.description": "自動的に周囲のターゲットに火をつけます。",
+	"liquidbounce.module.autoTrap.description": "自動的に周囲のターゲットに火をつけます。",
 	"liquidbounce.module.inventoryCleaner.description": "不要なアイテムを自動的に捨てて、並べ替えます。",
 	"liquidbounce.module.inventoryMove.description": "インベントリを開いたまま歩くことができます。",
 	"liquidbounce.module.inventoryMove.messages.blinkEnd": "ラグがなくなりインベントリを閉じました。",
@@ -502,5 +499,6 @@
 	"liquidbounce.module.velocity.description": "ノックバックの量を変更します。",
 	"liquidbounce.module.xRay.description": "選択したブロックのみをレンダリングします。",
 	"liquidbounce.module.zoot.description": "すべての悪い効果/火を取り除きます。",
-	"modmenu.descriptionTranslation.liquidbounce": "無料でオープンソースのハッククライアント"
+	"modmenu.descriptionTranslation.liquidbounce": "無料でオープンソースのハッククライアント",
+  "liquidbounce.module.autoPearl.description": "敵の真珠の軌道に向けて真珠を狙い投げる."
 }

@@ -21,19 +21,23 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 import net.ccbluex.liquidbounce.event.events.UseCooldownEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.minecraft.item.BlockItem
 
 /**
  * FastPlace module
  *
  * Allows you to place blocks faster.
  */
-object ModuleFastPlace : Module("FastPlace", Category.WORLD) {
+object ModuleFastPlace : ClientModule("FastPlace", Category.WORLD) {
 
-    val cooldown by int("Cooldown", 0, 0..4, "ticks")
+    private val cooldown by int("Cooldown", 0, 0..4, "ticks").apply { tagBy(this) }
+    private val onlyBlock by boolean("OnlyBlock", true)
 
     @Suppress("unused")
-    val useCooldownHandler = handler<UseCooldownEvent> { event ->
+    private val useCooldownHandler = handler<UseCooldownEvent> { event ->
+        if (onlyBlock && player.mainHandStack.item !is BlockItem) return@handler
+
         event.cooldown = cooldown
     }
 

@@ -10,14 +10,14 @@
 
     const cSetting = setting as BlocksSetting;
 
-    interface Block {
+    interface TBlock {
         name: string;
         identifier: string;
     }
 
     const dispatch = createEventDispatcher();
-    let blocks: Block[] = [];
-    let renderedBlocks: Block[] = blocks;
+    let blocks: TBlock[] = [];
+    let renderedBlocks: TBlock[] = blocks;
     let searchQuery = "";
 
     $: {
@@ -37,7 +37,6 @@
     });
 
     function handleBlockToggle(e: CustomEvent<{ identifier: string, enabled: boolean }>) {
-        console.log(e);
         if (e.detail.enabled) {
             cSetting.value = [...cSetting.value, e.detail.identifier];
         } else {
@@ -60,7 +59,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as *;
 
   .setting {
     padding: 7px 0;

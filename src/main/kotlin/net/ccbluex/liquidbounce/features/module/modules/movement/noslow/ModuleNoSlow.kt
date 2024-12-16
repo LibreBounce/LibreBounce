@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow
 
-import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.PlayerUseMultiplier
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.bow.NoSlowBow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.consume.NoSlowConsume
@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.fl
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.honey.NoSlowHoney
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.powdersnow.NoSlowPowderSnow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.slime.NoSlowSlime
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sneaking.NoSlowSneaking
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.soulsand.NoSlowSoulsand
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker
 import net.minecraft.util.UseAction
@@ -38,12 +39,13 @@ import net.minecraft.util.UseAction
  *
  * Cancels slowness effects caused by blocks and using items.
  */
-object ModuleNoSlow : Module("NoSlow", Category.MOVEMENT) {
+object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
 
     init {
         tree(NoSlowBlock)
         tree(NoSlowConsume)
         tree(NoSlowBow)
+        tree(NoSlowSneaking)
         tree(NoSlowSoulsand)
         tree(NoSlowSlime)
         tree(NoSlowHoney)

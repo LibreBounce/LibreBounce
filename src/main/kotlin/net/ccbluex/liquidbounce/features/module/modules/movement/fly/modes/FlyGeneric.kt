@@ -21,16 +21,16 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -48,13 +48,13 @@ internal object FlyVanilla : Choice("Vanilla") {
     private val bypassVanillaCheck by boolean("BypassVanillaCheck", true)
 
     object BaseSpeed : Configurable("BaseSpeed") {
-        val horizontalSpeed by float("Horizontal", 0.44f, 0.1f..5f)
-        val verticalSpeed by float("Vertical", 0.44f, 0.1f..5f)
+        val horizontalSpeed by float("Horizontal", 0.44f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 0.44f, 0.1f..10f)
     }
 
     object SprintSpeed : ToggleableConfigurable(this, "SprintSpeed", true) {
-        val horizontalSpeed by float("Horizontal", 1f, 0.1f..5f)
-        val verticalSpeed by float("Vertical", 1f, 0.1f..5f)
+        val horizontalSpeed by float("Horizontal", 1f, 0.1f..10f)
+        val verticalSpeed by float("Vertical", 1f, 0.1f..10f)
     }
 
     init {
@@ -65,7 +65,8 @@ internal object FlyVanilla : Choice("Vanilla") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
         val hSpeed =
             if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed
@@ -112,7 +113,7 @@ internal object FlyCreative : Choice("Creative") {
     private val forceFlight by boolean("ForceFlight", true)
 
     override fun enable() {
-        player.abilities.allowFlying = true;
+        player.abilities.allowFlying = true
     }
 
     private fun shouldFlyDown(): Boolean {
@@ -126,7 +127,7 @@ internal object FlyCreative : Choice("Creative") {
         return true
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         player.abilities.flySpeed =
             if (mc.options.sprintKey.isPressed && SprintSpeed.enabled) SprintSpeed.speed else speed
 
@@ -202,7 +203,7 @@ internal object FlyExplosion : Choice("Explosion") {
         super.enable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (strafeSince > 0) {
             if (!player.isOnGround) {
                 player.strafe(speed = strafeSince.toDouble())
@@ -242,7 +243,7 @@ internal object FlyJetpack : Choice("Jetpack") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.input.jumping) {
             player.velocity.x *= 1.1
             player.velocity.y += 0.15

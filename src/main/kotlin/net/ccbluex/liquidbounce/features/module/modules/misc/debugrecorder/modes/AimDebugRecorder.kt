@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
@@ -33,7 +33,7 @@ import net.minecraft.util.hit.HitResult
 
 object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Aim") {
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val playerRotation = player.rotation
         val playerLastRotation = player.lastRotation
 

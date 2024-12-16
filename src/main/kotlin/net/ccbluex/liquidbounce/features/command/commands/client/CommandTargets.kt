@@ -19,8 +19,11 @@
 package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.ValueType
+import net.ccbluex.liquidbounce.config.types.ValueType
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
+import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.combat.TargetConfigurable
@@ -32,9 +35,9 @@ import net.ccbluex.liquidbounce.utils.combat.visualTargetsConfigurable
  *
  * Provides subcommands for enemy configuration.
  */
-object CommandTargets {
+object CommandTargets : CommandFactory {
 
-    fun createCommand() = CommandBuilder
+    override fun createCommand() = CommandBuilder
         .begin("targets")
         .alias("target", "enemies", "enemy")
         .subcommand(
@@ -76,7 +79,12 @@ object CommandTargets {
                         } else {
                             "disabled"
                         }
-                        chat(regular(command.result(localizedState)))
+                        chat(
+                            regular(command.result(localizedState)),
+                            metadata = MessageMetadata(id = "CTargets#info")
+                        )
+
+                        ModuleClickGui.reloadView()
                         ConfigSystem.storeConfigurable(combatTargetsConfigurable)
                     }
                     .build()

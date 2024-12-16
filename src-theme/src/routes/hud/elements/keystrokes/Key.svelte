@@ -9,7 +9,7 @@
     let active = false;
 
     listen("key", (e: KeyEvent) => {
-        if (e.key.name !== key?.key.translationKey) {
+        if (e.key !== key?.key.translationKey) {
             return;
         }
 
@@ -22,7 +22,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as *;
 
   .key {
     height: 50px;

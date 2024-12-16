@@ -30,7 +30,7 @@ object VanillaTranslationRecognizer {
 }
 
 fun filterNonVanillaText(text: Text): Text {
-    if (!ModuleTranslationFix.enabled) {
+    if (!ModuleTranslationFix.running) {
         return text
     }
 

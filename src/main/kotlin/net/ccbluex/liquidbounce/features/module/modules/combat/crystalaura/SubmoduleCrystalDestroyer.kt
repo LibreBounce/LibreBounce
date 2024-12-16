@@ -15,85 +15,98 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
+import it.unimi.dsi.fastutil.objects.ObjectFloatImmutablePair
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.canSeeBox
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
-import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.decoration.EndCrystalEntity
+import kotlin.math.max
 
-object SubmoduleCrystalDestroyer {
+object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "Destroy", true) {
+
+    val swing by boolean("Swing", true)
+    private val delay by int("Delay", 0, 0..1000, "ms")
+    val range by float("Range", 4.5F, 1.0F..5.0F)
+    val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F)
+
+    var postAttackHandlers = arrayOf(CrystalAuraSpeedDebugger, SubmoduleSetDead.CrystalTracker)
+    val chronometer = Chronometer()
     private var currentTarget: EndCrystalEntity? = null
 
     fun tick() {
-        val range = ModuleCrystalAura.DestroyOptions.range.toDouble()
+        if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
+            return
+        }
 
-        updateTarget(player, world, range)
+        val range = range.toDouble()
+        val wallsRange = wallsRange.toDouble()
+
+        updateTarget()
 
         val target = currentTarget ?: return
 
-        // find best spot (and skip if no spot was found)
+        // find the best spot (and skip if no spot was found)
         val (rotation, _) =
             raytraceBox(
                 player.eyePos,
                 target.boundingBox,
                 range = range,
-                wallsRange = 0.0,
+                wallsRange = wallsRange,
             ) ?: return
 
-        // aim on target
-        RotationManager.aimAt(
-            rotation,
-            configurable = ModuleCrystalAura.rotations,
-            priority = Priority.IMPORTANT_FOR_USER_SAFETY,
-            provider = ModuleCrystalAura
-        )
+        ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation, isFinished = {
+            facingEnemy(
+                toEntity = target,
+                rotation = RotationManager.serverRotation,
+                range = range,
+                wallsRange = wallsRange
+            )
+        }, onFinished = {
+            if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
+                return@rotate
+            }
 
-        if (!facingEnemy(target, range, RotationManager.serverRotation)) {
-            return
-        }
+            val target1 = currentTarget ?: return@rotate
 
-        target.attack(ModuleCrystalAura.swing)
+            target1.attack(swing)
+            postAttackHandlers.forEach { it.attacked(target1.id) }
+            chronometer.reset()
+        })
     }
 
-    private fun updateTarget(
-        player: ClientPlayerEntity,
-        world: ClientWorld,
-        range: Double,
-    ) {
+    private fun updateTarget() {
+        val range = range.toDouble()
+        val wallsRange = wallsRange.toDouble()
+        val maxRange = max(wallsRange, range)
         currentTarget =
-            world.getEntitiesBoxInRange(player.getCameraPosVec(1.0F), range) { it is EndCrystalEntity }
+            world.getEntitiesBoxInRange(player.getCameraPosVec(1.0F), maxRange) { it is EndCrystalEntity }
                 .mapNotNull {
                     if (!canSeeBox(
                             player.eyePos,
                             it.boundingBox,
                             range = range,
-                            wallsRange = 0.0,
+                            wallsRange = wallsRange,
                         )
                     ) {
                         return@mapNotNull null
                     }
 
-                    val damage = ModuleCrystalAura.approximateExplosionDamage(world, it.pos)
+                    val damage = CrystalAuraDamageOptions.approximateExplosionDamage(
+                        it.pos,
+                        CrystalAuraDamageOptions.RequestingSubmodule.DESTROY
+                    ) ?: return@mapNotNull null
 
-                    if (damage < ModuleCrystalAura.DestroyOptions.minEfficiency) {
-                        return@mapNotNull null
-                    }
-
-                    return@mapNotNull Pair(it as EndCrystalEntity, damage)
+                    ObjectFloatImmutablePair(it as EndCrystalEntity, damage)
                 }
-                .maxByOrNull { it.second }
-                ?.first
+                .maxByOrNull { it.secondFloat() }?.first()
     }
+
 }

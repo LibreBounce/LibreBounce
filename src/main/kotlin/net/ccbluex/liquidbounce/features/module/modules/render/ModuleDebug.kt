@@ -18,15 +18,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
@@ -52,7 +52,7 @@ import java.awt.Color
  * Allows you to see server-sided rotations.
  */
 
-object ModuleDebug : Module("Debug", Category.RENDER) {
+object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     private val parameters by boolean("Parameters", true)
     private val geometry by boolean("Geometry", true)
@@ -65,7 +65,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         val tickRep = handler<MovementInputEvent> { _ ->
             // We aren't actually where we are because of blink.
             // So this module shall not cause any disturbance in that case.
-            if (ModuleBlink.enabled) {
+            if (ModuleBlink.running) {
                 return@handler
             }
 
@@ -106,9 +106,9 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         }
     }
 
-    val repeatable = repeatable {
-        if (!ModuleSpeed.enabled) {
-            return@repeatable
+    val repeatable = tickHandler {
+        if (!ModuleSpeed.running) {
+            return@tickHandler
         }
 
         val pos0 = Vec3d(77.0, 75.0, -52.0)
@@ -147,7 +147,6 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         val width = mc.window.scaledWidth
 
-        //
         /**
          * Separate the debugged owner from its parameter
          * Structure should be like this:
@@ -160,13 +159,11 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         val debuggedOwners = debugParameters.keys.groupBy { it.owner }
 
-        debuggedOwners.onEachIndexed { index, (owner, parameter) ->
-            val ownerName = if (owner is Module) {
-                owner.name
-            } else if (owner is Listenable) {
-                "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
-            } else {
-                owner.javaClass.simpleName
+        debuggedOwners.onEach { (owner, parameter) ->
+            val ownerName = when (owner) {
+                is ClientModule -> owner.name
+                is EventListener -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
+                else -> owner.javaClass.simpleName
             }
 
             textList += Text.literal(ownerName).styled {
@@ -188,42 +185,58 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         val directionWidth = biggestWidth / 2
         context.fill(
             width / 2 - directionWidth, 20, width / 2 + directionWidth,
-            50 + (mc.textRenderer.fontHeight * textList.size), Color4b(0, 0, 0, 128).toRGBA()
+            50 + (mc.textRenderer.fontHeight * textList.size), Color4b(0, 0, 0, 128).toARGB()
         )
 
         context.drawCenteredTextWithShadow(mc.textRenderer, Text.literal("Debugging").styled {
             it.withColor(Formatting.LIGHT_PURPLE).withBold(true)
-        }.asOrderedText(), width / 2, 22, Color4b.WHITE.toRGBA())
+        }.asOrderedText(), width / 2, 22, Color4b.WHITE.toARGB())
 
         // Draw white line below Debugging text
-        context.fill(width / 2 - directionWidth, 32, width / 2 + directionWidth, 33, Color4b.WHITE.toRGBA())
+        context.fill(width / 2 - directionWidth, 32, width / 2 + directionWidth, 33, Color4b.WHITE.toARGB())
 
         // Draw text line one by one
         textList.forEachIndexed { index, text ->
             context.drawCenteredTextWithShadow(
                 mc.textRenderer, text, width / 2, 40 +
-                    (mc.textRenderer.fontHeight * index), Color4b.WHITE.toRGBA()
+                        (mc.textRenderer.fontHeight * index), Color4b.WHITE.toARGB()
             )
         }
     }
 
+    inline fun debugGeometry(owner: Any, name: String, lazyGeometry: () -> DebuggedGeometry) {
+        if (!running) {
+            return
+        }
+
+        debugGeometry(owner, name, lazyGeometry.invoke())
+    }
+
     fun debugGeometry(owner: Any, name: String, geometry: DebuggedGeometry) {
         // Do not take any new debugging while the module is off
-        if (!enabled) {
+        if (!running) {
             return
         }
 
         debuggedGeometry[DebuggedGeometryOwner(owner, name)] = geometry
     }
 
-    data class DebuggedGeometryOwner(val owner: Any, val name: String)
+    private data class DebuggedGeometryOwner(val owner: Any, val name: String)
 
-    data class DebuggedParameter(val owner: Any, val name: String)
+    private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private var debugParameters = hashMapOf<DebuggedParameter, Any>()
+    private val debugParameters = hashMapOf<DebuggedParameter, Any>()
+
+    inline fun debugParameter(owner: Any, name: String, lazyValue: () -> Any) {
+        if (!running) {
+            return
+        }
+
+        debugParameter(owner, name, lazyValue.invoke())
+    }
 
     fun debugParameter(owner: Any, name: String, value: Any) {
-        if (!enabled) {
+        if (!running) {
             return
         }
 
@@ -235,7 +248,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         return Color4b(Color.getHSBColor(hue, 1f, 1f)).alpha(32)
     }
 
-    abstract class DebuggedGeometry(val color: Color4b) {
+    sealed class DebuggedGeometry(val color: Color4b) {
         abstract fun render(env: WorldRenderEnvironment)
     }
 
@@ -286,7 +299,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         color
     )
 
-    class DebugCollection(val geometry: List<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
+    class DebugCollection(val geometry: Collection<DebuggedGeometry>) : DebuggedGeometry(Color4b.WHITE) {
         override fun render(env: WorldRenderEnvironment) {
             this.geometry.forEach { it.render(env) }
         }

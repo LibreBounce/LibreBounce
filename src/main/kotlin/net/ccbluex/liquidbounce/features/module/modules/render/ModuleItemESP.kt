@@ -18,12 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
@@ -38,18 +38,18 @@ import net.minecraft.util.math.Box
  * Allows you to see dropped items through walls.
  */
 
-object ModuleItemESP : Module("ItemESP", Category.RENDER) {
+object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
 
-    override val translationBaseKey: String
+    override val baseKey: String
         get() = "liquidbounce.module.itemEsp"
 
-
     private val modes = choices("Mode", OutlineMode, arrayOf(GlowMode, OutlineMode, BoxMode))
-    private val colorMode = choices<GenericColorMode<Any?>>(
-        "ColorMode",
-        { it.choices[0] },
-        { arrayOf(GenericStaticColorMode(it, Color4b(255, 179, 72, 255)), GenericRainbowColorMode(it)) }
-    )
+    private val colorMode = choices("ColorMode", 0) {
+        arrayOf(
+            GenericStaticColorMode(it, Color4b(255, 179, 72, 255)),
+            GenericRainbowColorMode(it)
+        )
+    }
 
     private object BoxMode : Choice("Box") {
 

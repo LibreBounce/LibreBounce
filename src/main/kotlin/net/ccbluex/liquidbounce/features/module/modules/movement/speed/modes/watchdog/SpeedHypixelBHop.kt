@@ -20,18 +20,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
-import net.ccbluex.liquidbounce.utils.entity.moving
+import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -41,7 +39,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * @anticheatVersion 12.12.2023
  * @testedOn hypixel.net
  */
-class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : Choice("HypixelBHop") {
+class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("HypixelBHop", parent) {
 
     private val horizontalAcceleration by boolean("HorizontalAcceleration", true)
     private val verticalAcceleration by boolean("VerticalAcceleration", true)
@@ -50,7 +48,6 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : Choice("Hyp
 
         private const val BASE_HORIZONTAL_MODIFIER = 0.0004
 
-        // todo: check if we can do more with this
         private const val HORIZONTAL_SPEED_AMPLIFIER = 0.0007
         private const val VERTICAL_SPEED_AMPLIFIER = 0.0004
 
@@ -70,11 +67,11 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : Choice("Hyp
 
     private var wasFlagged = false
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.isOnGround) {
             // Strafe when on ground
             player.strafe()
-            return@repeatable
+            return@tickHandler
         } else {
             // Not much speed boost, but still a little bit - if someone wants to improve this, feel free to do so
             val horizontalMod = if (horizontalAcceleration) {
@@ -105,19 +102,12 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : Choice("Hyp
         player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
     }
 
-    val moveHandler = handler<MovementInputEvent> {
-        if (!player.isOnGround || !player.moving) {
-            return@handler
-        }
-
-        if (ModuleSpeed.shouldDelayJump())
-            return@handler
-
-        it.jumping = true
-    }
-
-    val packetHandler = sequenceHandler<PacketEvent> {
-        val packet = it.packet
+    /**
+     * Damage Boost
+     */
+    @Suppress("unused")
+    val packetHandler = sequenceHandler<PacketEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+        val packet = event.packet
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
             val velocityX = packet.velocityX / 8000.0

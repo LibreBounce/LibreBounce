@@ -33,8 +33,6 @@ enum class AutoFarmTrackedStates {
 
 object AutoFarmBlockTracker : AbstractBlockLocationTracker<AutoFarmTrackedStates>() {
     override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates? {
-        val block = state.block
-
         if (ModuleAutoFarm.isTargeted(state, pos))
             return AutoFarmTrackedStates.Destroy
 
@@ -44,11 +42,13 @@ object AutoFarmBlockTracker : AbstractBlockLocationTracker<AutoFarmTrackedStates
 
         val blockBellow = stateBellow.block
 
-        if (blockBellow is FarmlandBlock) {
-            handlePlaceableBlock(pos, state, AutoFarmTrackedStates.Farmland)
-        } else if (blockBellow is SoulSandBlock) {
-            handlePlaceableBlock(pos, state, AutoFarmTrackedStates.Soulsand)
+        when (blockBellow) {
+            is FarmlandBlock -> handlePlaceableBlock(pos, state, AutoFarmTrackedStates.Farmland)
+            is SoulSandBlock -> handlePlaceableBlock(pos, state, AutoFarmTrackedStates.Soulsand)
         }
+
+        val block = state.block
+
         if (ModuleAutoFarm.hasAirAbove(pos)) {
             return when (block) {
                 is FarmlandBlock -> AutoFarmTrackedStates.Farmland
@@ -61,8 +61,8 @@ object AutoFarmBlockTracker : AbstractBlockLocationTracker<AutoFarmTrackedStates
 
 
     private fun handlePlaceableBlock(pos: BlockPos, state: BlockState, trackedState: AutoFarmTrackedStates) {
-        val targetBlockPos = TargetBlockPos(pos.down())
-        if (state.isAir){
+        val targetBlockPos = pos.down()
+        if (state.isAir) {
             // If there is no air above, add it
             this.trackedBlockMap[targetBlockPos] = trackedState
         } else {

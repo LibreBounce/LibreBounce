@@ -21,23 +21,30 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleAntiHunger;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePortalMenu;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEntityControl;
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
+import net.ccbluex.liquidbounce.integration.BrowserScreen;
+import net.ccbluex.liquidbounce.integration.VrScreen;
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.web.socket.protocol.rest.game.PlayerData;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -70,6 +77,9 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @Unique
     private PlayerData lastKnownStatistics = null;
+
+    @Unique
+    private PlayerNetworkMovementTickEvent eventMotion;
 
     /**
      * Hook entity tick event
@@ -116,7 +126,29 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "sendMovementPackets", at = @At("HEAD"))
     private void hookMovementPre(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerNetworkMovementTickEvent(EventState.PRE));
+        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+        eventMotion = new PlayerNetworkMovementTickEvent(EventState.PRE, player.getX(), player.getY(), player.getZ(), player.isOnGround());
+        EventManager.INSTANCE.callEvent(eventMotion);
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D"))
+    private double modifyXPosition(double original) {
+        return eventMotion.getX();
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getY()D"))
+    private double modifyYPosition(double original) {
+        return eventMotion.getY();
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D"))
+    private double modifyZPosition(double original) {
+        return eventMotion.getZ();
+    }
+
+    @ModifyExpressionValue(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isOnGround()Z"))
+    private boolean modifyOnGround(boolean original) {
+        return eventMotion.getGround();
     }
 
     /**
@@ -124,7 +156,8 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "sendMovementPackets", at = @At("RETURN"))
     private void hookMovementPost(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerNetworkMovementTickEvent(EventState.POST));
+        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+        EventManager.INSTANCE.callEvent(new PlayerNetworkMovementTickEvent(EventState.POST, player.getX(), player.getY(), player.getZ(), player.isOnGround()));
     }
 
     /**
@@ -152,11 +185,21 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @ModifyExpressionValue(method = "tickNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;shouldPause()Z"))
     private boolean hookNetherClosingScreen(boolean original) {
-        if (ModulePortalMenu.INSTANCE.getEnabled()) {
+        if (ModulePortalMenu.INSTANCE.getRunning()) {
             return true;
         }
 
         return original;
+    }
+
+    /**
+     * Hook custom sneaking multiplier
+     */
+    @ModifyArg(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(ZF)V", ordinal = 0), index = 1)
+    private float hookCustomSneakingMultiplier(float slowDownFactor) {
+        final PlayerSneakMultiplier playerSneakMultiplier = new PlayerSneakMultiplier(slowDownFactor);
+        EventManager.INSTANCE.callEvent(playerSneakMultiplier);
+        return playerSneakMultiplier.getMultiplier();
     }
 
     /**
@@ -181,7 +224,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean hookSprintAffectStart(boolean original) {
-        if (ModuleNoSlow.INSTANCE.getEnabled()) {
+        if (ModuleNoSlow.INSTANCE.getRunning()) {
             return false;
         }
 
@@ -212,7 +255,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyReturnValue(method = "isAutoJumpEnabled", at = @At("RETURN"))
     private boolean injectLegitStep(boolean original) {
-        if (ModuleStep.INSTANCE.getEnabled() && ModuleStep.Legit.INSTANCE.isActive()) {
+        if (ModuleStep.Legit.INSTANCE.getRunning()) {
             return true;
         }
 
@@ -221,7 +264,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @Inject(method = "swingHand", at = @At("HEAD"), cancellable = true)
     private void swingHand(Hand hand, CallbackInfo ci) {
-        if (ModuleNoSwing.INSTANCE.getEnabled()) {
+        if (ModuleNoSwing.INSTANCE.getRunning()) {
             if (!ModuleNoSwing.INSTANCE.shouldHideForServer()) {
                 networkHandler.sendPacket(new HandSwingC2SPacket(hand));
             }
@@ -235,7 +278,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyReturnValue(method = "getMountJumpStrength", at = @At("RETURN"))
     private float hookMountJumpStrength(float original) {
-        if (ModuleEntityControl.INSTANCE.getEnabled() && ModuleEntityControl.INSTANCE.getEnforceJumpStrength()) {
+        if (ModuleEntityControl.INSTANCE.getRunning() && ModuleEntityControl.INSTANCE.getEnforceJumpStrength()) {
             return 1f;
         }
 
@@ -244,7 +287,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerAbilities;allowFlying:Z"))
     private boolean hookFreeCamPreventCreativeFly(boolean original) {
-        return !ModuleFreeCam.INSTANCE.getEnabled() && original;
+        return !ModuleFreeCam.INSTANCE.getRunning() && original;
     }
 
     @ModifyVariable(method = "sendMovementPackets", at = @At("STORE"), ordinal = 2)
@@ -260,7 +303,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
     private boolean hookAutoSprint(boolean original) {
         return !ModuleSuperKnockback.INSTANCE.shouldBlockSprinting() && !ModuleKillAura.INSTANCE.shouldBlockSprinting()
-                && (ModuleSprint.INSTANCE.getEnabled() || original);
+                && (ModuleSprint.INSTANCE.getRunning() || original);
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isWalking()Z"))
@@ -290,7 +333,18 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSprinting()Z")
     )
     private boolean hookNoHungerSprint(boolean original) {
-        return !(ModuleAntiHunger.INSTANCE.getEnabled() && ModuleAntiHunger.INSTANCE.getNoSprint()) && original;
+        if (ModuleCriticals.WhenSprinting.INSTANCE.getRunning() && ModuleCriticals.WhenSprinting.INSTANCE.getStopSprinting() == ModuleCriticals.WhenSprinting.StopSprintingMode.ON_NETWORK) {
+            return false;
+        }
+
+        return !(ModuleAntiHunger.INSTANCE.getRunning() && ModuleAntiHunger.INSTANCE.getNoSprint()) && original;
+    }
+
+    @WrapWithCondition(method = "closeScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
+    private boolean preventCloseScreen(MinecraftClient instance, Screen screen) {
+        // Prevent closing screen if the current screen is a client screen
+        return !(instance.currentScreen instanceof BrowserScreen || instance.currentScreen instanceof VrScreen ||
+                instance.currentScreen instanceof ModuleClickGui.ClickScreen);
     }
 
 }

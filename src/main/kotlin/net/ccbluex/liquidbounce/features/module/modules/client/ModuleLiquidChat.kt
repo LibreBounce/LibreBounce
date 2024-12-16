@@ -23,22 +23,34 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.chat.ChatClient
 import net.ccbluex.liquidbounce.features.chat.packet.ServerRequestJWTPacket
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.*
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 
-object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, state = true,
+object ModuleLiquidChat : ClientModule("LiquidChat", Category.CLIENT, hide = true, state = true,
     aliases = arrayOf("GlobalChat")) {
 
     private var jwtToken by text("JwtToken", "")
+
     private val chatClient = ChatClient()
+    private val prefix = Text.empty()
+        .styled { it.withFormatting(Formatting.RESET) }.styled { it.withFormatting(Formatting.GRAY) }
+        .append(Text.literal("LiquidChat")
+            .styled { it.withColor(Formatting.BLUE) }).styled { it.withFormatting(Formatting.BOLD) }
+        .append(Text.literal(" ▸ ")
+            .styled { it.withFormatting(Formatting.RESET) }.styled { it.withColor(Formatting.DARK_GRAY) })
+    private val exceptionData = MessageMetadata(prefix = false, id = "LiquidChat#exception")
+    private val messageData = MessageMetadata(prefix = false)
 
     private fun createChatWriteCommand() = CommandBuilder
         .begin("chat")
@@ -52,14 +64,18 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
         )
         .handler { _, args ->
             if (!chatClient.connected) {
-                chat("§9§lLiquidChat §8▸ " +
-                    "§7${translation("liquidbounce.liquidchat.notConnected").convertToString()}")
+                chat(
+                    prefix, translation("liquidbounce.liquidchat.notConnected").formatted(Formatting.GRAY),
+                    metadata = exceptionData
+                )
                 return@handler
             }
 
             if (!chatClient.loggedIn) {
-                chat("§9§lLiquidChat §8▸ " +
-                    "§7${translation("liquidbounce.liquidchat.notLoggedIn").convertToString()}")
+                chat(
+                    prefix, translation("liquidbounce.liquidchat.notLoggedIn").formatted(Formatting.GRAY),
+                    metadata = exceptionData
+                )
                 return@handler
             }
 
@@ -69,16 +85,20 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
 
     private fun createChatJwtCommand() = CommandBuilder
         .begin("chatjwt")
-        .handler { command, anies ->
+        .handler { _, _ ->
             if (!chatClient.connected) {
-                chat("§9§lLiquidChat §8▸ " +
-                    "§7${translation("liquidbounce.liquidchat.notConnected").convertToString()}")
+                chat(
+                    prefix, translation("liquidbounce.liquidchat.notConnected").formatted(Formatting.GRAY),
+                    metadata = exceptionData
+                )
                 return@handler
             }
 
             chatClient.sendPacket(ServerRequestJWTPacket())
-            chat("§9§lLiquidChat §8▸ " +
-                "§7${translation("liquidbounce.liquidchat.jwtTokenRequested").convertToString()}")
+            chat(
+                prefix, translation("liquidbounce.liquidchat.jwtTokenRequested").formatted(Formatting.GRAY),
+                metadata = exceptionData
+            )
         }
         .build()
 
@@ -97,7 +117,7 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
         super.disable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!chatClient.connected) {
             chatClient.connectAsync()
 
@@ -112,10 +132,19 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
     }
 
     @Suppress("unused")
-    val handleChatMessage = handler<ClientChatMessageEvent> {
-        when (it.chatGroup) {
-            ClientChatMessageEvent.ChatGroup.PUBLIC_CHAT -> writeChat("${it.user.name} §8▸ §7${it.message}")
-            ClientChatMessageEvent.ChatGroup.PRIVATE_CHAT -> writeChat("§8[§9${it.user.name}§8] §7${it.message}")
+    val handleChatMessage = handler<ClientChatMessageEvent> { event ->
+        when (event.chatGroup) {
+            ClientChatMessageEvent.ChatGroup.PUBLIC_CHAT -> writeChat(
+                event.user.name.asText().styled { it.withFormatting(Formatting.GRAY) }
+                    .append(" ▸ ".asText().styled { it.withFormatting(Formatting.DARK_GRAY) })
+                    .append(event.message.asText().styled { it.withFormatting(Formatting.GRAY) })
+            )
+            ClientChatMessageEvent.ChatGroup.PRIVATE_CHAT -> writeChat(
+                "[".asText().styled { it.withFormatting(Formatting.DARK_GRAY) }
+                    .append(event.user.name.asText().styled { it.withFormatting(Formatting.BLUE) })
+                    .append("] ".asText().styled { it.withFormatting(Formatting.DARK_GRAY) })
+                    .append(event.message.asText().styled { it.withFormatting(Formatting.GRAY) })
+            )
         }
     }
 
@@ -171,14 +200,18 @@ object ModuleLiquidChat : Module("LiquidChat", Category.CLIENT, hide = true, sta
         }
     }
 
-    private fun writeChat(message: String) {
+    private fun writeChat(message: Text) {
         if (!inGame) {
             logger.info("[Chat] $message")
         } else {
-            player.sendMessage("§9§lLiquidChat §8▸ §7$message".asText(), false)
+            chat(prefix, message, metadata = messageData)
         }
     }
 
-    override fun handleEvents() = enabled
+    /**
+     * Overwrites the condition requirement for being in-game
+     */
+    override val running
+        get() = !isDestructed && enabled
 
 }

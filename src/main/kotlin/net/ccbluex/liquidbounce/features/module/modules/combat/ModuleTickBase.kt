@@ -18,19 +18,22 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Vec3d
@@ -41,7 +44,11 @@ import kotlin.math.min
  *
  * Calls tick function to speed up, when needed
  */
-internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
+internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
+
+    private val mode by enumChoice("Mode", TickBaseMode.PAST)
+        .apply { tagBy(this) }
+    private val call by enumChoice("Call", TickBaseCall.GAME)
 
     /**
      * The range defines where we want to tickbase into. The first value is the minimum range, which we can
@@ -51,10 +58,13 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
 
     private val balanceRecoveryIncrement by float("BalanceRecoverIncrement", 1f, 0f..2f)
     private val balanceMaxValue by int("BalanceMaxValue", 20, 0..200)
-    private val maxTicksAtATime by int("MaxTicksAtATime", 4, 1..20, "ticks").apply { tagBy(this) }
+    private val maxTicksAtATime by int("MaxTicksAtATime", 4, 1..20, "ticks")
     private val pauseOnFlag by boolean("PauseOfFlag", true)
-    private val pauseAfterTick by int("PauseAfterTick", 0, 0..100, "ticks")
+    private val pause by int("Pause", 0, 0..20, "ticks")
+    private val cooldown by int("Cooldown", 0, 0..100, "ticks")
     private val forceGround by boolean("ForceGround", false)
+    private val lineColor by color("Line", Color4b.WHITE)
+        .doNotIncludeAlways()
 
     private val requiresKillAura by boolean("RequiresKillAura", true)
 
@@ -64,31 +74,26 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
 
     private val tickBuffer = mutableListOf<TickData>()
 
-    val tickHandler = handler<PlayerTickEvent> {
+    @Suppress("unused")
+    private val playerTickHandler = handler<PlayerTickEvent> { event ->
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.enabled) {
+        if (player.vehicle != null || ModuleBlink.running) {
             return@handler
         }
 
         if (ticksToSkip-- > 0) {
-            it.cancelEvent()
+            event.cancelEvent()
         }
     }
 
-    var duringTickModification = false
-
     @Suppress("unused")
-    val postTickHandler = sequenceHandler<PlayerPostTickEvent> {
+    private val tickHandler = tickHandler {
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.enabled || duringTickModification) {
-            return@sequenceHandler
+        if (player.vehicle != null || ModuleBlink.running || tickBuffer.isEmpty()) {
+            return@tickHandler
         }
 
-        if (tickBuffer.isEmpty()) {
-            return@sequenceHandler
-        }
-
-        val nearbyEnemy = world.findEnemy(0f..range.endInclusive) ?: return@sequenceHandler
+        val nearbyEnemy = world.findEnemy(0f..range.endInclusive) ?: return@tickHandler
         val currentDistance = player.pos.squaredDistanceTo(nearbyEnemy.pos)
 
         // Find the best tick that is able to hit the target and is not too far away from the player, as well as
@@ -113,37 +118,62 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
 
         val (bestTick, _) = criticalTick ?: possibleTicks.minByOrNull { (index, _) ->
             index
-        } ?: return@sequenceHandler
+        } ?: return@tickHandler
 
         if (bestTick == 0) {
-            return@sequenceHandler
+            return@tickHandler
         }
 
         // We do not want to tickbase if killaura is not ready to attack
-        if (requiresKillAura && !(ModuleKillAura.enabled &&
-                ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))) {
-            return@sequenceHandler
+        val breakRequirement = {
+            requiresKillAura && !(ModuleKillAura.running &&
+                ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))
         }
 
-        // Tick as much as we can
-        duringTickModification = true
-
-        ticksToSkip = bestTick + pauseAfterTick
-
-        waitTicks(ticksToSkip)
-
-        repeat(bestTick) {
-            player.tick()
-            tickBalance -= 1
+        if (breakRequirement()) {
+            return@tickHandler
         }
 
-        duringTickModification = false
+        when (mode) {
+            TickBaseMode.PAST -> {
+                ticksToSkip = bestTick + pause
+                waitTicks(ticksToSkip)
+                repeat(bestTick) {
+                    call.tick()
+                    tickBalance -= 1
+                }
+
+                ModuleDebug.debugParameter(this, "Recommended Skip", bestTick)
+            }
+
+            TickBaseMode.FUTURE -> {
+                var totalSkipped = 0
+
+                for (i in 0 until bestTick) {
+                    call.tick()
+                    tickBalance -= 1
+                    totalSkipped++
+
+                    if (breakRequirement()) {
+                        break
+                    }
+                }
+
+                ModuleDebug.debugParameter(this, "Total Skipped", totalSkipped)
+                ModuleDebug.debugParameter(this, "Recommended Skip", bestTick)
+
+                ticksToSkip = totalSkipped + pause
+                waitTicks(ticksToSkip)
+            }
+        }
+
+        waitTicks(cooldown)
     }
 
     @Suppress("unused")
-    val inputHandler = handler<MovementInputEvent> { event ->
+    private val inputHandler = handler<MovementInputEvent> { event ->
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.enabled) {
+        if (player.vehicle != null || ModuleBlink.running) {
             return@handler
         }
 
@@ -168,22 +198,25 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
         val tickRange = 0 until min(tickBalance.toInt(), maxTicksAtATime)
         val snapshots = simulatedPlayer.getSnapshotsBetween(tickRange)
 
-        snapshots.forEach {
+        snapshots.forEach { snapshot ->
             tickBuffer += TickData(
-                it.pos,
-                it.fallDistance,
-                it.velocity,
-                it.onGround
+                snapshot.pos,
+                snapshot.fallDistance,
+                snapshot.velocity,
+                snapshot.onGround
             )
         }
     }
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
-        renderEnvironmentForWorld(event.matrixStack) {
-            withColor(Color4b.WHITE) {
-                drawLineStrip(positions = tickBuffer.map {
-                    tick -> relativeToCamera(tick.position).toVec3()
-                }.toTypedArray())
+    @Suppress("unused")
+    private val renderHandler = handler<WorldRenderEvent> { event ->
+        if (lineColor.a > 0) {
+            renderEnvironmentForWorld(event.matrixStack) {
+                withColor(lineColor) {
+                    drawLineStrip(positions = tickBuffer.mapArray { tick ->
+                        relativeToCamera(tick.position).toVec3()
+                    })
+                }
             }
         }
     }
@@ -195,16 +228,41 @@ internal object ModuleTickBase : Module("TickBase", Category.COMBAT) {
         }
     }
 
-    override fun disable() {
-        duringTickModification = false
-        super.disable()
-    }
-
     data class TickData(
         val position: Vec3d,
         val fallDistance: Float,
         val velocity: Vec3d,
         val onGround: Boolean
     )
+
+    private enum class TickBaseMode(override val choiceName: String) : NamedChoice {
+        PAST("Past"),
+        FUTURE("Future")
+    }
+
+    @Suppress("unused")
+    private enum class TickBaseCall(
+        override val choiceName: String,
+        val tick: () -> Unit
+    ) : NamedChoice {
+
+        /**
+         * Runs a full game tick.
+         *
+         * TODO: Cancel full game ticks after this,
+         *   not just the player ticks.
+         */
+        GAME("Game", { mc.tick() }),
+
+        /**
+         * This will NOT update the game tick,
+         * but only the player tick - that means
+         * e.g. Rotation Manager will not update either.
+         *
+         * This was the previous default behavior of the TickBase,
+         * so it is kept for compatibility reasons.
+         */
+        PLAYER("Player", { player.tick() })
+    }
 
 }

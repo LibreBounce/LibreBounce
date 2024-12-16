@@ -20,10 +20,13 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
+import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 
@@ -32,14 +35,14 @@ import net.ccbluex.liquidbounce.utils.client.regular
  *
  * Allows you to set the value of a specific module.
  */
-object CommandValue {
+object CommandValue : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("value")
             .parameter(
                 ParameterBuilder
-                    .begin<Module>("moduleName")
+                    .begin<ClientModule>("moduleName")
                     .verifiedBy(ParameterBuilder.MODULE_VALIDATOR)
                     .autocompletedWith(ModuleManager::autoComplete)
                     .required()
@@ -69,7 +72,7 @@ object CommandValue {
                     .build()
             )
             .handler { command, args ->
-                val module = args[0] as Module
+                val module = args[0] as ClientModule
                 val valueName = args[1] as String
                 val valueString = args[2] as String
 
@@ -79,11 +82,15 @@ object CommandValue {
 
                 try {
                     value.setByString(valueString)
+                    ModuleClickGui.reloadView()
                 } catch (e: Exception) {
                     throw CommandException(command.result("valueError", valueName, e.message ?: ""))
                 }
 
-                chat(regular(command.result("success")))
+                chat(
+                    regular(command.result("success")),
+                    metadata = MessageMetadata(id = "CValue#success${module.name}")
+                )
             }
             .build()
     }

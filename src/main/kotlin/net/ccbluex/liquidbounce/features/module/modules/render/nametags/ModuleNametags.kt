@@ -18,16 +18,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
-import net.ccbluex.liquidbounce.render.Fonts
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.RenderEnvironment
 import net.ccbluex.liquidbounce.render.engine.Vec3
-import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
@@ -41,27 +40,28 @@ import net.minecraft.entity.Entity
  * Makes player name tags more visible and adds useful information.
  */
 
-object ModuleNametags : Module("Nametags", Category.RENDER) {
-    val items by boolean("Items", true)
+object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
 
-    object Health : ToggleableConfigurable(this, "Health", true) {
-        val fromScoreboard by boolean("FromScoreboard", false)
+    /**
+     * Contains the list of toggleable options for the [NametagTextFormatter]
+     */
+    object ShowOptions : Configurable("Show") {
+        val health by boolean("Health", true)
+        val distance by boolean("Distance", true)
+        val ping by boolean("Ping", true)
+        val items by boolean("Items", true)
     }
 
     init {
-        tree(Health)
+        tree(ShowOptions)
     }
-
-    val ping by boolean("Ping", true)
-    val distance by boolean("Distance", false)
 
     val border by boolean("Border", true)
     val scale by float("Scale", 2F, 0.25F..4F)
+    private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
 
-    val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
-
-    val fontRenderer: FontRenderer
-        get() = Fonts.DEFAULT_FONT.get()
+    val fontRenderer
+        get() = FontManager.FONT_RENDERER
 
     @Suppress("unused")
     val overlayRenderHandler = handler<OverlayRenderEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
@@ -81,7 +81,7 @@ object ModuleNametags : Module("Nametags", Category.RENDER) {
 
         nametagsToRender.forEachIndexed { index, (pos, nametagInfo) ->
             // We want nametags that are closer to the player to be rendered above nametags that are further away.
-            val renderZ = index / nametagsToRender.size.toFloat()
+            val renderZ = index / nametagsToRender.size.toFloat() * 1000.0F
 
             nametagRenderer.drawNametag(this, nametagInfo, Vec3(pos.x, pos.y, renderZ))
         }
@@ -94,11 +94,13 @@ object ModuleNametags : Module("Nametags", Category.RENDER) {
     private fun collectAndSortNametagsToRender(tickDelta: Float): List<Pair<Vec3, NametagInfo>> {
         val nametagsToRender = mutableListOf<Pair<Vec3, NametagInfo>>()
 
+        val maximumDistanceSquared = maximumDistance * maximumDistance
+
         for (entity in ModuleESP.findRenderedEntities()) {
+            if (entity.squaredDistanceTo(mc.cameraEntity) > maximumDistanceSquared) continue
+
             val nametagPos = entity.interpolateCurrentPosition(tickDelta)
                 .add(0.0, entity.getEyeHeight(entity.pose) + 0.55, 0.0)
-
-            if (entity.distanceTo(mc.cameraEntity) > maximumDistance) continue
 
             val screenPos = WorldToScreen.calculateScreenPos(nametagPos) ?: continue
 

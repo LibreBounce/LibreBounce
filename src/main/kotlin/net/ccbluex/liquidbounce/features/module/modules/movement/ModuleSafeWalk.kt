@@ -18,14 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NoneChoice
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.isCloseToEdge
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
@@ -36,20 +36,25 @@ import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
  *
  * Prevents you from falling down as if you were sneaking.
  */
-object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
+object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
 
     @Suppress("UnusedPrivateProperty")
-    private val modes = choices("Mode", {
-        it.choices[1] // Safe mode
-    }, this::createChoices)
+    private val modes = choices("Mode", 1, ::safeWalkChoices) // Default safe mode
 
-    fun createChoices(it: ChoiceConfigurable<Choice>) =
-        arrayOf(NoneChoice(it), Safe(it), Simulate(it), OnEdge(it))
+    fun safeWalkChoices(choice: ChoiceConfigurable<Choice>): Array<Choice> {
+        return arrayOf(
+            NoneChoice(choice),
+            Safe(choice),
+            Simulate(choice),
+            OnEdge(choice)
+        )
+    }
 
     class Safe(override val parent: ChoiceConfigurable<Choice>) : Choice("Safe") {
 
         private val eagleOnLedge by boolean("EagleOnLedge", false)
 
+        @Suppress("unused")
         val inputHandler = handler<MovementInputEvent> { event ->
             if (eagleOnLedge) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
@@ -58,7 +63,8 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                         event.jumping,
                         player.isSprinting,
                         true
-                    ))
+                    )
+                )
                 simulatedPlayer.tick()
 
                 if (simulatedPlayer.clipLedged) {
@@ -90,7 +96,8 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                         event.jumping,
                         player.isSprinting,
                         true
-                    ))
+                    )
+                )
 
                 // TODO: Calculate the required ticks early that prevent the player from falling off the edge
                 //  instead of relying on the static predict value.

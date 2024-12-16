@@ -18,12 +18,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.item.isNothing
+import net.minecraft.block.BlockState
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 
 /**
@@ -31,8 +35,7 @@ import net.minecraft.util.math.BlockPos
  *
  * Automatically chooses the best tool in your inventory to mine a block.
  */
-
-object ModuleAutoTool : Module("AutoTool", Category.WORLD) {
+object ModuleAutoTool : ClientModule("AutoTool", Category.WORLD) {
 
     // Ignore items with low durability
     private val ignoreDurability by boolean("IgnoreDurability", false)
@@ -64,30 +67,32 @@ object ModuleAutoTool : Module("AutoTool", Category.WORLD) {
 
         val blockState = world.getBlockState(pos)
         val inventory = player.inventory
-        val index =
-            if (search) {
-                val (hotbarSlot, stack) =
-                    (0..8).map {
-                        it to inventory.getStack(it)
-                    }.filter { (_, stack) ->
-                        val durabilityCheck = (stack.damage < (stack.maxDamage - 2) || ignoreDurability)
-                        (stack.isNothing() || (!player.isCreative && durabilityCheck))
-                    }.maxByOrNull { (_, stack) ->
-                        stack.getMiningSpeedMultiplier(blockState)
-                    } ?: return
-
-                val miningSpeedMultiplier = stack.getMiningSpeedMultiplier(blockState)
-
-                // The current slot already matches the best
-                if (miningSpeedMultiplier == player.inventory.mainHandStack.getMiningSpeedMultiplier(blockState)) {
-                    return
-                }
-                hotbarSlot
-            } else {
-                slot
-            }
-
+        val index = getTool(inventory, blockState)?.firstInt() ?: return
         SilentHotbar.selectSlotSilently(this, index, swapPreviousDelay)
+    }
+
+    fun getTool(inventory: PlayerInventory, blockState: BlockState?): IntObjectImmutablePair<ItemStack>? {
+        if (search || !running) {
+            val (hotbarSlot, stack) =
+                (0..8).map {
+                    it to inventory.getStack(it)
+                }.filter { (_, stack) ->
+                    val durabilityCheck = (stack.damage < (stack.maxDamage - 2) || ignoreDurability)
+                    (stack.isNothing() || (!player.isCreative && durabilityCheck))
+                }.maxByOrNull { (_, stack) ->
+                    stack.getMiningSpeedMultiplier(blockState)
+                } ?: return null
+
+            val miningSpeedMultiplier = stack.getMiningSpeedMultiplier(blockState)
+
+            // The current slot already matches the best
+            if (miningSpeedMultiplier == player.inventory.mainHandStack.getMiningSpeedMultiplier(blockState)) {
+                return null
+            }
+            return IntObjectImmutablePair(hotbarSlot, stack)
+        } else {
+            return IntObjectImmutablePair(slot, inventory.getStack(slot))
+        }
     }
 
 }

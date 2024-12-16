@@ -20,17 +20,14 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.ccbluex.liquidbounce.config.NoneChoice;
+import net.ccbluex.liquidbounce.config.types.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.PacketEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.event.events.TransferOrigin;
-import net.ccbluex.liquidbounce.features.command.commands.client.fakeplayer.FakePlayer;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAirJump;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiLevitation;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoJumpDelay;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
+import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.FakePlayer;
+import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
@@ -43,12 +40,15 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -85,12 +85,16 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Shadow
     public abstract boolean addStatusEffect(StatusEffectInstance effect);
 
+    @Shadow
+    public abstract boolean isFallFlying();
+
+
     /**
      * Hook anti levitation module
      */
     @Redirect(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z"))
     public boolean hookTravelStatusEffect(LivingEntity instance, RegistryEntry<StatusEffect> effect) {
-        if ((effect == StatusEffects.LEVITATION || effect == StatusEffects.SLOW_FALLING) && ModuleAntiLevitation.INSTANCE.getEnabled()) {
+        if ((effect == StatusEffects.LEVITATION || effect == StatusEffects.SLOW_FALLING) && ModuleAntiLevitation.INSTANCE.getRunning()) {
             if (instance.hasStatusEffect(effect)) {
                 instance.fallDistance = 0f;
             }
@@ -103,7 +107,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "hasStatusEffect", at = @At("HEAD"), cancellable = true)
     private void hookAntiNausea(RegistryEntry<StatusEffect> effect, CallbackInfoReturnable<Boolean> cir) {
-        if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getEnabled() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
+        if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
             cir.setReturnValue(false);
             cir.cancel();
         }
@@ -137,7 +141,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     private Vec3d hookFixRotation(Vec3d original) {
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getStoredAimPlan();
+        var configurable = rotationManager.getWorkingAimPlan();
 
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
@@ -154,7 +158,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "pushAwayFrom", at = @At("HEAD"), cancellable = true)
     private void hookNoPush(CallbackInfo callbackInfo) {
-        if (ModuleNoPush.INSTANCE.getEnabled()) {
+        if (ModuleNoPush.INSTANCE.getRunning()) {
             callbackInfo.cancel();
         }
     }
@@ -162,12 +166,12 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void hookTickMovement(CallbackInfo callbackInfo) {
         // We don't want NoJumpDelay to interfere with AirJump which would lead to a Jetpack-like behavior
-        var noJumpDelay = ModuleNoJumpDelay.INSTANCE.getEnabled() && !ModuleAirJump.INSTANCE.getAllowJump();
+        var noJumpDelay = ModuleNoJumpDelay.INSTANCE.getRunning() && !ModuleAirJump.INSTANCE.getAllowJump();
 
         // The jumping cooldown would lead to very slow tower building
-        var towerActive = ModuleScaffold.INSTANCE.getEnabled() && !(ModuleScaffold.INSTANCE.getTowerMode()
-                .getActiveChoice() instanceof NoneChoice) && ModuleScaffold.INSTANCE.getTowerMode()
-                .getActiveChoice().isActive();
+        var towerActive = ModuleScaffold.INSTANCE.getRunning() &&
+        !(ModuleScaffold.INSTANCE.getTowerMode().getActiveChoice() instanceof NoneChoice) &&
+        ModuleScaffold.INSTANCE.getTowerMode().getActiveChoice().getRunning();
 
         if (noJumpDelay || towerActive) {
             jumpingCooldown = 0;
@@ -182,6 +186,26 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
     }
 
+    @Unique
+    private boolean previousElytra = false;
+
+    @Inject(method = "tickFallFlying", at = @At("TAIL"))
+    public void recastIfLanded(CallbackInfo callbackInfo) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
+        }
+
+        var elytra = isFallFlying();
+        if (ModuleElytraRecast.INSTANCE.getRunning() && previousElytra && !elytra) {
+            MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.getId(),
+                    SoundCategory.PLAYERS);
+            ModuleElytraRecast.INSTANCE.recastElytra();
+            jumpingCooldown = 0;
+        }
+
+        previousElytra = elytra;
+    }
+
     /**
      * Body rotation yaw injection hook
      */
@@ -193,7 +217,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotations = ModuleRotations.INSTANCE;
         var rotation = rotations.displayRotations();
-        return rotations.shouldDisplayRotations() ? rotation.getYaw() : original;
+        return rotations.shouldDisplayRotations() && rotations.getBodyParts().getBody() ? rotation.getYaw() : original;
     }
 
     /**
@@ -208,7 +232,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         var rotations = ModuleRotations.INSTANCE;
         var rotation = rotations.displayRotations();
 
-        return rotations.shouldDisplayRotations() ? rotation.getYaw() : original;
+        return rotations.shouldDisplayRotations() && rotations.getBodyParts().getBody() ? rotation.getYaw() : original;
     }
 
     /**
@@ -222,7 +246,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getStoredAimPlan();
+        var configurable = rotationManager.getWorkingAimPlan();
 
         if (rotation == null || configurable == null || !configurable.getApplyVelocityFix() || configurable.getChangeLook()) {
             return original;
@@ -242,7 +266,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getStoredAimPlan();
+        var configurable = rotationManager.getWorkingAimPlan();
 
         if (rotation == null || configurable == null || !configurable.getApplyVelocityFix() || configurable.getChangeLook()) {
             return original;

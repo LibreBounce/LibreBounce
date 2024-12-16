@@ -21,14 +21,14 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk.collidesWithAnythingElse
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk.standingOnWater
@@ -58,13 +58,13 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
 
         val block = event.state.block
 
-        if (block is FluidBlock && !isBlockAtPosition(player.box) { it is FluidBlock }) {
+        if (block is FluidBlock && !player.box.isBlockAtPosition { it is FluidBlock }) {
             event.shape = VoxelShapes.fullCube()
         }
     }
 
-    val repeatable = repeatable {
-        if (isBlockAtPosition(player.box) { it is FluidBlock } && !player.input.sneaking) {
+    val repeatable = tickHandler {
+        if (player.box.isBlockAtPosition { it is FluidBlock } && !player.input.sneaking) {
             player.velocity.y = 0.08
         }
     }

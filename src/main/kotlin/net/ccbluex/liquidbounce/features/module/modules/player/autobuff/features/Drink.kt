@@ -21,8 +21,10 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
+import net.ccbluex.liquidbounce.event.events.KeybindIsPressedEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.Buff
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features.Drink.isPotion
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
@@ -60,25 +62,23 @@ object Drink : Buff("Drink", isValidItem = { stack, forUse -> isPotion(stack, fo
     private val strengthPotion by boolean("StrengthPotion", true)
     private val speedPotion by boolean("SpeedPotion", true)
 
+    private var forceUseKey = false
+
     override suspend fun execute(sequence: Sequence<*>, slot: HotbarItemSlot) {
-        mc.options.useKey.isPressed = true
+        forceUseKey = true
+        sequence.waitUntil { !passesRequirements }
+        forceUseKey = false
+    }
 
-        sequence.waitUntil {
-            val stopItemUse = !passesRequirements
-
-            if (stopItemUse) {
-                releaseUseKey()
-            }
-            return@waitUntil stopItemUse
+    @Suppress("unused")
+    private val keyBindIsPressedHandler = handler<KeybindIsPressedEvent> { event ->
+        if (event.keyBinding == mc.options.useKey && forceUseKey) {
+            event.isPressed = true
         }
     }
 
-    private fun releaseUseKey() {
-        mc.options.useKey.isPressed = false
-    }
-
     override fun disable() {
-        releaseUseKey()
+        forceUseKey = false
         super.disable()
     }
 

@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
@@ -30,17 +30,17 @@ import net.minecraft.util.hit.HitResult
  *
  * Automatically breaks blocks.
  */
-object ModuleAutoBreak : Module("AutoBreak", Category.PLAYER) {
+object ModuleAutoBreak : ClientModule("AutoBreak", Category.PLAYER) {
 
     private var wasBreaking = false
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val crosshairTarget = mc.crosshairTarget
 
         if (crosshairTarget is BlockHitResult && crosshairTarget.type == HitResult.Type.BLOCK) {
-            val blockState = crosshairTarget.blockPos.getState() ?: return@repeatable
+            val blockState = crosshairTarget.blockPos.getState() ?: return@tickHandler
             if (blockState.isAir) {
-                return@repeatable
+                return@tickHandler
             }
 
             // Start breaking

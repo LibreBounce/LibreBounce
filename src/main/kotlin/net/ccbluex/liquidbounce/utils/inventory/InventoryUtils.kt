@@ -25,7 +25,7 @@ import com.viaversion.viaversion.api.Via
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper
 import com.viaversion.viaversion.api.type.Types
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3
-import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -34,17 +34,12 @@ import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Blocks
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
-import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.DyedColorComponent
-import net.minecraft.item.ArmorItem
-import net.minecraft.item.ArmorMaterials
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.ItemTags
-import net.minecraft.util.Colors
-import net.minecraft.util.DyeColor
 import net.minecraft.util.Hand
 import kotlin.math.abs
 
@@ -95,7 +90,7 @@ class PlayerInventoryConstraints : InventoryConstraints() {
     override fun passesRequirements(action: InventoryAction) =
         super.passesRequirements(action) &&
             (!action.requiresPlayerInventoryOpen() || !requiresOpenInvenotory ||
-                InventoryManager.isInventoryOpenServerSide)
+                InventoryManager.isInventoryOpen)
 
 }
 
@@ -133,6 +128,10 @@ fun hasInventorySpace() = player.inventory.main.any { it.isEmpty }
 
 fun findEmptyStorageSlotsInInventory(): List<ItemSlot> {
     return (INVENTORY_SLOTS + HOTBAR_SLOTS).filter { it.itemStack.isEmpty }
+}
+
+fun findNonEmptyStorageSlotsInInventory(): List<ItemSlot> {
+    return (INVENTORY_SLOTS + HOTBAR_SLOTS).filter { !it.itemStack.isEmpty }
 }
 
 fun findNonEmptySlotsInInventory(): List<ItemSlot> {
@@ -188,17 +187,27 @@ fun findItemsInContainer(screen: GenericContainerScreen) =
         .filter { !it.stack.isNothing() && it.inventory === screen.screenHandler.inventory }
         .map { ContainerItemSlot(it.id) }
 
-fun useHotbarSlotOrOffhand(item: HotbarItemSlot) = when (item) {
-    OffHandSlot -> interactItem(Hand.OFF_HAND)
-    else -> interactItem(Hand.MAIN_HAND) {
-        SilentHotbar.selectSlotSilently(null, item.hotbarSlotForServer, 1)
+fun useHotbarSlotOrOffhand(
+    item: HotbarItemSlot,
+    ticksUntilReset: Int = 1,
+    yaw: Float = RotationManager.currentRotation?.yaw ?: player.yaw,
+    pitch: Float = RotationManager.currentRotation?.yaw ?: player.pitch,
+) = when (item) {
+    OffHandSlot -> interactItem(Hand.OFF_HAND, yaw, pitch)
+    else -> interactItem(Hand.MAIN_HAND, yaw, pitch) {
+        SilentHotbar.selectSlotSilently(null, item.hotbarSlotForServer, ticksUntilReset)
     }
 }
 
-fun interactItem(hand: Hand, preInteraction: () -> Unit = { }) {
+fun interactItem(
+    hand: Hand,
+    yaw: Float = RotationManager.currentRotation?.yaw ?: player.yaw,
+    pitch: Float = RotationManager.currentRotation?.yaw ?: player.pitch,
+    preInteraction: () -> Unit = { }
+) {
     preInteraction()
 
-    interaction.interactItem(player, hand).takeIf { it.isAccepted }?.let {
+    interaction.interactItem(player, hand, yaw, pitch).takeIf { it.isAccepted }?.let {
         if (it.shouldSwingHand()) {
             player.swingHand(hand)
         }
@@ -213,12 +222,12 @@ fun findBlocksEndingWith(vararg targets: String) =
 /**
  * Get the color of the armor on the player
  */
-fun getArmorColor() = ARMOR_SLOTS.mapNotNull { slot ->
+fun getArmorColor() = ARMOR_SLOTS.firstNotNullOfOrNull { slot ->
     val itemStack = slot.itemStack
-    val color = itemStack.getArmorColor() ?: return@mapNotNull null
+    val color = itemStack.getArmorColor() ?: return@firstNotNullOfOrNull null
 
     Pair(slot, color)
-}.firstOrNull()
+}
 
 /**
  * Get the color of the armor on the item stack
@@ -227,7 +236,7 @@ fun getArmorColor() = ARMOR_SLOTS.mapNotNull { slot ->
  */
 fun ItemStack.getArmorColor(): Int? {
     return if (isIn(ItemTags.DYEABLE)) {
-        DyedColorComponent.getColor(this, -6265536)
+        DyedColorComponent.getColor(this, -6265536) // #FFA06540
     } else {
         null
     }

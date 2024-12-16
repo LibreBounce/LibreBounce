@@ -20,26 +20,28 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.client
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
 import com.jagrosh.discordipc.exceptions.NoDiscordClientException
+import kotlinx.coroutines.Dispatchers
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
+import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.utils.client.hideSensitiveAddress
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
@@ -55,7 +57,7 @@ val ipcConfiguration by lazy {
     decode<IpcConfiguration>(HttpClient.get("$CLIENT_CLOUD/discord.json"))
 }
 
-object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true, hide = true,
+object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state = true, hide = true,
     aliases = arrayOf("DiscordPresence")) {
 
     private val detailsText by text("Details", "Nextgen v%clientVersion% by %clientAuthor%")
@@ -66,6 +68,8 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
 
     // IPC Client
     private var ipcClient: IPCClient? = null
+
+    @Volatile
     private var timestamp = System.currentTimeMillis()
 
     private var doNotTryToConnect = false
@@ -126,47 +130,52 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
     }
 
     @Suppress("unused")
-    val updateCycle = repeatable {
-        waitTicks(20)
+    val updateCycle = tickHandler {
+        waitSeconds(1)
 
-        if (enabled) {
-            connectIpc()
-        } else {
-            shutdownIpc()
-        }
-
-        // Check ipc client is connected and send rpc
-        if (ipcClient?.status == PipeStatus.CONNECTED) {
-            val builder = RichPresence.Builder()
-
-            // Set playing time
-            builder.setStartTimestamp(timestamp)
-
-            // Check assets contains logo and set logo
-            if ("logo" in ipcConfiguration.assets) {
-                builder.setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
+        /**
+         * Don't block the render thread
+         */
+        waitFor(Dispatchers.IO) {
+            if (enabled) {
+                connectIpc()
+            } else {
+                shutdownIpc()
             }
 
-            if ("smallLogo" in ipcConfiguration.assets) {
-                builder.setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
+            // Check ipc client is connected and send rpc
+            if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
+                return@waitFor
             }
 
-            builder.setDetails(formatText(detailsText))
-            builder.setState(formatText(stateText))
+            ipcClient!!.sendRichPresence {
+                // Set playing time
+                setStartTimestamp(timestamp)
 
-            builder.setButtons(JsonArray().apply {
-                add(JsonObject().apply {
-                    addProperty("label", "Download")
-                    addProperty("url", "https://liquidbounce.net/")
-                })
+                // Check assets contains logo and set logo
+                if ("logo" in ipcConfiguration.assets) {
+                    setLargeImage(ipcConfiguration.assets["logo"], formatText(largeImageText))
+                }
 
-                add(JsonObject().apply {
-                    addProperty("label", "GitHub")
-                    addProperty("url", "https://github.com/CCBlueX/LiquidBounce")
-                })
-            })
+                if ("smallLogo" in ipcConfiguration.assets) {
+                    setSmallImage(ipcConfiguration.assets["smallLogo"], formatText(smallImageText))
+                }
 
-            ipcClient?.sendRichPresence(builder.build())
+                setDetails(formatText(detailsText))
+                setState(formatText(stateText))
+
+                setButtons(jsonArrayOf(
+                    jsonObjectOf(
+                        "label" to "Download",
+                        "url" to "https://liquidbounce.net/",
+                    ),
+
+                    jsonObjectOf(
+                        "label" to "GitHub",
+                        "url" to "https://github.com/CCBlueX/LiquidBounce",
+                    ),
+                ))
+            }
         }
     }
 
@@ -180,11 +189,17 @@ object ModuleRichPresence : Module("RichPresence", Category.CLIENT, state = true
         .replace("%clientName%", CLIENT_NAME)
         .replace("%clientBranch%", clientBranch)
         .replace("%clientCommit%", clientCommit)
-        .replace("%enabledModules%", ModuleManager.count { it.enabled }.toString())
+        .replace("%enabledModules%", ModuleManager.count { it.running }.toString())
         .replace("%totalModules%", ModuleManager.count().toString())
         .replace("%protocol%", protocolVersion.let { "${it.name} (${it.version})" })
-        .replace("%server%", mc.currentServerEntry?.address ?: "none")
+        .replace("%server%", hideSensitiveAddress(mc.currentServerEntry?.address ?: "none"))
 
-    override fun handleEvents() = true
+    private inline fun IPCClient.sendRichPresence(builderAction: RichPresence.Builder.() -> Unit) =
+        sendRichPresence(RichPresence.Builder().apply(builderAction).build())
+
+    /**
+     * Always running
+     */
+    override val running = true
 
 }

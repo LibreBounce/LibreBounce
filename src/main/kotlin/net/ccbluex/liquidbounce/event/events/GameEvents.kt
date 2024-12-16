@@ -20,30 +20,33 @@
 
 package net.ccbluex.liquidbounce.event.events
 
-import com.google.gson.annotations.SerializedName
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
+import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
-import net.ccbluex.liquidbounce.web.socket.protocol.event.WebSocketEvent
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.option.KeyBinding
+import net.minecraft.client.option.Perspective
 import net.minecraft.client.session.Session
+import net.minecraft.client.util.InputUtil
+import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 
 @Nameable("gameTick")
 class GameTickEvent : Event()
 
+/**
+ * We can use this event to populate the render task queue with tasks that should be
+ * executed in the same frame. This is useful for more responsive task execution
+ * and allows to also schedule tasks off-schedule.
+ */
+@Nameable("gameRenderTaskQueue")
+class GameRenderTaskQueueEvent : Event()
+
 @Nameable("key")
 @WebSocketEvent
-class KeyEvent(val key: Key, val action: Int, val mods: Int) : Event() {
-
-    data class Key(
-        @SerializedName("code")
-        val keyCode: Int,
-        @SerializedName("name")
-        val translationKey: String
-    )
-}
+class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 
 // Input events
 @Nameable("inputHandle")
@@ -57,7 +60,10 @@ class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : C
 
 @Nameable("keybindChange")
 @WebSocketEvent
-class KeybindChangeEvent: Event()
+class KeybindChangeEvent : Event()
+
+@Nameable("keybindIsPressed")
+class KeybindIsPressedEvent(val keyBinding: KeyBinding, var isPressed: Boolean) : Event()
 
 @Nameable("useCooldown")
 class UseCooldownEvent(var cooldown: Int) : Event()
@@ -116,3 +122,9 @@ class DisconnectEvent : Event()
 @Nameable("overlayMessage")
 @WebSocketEvent
 class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event()
+
+@Nameable("perspective")
+class PerspectiveEvent(var perspective: Perspective) : Event()
+
+@Nameable("itemLoreQuery")
+class ItemLoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event()

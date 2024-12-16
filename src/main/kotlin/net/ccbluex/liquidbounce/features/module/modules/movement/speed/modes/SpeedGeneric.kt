@@ -18,12 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
+import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed.doOptimizationsPreventJump
 import net.ccbluex.liquidbounce.utils.entity.downwards
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.utils.entity.upwards
 
 class SpeedSpeedYPort(override val parent: ChoiceConfigurable<*>) : Choice("YPort") {
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.isOnGround && player.moving) {
             player.strafe(speed = 0.4)
             player.upwards(0.42f)
@@ -46,16 +46,17 @@ class SpeedLegitHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
 
 open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*>) : Choice(name) {
 
-    val handleMovementInput = handler<MovementInputEvent> {
-        if (!player.isOnGround || !player.moving) {
+    @Suppress("unused")
+    private val handleMovementInput = handler<MovementInputEvent> { event ->
+        if (!player.isOnGround || !event.directionalInput.isMoving) {
             return@handler
         }
 
-        // We want the player to be able to jump if he wants to
-        if (!mc.options.jumpKey.isPressed && ModuleSpeed.shouldDelayJump())
+        if (doOptimizationsPreventJump()) {
             return@handler
+        }
 
-        it.jumping = true
+        event.jumping = true
     }
 
 }

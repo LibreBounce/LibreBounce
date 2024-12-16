@@ -29,21 +29,16 @@ import kotlin.random.Random
  * A face. Axis aligned
  */
 class AlignedFace(from: Vec3d, to: Vec3d) {
-    val from: Vec3d
-    val to: Vec3d
-
-    init {
-        this.from = Vec3d(
-            min(from.x, to.x),
-            min(from.y, to.y),
-            min(from.z, to.z),
-        )
-        this.to = Vec3d(
-            max(from.x, to.x),
-            max(from.y, to.y),
-            max(from.z, to.z),
-        )
-    }
+    val from: Vec3d = Vec3d(
+        min(from.x, to.x),
+        min(from.y, to.y),
+        min(from.z, to.z),
+    )
+    val to: Vec3d = Vec3d(
+        max(from.x, to.x),
+        max(from.y, to.y),
+        max(from.z, to.z),
+    )
 
     val area: Double
         get() {

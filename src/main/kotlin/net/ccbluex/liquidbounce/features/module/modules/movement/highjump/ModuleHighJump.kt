@@ -20,20 +20,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.highjump
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 
 /**
  * HighJump module
  *
  * Allows you to jump higher.
  */
-object ModuleHighJump : Module("HighJump", Category.MOVEMENT) {
+object ModuleHighJump : ClientModule("HighJump", Category.MOVEMENT) {
 
     init {
         enableLock()
@@ -43,7 +43,7 @@ object ModuleHighJump : Module("HighJump", Category.MOVEMENT) {
         "Mode", Vanilla, arrayOf(
             Vanilla, Vulcan
         )
-    )
+    ).apply { tagBy(this) }
     private val motion by float("Motion", 0.8f, 0.2f..10f)
 
     private object Vanilla : Choice("Vanilla") {
@@ -73,11 +73,11 @@ object ModuleHighJump : Module("HighJump", Category.MOVEMENT) {
         var shouldGlide = false
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (glide && shouldGlide) { // if the variable is true, then glide
                 if (player.isOnGround) {
                     shouldGlide = false
-                    return@repeatable
+                    return@tickHandler
                 }
                 if (player.fallDistance > 0) {
                     if (player.age % 2 == 0) {

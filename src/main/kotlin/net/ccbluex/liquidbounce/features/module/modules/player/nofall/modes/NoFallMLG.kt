@@ -18,20 +18,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
-import net.ccbluex.liquidbounce.utils.block.getBlock
 import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.block.isFallDamageBlocking
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
 import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
 import net.ccbluex.liquidbounce.utils.block.targetfinding.PlacementPlan
@@ -43,7 +43,6 @@ import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.Blocks
 import net.minecraft.item.Items
-import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
@@ -65,15 +64,12 @@ internal object NoFallMLG : Choice("MLG") {
     private var currentTarget: PlacementPlan? = null
     private var lastPlacements = mutableListOf<Pair<BlockPos, Chronometer>>()
 
-    private val fallDamageBlockingBlocks = arrayOf(
-        Blocks.WATER, Blocks.COBWEB, Blocks.POWDER_SNOW, Blocks.HAY_BLOCK, Blocks.SLIME_BLOCK
-    )
-
     private val itemsForMLG = arrayOf(
         Items.WATER_BUCKET, Items.COBWEB, Items.POWDER_SNOW_BUCKET, Items.HAY_BLOCK, Items.SLIME_BLOCK
     )
 
-    val tickMovementHandler = handler<SimulatedTickEvent> {
+    @Suppress("unused")
+    private val tickMovementHandler = handler<SimulatedTickEvent> {
         val currentGoal = this.getCurrentGoal()
 
         this.currentTarget = currentGoal
@@ -90,13 +86,14 @@ internal object NoFallMLG : Choice("MLG") {
         )
     }
 
-    val tickHandler = repeatable {
-        val target = currentTarget ?: return@repeatable
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
+        val target = currentTarget ?: return@tickHandler
 
-        val rayTraceResult = raycast() ?: return@repeatable
+        val rayTraceResult = raycast() ?: return@tickHandler
 
-        if (target.doesCorrespondTo(rayTraceResult)) {
-            return@repeatable
+        if (!target.doesCorrespondTo(rayTraceResult)) {
+            return@tickHandler
         }
 
         SilentHotbar.selectSlotSilently(this, target.hotbarItemSlot.hotbarSlotForServer, 1)
@@ -167,7 +164,7 @@ internal object NoFallMLG : Choice("MLG") {
 
         val collision = FallingPlayer.fromPlayer(player).findCollision(20)?.pos ?: return null
 
-        if (collision.getBlock() in fallDamageBlockingBlocks) {
+        if (collision.isFallDamageBlocking()) {
             return null
         }
 
@@ -176,7 +173,7 @@ internal object NoFallMLG : Choice("MLG") {
 
     private fun findPlacementPlanAtPos(pos: BlockPos, item: HotbarItemSlot): PlacementPlan? {
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             item.itemStack,
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,

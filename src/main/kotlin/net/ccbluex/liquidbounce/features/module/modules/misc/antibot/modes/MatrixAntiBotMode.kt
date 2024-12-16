@@ -18,11 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isGameProfileUnique
@@ -37,8 +37,8 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleAntiBot.modes
 
-    private val suspectList = HashSet<UUID>()
-    private val botList = HashSet<UUID>()
+    private val suspectList = hashSetOf<UUID>()
+    private val botList = hashSetOf<UUID>()
 
     val packetHandler = handler<PacketEvent> {
         val packet = it.packet
@@ -71,9 +71,9 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
         }
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (suspectList.isEmpty()) {
-            return@repeatable
+            return@tickHandler
         }
 
         for (entity in world.players) {

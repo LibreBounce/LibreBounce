@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.grim
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.entity.directionYaw
@@ -24,7 +24,8 @@ class SpeedGrimCollide(override val parent: ChoiceConfigurable<*>) : Choice("Gri
      *
      * This only works on client version being 1.9+.
      */
-    val tickHandler = handler<PlayerTickEvent> {
+    @Suppress("unused")
+    private val tickHandler = handler<PlayerTickEvent> {
         if (player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f) { return@handler }
         var collisions = 0
         val box = player.boundingBox.expand(1.0)

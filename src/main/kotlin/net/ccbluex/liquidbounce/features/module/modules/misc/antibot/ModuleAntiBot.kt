@@ -20,9 +20,10 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.antibot
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.CustomAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.HorizonAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.IntaveHeavyAntiBotMode
@@ -30,7 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.Matri
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 
-object ModuleAntiBot : Module("AntiBot", Category.MISC) {
+object ModuleAntiBot : ClientModule("AntiBot", Category.MISC) {
 
     val modes = choices("Mode", CustomAntiBotMode, arrayOf(
         CustomAntiBotMode,
@@ -53,6 +54,13 @@ object ModuleAntiBot : Module("AntiBot", Category.MISC) {
         }
     }
 
+    @Suppress("unused")
+    private val handleWorldChange = handler<WorldChangeEvent> {
+        this.modes.choices.forEach {
+            (it as IAntiBotMode).reset()
+        }
+    }
+
     fun isADuplicate(profile: GameProfile): Boolean {
         return network.playerList.count { it.profile.name == profile.name && it.profile.id != profile.id } == 1
     }
@@ -70,7 +78,7 @@ object ModuleAntiBot : Module("AntiBot", Category.MISC) {
      * Check if player might be a bot
      */
     fun isBot(player: Entity): Boolean {
-        if (!enabled) {
+        if (!running) {
             return false
         }
 
@@ -86,7 +94,7 @@ object ModuleAntiBot : Module("AntiBot", Category.MISC) {
     }
 
     interface IAntiBotMode {
-        fun reset() {}
+        fun reset() { }
         fun isBot(entity: PlayerEntity): Boolean
     }
 }

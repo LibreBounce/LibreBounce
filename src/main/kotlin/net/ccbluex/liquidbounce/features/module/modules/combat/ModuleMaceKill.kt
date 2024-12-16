@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.warp
 import net.minecraft.item.Items
 import net.minecraft.util.shape.VoxelShapes
@@ -31,9 +31,9 @@ import kotlin.math.ceil
 /**
  * Makes the mace powerful by faking fall height.
  */
-object ModuleMaceKill : Module("MaceKill", Category.COMBAT) {
+object ModuleMaceKill : ClientModule("MaceKill", Category.COMBAT) {
 
-    private val fallHeight by int("FallHeight", 22, 1..170)
+    private val fallHeight by int("FallHeight", 22, 1..170).apply { tagBy(this) }
 
     init {
         // This module will likely not bypass any anti-cheat, so to prevent someone using it,
@@ -42,7 +42,7 @@ object ModuleMaceKill : Module("MaceKill", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> { event ->
+    private val attackHandler = handler<AttackEntityEvent> { event ->
         // Check if player is holding a mace
         val mainHandStack = player.mainHandStack
 

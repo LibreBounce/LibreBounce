@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -12,7 +12,7 @@ import kotlin.random.Random
 /**
  * The fail focus acts as fail rate, it will purposely miss the target on a certain rate.
  */
-class FailFocus(owner: Listenable? = null)
+class FailFocus(owner: EventListener? = null)
     : ToggleableConfigurable(owner, "Fail", false) {
 
     // Configuration properties
@@ -79,10 +79,14 @@ class FailFocus(owner: Listenable? = null)
     fun shiftRotation(rotation: Rotation): Rotation {
         val prevRotation = RotationManager.previousRotation ?: return rotation
         val serverRotation = RotationManager.serverRotation
-        val delta = prevRotation - serverRotation
-        val nonSenseRotation = rotation + (delta * failFactor) + shiftRotation
 
-        return nonSenseRotation
+        val deltaYaw = (prevRotation.yaw - serverRotation.yaw) * failFactor
+        val deltaPitch = (prevRotation.pitch - serverRotation.pitch) * failFactor
+
+        return Rotation(
+            rotation.yaw + deltaYaw + shiftRotation.yaw,
+            rotation.pitch + deltaPitch + shiftRotation.pitch
+        )
     }
 
 }

@@ -21,8 +21,8 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
@@ -54,7 +54,7 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
             return@handler
         }
 
-        if (event.state.block is FluidBlock && !isBlockAtPosition(player.box) { it is FluidBlock }) {
+        if (event.state.block is FluidBlock && !player.box.isBlockAtPosition { it is FluidBlock }) {
             event.shape = VoxelShapes.fullCube()
         }
     }

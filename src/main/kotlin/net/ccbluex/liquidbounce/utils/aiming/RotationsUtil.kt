@@ -18,18 +18,19 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerVelocityStrafe
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -56,7 +57,7 @@ import kotlin.math.sqrt
  * Configurable to configure the dynamic rotation engine
  */
 open class RotationsConfigurable(
-    owner: Listenable,
+    owner: EventListener,
     fixVelocity: Boolean = true,
     changeLook: Boolean = false,
     combatSpecific: Boolean = false
@@ -67,31 +68,35 @@ open class RotationsConfigurable(
             LinearAngleSmoothMode(it),
             BezierAngleSmoothMode(it),
             SigmoidAngleSmoothMode(it),
-            ConditionalLinearAngleSmoothMode(it)
+            ConditionalLinearAngleSmoothMode(it),
+            AccelerationSmoothMode(it)
         )
     })
 
     private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
     private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
 
     var fixVelocity by boolean("FixVelocity", fixVelocity)
     val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
-    private val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
+    val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
     private val changeLook by boolean("ChangeLook", changeLook)
 
     fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
-                  considerInventory: Boolean = false) = AimPlan(
+                  considerInventory: Boolean = false, whenReached: RestrictedSingleUseAction? = null) = AimPlan(
         rotation,
         vec,
         entity,
         angleSmooth.activeChoice,
         slowStart,
         failFocus,
+        shortStop,
         ticksUntilReset,
         resetThreshold,
         considerInventory,
         fixVelocity,
         changeLook,
+        whenReached
     )
 
     fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
@@ -103,6 +108,7 @@ open class RotationsConfigurable(
             angleSmooth.activeChoice,
             slowStart,
             failFocus,
+            shortStop,
             ticksUntilReset,
             resetThreshold,
             considerInventory,
@@ -127,24 +133,30 @@ open class RotationsConfigurable(
 /**
  * A rotation manager
  */
-object RotationManager : Listenable {
-
-    private var previousAimPlan: AimPlan? = null
+object RotationManager : EventListener {
 
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.
      */
     private val aimPlan
         get() = aimPlanHandler.getActiveRequestValue()
-
     private var aimPlanHandler = RequestHandler<AimPlan>()
+
+    val workingAimPlan: AimPlan?
+        get() = aimPlan ?: previousAimPlan
+    private var previousAimPlan: AimPlan? = null
+
 
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
      */
     var currentRotation: Rotation? = null
         set(value) {
-            previousRotation = field ?: mc.player?.rotation ?: Rotation.ZERO
+            previousRotation = if (value == null) {
+                null
+            } else {
+                field ?: mc.player?.rotation ?: Rotation.ZERO
+            }
 
             field = value
         }
@@ -153,7 +165,7 @@ object RotationManager : Listenable {
     var previousRotation: Rotation? = null
 
     private val fakeLagging
-        get() = FakeLag.isLagging || ModuleBacktrack.isLagging()
+        get() = PacketQueueManager.isLagging || ModuleBacktrack.isLagging()
 
     val serverRotation: Rotation
         get() = if (fakeLagging) theoreticalServerRotation else actualServerRotation
@@ -167,9 +179,6 @@ object RotationManager : Listenable {
         private set
 
     private var theoreticalServerRotation = Rotation.ZERO
-
-    val storedAimPlan: AimPlan?
-        get() = aimPlan ?: previousAimPlan
 
     private var triggerNoDifference = false
 
@@ -186,7 +195,7 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module
+        provider: ClientModule
     ) {
         val (rotation, vec) = vecRotation
         aimAt(configurable.toAimPlan(rotation, vec, entity, considerInventory = considerInventory), priority, provider)
@@ -197,12 +206,15 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module
+        provider: ClientModule,
+        whenReached: RestrictedSingleUseAction? = null
     ) {
-        aimAt(configurable.toAimPlan(rotation, considerInventory = considerInventory), priority, provider)
+        aimAt(configurable.toAimPlan(
+            rotation, considerInventory = considerInventory, whenReached = whenReached
+        ), priority, provider)
     }
 
-    fun aimAt(plan: AimPlan, priority: Priority, provider: Module) {
+    fun aimAt(plan: AimPlan, priority: Priority, provider: ClientModule) {
         if (!allowedToUpdate()) {
             return
         }
@@ -239,28 +251,11 @@ object RotationManager : Listenable {
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     fun update() {
-        val player = mc.player ?: return
-        val aimPlan = aimPlan
-        val storedAimPlan = this.storedAimPlan ?: return
-
+        val workingAimPlan = this.workingAimPlan ?: return
         val playerRotation = player.rotation
 
-        if (aimPlan == null) {
-            val differenceFromCurrentToPlayer = rotationDifference(serverRotation, playerRotation)
-
-            if (differenceFromCurrentToPlayer < storedAimPlan.resetThreshold || storedAimPlan.changeLook) {
-                currentRotation?.let { (yaw, _) ->
-                    player.let { player ->
-                        player.yaw = yaw + angleDifference(player.yaw, yaw)
-                        player.renderYaw = player.yaw
-                        player.lastRenderYaw = player.yaw
-                    }
-                }
-                currentRotation = null
-                previousAimPlan = null
-                return
-            }
-        } else {
+        val aimPlan = this.aimPlan
+        if (aimPlan != null) {
             val enemyChange = aimPlan.entity != null && aimPlan.entity != previousAimPlan?.entity &&
                 aimPlan.slowStart?.onEnemyChange == true
             val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
@@ -271,20 +266,37 @@ object RotationManager : Listenable {
         }
 
         // Prevents any rotation changes when inventory is opened
-        val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
-            mc.currentScreen !is GenericContainerScreen) || !storedAimPlan.considerInventory) && allowedToUpdate()
+        val allowedRotation = ((!InventoryManager.isInventoryOpen &&
+            mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
-            storedAimPlan.nextRotation(currentRotation ?: playerRotation, aimPlan == null)
-                    .fixedSensitivity().let {
-                currentRotation = it
-                previousAimPlan = storedAimPlan
+            val fromRotation = currentRotation ?: playerRotation
+            val rotation = workingAimPlan.nextRotation(fromRotation, aimPlan == null)
+                // After generating the next rotation, we need to normalize it
+                .normalize()
 
-                if (storedAimPlan.changeLook) {
-                    player.applyRotation(it)
+            val diff = abs(rotationDifference(rotation, playerRotation))
+            if (aimPlan == null && (workingAimPlan.changeLook || diff <= workingAimPlan.resetThreshold)) {
+                currentRotation?.let { currentRotation ->
+                    player.yaw = player.withFixedYaw(currentRotation)
+                    player.renderYaw = player.yaw
+                    player.lastRenderYaw = player.yaw
                 }
+
+                currentRotation = null
+                previousAimPlan = null
+            } else {
+                if (workingAimPlan.changeLook) {
+                    player.setRotation(rotation)
+                }
+
+                currentRotation = rotation
+                previousAimPlan = workingAimPlan
+
+                aimPlan?.whenReached?.invoke()
             }
         }
+
         // Update reset ticks
         aimPlanHandler.tick()
     }
@@ -327,7 +339,7 @@ object RotationManager : Listenable {
 
     @Suppress("unused")
     val velocityHandler = handler<PlayerVelocityStrafe> { event ->
-        if (storedAimPlan?.applyVelocityFix == true) {
+        if (workingAimPlan?.applyVelocityFix == true) {
             event.velocity = fixVelocity(event.velocity, event.movementInput, event.speed)
         }
     }
@@ -366,10 +378,11 @@ object RotationManager : Listenable {
      * sometimes we update the rotation off chain (e.g. on interactItem)
      * and the player.lastYaw and player.lastPitch are not updated.
      */
-    val packetHandler = handler<PacketEvent>(priority = -1000) {
-        val packet = it.packet
-
-        val rotation = when (packet) {
+    @Suppress("unused")
+    val packetHandler = handler<PacketEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) { event ->
+        val rotation = when (val packet = event.packet) {
             is PlayerMoveC2SPacket -> {
                 // If we are not changing the look, we don't need to update the rotation
                 // but, we want to handle slow start triggers
@@ -378,18 +391,18 @@ object RotationManager : Listenable {
                     return@handler
                 }
 
-                Rotation(packet.yaw, packet.pitch)
+                // We trust that we have sent a normalized rotation, if not, ... why?
+                Rotation(packet.yaw, packet.pitch, isNormalized = true)
             }
-            is PlayerPositionLookS2CPacket -> Rotation(packet.yaw, packet.pitch)
-            is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch)
+            is PlayerPositionLookS2CPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
+            is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
             else -> return@handler
         }
 
         // This normally applies to Modules like Blink, BadWifi, etc.
-        if (!it.isCancelled) {
+        if (!event.isCancelled) {
             actualServerRotation = rotation
         }
-
         theoreticalServerRotation = rotation
     }
 
@@ -443,7 +456,7 @@ class LeastDifferencePreference(
 
     companion object {
         val LEAST_DISTANCE_TO_CURRENT_ROTATION: LeastDifferencePreference
-            get() = LeastDifferencePreference(RotationManager.actualServerRotation)
+            get() = LeastDifferencePreference(RotationManager.currentRotation ?: player.rotation)
 
         fun leastDifferenceToLastPoint(eyes: Vec3d, point: Vec3d): LeastDifferencePreference {
             return LeastDifferencePreference(RotationManager.makeRotation(vec = point, eyes = eyes), point)

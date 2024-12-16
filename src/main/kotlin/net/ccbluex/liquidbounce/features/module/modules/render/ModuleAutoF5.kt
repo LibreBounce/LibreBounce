@@ -21,10 +21,10 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.events.ScreenEvent
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.Perspective
@@ -32,18 +32,14 @@ import net.minecraft.client.option.Perspective
 /**
  * Automatically goes into F5 mode when opening the inventory
  */
-object ModuleAutoF5 : Module("AutoF5", Category.RENDER) {
+object ModuleAutoF5 : ClientModule("AutoF5", Category.RENDER) {
 
-    var previousPerspective: Perspective? = null
-
-    val screenHandler = handler<ScreenEvent> {
-        val screen = it.screen
+    @Suppress("unused")
+    private val perspectiveHandler = handler<PerspectiveEvent> { event ->
+        val screen = mc.currentScreen
 
         if (screen is GenericContainerScreen || screen is InventoryScreen) {
-            previousPerspective = mc.options.perspective
-            mc.options.perspective = Perspective.THIRD_PERSON_BACK
-        } else if (previousPerspective != null) {
-            mc.options.perspective = previousPerspective
+            event.perspective = Perspective.THIRD_PERSON_BACK
         }
     }
 

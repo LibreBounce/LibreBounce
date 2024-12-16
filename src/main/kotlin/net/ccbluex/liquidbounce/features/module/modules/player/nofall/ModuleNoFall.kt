@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.*
 import net.minecraft.entity.EntityPose
 
@@ -29,7 +29,7 @@ import net.minecraft.entity.EntityPose
  * Protects you from taking fall damage.
  */
 
-object ModuleNoFall : Module("NoFall", Category.PLAYER) {
+object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
 
     internal val modes = choices(
         "Mode", NoFallSpoofGround, arrayOf(
@@ -48,35 +48,32 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
             NoFallHypixelPacket,
             NoFallHypixel,
         )
-    )
+    ).apply(::tagBy)
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
 
-    init {
-        tagBy(this.modes)
-    }
+    override val running: Boolean
+        get() {
+            if (!super.running) {
+                return false
+            }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents()) {
-            return false
+            // In creative mode, we don't need to reduce fall damage
+            if (player.isCreative || player.isSpectator) {
+                return false
+            }
+
+            // Check if we are invulnerable or flying
+            if (player.abilities.invulnerable || player.abilities.flying) {
+                return false
+            }
+
+            // With Elytra - we don't want to reduce fall damage.
+            if (!duringFallFlying && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
+                return false
+            }
+
+            return true
         }
-
-        // In creative mode, we don't need to reduce fall damage
-        if (player.isCreative || player.isSpectator) {
-            return false
-        }
-
-        // Check if we are invulnerable or flying
-        if (player.abilities.invulnerable || player.abilities.flying) {
-            return false
-        }
-
-        // With Elytra - we don't want to reduce fall damage.
-        if (!duringFallFlying && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
-            return false
-        }
-
-        return true
-    }
 
 }

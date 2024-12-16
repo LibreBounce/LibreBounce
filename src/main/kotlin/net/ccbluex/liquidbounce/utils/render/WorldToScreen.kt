@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProjectileAimbot
@@ -34,7 +34,7 @@ import org.joml.Matrix4f
 import org.joml.Vector3f
 import java.text.NumberFormat
 
-object WorldToScreen : Listenable {
+object WorldToScreen : EventListener {
 
     private var mvMatrix: Matrix4f? = null
     private var projectionMatrix: Matrix4f? = null

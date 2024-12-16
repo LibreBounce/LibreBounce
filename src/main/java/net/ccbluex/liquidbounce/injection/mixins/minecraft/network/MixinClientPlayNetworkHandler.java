@@ -21,11 +21,11 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
-import net.ccbluex.liquidbounce.config.Choice;
+import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
-import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
+import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleNoRotateSet;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
@@ -47,10 +47,11 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
@@ -81,25 +82,30 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         ChunkUpdateFlag.chunkUpdate = false;
     }
 
-    @Redirect(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;"))
-    private Vec3d onExplosionVelocity(Vec3d instance, double x, double y, double z) {
-        Vec3d originalVector = new Vec3d(x, y, z);
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
-            double fixedX = MathHelper.clamp(x, -1000.0, 1000.0);
-            double fixedY = MathHelper.clamp(y, -1000.0, 1000.0);
-            double fixedZ = MathHelper.clamp(z, -1000.0, 1000.0);
-            Vec3d newVector = new Vec3d(fixedX, fixedY, fixedZ);
-            if (!originalVector.equals(newVector)) {
-                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion", true);
-                return instance.add(newVector);
+    @ModifyArgs(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;"))
+    private void onExplosionVelocity(Args args) {
+        double x = args.get(0);
+        double y = args.get(1);
+        double z = args.get(2);
+
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
+            double fixedX = MathHelper.clamp(x, -10.0, 10.0);
+            double fixedY = MathHelper.clamp(y, -10.0, 10.0);
+            double fixedZ = MathHelper.clamp(z, -10.0, 10.0);
+
+            if (fixedX != x || fixedY != y || fixedZ != z) {
+                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
+                        true);
+                args.set(0, fixedX);
+                args.set(1, fixedY);
+                args.set(2, fixedZ);
             }
         }
-        return instance.add(x, y, z);
     }
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
     private int onParticleAmount(int original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitParticlesAmount() && 500 <= original) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesAmount() && 500 <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too many particles", true);
             return 100;
         }
@@ -108,7 +114,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getSpeed()F"))
     private float onParticleSpeed(float original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitParticlesSpeed() && 10.0f <= original) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesSpeed() && 10.0f <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too fast particles speed", true);
             return 10.0f;
         }
@@ -117,7 +123,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;getRadius()F"))
     private float onExplosionWorld(float original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && ModuleAntiExploit.INSTANCE.getLimitExplosionRange()) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionRange()) {
             float radius = MathHelper.clamp(original, -1000.0f, 1000.0f);
             if (radius != original) {
                 ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too big TNT explosion radius", true);
@@ -129,11 +135,11 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onGameStateChange", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket;getReason()Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket$Reason;"))
     private GameStateChangeS2CPacket.Reason onGameStateChange(GameStateChangeS2CPacket.Reason original) {
-        if (ModuleAntiExploit.INSTANCE.getEnabled() && original == GameStateChangeS2CPacket.DEMO_MESSAGE_SHOWN && ModuleAntiExploit.INSTANCE.getCancelDemo()) {
+        if (ModuleAntiExploit.INSTANCE.getRunning() && original == GameStateChangeS2CPacket.DEMO_MESSAGE_SHOWN && ModuleAntiExploit.INSTANCE.getCancelDemo()) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Cancelled demo GUI (just annoying thing)", false);
             return null;
         }
-        
+
         return original;
     }
 
@@ -157,7 +163,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         float j = packet.getYaw();
         float k = packet.getPitch();
 
-        if (!ModuleNoRotateSet.INSTANCE.getEnabled() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
+        if (!ModuleNoRotateSet.INSTANCE.getRunning() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
             return;
         }
 
@@ -168,7 +174,13 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
         if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
             // Changes your server side rotation and then resets it with provided settings
-            var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(new Rotation(j, k), null, null, true);
+            var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(
+                    new Rotation(j, k, true),
+                    null,
+                    null,
+                    true,
+                    null
+            );
             RotationManager.INSTANCE.aimAt(aimPlan, Priority.NOT_IMPORTANT, ModuleNoRotateSet.INSTANCE);
         } else {
             // Increase yaw and pitch by a value so small that the difference cannot be seen, just to update the rotation server-side.
@@ -181,10 +193,13 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyVariable(method = "sendChatMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private String handleSendMessage(String content) {
-        if (ModuleDisabler.INSTANCE.getEnabled() && DisablerSpigotSpam.INSTANCE.getEnabled()) {
-            return DisablerSpigotSpam.INSTANCE.getMessage() + " " + content;
+        var result = ModuleBetterChat.INSTANCE.modifyMessage(content);
+
+        if (DisablerSpigotSpam.INSTANCE.getRunning()) {
+            return DisablerSpigotSpam.INSTANCE.getMessage() + " " + result;
         }
-        return content;
+
+        return result;
     }
 
 }

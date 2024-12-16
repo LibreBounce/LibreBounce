@@ -21,14 +21,16 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -69,11 +71,10 @@ object FlyNcpClip : Choice("NcpClip") {
     private var startPosition: Vec3d? = null
     private var damage = false
 
-    var shouldLag = false
-        private set
-        get() = this.handleEvents() && blink && field
+    private var shouldLag = false
 
-    val repeatable = repeatable {
+    @Suppress("unused")
+    val tickHandler = tickHandler {
         val startPos = startPosition
 
         // If fall damage is required, wait for damage to be true
@@ -123,11 +124,11 @@ object FlyNcpClip : Choice("NcpClip") {
 
             // Disable the module if the player is on ground again
             ModuleFly.enabled = false
-            return@repeatable
+            return@tickHandler
         } else if (startPos.distanceTo(player.pos) > maximumDistance) {
             if (shouldLag) {
                 // If we are lagging, we might abuse this to get us back to safety
-                FakeLag.cancel()
+                PacketQueueManager.cancel()
                 shouldLag = false
             }
 
@@ -136,7 +137,7 @@ object FlyNcpClip : Choice("NcpClip") {
 
             notification("Fly", "You have exceeded the maximum distance.",
                 NotificationEvent.Severity.ERROR)
-            return@repeatable
+            return@tickHandler
         }
 
         // Strafe the player to improve control
@@ -148,7 +149,8 @@ object FlyNcpClip : Choice("NcpClip") {
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
     }
 
-    val packetHandler = handler<PacketEvent> {
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> {
         val packet = it.packet
         // 3.5 is the minimum, 5 doesn't flag for nofall
         // Should be a float setting but no easy way to
@@ -178,6 +180,13 @@ object FlyNcpClip : Choice("NcpClip") {
 
         if (packet is EntityDamageS2CPacket && packet.entityId == player.id) {
             damage = true
+        }
+    }
+
+    @Suppress("unused")
+    private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+        if (blink && shouldLag && event.origin == TransferOrigin.SEND) {
+            event.action = PacketQueueManager.Action.QUEUE
         }
     }
 

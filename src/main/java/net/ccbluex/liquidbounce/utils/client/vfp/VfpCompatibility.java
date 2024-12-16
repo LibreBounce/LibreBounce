@@ -41,13 +41,12 @@ public enum VfpCompatibility {
 
     INSTANCE;
 
-    public void unsafeDsableConflictingVfpOptions() {
+    public void unsafeDisableConflictingVfpOptions() {
         try {
             VisualSettings visualSettings = VisualSettings.global();
 
             // 1 == off, 0 == on
             visualSettings.enableSwordBlocking.setValue(1);
-            visualSettings.enableBlockHitAnimation.setValue(1);
         } catch (Throwable throwable) {
             LiquidBounce.INSTANCE.getLogger().error("Failed to disable conflicting options", throwable);
         }
@@ -137,6 +136,18 @@ public enum VfpCompatibility {
             return version.olderThanOrEqualTo(ProtocolVersion.v1_7_6);
         } catch (Throwable throwable) {
             LiquidBounce.INSTANCE.getLogger().error("Failed to check if old combat", throwable);
+            return false;
+        }
+    }
+
+    public boolean isNewerThanOrEqual1_16() {
+        try {
+            var version = ProtocolTranslator.getTargetVersion();
+
+            // Check if the version is older or equal than 1.12.2
+            return version.newerThanOrEqualTo(ProtocolVersion.v1_16);
+        } catch (Throwable throwable) {
+            LiquidBounce.INSTANCE.getLogger().error("Failed to check if 1.16", throwable);
             return false;
         }
     }
