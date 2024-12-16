@@ -67,18 +67,6 @@ object ClientApi {
         plainEndpointRequest("client/$branch/settings/$settingId")
 
     /**
-     * TODO: this was not implemented yet, might be added in future versions
-     */
-    fun reportSettings(settingId: String, branch: String = HARD_CODED_BRANCH) =
-        endpointRequest<EmptyResponse>("client/$branch/settings/report/$settingId")
-
-    /**
-     * TODO: this was not implemented yet, might be added in future versions
-     */
-    fun uploadSettings(settings: String, branch: String = HARD_CODED_BRANCH) =
-        endpointRequest<EmptyResponse>("client/$branch/settings/upload")
-
-    /**
      * Request endpoint and parse JSON to data class
      */
     private inline fun <reified T> endpointRequest(endpoint: String): T = decode(plainEndpointRequest(endpoint))
@@ -87,7 +75,7 @@ object ClientApi {
      * User agent
      * LiquidBounce/<version> (<commit>, <branch>, <build-type>, <platform>)
      */
-    private val ENDPOINT_AGENT =
+    internal val ENDPOINT_AGENT =
         "${LiquidBounce.CLIENT_NAME}/${LiquidBounce.clientVersion} (${LiquidBounce.clientCommit}, ${LiquidBounce.clientBranch}, ${if (LiquidBounce.IN_DEVELOPMENT) "dev" else "release"}, ${
             System.getProperty("os.name")
         })"
@@ -97,7 +85,7 @@ object ClientApi {
      *
      * This is used to identify the client in one session
      */
-    private val SESSION_TOKEN = RandomStringUtils.randomAlphanumeric(16)
+    internal val SESSION_TOKEN = RandomStringUtils.randomAlphanumeric(16)
 
     /**
      * Request to endpoint with custom agent and session token

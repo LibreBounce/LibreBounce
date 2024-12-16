@@ -18,7 +18,7 @@ object ClientAccountManager : Configurable("account") {
  * It might hold additional information that can be obtained from the API.
  */
 data class ClientAccount(
-    private var session: OAuthSession? = null,
+    internal var session: OAuthSession? = null,
     @Exclude
     var userInformation: UserInformation? = null,
     @Exclude

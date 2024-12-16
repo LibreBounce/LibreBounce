@@ -141,6 +141,7 @@ object CommandManager : Iterable<Command> by commands {
     fun registerInbuilt() {
         val commands = arrayOf(
             CommandClient,
+            CommandMarketplace,
             CommandFriend,
             CommandToggle,
             CommandBind,
