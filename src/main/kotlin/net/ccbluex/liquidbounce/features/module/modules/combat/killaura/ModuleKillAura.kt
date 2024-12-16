@@ -46,7 +46,6 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
@@ -64,7 +63,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.AxeItem
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
-import org.oryxel.cube.util.MathUtil
 
 /**
  * KillAura module
@@ -541,10 +539,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
     }
 
-    var extendedReach: Float = range
+    val extendedReach: Float
         get() {
-            if (KillAuraVelocityHit.enabled && KillAuraVelocityHit.running && KillAuraVelocityHit.isVelocityHitPossible) {
-                return range + KillAuraVelocityHit.extensionRange
+            if (KillAuraVelocityHit.isVelocityHitPossible) {
+                return range + KillAuraVelocityHit.extendRange
             }
             return range
         }
