@@ -172,7 +172,7 @@ internal object NoFallMLG : Choice("MLG") {
 
     private fun findPlacementPlanAtPos(pos: BlockPos, item: HotbarItemSlot): PlacementPlan? {
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             item.itemStack,
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,

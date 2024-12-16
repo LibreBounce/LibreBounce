@@ -31,8 +31,10 @@
 
         selectedIndex = 0;
 
-        filteredModules = modules.filter((m) => m.name.toLowerCase().includes(query.toLowerCase().replaceAll(" ", ""))
-            || m.aliases.some(a => a.toLowerCase().includes(query.toLowerCase().replaceAll(" ", "")))
+        const pureQuery = query.toLowerCase().replaceAll(" ", "");
+
+        filteredModules = modules.filter((m) => m.name.toLowerCase().includes(pureQuery)
+            || m.aliases.some(a => a.toLowerCase().includes(pureQuery))
         );
     }
 

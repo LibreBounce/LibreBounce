@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -470,7 +471,7 @@ class ChooseListValue<T : NamedChoice>(
 
     @ScriptApiRequired
     fun getChoicesStrings(): Array<String> {
-        return this.choices.map { it.choiceName }.toTypedArray()
+        return this.choices.mapArray { it.choiceName }
     }
 
 }

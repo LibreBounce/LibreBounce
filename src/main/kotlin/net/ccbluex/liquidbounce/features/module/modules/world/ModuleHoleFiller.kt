@@ -52,7 +52,7 @@ import kotlin.math.max
  *
  * @author ccetl
  */
-object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
+object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManagerSubscriber {
 
     /**
      * When enabled, only places when entities are about to enter a hole, otherwise fills all holes.
@@ -108,9 +108,13 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
         allowSupportPlacements = false
     ))
 
+    private val range: Int get() = ceil(max(placer.range, placer.wallRange)).toInt()
+
+    override fun horizontalDistance(): Int = range
+    override fun verticalDistance(): Int = range
+
     override fun enable() {
-        val range = ceil(max(placer.range, placer.wallRange)).toInt()
-        HoleManager.subscribe(this, HoleManagerSubscriber({ range }, { range }))
+        HoleManager.subscribe(this)
     }
 
     override fun disable() {
@@ -143,7 +147,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
             }
 
             // the range in which entities are considered as a target
-            val range = ceil(max(placer.range, placer.wallRange)).toInt().sq() + 10.0
+            val range = this.range.sq() + 10.0
             collectHolesSmart(range, holeContext, availableItems)
         }
 
@@ -170,9 +174,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
                 holeContext.selfInHole ||
                 !hole.positions.intersects(holeContext.selfRegion)
                 ) {
-                BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
-                    holeContext.blocks += it.toImmutable()
-                }
+                hole.positions.mapTo(holeContext.blocks) { it.toImmutable() }
             }
         }
     }
@@ -195,7 +197,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
                 found
             )
 
-            holeContext.blocks += found.sortedByDescending { it.rightDouble() }.map { it.left() }
+            found.sortedByDescending { it.rightDouble() }.mapTo(holeContext.blocks) { it.left() }
             if (remainingItems <= 0) {
                 return
             }
@@ -204,10 +206,10 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
 
     private fun iterateHoles(
         holeContext: HoleContext,
-        checkedHoles: HashSet<Hole>,
+        checkedHoles: MutableSet<Hole>,
         entity: Entity,
         remainingItems: Int,
-        found: HashSet<ObjectDoubleImmutablePair<BlockPos>>
+        found: MutableSet<ObjectDoubleImmutablePair<BlockPos>>
     ): Int {
         var remainingItems1 = remainingItems
         val region = Region.quadAround(entity.blockPos, fillArea, fillArea)
@@ -230,8 +232,8 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD) {
             }
 
             checkedHoles += hole
-            BlockPos.iterate(hole.positions.from, hole.positions.to).forEach {
-                found += ObjectDoubleImmutablePair(it.toImmutable(), valid.rightDouble())
+            hole.positions.mapTo(found) {
+                ObjectDoubleImmutablePair(it.toImmutable(), valid.rightDouble())
             }
 
             if (remainingItems1 == 0 && !player.abilities.creativeMode) {

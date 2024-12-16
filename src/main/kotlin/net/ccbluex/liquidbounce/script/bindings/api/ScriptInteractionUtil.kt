@@ -69,7 +69,7 @@ object ScriptInteractionUtil {
     fun placeBlock(blockPos: BlockPos, hand: Hand): Boolean {
         val itemStack = player.getStackInHand(hand)
         val blockPlacementOptions = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             itemStack,
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,

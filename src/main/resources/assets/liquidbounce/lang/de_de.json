@@ -611,5 +611,9 @@
   "liquidbounce.module.middleClickAction.messages.removedFriend": "%s wurde erfolgreich aus der Freundesliste entfernt.",
   "liquidbounce.module.elytraRecast.description": "Wirft Elytra neu aus, während die Sprungtaste gedrückt gehalten wird",
   "liquidbounce.module.packetMine.description": "Erlaubt es dir, Blöcke abzubauen, in dem du sie nur einmal anklickst.",
-  "liquidbounce.module.tpAura.description": "Teleportiert und greift automatisch Feinde in deiner Umgebung an."
+  "liquidbounce.module.tpAura.description": "Teleportiert und greift automatisch Feinde in deiner Umgebung an.",
+  "liquidbounce.module.packetLogger.description": "Zeigt alle Pakete und deren Felder.",
+  "liquidbounce.module.packetLogger.messages.send": "Sendet",
+  "liquidbounce.module.packetLogger.messages.receive": "Empfängt",
+  "liquidbounce.module.packetLogger.messages.canceled": "ab­ge­bro­chen"
 }
