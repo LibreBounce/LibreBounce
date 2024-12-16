@@ -33,7 +33,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as *;
 
   .main-button {
     background-color: rgba($menu-base-color, 0.68);

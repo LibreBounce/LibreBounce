@@ -18,7 +18,7 @@
 
 <style lang="scss">
   @use "sass:color";
-  @import "../../../../colors.scss";
+  @use "../../../../colors.scss" as *;
 
   .switch-container {
     display: flex;
