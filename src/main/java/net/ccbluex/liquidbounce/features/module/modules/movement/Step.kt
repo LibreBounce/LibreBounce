@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
@@ -77,7 +78,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         val mode = mode
         val thePlayer = mc.thePlayer ?: return@handler
 
-        if (thePlayer.isOnLadder || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb) return@handler
+        if (thePlayer.isOnLadder || thePlayer.isInLiquid || thePlayer.isInWeb) return@handler
 
         if (!thePlayer.isMoving) return@handler
 
