@@ -183,8 +183,10 @@ object ModuleClickGui :
      * An empty screen that acts as hint when to draw the clickgui
      */
     class ClickScreen : Screen("ClickGUI".asText()) {
-        override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
-            super.render(context, mouseX, mouseY, delta)
+
+        override fun close() {
+            mc.mouse.lockCursor()
+            super.close()
         }
 
         override fun shouldPause(): Boolean {

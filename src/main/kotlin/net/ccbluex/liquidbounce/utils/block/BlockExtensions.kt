@@ -355,12 +355,13 @@ fun BlockPos.canStandOn(): Boolean {
 inline fun Box.isBlockAtPosition(
     isCorrectBlock: (Block?) -> Boolean,
 ): Boolean {
-    val blockPos = BlockPos.Mutable(0, minY.toInt(), 0)
+    val blockPos = BlockPos.Mutable(0, floor(minY).toInt(), 0)
 
     for (x in floor(minX).toInt()..ceil(maxX).toInt()) {
-        for (y in floor(minY).toInt()..ceil(maxY).toInt()) {
+        for (z in floor(minZ).toInt()..ceil(maxZ).toInt()) {
             blockPos.x = x
-            blockPos.y = y
+            blockPos.z = z
+
             if (isCorrectBlock(blockPos.getBlock())) {
                 return true
             }

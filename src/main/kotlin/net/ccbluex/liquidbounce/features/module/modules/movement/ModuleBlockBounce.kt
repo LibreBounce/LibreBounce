@@ -44,10 +44,12 @@ object ModuleBlockBounce : ClientModule("BlockBounce", Category.MOVEMENT) {
         }
     }
 
-    fun standingOnBouncyBlock(): Boolean {
+    private fun standingOnBouncyBlock(): Boolean {
         val boundingBox = player.box
         val detectionBox = boundingBox.withMinY(boundingBox.minY - 0.01)
 
-        return detectionBox.isBlockAtPosition { it is SlimeBlock || it is BedBlock || it is HoneyBlock }
+        return detectionBox.isBlockAtPosition { block ->
+            block is SlimeBlock || block is BedBlock || block is HoneyBlock
+        }
     }
 }
