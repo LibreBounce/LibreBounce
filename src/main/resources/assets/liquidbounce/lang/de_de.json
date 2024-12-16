@@ -619,5 +619,6 @@
   "liquidbounce.module.autoPearl.description": "Zielt und wirft automatisch eine Enderperle auf die Flugbahn der feindlichen Enderperle.",
   "liquidbounce.module.holeFiller.description": "Füllt automatisch sichere Orte mit Blöcken für Crystal PvP.",
   "liquidbounce.module.itemChams.description": "Wendet visuelle Effekte auf Gegenstände in deiner Hand an.",
-  "liquidbounce.module.itemTags.description": "Zeigt Bilder und Mengenangaben fallengelassener Gegenstände an."
+  "liquidbounce.module.itemTags.description": "Zeigt Bilder und Mengenangaben fallengelassener Gegenstände an.",
+  "liquidbounce.module.baritone.description": "Einstellungen für Baritone."
 }
