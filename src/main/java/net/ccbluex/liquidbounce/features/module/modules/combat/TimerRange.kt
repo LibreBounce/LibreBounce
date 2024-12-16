@@ -223,7 +223,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
         if (isPlayerMoving() && !confirmStop) {
             if (isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) {
-                val entityDistance = mc.thePlayer.getDistanceToEntityBox(nearbyEntity)
+                val entityDistance = player.getDistanceToEntityBox(nearbyEntity)
                 if (confirmTick && entityDistance in randomRange..maxRange.get()) {
                     if (updateDistance(nearbyEntity)) {
                         playerTicks = ticksValue
@@ -338,10 +338,12 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      * Render event (Mark)
      */
     val onRender3D = handler<Render3DEvent> {
+        val player = mc.thePlayer ?: return@handler
+
         if (timerBoostMode.lowercase() != "modern") return@handler
 
         getNearestEntityInRange()?.let { nearbyEntity ->
-            val entityDistance = mc.thePlayer.getDistanceToEntityBox(nearbyEntity)
+            val entityDistance = player.getDistanceToEntityBox(nearbyEntity)
 
             if (entityDistance > scanRange.get()) return@let
 
@@ -471,7 +473,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
         }
 
         // Check for knockback
-        if (resetOnKnockback && packet is S12PacketEntityVelocity && mc.thePlayer.entityId == packet.entityID) {
+        if (resetOnKnockback && packet is S12PacketEntityVelocity && mc.thePlayer?.entityId == packet.entityID) {
             shouldResetTimer()
 
             if (shouldReset) {
