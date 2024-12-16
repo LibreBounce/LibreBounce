@@ -35,6 +35,9 @@ object HoleManager : EventListener {
     private val activeModules = hashSetOf<HoleManagerSubscriber>()
     private val playerPos = BlockPos.Mutable()
 
+    override val running: Boolean
+        get() = activeModules.isNotEmpty()
+
     fun subscribe(subscriber: HoleManagerSubscriber) {
         activeModules += subscriber
         if (activeModules.size == 1) {
