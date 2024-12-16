@@ -10,14 +10,14 @@
 
     const cSetting = setting as BlocksSetting;
 
-    interface Block {
+    interface TBlock {
         name: string;
         identifier: string;
     }
 
     const dispatch = createEventDispatcher();
-    let blocks: Block[] = [];
-    let renderedBlocks: Block[] = blocks;
+    let blocks: TBlock[] = [];
+    let renderedBlocks: TBlock[] = blocks;
     let searchQuery = "";
 
     $: {
