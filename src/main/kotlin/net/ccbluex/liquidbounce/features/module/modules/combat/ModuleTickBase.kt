@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -46,6 +47,8 @@ import kotlin.math.min
 internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
     private val mode by enumChoice("Mode", TickBaseMode.PAST)
+        .apply { tagBy(this) }
+    private val call by enumChoice("Call", TickBaseCall.GAME)
 
     /**
      * The range defines where we want to tickbase into. The first value is the minimum range, which we can
@@ -55,9 +58,10 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
     private val balanceRecoveryIncrement by float("BalanceRecoverIncrement", 1f, 0f..2f)
     private val balanceMaxValue by int("BalanceMaxValue", 20, 0..200)
-    private val maxTicksAtATime by int("MaxTicksAtATime", 4, 1..20, "ticks").apply { tagBy(this) }
+    private val maxTicksAtATime by int("MaxTicksAtATime", 4, 1..20, "ticks")
     private val pauseOnFlag by boolean("PauseOfFlag", true)
-    private val pauseAfterTick by int("PauseAfterTick", 0, 0..100, "ticks")
+    private val pause by int("Pause", 0, 0..20, "ticks")
+    private val cooldown by int("Cooldown", 0, 0..100, "ticks")
     private val forceGround by boolean("ForceGround", false)
     private val lineColor by color("Line", Color4b.WHITE)
         .doNotIncludeAlways()
@@ -71,14 +75,14 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
     private val tickBuffer = mutableListOf<TickData>()
 
     @Suppress("unused")
-    private val playerTickHandler = handler<PlayerTickEvent> {
+    private val playerTickHandler = handler<PlayerTickEvent> { event ->
         // We do not want this module to conflict with blink
         if (player.vehicle != null || ModuleBlink.running) {
             return@handler
         }
 
         if (ticksToSkip-- > 0) {
-            it.cancelEvent()
+            event.cancelEvent()
         }
     }
 
@@ -121,30 +125,49 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         }
 
         // We do not want to tickbase if killaura is not ready to attack
-        if (requiresKillAura && !(ModuleKillAura.running &&
-                ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))) {
+        val breakRequirement = {
+            requiresKillAura && !(ModuleKillAura.running &&
+                ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))
+        }
+
+        if (breakRequirement()) {
             return@tickHandler
         }
 
         when (mode) {
             TickBaseMode.PAST -> {
-                ticksToSkip = bestTick + pauseAfterTick
+                ticksToSkip = bestTick + pause
                 waitTicks(ticksToSkip)
                 repeat(bestTick) {
-                    player.tick()
+                    call.tick()
                     tickBalance -= 1
                 }
+
+                ModuleDebug.debugParameter(this, "Recommended Skip", bestTick)
             }
 
             TickBaseMode.FUTURE -> {
-                repeat(bestTick) {
-                    player.tick()
+                var totalSkipped = 0
+
+                for (i in 0 until bestTick) {
+                    call.tick()
                     tickBalance -= 1
+                    totalSkipped++
+
+                    if (breakRequirement()) {
+                        break
+                    }
                 }
-                ticksToSkip = bestTick + pauseAfterTick
+
+                ModuleDebug.debugParameter(this, "Total Skipped", totalSkipped)
+                ModuleDebug.debugParameter(this, "Recommended Skip", bestTick)
+
+                ticksToSkip = totalSkipped + pause
                 waitTicks(ticksToSkip)
             }
         }
+
+        waitTicks(cooldown)
     }
 
     @Suppress("unused")
@@ -215,6 +238,31 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
     private enum class TickBaseMode(override val choiceName: String) : NamedChoice {
         PAST("Past"),
         FUTURE("Future")
+    }
+
+    @Suppress("unused")
+    private enum class TickBaseCall(
+        override val choiceName: String,
+        val tick: () -> Unit
+    ) : NamedChoice {
+
+        /**
+         * Runs a full game tick.
+         *
+         * TODO: Cancel full game ticks after this,
+         *   not just the player ticks.
+         */
+        GAME("Game", { mc.tick() }),
+
+        /**
+         * This will NOT update the game tick,
+         * but only the player tick - that means
+         * e.g. Rotation Manager will not update either.
+         *
+         * This was the previous default behavior of the TickBase,
+         * so it is kept for compatibility reasons.
+         */
+        PLAYER("Player", { player.tick() })
     }
 
 }
