@@ -32,8 +32,8 @@
         }, 500);
     });
 
-    highlightModuleName.subscribe(() => {
-        if (name !== $highlightModuleName) {
+    highlightModuleName.subscribe((m) => {
+        if (name !== m) {
             return;
         }
 

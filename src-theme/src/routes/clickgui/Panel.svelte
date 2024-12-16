@@ -142,9 +142,9 @@
         }, 500)
     }
 
-    highlightModuleName.subscribe(() => {
+    highlightModuleName.subscribe((m) => {
         const highlightModule = modules.find(
-            (m) => m.name === $highlightModuleName,
+            (m) => m.name === m.name,
         );
         if (highlightModule) {
             panelConfig.zIndex = ++$maxPanelZIndex;
