@@ -25,10 +25,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.adapter.*
-import net.ccbluex.liquidbounce.config.gson.serializer.ChoiceConfigurableSerializer
-import net.ccbluex.liquidbounce.config.gson.serializer.ConfigurableSerializer
-import net.ccbluex.liquidbounce.config.gson.serializer.EnumChoiceSerializer
-import net.ccbluex.liquidbounce.config.gson.serializer.ReadOnlyComponentSerializer
+import net.ccbluex.liquidbounce.config.gson.serializer.*
 import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.*
 import net.ccbluex.liquidbounce.config.gson.stategies.ExcludeStrategy
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
@@ -51,6 +48,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import net.minecraft.world.GameMode
+import java.util.function.Supplier
 
 /**
  * An enumeration of all GSON instances used in LiquidBounce. Each instance has its own configuration,
@@ -157,3 +155,4 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
         .registerTypeAdapter(ItemStack::class.javaObjectType, ItemStackSerializer)
         .registerTypeAdapter(Identifier::class.javaObjectType, IdentifierSerializer)
         .registerTypeAdapter(StatusEffectInstance::class.javaObjectType, StatusEffectInstanceSerializer)
+        .registerTypeHierarchyAdapter(Supplier::class.javaObjectType, SupplierSerializer)

@@ -210,6 +210,9 @@ object CommandClient : CommandFactory {
         .subcommand(CommandBuilder.begin("set")
             .parameter(
                 ParameterBuilder.begin<String>("language")
+                    .autocompletedWith { begin ->
+                        LanguageManager.knownLanguages.filter { it.startsWith(begin, true) }
+                    }
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
                     .build()
             ).handler { command, args ->

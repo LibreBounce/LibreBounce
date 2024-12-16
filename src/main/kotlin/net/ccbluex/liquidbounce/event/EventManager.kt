@@ -88,6 +88,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PacketEvent::class,
     ClientStartEvent::class,
     ClientShutdownEvent::class,
+    ClientLanguageChangedEvent::class,
     ValueChangedEvent::class,
     ModuleActivationEvent::class,
     ModuleToggleEvent::class,

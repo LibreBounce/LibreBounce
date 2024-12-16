@@ -46,7 +46,7 @@ fun getModules(requestObject: RequestObject): FullHttpResponse {
             addProperty("category", module.category.readableName)
             add("keyBind", interopGson.toJsonTree(module.bind))
             addProperty("enabled", module.enabled)
-            addProperty("description", module.description)
+            addProperty("description", module.description.get())
             addProperty("tag", module.tag)
             addProperty("hidden", module.hidden)
             add("aliases", interopGson.toJsonTree(module.aliases))
