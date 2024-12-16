@@ -74,10 +74,6 @@
       color: $menu-text-color;
       font-size: 20px;
       font-weight: 500;
-
-      span {
-        font-weight: 600;
-      }
     }
   }
 
