@@ -100,13 +100,12 @@ object KillAuraVelocityHit : ToggleableConfigurable(ModuleKillAura, "VelocityHit
             return false
         }
 
-        var sumTime: Long = 0
+        var sumTime = 0L
         for (i in 0..<SAMPLE_SIZE) {
             sumTime += lastPacketTime[i]
         }
 
-        val diff: Double = sumTime / SAMPLE_SIZE.toDouble();
-        return diff > 0.5
+        return sumTime / SAMPLE_SIZE.toDouble() > 0.5
     }
 
 }
