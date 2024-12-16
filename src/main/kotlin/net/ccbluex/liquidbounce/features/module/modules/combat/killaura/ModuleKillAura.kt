@@ -480,7 +480,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         var isReady = critical && shielding &&
             !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && !missCooldown;
 
-        var canUseVelocityHit = KillAuraVelocityHit.enabled && KillAuraVelocityHit.running && KillAuraVelocityHit.isVelocityHitPossible
+        var canUseVelocityHit = KillAuraVelocityHit.enabled
+                && KillAuraVelocityHit.running && KillAuraVelocityHit.isVelocityHitPossible
 
         return isReady || (isReady && canUseVelocityHit)
     }
