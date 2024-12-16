@@ -108,10 +108,6 @@ class MinimapHeightmapManager {
     }
 
     private fun Chunk.calculateHeight(x: Int, z: Int, maxY: Int? = null): Int {
-        if (mc.isInSingleplayer) {
-            return this.getHeightmap(Heightmap.Type.WORLD_SURFACE)[x and 15, z and 15] - 1
-        }
-
         val maxHeight = (maxY ?: height) - 1
 
         val pos = BlockPos.Mutable(x, maxHeight, z)
