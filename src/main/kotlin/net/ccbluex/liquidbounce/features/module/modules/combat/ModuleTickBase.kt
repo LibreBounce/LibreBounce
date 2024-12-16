@@ -18,9 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
@@ -43,6 +44,8 @@ import kotlin.math.min
  * Calls tick function to speed up, when needed
  */
 internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
+
+    private val mode by enumChoice("Mode", TickBaseMode.PAST)
 
     /**
      * The range defines where we want to tickbase into. The first value is the minimum range, which we can
@@ -68,7 +71,7 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
     private val tickBuffer = mutableListOf<TickData>()
 
     @Suppress("unused")
-    private val tickHandler = handler<PlayerTickEvent> {
+    private val playerTickHandler = handler<PlayerTickEvent> {
         // We do not want this module to conflict with blink
         if (player.vehicle != null || ModuleBlink.running) {
             return@handler
@@ -79,20 +82,14 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         }
     }
 
-    var duringTickModification = false
-
     @Suppress("unused")
-    private val postTickHandler = sequenceHandler<PlayerPostTickEvent> {
+    private val tickHandler = tickHandler {
         // We do not want this module to conflict with blink
-        if (player.vehicle != null || ModuleBlink.running || duringTickModification) {
-            return@sequenceHandler
+        if (player.vehicle != null || ModuleBlink.running || tickBuffer.isEmpty()) {
+            return@tickHandler
         }
 
-        if (tickBuffer.isEmpty()) {
-            return@sequenceHandler
-        }
-
-        val nearbyEnemy = world.findEnemy(0f..range.endInclusive) ?: return@sequenceHandler
+        val nearbyEnemy = world.findEnemy(0f..range.endInclusive) ?: return@tickHandler
         val currentDistance = player.pos.squaredDistanceTo(nearbyEnemy.pos)
 
         // Find the best tick that is able to hit the target and is not too far away from the player, as well as
@@ -117,31 +114,37 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
         val (bestTick, _) = criticalTick ?: possibleTicks.minByOrNull { (index, _) ->
             index
-        } ?: return@sequenceHandler
+        } ?: return@tickHandler
 
         if (bestTick == 0) {
-            return@sequenceHandler
+            return@tickHandler
         }
 
         // We do not want to tickbase if killaura is not ready to attack
         if (requiresKillAura && !(ModuleKillAura.running &&
                 ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))) {
-            return@sequenceHandler
+            return@tickHandler
         }
 
-        // Tick as much as we can
-        duringTickModification = true
+        when (mode) {
+            TickBaseMode.PAST -> {
+                ticksToSkip = bestTick + pauseAfterTick
+                waitTicks(ticksToSkip)
+                repeat(bestTick) {
+                    player.tick()
+                    tickBalance -= 1
+                }
+            }
 
-        ticksToSkip = bestTick + pauseAfterTick
-
-        waitTicks(ticksToSkip)
-
-        repeat(bestTick) {
-            player.tick()
-            tickBalance -= 1
+            TickBaseMode.FUTURE -> {
+                repeat(bestTick) {
+                    player.tick()
+                    tickBalance -= 1
+                }
+                ticksToSkip = bestTick + pauseAfterTick
+                waitTicks(ticksToSkip)
+            }
         }
-
-        duringTickModification = false
     }
 
     @Suppress("unused")
@@ -172,12 +175,12 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         val tickRange = 0 until min(tickBalance.toInt(), maxTicksAtATime)
         val snapshots = simulatedPlayer.getSnapshotsBetween(tickRange)
 
-        snapshots.forEach {
+        snapshots.forEach { snapshot ->
             tickBuffer += TickData(
-                it.pos,
-                it.fallDistance,
-                it.velocity,
-                it.onGround
+                snapshot.pos,
+                snapshot.fallDistance,
+                snapshot.velocity,
+                snapshot.onGround
             )
         }
     }
@@ -202,16 +205,16 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         }
     }
 
-    override fun disable() {
-        duringTickModification = false
-        super.disable()
-    }
-
     data class TickData(
         val position: Vec3d,
         val fallDistance: Float,
         val velocity: Vec3d,
         val onGround: Boolean
     )
+
+    private enum class TickBaseMode(override val choiceName: String) : NamedChoice {
+        PAST("Past"),
+        FUTURE("Future")
+    }
 
 }
