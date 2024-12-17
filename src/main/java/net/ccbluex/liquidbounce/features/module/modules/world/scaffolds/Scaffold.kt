@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettingsWithRotationModes
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.canUpdateRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
@@ -563,7 +564,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         if (waitForRots) {
             godBridgeTargetRotation?.run {
-                event.originalInput.sneak = event.originalInput.sneak || rotationDifference(this, currRotation) != 0f
+                event.originalInput.sneak = event.originalInput.sneak || rotationDifference(this, currRotation) > getFixedAngleDelta()
             }
         }
 

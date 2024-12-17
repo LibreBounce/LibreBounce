@@ -198,6 +198,8 @@ class CameraPositionEvent(
 
 class ClientSlotChangeEvent(var supposedSlot: Int, var modifiedSlot: Int) : Event()
 
+class DelayedPacketProcessEvent : CancellableEvent()
+
 /**
  * Called when minecraft player will be updated
  */
@@ -254,4 +256,5 @@ internal val ALL_EVENT_CLASSES = arrayOf(
     Render3DEvent::class.java,
     MotionEvent::class.java,
     WorldEvent::class.java,
+    DelayedPacketProcessEvent::class.java
 )
