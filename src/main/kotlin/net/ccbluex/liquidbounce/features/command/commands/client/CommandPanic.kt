@@ -55,7 +55,7 @@ object CommandPanic : CommandFactory {
                 when (val type = args.getOrNull(0) as String? ?: "nonrender") {
                     "all" -> msg = command.result("disabledAllModules")
                     "nonrender" -> {
-                        modules = modules.filter { it.category != Category.RENDER && it.category != Category.CLIENT}
+                        modules = modules.filter { it.category != Category.RENDER && it.category != Category.CLIENT }
                         msg = command.result("disabledAllCategoryModules", command.result("nonRender"))
                     }
 
@@ -67,17 +67,16 @@ object CommandPanic : CommandFactory {
                     }
                 }
 
-                AutoConfig.loadingNow = true
-                runCatching {
-                    for (module in modules) {
-                        module.enabled = false
+                AutoConfig.withLoading {
+                    runCatching {
+                        for (module in modules) {
+                            module.enabled = false
+                        }
+                    }.onSuccess {
+                        chat(regular(msg), command)
+                    }.onFailure {
+                        throw CommandException(command.result("panicFailed"))
                     }
-                }.onSuccess {
-                    AutoConfig.loadingNow = false
-                    chat(regular(msg), command)
-                }.onFailure {
-                    AutoConfig.loadingNow = false
-                    throw CommandException(command.result("panicFailed"))
                 }
             }
             .build()

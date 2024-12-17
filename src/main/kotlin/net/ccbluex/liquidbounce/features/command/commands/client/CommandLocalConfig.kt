@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.config.AutoConfig.loadingNow
+import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.IncludeConfiguration
@@ -66,16 +66,15 @@ object CommandLocalConfig : CommandFactory {
                                 return@handler
                             }
 
-                            loadingNow = true
-                            ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, bufferedReader(),
-                                publicGson)
+                            AutoConfig.withLoading {
+                                ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, bufferedReader(),
+                                    publicGson)
+                            }
                         }.onFailure {
                             chat(markAsError(command.result("failedToLoad", variable(name))))
                         }.onSuccess {
                             chat(regular(command.result("loaded", variable(name))))
                         }
-
-                        loadingNow = false
                     }
                     .build()
             )
@@ -117,7 +116,7 @@ object CommandLocalConfig : CommandFactory {
                             .begin<String>("include")
                             .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
                             .autocompletedWith { s ->
-                                listOf(
+                                arrayOf(
                                     "binds",
                                     "hidden"
                                 ).filter { it.startsWith(s) }
@@ -142,7 +141,7 @@ object CommandLocalConfig : CommandFactory {
                             }
 
                             createNewFile()
-                            serializeAutoConfig(writer(), includeConfiguration)
+                            serializeAutoConfig(bufferedWriter(), includeConfiguration)
                         }.onFailure {
                             chat(regular(command.result("failedToCreate", variable(name))))
                         }.onSuccess {
