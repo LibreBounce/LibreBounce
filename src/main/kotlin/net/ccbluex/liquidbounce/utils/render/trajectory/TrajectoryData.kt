@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.module.modules.render.trajectories
+package net.ccbluex.liquidbounce.utils.render.trajectory
 
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.minecraft.entity.Entity
@@ -12,7 +12,6 @@ import net.minecraft.entity.projectile.thrown.ExperienceBottleEntity
 import net.minecraft.entity.projectile.thrown.PotionEntity
 import net.minecraft.entity.projectile.thrown.SnowballEntity
 import net.minecraft.item.*
-import org.joml.Matrix4f
 
 object TrajectoryData {
     fun getRenderedTrajectoryInfo(player: PlayerEntity, item: Item, alwaysShowBow: Boolean): TrajectoryInfo? {

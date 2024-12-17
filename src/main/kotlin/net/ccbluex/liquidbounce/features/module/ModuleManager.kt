@@ -223,6 +223,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleAutoChatGame,
             ModuleFocus,
+            ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
@@ -329,6 +330,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleXRay,
             ModuleDebug,
             ModuleZoom,
+            ModuleItemChams,
 
             // World
             ModuleAutoBuild,
@@ -364,10 +366,10 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             builtin += ModuleDebugRecorder
         }
 
-        builtin.forEach {
-            addModule(it)
-            it.walkKeyPath()
-            it.verifyFallbackDescription()
+        builtin.forEach { module ->
+            addModule(module)
+            module.walkKeyPath()
+            module.verifyFallbackDescription()
         }
     }
 

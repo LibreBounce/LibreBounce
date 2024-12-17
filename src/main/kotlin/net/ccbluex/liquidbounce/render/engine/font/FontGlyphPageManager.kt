@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
+import it.unimi.dsi.fastutil.ints.IntCharPair
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -30,7 +31,7 @@ class FontGlyphPageManager(
     )
 
     private val availableFonts: Map<FontManager.FontFace, FontGlyphRegistry>
-    private val dynamicallyLoadedGlyphs = HashMap<Pair<Int, Char>, GlyphDescriptor>()
+    private val dynamicallyLoadedGlyphs = HashMap<IntCharPair, GlyphDescriptor>()
 
     init {
         this.dynamicFontManager.startThread()
@@ -41,7 +42,7 @@ class FontGlyphPageManager(
     @Suppress("unused")
     private val renderHandler = handler<GameRenderEvent> {
         this.dynamicFontManager.update().forEach { update ->
-            val key = update.style to update.descriptor.renderInfo.char
+            val key = IntCharPair.of(update.style, update.descriptor.renderInfo.char)
 
             if (!update.removed) {
                 dynamicallyLoadedGlyphs[key] = update.descriptor
@@ -88,7 +89,7 @@ class FontGlyphPageManager(
         val glyph = getFont(font).glyphs[style][ch]
 
         if (glyph == null) {
-            val altGlyph = this.dynamicallyLoadedGlyphs[style to ch]
+            val altGlyph = this.dynamicallyLoadedGlyphs[IntCharPair.of(style, ch)]
 
             if (altGlyph == null) {
                 this.dynamicFontManager.requestGlyph(ch, style)

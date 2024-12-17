@@ -20,7 +20,7 @@ import java.util.*
 import kotlin.math.absoluteValue
 
 object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMode {
-    override val parent: ChoiceConfigurable<Choice>
+    override val parent
         get() = ModuleMurderMystery.modes
 
     private var lastMap: MapIdComponent? = null

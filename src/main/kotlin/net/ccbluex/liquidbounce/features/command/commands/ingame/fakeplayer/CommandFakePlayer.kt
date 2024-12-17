@@ -228,7 +228,7 @@ object CommandFakePlayer : CommandFactory, EventListener {
 
         if (moving) {
             fakePlayer = MovingFakePlayer(
-                snapshots = snapshots.map { it }.toTypedArray(),
+                snapshots = snapshots.toTypedArray(),
                 world,
                 GameProfile(
                     UUID.randomUUID(),

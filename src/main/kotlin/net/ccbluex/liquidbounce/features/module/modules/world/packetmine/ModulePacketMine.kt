@@ -253,7 +253,13 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     ) {
         progress += switchMode.getBlockBreakingDelta(blockPos, state, slot?.second())
         switch(slot, blockPos)
-        val f = progress.toDouble().coerceIn(0.0..1.0) / 2
+        val f = if (breakDamage > 0f) {
+            val breakDamageD = breakDamage.toDouble()
+            progress.toDouble().coerceIn(0.0..breakDamageD) / breakDamageD / 2.0
+        } else {
+            0.5
+        }
+
         val box = blockPos.outlineBox
         val lengthX = box.lengthX
         val lengthY = box.lengthY
@@ -331,13 +337,13 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
         when (val packet = it.packet) {
             is BlockUpdateS2CPacket -> {
-                mc.renderTaskQueue.add(Runnable { updatePosOnChange(packet.pos, packet.state) })
+                mc.renderTaskQueue.add { updatePosOnChange(packet.pos, packet.state) }
             }
 
             is ChunkDeltaUpdateS2CPacket -> {
-                mc.renderTaskQueue.add(Runnable {
+                mc.renderTaskQueue.add {
                     packet.visitUpdates { pos, state -> updatePosOnChange(pos, state) }
-                })
+                }
             }
         }
     }

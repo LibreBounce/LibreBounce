@@ -27,9 +27,11 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.technique
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldEagleFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldStabilizeMovementFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldTellyFeature
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldTellyFeature.Mode
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -39,6 +41,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import kotlin.math.round
 import kotlin.random.Random
 
 /**
@@ -93,7 +96,14 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
         if (ScaffoldTellyFeature.enabled && ScaffoldTellyFeature.doNotAim) {
-            return null
+            return when (ScaffoldTellyFeature.resetMode) {
+                Mode.REVERSE -> Rotation(
+                    round(player.rotation.yaw / 45) * 45,
+                    if (player.pitch < 45f) 45f else player.pitch
+                )
+
+                Mode.RESET -> null
+            }
         }
 
         if (requiresSight) {

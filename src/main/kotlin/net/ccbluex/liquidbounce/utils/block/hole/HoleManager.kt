@@ -21,31 +21,32 @@ package net.ccbluex.liquidbounce.utils.block.hole
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHoleESP.mc
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.MovableRegionScanner
 import net.ccbluex.liquidbounce.utils.block.Region
-import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.isEmpty
 import net.minecraft.util.math.BlockPos
 
-object HoleManager : EventListener {
+object HoleManager : EventListener, MinecraftShortcuts {
 
-    val movableRegionScanner = MovableRegionScanner()
-    private val activeModules = hashMapOf<ClientModule, HoleManagerSubscriber>()
+    internal val movableRegionScanner = MovableRegionScanner()
+    private val activeModules = hashSetOf<HoleManagerSubscriber>()
     private val playerPos = BlockPos.Mutable()
 
-    fun subscribe(module: ClientModule, subscriber: HoleManagerSubscriber) {
-        activeModules[module] = subscriber
+    override val running: Boolean
+        get() = activeModules.isNotEmpty()
+
+    fun subscribe(subscriber: HoleManagerSubscriber) {
+        activeModules += subscriber
         if (activeModules.size == 1) {
             ChunkScanner.subscribe(HoleTracker)
             mc.player?.blockPos?.let(::updateScanRegion)
         }
     }
 
-    fun unsubscribe(module: ClientModule) {
-        activeModules.remove(module)
+    fun unsubscribe(subscriber: HoleManagerSubscriber) {
+        activeModules -= subscriber
         if (activeModules.isEmpty()) {
             ChunkScanner.unsubscribe(HoleTracker)
             movableRegionScanner.clearRegion()
@@ -56,6 +57,7 @@ object HoleManager : EventListener {
     private val movementHandler = handler<PlayerPostTickEvent> {
         val currentPos = player.blockPos
 
+        // Update when player moves
         if (playerPos.getManhattanDistance(currentPos) >= 4) {
             updateScanRegion(currentPos)
         }
@@ -64,8 +66,8 @@ object HoleManager : EventListener {
     private fun updateScanRegion(newPlayerPos: BlockPos) {
         playerPos.set(newPlayerPos)
 
-        val horizontalDistance = activeModules.values.maxOf { it.horizontalDistance() }
-        val verticalDistance = activeModules.values.maxOf { it.verticalDistance() }
+        val horizontalDistance = activeModules.maxOf { it.horizontalDistance() }
+        val verticalDistance = activeModules.maxOf { it.verticalDistance() }
         val changedAreas = movableRegionScanner.moveTo(
             Region.quadAround(
                 playerPos,
@@ -93,4 +95,7 @@ object HoleManager : EventListener {
 
 }
 
-class HoleManagerSubscriber(val horizontalDistance: () -> Int, val verticalDistance: () -> Int)
+interface HoleManagerSubscriber {
+    fun horizontalDistance(): Int
+    fun verticalDistance(): Int
+}

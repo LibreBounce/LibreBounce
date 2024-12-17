@@ -30,6 +30,8 @@ import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryData
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.Vec3d
@@ -78,7 +80,9 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
 
         if (otherPlayers) {
             for (otherPlayer in world.players) {
-                drawHypotheticalTrajectory(otherPlayer, event)
+                if (otherPlayer != player) {
+                    drawHypotheticalTrajectory(otherPlayer, event)
+                }
             }
         }
 
@@ -94,39 +98,11 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
         } ?: return
 
         val rotation = RotationManager.workingAimPlan?.rotation ?: otherPlayer.rotation
-
-        val yawRadians = rotation.yaw / 180f * Math.PI.toFloat()
-        val pitchRadians = rotation.pitch / 180f * Math.PI.toFloat()
-
-        val interpolatedOffset = otherPlayer.interpolateCurrentPosition(event.partialTicks) - otherPlayer.pos
-
-        // Positions
-        val pos = Vec3d(
-            otherPlayer.x,
-            otherPlayer.eyeY - 0.10000000149011612,
-            otherPlayer.z
-        )
-
-        var velocity = Vec3d(
-            -sin(yawRadians) * cos(pitchRadians).toDouble(),
-            -sin((rotation.pitch + trajectoryInfo.roll).toRadians()).toDouble(),
-            cos(yawRadians) * cos(pitchRadians).toDouble()
-        ).normalize() * trajectoryInfo.initialVelocity
-
-        if (trajectoryInfo.copiesPlayerVelocity) {
-            velocity += Vec3d(
-                otherPlayer.velocity.x,
-                if (otherPlayer.isOnGround) 0.0 else otherPlayer.velocity.y,
-                otherPlayer.velocity.z
-            )
-        }
-
-        val renderer = TrajectoryInfoRenderer(
-            owner = otherPlayer,
-            velocity = velocity,
-            pos = pos,
+        val renderer = TrajectoryInfoRenderer.getHypotheticalTrajectory(
+            entity = otherPlayer,
             trajectoryInfo = trajectoryInfo,
-            renderOffset = interpolatedOffset + Vec3d(-cos(yawRadians) * 0.16, 0.0, -sin(yawRadians) * 0.16)
+            rotation = rotation,
+            partialTicks = event.partialTicks
         )
 
         val hitResult = renderer.drawTrajectoryForProjectile(maxSimulatedTicks, Color4b.WHITE, event.matrixStack)

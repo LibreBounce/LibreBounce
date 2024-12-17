@@ -91,7 +91,9 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
 
     internal fun tick() {
         if (++this.elapsedTicks >= this.totalTicks()) {
-            this.continuation?.resume(Unit)
+            val continuation = this.continuation ?: return
+            this.continuation = null
+            continuation.resume(Unit)
         }
     }
 
@@ -160,10 +162,11 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
     internal suspend fun sync() = wait { 0 }
 
     /**
-     * A custom implementation of `withContext`, which makes the Sequence correctly suspended by the task.
+     * Start a task with given context, and wait for its completion.
+     * @see withContext
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun <T> withContext(context: CoroutineContext, block: suspend CoroutineScope.() -> T): T {
+    suspend fun <T> waitFor(context: CoroutineContext, block: suspend CoroutineScope.() -> T): T {
         // Set parent job as `this.coroutine`
         val deferred = CoroutineScope(coroutine + context).async(context, block = block)
         // Use `waitUntil` to avoid duplicated resumption

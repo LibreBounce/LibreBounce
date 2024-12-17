@@ -83,7 +83,9 @@ class MinimapTextureAtlasManager {
     private fun allocate(chunkPos: ChunkPos): AtlasPosition {
         val atlasPosition = availableAtlasPositions.take() ?: error("No more space in the texture atlas!")
 
-        chunkPosAtlasPosMap[chunkPos] = atlasPosition
+        lock.write {
+            chunkPosAtlasPosMap[chunkPos] = atlasPosition
+        }
 
         return atlasPosition
     }
@@ -118,8 +120,10 @@ class MinimapTextureAtlasManager {
         chunkPos: ChunkPos,
         editor: (NativeImageBackedTexture, AtlasPosition) -> Unit,
     ) {
-        val atlasPosition = lock.write {
-            getOrAllocate(chunkPos).apply(dirtyAtlasPositions::add)
+        val atlasPosition = getOrAllocate(chunkPos)
+
+        lock.write {
+            dirtyAtlasPositions.add(atlasPosition)
         }
 
         editor(texture, atlasPosition)
@@ -131,7 +135,7 @@ class MinimapTextureAtlasManager {
      * @return the GLid of the texture
      */
     fun prepareRendering(): Int {
-        lock.write {
+        lock.read {
             if (this.dirtyAtlasPositions.isEmpty()) {
                 return this.texture.glId
             }
@@ -144,11 +148,13 @@ class MinimapTextureAtlasManager {
                 !this.allocated || dirtyChunks >= FULL_UPLOAD_THRESHOLD -> uploadFullTexture()
                 else -> uploadOnlyDirtyPositions()
             }
-
-            this.dirtyAtlasPositions.clear()
-
-            return this.texture.glId
         }
+
+        lock.write {
+            this.dirtyAtlasPositions.clear()
+        }
+
+        return this.texture.glId
     }
 
     private fun uploadFullTexture() {

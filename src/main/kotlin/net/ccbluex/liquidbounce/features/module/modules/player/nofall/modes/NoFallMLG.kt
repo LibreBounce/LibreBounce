@@ -69,7 +69,7 @@ internal object NoFallMLG : Choice("MLG") {
     )
 
     @Suppress("unused")
-    val tickMovementHandler = handler<SimulatedTickEvent> {
+    private val tickMovementHandler = handler<SimulatedTickEvent> {
         val currentGoal = this.getCurrentGoal()
 
         this.currentTarget = currentGoal
@@ -86,12 +86,13 @@ internal object NoFallMLG : Choice("MLG") {
         )
     }
 
-    val tickHandler = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         val target = currentTarget ?: return@tickHandler
 
         val rayTraceResult = raycast() ?: return@tickHandler
 
-        if (target.doesCorrespondTo(rayTraceResult)) {
+        if (!target.doesCorrespondTo(rayTraceResult)) {
             return@tickHandler
         }
 
@@ -172,7 +173,7 @@ internal object NoFallMLG : Choice("MLG") {
 
     private fun findPlacementPlanAtPos(pos: BlockPos, item: HotbarItemSlot): PlacementPlan? {
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             item.itemStack,
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,

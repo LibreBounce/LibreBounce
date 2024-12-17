@@ -28,8 +28,10 @@ import net.ccbluex.liquidbounce.render.GenericColorMode
 import net.ccbluex.liquidbounce.render.GenericRainbowColorMode
 import net.ccbluex.liquidbounce.render.GenericStaticColorMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextSanitizer
 import net.ccbluex.liquidbounce.utils.client.bypassesNameProtection
 import net.ccbluex.liquidbounce.utils.client.toText
+import net.ccbluex.liquidbounce.utils.kotlin.mapString
 import net.minecraft.text.CharacterVisitor
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Style
@@ -122,7 +124,7 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
             return original
         }
 
-        val output = StringBuilder()
+        val output = StringBuilder(32)
 
         val replacements = replacementMappings.findReplacements(original)
 
@@ -146,7 +148,7 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
             } else {
                 val maxCopyIdx = replacementStartIdx ?: original.length
 
-                output.append(original.substring(currentIndex, maxCopyIdx))
+                output.append(original.subSequence(currentIndex, maxCopyIdx))
 
                 currentIndex = maxCopyIdx
             }
@@ -156,22 +158,24 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
     }
 
     class NameProtectOrderedText(original: OrderedText) : OrderedText {
-        private val mappedCharacters = ArrayList<MappedCharacter>()
+        private val mappedCharacters = ArrayList<MappedCharacter>(64)
 
         init {
-            val originalCharacters = ArrayList<MappedCharacter>()
+            val originalCharacters = ArrayList<MappedCharacter>(64)
 
             original.accept { _, style, codePoint ->
-                originalCharacters.add(MappedCharacter(
+                originalCharacters += MappedCharacter(
                     style,
-                    style.color?.let { it.bypassesNameProtection } ?: false,
+                    style.color?.bypassesNameProtection ?: false,
                     codePoint
-                ))
+                )
 
                 true
             }
 
-            val text = originalCharacters.joinToString(separator = "") { it.codePoint.toChar().toString() }
+            val text = originalCharacters.mapString {
+                it.codePoint.toChar()
+            }
             val replacements = replacementMappings.findReplacements(text)
 
             var currReplacementIndex = 0
@@ -191,13 +195,11 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
 
                     val color = replacement.second.colorGetter()
 
-                    replacement.second.newName.forEachIndexed { idx, ch ->
-                        this.mappedCharacters.add(
-                            MappedCharacter(
-                                originalCharacters[currentIndex].style.withColor(color.toARGB()),
-                                false,
-                                ch.code
-                            )
+                    replacement.second.newName.mapTo(this.mappedCharacters) { ch ->
+                        MappedCharacter(
+                            originalCharacters[currentIndex].style.withColor(color.toARGB()),
+                            false,
+                            ch.code
                         )
                     }
 
@@ -227,14 +229,22 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
             return true
         }
 
-        data class MappedCharacter(val style: Style, val bypassesNameProtection: Boolean, val codePoint: Int)
+        @JvmRecord
+        private data class MappedCharacter(val style: Style, val bypassesNameProtection: Boolean, val codePoint: Int)
     }
 }
 
-fun Text.sanitizeWithNameProtect(): Text {
+/**
+ * Sanitizes texts which are sent to the client.
+ * 1. degenerates legacy formatting into new formatting [LegacyTextSanitizer]
+ * 2. applies [ModuleNameProtect] - if needed
+ */
+fun Text.sanitizeForeignInput(): Text {
+    val degeneratedText = LegacyTextSanitizer.SanitizedLegacyText(this)
+
     if (!ModuleNameProtect.running) {
-        return this
+        return degeneratedText.toText()
     }
 
-    return ModuleNameProtect.NameProtectOrderedText(this.asOrderedText()).toText()
+    return ModuleNameProtect.NameProtectOrderedText(degeneratedText).toText()
 }

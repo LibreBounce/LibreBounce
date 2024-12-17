@@ -172,15 +172,6 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
         return stack.getPotionEffects().any { foundTargetEffect(it, health) }
     }
 
-    private fun releaseUseKey() {
-        mc.options.useKey.isPressed = false
-    }
-
-    override fun disable() {
-        releaseUseKey()
-        super.disable()
-    }
-
     private fun isValidPotion(stack: ItemStack) =
         stack.item is SplashPotionItem || stack.item is LingeringPotionItem && allowLingering
 

@@ -504,5 +504,6 @@
   "liquidbounce.module.targetStrafe.description": "Опис цільового страфу",
   "liquidbounce.module.autoShop.description": "Опис автоматичного магазину",
   "liquidbounce.module.autoShop.messages.reloadSuccess": "Перезавантаження успішне",
-  "liquidbounce.module.autoShop.messages.loadError": "Помилка завантаження"
+  "liquidbounce.module.autoShop.messages.loadError": "Помилка завантаження",
+  "liquidbounce.module.autoPearl.description": "Прицілюється та кидає перлину по траєкторії ворожої перлини."
 }

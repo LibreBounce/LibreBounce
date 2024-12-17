@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.option.Perspective
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
@@ -60,6 +61,9 @@ class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : C
 @Nameable("keybindChange")
 @WebSocketEvent
 object KeybindChangeEvent: Event()
+
+@Nameable("keybindIsPressed")
+class KeybindIsPressedEvent(val keyBinding: KeyBinding, var isPressed: Boolean) : Event()
 
 @Nameable("useCooldown")
 class UseCooldownEvent(var cooldown: Int) : Event()

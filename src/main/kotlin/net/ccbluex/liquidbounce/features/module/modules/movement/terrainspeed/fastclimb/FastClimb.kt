@@ -30,7 +30,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.terrainspeed.Mo
 import net.ccbluex.liquidbounce.utils.block.getBlock
 import net.minecraft.block.LadderBlock
 import net.minecraft.block.VineBlock
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
 /**
@@ -72,11 +71,13 @@ internal object FastClimb : ToggleableConfigurable(ModuleTerrainSpeed, "FastClim
             if (player.isClimbing && mc.options.forwardKey.isPressed) {
                 val startPos = player.pos
 
+                val pos = player.blockPos.mutableCopy()
                 for (y in 1..8) {
-                    val block = BlockPos(player.blockPos.add(0, y, 0)).getBlock()
+                    pos.y++
+                    val block = pos.getBlock()
 
                     if (block is LadderBlock || block is VineBlock) {
-                        player.updatePosition(startPos.x, startPos.y.toInt() + y.toDouble(), startPos.z)
+                        player.updatePosition(startPos.x, startPos.y + y, startPos.z)
                     } else {
                         var x = 0.0
                         var z = 0.0
@@ -88,8 +89,7 @@ internal object FastClimb : ToggleableConfigurable(ModuleTerrainSpeed, "FastClim
                             else -> break
                         }
 
-                        player.updatePosition(startPos.x + x, startPos.y.toInt() + y.toDouble() + 1,
-                            startPos.z + z)
+                        player.updatePosition(startPos.x + x, startPos.y + y + 1, startPos.z + z)
                         break
                     }
                 }
