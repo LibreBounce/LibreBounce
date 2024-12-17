@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -66,7 +67,11 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
     private val lineColor by color("Line", Color4b.WHITE)
         .doNotIncludeAlways()
 
-    private val requiresKillAura by boolean("RequiresKillAura", true)
+    private object RequiresKillAura : ToggleableConfigurable(this, "RequiesKillAura", true) {
+        val breakEarly by boolean("BreakEarly", true)
+    }
+
+    private val requiresKillAura = tree(RequiresKillAura)
 
     private var ticksToSkip = 0
     private var tickBalance = 0f
@@ -126,11 +131,15 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
         // We do not want to tickbase if killaura is not ready to attack
         val breakRequirement = {
-            requiresKillAura && !(ModuleKillAura.running &&
-                ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))
+            requiresKillAura.enabled && requiresKillAura.breakEarly &&
+                !ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick)
         }
 
         if (breakRequirement()) {
+            return@tickHandler
+        }
+
+        if (requiresKillAura.enabled && !ModuleKillAura.running) {
             return@tickHandler
         }
 
