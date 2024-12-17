@@ -89,7 +89,7 @@ class MinimapHeightmapManager {
                 // The changed block is the world surface. If it is not a surface block anymore,
                 // we need to find a new surface block under it
                 if (!isSurface(pos, newState)) {
-                    calculateHeight(pos.x, pos.z)
+                    calculateHeight(pos.x, pos.z, maxY = currentHeight)
                 } else {
                     null
                 }
