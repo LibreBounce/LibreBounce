@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import it.unimi.dsi.fastutil.objects.ObjectFloatMutablePair
 import it.unimi.dsi.fastutil.objects.ObjectFloatPair
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
@@ -200,7 +201,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
                 }
 
                 val point = calculatePoint(camera, position.x, position.y, position.z)
-                ObjectFloatPair.of(point, alpha)
+                ObjectFloatMutablePair.of(point, alpha)
             }
 
             val interpolatedPos = entity.getLerpedPos(mc.renderTickCounter.getTickDelta(true))

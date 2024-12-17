@@ -21,19 +21,21 @@ package net.ccbluex.liquidbounce.utils.block.hole
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHoleESP.mc
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.block.MovableRegionScanner
 import net.ccbluex.liquidbounce.utils.block.Region
-import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.isEmpty
 import net.minecraft.util.math.BlockPos
 
-object HoleManager : EventListener {
+object HoleManager : EventListener, MinecraftShortcuts {
 
     internal val movableRegionScanner = MovableRegionScanner()
     private val activeModules = hashSetOf<HoleManagerSubscriber>()
     private val playerPos = BlockPos.Mutable()
+
+    override val running: Boolean
+        get() = activeModules.isNotEmpty()
 
     fun subscribe(subscriber: HoleManagerSubscriber) {
         activeModules += subscriber

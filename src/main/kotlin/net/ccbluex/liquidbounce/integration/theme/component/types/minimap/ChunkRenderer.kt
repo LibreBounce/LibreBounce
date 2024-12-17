@@ -99,8 +99,10 @@ object ChunkRenderer {
             Vec2i(1, -1),
         )
 
+        private val AIR_COLOR = Color4b(255, 207, 179)
+
         private fun getColor(x: Int, z: Int): Color4b {
-            val world = mc.world!!
+            val chunk = mc.world?.getChunk(x shr 4, z shr 4) ?: return AIR_COLOR
 
             val height = heightmapManager.getHeight(x, z)
 
@@ -126,16 +128,16 @@ object ChunkRenderer {
             val surfaceBlockPos = BlockPos(x, height, z)
             val surfaceBlockState: BlockState
             try {
-                surfaceBlockState = world.getBlockState(surfaceBlockPos)
+                surfaceBlockState = chunk.getBlockState(surfaceBlockPos)
             } catch(_: net.minecraft.world.chunk.EntryMissingException) {
                 return Color4b(255, 207, 179)
             }
 
             if (surfaceBlockState.isAir) {
-                return Color4b(255, 207, 179)
+                return AIR_COLOR
             }
 
-            val baseColor = surfaceBlockState.getMapColor(world, surfaceBlockPos).getRenderColor(Brightness.HIGH)
+            val baseColor = surfaceBlockState.getMapColor(chunk, surfaceBlockPos).getRenderColor(Brightness.HIGH)
 
             val color = Color(baseColor)
 

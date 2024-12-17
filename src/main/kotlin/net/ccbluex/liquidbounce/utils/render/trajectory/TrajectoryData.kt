@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.module.modules.render.trajectories
+package net.ccbluex.liquidbounce.utils.render.trajectory
 
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.minecraft.entity.Entity

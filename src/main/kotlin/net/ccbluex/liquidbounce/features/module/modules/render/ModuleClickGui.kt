@@ -179,6 +179,13 @@ object ModuleClickGui :
         }
     }
 
+    @Suppress("unused")
+    private val clientLanguageChangedHandler = handler<ClientLanguageChangedEvent> {
+        if (mc.currentScreen !is ClickScreen) {
+            reloadView()
+        }
+    }
+
     /**
      * An empty screen that acts as hint when to draw the clickgui
      */

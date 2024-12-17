@@ -615,5 +615,6 @@
   "liquidbounce.module.packetLogger.description": "Zeigt alle Pakete und deren Felder.",
   "liquidbounce.module.packetLogger.messages.send": "Sendet",
   "liquidbounce.module.packetLogger.messages.receive": "Empfängt",
-  "liquidbounce.module.packetLogger.messages.canceled": "ab­ge­bro­chen"
+  "liquidbounce.module.packetLogger.messages.canceled": "ab­ge­bro­chen",
+  "liquidbounce.module.autoPearl.description": "Zielt und wirft eine Perl auf die Flugbahn der feindlichen Perl."
 }

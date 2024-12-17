@@ -51,6 +51,8 @@ import net.minecraft.world.RaycastContext
 import kotlin.math.ceil
 import kotlin.math.floor
 
+val DEFAULT_BLOCK_STATE: BlockState = Blocks.AIR.defaultState
+
 fun Vec3i.toBlockPos() = BlockPos(this)
 
 fun BlockPos.getState() = mc.world?.getBlockState(this)
