@@ -67,16 +67,16 @@ object CommandPanic : CommandFactory {
                     }
                 }
 
-                AutoConfig.withLoading {
-                    runCatching {
+                runCatching {
+                    AutoConfig.withLoading {
                         for (module in modules) {
                             module.enabled = false
                         }
-                    }.onSuccess {
-                        chat(regular(msg), command)
-                    }.onFailure {
-                        throw CommandException(command.result("panicFailed"))
                     }
+                }.onSuccess {
+                    chat(regular(msg), command)
+                }.onFailure {
+                    throw CommandException(command.result("panicFailed"))
                 }
             }
             .build()
