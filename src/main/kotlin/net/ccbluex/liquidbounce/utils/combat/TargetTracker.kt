@@ -101,7 +101,7 @@ open class TargetTracker(
         // Update max distance squared
         maximumDistance = entities.minOf { it.squaredBoxedDistanceTo(player) }
 
-        return entities.asIterable()
+        return entities
     }
 
     fun cleanup() {

@@ -43,7 +43,7 @@ class ChunkUnloadEvent(val x: Int, val z: Int) : Event()
 class ChunkLoadEvent(val x: Int, val z: Int) : Event()
 
 @Nameable("chunkDeltaUpdate")
-class ChunkDeltaUpdateEvent(val packet: ChunkDeltaUpdateS2CPacket) : Event()
+class ChunkDeltaUpdateEvent(val x: Int, val z: Int) : Event()
 
 @Nameable("blockChange")
 class BlockChangeEvent(val blockPos: BlockPos, val newState: BlockState) : Event()

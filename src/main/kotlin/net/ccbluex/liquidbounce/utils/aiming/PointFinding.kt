@@ -1,21 +1,28 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.utils.kotlin.step
-import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
+import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProjectileAimbot
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.NormalizedPlane
 import net.ccbluex.liquidbounce.utils.math.geometry.PlaneSection
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
+import net.minecraft.entity.projectile.ArrowEntity
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
+import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.RaycastContext
 import org.joml.Matrix3f
 import org.joml.Vector3f
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
-private val Box.edgePoints: Array<Vec3d>
+val Box.edgePoints: Array<Vec3d>
     get() = arrayOf(
         Vec3d(minX, minY, minZ),
         Vec3d(minX, minY, maxZ),
@@ -27,7 +34,7 @@ private val Box.edgePoints: Array<Vec3d>
         Vec3d(maxX, maxY, maxZ),
     )
 
-private fun Vec3d.moveTowards(otherPoint: Vec3d, fraction: Double): Vec3d {
+fun Vec3d.moveTowards(otherPoint: Vec3d, fraction: Double): Vec3d {
     val direction = otherPoint - this
 
     return this + direction.multiply(fraction)
@@ -50,11 +57,37 @@ fun getRotationMatricesForVec(vec: Vec3d): Pair<Matrix3f, Matrix3f> {
 }
 
 /**
- * Finds the minimal plane section which covers all of the [targetBox] from the perspective of the [virtualEye].
+ * Projects points onto the [targetBox]. The points are uniformly distributed from the perspective of [virtualEye].
+ *
+ * @return a list of projected points, or null if the virtual eye is inside the target box.
  */
-fun projectPointsOnBox(virtualEye: Vec3d, targetBox: Box): ArrayList<Vec3d>? {
-    if (targetBox.contains(virtualEye)) {
+fun projectPointsOnBox(virtualEye: Vec3d, targetBox: Box, maxPoints: Int = 128): ArrayList<Vec3d>? {
+    val list = ArrayList<Vec3d>()
+
+    val success = projectPointsOnBox(virtualEye, targetBox, maxPoints) {
+        list.add(it)
+    }
+
+    if (!success) {
         return null
+    }
+
+    return list
+}
+
+/**
+ * Projects points onto the [targetBox]. The points are uniformly distributed from the perspective of [virtualEye].
+ *
+ * @return `false` if the virtual eye is inside the target box.
+ */
+inline fun projectPointsOnBox(
+    virtualEye: Vec3d,
+    targetBox: Box,
+    maxPoints: Int = 128,
+    consumer: (Vec3d) -> Unit
+): Boolean {
+    if (targetBox.contains(virtualEye)) {
+        return false
     }
 
     val playerToBoxLine = Line(position = virtualEye, direction = targetBox.center - virtualEye)
@@ -92,18 +125,90 @@ fun projectPointsOnBox(virtualEye: Vec3d, targetBox: Box): ArrayList<Vec3d>? {
 
     val planeSection = PlaneSection(posVec, dirVecY, dirVecZ)
 
-    val points = ArrayList<Vec3d>()
-
-    planeSection.castPointsOnUniformly(128) { point ->
+    planeSection.castPointsOnUniformly(maxPoints) { point ->
         // Extent the point from the face on.
         val pointExtended = point.moveTowards(virtualEye, -100.0)
 
         val pos = targetBox.raycast(virtualEye, pointExtended).getOrNull() ?: return@castPointsOnUniformly
 
-        points.add(pos)
+        consumer(pos)
     }
 
-    return points
+    return true
 }
 
-private fun Vector3f.toVec3d(): Vec3d = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
+/**
+ * Finds a point that is visible from the virtual eyes.
+ *
+ * ## Algorithm
+ * 1. Projects points on the box from the virtual eyes.
+ * 2. Sorts the points by distance to the box center.
+ * 3. For each point:
+ *      - Creates a ray starting from the point, extending for twice the range.
+ *      - Raycasts the ray against the box to find the intersection point.
+ *      - Checks if the intersection point is within the range and satisfies the [visibilityPredicate].
+ * 4. Returns the first visible point found, or null if no point is visible.
+ *
+ * @param rangeToTest The maximum distance to test for visibility.
+ * @param visibilityPredicate An optional predicate to determine if a given point is visible
+ * @return the best visible spot found or `null`
+ */
+@Suppress("detekt:complexity.LongParameterList")
+fun findVisiblePointFromVirtualEye(
+    virtualEyes: Vec3d,
+    box: Box,
+    rangeToTest: Double,
+    visibilityPredicate: VisibilityPredicate = ArrowVisibilityPredicate,
+): Vec3d? {
+    val points = projectPointsOnBox(virtualEyes, box) ?: return null
+
+    val debugCollection = ModuleDebug.DebugCollection(points.map { ModuleDebug.DebuggedPoint(it, Color4b.BLUE, 0.01) })
+
+    ModuleDebug.debugGeometry(ModuleProjectileAimbot, "points", debugCollection)
+
+    val rays = ArrayList<ModuleDebug.DebuggedGeometry>()
+
+    val center = box.center
+    val sortedPoints = points.sortedBy { it.distanceTo(center) }
+
+    for (spot in sortedPoints) {
+        val vecFromEyes = spot - virtualEyes
+        val raycastTarget = vecFromEyes * 2.0 + virtualEyes
+        val spotOnBox = box.raycast(virtualEyes, raycastTarget).getOrNull() ?: continue
+
+        val rayStart = spotOnBox.subtract(vecFromEyes.normalize().multiply(rangeToTest))
+
+        val visible = visibilityPredicate.isVisible(rayStart, spotOnBox)
+
+        rays.add(ModuleDebug.DebuggedLineSegment(rayStart, spotOnBox, if (visible) Color4b.GREEN else Color4b.RED))
+
+        if (visible) {
+            ModuleDebug.debugGeometry(ModuleProjectileAimbot, "rays", ModuleDebug.DebugCollection(rays))
+            return spotOnBox
+        }
+    }
+
+    ModuleDebug.debugGeometry(ModuleProjectileAimbot, "rays", ModuleDebug.DebugCollection(rays))
+
+    return null
+}
+
+object ArrowVisibilityPredicate : VisibilityPredicate {
+    override fun isVisible(eyesPos: Vec3d, targetSpot: Vec3d): Boolean {
+        val arrowEntity = ArrowEntity(
+            world, eyesPos.x, targetSpot.y, targetSpot.z, ItemStack(Items.ARROW),
+            null)
+
+        return world.raycast(
+            RaycastContext(
+                eyesPos,
+                targetSpot,
+                RaycastContext.ShapeType.COLLIDER,
+                RaycastContext.FluidHandling.NONE,
+                arrowEntity
+            )
+        )?.let { it.type == HitResult.Type.MISS } ?: true
+    }
+}
+
+fun Vector3f.toVec3d(): Vec3d = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())

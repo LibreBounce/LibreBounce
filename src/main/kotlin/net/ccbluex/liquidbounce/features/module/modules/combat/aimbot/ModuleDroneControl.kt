@@ -1,19 +1,21 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.aimbot
 
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.TrajectoryInfo
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
+import net.ccbluex.liquidbounce.utils.entity.ConstantPositionExtrapolation
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.Entity
 import net.minecraft.util.Hand
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.glfw.GLFW
 
-object ModuleDroneControl : Module("DroneControl", Category.COMBAT) {
+object ModuleDroneControl : ClientModule("DroneControl", Category.COMBAT) {
 
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
 
@@ -36,9 +38,14 @@ object ModuleDroneControl : Module("DroneControl", Category.COMBAT) {
     var currentTarget: Pair<Entity, Vec3d>? = null
     var mayShoot = false
 
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         val currentRotation = currentTarget?.let { (entity, pos) ->
-            ModuleProjectileAimbot.aimFor(pos, entity.dimensions, TrajectoryInfo.BOW_FULL_PULL)
+            SituationalProjectileAngleCalculator.calculateAngleFor(
+                TrajectoryInfo.BOW_FULL_PULL,
+                sourcePos = player.eyePos,
+                targetPosFunction = ConstantPositionExtrapolation(pos),
+                targetShape = entity.dimensions
+            )
         }
 
         if (currentRotation != null) {

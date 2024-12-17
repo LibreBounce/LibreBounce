@@ -175,8 +175,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleKeepSprint,
             ModuleMaceKill,
             ModuleNoMissCooldown,
-            ModuleProjectileAimbot,
-            ModuleDroneControl,
 
             // Exploit
             ModuleAbortBreaking,
