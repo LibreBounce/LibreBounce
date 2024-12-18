@@ -20,13 +20,15 @@ object MiscUtils : MinecraftInstance() {
     fun showErrorPopup(title: String, message: String) =
         JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE)
 
+    fun Throwable.showErrorPopup() = showErrorPopup(javaClass.simpleName, localizedMessage)
+
     fun showURL(url: String) =
         try {
             Desktop.getDesktop().browse(URI(url))
         } catch (e: IOException) {
-            e.printStackTrace()
+            e.showErrorPopup()
         } catch (e: URISyntaxException) {
-            e.printStackTrace()
+            e.showErrorPopup()
         }
 
     fun openFileChooser(fileFiler: FileFilter? = null): File? {
