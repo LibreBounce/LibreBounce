@@ -169,7 +169,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
 
             2 -> {
                 val file = MiscUtils.openFileChooser(
-                    FileNameExtensionFilter("Image And Shader (*.png, *.frag *.glsl *.shader)", "png", "frag", "glsl", "shader")
+                    FileNameExtensionFilter("Image and Shader (*.png, *.frag *.glsl *.shader)", "png", "frag", "glsl", "shader")
                 ) ?: return
 
                 if (file.isDirectory) return
