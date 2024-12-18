@@ -126,7 +126,8 @@ jar {
             "ModSide": "CLIENT",
             "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
             "TweakOrder": "0",
-            "FMLAT": "liquidbounce_at.cfg"
+            "FMLAT": "liquidbounce_at.cfg",
+            "Main-Class": "net.ccbluex.liquidinstruction.LiquidInstructionKt",
     )
 
     enabled = false
