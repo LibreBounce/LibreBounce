@@ -10,33 +10,41 @@ import net.ccbluex.liquidbounce.api.ClientUpdate
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.glScalef
 import java.awt.Color
 
-class GuiUpdate : GuiScreen() {
+class GuiUpdate : AbstractScreen() {
 
     override fun initGui() {
         val j = height / 4 + 48
 
-        buttonList.run {
-            add(GuiButton(1, width / 2 + 2, j + 24 * 2, 98, 20, "Ignore"))
-            add(GuiButton(2, width / 2 - 100, j + 24 * 2, 98, 20, "Go to download page"))
-        }
+        +GuiButton(1, width / 2 + 2, j + 24 * 2, 98, 20, "Ignore")
+        +GuiButton(2, width / 2 - 100, j + 24 * 2, 98, 20, "Go to download page")
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) = assumeNonVolatile {
         drawBackground(0)
 
         if (!IN_DEV) {
-            Fonts.font35.drawCenteredString("${ClientUpdate.newestVersion?.lbVersion} got released!", width / 2f, height / 8f + 80, 0xffffff)
+            Fonts.font35.drawCenteredString(
+                "${ClientUpdate.newestVersion?.lbVersion} got released!",
+                width / 2f,
+                height / 8f + 80,
+                0xffffff
+            )
         } else {
             Fonts.font35.drawCenteredString("New build available!", width / 2f, height / 8f + 80, 0xffffff)
         }
 
-        Fonts.font35.drawCenteredString("Press \"Download\" to visit our website or dismiss this message by pressing \"OK\".", width / 2f, height / 8f + 80 + Fonts.font35.fontHeight, 0xffffff)
+        Fonts.font35.drawCenteredString(
+            "Press \"Download\" to visit our website or dismiss this message by pressing \"OK\".",
+            width / 2f,
+            height / 8f + 80 + Fonts.font35.fontHeight,
+            0xffffff
+        )
 
         super.drawScreen(mouseX, mouseY, partialTicks)
 

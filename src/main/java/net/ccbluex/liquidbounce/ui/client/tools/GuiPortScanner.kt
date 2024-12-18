@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.TabUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
@@ -23,7 +24,7 @@ import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JOptionPane
 
-class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
+class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private val ports = LinkedHashSet<Int>()
 
@@ -79,9 +80,9 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
             }
         }
 
-        buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start").also { buttonToggle = it })
-        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 120, "Back"))
-        buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 155, "Export"))
+        buttonToggle = +GuiButton(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start")
+        +GuiButton(0, width / 2 - 100, height / 4 + 120, "Back")
+        +GuiButton(2, width / 2 - 100, height / 4 + 155, "Export")
 
         super.initGui()
     }

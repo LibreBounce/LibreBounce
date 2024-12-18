@@ -14,12 +14,13 @@ import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.requestStream
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.CustomTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiSlot
@@ -33,7 +34,7 @@ import java.util.*
 import javax.imageio.ImageIO
 import kotlin.math.sin
 
-class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
+class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
     private val DECIMAL_FORMAT = NumberFormat.getInstance(Locale.US) as DecimalFormat
     private lateinit var list: GuiList
 
@@ -44,7 +45,7 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
         list = GuiList(this)
         list.registerScrollButtons(7, 8)
 
-        buttonList.add(GuiButton(1, width / 2 - 100, height - 30, "Back"))
+        +GuiButton(1, width / 2 - 100, height - 30, "Back")
 
         failed = false
 
@@ -175,7 +176,8 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
         try {
             val jsonParser = JsonParser()
 
-            val gitHubContributors = PRETTY_GSON.fromJson(get("https://api.github.com/repos/CCBlueX/LiquidBounce/stats/contributors").first,
+            val gitHubContributors = PRETTY_GSON.fromJson(
+                get("https://api.github.com/repos/CCBlueX/LiquidBounce/stats/contributors").first,
                 Array<GitHubContributor>::class.java
             )
 
@@ -184,7 +186,8 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
                 return
             }
 
-            val additionalInformation = jsonParser.parse(get("https://raw.githubusercontent.com/CCBlueX/LiquidCloud/master/LiquidBounce/contributors.json").first).asJsonObject
+            val additionalInformation =
+                jsonParser.parse(get("https://raw.githubusercontent.com/CCBlueX/LiquidCloud/master/LiquidBounce/contributors.json").first).asJsonObject
 
             val credits = mutableListOf<Credit>()
 
@@ -207,7 +210,8 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
                     commits += week.commits
                 }
 
-                credits += Credit(author.name, author.avatarUrl, null,
+                credits += Credit(
+                    author.name, author.avatarUrl, null,
                     additions, deletions, commits,
                     contributorInformation?.teamMember ?: false,
                     contributorInformation?.contributions ?: emptyList()
@@ -230,7 +234,10 @@ class GuiContributors(private val prevGui: GuiScreen) : GuiScreen() {
 
             for (credit in credits) {
                 try {
-                    requestStream("${credit.avatarUrl}?s=${fontRendererObj.FONT_HEIGHT * 4}", "GET").let { (stream) ->
+                    requestStream(
+                        "${credit.avatarUrl}?s=${fontRendererObj.FONT_HEIGHT * 4}",
+                        "GET"
+                    ).let { (stream, _) ->
                         stream.use {
                             credit.avatar = CustomTexture(ImageIO.read(it))
                         }

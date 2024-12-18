@@ -7,17 +7,16 @@ package net.ccbluex.liquidbounce.ui.client.tools
 
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
 
-class GuiTools(private val prevGui: GuiScreen) : GuiScreen() {
+class GuiTools(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun initGui() {
-        buttonList.run {
-            add(GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Port Scanner"))
-            add(GuiButton(0, width / 2 - 100, height / 4 + 48 + 25 * 2 + 5, "Back"))
-        }
+        +GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Port Scanner")
+        +GuiButton(0, width / 2 - 100, height / 4 + 48 + 25 * 2 + 5, "Back")
     }
 
     override fun actionPerformed(button: GuiButton) {
