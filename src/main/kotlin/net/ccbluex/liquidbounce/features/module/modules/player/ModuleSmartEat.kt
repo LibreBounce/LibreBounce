@@ -38,6 +38,7 @@ import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.item.ToolItem
 import net.minecraft.item.consume.UseAction
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Identifier
@@ -152,6 +153,11 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
             val alwaysEdible = currentFood.itemStack.foodComponent?.canAlwaysEat == false
 
             if (!player.canConsume(false) && alwaysEdible) {
+                return@handler
+            }
+
+            // Only use silent offhand if we have tools in hand.
+            if (player.mainHandStack.item !is ToolItem) {
                 return@handler
             }
 

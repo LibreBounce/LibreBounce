@@ -76,23 +76,21 @@ fun putSettings(requestObject: RequestObject): FullHttpResponse {
 @Suppress("UNUSED_PARAMETER")
 fun postPanic(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
-        AutoConfig.loadingNow = true
+        AutoConfig.withLoading {
+            runCatching {
+                for (module in ModuleManager) {
+                    if (module.category == Category.RENDER || module.category == Category.CLIENT) {
+                        continue
+                    }
 
-        runCatching {
-            for (module in ModuleManager) {
-                if (module.category == Category.RENDER || module.category == Category.CLIENT) {
-                    continue
+                    module.enabled = false
                 }
 
-                module.enabled = false
+                ConfigSystem.storeConfigurable(modulesConfigurable)
+            }.onFailure {
+                logger.error("Failed to panic disable modules", it)
             }
-
-            ConfigSystem.storeConfigurable(modulesConfigurable)
-        }.onFailure {
-            logger.error("Failed to panic disable modules", it)
         }
-
-        AutoConfig.loadingNow = false
     }
     return httpOk(JsonObject())
 }

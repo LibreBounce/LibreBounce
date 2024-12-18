@@ -346,7 +346,7 @@ fun raytraceBox(
         bestRotationTracker,
     )
 
-    scanPositionsInBox(box) { spot ->
+    scanBoxPoints(eyes, box) { spot ->
         considerSpot(
             spot,
             box,
@@ -402,12 +402,12 @@ fun canSeeBox(
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
-    scanPositionsInBox(box) { posInBox ->
+    scanBoxPoints(eyes, box) { posInBox ->
         // skip because of out of range
         val distance = eyes.squaredDistanceTo(posInBox)
 
         if (distance > rangeSquared) {
-            return@scanPositionsInBox
+            return@scanBoxPoints
         }
 
         // check if target is visible to eyes
@@ -420,7 +420,7 @@ fun canSeeBox(
 
         // skip because not visible in range
         if (!visible && distance > wallsRangeSquared) {
-            return@scanPositionsInBox
+            return@scanBoxPoints
         }
 
         return true
@@ -429,10 +429,23 @@ fun canSeeBox(
     return false
 }
 
-private inline fun scanPositionsInBox(
+private inline fun scanBoxPoints(
+    eyes: Vec3d,
     box: Box,
-    step: Double = 0.1,
     fn: (Vec3d) -> Unit,
+) {
+    val isOutsideBox = projectPointsOnBox(eyes, box, maxPoints = 256, fn)
+
+    // We cannot project points on something if we are inside the hitbox
+    if (!isOutsideBox) {
+        scanBoxPoints3D(0.1, box, fn)
+    }
+}
+
+private inline fun scanBoxPoints3D(
+    step: Double,
+    box: Box,
+    fn: (Vec3d) -> Unit
 ) {
     for ((x, y, z) in Vec3d(0.1, 0.1, 0.1)..Vec3d(0.9, 0.9, 0.9) step step) {
         val vec3 = Vec3d(

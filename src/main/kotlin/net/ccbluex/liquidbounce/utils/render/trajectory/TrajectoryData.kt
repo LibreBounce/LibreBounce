@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.utils.render.trajectory
 
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.client.player
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.AbstractFireballEntity
@@ -13,11 +14,14 @@ object TrajectoryData {
     fun getRenderedTrajectoryInfo(player: PlayerEntity, item: Item, alwaysShowBow: Boolean): TrajectoryInfo? {
         return when (item) {
             is BowItem -> {
-                val v0 = calculateInitialVelocityOrArrow(player, alwaysShowBow) ?: return null
+                val useTime = if (alwaysShowBow && player.itemUseTime < 1) {
+                    40
+                } else {
+                    player.itemUseTime
+                }
 
-                TrajectoryInfo.BOW_FULL_PULL.copy(initialVelocity = v0)
+                TrajectoryInfo.bowWithUsageDuration(useTime)
             }
-
             is CrossbowItem -> TrajectoryInfo.BOW_FULL_PULL
             is FishingRodItem -> TrajectoryInfo.FISHING_ROD
             is ThrowablePotionItem -> TrajectoryInfo.POTION
@@ -71,23 +75,6 @@ object TrajectoryData {
     }
 }
 
-private fun calculateInitialVelocityOrArrow(player: PlayerEntity, alwaysShowBow: Boolean): Double? {
-    val inUseTime = player.itemUseTime
-
-    if (alwaysShowBow && inUseTime < 1.0F) {
-        return 1.0
-    }
-
-    // Calculate power of bow
-    var power = player.itemUseTime / 20f
-    power = (power * power + power * 2F) / 3F
-
-    if (power < 0.1F) {
-        return null
-    }
-
-    return power.coerceAtMost(1.0F) * TrajectoryInfo.BOW_FULL_PULL.initialVelocity
-}
 
 data class TrajectoryInfo(
     val gravity: Double,
@@ -111,5 +98,19 @@ data class TrajectoryInfo(
         val BOW_FULL_PULL = PERSISTENT.copy(initialVelocity = 3.0)
         val FIREBALL = TrajectoryInfo(gravity = 0.0, hitboxRadius = 1.0)
         val WIND_CHARGE = TrajectoryInfo(gravity = 0.0, hitboxRadius = 1.0, copiesPlayerVelocity = false)
+
+        fun bowWithUsageDuration(usageDuration: Int = player.itemUseTime): TrajectoryInfo? {
+            // Calculate the power of bow
+            var power = usageDuration / 20f
+            power = (power * power + power * 2F) / 3F
+
+            if (power < 0.1F) {
+                return null
+            }
+
+            val v0 = power.coerceAtMost(1.0F) * BOW_FULL_PULL.initialVelocity
+
+            return BOW_FULL_PULL.copy(initialVelocity = v0)
+        }
     }
 }

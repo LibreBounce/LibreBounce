@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
@@ -24,6 +25,7 @@ import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity
@@ -31,8 +33,6 @@ import net.minecraft.item.Items
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.*
 
@@ -163,7 +163,11 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             return
         }
 
-        val rotation = calculatePearlTrajectory(player.eyePos, destination) ?: return
+        val rotation = SituationalProjectileAngleCalculator.calculateAngleForStaticTarget(
+            TrajectoryInfo.GENERIC,
+            destination,
+            EntityDimensions.fixed(1.0F, 0.0F)
+        ) ?: return
 
         if (!canThrow(rotation, destination)) {
             return
@@ -204,42 +208,6 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         ).runSimulation(MAX_SIMULATED_TICKS)?.pos ?: return false
 
         return !Limits.enabled || Limits.destDistance > destination.distanceTo(simulatedDestination)
-    }
-
-    private fun calculatePearlTrajectory(startPos: Vec3d, targetPos: Vec3d): Rotation? {
-        val diff: Vec3d = targetPos.subtract(startPos)
-
-        val horizontalDistance = MathHelper.sqrt((diff.x * diff.x + diff.z * diff.z).toFloat()).toDouble()
-        val pearlInfo = TrajectoryInfo.GENERIC
-
-        val velocity = pearlInfo.initialVelocity
-        val gravity = pearlInfo.gravity
-
-        val velocity2 = velocity * velocity
-        val velocity4 = velocity2 * velocity2
-        val y = diff.y
-
-        val sqrt = velocity4 - gravity * (gravity * horizontalDistance * horizontalDistance + 2 * y * velocity2)
-
-        if (sqrt < 0) {
-            return null
-        }
-
-        val pitchRad = atan((velocity2 - sqrt(sqrt)) / (gravity * horizontalDistance))
-
-        val yawRad = atan2(diff.z, diff.x)
-
-        val pitch = Math.toDegrees(pitchRad).toFloat()
-        var yaw = Math.toDegrees(yawRad).toFloat()
-
-        yaw -= 90f
-        if (yaw > 180.0f) {
-            yaw -= 360.0f
-        } else if (yaw < -180.0f) {
-            yaw += 360.0f
-        }
-
-        return Rotation(yaw, -pitch)
     }
 
     private fun runSimulation(

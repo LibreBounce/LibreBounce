@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
+import net.minecraft.client.MinecraftClient
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 

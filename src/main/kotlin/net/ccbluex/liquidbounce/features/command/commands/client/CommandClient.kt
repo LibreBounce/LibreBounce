@@ -517,12 +517,12 @@ object CommandClient : CommandFactory {
     private fun resetCommand() = CommandBuilder
         .begin("reset")
         .handler { command, _ ->
-            AutoConfig.loadingNow = true
-            ModuleManager
-                // TODO: Remove when HUD no longer contains the Element Configuration
-                .filter { module -> module !is ModuleHud  }
-                .forEach { it.restore() }
-            AutoConfig.loadingNow = false
+            AutoConfig.withLoading {
+                ModuleManager
+                    // TODO: Remove when HUD no longer contains the Element Configuration
+                    .filter { module -> module !is ModuleHud  }
+                    .forEach { it.restore() }
+            }
             chat(regular(command.result("successfullyReset")))
         }
         .build()

@@ -26,6 +26,7 @@ import net.minecraft.world.chunk.Chunk
 import kotlin.math.max
 import kotlin.math.min
 
+@Suppress("detekt:TooManyFunctions")
 class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<BlockPos> by BlockPos.iterate(from, to) {
 
     override val endInclusive: BlockPos
@@ -153,6 +154,21 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
                 min(this.to.x, currentRegion.to.x),
                 min(this.to.y, currentRegion.to.y),
                 min(this.to.z, currentRegion.to.z)
+            )
+        )
+    }
+
+    fun union(currentRegion: Region): Region {
+        return Region(
+            BlockPos(
+                min(this.from.x, currentRegion.from.x),
+                min(this.from.y, currentRegion.from.y),
+                min(this.from.z, currentRegion.from.z)
+            ),
+            BlockPos(
+                max(this.to.x, currentRegion.to.x),
+                max(this.to.y, currentRegion.to.y),
+                max(this.to.z, currentRegion.to.z)
             )
         )
     }

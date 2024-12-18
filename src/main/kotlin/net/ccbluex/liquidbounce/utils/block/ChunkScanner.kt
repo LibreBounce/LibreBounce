@@ -291,7 +291,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
         fun recordBlock(pos: BlockPos, state: BlockState, cleared: Boolean)
 
         /**
-         * Is called when a chunk is loaded or entirely updated.
+         * Is called when a chunk is initially loaded or entirely updated.
          */
         fun chunkUpdate(x: Int, z: Int)
         fun clearChunk(x: Int, z: Int)
