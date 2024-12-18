@@ -516,13 +516,22 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     val onTick = handler<GameTickEvent> {
         val target = placeRotation?.placeInfo
 
+        val raycastProperly = !(scaffoldMode == "Expand" && expandLength > 1 || shouldGoDown) && options.rotationsActive
+
+        /**
+         * Calculate block raytracing process once to simulate proper vanilla ray-cast update logic.
+         *
+         * @see net.minecraft.client.Minecraft.runTick Line 1345
+         */
+        val raycast = performBlockRaytrace(currRotation, mc.playerController.blockReachDistance)
+
         if (extraClicks) {
             val doubleClick = if (simulateDoubleClicking) RandomUtils.nextInt(-1, 1) else 0
 
             repeat(extraClick.clicks + doubleClick) {
                 extraClick.clicks--
 
-                doPlaceAttempt()
+                doPlaceAttempt(raycast)
             }
         }
 
@@ -533,9 +542,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             return@handler
         }
 
-        val raycastProperly = !(scaffoldMode == "Expand" && expandLength > 1 || shouldGoDown) && options.rotationsActive
-
-        performBlockRaytrace(currRotation, mc.playerController.blockReachDistance).let {
+        raycast.let {
             if (!options.rotationsActive || it != null && it.blockPos == target.blockPos && (!raycastProperly || it.sideHit == target.enumFacing)) {
                 val result = if (raycastProperly && it != null) {
                     PlaceInfo(it.blockPos, it.sideHit, it.hitVec)
@@ -715,7 +722,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
     }
 
-    private fun doPlaceAttempt() {
+    private fun doPlaceAttempt(raytrace: MovingObjectPosition?) {
         val player = mc.thePlayer ?: return
         val world = mc.theWorld ?: return
 
@@ -725,9 +732,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             return
         }
 
-        val block = stack.item as ItemBlock
+        raytrace ?: return
 
-        val raytrace = performBlockRaytrace(currRotation, mc.playerController.blockReachDistance) ?: return
+        val block = stack.item as ItemBlock
 
         val canPlaceOnUpperFace = block.canPlaceBlockOnSide(
             world, raytrace.blockPos, EnumFacing.UP, player, stack
