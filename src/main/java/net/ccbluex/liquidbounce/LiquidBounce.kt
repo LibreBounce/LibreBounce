@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce
 
+import com.formdev.flatlaf.themes.FlatMacLightLaf
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.loadSettings
@@ -56,6 +57,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.ccbluex.liquidbounce.utils.timing.WaitMsUtils
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
+import javax.swing.UIManager
 
 object LiquidBounce {
 
@@ -113,6 +115,10 @@ object LiquidBounce {
         LOGGER.info("Starting $CLIENT_NAME $clientVersionText $clientCommit, by $CLIENT_AUTHOR")
 
         try {
+            // Change theme of Swing
+            // TODO: make it configurable
+            UIManager.setLookAndFeel(FlatMacLightLaf())
+
             // Load languages
             loadLanguages()
 

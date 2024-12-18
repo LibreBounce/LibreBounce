@@ -24,6 +24,7 @@ import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.Display
 import java.nio.file.Files
+import javax.swing.filechooser.FileNameExtensionFilter
 
 class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
 
@@ -167,7 +168,9 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
             }
 
             2 -> {
-                val file = MiscUtils.openFileChooser() ?: return
+                val file = MiscUtils.openFileChooser(
+                    FileNameExtensionFilter("Image And Shader (*.png, *.frag *.glsl *.shader)", "png", "frag", "glsl", "shader")
+                ) ?: return
 
                 if (file.isDirectory) return
 
@@ -193,7 +196,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : GuiScreen() {
 
                     // Load new background
                     try {
-                        background = Background.createBackground(destFile)
+                        background = Background.fromFile(destFile)
                     } catch (_: IllegalArgumentException) {
                         background = null
                         if (backgroundImageFile.exists()) backgroundImageFile.deleteRecursively()

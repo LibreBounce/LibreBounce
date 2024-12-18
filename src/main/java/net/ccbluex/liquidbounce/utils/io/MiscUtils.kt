@@ -14,6 +14,7 @@ import java.net.URISyntaxException
 import javax.swing.JFileChooser
 import javax.swing.JFrame
 import javax.swing.JOptionPane
+import javax.swing.filechooser.FileFilter
 
 object MiscUtils : MinecraftInstance() {
     fun showErrorPopup(title: String, message: String) =
@@ -28,11 +29,12 @@ object MiscUtils : MinecraftInstance() {
             e.printStackTrace()
         }
 
-    fun openFileChooser(): File? {
+    fun openFileChooser(fileFiler: FileFilter? = null): File? {
         if (mc.isFullScreen) mc.toggleFullscreen()
 
         val fileChooser = JFileChooser()
         fileChooser.fileSelectionMode = JFileChooser.FILES_ONLY
+        fileFiler?.let { fileChooser.fileFilter = it }
 
         val frame = JFrame()
         frame.isVisible = true
@@ -45,11 +47,12 @@ object MiscUtils : MinecraftInstance() {
         return if (action == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile else null
     }
 
-    fun saveFileChooser(): File? {
+    fun saveFileChooser(fileFiler: FileFilter? = null): File? {
         if (mc.isFullScreen) mc.toggleFullscreen()
 
         val fileChooser = JFileChooser()
         fileChooser.fileSelectionMode = JFileChooser.FILES_ONLY
+        fileFiler?.let { fileChooser.fileFilter = it }
 
         val frame = JFrame()
         frame.isVisible = true
