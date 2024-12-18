@@ -83,7 +83,7 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
         val target = targetTracker.lockedOnTarget ?: return@handler
 
         renderEnvironmentForGUI {
-            targetRenderer.render(this, target, event.tickDelta)
+            targetRenderer.render(this, target, event.delta)
         }
     }
 
