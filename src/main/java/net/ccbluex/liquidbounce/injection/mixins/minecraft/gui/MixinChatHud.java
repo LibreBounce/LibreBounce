@@ -20,13 +20,16 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
+import net.ccbluex.liquidbounce.interfaces.ChatHudAddition;
 import net.ccbluex.liquidbounce.interfaces.ChatMessageAddition;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.text.OrderedText;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -35,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ChatHud.class)
-public abstract class MixinChatHud {
+public abstract class MixinChatHud implements ChatHudAddition {
 
     @Shadow
     @Final
@@ -56,6 +59,12 @@ public abstract class MixinChatHud {
     @Shadow
     @Final
     public List<ChatHudLine> messages;
+
+    @Shadow
+    public abstract int getWidth();
+
+    @Unique
+    private int chatY = -1;
 
     /**
      * Spoofs the message size to be empty to avoid deletion.
@@ -117,4 +126,13 @@ public abstract class MixinChatHud {
         ci.cancel();
     }
 
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;getLineHeight()I", ordinal = 0))
+    public void hookStoreChatY(DrawContext context, int currentTick, int mouseX, int mouseY, boolean focused, CallbackInfo ci, @Local(ordinal = 7) int m) {
+        this.chatY = m;
+    }
+
+    @Override
+    public int liquidbounce_getChatY() {
+        return chatY;
+    }
 }

@@ -69,6 +69,8 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = ar
         tree(AntiSpam)
     }
 
+    val copy by boolean("Copy", true)
+
     var antiChatClearPaused = false
 
     @Suppress("unused")
