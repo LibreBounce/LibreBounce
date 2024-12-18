@@ -186,8 +186,8 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
         try {
             if (!selectedFile.exists()) selectedFile.createNewFile()
 
-            FileWriter(selectedFile).use { fileWriter ->
-                fileWriter.write("Portscan\r\n")
+            selectedFile.bufferedWriter().use { fileWriter ->
+                fileWriter.write("PortScanner Result\r\n")
                 fileWriter.write("Host: $host\r\n\r\n")
                 fileWriter.write("Ports ($minPort - $maxPort):\r\n")
                 ports.forEach { port -> fileWriter.write("$port\r\n") }
