@@ -21,8 +21,10 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.ChatSendEvent;
+import net.ccbluex.liquidbounce.event.events.NotificationEvent;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.interfaces.ChatHudAddition;
+import net.ccbluex.liquidbounce.utils.client.ClientUtilsKt;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -69,7 +71,7 @@ public abstract class MixinChatScreen extends MixinScreen {
 
     @Inject(method = "mouseClicked", at = @At("HEAD"))
     private void hookMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (!(ModuleBetterChat.INSTANCE.getRunning() && ModuleBetterChat.INSTANCE.getCopy())) {
+        if (!(ModuleBetterChat.INSTANCE.getRunning() && ModuleBetterChat.Copy.INSTANCE.getRunning())) {
             return;
         }
 
@@ -114,6 +116,14 @@ public abstract class MixinChatScreen extends MixinScreen {
 
         if (isPressed(GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT) && button == GLFW.GLFW_MOUSE_BUTTON_1) {
             client.keyboard.setClipboard(builder.toString());
+
+            if (ModuleBetterChat.Copy.INSTANCE.getNotification()) {
+                ClientUtilsKt.notification(
+                        "ChatCopy",
+                        "The line is copied",
+                        NotificationEvent.Severity.SUCCESS
+                );
+            }
         } else if (button == GLFW.GLFW_MOUSE_BUTTON_2) {
             if (client.currentScreen instanceof ChatScreen chat) {
                 ((MixinChatScreenAccessor) chat).getChatField().setText(builder.toString());
