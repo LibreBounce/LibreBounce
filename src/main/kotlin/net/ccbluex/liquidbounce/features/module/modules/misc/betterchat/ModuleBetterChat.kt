@@ -74,7 +74,8 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = ar
 
 
     object Copy : ToggleableConfigurable(this, "Copy", true) {
-        val notification by boolean("NotificationAfterCopy", true)
+        val notification by boolean("Notificate", true)
+        val highlight by boolean("Highlight", true)
     }
 
     var antiChatClearPaused = false
