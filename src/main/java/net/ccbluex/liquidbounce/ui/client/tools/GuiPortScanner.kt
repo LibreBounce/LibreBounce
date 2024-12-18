@@ -55,16 +55,28 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         minPortField = GuiTextField(1, Fonts.minecraftFont, width / 2 - 100, 90, 90, 20).apply {
             maxStringLength = 5
             text = "1"
+            setValidator {
+                val intValue = it?.toIntOrNull() ?: return@setValidator false
+                intValue >= 0 && intValue < maxPortField.text.toInt()
+            }
         }
 
         maxPortField = GuiTextField(2, Fonts.minecraftFont, width / 2 + 10, 90, 90, 20).apply {
             maxStringLength = 5
             text = "65535"
+            setValidator {
+                val intValue = it?.toIntOrNull() ?: return@setValidator false
+                intValue > minPortField.text.toInt() && intValue < 65536
+            }
         }
 
         parallelismField = GuiTextField(3, Fonts.minecraftFont, width / 2 - 100, 120, 200, 20).apply {
             maxStringLength = Int.MAX_VALUE
-            text = "500"
+            text = "64"
+            setValidator {
+                val intValue = it?.toIntOrNull() ?: return@setValidator false
+                intValue > 0
+            }
         }
 
         buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start").also { buttonToggle = it })
@@ -179,6 +191,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
                 fileWriter.write("Ports ($minPort - $maxPort):\r\n")
                 ports.forEach { port -> fileWriter.write("$port\r\n") }
             }
+
             JOptionPane.showMessageDialog(null, "Exported successfully!", "Port Scanner", JOptionPane.INFORMATION_MESSAGE)
         } catch (e: Exception) {
             e.printStackTrace()
