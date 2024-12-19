@@ -316,8 +316,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
     // Circle options
     private val circleRainbow by boolean("CircleRainbow", false, subjective = true) { mark == "Circle" }
-    private val colors = ColorSettingsInteger(this, "Circle", alphaApply = { mark == "Circle" })
-    { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)
+    private val colors = ColorSettingsInteger(
+        this,
+        "Circle",
+        alphaApply = { mark == "Circle" }) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)
     private val fillInnerCircle by boolean("FillInnerCircle", false, subjective = true) { mark == "Circle" }
     private val withHeight by boolean("WithHeight", true, subjective = true) { mark == "Circle" }
     private val animateHeight by boolean("AnimateHeight", false, subjective = true) { withHeight }
@@ -325,8 +327,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val extraWidth by float("ExtraWidth", 0F, 0F..2F, subjective = true) { mark == "Circle" }
     private val animateCircleY by boolean("AnimateCircleY", true, subjective = true) { fillInnerCircle || withHeight }
     private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F, subjective = true) { animateCircleY }
-    private val duration by float("Duration", 1.5F, 0.5F..3F, suffix = "Seconds", subjective = true)
-    { animateCircleY || animateHeight }
+    private val duration by float(
+        "Duration",
+        1.5F,
+        0.5F..3F,
+        suffix = "Seconds",
+        subjective = true
+    ) { animateCircleY || animateHeight }
 
     // Box option
     private val boxOutline by boolean("Outline", true, subjective = true) { mark == "Box" }
@@ -769,7 +776,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
-            var currentValue = when (priority.lowercase()) {
+            val currentValue = when (priority.lowercase()) {
                 "distance" -> distance
                 "direction" -> entityFov.toDouble()
                 "health" -> entity.health.toDouble()
@@ -1218,7 +1225,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
      * Check if run should be cancelled
      */
     private val cancelRun
-        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || (noConsumeAttack == "NoRotation" && isConsumingItem())
+        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || noConsumeAttack == "NoRotation" && isConsumingItem()
 
     /**
      * Check if [entity] is alive
@@ -1234,9 +1241,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
             if (target != null && player.heldItem?.item is ItemSword) {
                 if (smartAutoBlock) {
-                    if (!player.isMoving && forceBlock) return true
+                    if (player.isMoving && forceBlock) return false
 
-                    if (checkWeapon && (target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe)) return false
+                    if (checkWeapon && target?.heldItem?.item !is ItemSword && target?.heldItem?.item !is ItemAxe) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
