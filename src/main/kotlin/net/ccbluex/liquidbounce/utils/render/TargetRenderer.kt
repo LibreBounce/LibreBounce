@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
+import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
@@ -27,17 +29,25 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
+import net.ccbluex.liquidbounce.utils.entity.lastRenderPos
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen.calculateScreenPos
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.RotationAxis
 import net.minecraft.util.math.Vec3d
+import java.awt.Color
+import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
+
 
 /**
  * A target tracker to choose the best enemy to attack
@@ -68,14 +78,137 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     val legacy = Legacy()
     val circle = Circle(module)
     val glowingCircle = GlowingCircle(module)
+    val ghost = Ghost()
 
     override val appearance =
         choices<Choice>(
             module,
             "Mode",
-            { glowingCircle },
-            { arrayOf(legacy, circle, glowingCircle) }
+            { ghost },
+            { arrayOf(legacy, circle, glowingCircle, ghost) }
         )
+
+    inner class Ghost : WorldTargetRenderAppearance("Ghost") {
+
+        private val glow = Identifier.of("liquidbounce", "glow.png")
+
+        private var lastTime = System.currentTimeMillis()
+
+        override val parent: ChoiceConfigurable<*>
+            get() = appearance
+
+        private val color by color("Color", Color4b(Color.BLUE.rgb, true))
+        private var size by float("Size", 0.5f, 0.4f..0.7f)
+        private var length by int("Length", 25, 15..40)
+
+        override fun render(env: WorldRenderEnvironment, entity: Entity, partialTicks: Float) {
+            RenderSystem.depthMask(false)
+            mc.gameRenderer.lightmapTextureManager.disable()
+            RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
+            env.matrixStack.push()
+
+
+            with(mc.gameRenderer.camera.pos) {
+                env.matrixStack.translate(-this.x, -this.y, -this.z)
+            }
+
+            val interpolated = entity.pos.interpolate(entity.lastRenderPos(), partialTicks.toDouble())
+                .add(0.0, 0.75, 0.0)
+
+            with(interpolated) {
+                env.matrixStack.translate(
+                    this.x + 0.2f,
+                    this.y + 0.5f,
+                    this.z
+                )
+            }
+
+            RenderSystem.setShaderTexture(0, glow)
+
+            with(env) {
+                drawParticle(
+                    { sin, cos -> translate(sin, cos, -cos) },
+                    { sin, cos -> translate(-sin, -cos, cos) }
+                )
+
+                drawParticle(
+                    { sin, cos -> translate(-sin, sin, -cos) },
+                    { sin, cos -> translate(sin, -sin, cos) }
+                )
+
+                drawParticle(
+                    { sin, cos -> translate(-sin, -sin, cos) },
+                    { sin, cos -> translate(sin, sin, -cos) }
+                )
+            }
+
+            RenderSystem.depthMask(false)
+            RenderSystem.defaultBlendFunc()
+            mc.gameRenderer.lightmapTextureManager.enable()
+            env.matrixStack.pop()
+        }
+
+        private inline fun WorldRenderEnvironment.drawParticle(
+            translateBefore: MatrixStack.(Double, Double)->Unit,
+            translateAfter: MatrixStack.(Double, Double)->Unit
+        ) {
+            val radius = 0.67
+            val distance = 10.0 + (length * 0.2)
+            val alphaFactor = 15
+
+            for (i in 0..<length) {
+                val angle: Double = 0.15f * (System.currentTimeMillis() - lastTime - (i * distance)) / (30)
+                val sin = sin(angle) * radius
+                val cos = cos(angle) * radius
+
+                with(matrixStack) {
+                    translateBefore(sin, cos)
+                    translate(-size / 2.0, -size / 2.0, 0.0)
+                    multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.gameRenderer.camera.yaw))
+                    multiply(RotationAxis.POSITIVE_X.rotationDegrees(mc.gameRenderer.camera.pitch))
+                    translate(size / 2.0, size / 2.0, 0.0)
+                }
+
+                val alpha = MathHelper.clamp(color.a - (i * alphaFactor), 0, color.a)
+                val renderColor = color.alpha(alpha)
+
+                drawCustomMesh(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR, GameRenderer.getPositionTexColorProgram()!!) { matrix ->
+                    vertex(matrix, 0.0f, -size, 0.0f)
+                        .texture(0.0f, 0.0f)
+                        .color(renderColor.toARGB())
+
+                    vertex(matrix, -size, -size, 0.0f)
+                        .texture(0.0f, 1.0f)
+                        .color(renderColor.toARGB())
+
+                    vertex(matrix, -size, 0.0f, 0.0f)
+                        .texture(1.0f, 1.0f)
+                        .color(renderColor.toARGB())
+
+                    vertex(matrix, 0.0f, 0.0f, 0.0f)
+                        .texture(1.0f, 0.0f)
+                        .color(renderColor.toARGB())
+                }
+
+                with(matrixStack) {
+                    translate(-size / 2.0, -size / 2.0, 0.0)
+                    multiply(RotationAxis.POSITIVE_X.rotationDegrees(-mc.gameRenderer.camera.pitch))
+                    multiply(RotationAxis.POSITIVE_Y.rotationDegrees(mc.gameRenderer.camera.yaw))
+                    translate(size / 2.0, size / 2.0, 0.0)
+                    translateAfter(sin, cos)
+                }
+            }
+        }
+
+        private fun Vec3d.interpolate(start: Vec3d, multiple: Double) =
+            Vec3d(
+                this.x.interpolate(start.x, multiple),
+                this.y.interpolate(start.y, multiple),
+                this.z.interpolate(start.z, multiple),
+            )
+
+        private fun Double.interpolate(old: Double, scale: Double) = old + (this - old) * scale
+    }
 
     inner class Legacy : WorldTargetRenderAppearance("Legacy") {
 
