@@ -132,17 +132,25 @@ open class ClientModule(
      * If the module is running and in game. Can be overridden to add additional checks.
      */
     override val running: Boolean
-        get() = super.running && inGame && enabled
+        get() = (super.running && inGame && enabled) || disableActivation
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
-        .independentDescription()
+        .independentDescription().apply {
+            if (disableActivation) {
+                notAnOption()
+            }
+        }
     var hidden by boolean("Hidden", hide)
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
         .independentDescription()
         .onChange {
             EventManager.callEvent(RefreshArrayListEvent())
             it
+        }.apply {
+            if (disableActivation) {
+                notAnOption()
+            }
         }
 
     /**
