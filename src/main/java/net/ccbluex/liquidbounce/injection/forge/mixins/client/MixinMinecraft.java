@@ -231,6 +231,7 @@ public abstract class MixinMinecraft {
         crashInfo.append("Time: ").append(LocalDateTime.now()).append('\n');
         crashInfo.append('\n');
         MiscUtils.showErrorPopup(crashReport.getCrashCause(), "Game crashed! ", crashInfo.toString());
+        MiscUtils.showURL(LiquidBounce.CLIENT_GITHUB + "/issues");
     }
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
