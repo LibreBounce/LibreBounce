@@ -7,21 +7,54 @@ package net.ccbluex.liquidbounce.utils.io
 
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.awt.Desktop
+import java.awt.Font
 import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException
-import javax.swing.JFileChooser
-import javax.swing.JFrame
-import javax.swing.JOptionPane
+import java.time.LocalDateTime
+import javax.swing.*
 import javax.swing.filechooser.FileFilter
 
 object MiscUtils : MinecraftInstance() {
-    fun showErrorPopup(title: String, message: String) =
+
+    private fun JTextArea.adjustTextAreaSize() {
+        val fontMetrics = getFontMetrics(font)
+
+        val lineSequence = text.lineSequence()
+        val lines = lineSequence.count()
+        val maxLineWidth = lineSequence.maxOfOrNull { fontMetrics.stringWidth(it) } ?: 0
+        val columns = maxLineWidth / fontMetrics.charWidth('m')
+
+        this.rows = lines + 1
+        this.columns = columns + 1
+    }
+
+    @JvmStatic
+    fun showErrorPopup(title: String, message: Any) =
         JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE)
 
-    fun Throwable.showErrorPopup() = showErrorPopup(javaClass.simpleName, localizedMessage)
+    @JvmStatic
+    fun Throwable.showErrorPopup(
+        titlePrefix: String = "Exception occurred: ",
+        extraContent: String = LocalDateTime.now().toString() + '\n'
+    ) {
+        val title = titlePrefix + javaClass.simpleName
 
+        val content = extraContent + "--- Stacktrace ---\n" + stackTraceToString()
+
+        val textArea = JTextArea(content).apply {
+            isEditable = false
+            lineWrap = true
+            wrapStyleWord = true
+            font = Font("Consolas", Font.PLAIN, 12)
+            adjustTextAreaSize()
+        }
+
+        showErrorPopup(title, textArea)
+    }
+
+    @JvmStatic
     fun showURL(url: String) =
         try {
             Desktop.getDesktop().browse(URI(url))
@@ -31,6 +64,7 @@ object MiscUtils : MinecraftInstance() {
             e.showErrorPopup()
         }
 
+    @JvmStatic
     fun openFileChooser(fileFiler: FileFilter? = null): File? {
         if (mc.isFullScreen) mc.toggleFullscreen()
 
@@ -49,6 +83,7 @@ object MiscUtils : MinecraftInstance() {
         return if (action == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile else null
     }
 
+    @JvmStatic
     fun saveFileChooser(fileFiler: FileFilter? = null): File? {
         if (mc.isFullScreen) mc.toggleFullscreen()
 

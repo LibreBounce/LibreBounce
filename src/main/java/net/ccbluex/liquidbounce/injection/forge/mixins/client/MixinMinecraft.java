@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.ui.client.GuiWelcome;
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter;
 import net.ccbluex.liquidbounce.utils.client.ClientUtils;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
+import net.ccbluex.liquidbounce.utils.io.MiscUtils;
 import net.ccbluex.liquidbounce.utils.render.IconUtils;
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -34,6 +35,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -52,6 +54,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.Queue;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
@@ -219,6 +222,15 @@ public abstract class MixinMinecraft {
     @Inject(method = "shutdown", at = @At("HEAD"))
     private void shutdown(CallbackInfo callbackInfo) {
         LiquidBounce.INSTANCE.stopClient();
+    }
+
+    @Inject(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;instance()Lnet/minecraftforge/fml/common/FMLCommonHandler;"))
+    private void injectDisplayCrashReport(CrashReport crashReport, CallbackInfo callbackInfo) {
+        final StringBuilder crashInfo = new StringBuilder(LiquidBounce.CLIENT_NAME).append(" crash info\n");
+        crashInfo.append("Client version: ").append(LiquidBounce.INSTANCE.getClientVersionText()).append(' ').append(LiquidBounce.INSTANCE.getClientCommit()).append('\n');
+        crashInfo.append("Time: ").append(LocalDateTime.now()).append('\n');
+        crashInfo.append('\n');
+        MiscUtils.showErrorPopup(crashReport.getCrashCause(), "Game crashed! ", crashInfo.toString());
     }
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
