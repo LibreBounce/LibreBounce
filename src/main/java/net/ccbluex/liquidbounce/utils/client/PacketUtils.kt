@@ -22,24 +22,28 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
-import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.ArrayDeque
-import kotlin.concurrent.read
+import kotlin.concurrent.withLock
 import kotlin.concurrent.write
 import kotlin.math.roundToInt
 
 object PacketUtils : MinecraftInstance, Listenable {
 
     private val queuedPackets = ArrayDeque<Packet<*>>()
-    private val queueLock = ReentrantReadWriteLock()
+    private val queueLock = ReentrantLock()
 
-    fun addAll(elements: Collection<Packet<*>>): Boolean = queueLock.write { queuedPackets.addAll(elements) }
+    fun schedulePacketProcess(elements: Collection<Packet<*>>): Boolean = queueLock.withLock {
+        queuedPackets.addAll(elements)
+    }
 
-    fun add(element: Packet<*>): Boolean = queueLock.write { queuedPackets.add(element) }
+    fun schedulePacketProcess(element: Packet<*>): Boolean = queueLock.withLock {
+        queuedPackets.add(element)
+    }
 
-    fun isEmpty(): Boolean = queueLock.read { queuedPackets.isEmpty() }
-
-    val size: Int get() = queueLock.read { queuedPackets.size }
+    fun isQueueEmpty(): Boolean = queueLock.withLock {
+        queuedPackets.isEmpty()
+    }
 
     val onTick = handler<GameTickEvent>(priority = 2) {
         for (entity in mc.theWorld.loadedEntityList) {
@@ -91,7 +95,7 @@ object PacketUtils : MinecraftInstance, Listenable {
             return@handler
         }
 
-        queueLock.write {
+        queueLock.withLock {
             queuedPackets.removeEach { packet ->
                 handlePacket(packet)
                 val packetEvent = PacketEvent(packet, EventState.RECEIVE)
@@ -105,7 +109,7 @@ object PacketUtils : MinecraftInstance, Listenable {
 
     val onWorld = handler<WorldEvent>(priority = -1) { event ->
         if (event.worldClient == null) {
-            queueLock.write {
+            queueLock.withLock {
                 queuedPackets.clear()
             }
         }
@@ -244,12 +248,3 @@ var C03PacketPlayer.pos
         y = value.yCoord
         z = value.zCoord
     }
-
-
-fun schedulePacketProcess(packet: Packet<*>) {
-    PacketUtils.add(packet)
-}
-
-fun schedulePacketProcess(packets: Collection<Packet<*>>) {
-    PacketUtils.addAll(packets)
-}

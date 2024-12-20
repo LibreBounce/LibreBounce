@@ -15,9 +15,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnLandi
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnNoMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
+import net.ccbluex.liquidbounce.utils.client.PacketUtils
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.schedulePacketProcess
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
@@ -204,7 +204,8 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
 
     private fun blink() {
         synchronized(packetsReceived) {
-            schedulePacketProcess(packetsReceived)
+            PacketUtils.schedulePacketProcess(packetsReceived)
+            Unit
         }
         synchronized(packets) {
             sendPackets(*packets.toTypedArray(), triggerEvents = false)

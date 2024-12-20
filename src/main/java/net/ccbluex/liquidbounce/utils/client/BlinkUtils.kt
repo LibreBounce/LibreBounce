@@ -46,7 +46,8 @@ object BlinkUtils : MinecraftInstance, Listenable {
         if (sent == true && receive == false) {
             if (event.eventType == EventState.RECEIVE) {
                 synchronized(packetsReceived) {
-                    schedulePacketProcess(packetsReceived)
+                    PacketUtils.schedulePacketProcess(packetsReceived)
+                    Unit
                 }
                 packetsReceived.clear()
             }
@@ -119,7 +120,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
     fun syncSent() {
         synchronized(packetsReceived) {
-            schedulePacketProcess(packetsReceived)
+            PacketUtils.schedulePacketProcess(packetsReceived)
             packetsReceived.clear()
         }
     }
@@ -163,7 +164,8 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
     fun unblink() {
         synchronized(packetsReceived) {
-            schedulePacketProcess(packetsReceived)
+            PacketUtils.schedulePacketProcess(packetsReceived)
+            Unit
         }
         synchronized(packets) {
             sendPackets(*packets.toTypedArray(), triggerEvents = false)
