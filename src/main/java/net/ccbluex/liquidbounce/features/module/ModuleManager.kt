@@ -231,24 +231,6 @@ object ModuleManager : Listenable {
     }
 
     /**
-     * Register [moduleClass] with new instance
-     */
-    private fun registerModule(moduleClass: Class<out Module>) {
-        try {
-            registerModule(moduleClass.newInstance())
-        } catch (e: Throwable) {
-            LOGGER.error("Failed to load module: ${moduleClass.name} (${e.javaClass.name}: ${e.message})")
-        }
-    }
-
-    /**
-     * Register a list of modules
-     */
-    @SafeVarargs
-    fun registerModules(vararg modules: Class<out Module>) = modules.forEach(this::registerModule)
-
-
-    /**
      * Register a list of modules
      */
     @SafeVarargs
