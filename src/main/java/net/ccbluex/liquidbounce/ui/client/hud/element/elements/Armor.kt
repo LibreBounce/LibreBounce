@@ -47,10 +47,15 @@ class Armor(
             for (index in 3 downTo 0) {
                 val stack = mc.thePlayer.inventory.armorInventory[index] ?: continue
 
+                glPushMatrix()
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
                 enableGUIStandardItemLighting()
                 renderItem.renderItemIntoGUI(stack, x, y)
                 renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
                 disableStandardItemLighting()
+                glDisable(GL_BLEND)
+                glPopMatrix()
 
                 when (modeValue) {
                     "Horizontal" -> x += 18
