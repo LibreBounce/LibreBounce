@@ -22,28 +22,20 @@ import javax.crypto.SecretKey
 
 @SideOnly(Side.CLIENT)
 object ClientUtils : MinecraftInstance() {
-    private var fastRenderField: Field? = null
+    private var fastRenderField: Field? = runCatching {
+        GameSettings::class.java.getDeclaredField("ofFastRender")
+    }.getOrNull()
+
     var runTimeTicks = 0
-
-    init {
-        try {
-            val declaredField = GameSettings::class.java.getDeclaredField("ofFastRender")
-
-            fastRenderField = declaredField
-        } catch (ignored: NoSuchFieldException) { }
-    }
 
     val LOGGER: Logger = LogManager.getLogger("LiquidBounce")
 
     fun disableFastRender() {
-        try {
-            fastRenderField?.let {
-                if (!it.isAccessible)
-                    it.isAccessible = true
+        fastRenderField?.let {
+            if (!it.isAccessible)
+                it.isAccessible = true
 
-                it.setBoolean(mc.gameSettings, false)
-            }
-        } catch (ignored: IllegalAccessException) {
+            it.setBoolean(mc.gameSettings, false)
         }
     }
 
