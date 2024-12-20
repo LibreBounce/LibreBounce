@@ -53,3 +53,6 @@ val Block.id: Int
 
 val Int.blockById: Block
     get() = Block.getBlockById(this)
+
+val String.blockByName: Block?
+    get() = Block.getBlockFromName(this)

@@ -6,12 +6,13 @@
 package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonArray
-import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.features.module.modules.render.XRay
 import net.ccbluex.liquidbounce.file.FileConfig
-import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
-import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.minecraft.block.Block
+import net.ccbluex.liquidbounce.utils.block.blockById
+import net.ccbluex.liquidbounce.utils.block.id
+import net.ccbluex.liquidbounce.utils.io.readJson
+import net.ccbluex.liquidbounce.utils.io.writeJson
+import net.minecraft.init.Blocks
 import java.io.*
 
 class XRayConfig(file: File) : FileConfig(file) {
@@ -23,20 +24,12 @@ class XRayConfig(file: File) : FileConfig(file) {
      */
     @Throws(IOException::class)
     override fun loadConfig() {
-        val jsonArray = JsonParser().parse(file.bufferedReader()).asJsonArray
+        val json = file.readJson().takeIf { it.isJsonArray } as? JsonArray ?: return
 
         XRay.xrayBlocks.clear()
-        for (jsonElement in jsonArray) {
-            try {
-                val block = Block.getBlockFromName(jsonElement.asString)
-                if (block in XRay.xrayBlocks) {
-                    LOGGER.error("[FileManager] Skipped xray block '${block.registryName}' because the block is already added.")
-                    continue
-                }
-                XRay.xrayBlocks += block
-            } catch (throwable: Throwable) {
-                LOGGER.error("[FileManager] Failed to add block to xray.", throwable)
-            }
+
+        json.mapNotNullTo(XRay.xrayBlocks) {
+            it.asInt.blockById.takeIf { b -> b != Blocks.air }
         }
     }
 
@@ -47,9 +40,6 @@ class XRayConfig(file: File) : FileConfig(file) {
      */
     @Throws(IOException::class)
     override fun saveConfig() {
-        val jsonArray = JsonArray()
-        for (block in XRay.xrayBlocks) jsonArray.add(PRETTY_GSON.toJsonTree(Block.getIdFromBlock(block)))
-
-        file.writeText(PRETTY_GSON.toJson(jsonArray))
+        file.writeJson(XRay.xrayBlocks.map { it.id }.sorted())
     }
 }

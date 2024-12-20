@@ -7,15 +7,13 @@ package net.ccbluex.liquidbounce.ui.font
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.file.FileManager.fontsDir
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.download
 import net.ccbluex.liquidbounce.utils.io.extractZipTo
-import net.ccbluex.liquidbounce.utils.io.jsonArrayOf
+import net.ccbluex.liquidbounce.utils.io.jsonArray
 import net.ccbluex.liquidbounce.utils.io.readJson
 import net.ccbluex.liquidbounce.utils.io.writeJson
 import net.minecraft.client.gui.FontRenderer
@@ -83,7 +81,7 @@ object Fonts : MinecraftInstance {
                 }
             } else {
                 createNewFile()
-                writeJson(jsonArrayOf())
+                writeJson(jsonArray())
             }
         }
     }
