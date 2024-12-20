@@ -28,7 +28,7 @@ object AutoDisableCommand : Command("autodisable") {
                 }
 
                 val moduleName = args[2]
-                val module = ModuleManager.getModule(moduleName)
+                val module = ModuleManager[moduleName]
 
                 if (module != null) {
                     if (AutoDisable.getModules().contains(module)) {
@@ -49,7 +49,7 @@ object AutoDisableCommand : Command("autodisable") {
                 }
 
                 val moduleName = args[2]
-                val module = ModuleManager.getModule(moduleName)
+                val module = ModuleManager[moduleName]
 
                 if (module != null) {
                     if (AutoDisable.getModules().contains(module)) {
@@ -84,7 +84,7 @@ object AutoDisableCommand : Command("autodisable") {
                 when (args[0].lowercase()) {
                     "add" -> {
                         val input = args[1].lowercase()
-                        ModuleManager.modules.filter { it.name.lowercase().startsWith(input) }.map { it.name }
+                        ModuleManager.filter { it.name.lowercase().startsWith(input) }.map { it.name }
                     }
 
                     "remove" -> {

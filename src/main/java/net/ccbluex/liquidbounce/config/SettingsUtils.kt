@@ -185,7 +185,7 @@ object SettingsUtils {
         val all = values && binds && states
 
         return buildString {
-            for (module in moduleManager.modules) {
+            for (module in moduleManager) {
                 if (all || !module.subjective) {
                     if (values) {
                         for (value in module.values) {

@@ -121,7 +121,7 @@ object ClientRichPresence : MinecraftInstance() {
 
                 // Set modules count info
                 if (showRPCModulesCount) {
-                    setState("Enabled ${moduleManager.modules.count { it.state }} of ${moduleManager.modules.size} modules")
+                    setState("Enabled ${moduleManager.count { it.state }} of ${moduleManager.size} modules")
                 }
             }
         }

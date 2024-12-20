@@ -22,13 +22,11 @@ import net.ccbluex.liquidbounce.features.module.modules.world.*
 import net.ccbluex.liquidbounce.features.module.modules.world.Timer
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import java.util.*
 
-object ModuleManager : Listenable {
+private val MODULE_REGISTRY = TreeSet(Comparator.comparing(Module::name))
 
-    val modules = TreeSet<Module> { module1, module2 -> module1.name.compareTo(module2.name) }
-    private val moduleClassMap = hashMapOf<Class<*>, Module>()
+object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
 
     /**
      * Register all modules
@@ -224,9 +222,7 @@ object ModuleManager : Listenable {
      * Register [module]
      */
     fun registerModule(module: Module) {
-        modules += module
-        moduleClassMap[module.javaClass] = module
-
+        MODULE_REGISTRY += module
         generateCommand(module)
     }
 
@@ -240,8 +236,7 @@ object ModuleManager : Listenable {
      * Unregister module
      */
     fun unregisterModule(module: Module) {
-        modules.remove(module)
-        moduleClassMap.remove(module::class.java)
+        MODULE_REGISTRY.remove(module)
         unregisterListener(module)
     }
 
@@ -258,28 +253,15 @@ object ModuleManager : Listenable {
     }
 
     /**
-     * Get module by [moduleClass]
-     */
-    fun getModule(moduleClass: Class<*>) = moduleClassMap[moduleClass]!!
-
-    operator fun get(clazz: Class<*>) = getModule(clazz)
-
-    /**
      * Get module by [moduleName]
      */
-    fun getModule(moduleName: String?) = modules.find { it.name.equals(moduleName, ignoreCase = true) }
-
-    operator fun get(name: String) = getModule(name)
-
-    /**
-     * Module related events
-     */
+    operator fun get(moduleName: String) = MODULE_REGISTRY.find { it.name.equals(moduleName, ignoreCase = true) }
 
     /**
      * Handle incoming key presses
      */
     private val onKey = handler<KeyEvent> { event ->
-        modules.forEach { if (it.keyBind == event.key) it.toggle() }
+        MODULE_REGISTRY.forEach { if (it.keyBind == event.key) it.toggle() }
     }
 
 }

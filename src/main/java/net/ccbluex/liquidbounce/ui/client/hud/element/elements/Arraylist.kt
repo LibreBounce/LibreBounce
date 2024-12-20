@@ -185,7 +185,7 @@ class Arraylist(
             // Slide animation - update every render
             val delta = deltaTime
 
-            for (module in moduleManager.modules) {
+            for (module in moduleManager) {
                 val shouldShow = (module.inArray && module.state && (inactiveStyle != "Hide" || module.isActive))
 
                 if (!shouldShow && module.slide <= 0f)
@@ -366,7 +366,13 @@ class Arraylist(
                                             )
 
                                             if (module == modules.last()) {
-                                                drawRect(xPos - 3, yPos + textSpacer, 0F, yPos + textSpacer + 1, rectColor)
+                                                drawRect(
+                                                    xPos - 3,
+                                                    yPos + textSpacer,
+                                                    0F,
+                                                    yPos + textSpacer + 1,
+                                                    rectColor
+                                                )
                                             }
                                         }
                                     }
@@ -556,7 +562,7 @@ class Arraylist(
     }
 
     override fun updateElement() {
-        modules = moduleManager.modules
+        modules = moduleManager
             .filter { it.inArray && it.slide > 0 && !it.hideModuleValues.get() }
             .sortedBy { -font.getStringWidth(getDisplayString(it)) }
     }
