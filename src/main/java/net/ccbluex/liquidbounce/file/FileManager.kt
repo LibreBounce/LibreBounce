@@ -19,24 +19,30 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.io.File
 
+private val FILE_CONFIGS = ArrayList<FileConfig>()
+
 @SideOnly(Side.CLIENT)
-object FileManager : MinecraftInstance() {
+object FileManager : MinecraftInstance(), Iterable<FileConfig> by FILE_CONFIGS {
 
     val dir = File(mc.mcDataDir, "$CLIENT_NAME-$MINECRAFT_VERSION")
     val fontsDir = File(dir, "fonts")
     val settingsDir = File(dir, "settings")
     val themesDir = File(dir, "themes")
-    val modulesConfig = ModulesConfig(File(dir, "modules.json"))
-    val valuesConfig = ValuesConfig(File(dir, "values.json"))
-    val clickGuiConfig = ClickGuiConfig(File(dir, "clickgui.json"))
-    val accountsConfig = AccountsConfig(File(dir, "accounts.json"))
-    val friendsConfig = FriendsConfig(File(dir, "friends.json"))
-    val xrayConfig = XRayConfig(File(dir, "xray-blocks.json"))
-    val hudConfig = HudConfig(File(dir, "hud.json"))
-    val shortcutsConfig = ShortcutsConfig(File(dir, "shortcuts.json"))
+
+    val modulesConfig = +ModulesConfig(File(dir, "modules.json"))
+    val valuesConfig = +ValuesConfig(File(dir, "values.json"))
+    val clickGuiConfig = +ClickGuiConfig(File(dir, "clickgui.json"))
+    val accountsConfig = +AccountsConfig(File(dir, "accounts.json"))
+    val friendsConfig = +FriendsConfig(File(dir, "friends.json"))
+    val xrayConfig = +XRayConfig(File(dir, "xray-blocks.json"))
+    val hudConfig = +HudConfig(File(dir, "hud.json"))
+    val shortcutsConfig = +ShortcutsConfig(File(dir, "shortcuts.json"))
+
     val backgroundImageFile = File(dir, "userbackground.png")
     val backgroundShaderFile = File(dir, "userbackground.frag")
+
     var firstStart = false
+
     val PRETTY_GSON: Gson = GsonBuilder().setPrettyPrinting().create()
 
     /**
@@ -48,9 +54,18 @@ object FileManager : MinecraftInstance() {
     }
 
     /**
+     * Register a FileConfig to FileManager
+     * @author MukjepScarlet
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    private inline operator fun <T : FileConfig> T.unaryPlus(): T = apply {
+        FILE_CONFIGS.add(this)
+    }
+
+    /**
      * Setup folder
      */
-    fun setupFolder() {
+    private fun setupFolder() {
         if (!dir.exists()) {
             dir.mkdir()
             firstStart = true
@@ -64,15 +79,11 @@ object FileManager : MinecraftInstance() {
      * Load all configs in file manager
      */
     fun loadAllConfigs() {
-        for (field in javaClass.declaredFields) {
-            if (FileConfig::class.java.isAssignableFrom(field.type)) {
-                try {
-                    if (!field.isAccessible) field.isAccessible = true
-                    val fileConfig = field[this] as FileConfig
-                    loadConfig(fileConfig)
-                } catch (e: IllegalAccessException) {
-                    LOGGER.error("Failed to load config file of field ${field.name}.", e)
-                }
+        FILE_CONFIGS.forEach {
+            try {
+                loadConfig(it)
+            } catch (e: Exception) {
+                LOGGER.error("[FileManager] Failed to load config file of ${it.file.name}.", e)
             }
         }
     }
@@ -98,6 +109,7 @@ object FileManager : MinecraftInstance() {
             saveConfig(config, false)
             return
         }
+
         try {
             config.loadConfig()
             LOGGER.info("[FileManager] Loaded config: ${config.file.name}.")
@@ -110,15 +122,11 @@ object FileManager : MinecraftInstance() {
      * Save all configs in file manager
      */
     fun saveAllConfigs() {
-        for (field in javaClass.declaredFields) {
-            if (FileConfig::class.java.isAssignableFrom(field.type)) {
-                try {
-                    if (!field.isAccessible) field.isAccessible = true
-                    val fileConfig = field[this] as FileConfig
-                    saveConfig(fileConfig)
-                } catch (e: IllegalAccessException) {
-                    LOGGER.error("[FileManager] Failed to save config file of field ${field.name}.", e)
-                }
+        FILE_CONFIGS.forEach {
+            try {
+                saveConfig(it)
+            } catch (e: Exception) {
+                LOGGER.error("[FileManager] Failed to save config file of ${it.file.name}.", e)
             }
         }
     }
