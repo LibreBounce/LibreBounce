@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.io.MiscUtils.showErrorPopup
 import net.ccbluex.liquidbounce.utils.render.IconUtils
 import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
@@ -24,7 +25,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.Display
-import java.nio.file.Files
 import javax.swing.filechooser.FileNameExtensionFilter
 
 class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
@@ -184,37 +184,25 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
                 // Copy new file
                 val fileExtension = file.extension
 
-                try {
+                background = try {
                     val destFile = when (fileExtension) {
                         "png" -> backgroundImageFile
                         "frag", "glsl", "shader" -> backgroundShaderFile
                         else -> {
-                            MiscUtils.showErrorPopup("Error", "Invalid file extension: $fileExtension")
+                            showErrorPopup("Error", "Invalid file extension: $fileExtension")
                             return
                         }
                     }
 
-                    Files.copy(file.toPath(), destFile.outputStream())
+                    file.copyTo(destFile)
 
                     // Load new background
-                    try {
-                        background = Background.fromFile(destFile)
-                    } catch (_: IllegalArgumentException) {
-                        background = null
-                        if (backgroundImageFile.exists()) backgroundImageFile.deleteRecursively()
-                        if (backgroundShaderFile.exists()) backgroundShaderFile.deleteRecursively()
-
-                        MiscUtils.showErrorPopup("Error", "Invalid file extension: $fileExtension")
-                    }
+                    Background.fromFile(destFile)
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    MiscUtils.showErrorPopup(
-                        "Error", "Exception class: " + e.javaClass.name + "\nMessage: " + e.message
-                    )
-
-                    background = null
+                    e.showErrorPopup()
                     if (backgroundImageFile.exists()) backgroundImageFile.deleteRecursively()
                     if (backgroundShaderFile.exists()) backgroundShaderFile.deleteRecursively()
+                    null
                 }
             }
 

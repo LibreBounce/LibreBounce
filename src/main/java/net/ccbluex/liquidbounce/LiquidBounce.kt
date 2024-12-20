@@ -120,10 +120,13 @@ object LiquidBounce {
             // TODO: make it configurable
             UIManager.setLookAndFeel(FlatMacLightLaf())
 
+            SharedScopes
+
             // Load languages
             loadLanguages()
 
-            SharedScopes
+            // Load client fonts
+            loadFonts()
 
             // Register listeners
             RotationUtils
@@ -142,9 +145,6 @@ object LiquidBounce {
             SilentHotbar
             WaitMsUtils
             BlinkUtils
-
-            // Load client fonts
-            loadFonts()
 
             // Load settings
             loadSettings(false) {
@@ -185,7 +185,7 @@ object LiquidBounce {
                 HeadsTab()
             }
 
-            // Disable optifine fastrender
+            // Disable Optifine FastRender
             disableFastRender()
 
             // Load alt generators

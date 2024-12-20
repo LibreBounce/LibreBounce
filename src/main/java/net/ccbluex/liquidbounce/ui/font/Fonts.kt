@@ -7,6 +7,8 @@ package net.ccbluex.liquidbounce.ui.font
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.file.FileManager.fontsDir
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -50,13 +52,13 @@ object Fonts : MinecraftInstance() {
             register(FontInfo(name = "Minecraft Font"), minecraftFont)
 
             font35 = register(FontInfo(name = "Roboto Medium", size = 35),
-                GameFontRenderer(getFontFromFile("Roboto-Medium.ttf", 35)))
+                getFontFromFile("Roboto-Medium.ttf", 35).asGameFontRenderer())
 
             font40 = register(FontInfo(name = "Roboto Medium", size = 40),
-                GameFontRenderer(getFontFromFile("Roboto-Medium.ttf", 40)))
+                getFontFromFile("Roboto-Medium.ttf", 40).asGameFontRenderer())
 
             fontBold180 = register(FontInfo(name = "Roboto Bold", size = 180),
-                GameFontRenderer(getFontFromFile("Roboto-Bold.ttf", 180)))
+                getFontFromFile("Roboto-Bold.ttf", 180).asGameFontRenderer())
 
             loadCustomFonts()
         }
@@ -116,6 +118,10 @@ object Fonts : MinecraftInstance() {
     } catch (e: Exception) {
         LOGGER.warn("Exception during loading font[name=${fontName}, size=${size}]", e)
         Font("default", Font.PLAIN, size)
+    }
+
+    private fun Font.asGameFontRenderer(): GameFontRenderer {
+        return GameFontRenderer(this@asGameFontRenderer)
     }
 
 }
