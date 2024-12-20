@@ -53,9 +53,9 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
     /**
      * How the predicted data will be used. For damage prediction only.
      */
-    val calculationMode = choices<CalculationMode>(this, "CalculationMode", { it.choices[0] }, {
+    val calculationMode = choices(this, "CalculationMode") {
         arrayOf(Both(it), PredictOnly(it))
-    })
+    }
 
     /**
      * Check if the target will block the placement.

@@ -86,7 +86,7 @@ class BlockPlacer(
 
     val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
-    val rotationMode = choices(this, "RotationMode", 0) {
+    val rotationMode = choices(this, "RotationMode") {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     }
 

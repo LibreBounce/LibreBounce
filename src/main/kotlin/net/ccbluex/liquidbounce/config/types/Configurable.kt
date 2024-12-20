@@ -28,6 +28,7 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import java.util.*
 
 open class Configurable(
     name: String,
@@ -243,26 +244,25 @@ open class Configurable(
         where T : Enum<T>, T : NamedChoice =
         ChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this) }
 
-    fun <T : Choice> choices(
+    protected fun <T : Choice> choices(
         eventListener: EventListener,
         name: String,
         active: T,
         choices: Array<T>
     ): ChoiceConfigurable<T> {
-        return ChoiceConfigurable<T>(eventListener, name, { active }) { choices }.apply {
-            this@Configurable.inner.add(this)
-            this.base = this@Configurable
-        }
+        return choices(eventListener, name, {
+            val idx = choices.indexOf(active)
+
+            check(idx != -1) { "The active choice $active is not contained within the choice array ($it)" }
+
+            idx
+        }) { choices }
     }
 
-    @Deprecated(
-        "Use choices(listenable, name, activeIndex, choicesCallback) instead",
-        ReplaceWith("choices(listenable, name, activeIndex, choicesCallback)")
-    )
-    fun <T : Choice> choices(
+    private fun <T : Choice> choices(
         eventListener: EventListener,
         name: String,
-        activeCallback: (ChoiceConfigurable<T>) -> T,
+        activeCallback: (List<T>) -> Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ): ChoiceConfigurable<T> {
         return ChoiceConfigurable(eventListener, name, activeCallback, choicesCallback).apply {
@@ -274,9 +274,9 @@ open class Configurable(
     protected fun <T : Choice> choices(
         eventListener: EventListener,
         name: String,
-        activeIndex: Int,
+        activeIndex: Int = 0,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(eventListener, name, { it.choices[activeIndex] }, choicesCallback)
+    ) = choices(eventListener, name, { activeIndex }, choicesCallback)
 
     fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }
 

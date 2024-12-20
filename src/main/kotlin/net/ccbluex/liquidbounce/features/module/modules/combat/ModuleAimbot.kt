@@ -62,12 +62,12 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
-    private var angleSmooth = choices<AngleSmoothMode>(this, "AngleSmooth", { it.choices[0] }, {
+    private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
             LinearAngleSmoothMode(it),
             SigmoidAngleSmoothMode(it)
         )
-    })
+    }
 
     private var slowStart = tree(SlowStart(this))
 

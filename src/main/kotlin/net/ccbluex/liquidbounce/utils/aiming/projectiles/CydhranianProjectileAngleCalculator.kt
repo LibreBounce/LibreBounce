@@ -158,7 +158,7 @@ object CydhranianProjectileAngleCalculator: ProjectileAngleCalculator() {
             playerHeadPosition,
             directionOnImpact,
             entityPositionOnImpact,
-            targetEntityBox = targetDimensions.getBoxAt(entityPositionOnImpact)
+            targetEntityBox = targetDimensions.getBoxAt(entityPositionOnImpact).expand(trajectoryInfo.hitboxRadius)
         ) ?: return null
 
         return getDirectionByTime(trajectoryInfo, finalTargetPos, playerHeadPosition, round(ticksUntilImpact))

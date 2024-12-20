@@ -41,7 +41,7 @@ object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
     })
 
     @Suppress("unused")
-    private val modes = choices<Choice>(this, "Mode", { it.choices[0] }) {
+    private val modes = choices(this, "Mode") {
         arrayOf(
             NoneChoice(it),
             NoSlowSharedGrim2360(it),

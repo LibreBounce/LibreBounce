@@ -34,7 +34,7 @@ internal object NoSlowBow : ToggleableConfigurable(ModuleNoSlow, "Bow", true) {
     val forwardMultiplier by float("Forward", 1f, 0.2f..1f)
     val sidewaysMultiplier by float("Sideways", 1f, 0.2f..1f)
 
-    val modes = choices<Choice>(this, "Choice", { it.choices[0] }) {
+    val modes = choices(this, "Choice") {
         arrayOf(
             NoneChoice(it),
             NoSlowSharedGrim2360(it),

@@ -132,7 +132,7 @@ open class ClientModule(
      * If the module is running and in game. Can be overridden to add additional checks.
      */
     override val running: Boolean
-        get() = (super.running && inGame && enabled) || disableActivation
+        get() = super.running && inGame && (enabled || disableActivation)
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
@@ -243,9 +243,9 @@ open class ClientModule(
 
     protected fun <T : Choice> choices(
         name: String,
-        activeIndex: Int,
+        activeIndex: Int = 0,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
+    ) = choices(this, name, activeIndex, choicesCallback)
 
     fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
 

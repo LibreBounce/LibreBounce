@@ -149,7 +149,6 @@ object ModuleClickGui :
     @Suppress("unused")
     private val gameRenderHandler = handler<GameRenderEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
-        ignoreNotRunning = true
     ) {
         // A hack to prevent the clickgui from being drawn
         if (mc.currentScreen !is ClickScreen) {
@@ -158,16 +157,13 @@ object ModuleClickGui :
     }
 
     @Suppress("unused")
-    private val browserReadyHandler = handler<BrowserReadyEvent>(
-        ignoreNotRunning = true
-    ) {
+    private val browserReadyHandler = handler<BrowserReadyEvent> {
         createView()
     }
 
     @Suppress("unused")
     private val worldChangeHandler = sequenceHandler<WorldChangeEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
-        ignoreNotRunning = true
     ) { event ->
         if (event.world == null) {
             return@sequenceHandler

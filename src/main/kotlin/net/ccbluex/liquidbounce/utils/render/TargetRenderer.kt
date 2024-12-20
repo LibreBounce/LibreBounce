@@ -42,7 +42,7 @@ import kotlin.math.sin
 /**
  * A target tracker to choose the best enemy to attack
  */
-abstract class TargetRenderer<T: RenderEnvironment>(
+abstract class TargetRenderer<T : RenderEnvironment>(
     module: ClientModule
 ) : ToggleableConfigurable(module, "TargetRendering", true) {
 
@@ -50,14 +50,14 @@ abstract class TargetRenderer<T: RenderEnvironment>(
         doNotIncludeAlways()
     }
 
-    abstract val appearance: ChoiceConfigurable<Choice>
+    abstract val appearance: ChoiceConfigurable<TargetRenderAppearance<T>>
 
     open fun render(env: T, entity: Entity, partialTicks: Float) {
         if (!enabled) {
             return
         }
 
-        (appearance.activeChoice as TargetRenderAppearance<T>).render(env, entity, partialTicks)
+        appearance.activeChoice.render(env, entity, partialTicks)
     }
 
 }
@@ -65,21 +65,20 @@ abstract class TargetRenderer<T: RenderEnvironment>(
 
 class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvironment>(module) {
 
-    val legacy = Legacy()
-    val circle = Circle(module)
-    val glowingCircle = GlowingCircle(module)
+    private val legacy = Legacy()
+    private val circle = Circle(module)
+    private val glowingCircle = GlowingCircle(module)
 
-    override val appearance =
-        choices<Choice>(
-            module,
-            "Mode",
-            { glowingCircle },
-            { arrayOf(legacy, circle, glowingCircle) }
-        )
+    override val appearance = choices<TargetRenderAppearance<WorldRenderEnvironment>>(
+        module,
+        name = "Mode",
+        active = glowingCircle,
+        choices = arrayOf(legacy, circle, glowingCircle)
+    )
 
     inner class Legacy : WorldTargetRenderAppearance("Legacy") {
 
-        override val parent: ChoiceConfigurable<Choice>
+        override val parent: ChoiceConfigurable<TargetRenderAppearance<WorldRenderEnvironment>>
             get() = appearance
 
         private val size by float("Size", 0.5f, 0.1f..2f)
@@ -111,19 +110,16 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     }
 
     inner class Circle(module: ClientModule) : WorldTargetRenderAppearance("Circle") {
-        override val parent: ChoiceConfigurable<Choice>
+        override val parent: ChoiceConfigurable<TargetRenderAppearance<WorldRenderEnvironment>>
             get() = appearance
 
         private val radius by float("Radius", 0.85f, 0.1f..2f)
         private val innerRadius by float("InnerRadius", 0f, 0f..2f)
             .onChange { min(radius, it) }
 
-        private val heightMode = choices<HeightMode>(
-            module,
-            "HeightMode",
-            { FeetHeight(it) },
-            { arrayOf(FeetHeight(it), TopHeight(it), RelativeHeight(it), HealthHeight(it)) }
-        )
+        private val heightMode = choices(module, "HeightMode") {
+            arrayOf(FeetHeight(it), TopHeight(it), RelativeHeight(it), HealthHeight(it))
+        }
 
         private val outerColor by color("OuterColor", Color4b(0x64007CFF, true))
         private val innerColor by color("InnerColor", Color4b(0x64007CFF, true))
@@ -140,7 +136,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                     withDisabledCull {
                         drawGradientCircle(radius, innerRadius, outerColor, innerColor)
                     }
-                    if(outline.enabled) {
+                    if (outline.enabled) {
                         drawCircleOutline(radius, outline.color)
                     }
                 }
@@ -150,17 +146,14 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     }
 
     inner class GlowingCircle(module: ClientModule) : WorldTargetRenderAppearance("GlowingCircle") {
-        override val parent: ChoiceConfigurable<Choice>
+        override val parent: ChoiceConfigurable<TargetRenderAppearance<WorldRenderEnvironment>>
             get() = appearance
 
         private val radius by float("Radius", 0.85f, 0.1f..2f)
 
-        private val heightMode = choices<HeightMode>(
-            module,
-            "HeightMode",
-            { FeetHeight(it) },
-            { arrayOf(FeetHeight(it), TopHeight(it), RelativeHeight(it), HealthHeight(it), AnimatedHeight(it)) }
-        )
+        private val heightMode = choices(module, "HeightMode") {
+            arrayOf(FeetHeight(it), TopHeight(it), RelativeHeight(it), HealthHeight(it), AnimatedHeight(it))
+        }
 
         private val color by color("OuterColor", Color4b(0x64007CFF, true))
         private val glowColor by color("GlowColor", Color4b(0x00007CFF, true))
@@ -176,7 +169,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
             val currentHeightMode = heightMode.activeChoice
 
-            val glowHeight = if(currentHeightMode is HeightWithGlow)
+            val glowHeight = if (currentHeightMode is HeightWithGlow)
                 currentHeightMode.getGlowHeight(entity, partialTicks) - height
             else
                 glowHeightSetting.toDouble()
@@ -189,15 +182,17 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                             radius,
                             color,
                             glowColor,
-                            Vec3(0.0, glowHeight, 0.0))
+                            Vec3(0.0, glowHeight, 0.0)
+                        )
 
                         drawGradientCircle(
                             radius,
                             0f,
                             color,
-                            color)
+                            color
+                        )
                     }
-                    if(outline.enabled) {
+                    if (outline.enabled) {
                         drawCircleOutline(radius, outline.color)
                     }
                 }
@@ -206,7 +201,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
     }
 
-    inner class Outline : ToggleableConfigurable(parent,"Outline", true) {
+    inner class Outline : ToggleableConfigurable(parent, "Outline", true) {
         val color by color("Color", Color4b(0x00007CFF, false))
     }
 
@@ -252,9 +247,8 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
             get() = choiceConfigurable
 
 
-
         override fun getHeight(entity: Entity, partialTicks: Float): Double {
-            if(entity !is LivingEntity) return 0.0
+            if (entity !is LivingEntity) return 0.0
             val box = entity.box
             val entityHeight = box.maxY - box.minY
             return entity.health / entity.maxHealth * entityHeight
@@ -284,11 +278,13 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 }
 
 class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvironment>(module) {
-    override val appearance = choices<Choice>(module, "Mode", Legacy(), arrayOf(Legacy()))
+    override val appearance = choices<TargetRenderAppearance<GUIRenderEnvironment>>(module, "Mode") {
+        arrayOf(Legacy())
+    }
 
     inner class Legacy : OverlayTargetRenderAppearance("Arrow") {
 
-        override val parent: ChoiceConfigurable<Choice>
+        override val parent: ChoiceConfigurable<TargetRenderAppearance<GUIRenderEnvironment>>
             get() = appearance
 
         private val color by color("Color", Color4b.RED)
@@ -308,7 +304,7 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
                         VertexFormats.POSITION,
                         GameRenderer.getPositionProgram()!!
                     ) {
-                        vertex(it, screenPos.x - 5 *  size, screenPos.y - 10 * size, 1f)
+                        vertex(it, screenPos.x - 5 * size, screenPos.y - 10 * size, 1f)
                         vertex(it, screenPos.x, screenPos.y, 1f)
                         vertex(it, screenPos.x + 5 * size, screenPos.y - 10 * size, 1f)
                     }
@@ -318,7 +314,7 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
     }
 }
 
-abstract class TargetRenderAppearance<T: RenderEnvironment>(name: String) : Choice(name) {
+abstract class TargetRenderAppearance<T : RenderEnvironment>(name: String) : Choice(name) {
     open fun render(env: T, entity: Entity, partialTicks: Float) {}
 }
 

@@ -42,11 +42,11 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
     /**
      * Additional range for fail swing to work
      */
-    val additionalRange by float("AdditionalRange", 2f, 0f..10f)
+    private val additionalRange by float("AdditionalRange", 2f, 0f..10f)
     val clickScheduler = tree(ClickScheduler(this, false))
-    val mode = choices<Choice>(this, "NotifyWhenFail", { Box }, {
+    val mode = choices(this, "NotifyWhenFail", activeIndex = 2) {
         arrayOf(NoneChoice(it), Box, Sound)
-    }).apply {
+    }.apply {
         doNotIncludeAlways()
     }
 

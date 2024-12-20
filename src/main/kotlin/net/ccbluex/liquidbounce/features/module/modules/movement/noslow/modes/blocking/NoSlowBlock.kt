@@ -35,7 +35,7 @@ internal object NoSlowBlock : ToggleableConfigurable(ModuleNoSlow, "Blocking", t
     val sidewaysMultiplier by float("Sideways", 1f, 0.2f..1f)
     val onlySlowOnServerSide by boolean("OnlySlowOnServerSide", false)
 
-    val modes = choices<Choice>(this, "Choice", { it.choices[0] }) {
+    val modes = choices(this, "Choice") {
         arrayOf(
             NoneChoice(it),
             NoSlowBlockingReuse,
