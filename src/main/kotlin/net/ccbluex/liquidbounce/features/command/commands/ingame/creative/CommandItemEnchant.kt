@@ -48,10 +48,10 @@ import kotlin.math.min
  */
 object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
 
-    private val levelParameter= ParameterBuilder
+    private val levelParameter = ParameterBuilder
         .begin<String>("level")
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith {begin ->
+        .autocompletedWith { begin ->
             mutableListOf("max", "1", "2", "3", "4", "5").filter { it.startsWith(begin) }
         }
         .required()
@@ -89,7 +89,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
                 CommandBuilder
                     .begin("remove")
                     .parameter(enchantmentParameter().required().build())
-                    .handler {command, args ->
+                    .handler { command, args ->
                         val enchantmentName = args[0] as String
 
                         creativeOrThrow(command)
@@ -110,7 +110,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
             .subcommand(
                 CommandBuilder
                     .begin("clear")
-                    .handler {command, _ ->
+                    .handler { command, _ ->
                         creativeOrThrow(command)
                         val itemStack = getItemOrThrow(command)
 
@@ -134,7 +134,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
 
                         sendItemPacket(itemStack)
                         chat(
-                            regular(command.resultWithTree("enchantedItem","all", level ?: "Max")),
+                            regular(command.resultWithTree("enchantedItem", "all", level ?: "Max")),
                             metadata = MessageMetadata(id = "CItemEnchant#info")
                         )
                     }
@@ -165,10 +165,11 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
     }
 
     private fun getLevel(arg: String) =
-        if(arg == "max")
+        if (arg == "max") {
             null
-        else
+        } else {
             arg.toInt()
+        }
 
 
     private fun sendItemPacket(itemStack: ItemStack?) {
@@ -187,8 +188,11 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
 
     private fun getItemOrThrow(command: Command): ItemStack {
         val itemStack = player.getStackInHand(Hand.MAIN_HAND)
+
         if (itemStack.isNothing()) {
-                throw CommandException(command.resultWithTree("mustHoldItem")) }
+            throw CommandException(command.resultWithTree("mustHoldItem"))
+        }
+
         return itemStack!!
     }
 
@@ -217,7 +221,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
 
     private fun enchantAll(item: ItemStack, onlyAcceptable: Boolean, level: Int?) {
         world.registryManager.get(RegistryKeys.ENCHANTMENT).indexedEntries.forEach { enchantment ->
-            if(!enchantment.value().isAcceptableItem(item) && onlyAcceptable) {
+            if (!enchantment.value().isAcceptableItem(item) && onlyAcceptable) {
                 return@forEach
             }
 

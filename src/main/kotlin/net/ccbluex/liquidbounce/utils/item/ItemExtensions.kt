@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.item
 
 import com.mojang.brigadier.StringReader

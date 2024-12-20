@@ -169,10 +169,11 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
             val currentHeightMode = heightMode.activeChoice
 
-            val glowHeight = if (currentHeightMode is HeightWithGlow)
+            val glowHeight = if (currentHeightMode is HeightWithGlow) {
                 currentHeightMode.getGlowHeight(entity, partialTicks) - height
-            else
+            } else {
                 glowHeightSetting.toDouble()
+            }
 
             with(env) {
                 withPosition(this.relativeToCamera(pos)) {

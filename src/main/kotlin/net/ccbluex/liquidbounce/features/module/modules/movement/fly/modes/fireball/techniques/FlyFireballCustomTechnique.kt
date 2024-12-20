@@ -82,8 +82,9 @@ object FlyFireballCustomTechnique : Choice("Custom") {
 
     @Suppress("unused")
     private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
-        if (stopMove && !canMove)
+        if (stopMove && !canMove) {
             event.directionalInput = DirectionalInput.BACKWARDS // Cancel out movement.
+        }
     }
 
     @Suppress("unused")
@@ -100,8 +101,9 @@ object FlyFireballCustomTechnique : Choice("Custom") {
 
             FlyFireball.throwFireball()
 
-            if (sprint)
+            if (sprint) {
                 player.isSprinting = true
+            }
         }
 
         if (YVelocity.enabled) {

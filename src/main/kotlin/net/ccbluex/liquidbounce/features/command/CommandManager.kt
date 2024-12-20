@@ -198,7 +198,7 @@ object CommandManager : Iterable<Command> by commands {
      *
      * @return A [Pair] of the subcommand and the index of the tokenized [cmd] it is in, if none was found, null
      */
-    fun getSubCommand(cmd: String): Pair<Command, Int>? {
+    private fun getSubCommand(cmd: String): Pair<Command, Int>? {
         return getSubCommand(tokenizeCommand(cmd).first)
     }
 
@@ -207,7 +207,7 @@ object CommandManager : Iterable<Command> by commands {
      *
      * @param args The input command split on spaces
      * @param currentCommand The current command that is being researched
-     * @param idx The current index that is researched, only used for implementation
+     * @param idx The current index that is researched only used for implementation
      *
      * @return A [Pair] of the subcommand and the index of [args] it is in, if none was found, null
      */
@@ -247,6 +247,7 @@ object CommandManager : Iterable<Command> by commands {
      */
     @ScriptApiRequired
     @JvmName("execute")
+    @Suppress("ThrowsCount")
     fun execute(cmd: String) {
         val args = tokenizeCommand(cmd).first
 
@@ -300,7 +301,7 @@ object CommandManager : Iterable<Command> by commands {
         val parsedParameters = arrayOfNulls<Any>(args.size - idx - 1)
 
         // If the last parameter is a vararg, there might be no argument for it.
-        // In this case it's value might be null which is against the specification.
+        // In this case, its value might be null, which is against the specification.
         // To fix this, if the last parameter is a vararg, initialize it with an empty array
         if (command.parameters.lastOrNull()?.vararg == true && command.parameters.size > args.size - idx) {
             parsedParameters[command.parameters.size - 1] = emptyArray<Any>()
@@ -340,13 +341,6 @@ object CommandManager : Iterable<Command> by commands {
             if (parameter.vararg) {
                 break
             }
-        }
-
-        if (!command.executable) {
-            throw CommandException(
-                translation("liquidbounce.commandManager.commandNotExecutable", command.name),
-                usageInfo = command.usage()
-            )
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -497,61 +491,11 @@ object CommandManager : Iterable<Command> by commands {
 
             return builder.buildFuture()
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Failed to supply autocompletion suggestions for '$origCmd'", e)
 
             return Suggestions.empty()
         }
-
-        //        val command = pair.first
-//
-//        // If the command is not executable, don't allow it to be executed
-//        if (!command.executable) {
-//            return Suggestions.empty()
-//        }
-//
-//        // The index the command is in
-//        val idx = pair.second
-//
-//        var paramIdx = command.parameters.size - idx
-//
-//        if ()
-//            paramIdx++
-//
-//        val parameter = if (paramIdx >= args.size) {
-//            val lastParameter = command.parameters.lastOrNull()
-//
-//            if (lastParameter?.vararg != true)
-//                return Suggestions.empty()
-//
-//            lastParameter
-//        } else {
-//            command.parameters[paramIdx]
-//        }
-//
-//        val handler = parameter.autocompletionHandler ?: return Suggestions.empty()
-//
-//        for (s in handler(args[paramIdx])) {
-//            builder.suggest(s)
-//        }
-//
-//        return builder.buildFuture()
     }
 
-
-    operator fun plusAssign(command: Command) {
-        addCommand(command)
-    }
-
-    operator fun plusAssign(commands: MutableList<Command>) {
-        commands.forEach(this::addCommand)
-    }
-
-    operator fun minusAssign(command: Command) {
-        removeCommand(command)
-    }
-
-    operator fun minusAssign(commands: MutableList<Command>) {
-        commands.forEach(this::removeCommand)
-    }
 
 }

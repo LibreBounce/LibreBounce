@@ -19,6 +19,8 @@
  *
  */
 
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.features.chat
 
 import com.google.gson.GsonBuilder

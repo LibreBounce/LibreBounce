@@ -90,8 +90,8 @@ object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = 
             renderEnvironmentForWorld(matrixStack) {
                 BoxRenderer.drawWith(this) {
                     for ((pos, box, color) in queuedBoxes) {
-                        val baseColor = color.alpha(50)
-                        val outlineColor = color.alpha(100)
+                        val baseColor = color.with(a = 50)
+                        val outlineColor = color.with(a = 100)
 
                         withPositionRelativeToCamera(pos) {
                             drawBox(box, baseColor, outlineColor.takeIf { outline })

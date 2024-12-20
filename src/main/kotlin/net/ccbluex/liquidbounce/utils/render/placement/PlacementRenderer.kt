@@ -63,7 +63,7 @@ open class PlacementRenderer(
     val outTime by int("OutTime", 500, 0..5000, "ms")
 
     private val colorSetting by color("Color", defaultColor)
-    private val outlineColorSetting by color("OutlineColor", defaultColor.alpha(255))
+    private val outlineColorSetting by color("OutlineColor", defaultColor.with(a = 255))
 
     /**
      * The [PlacementRenderHandler]s managed by this renderer.

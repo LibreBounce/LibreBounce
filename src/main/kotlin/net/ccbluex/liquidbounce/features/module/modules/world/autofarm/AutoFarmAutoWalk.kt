@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.eyes
@@ -81,7 +82,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
         val target = walkTarget ?: return false
 
         RotationManager.aimAt(
-            RotationManager.makeRotation(target, player.eyes),
+            Rotation.lookingAt(point = target, from = player.eyes),
             configurable = ModuleAutoFarm.rotations,
             priority = Priority.IMPORTANT_FOR_USAGE_1,
             provider = ModuleAutoFarm

@@ -189,8 +189,10 @@ class PolyglotScript(val language: String, val file: File) {
         }
 
         callGlobalEvent("enable")
-        ModuleManager += registeredModules
-        CommandManager += registeredCommands
+
+        registeredModules.forEach(ModuleManager::addModule)
+        registeredCommands.forEach(CommandManager::addCommand)
+
         registeredChoices.forEach { choice ->
             @Suppress("UNCHECKED_CAST")
             (choice.parent.choices as MutableList<Any>).add(choice)
@@ -208,8 +210,10 @@ class PolyglotScript(val language: String, val file: File) {
         }
 
         callGlobalEvent("disable")
-        ModuleManager -= registeredModules
-        CommandManager -= registeredCommands
+
+        registeredModules.forEach(ModuleManager::removeModule)
+        registeredCommands.forEach(CommandManager::removeCommand)
+
         registeredChoices.forEach { it.parent.choices.remove(it) }
 
         scriptEnabled = false

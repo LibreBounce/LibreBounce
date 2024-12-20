@@ -302,7 +302,7 @@ open class Value<T : Any>(
                 val newValue = when (string.lowercase(Locale.ROOT)) {
                     "true", "on" -> true
                     "false", "off" -> false
-                    else -> throw IllegalArgumentException()
+                    else -> error("Unknown boolean value '$string' (allowed are true/on or false/off)")
                 }
 
                 set(newValue as T)

@@ -69,12 +69,14 @@ object ClientApi {
     /**
      * TODO: this was not implemented yet, might be added in future versions
      */
+    @Suppress("detekt:all")
     fun reportSettings(settingId: String, branch: String = HARD_CODED_BRANCH) =
         endpointRequest<EmptyResponse>("client/$branch/settings/report/$settingId")
 
     /**
      * TODO: this was not implemented yet, might be added in future versions
      */
+    @Suppress("detekt:all")
     fun uploadSettings(settings: String, branch: String = HARD_CODED_BRANCH) =
         endpointRequest<EmptyResponse>("client/$branch/settings/upload")
 

@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -89,7 +90,7 @@ open class TargetTracker(
             // Lowest health first
             PriorityEnum.HEALTH -> entities.sortBy { it.getActualHealth() }
             // Closest to your crosshair first
-            PriorityEnum.DIRECTION -> entities.sortBy { RotationManager.rotationDifference(it) }
+            PriorityEnum.DIRECTION -> entities.sortBy { RotationUtil.crosshairAngleToEntity(it) }
             // Oldest entity first
             PriorityEnum.AGE -> entities.sortByDescending { it.age }
             // With the lowest hurt time first
@@ -132,7 +133,7 @@ open class TargetTracker(
             = entity != player
             && !entity.isRemoved
             && entity.shouldBeAttacked()
-            && fov >= RotationManager.rotationDifference(entity)
+            && fov >= RotationUtil.crosshairAngleToEntity(entity)
             && entity.hurtTime <= hurtTime
 
 }

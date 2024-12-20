@@ -50,8 +50,9 @@ object ClientInteropServer {
             logger.info("Default port unavailable. Falling back to random port.")
             (15001..17000).random()
         }
-    } catch (e: Exception) {
+    } catch (expected: Exception) {
         logger.info("Default port $DEFAULT_PORT available.")
+
         DEFAULT_PORT
     }
     val url = "http://127.0.0.1:$port"

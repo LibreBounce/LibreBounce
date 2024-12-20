@@ -149,19 +149,19 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 continue
             }
 
-            val (fromPoint, toPoint, box, cutOffBox) = pointTracker.gatherPoint(target,
+            val pointOnHitbox = pointTracker.gatherPoint(target,
                 PointTracker.AimSituation.FOR_NOW)
 
-            val rotationPreference = LeastDifferencePreference(player.rotation, toPoint)
+            val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 
             val spot = raytraceBox(
-                fromPoint,
-                cutOffBox,
+                pointOnHitbox.fromPoint,
+                pointOnHitbox.cutOffBox,
                 range = range.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                fromPoint, box, range = range.toDouble(),
+                pointOnHitbox.fromPoint, pointOnHitbox.box, range = range.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: continue

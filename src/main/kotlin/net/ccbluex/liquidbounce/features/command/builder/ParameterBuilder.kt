@@ -19,7 +19,7 @@
 
 package net.ccbluex.liquidbounce.features.command.builder
 
-import net.ccbluex.liquidbounce.features.command.AutoCompletionHandler
+import net.ccbluex.liquidbounce.features.command.AutoCompletionProvider
 import net.ccbluex.liquidbounce.features.command.Parameter
 import net.ccbluex.liquidbounce.features.command.ParameterValidationResult
 import net.ccbluex.liquidbounce.features.command.ParameterVerifier
@@ -32,7 +32,7 @@ class ParameterBuilder<T> private constructor(val name: String) {
     private var verifier: ParameterVerifier<T>? = null
     private var required: Boolean? = null
     private var vararg: Boolean = false
-    private var autocompletionHandler: AutoCompletionHandler? = null
+    private var autocompletionHandler: AutoCompletionProvider? = null
 
     companion object {
         val STRING_VALIDATOR: ParameterVerifier<String> = { ParameterValidationResult.ok(it) }
@@ -112,20 +112,20 @@ class ParameterBuilder<T> private constructor(val name: String) {
         return this
     }
 
-    fun autocompletedWith(autocompletionHandler: AutoCompletionHandler): ParameterBuilder<T> {
+    fun autocompletedWith(autocompletionHandler: AutoCompletionProvider): ParameterBuilder<T> {
         this.autocompletionHandler = autocompletionHandler
 
         return this
     }
 
     fun autocompletedWith(autocompletionHandler: (String) -> List<String>): ParameterBuilder<T> {
-        this.autocompletionHandler = { begin, _ -> autocompletionHandler(begin) }
+        this.autocompletionHandler = AutoCompletionProvider { begin, _ -> autocompletionHandler(begin) }
 
         return this
     }
 
     fun useMinecraftAutoCompletion(): ParameterBuilder<T> {
-        autocompletionHandler = { begin, _ ->
+        autocompletionHandler = AutoCompletionProvider { begin, _ ->
             mc.networkHandler?.playerList?.map { it.profile.name }?.filter { it.startsWith(begin, true) } ?: emptyList()
         }
 

@@ -74,7 +74,9 @@ object ScaffoldExpandTechnique : ScaffoldTechnique("Expand") {
     }
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
-        return RotationManager.makeRotation(target?.placedBlock?.toCenterPos() ?: return null, player.eyes)
+        val blockCenter = target?.placedBlock?.toCenterPos() ?: return null
+
+        return Rotation.lookingAt(point = blockCenter, from = player.eyes)
     }
 
     override fun getCrosshairTarget(target: BlockPlacementTarget?, rotation: Rotation): BlockHitResult? {

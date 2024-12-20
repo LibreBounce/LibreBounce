@@ -41,6 +41,7 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Vec3d
+import org.joml.Vector3f
 
 private const val ITEM_SIZE: Int = 16
 private const val ITEM_SCALE: Float = 1.0F

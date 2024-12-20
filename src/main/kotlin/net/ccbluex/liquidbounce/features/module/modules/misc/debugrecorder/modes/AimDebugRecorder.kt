@@ -24,7 +24,9 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.mode
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.math.minus
@@ -37,8 +39,8 @@ object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Aim") {
         val playerRotation = player.rotation
         val playerLastRotation = player.lastRotation
 
-        val turnSpeedH = RotationManager.angleDifference(playerRotation.yaw, playerLastRotation.yaw)
-        val turnSpeedV = RotationManager.angleDifference(playerRotation.pitch, playerLastRotation.pitch)
+        val turnSpeed = playerLastRotation.rotationDeltaTo(playerRotation)
+
         val crosshairTarget = mc.crosshairTarget
 
         recordPacket(JsonObject().apply {
@@ -47,8 +49,8 @@ object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Aim") {
             addProperty("pitch", playerRotation.pitch)
             addProperty("last_yaw", playerLastRotation.yaw)
             addProperty("last_pitch", playerLastRotation.pitch)
-            addProperty("turn_speed_h", turnSpeedH)
-            addProperty("turn_speed_v", turnSpeedV)
+            addProperty("turn_speed_h", turnSpeed.deltaYaw)
+            addProperty("turn_speed_v", turnSpeed.deltaPitch)
 
             add("velocity", JsonObject().apply {
                 addProperty("x", player.velocity.x)
@@ -74,20 +76,22 @@ object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Aim") {
                     addProperty("z", velocity.z)
                 })
                 addProperty("distance", player.distanceTo(it))
-                val rotation = RotationManager.makeRotation(it.box.center, player.eyes)
+                val rotation = Rotation.lookingAt(point = it.box.center, from = player.eyes)
 
-                val diffH = RotationManager.angleDifference(playerRotation.yaw, rotation.yaw)
-                val diffV = RotationManager.angleDifference(playerRotation.pitch, rotation.pitch)
+                val delta = rotation.rotationDeltaTo(playerRotation)
 
-                addProperty("diff_h", diffH)
-                addProperty("diff_v", diffV)
+                addProperty("diff_h", delta.deltaYaw)
+                addProperty("diff_v", delta.deltaPitch)
                 addProperty("yaw_target", rotation.yaw)
                 addProperty("pitch_target", rotation.pitch)
 
                 addProperty("crosshair",
                     if (crosshairTarget?.type == HitResult.Type.ENTITY && crosshairTarget is EntityHitResult) {
                         crosshairTarget.entity.id == it.id
-                    } else false)
+                    } else {
+                        false
+                    }
+                )
             }
         })
     }

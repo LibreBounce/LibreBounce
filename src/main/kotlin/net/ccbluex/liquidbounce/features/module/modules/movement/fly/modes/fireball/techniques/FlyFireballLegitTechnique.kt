@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.minecraft.util.math.MathHelper
 
 object FlyFireballLegitTechnique : Choice("Legit") {
 
@@ -65,7 +66,7 @@ object FlyFireballLegitTechnique : Choice("Legit") {
     @Suppress("unused")
     private val rotationUpdateHandler = handler<SimulatedTickEvent> {
         RotationManager.aimAt(
-            Rotation(if (Rotations.backwards) RotationManager.invertYaw(player.yaw) else player.yaw, Rotations.pitch),
+            Rotation(if (Rotations.backwards) this.invertYaw(player.yaw) else player.yaw, Rotations.pitch),
             configurable = Rotations,
             priority = Priority.IMPORTANT_FOR_PLAYER_LIFE,
             provider = ModuleFly
@@ -95,13 +96,21 @@ object FlyFireballLegitTechnique : Choice("Legit") {
 
             FlyFireball.throwFireball()
 
-            if (sprint)
+            if (sprint) {
                 player.isSprinting = true
+            }
 
             ModuleFly.enabled = false // Disable after the fireball was thrown
             canMove = true
             FlyFireball.wasTriggered = false
         }
+    }
+
+    /**
+     * Inverts yaw (-180 to 180)
+     */
+    private fun invertYaw(yaw: Float): Float {
+        return MathHelper.wrapDegrees(yaw + 180)
     }
 
 }

@@ -118,8 +118,8 @@ internal object KillAuraNotifyWhenFail {
             for ((pos, opacity) in markedBlocks) {
                 val fade = (255 + (0 - 255) * opacity.toDouble() / boxFadeSeconds.toDouble()).toInt()
 
-                val baseColor = base.alpha(fade)
-                val outlineColor = base.alpha(fade)
+                val baseColor = base.with(a = fade)
+                val outlineColor = base.with(a = fade)
 
                 withPositionRelativeToCamera(pos) {
                     withColor(baseColor) {

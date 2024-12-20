@@ -64,20 +64,29 @@ object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
 
     private fun multiplier(action: UseAction) = when (action) {
         UseAction.NONE -> Pair(0.2f, 0.2f)
-        UseAction.EAT, UseAction.DRINK -> if (NoSlowConsume.enabled) Pair(
-            NoSlowConsume.forwardMultiplier, NoSlowConsume.sidewaysMultiplier
-        ) else Pair(0.2f, 0.2f)
+        UseAction.EAT, UseAction.DRINK -> {
+            if (NoSlowConsume.enabled) {
+                Pair(NoSlowConsume.forwardMultiplier, NoSlowConsume.sidewaysMultiplier)
+            } else {
+                Pair(0.2f, 0.2f)
+            }
+        }
 
-        UseAction.BLOCK, UseAction.SPYGLASS, UseAction.TOOT_HORN, UseAction.BRUSH ->
-            if (NoSlowBlock.enabled && (!NoSlowBlock.onlySlowOnServerSide || !InteractionTracker.isBlocking)) Pair(
-                NoSlowBlock.forwardMultiplier,
-                NoSlowBlock.sidewaysMultiplier
-            )
-        else Pair(0.2f, 0.2f)
+        UseAction.BLOCK, UseAction.SPYGLASS, UseAction.TOOT_HORN, UseAction.BRUSH -> {
+            if (NoSlowBlock.enabled && (!NoSlowBlock.onlySlowOnServerSide || !InteractionTracker.isBlocking)) {
+                Pair(NoSlowBlock.forwardMultiplier, NoSlowBlock.sidewaysMultiplier)
+            } else {
+                Pair(0.2f, 0.2f)
+            }
+        }
 
-        UseAction.BOW, UseAction.CROSSBOW, UseAction.SPEAR -> if (NoSlowBow.enabled) Pair(
-            NoSlowBow.forwardMultiplier, NoSlowBow.sidewaysMultiplier
-        ) else Pair(0.2f, 0.2f)
+        UseAction.BOW, UseAction.CROSSBOW, UseAction.SPEAR -> {
+            if (NoSlowBow.enabled) {
+                Pair(NoSlowBow.forwardMultiplier, NoSlowBow.sidewaysMultiplier)
+            } else {
+                Pair(0.2f, 0.2f)
+            }
+        }
 
     }
 }

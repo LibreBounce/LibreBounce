@@ -44,8 +44,9 @@ object ItemImageAtlas: EventListener {
     private var atlas: Atlas? = null
 
     fun updateAtlas(drawContext: DrawContext) {
-        if (this.atlas != null)
+        if (this.atlas != null) {
             return
+        }
 
         val renderer = ItemFramebufferRenderer(
             Registries.ITEM.stream().collect(Collectors.toList()),

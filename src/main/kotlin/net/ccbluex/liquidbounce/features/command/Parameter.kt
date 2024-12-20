@@ -35,14 +35,32 @@ class ParameterValidationResult<T> private constructor(
 }
 
 typealias ParameterVerifier<T> = (String) -> ParameterValidationResult<T>
-typealias AutoCompletionHandler = (String, List<String>) -> List<String>
+
+/**
+ * Provides autocompletion for one specific parameter
+ */
+fun interface AutoCompletionProvider {
+    /**
+     * Autocompletion for a parameter
+     *
+     * For example for `.value Scaffold Mode G`, this function would be called with
+     * - `begin = "G"`
+     * - `args = ["Scaffold", "Mode", "G"]`
+     *
+     * @param begin the current text of the autocompleted parameter
+     * @param args all current arguments of the command
+     *
+     * @return suggestions for the full parameter name
+     */
+    fun autocomplete(begin: String, args: List<String>): List<String>
+}
 
 class Parameter<T>(
     val name: String,
     val required: Boolean,
     val vararg: Boolean,
     val verifier: ParameterVerifier<T>?,
-    val autocompletionHandler: AutoCompletionHandler?,
+    val autocompletionHandler: AutoCompletionProvider?,
     var command: Command? = null
 ) {
     private val translationBaseKey: String

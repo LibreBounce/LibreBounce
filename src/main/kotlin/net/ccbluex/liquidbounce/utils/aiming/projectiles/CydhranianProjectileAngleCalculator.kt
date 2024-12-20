@@ -32,7 +32,7 @@ object CydhranianProjectileAngleCalculator: ProjectileAngleCalculator() {
     ): Rotation? {
         val calculatedLookVec = predictArrowDirection(projectileInfo, sourcePos, targetShape, targetPosFunction)
 
-        return calculatedLookVec?.let(RotationManager::makeRotation)
+        return calculatedLookVec?.let(Rotation::fromRotationVec)
     }
 
     private fun getDirectionByTime(

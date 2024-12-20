@@ -48,7 +48,7 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
     private val colorModes = choices("ColorMode", 0) {
         arrayOf(
             GenericEntityHealthColorMode(it),
-            GenericStaticColorMode(it, Color4b.WHITE.alpha(100)),
+            GenericStaticColorMode(it, Color4b.WHITE.with(a = 100)),
             GenericRainbowColorMode(it)
         )
     }
@@ -85,8 +85,8 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
                         val pos = entity.interpolateCurrentPosition(event.partialTicks)
                         val color = getColor(entity)
 
-                        val baseColor = color.alpha(50)
-                        val outlineColor = color.alpha(100)
+                        val baseColor = color.with(a = 50)
+                        val outlineColor = color.with(a = 100)
 
                         withPositionRelativeToCamera(pos) {
                             drawBox(

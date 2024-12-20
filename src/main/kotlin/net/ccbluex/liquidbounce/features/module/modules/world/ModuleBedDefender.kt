@@ -152,7 +152,9 @@ object ModuleBedDefender : ClientModule("BedDefender", category = Category.WORLD
 
         ModuleDebug.debugGeometry(this, "PlacementPosition") {
             ModuleDebug.DebugCollection(
-                updatePositions.map { (_, pos) -> ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.RED.alpha(100)) }
+                updatePositions.map { (_, pos) ->
+                    ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.RED.with(a = 100))
+                }
             )
         }
 

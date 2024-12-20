@@ -18,6 +18,9 @@
  *
  *
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.inventory
 
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1

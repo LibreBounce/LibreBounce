@@ -259,12 +259,14 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         val eyesPos = player.eyes
 
         // Can we find a breakable target?
-        if (updateTargetToBreakable(radius, radiusSquared, eyesPos))
+        if (updateTargetToBreakable(radius, radiusSquared, eyesPos)) {
             return
+        }
 
         // Can we find a placeable target?
-        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos))
+        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos)) {
             return
+        }
     }
 
     fun isTargeted(state: BlockState, pos: BlockPos): Boolean {

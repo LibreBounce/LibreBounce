@@ -69,8 +69,9 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
         }
 
         val balanceChange = timerSpeed / balanceRecoveryIncrement - 1
-        if ((balanceTimer > 0 || balanceChange > 0) && (balanceTimer < timerBalanceLimit * 2 || balanceChange < 0))
+        if ((balanceTimer > 0 || balanceChange > 0) && (balanceTimer < timerBalanceLimit * 2 || balanceChange < 0)) {
             balanceTimer += balanceChange
+        }
 
         if (balanceTimer <= timerBalanceLimit) {
             Timer.requestTimerSpeed(balanceLimitSpeed, Priority.IMPORTANT_FOR_USAGE_1, this@ModuleTimerRange)
@@ -94,7 +95,9 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
             return normalSpeed
         }
 
-        return if (balanceTimer < timerBalanceLimit * 2 && !reachedTheLimit) boostSpeed else {
+        return if (balanceTimer < timerBalanceLimit * 2 && !reachedTheLimit) {
+            boostSpeed
+        } else {
             reachedTheLimit = true
 
             inRangeSpeed

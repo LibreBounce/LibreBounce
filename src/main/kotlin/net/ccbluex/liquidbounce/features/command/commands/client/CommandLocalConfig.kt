@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
@@ -156,7 +155,7 @@ object CommandLocalConfig : CommandFactory {
             .build()
     }
 
-    private fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    private fun autoComplete(begin: String): List<String> {
         return ConfigSystem.userConfigsFolder.listFiles()?.map { it.nameWithoutExtension }
             ?.filter { it.startsWith(begin) } ?: emptyList()
     }

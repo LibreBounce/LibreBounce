@@ -136,13 +136,16 @@ private fun findBestTargetPlanForTargetPosition(
 
     val currentRotation = RotationManager.serverRotation
 
-    return options.minByOrNull {
-        val rotation = RotationManager.makeRotation(
-            it.targetPositionOnBlock,
-            targetFindingOptions.playerPositionOnPlacement.add(0.0, player.standingEyeHeight.toDouble(), 0.0)
-        )
+    val playerEyePositionOnPlacement = targetFindingOptions.playerPositionOnPlacement.add(
+        0.0,
+        player.standingEyeHeight.toDouble(),
+        0.0
+    )
 
-        RotationManager.rotationDifference(rotation, currentRotation)
+    return options.minByOrNull {
+        val targetRotation = Rotation.lookingAt(point = it.targetPositionOnBlock, from = playerEyePositionOnPlacement)
+
+        currentRotation.angleTo(targetRotation)
     }
 }
 
@@ -219,9 +222,9 @@ fun findBestBlockPlacementTarget(pos: BlockPos, options: BlockPlacementTargetFin
         // to rotate to
         val pointOnFace = findTargetPointOnFace(currPos.getState()!!, currPos, targetPlan, options) ?: continue
 
-        val rotation = RotationManager.makeRotation(
-            pointOnFace.point.add(Vec3d.of(currPos)),
-            options.playerPositionOnPlacement.add(
+        val rotation = Rotation.lookingAt(
+            point = pointOnFace.point.add(Vec3d.of(currPos)),
+            from = options.playerPositionOnPlacement.add(
                 0.0,
                 player.getEyeHeight(options.playerPoseOnPlacement).toDouble(),
                 0.0
@@ -306,16 +309,13 @@ data class BlockPlacementTarget(
         )
 
     fun doesCrosshairTargetFullFillRequirements(crosshairTarget: BlockHitResult): Boolean {
-        if (crosshairTarget.type != HitResult.Type.BLOCK)
-            return false
-        if (crosshairTarget.blockPos != this.interactedBlockPos)
-            return false
-        if (crosshairTarget.side != this.direction)
-            return false
-        if (crosshairTarget.pos.y < this.minPlacementY)
-            return false
-
-        return true
+        return when {
+            crosshairTarget.type != HitResult.Type.BLOCK -> false
+            crosshairTarget.blockPos != this.interactedBlockPos -> false
+            crosshairTarget.side != this.direction -> false
+            crosshairTarget.pos.y < this.minPlacementY -> false
+            else -> true
+        }
     }
 }
 

@@ -95,14 +95,14 @@ object TrapPlayerSimulation {
         ModuleDebug.debugGeometry(
             ModuleAutoTrap,
             "PredictedPlayerPos",
-            ModuleDebug.DebuggedBox(target.dimensions.getBoxAt(positions.last()), Color4b.RED.alpha(127))
+            ModuleDebug.DebuggedBox(target.dimensions.getBoxAt(positions.last()), Color4b.RED.with(a = 127))
         )
         ModuleDebug.debugGeometry(
             ModuleAutoTrap,
             "PredictedPlayerPosStd",
             ModuleDebug.DebuggedBox(
                 EntityDimensions.fixed((target.dimensions.width * std).toFloat(), 0.5F).getBoxAt(avg),
-                Color4b.BLUE.alpha(127)
+                Color4b.BLUE.with(a = 127)
             )
         )
 

@@ -55,7 +55,7 @@ fun raytraceBlock(
             range,
             wallsRange,
             visibilityPredicate = BlockVisibilityPredicate(pos),
-            rotationPreference = LeastDifferencePreference(RotationManager.makeRotation(pos.toCenterPos(), eyes))
+            rotationPreference = LeastDifferencePreference(Rotation.lookingAt(point = pos.toCenterPos(), from = eyes))
         ) ?: continue
     }
 
@@ -146,13 +146,6 @@ interface VisibilityPredicate {
         eyesPos: Vec3d,
         targetSpot: Vec3d,
     ): Boolean
-}
-
-interface RotationPreference : Comparator<Rotation> {
-    fun getPreferredSpot(
-        eyesPos: Vec3d,
-        range: Double,
-    ): Vec3d
 }
 
 class BlockVisibilityPredicate(private val expectedTarget: BlockPos) : VisibilityPredicate {
@@ -325,7 +318,7 @@ fun raytraceBox(
         val validCauseVisible = visibilityPredicate.isVisible(eyesPos = eyes, targetSpot = preferredSpotOnBox)
 
         if (validCauseBelowWallsRange || validCauseVisible && preferredSpotDistance < rangeSquared) {
-            return VecRotation(RotationManager.makeRotation(preferredSpot, eyes), preferredSpot)
+            return VecRotation(Rotation.lookingAt(point = preferredSpot, from = eyes), preferredSpot)
         }
     }
 
@@ -384,7 +377,7 @@ private fun considerSpot(
         return
     }
 
-    val rotation = RotationManager.makeRotation(spot, eyes)
+    val rotation = Rotation.lookingAt(point = spot, from = eyes)
 
     bestRotationTracker.considerRotation(VecRotation(rotation, spot), visible)
 }
@@ -493,7 +486,7 @@ fun raytraceUpperBlockSide(
             return@range
         }
 
-        val rotation = RotationManager.makeRotation(vec3, eyes)
+        val rotation = Rotation.lookingAt(point = vec3, from = eyes)
 
         bestRotationTracker.considerRotation(VecRotation(rotation, vec3), visible)
     }
@@ -543,7 +536,7 @@ fun findClosestPointOnBlock(
                     continue
                 }
 
-                best = VecRotation(RotationManager.makeRotation(vec3, eyes), vec3) to it
+                best = VecRotation(Rotation.lookingAt(point = vec3, from = eyes), vec3) to it
                 bestDistance = distance
             }
         }

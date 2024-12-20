@@ -31,8 +31,6 @@ import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresenc
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
-import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleDroneControl
-import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProjectileAimbot
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
@@ -376,13 +374,13 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         }
     }
 
-    private fun addModule(module: ClientModule) {
+    fun addModule(module: ClientModule) {
         module.initConfigurable()
         module.init()
         modules.sortedInsert(module, ClientModule::name)
     }
 
-    private fun removeModule(module: ClientModule) {
+    fun removeModule(module: ClientModule) {
         if (module.running) {
             module.disable()
         }
@@ -390,30 +388,11 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules -= module
     }
 
-    /**
-     * Allow `ModuleManager += Module` syntax
-     */
-    operator fun plusAssign(module: ClientModule) {
-        addModule(module)
-    }
-
-    operator fun plusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::addModule)
-    }
-
-    operator fun minusAssign(module: ClientModule) {
-        removeModule(module)
-    }
-
-    operator fun minusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::removeModule)
-    }
-
     fun clear() {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, args: List<String>, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
         val resultPrefix = parts.dropLast(1).joinToString(",") + ","

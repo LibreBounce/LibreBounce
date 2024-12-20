@@ -62,6 +62,7 @@ object ModuleMobOwners : ClientModule("MobOwners", Category.RENDER) {
             ?: getFromMojangApi(ownerId)
     }
 
+    @Suppress("SwallowedException")
     private fun getFromMojangApi(ownerId: UUID): OrderedText {
         return uuidNameCache.computeIfAbsent(ownerId) {
             Util.getDownloadWorkerExecutor().execute {
@@ -73,7 +74,7 @@ object ModuleMobOwners : ClientModule("MobOwners", Category.RENDER) {
                     val entityName = response.first { it.changedToAt == null }.name
 
                     uuidNameCache[it] = OrderedText.styledForwardsVisitedString(entityName, Style.EMPTY)
-                } catch (e: InterruptedException) {
+                } catch (_: InterruptedException) {
                 } catch (e: Exception) {
                     uuidNameCache[it] = OrderedText.styledForwardsVisitedString(
                         "Failed to query Mojang API",

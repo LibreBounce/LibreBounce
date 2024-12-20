@@ -103,7 +103,9 @@ class SimulatedArrow(
                     +size
                 ).offset(pos).stretch(newPos.subtract(pos)).expand(1.0)
             ) {
-                if (!it.isSpectator && it.isAlive && (it.canHit() || arrowEntity != mc.player && it == arrowEntity)) {
+                val canBeHit = !it.isSpectator && it.isAlive
+
+                if (canBeHit && (it.canHit() || arrowEntity != mc.player && it == arrowEntity)) {
                     if (arrowEntity.isConnectedThroughVehicle(it)) return@getEntityCollision false
                 } else {
                     return@getEntityCollision false

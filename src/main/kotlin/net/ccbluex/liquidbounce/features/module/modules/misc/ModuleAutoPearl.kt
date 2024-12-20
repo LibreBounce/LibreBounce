@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -32,7 +33,6 @@ import net.minecraft.item.Items
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Vec3d
-import kotlin.math.*
 
 private const val MAX_SIMULATED_TICKS = 240
 
@@ -118,8 +118,8 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         val itemSlot = enderPearlSlot ?: return@tickHandler
 
         if (Rotate.enabled) {
-            val checkDifference = {
-                abs(RotationManager.rotationDifference(RotationManager.serverRotation, rotation)) <= 1.0f
+            fun isRotationSufficient(): Boolean {
+                return RotationManager.serverRotation.angleTo(rotation) <= 1.0f
             }
 
             waitConditional(20) {
@@ -129,10 +129,10 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
                     this@ModuleAutoPearl
                 )
 
-                checkDifference()
+                isRotationSufficient()
             }
 
-            if (!checkDifference()) {
+            if (!isRotationSufficient()) {
                 return@tickHandler
             }
         }
@@ -176,7 +176,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     }
 
     private fun canTrigger(pearl: EnderPearlEntity): Boolean {
-        if (Limits.enabled && Limits.angle < RotationManager.rotationDifference(pearl)) {
+        if (Limits.enabled && Limits.angle < RotationUtil.crosshairAngleToEntity(pearl)) {
             return false
         }
 

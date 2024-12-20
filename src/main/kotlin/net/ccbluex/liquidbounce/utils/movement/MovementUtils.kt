@@ -26,7 +26,6 @@ import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.ccbluex.liquidbounce.utils.math.times
-import net.minecraft.client.input.Input
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.EntityPose
 import net.minecraft.util.math.BlockPos
@@ -34,42 +33,6 @@ import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.atan2
-
-data class DirectionalInput(
-    val forwards: Boolean,
-    val backwards: Boolean,
-    val left: Boolean,
-    val right: Boolean,
-) {
-    constructor(input: Input) : this(input.pressingForward, input.pressingBack, input.pressingLeft, input.pressingRight)
-
-    override fun equals(other: Any?): Boolean {
-        return other is DirectionalInput &&
-                forwards == other.forwards &&
-                backwards == other.backwards &&
-                left == other.left &&
-                right == other.right
-    }
-
-    override fun hashCode(): Int {
-        var result = forwards.hashCode()
-        result = 31 * result + backwards.hashCode()
-        result = 31 * result + left.hashCode()
-        result = 31 * result + right.hashCode()
-        return result
-    }
-
-    val isMoving: Boolean
-        get() = forwards || backwards || left || right
-
-    companion object {
-        val NONE = DirectionalInput(forwards = false, backwards = false, left = false, right = false)
-        val FORWARDS = DirectionalInput(forwards = true, backwards = false, left = false, right = false)
-        val BACKWARDS = DirectionalInput(forwards = false, backwards = true, left = false, right = false)
-        val LEFT = DirectionalInput(forwards = false, backwards = false, left = true, right = false)
-        val RIGHT = DirectionalInput(forwards = false, backwards = false, left = false, right = true)
-    }
-}
 
 /**
  * Returns the yaw difference the position is from the player position

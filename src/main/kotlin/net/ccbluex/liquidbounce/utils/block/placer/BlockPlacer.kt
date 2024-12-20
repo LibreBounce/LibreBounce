@@ -55,6 +55,7 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3i
 import kotlin.math.max
 
+@Suppress("TooManyFunctions")
 class BlockPlacer(
     name: String,
     val module: ClientModule,
@@ -257,7 +258,7 @@ class BlockPlacer(
 
             ModuleDebug.debugGeometry(
                 this, "PlacementTarget",
-                ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.GREEN.alpha(100))
+                ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.GREEN.with(a = 100))
             )
 
             // sneak when placing on interactable block to not trigger their action

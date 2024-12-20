@@ -27,7 +27,7 @@ import org.graalvm.polyglot.Value as PolyglotValue;
 /**
  * Object used by the script API to provide an idiomatic way of creating module values.
  */
-@Suppress("unused")
+@Suppress("unused", "TooManyFunctions", "StringLiteralDuplication")
 object ScriptSetting {
 
     @JvmName("boolean")

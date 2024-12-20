@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.common.ShapeFlag
@@ -611,10 +614,6 @@ fun Entity.wouldFallIntoVoid(pos: Vec3d, voidLevel: Double = -64.0, safetyExpand
         .all { shape -> shape == VoxelShapes.empty() }
 }
 
-
-fun Float.toValidYaw(): Float {
-    return ((this + 180) % 360) - 180
-}
 
 fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
     val vehicle = this.vehicle

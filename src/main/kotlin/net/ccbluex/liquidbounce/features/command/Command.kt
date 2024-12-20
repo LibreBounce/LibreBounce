@@ -194,8 +194,8 @@ class Command(
 
         val handler = parameter.autocompletionHandler ?: return
 
-        for (s in handler(args.getOrElse(idx) { "" }, args)) {
-            builder.suggest(s)
-        }
+        val suggestions = handler.autocomplete(begin = args.getOrElse(idx) { "" }, args = args)
+
+        suggestions.forEach(builder::suggest)
     }
 }

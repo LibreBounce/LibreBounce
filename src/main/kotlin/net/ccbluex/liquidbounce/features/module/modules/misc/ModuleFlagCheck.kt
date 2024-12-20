@@ -66,7 +66,7 @@ object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arra
         private val renderTime by int("Alive", 1000, 0..3000, "ms")
         private val fadeOut by curve("FadeOut", Easing.QUAD_OUT)
         private val outTime by int("OutTime", 500, 0..2000, "ms")
-        private var color by color("Color", Color4b.RED.alpha(100).darker())
+        private var color by color("Color", Color4b.RED.with(a = 100).darker())
         private var outlineColor by color("OutlineColor", Color4b.RED.darker())
 
         val wireframePlayer = WireframePlayer(Vec3d.ZERO, 0f, 0f)

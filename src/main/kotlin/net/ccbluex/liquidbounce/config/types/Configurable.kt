@@ -30,6 +30,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import java.util.*
 
+@Suppress("TooManyFunctions")
 open class Configurable(
     name: String,
     value: MutableList<Value<*>> = mutableListOf(),

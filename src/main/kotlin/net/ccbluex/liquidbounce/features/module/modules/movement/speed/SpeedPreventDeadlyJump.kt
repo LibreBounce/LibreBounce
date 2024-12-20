@@ -43,8 +43,9 @@ object SpeedPreventDeadlyJump : MinecraftShortcuts {
             }
         }
 
-        if (groundPos == null)
+        if (groundPos == null) {
             return true
+        }
 
         simulatedPlayer.input = SimulatedPlayer.SimulatedPlayerInput(
             DirectionalInput.NONE, jumping = false,

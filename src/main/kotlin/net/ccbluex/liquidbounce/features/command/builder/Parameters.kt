@@ -74,7 +74,7 @@ fun moduleParameter(name: String = "module", validator: (ClientModule) -> Boolea
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
         .autocompletedWith { begin, args ->
-            ModuleManager.autoComplete(begin, args, validator = validator)
+            ModuleManager.autoComplete(begin, validator = validator)
         }
 }
 

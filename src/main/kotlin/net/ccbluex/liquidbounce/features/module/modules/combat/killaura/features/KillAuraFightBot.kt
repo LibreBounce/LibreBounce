@@ -107,7 +107,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
 
         box -= (diff * ((targetDistance - 4.0).coerceAtLeast(1.0)))
 
-        val directRotation = RotationManager.makeRotation(box, player.eyePos)
+        val directRotation = Rotation.lookingAt(point = box, from = player.eyePos)
 
         if (directRotation != player.rotation) {
             val pitchDifference = abs(directRotation.pitch - player.rotation.pitch)

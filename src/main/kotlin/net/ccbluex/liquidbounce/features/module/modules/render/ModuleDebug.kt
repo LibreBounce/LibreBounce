@@ -245,7 +245,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     fun getArrayEntryColor(idx: Int, length: Int): Color4b {
         val hue = idx.toFloat() / length.toFloat()
-        return Color4b(Color.getHSBColor(hue, 1f, 1f)).alpha(32)
+        return Color4b(Color.getHSBColor(hue, 1f, 1f)).with(a = 32)
     }
 
     sealed class DebuggedGeometry(val color: Color4b) {

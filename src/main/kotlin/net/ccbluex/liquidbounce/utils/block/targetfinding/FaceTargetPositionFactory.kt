@@ -115,8 +115,9 @@ class NearestRotationTargetPositionFactory(val config: PositionFactoryConfigurat
         targetPos: BlockPos,
         face: AlignedFace
     ): Vec3d {
-        if (MathHelper.approximatelyEquals(face.area, 0.0))
+        if (MathHelper.approximatelyEquals(face.area, 0.0)) {
             return face.from
+        }
 
         val currentRotation = RotationManager.serverRotation
 
@@ -199,8 +200,9 @@ class StabilizedRotationTargetPositionFactory(
         val clampedFace = trimmedFace.clamp(cropBox)
 
         // Not much left of the area? Then don't try to sample a point on the face
-        if (clampedFace.area < 0.0001)
+        if (clampedFace.area < 0.0001) {
             return null
+        }
 
         return clampedFace
     }
@@ -237,8 +239,9 @@ class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) 
         targetPos: BlockPos,
         face: AlignedFace
     ): Vec3d? {
-        if (MathHelper.approximatelyEquals(face.area, 0.0))
+        if (MathHelper.approximatelyEquals(face.area, 0.0)) {
             return face.from
+        }
 
         val plane = NormalizedPlane.fromParams(
             config.eyePos.subtract(Vec3d.of(targetPos)),

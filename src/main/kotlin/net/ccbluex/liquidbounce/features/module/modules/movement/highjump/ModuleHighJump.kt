@@ -83,7 +83,9 @@ object ModuleHighJump : ClientModule("HighJump", Category.MOVEMENT) {
                     if (player.age % 2 == 0) {
                         player.velocity.y = -0.155
                     }
-                } else player.velocity.y = -0.1
+                } else {
+                    player.velocity.y = -0.1
+                }
             }
         }
 

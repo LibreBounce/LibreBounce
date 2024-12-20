@@ -92,7 +92,7 @@ object ModuleHoleESP : ClientModule("HoleESP", Category.RENDER), HoleManagerSubs
                     }
 
                     val fade = calculateFade(positions.from)
-                    val baseColor = type.color().alpha(50).fade(fade)
+                    val baseColor = type.color().with(a = 50).fade(fade)
                     val box = positions.getBox()
                     withPositionRelativeToCamera(positions.from.toVec3d()) {
                         withColor(baseColor) {
@@ -100,7 +100,7 @@ object ModuleHoleESP : ClientModule("HoleESP", Category.RENDER), HoleManagerSubs
                         }
 
                         if (outline) {
-                            val outlineColor = type.color().alpha(100).fade(fade)
+                            val outlineColor = type.color().with(a = 100).fade(fade)
                             withColor(outlineColor) {
                                 drawOutlinedBox(box)
                             }
@@ -140,8 +140,8 @@ object ModuleHoleESP : ClientModule("HoleESP", Category.RENDER), HoleManagerSubs
                         }
 
                         val fade = calculateFade(positions.from)
-                        val baseColor = type.color().alpha(50).fade(fade)
-                        val transparentColor = baseColor.alpha(0)
+                        val baseColor = type.color().with(a = 50).fade(fade)
+                        val transparentColor = baseColor.with(a = 0)
                         val box = positions.getBox()
                         withPositionRelativeToCamera(positions.from.toVec3d()) {
                             withColor(baseColor) {
@@ -149,7 +149,7 @@ object ModuleHoleESP : ClientModule("HoleESP", Category.RENDER), HoleManagerSubs
                             }
 
                             if (outline) {
-                                val outlineColor = type.color().alpha(100).fade(fade)
+                                val outlineColor = type.color().with(a = 100).fade(fade)
                                 withColor(outlineColor) {
                                     drawSideBox(box, Direction.DOWN, onlyOutline = true)
                                 }
@@ -172,8 +172,9 @@ object ModuleHoleESP : ClientModule("HoleESP", Category.RENDER), HoleManagerSubs
     }
 
     private fun calculateFade(pos: BlockPos): Float {
-        if (distanceFade == 0f)
+        if (distanceFade == 0f) {
             return 1f
+        }
 
         val verticalDistanceFraction = (player.pos.y - pos.y) / verticalDistance
         val horizontalDistanceFraction =

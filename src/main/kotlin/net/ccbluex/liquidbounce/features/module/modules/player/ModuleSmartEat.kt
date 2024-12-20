@@ -93,10 +93,11 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
                             it.effectType == StatusEffects.INSTANT_HEALTH
                         }
 
-                    if (hasHealthEffect)
+                    if (hasHealthEffect) {
                         FoodEstimationData(healthThreshold = preferHealthPotHealth.toInt())
-                    else
+                    } else {
                         null
+                    }
                 }
                 prefersHealthPot && item == Items.GOLDEN_APPLE -> {
                     FoodEstimationData(
@@ -142,10 +143,12 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         }
 
         val InteractionHandler = handler<PlayerInteractedItem> { event ->
-            if (!enabled)
+            if (!enabled) {
                 return@handler
-            if (event.actionResult != ActionResult.PASS)
+            }
+            if (event.actionResult != ActionResult.PASS) {
                 return@handler
+            }
 
             val currentFood = Estimator.findBestFood() ?: return@handler
 
@@ -170,10 +173,12 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         val tickHandler = tickHandler {
             val useAction = player.activeItem.useAction
 
-            if (useAction != UseAction.EAT && useAction != UseAction.DRINK)
+            if (useAction != UseAction.EAT && useAction != UseAction.DRINK) {
                 return@tickHandler
-            if (!SilentHotbar.isSlotModifiedBy(this@SilentOffhand))
+            }
+            if (!SilentHotbar.isSlotModifiedBy(this@SilentOffhand)) {
                 return@tickHandler
+            }
 
             // if we are already eating, we want to keep the silent slot
             SilentHotbar.selectSlotSilently(this@SilentOffhand, SilentHotbar.serversideSlot, swapBackDelay)
