@@ -74,7 +74,7 @@ public abstract class MixinGameRenderer {
     public abstract MinecraftClient getClient();
 
     /**
-     * UI Blur Post Effect Processor
+     * UI Blur Post-Effect Processor
      *
      * @author superblaubeere27
      */
@@ -306,11 +306,11 @@ public abstract class MixinGameRenderer {
     }
 
     @ModifyReturnValue(method = "getFov", at = @At("RETURN"))
-    private double injectShit(double original) {
+    private float injectShit(float original) {
         var screen = ModuleDroneControl.INSTANCE.getScreen();
 
         if (screen != null) {
-            return Math.min(120.0, original / screen.getZoomFactor());
+            return Math.min(120f, original / screen.getZoomFactor());
         }
 
         return original;

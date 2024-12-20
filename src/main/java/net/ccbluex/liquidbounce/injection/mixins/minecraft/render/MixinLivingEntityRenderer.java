@@ -85,7 +85,7 @@ public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingE
         // Check if TrueSight is enabled and entities are enabled or ESP is enabled and in glow mode
         if (ModuleTrueSight.INSTANCE.getRunning() && ModuleTrueSight.INSTANCE.getEntities() ||
                 ModuleESP.INSTANCE.getRunning() && ModuleESP.INSTANCE.requiresTrueSight(((LivingEntity) ((EntityRenderStateAddition) livingEntityRenderState).liquid_bounce$getEntity()))) {
-            return false;
+            return true;
         }
 
         return original;
