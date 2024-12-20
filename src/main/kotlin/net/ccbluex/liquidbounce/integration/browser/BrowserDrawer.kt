@@ -136,6 +136,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         }
     }
 
+    @Suppress("LongParameterList")
     private fun renderTexture(
         context: DrawContext,
         texture: Identifier,

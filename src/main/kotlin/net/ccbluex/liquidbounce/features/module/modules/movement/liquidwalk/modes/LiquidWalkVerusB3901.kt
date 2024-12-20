@@ -63,7 +63,11 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
         val packet = event.packet
 
         if (event.origin == TransferOrigin.SEND && packet is PlayerMoveC2SPacket) {
-            if (!player.input.playerInput.sneak && !player.isTouchingWater && standingOnWater() && !collidesWithAnythingElse()) {
+            if (!player.input.playerInput.sneak &&
+                !player.isTouchingWater &&
+                standingOnWater() &&
+                !collidesWithAnythingElse()
+                ) {
                 packet.onGround = spoof
                 spoof = !spoof
             } else {

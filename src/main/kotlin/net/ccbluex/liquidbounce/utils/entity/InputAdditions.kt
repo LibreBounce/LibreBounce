@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.utils.entity
 import net.minecraft.client.input.Input
 import net.minecraft.util.PlayerInput
 
+@Suppress("LongParameterList")
 fun PlayerInput.modified(
     forward: Boolean = this.forward,
     backward: Boolean = this.backward,
@@ -41,6 +42,7 @@ fun PlayerInput.modified(
     )
 }
 
+@Suppress("LongParameterList")
 fun Input.set(
     forward: Boolean = playerInput.forward,
     backward: Boolean = playerInput.backward,

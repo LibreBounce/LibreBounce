@@ -32,6 +32,7 @@ object ScriptNetworkUtil {
     fun movePlayerPosition(x: Double, y: Double, z: Double, onGround: Boolean, horizontalCollision: Boolean) =
         network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(x, y, z, onGround, horizontalCollision))
 
+    @Suppress("LongParameterList")
     @JvmName("movePlayerPositionAndLook")
     fun movePlayerPositionAndLook(
         x: Double,

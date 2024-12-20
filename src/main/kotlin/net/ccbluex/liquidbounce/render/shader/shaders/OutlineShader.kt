@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.io.resourceToString
 import org.lwjgl.opengl.GL20
 
 object OutlineShaderData {
-    val radius = 1
+    var radius = 1
 }
 
 object OutlineShader : FramebufferShader(Shader(

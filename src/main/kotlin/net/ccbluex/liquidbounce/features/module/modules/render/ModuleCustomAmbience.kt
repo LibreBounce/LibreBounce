@@ -84,7 +84,12 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
                 return false
             }
 
-            GlStateManager._clearColor(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f, backgroundColor.a / 255f)
+            GlStateManager._clearColor(
+                backgroundColor.r / 255f,
+                backgroundColor.g / 255f,
+                backgroundColor.b / 255f,
+                backgroundColor.a / 255f
+            )
             return true
         }
 
