@@ -30,6 +30,9 @@ import net.ccbluex.liquidbounce.features.module.modules.client.ModuleLiquidChat
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresence
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
+import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
+import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleDroneControl
+import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProjectileAimbot
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
@@ -223,6 +226,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleAutoChatGame,
             ModuleFocus,
+            ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
@@ -365,10 +369,10 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             builtin += ModuleDebugRecorder
         }
 
-        builtin.forEach {
-            addModule(it)
-            it.walkKeyPath()
-            it.verifyFallbackDescription()
+        builtin.forEach { module ->
+            addModule(module)
+            module.walkKeyPath()
+            module.verifyFallbackDescription()
         }
     }
 

@@ -2,7 +2,7 @@
     import type {ConfigurableSetting, Module} from "../../integration/types";
     import {getModuleSettings, setModuleEnabled} from "../../integration/rest";
     import {listen} from "../../integration/ws";
-    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ToggleModuleEvent} from "../../integration/events";
+    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ModuleToggleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
     import {onMount} from "svelte";
     import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
@@ -115,8 +115,8 @@
         }
     });
 
-    listen("moduleToggle", (e: ToggleModuleEvent) => {
-        const mod = filteredModules.find((m) => m.name === e.moduleName);
+    listen("moduleToggle", (e: ModuleToggleEvent) => {
+        const mod = modules.find((m) => m.name === e.moduleName);
         if (!mod) {
             return;
         }
@@ -181,7 +181,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as *;
 
   .search {
     position: fixed;

@@ -43,6 +43,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
 import java.util.*
+import java.util.function.Supplier
 import kotlin.reflect.KProperty
 
 typealias ValueListener<T> = (T) -> T
@@ -113,14 +114,11 @@ open class Value<T : Any>(
     @Exclude
     @ProtocolExclude
     var descriptionKey: String? = null
-        set(value) {
-            field = value
-
-            this.description = value?.let { key -> translation(key).convertToString() }
-        }
 
     @Exclude
-    open var description: String? = null
+    open var description = Supplier {
+        descriptionKey?.let { key -> translation(key).convertToString() }
+    }
 
     /**
      * Support for delegated properties

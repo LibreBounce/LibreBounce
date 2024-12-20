@@ -91,7 +91,9 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
 
     internal fun tick() {
         if (++this.elapsedTicks >= this.totalTicks()) {
-            this.continuation?.resume(Unit)
+            val continuation = this.continuation ?: return
+            this.continuation = null
+            continuation.resume(Unit)
         }
     }
 

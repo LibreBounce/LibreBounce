@@ -621,5 +621,6 @@
   "liquidbounce.module.holeFiller.description": "Автоматически заполняет безопасные места для PvP с кристаллами.",
   "liquidbounce.module.tpAura.description": "Автоматически телепортирует и атакует врагов вокруг.",
   "liquidbounce.module.packetMine.description": "Позволяет добывать блоки, щелкая по ним один раз.",
-  "liquidbounce.module.fastExp.description": "Автоматически чинит вашу броню."
+  "liquidbounce.module.fastExp.description": "Автоматически чинит вашу броню.",
+  "liquidbounce.module.autoPearl.description": "Прицеливается и бросает пёрл по траектории движения вражеского пёрла."
 }

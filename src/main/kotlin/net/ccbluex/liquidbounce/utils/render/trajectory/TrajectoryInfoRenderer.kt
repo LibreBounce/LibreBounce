@@ -1,31 +1,30 @@
-package net.ccbluex.liquidbounce.features.module.modules.render.trajectories
+package net.ccbluex.liquidbounce.utils.render.trajectory
 
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
-import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.entity.projectile.ProjectileUtil
-import net.minecraft.entity.projectile.thrown.EggEntity
-import net.minecraft.entity.projectile.thrown.EnderPearlEntity
-import net.minecraft.entity.projectile.thrown.PotionEntity
-import net.minecraft.entity.projectile.thrown.SnowballEntity
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.RaycastContext
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.cos
+import kotlin.math.sin
 
 class TrajectoryInfoRenderer(
     private val owner: Entity,
@@ -38,6 +37,48 @@ class TrajectoryInfoRenderer(
      */
     private val renderOffset: Vec3d
 ) {
+    companion object {
+        fun getHypotheticalTrajectory(
+            entity: Entity,
+            trajectoryInfo: TrajectoryInfo,
+            rotation: Rotation,
+            partialTicks: Float = mc.renderTickCounter.getTickDelta(true)
+        ): TrajectoryInfoRenderer {
+            val yawRadians = rotation.yaw / 180f * Math.PI.toFloat()
+            val pitchRadians = rotation.pitch / 180f * Math.PI.toFloat()
+
+            val interpolatedOffset = entity.interpolateCurrentPosition(partialTicks) - entity.pos
+
+            val pos = Vec3d(
+                entity.x,
+                entity.eyeY - 0.10000000149011612,
+                entity.z
+            )
+
+            var velocity = Vec3d(
+                -sin(yawRadians) * cos(pitchRadians).toDouble(),
+                -sin((rotation.pitch + trajectoryInfo.roll).toRadians()).toDouble(),
+                cos(yawRadians) * cos(pitchRadians).toDouble()
+            ).normalize() * trajectoryInfo.initialVelocity
+
+            if (trajectoryInfo.copiesPlayerVelocity) {
+                velocity += Vec3d(
+                    entity.velocity.x,
+                    if (entity.isOnGround) 0.0 else entity.velocity.y,
+                    entity.velocity.z
+                )
+            }
+
+            return TrajectoryInfoRenderer(
+                owner = entity,
+                velocity = velocity,
+                pos = pos,
+                trajectoryInfo = trajectoryInfo,
+                renderOffset = interpolatedOffset + Vec3d(-cos(yawRadians) * 0.16, 0.0, -sin(yawRadians) * 0.16)
+            )
+        }
+    }
+
     private val hitbox = Box.of(
         Vec3d.ZERO,
         trajectoryInfo.hitboxRadius * 2.0,
@@ -64,9 +105,9 @@ class TrajectoryInfoRenderer(
         return hitResult
     }
 
-    private fun runSimulation(
+    fun runSimulation(
         maxTicks: Int,
-        outPositions: MutableList<Vec3d>,
+        outPositions: MutableList<Vec3d> = mutableListOf(),
     ): HitResult? {
         var currTicks = 0
 
