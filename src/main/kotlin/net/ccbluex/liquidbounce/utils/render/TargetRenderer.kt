@@ -104,7 +104,12 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
         override fun render(env: WorldRenderEnvironment, entity: Entity, partialTicks: Float) {
             RenderSystem.depthMask(false)
             mc.gameRenderer.lightmapTextureManager.disable()
-            RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
+            RenderSystem.blendFuncSeparate(
+                GlStateManager.SrcFactor.SRC_ALPHA,
+                GlStateManager.DstFactor.ONE,
+                GlStateManager.SrcFactor.ZERO,
+                GlStateManager.DstFactor.ONE
+            )
             env.matrixStack.push()
 
 
@@ -172,7 +177,11 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 val alpha = MathHelper.clamp(color.a - (i * alphaFactor), 0, color.a)
                 val renderColor = color.alpha(alpha)
 
-                drawCustomMesh(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR, GameRenderer.getPositionTexColorProgram()!!) { matrix ->
+                drawCustomMesh(
+                    VertexFormat.DrawMode.QUADS,
+                    VertexFormats.POSITION_TEXTURE_COLOR,
+                    GameRenderer.getPositionTexColorProgram()!!
+                ) { matrix ->
                     vertex(matrix, 0.0f, -size, 0.0f)
                         .texture(0.0f, 0.0f)
                         .color(renderColor.toARGB())
