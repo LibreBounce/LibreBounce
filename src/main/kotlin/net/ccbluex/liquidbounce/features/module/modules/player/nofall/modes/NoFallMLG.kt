@@ -68,6 +68,10 @@ internal object NoFallMLG : Choice("MLG") {
         Items.WATER_BUCKET, Items.COBWEB, Items.POWDER_SNOW_BUCKET, Items.HAY_BLOCK, Items.SLIME_BLOCK
     )
 
+    init {
+        tree(PickupWater)
+    }
+
     @Suppress("unused")
     private val tickMovementHandler = handler<SimulatedTickEvent> {
         val currentGoal = this.getCurrentGoal()
