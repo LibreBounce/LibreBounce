@@ -19,7 +19,7 @@ import net.minecraft.client.gui.FontRenderer
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-abstract class Value<T>(
+sealed class Value<T>(
     val name: String,
     protected open var value: T,
     val subjective: Boolean = false,
@@ -309,7 +309,7 @@ open class FontValue(
         val valueObject = JsonObject()
         valueObject.run {
             addProperty("fontName", fontDetails.name)
-            addProperty("fontSize", fontDetails.fontSize)
+            addProperty("fontSize", fontDetails.size)
         }
         return valueObject
     }
@@ -327,7 +327,7 @@ open class FontValue(
             else -> {
                 val fontInfo = Fonts.getFontDetails(value)
                 fontInfo?.let {
-                    "${it.name}${if (it.fontSize != -1) " - ${it.fontSize}" else ""}"
+                    "${it.name}${if (it.size != -1) " - ${it.size}" else ""}"
                 } ?: "Font: Unknown"
             }
         }

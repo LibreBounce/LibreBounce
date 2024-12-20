@@ -27,7 +27,7 @@ object SettingsUtils {
      * @param script The script to apply.
      */
     fun applyScript(script: String) {
-        script.lines().forEachIndexed { index, s ->
+        script.lineSequence().forEachIndexed { index, s ->
             if (s.isEmpty() || s.startsWith('#')) {
                 return@forEachIndexed
             }
