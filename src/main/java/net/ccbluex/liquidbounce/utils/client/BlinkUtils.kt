@@ -47,7 +47,6 @@ object BlinkUtils : MinecraftInstance, Listenable {
             if (event.eventType == EventState.RECEIVE) {
                 synchronized(packetsReceived) {
                     PacketUtils.schedulePacketProcess(packetsReceived)
-                    Unit
                 }
                 packetsReceived.clear()
             }
@@ -165,7 +164,6 @@ object BlinkUtils : MinecraftInstance, Listenable {
     fun unblink() {
         synchronized(packetsReceived) {
             PacketUtils.schedulePacketProcess(packetsReceived)
-            Unit
         }
         synchronized(packets) {
             sendPackets(*packets.toTypedArray(), triggerEvents = false)

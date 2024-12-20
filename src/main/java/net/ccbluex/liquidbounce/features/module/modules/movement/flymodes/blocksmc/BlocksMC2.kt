@@ -205,10 +205,9 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
     private fun blink() {
         synchronized(packetsReceived) {
             PacketUtils.schedulePacketProcess(packetsReceived)
-            Unit
         }
         synchronized(packets) {
-            sendPackets(*packets.toTypedArray(), triggerEvents = false)
+            sendPackets(packets = packets.toTypedArray(), triggerEvents = false)
         }
 
         packets.clear()

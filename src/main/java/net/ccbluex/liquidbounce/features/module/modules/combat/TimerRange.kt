@@ -280,7 +280,6 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
         if (blink && event.eventState == EventState.POST) {
             synchronized(packetsReceived) {
                 PacketUtils.schedulePacketProcess(packetsReceived)
-                Unit
             }
             packetsReceived.clear()
         }
