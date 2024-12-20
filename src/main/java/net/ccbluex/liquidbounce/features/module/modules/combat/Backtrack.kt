@@ -117,7 +117,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         get() = synchronized(packetQueue) { packetQueue.isEmpty() }
 
     val areQueuedPacketsEmpty
-        get() = PacketUtils.queuedPackets?.run { synchronized(this) { isEmpty() } } == true
+        get() = PacketUtils.isEmpty()
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
