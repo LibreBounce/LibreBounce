@@ -11,7 +11,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
-object PathUtils : MinecraftInstance() {
+object PathUtils : MinecraftInstance {
     fun findBlinkPath(tpX: Double, tpY: Double, tpZ: Double): List<Vector3d> {
         val positions = mutableListOf<Vector3d>()
 

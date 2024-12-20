@@ -9,6 +9,7 @@ import com.google.common.base.Predicate
 import com.google.common.collect.Lists
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoJumpDelay
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
@@ -85,7 +86,7 @@ class SimulatedPlayer(
     private var noClip: Boolean,
     private var isSprinting: Boolean,
     private val foodStats: FoodStats,
-) : MinecraftInstance() {
+) : MinecraftInstance {
     val pos: Vec3
         get() = Vec3(posX, posY, posZ)
 

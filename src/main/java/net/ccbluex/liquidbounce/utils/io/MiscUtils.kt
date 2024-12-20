@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.filechooser.FileFilter
 
-object MiscUtils : MinecraftInstance() {
+object MiscUtils : MinecraftInstance {
 
     private fun JTextArea.adjustTextAreaSize() {
         val fontMetrics = getFontMetrics(font)

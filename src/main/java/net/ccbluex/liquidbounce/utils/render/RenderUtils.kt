@@ -24,7 +24,12 @@ import org.lwjgl.opengl.GL14
 import java.awt.Color
 import kotlin.math.*
 
-object RenderUtils : MinecraftInstance() {
+object RenderUtils : MinecraftInstance {
+    // ARGB 0xff006fff
+    const val CLIENT_COLOR = -16748545
+    // ARGB 0x7f006fff
+    const val CLIENT_COLOR_HALF_ALPHA = 2130735103
+
     private val glCapMap = mutableMapOf<Int, Boolean>()
     private val DISPLAY_LISTS_2D = IntArray(4)
     var deltaTime = 0

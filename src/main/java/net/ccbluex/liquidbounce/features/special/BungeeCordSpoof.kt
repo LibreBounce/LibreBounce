@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.minecraft.network.EnumConnectionState
 import net.minecraft.network.handshake.client.C00Handshake
 
-object BungeeCordSpoof : MinecraftInstance(), Listenable {
+object BungeeCordSpoof : MinecraftInstance, Listenable {
     var enabled = false
 
     val onPacket = handler<PacketEvent> { event ->

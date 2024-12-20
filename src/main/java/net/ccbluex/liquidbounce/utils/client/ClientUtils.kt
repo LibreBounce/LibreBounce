@@ -21,7 +21,7 @@ import java.security.PublicKey
 import javax.crypto.SecretKey
 
 @SideOnly(Side.CLIENT)
-object ClientUtils : MinecraftInstance() {
+object ClientUtils : MinecraftInstance {
     private var fastRenderField: Field? = runCatching {
         GameSettings::class.java.getDeclaredField("ofFastRender")
     }.getOrNull()

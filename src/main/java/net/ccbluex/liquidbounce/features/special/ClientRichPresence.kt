@@ -28,7 +28,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
 
-object ClientRichPresence : MinecraftInstance() {
+object ClientRichPresence : MinecraftInstance {
 
     var showRPCValue = true
     var showRPCServerIP = true

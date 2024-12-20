@@ -28,7 +28,7 @@ import kotlin.concurrent.read
 import kotlin.concurrent.write
 import kotlin.math.roundToInt
 
-object PacketUtils : MinecraftInstance(), Listenable {
+object PacketUtils : MinecraftInstance, Listenable {
 
     private val queuedPackets = ArrayDeque<Packet<*>>()
     private val queueLock = ReentrantReadWriteLock()

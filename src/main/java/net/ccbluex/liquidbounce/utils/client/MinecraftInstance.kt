@@ -9,7 +9,10 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 
-open class MinecraftInstance {
+interface MinecraftInstance {
+    val mc: Minecraft
+        get() = Companion.mc
+
     companion object {
         @JvmField
         val mc: Minecraft = Minecraft.getMinecraft()

@@ -14,7 +14,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-object MovementUtils : MinecraftInstance(), Listenable {
+object MovementUtils : MinecraftInstance, Listenable {
 
     var affectSprintOnAttack: Boolean? = null
 

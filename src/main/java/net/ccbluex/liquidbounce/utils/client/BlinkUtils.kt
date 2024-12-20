@@ -15,7 +15,7 @@ import net.minecraft.network.status.client.C00PacketServerQuery
 import net.minecraft.network.status.client.C01PacketPing
 import net.minecraft.util.Vec3
 
-object BlinkUtils : MinecraftInstance(), Listenable {
+object BlinkUtils : MinecraftInstance, Listenable {
 
     val publicPacket: Packet<*>? = null
     val packets = mutableListOf<Packet<*>>()

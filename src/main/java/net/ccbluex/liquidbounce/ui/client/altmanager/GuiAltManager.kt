@@ -195,8 +195,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             7 -> { // Import button
                 val file = MiscUtils.openFileChooser() ?: return
 
-                file.readLines().forEach {
-                    val accountData = it.split(":".toRegex(), limit = 2)
+                file.forEachLine {
+                    val accountData = it.split(":", limit = 2)
                     if (accountData.size > 1) {
                         // Most likely a mojang account
                         accountsConfig.addMojangAccount(accountData[0], accountData[1])

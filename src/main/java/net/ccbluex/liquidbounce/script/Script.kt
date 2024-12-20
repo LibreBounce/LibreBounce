@@ -28,7 +28,7 @@ import java.io.File
 import java.util.function.Function
 import javax.script.ScriptEngine
 
-class Script(val scriptFile: File) : MinecraftInstance() {
+class Script(val scriptFile: File) : MinecraftInstance {
 
     private val scriptEngine: ScriptEngine
     private val scriptText = scriptFile.readText()

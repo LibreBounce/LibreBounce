@@ -23,7 +23,7 @@ import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: Int) : MinecraftInstance() {
+class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: Int) : MinecraftInstance {
 
     var width = 80
         private set

@@ -29,7 +29,7 @@ data class FontInfo(val name: String, val size: Int = -1, val isCustom: Boolean 
 
 private val FONT_REGISTRY = LinkedHashMap<FontInfo, FontRenderer>()
 
-object Fonts : MinecraftInstance() {
+object Fonts : MinecraftInstance {
 
     val minecraftFont: FontRenderer = mc.fontRendererObj
 
