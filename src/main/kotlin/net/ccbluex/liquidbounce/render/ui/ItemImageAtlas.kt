@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.render.ui
 
+import com.mojang.blaze3d.systems.ProjectionType
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.systems.VertexSorter
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ResourceReloadEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -18,7 +18,6 @@ import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.joml.Matrix4f
-import java.awt.Color
 import java.awt.image.BufferedImage
 import java.util.stream.Collectors
 import kotlin.math.ceil
@@ -60,12 +59,7 @@ object ItemImageAtlas: EventListener {
 
         for (x in 0 until image.width) {
             for (y in 0 until image.height) {
-                val r = image.getRed(x, y).toInt() and 0xFF
-                val g = image.getGreen(x, y).toInt() and 0xFF
-                val b = image.getBlue(x, y).toInt() and 0xFF
-                val a = image.getOpacity(x, y).toInt() and 0xFF
-
-                img.setRGB(x, y, Color(r, g, b, a).rgb)
+                img.setRGB(x, y, image.getColorArgb(x, y))
             }
         }
 
@@ -78,7 +72,7 @@ object ItemImageAtlas: EventListener {
         val map = hashMapOf<Identifier, Identifier>()
 
         Registries.BLOCK.forEach {
-            val pickUpState = it.getPickStack(mc.world!!, BlockPos.ORIGIN, it.defaultState)
+            val pickUpState = it.getPickStack(mc.world!!, BlockPos.ORIGIN, it.defaultState, false)
 
             if (pickUpState.item != it) {
                 val blockId = Registries.BLOCK.getId(it)
@@ -127,8 +121,7 @@ private class ItemFramebufferRenderer(
         val fb = SimpleFramebuffer(
             NATIVE_ITEM_SIZE * scale * itemsPerDimension,
             NATIVE_ITEM_SIZE * scale * itemsPerDimension,
-            true,
-            MinecraftClient.IS_SYSTEM_MAC
+            true
         )
 
         fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
@@ -158,7 +151,7 @@ private class ItemFramebufferRenderer(
             21000.0f
         )
 
-        RenderSystem.setProjectionMatrix(matrix4f, VertexSorter.BY_Z)
+        RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC)
 
         val map = this.items.mapIndexed { idx, item ->
             val from = Vec2i(
@@ -181,7 +174,7 @@ private class ItemFramebufferRenderer(
 
         MinecraftClient.getInstance().framebuffer.beginWrite(true)
 
-        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorter.BY_Z)
+        RenderSystem.setProjectionMatrix(projectionMatrix, ProjectionType.ORTHOGRAPHIC)
 
         return map
     }

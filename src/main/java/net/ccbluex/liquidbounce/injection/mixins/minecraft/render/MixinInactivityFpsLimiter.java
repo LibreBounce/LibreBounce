@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.interfaces;
+package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
-import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.FakePlayer;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.client.option.InactivityFpsLimiter;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-/**
- * Additions to {@link net.minecraft.client.network.OtherClientPlayerEntity}.
- */
-public interface OtherClientPlayerEntityAddition {
+@Mixin(InactivityFpsLimiter.class)
+public abstract class MixinInactivityFpsLimiter {
+
+    @Shadow
+    private int maxFps;
 
     /**
-     * Allows the entity to receive damage.
-     * Used in {@link FakePlayer}.
+     * Removes frame rate limit
      */
-    @SuppressWarnings("unused")
-    boolean liquid_bounce$actuallyDamage(DamageSource source, float amount);
+    @ModifyConstant(method = "update", constant = @Constant(intValue = 60))
+    private int getFramerateLimit(int original) {
+        return maxFps;
+    }
 
 }

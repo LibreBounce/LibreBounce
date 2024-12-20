@@ -20,6 +20,7 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
 import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
@@ -42,16 +43,11 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
@@ -82,27 +78,6 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         ChunkUpdateFlag.chunkUpdate = false;
     }
 
-    @ModifyArgs(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;"))
-    private void onExplosionVelocity(Args args) {
-        double x = args.get(0);
-        double y = args.get(1);
-        double z = args.get(2);
-
-        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
-            double fixedX = MathHelper.clamp(x, -10.0, 10.0);
-            double fixedY = MathHelper.clamp(y, -10.0, 10.0);
-            double fixedZ = MathHelper.clamp(z, -10.0, 10.0);
-
-            if (fixedX != x || fixedY != y || fixedZ != z) {
-                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
-                        true);
-                args.set(0, fixedX);
-                args.set(1, fixedY);
-                args.set(2, fixedZ);
-            }
-        }
-    }
-
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
     private int onParticleAmount(int original) {
         if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesAmount() && 500 <= original) {
@@ -117,18 +92,6 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesSpeed() && 10.0f <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too fast particles speed", true);
             return 10.0f;
-        }
-        return original;
-    }
-
-    @ModifyExpressionValue(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;getRadius()F"))
-    private float onExplosionWorld(float original) {
-        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionRange()) {
-            float radius = MathHelper.clamp(original, -1000.0f, 1000.0f);
-            if (radius != original) {
-                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too big TNT explosion radius", true);
-                return radius;
-            }
         }
         return original;
     }
@@ -158,19 +121,19 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         }
     }
 
-    @Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setVelocity(DDD)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void injectNoRotateSet(PlayerPositionLookS2CPacket packet, CallbackInfo ci, PlayerEntity playerEntity, Vec3d vec3d, boolean bl, boolean bl2, boolean bl3, double d, double e, double f, double g, double h, double i) {
-        float j = packet.getYaw();
-        float k = packet.getPitch();
+    @Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/player/PlayerPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z", shift = At.Shift.AFTER))
+    private void injectNoRotateSet(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
+        float j = packet.change().yaw();
+        float k = packet.change().pitch();
 
         if (!ModuleNoRotateSet.INSTANCE.getRunning() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
             return;
         }
 
         // Confirm teleport
-        this.connection.send(new TeleportConfirmC2SPacket(packet.getTeleportId()));
+        this.connection.send(new TeleportConfirmC2SPacket(packet.teleportId()));
         // Silently accept yaw and pitch values requested by the server.
-        this.connection.send(new PlayerMoveC2SPacket.Full(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), j, k, false));
+        this.connection.send(new PlayerMoveC2SPacket.Full(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), j, k, false, playerEntity.horizontalCollision));
         Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
         if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
             // Changes your server side rotation and then resets it with provided settings

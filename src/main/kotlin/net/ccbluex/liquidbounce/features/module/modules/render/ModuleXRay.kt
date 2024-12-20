@@ -194,6 +194,14 @@ object ModuleXRay : ClientModule("XRay", Category.RENDER) {
         else -> true
     }
 
+    fun shouldRender(state: BlockState, otherState: BlockState, side: Direction) = when {
+        state.block !in blocks -> false
+
+        exposedOnly -> !state.isSideInvisible(otherState, side)
+
+        else -> true
+    }
+
     /**
      * Resets the block list to the default values
      */

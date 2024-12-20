@@ -18,18 +18,29 @@
  */
 package net.ccbluex.liquidbounce.render.shader.shaders
 
-import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.render.engine.MinecraftFramebufferShader
+import net.ccbluex.liquidbounce.render.shader.FramebufferShader
+import net.ccbluex.liquidbounce.render.shader.ProjMatUniform
+import net.ccbluex.liquidbounce.render.shader.Shader
+import net.ccbluex.liquidbounce.render.shader.UniformProvider
+import net.ccbluex.liquidbounce.utils.io.resourceToString
+import org.lwjgl.opengl.GL20
 
-object OutlineShader : MinecraftFramebufferShader("outline_shader") {
+object OutlineShaderData {
+    val radius = 1
+}
 
-    fun begin(width: Float) {
-        this.setUniform1f("radius", width)
-        this.beginInternal()
-    }
+object OutlineShader : FramebufferShader(Shader(
+    resourceToString("/assets/liquidbounce/shaders/sobel.vert"),
+    resourceToString("/assets/liquidbounce/shaders/outline/entity_outline.frag"),
+    arrayOf(
+        ProjMatUniform,
+        UniformProvider("texture0") { pointer -> GL20.glUniform1i(pointer, 0) },
+        UniformProvider("radius") { pointer -> GL20.glUniform1i(pointer, OutlineShaderData.radius) }
+    )
+)) {
 
-    fun setColor(color: Color4b) {
-        this.vertexConsumerProvider?.setColor(color.r, color.g, color.b, color.a)
-    }
+//    val stencilShader = Shader(
+//
+//    )
 
 }

@@ -224,7 +224,7 @@ object ChunkScanner : EventListener {
 
             val start = System.nanoTime()
 
-            (chunk.bottomY..chunk.topY).map { y ->
+            (chunk.bottomY..chunk.height).map { y ->
                 scope.launch {
                     val startX = chunk.pos.startX
                     val startZ = chunk.pos.startZ

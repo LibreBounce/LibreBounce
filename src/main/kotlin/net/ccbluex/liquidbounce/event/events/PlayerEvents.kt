@@ -23,8 +23,8 @@ package net.ccbluex.liquidbounce.event.events
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
+import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
@@ -77,7 +77,7 @@ class PlayerAfterJumpEvent : Event()
 class PlayerUseMultiplier(var forward: Float, var sideways: Float) : Event()
 
 @Nameable("playerSneakMultiplier")
-class PlayerSneakMultiplier(var multiplier: Float) : Event()
+class PlayerSneakMultiplier(var multiplier: Double) : Event()
 
 @Nameable("playerInteractedItem")
 class PlayerInteractedItem(val player: PlayerEntity, val hand: Hand, val actionResult: ActionResult) : Event()

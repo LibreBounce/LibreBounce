@@ -7,6 +7,7 @@
   "mixinPriority": 1337,
   "client": [
     "authlib.MixinMinecraftClient",
+    "blaze3d.MixinRenderSystem",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockCollisionSpliterator",
     "minecraft.block.MixinBlockView",
@@ -35,7 +36,6 @@
     "minecraft.entity.MixinClientPlayerEntity",
     "minecraft.entity.MixinEntity",
     "minecraft.entity.MixinLivingEntity",
-    "minecraft.entity.MixinOtherClientPlayerEntity",
     "minecraft.entity.MixinPlayerEntity",
     "minecraft.entity.MixinPlayerEntityAccessor",
     "minecraft.fluid.MixinFlowableFluid",
@@ -48,7 +48,6 @@
     "minecraft.gui.MixinPlayerListHud",
     "minecraft.gui.MixinScoreboard",
     "minecraft.gui.MixinScreen",
-    "minecraft.gui.MixinSignText",
     "minecraft.gui.MixinSplashOverlay",
     "minecraft.gui.MixinStringHelper",
     "minecraft.gui.custom.MixinConnectScreen",
@@ -78,6 +77,7 @@
     "minecraft.render.MixinEntityRenderDispatcher",
     "minecraft.render.MixinEntityRenderer",
     "minecraft.render.MixinGameRenderer",
+    "minecraft.render.MixinInactivityFpsLimiter",
     "minecraft.render.MixinInGameOverlayRenderer",
     "minecraft.render.MixinItemRender",
     "minecraft.render.MixinLightmapTextureManager",
@@ -88,7 +88,9 @@
     "minecraft.render.MixinRenderTickCounter",
     "minecraft.render.MixinSignText",
     "minecraft.render.MixinTextRenderer",
+    "minecraft.render.MixinWeatherRendering",
     "minecraft.render.MixinWorldRenderer",
+    "minecraft.render.entity.MixinEntityRenderState",
     "minecraft.render.entity.feature.MixinDeadmau5FeatureRenderer",
     "minecraft.text.MixinChatHudLine",
     "minecraft.text.MixinChatHudLineVisible",
@@ -104,5 +106,9 @@
   "server": [],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+    "minecraft.item.MixinArmorItem",
+    "minecraft.item.MixinMiningToolItem"
+  ]
 }

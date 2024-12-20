@@ -52,8 +52,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinInGameHud {
 
     @Final
-    @Shadow
-    private static Identifier PUMPKIN_BLUR;
+    @Unique
+    private static final Identifier liquid_bounce$PUMPKIN_BLUR = Identifier.ofVanilla("misc/pumpkinblur");
 
     @Final
     @Shadow
@@ -93,7 +93,7 @@ public abstract class MixinInGameHud {
             return;
         }
 
-        if (module.getPumpkinBlur() && PUMPKIN_BLUR.equals(texture)) {
+        if (module.getPumpkinBlur() && liquid_bounce$PUMPKIN_BLUR.equals(texture)) {
             callback.cancel();
             return;
         }
@@ -120,7 +120,7 @@ public abstract class MixinInGameHud {
     }
 
 
-    @Inject(method = "renderScoreboardSidebar", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderScoreboardSidebar*", at = @At("HEAD"), cancellable = true)
     private void renderScoreboardSidebar(CallbackInfo ci) {
         if (ComponentOverlay.isTweakEnabled(FeatureTweak.DISABLE_SCOREBOARD)) {
             ci.cancel();
@@ -228,6 +228,14 @@ public abstract class MixinInGameHud {
     )
     private Perspective hookPerspectiveEventOnMiscOverlays(Perspective original) {
         return EventManager.INSTANCE.callEvent(new PerspectiveEvent(original)).getPerspective();
+    }
+
+    @Inject(method = "renderNauseaOverlay", at = @At("HEAD"), cancellable = true)
+    private void hookNauseaOverlay(DrawContext context, float distortionStrength, CallbackInfo ci) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        if (antiBlind.getRunning() && antiBlind.getAntiNausea()) {
+            ci.cancel();
+        }
     }
 
 }

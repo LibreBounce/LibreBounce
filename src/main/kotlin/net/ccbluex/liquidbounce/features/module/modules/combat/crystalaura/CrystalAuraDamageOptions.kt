@@ -185,8 +185,8 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
             ): DamageProvider {
                 return NormalDamageProvider(entity.getDamageFromExplosion(
                     crystal,
-                    maxBlastResistance = maxBlastResistance,
-                    include = include
+                    include = include,
+                    maxBlastResistance = maxBlastResistance
                 ))
             }
         };

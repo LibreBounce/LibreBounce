@@ -1,8 +1,10 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import net.ccbluex.liquidbounce.interfaces.PostEffectPassTextureAddition;
-import net.minecraft.client.gl.JsonEffectShaderProgram;
 import net.minecraft.client.gl.PostEffectPass;
+import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.util.Handle;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,9 +18,10 @@ import java.util.Map;
 
 @Mixin(PostEffectPass.class)
 public class MixinPostEffectPass implements PostEffectPassTextureAddition {
+
     @Shadow
     @Final
-    private JsonEffectShaderProgram program;
+    private ShaderProgram program;
     @Unique
     private final Map<String, Integer> textureSamplerMap = new HashMap<>();
 
@@ -27,10 +30,10 @@ public class MixinPostEffectPass implements PostEffectPassTextureAddition {
         this.textureSamplerMap.put(name, textureId);
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;endWrite()V", ordinal = 0))
-    private void injectTextureSamplerMap(float time, CallbackInfo ci) {
+    @Inject(method = "method_62257", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;endWrite()V", ordinal = 0))
+    private void injectTextureSamplerMap(Handle handle, Map map, Matrix4f matrix4f, CallbackInfo ci) {
         for (Map.Entry<String, Integer> stringIntegerEntry : this.textureSamplerMap.entrySet()) {
-            this.program.bindSampler(stringIntegerEntry.getKey(), stringIntegerEntry::getValue);
+            this.program.addSamplerTexture(stringIntegerEntry.getKey(), stringIntegerEntry.getValue());
         }
     }
 

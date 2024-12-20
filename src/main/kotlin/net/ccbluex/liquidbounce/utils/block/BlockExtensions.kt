@@ -487,7 +487,8 @@ private inline fun handleActionsOnAccept(
     onPlacementSuccess: () -> Boolean,
     swingMode: SwingMode = SwingMode.DO_NOT_HIDE,
 ) {
-    if (!interactionResult.shouldSwingHand()) {
+    if (interactionResult !is ActionResult.Success ||
+        interactionResult.swingSource != ActionResult.SwingSource.SERVER) {
         return
     }
 

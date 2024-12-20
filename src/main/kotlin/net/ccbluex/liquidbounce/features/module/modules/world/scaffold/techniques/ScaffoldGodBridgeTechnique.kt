@@ -147,7 +147,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
             isOnRightSide = floor(player.x + cos(movingYaw.toRadians()) * 0.5) != floor(player.x) ||
                 floor(player.z + sin(movingYaw.toRadians()) * 0.5) != floor(player.z)
 
-            val posInDirection = player.pos.offset(Direction.fromRotation(movingYaw.toDouble()), 0.6).toBlockPos()
+            val posInDirection = player.pos.offset(Direction.fromHorizontalDegrees(movingYaw.toDouble()), 0.6).toBlockPos()
 
             val isLeaningOffBlock = player.blockPos.down().getState()?.isAir == true
             val nextBlockIsAir = posInDirection.down().getState()?.isAir == true

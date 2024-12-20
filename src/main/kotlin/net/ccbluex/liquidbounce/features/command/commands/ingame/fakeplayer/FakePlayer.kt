@@ -19,10 +19,16 @@
 package net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer
 
 import com.mojang.authlib.GameProfile
-import net.ccbluex.liquidbounce.interfaces.OtherClientPlayerEntityAddition
+import net.ccbluex.liquidbounce.event.EventManager.callEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
-import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.effect.StatusEffectInstance
+import net.minecraft.entity.effect.StatusEffects
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket
 
 /**
  * This class represents a Fake Player implementing
@@ -64,12 +70,21 @@ open class FakePlayer(
         this.limbAnimator.pos = snapshot.limbPos
     }
 
-    /**
-     * Applies the actual damage.
-     */
-    override fun damage(source: DamageSource?, amount: Float): Boolean {
-        @Suppress("CAST_NEVER_SUCCEEDS") // it does succeed with the mixin into OtherClientPlayerEntity
-        return (this as OtherClientPlayerEntityAddition).`liquid_bounce$actuallyDamage`(source, amount)
+    override fun setHealth(health: Float) {
+        super.setHealth(health)
+        if (getHealth() <= 0f) {
+            addStatusEffect(StatusEffectInstance(StatusEffects.REGENERATION, 900, 1))
+            addStatusEffect(StatusEffectInstance(StatusEffects.ABSORPTION, 100, 1))
+            addStatusEffect(StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 800, 0))
+            setHealth(1.0f)
+
+            val packet = EntityStatusS2CPacket(LivingEntity::class.java.cast(this), 35.toByte())
+            val event = PacketEvent(TransferOrigin.RECEIVE, packet, true)
+            callEvent(event)
+            if (!event.isCancelled) {
+                packet.apply(MinecraftClient.getInstance().networkHandler)
+            }
+        }
     }
 
     /**

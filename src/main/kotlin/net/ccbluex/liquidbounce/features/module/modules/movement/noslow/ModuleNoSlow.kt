@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sl
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sneaking.NoSlowSneaking
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.soulsand.NoSlowSoulsand
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker
-import net.minecraft.util.UseAction
+import net.minecraft.item.consume.UseAction
 
 /**
  * NoSlow module
@@ -79,5 +79,7 @@ object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
             NoSlowBow.forwardMultiplier, NoSlowBow.sidewaysMultiplier
         ) else Pair(0.2f, 0.2f)
 
+        UseAction.BUNDLE -> TODO() // TODO PORT:IMPL
     }
+
 }

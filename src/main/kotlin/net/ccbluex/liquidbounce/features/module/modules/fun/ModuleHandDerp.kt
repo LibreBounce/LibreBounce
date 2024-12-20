@@ -68,7 +68,8 @@ object ModuleHandDerp : ClientModule("HandDerp", Category.FUN) {
                     calculatePlayerPartValue(),
                     currentHand,
                     mc.shouldFilterText(),
-                    mc.options.allowServerListing.value
+                    mc.options.allowServerListing.value,
+                    mc.options.particles.value
                 )
             )
         )

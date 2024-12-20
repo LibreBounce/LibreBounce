@@ -58,7 +58,7 @@ val ACCEPTED_ITEM_TAGS
         ItemTags.WALLS,
         ItemTags.ANVIL,
         ItemTags.RAILS,
-        ItemTags.FLOWERS,
+        ItemTags.SMALL_FLOWERS,
         ItemTags.SAPLINGS,
         ItemTags.LEAVES,
         ItemTags.TRAPDOORS,
@@ -82,7 +82,7 @@ val ACCEPTED_ITEM_TAGS
         ItemTags.COALS,
         ItemTags.ARROWS,
         ItemTags.COMPASSES,
-        ItemTags.TRIM_TEMPLATES,
+        ItemTags.TRIM_MATERIALS,
         ItemTags.SWORDS,
         ItemTags.AXES,
         ItemTags.HOES,
@@ -144,7 +144,7 @@ fun <T> constructMap(registry: DefaultedRegistry<T>, tagKeys: Array<TagKey<T>>):
     val map = hashMapOf<Identifier, Identifier>()
 
     for (acceptedTag in tagKeys) {
-        val get = registry.getEntryList(acceptedTag).getOrNull() ?: continue
+        val get = registry.getOptional(acceptedTag).getOrNull() ?: continue
 
         get.forEach {
             val itemId = registry.getId(it.value())
@@ -169,7 +169,7 @@ fun getRegistries(requestObject: RequestObject) = httpOk(JsonObject().apply {
     val world = mc.world ?: return httpForbidden("No world")
 
     Registries.BLOCK.forEach {
-        val pickStack = it.getPickStack(world, BlockPos.ORIGIN, it.defaultState)
+        val pickStack = it.getPickStack(world, BlockPos.ORIGIN, it.defaultState, false)
         val id = Registries.BLOCK.getId(it)
 
         when (val item = pickStack.item) {

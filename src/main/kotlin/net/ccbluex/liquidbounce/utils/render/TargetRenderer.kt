@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen.calculateScreenPos
-import net.minecraft.client.render.GameRenderer
+import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.entity.Entity
@@ -306,7 +306,7 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
                     drawCustomMesh(
                         VertexFormat.DrawMode.TRIANGLE_STRIP,
                         VertexFormats.POSITION,
-                        GameRenderer.getPositionProgram()!!
+                        ShaderProgramKeys.POSITION
                     ) {
                         vertex(it, screenPos.x - 5 *  size, screenPos.y - 10 * size, 1f)
                         vertex(it, screenPos.x, screenPos.y, 1f)

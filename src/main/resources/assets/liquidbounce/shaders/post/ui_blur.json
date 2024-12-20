@@ -1,17 +1,21 @@
 {
-  "targets": [
-    "swap"
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "zero"
+  },
+  "vertex": "minecraft:post/sobel",
+  "fragment": "liquidbounce:post/ui_blur",
+  "attributes": [ "Position" ],
+  "samplers": [
+    { "name": "InSampler" },
+    { "name": "Overlay" }
   ],
-  "passes": [
-    {
-      "name": "ui_blur",
-      "intarget": "minecraft:main",
-      "outtarget": "swap"
-    },
-    {
-      "name": "blit",
-      "intarget": "swap",
-      "outtarget": "minecraft:main"
-    }
+  "uniforms": [
+    { "name": "ProjMat",     "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+    { "name": "InSize",      "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] },
+    { "name": "OutSize",     "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] },
+    { "name": "BlurDir",     "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] },
+    { "name": "Radius",      "type": "float",     "count": 1,  "values": [ 20.0 ] }
   ]
 }

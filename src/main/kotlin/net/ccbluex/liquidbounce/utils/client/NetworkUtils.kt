@@ -29,6 +29,7 @@ import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.network.ClientPlayerInteractionManager
 import net.minecraft.client.network.SequencedPacketCreator
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
@@ -41,12 +42,13 @@ import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.world.GameMode
 import org.apache.commons.lang3.mutable.MutableObject
+import java.util.*
 
 fun clickBlockWithSlot(
     player: ClientPlayerEntity,
     rayTraceResult: BlockHitResult,
     slot: Int,
-    placementSwingMode: SwingMode,
+    swingMode: SwingMode,
     switchMode: SwitchMode = SwitchMode.SILENT
 ) {
     val hand = if (slot == OFFHAND_SLOT.hotbarSlotForServer) {
@@ -87,8 +89,8 @@ fun clickBlockWithSlot(
         actionResult = itemStack.useOnBlock(itemUsageContext)
     }
 
-    if (actionResult.shouldSwingHand()) {
-        placementSwingMode.swing(hand)
+    if (actionResult is ActionResult.Success && actionResult.swingSource == ActionResult.SwingSource.CLIENT) {
+        swingMode.swing(hand)
     }
 
     if (slot != prevHotbarSlot && hand == Hand.MAIN_HAND && switchMode == SwitchMode.SILENT) {
@@ -116,18 +118,25 @@ fun ClientPlayerInteractionManager.interactItem(
     this.sendSequencedPacket(world, SequencedPacketCreator { sequence: Int ->
         val playerInteractItemC2SPacket = PlayerInteractItemC2SPacket(hand, sequence, yaw, pitch)
         val itemStack = player.getStackInHand(hand)
-        if (player.itemCooldownManager.isCoolingDown(itemStack.item)) {
-            mutableObject.value = ActionResult.PASS
+        if (player.itemCooldownManager.isCoolingDown(itemStack)) {
+            mutableObject.setValue(ActionResult.PASS)
             return@SequencedPacketCreator playerInteractItemC2SPacket
         }
 
         val typedActionResult = itemStack.use(world, player, hand)
-        val itemStack2 = typedActionResult.value
+        val itemStack2 = if (typedActionResult is ActionResult.Success) {
+            Objects.requireNonNullElseGet<ItemStack>(
+                typedActionResult.newHandStack
+            ) { player.getStackInHand(hand) } as ItemStack
+        } else {
+            player.getStackInHand(hand)
+        }
+
         if (itemStack2 != itemStack) {
             player.setStackInHand(hand, itemStack2)
         }
 
-        mutableObject.value = typedActionResult.result
+        mutableObject.setValue(typedActionResult)
         return@SequencedPacketCreator playerInteractItemC2SPacket
     })
 
@@ -147,15 +156,17 @@ fun sendPacketSilently(packet: Packet<*>) {
 enum class MovePacketType(override val choiceName: String, val generatePacket: () -> PlayerMoveC2SPacket)
     : NamedChoice {
     ON_GROUND_ONLY("OnGroundOnly", {
-        PlayerMoveC2SPacket.OnGroundOnly(player.isOnGround)
+        PlayerMoveC2SPacket.OnGroundOnly(player.isOnGround, player.horizontalCollision)
     }),
     POSITION_AND_ON_GROUND("PositionAndOnGround", {
-        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, player.isOnGround)
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, player.isOnGround,
+            player.horizontalCollision)
     }),
     LOOK_AND_ON_GROUND("LookAndOnGround", {
-        PlayerMoveC2SPacket.LookAndOnGround(player.yaw, player.pitch, player.isOnGround)
+        PlayerMoveC2SPacket.LookAndOnGround(player.yaw, player.pitch, player.isOnGround, player.horizontalCollision)
     }),
     FULL("Full", {
-        PlayerMoveC2SPacket.Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround)
+        PlayerMoveC2SPacket.Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround,
+            player.horizontalCollision)
     });
 }

@@ -51,7 +51,7 @@ object ModuleSneak : ClientModule("Sneak", Category.MOVEMENT) {
             }
 
             // Temporarily override sneaking
-            it.sneaking = true
+            it.sneak = true
         }
 
     }

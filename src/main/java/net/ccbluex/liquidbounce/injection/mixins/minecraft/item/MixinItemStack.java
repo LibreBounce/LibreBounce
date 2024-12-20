@@ -49,4 +49,5 @@ public class MixinItemStack {
         EventManager.INSTANCE.callEvent(event);
         cir.setReturnValue(event.getLore());
     }
+
 }

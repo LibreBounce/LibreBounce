@@ -6,13 +6,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.AbstractFireballEntity
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.entity.projectile.TridentEntity
-import net.minecraft.entity.projectile.thrown.EggEntity
-import net.minecraft.entity.projectile.thrown.EnderPearlEntity
-import net.minecraft.entity.projectile.thrown.ExperienceBottleEntity
-import net.minecraft.entity.projectile.thrown.PotionEntity
-import net.minecraft.entity.projectile.thrown.SnowballEntity
+import net.minecraft.entity.projectile.thrown.*
 import net.minecraft.item.*
-import org.joml.Matrix4f
 
 object TrajectoryData {
     fun getRenderedTrajectoryInfo(player: PlayerEntity, item: Item, alwaysShowBow: Boolean): TrajectoryInfo? {
@@ -50,7 +45,7 @@ object TrajectoryData {
         activeArrows: Boolean,
         activeOthers: Boolean,
     ): TrajectoryInfo? {
-        if (activeArrows && entity is ArrowEntity && !entity.inGround) {
+        if (activeArrows && entity is ArrowEntity && !entity.isInGround()) {
             return TrajectoryInfo(0.05, 0.3)
         }
         if (!activeOthers) {
@@ -60,7 +55,7 @@ object TrajectoryData {
         return when (entity) {
             is PotionEntity -> TrajectoryInfo.POTION
             is TridentEntity -> {
-                if (!entity.inGround) {
+                if (!entity.isInGround()) {
                     TrajectoryInfo.TRIDENT
                 } else {
                     null

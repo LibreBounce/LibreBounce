@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -31,11 +32,12 @@ import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
+import net.ccbluex.liquidbounce.utils.entity.getEffectiveDamage
 import net.minecraft.entity.Entity
+import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
-import net.minecraft.world.explosion.Explosion
-import net.minecraft.world.explosion.ExplosionBehavior
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -54,8 +56,6 @@ object CommandFakePlayer : CommandFactory, EventListener {
 
     private var recording = false
     private val snapshots = ArrayList<PosPoseSnapshot>()
-
-    private val explosionBehavior: ExplosionBehavior = ExplosionBehavior()
 
     // the entity ids of fake players shouldn't conflict with real entity ids, so they are negative
     private var fakePlayerId = -1
@@ -293,29 +293,14 @@ object CommandFakePlayer : CommandFactory, EventListener {
          * so an ExplosionS2CPacket handler is required.
          */
         if (packet is ExplosionS2CPacket) {
-            val explosion = Explosion(
-                world,
-                null,
-                packet.x,
-                packet.y,
-                packet.z,
-                packet.radius,
-                packet.affectedBlocks,
-                packet.destructionType,
-                packet.particle,
-                packet.emitterParticle,
-                packet.soundEvent
-            )
-
             fakePlayers.forEach { fakePlayer ->
-                if (!explosionBehavior.shouldDamage(explosion, fakePlayer)) { // might not be necessary
-                    return@handler
-                }
-
-                fakePlayer.damage(
-                    Explosion.createDamageSource(world, null),
-                    explosionBehavior.calculateDamage(explosion, fakePlayer)
+                val damage = fakePlayer.getDamageFromExplosion(
+                    pos = packet.center // will only work for crystals
                 )
+
+                val absorption = fakePlayer.absorptionAmount
+                fakePlayer.health -= damage - absorption
+                fakePlayer.absorptionAmount -= damage.coerceAtMost(absorption)
             }
         }
 
@@ -330,6 +315,31 @@ object CommandFakePlayer : CommandFactory, EventListener {
         ) {
             it.cancelEvent()
         }
+    }
+
+    @Suppress("unused")
+    val attackHandler = handler<AttackEntityEvent> {
+        val fakePlayer = it.entity
+        if (fakePlayer !is FakePlayer) {
+            return@handler
+        }
+
+        val genericAttackDamage = if (player.isUsingRiptide) {
+                player.riptideAttackDamage
+            } else {
+                player.getAttributeValue(EntityAttributes.ATTACK_DAMAGE).toFloat()
+            }
+        val damageSource = player.damageSources.playerAttack(player)
+        var enchantAttackDamage = player.getDamageAgainst(fakePlayer, genericAttackDamage,
+            damageSource) - genericAttackDamage
+
+        val attackCooldown = player.getAttackCooldownProgress(0.5f)
+        enchantAttackDamage *= attackCooldown
+        val damage = fakePlayer.getEffectiveDamage(damageSource, enchantAttackDamage, false)
+
+        val absorption = fakePlayer.absorptionAmount
+        fakePlayer.health -= damage - absorption
+        fakePlayer.absorptionAmount -= damage.coerceAtMost(absorption)
     }
 
     /**

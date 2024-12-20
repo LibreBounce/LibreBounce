@@ -16,16 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.render.shader.shaders
+package net.ccbluex.liquidbounce.utils.item
 
-import net.ccbluex.liquidbounce.render.engine.MinecraftFramebufferShader
+import net.ccbluex.liquidbounce.interfaces.ArmorItemAdditions
+import net.ccbluex.liquidbounce.interfaces.MiningToolItemAddition
+import net.minecraft.item.ArmorItem
+import net.minecraft.item.MiningToolItem
+import net.minecraft.item.ToolMaterial
+import net.minecraft.item.equipment.ArmorMaterial
+import net.minecraft.item.equipment.EquipmentType
 
-object DitheringShader : MinecraftFramebufferShader("dithering_shader") {
+fun ArmorItem.material(): ArmorMaterial = (this as ArmorItemAdditions).`liquid_bounce$getMaterial`()
 
-    fun begin(ditherAmount: Float) {
-        this.setUniform1f("ditherAmount", ditherAmount)
-//        this.vertexConsumerProvider!!.setColor(255, 255, 255, 255)
-        this.beginInternal()
-    }
+fun MiningToolItem.material(): ToolMaterial = (this as MiningToolItemAddition).`liquid_bounce$getMaterial`()
 
-}
+fun ArmorItem.type(): EquipmentType = (this as ArmorItemAdditions).`liquid_bounce$getType`()

@@ -40,6 +40,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.ItemTags
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import kotlin.math.abs
 
@@ -208,7 +209,7 @@ fun interactItem(
     preInteraction()
 
     interaction.interactItem(player, hand, yaw, pitch).takeIf { it.isAccepted }?.let {
-        if (it.shouldSwingHand()) {
+        if (it is ActionResult.Success && it.swingSource == ActionResult.SwingSource.CLIENT) {
             player.swingHand(hand)
         }
 

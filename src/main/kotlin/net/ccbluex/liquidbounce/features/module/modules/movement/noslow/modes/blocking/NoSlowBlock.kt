@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sh
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedInvalidHand
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker.isBlocking
 import net.ccbluex.liquidbounce.utils.client.inGame
-import net.minecraft.util.UseAction
+import net.minecraft.item.consume.UseAction
 
 internal object NoSlowBlock : ToggleableConfigurable(ModuleNoSlow, "Blocking", true) {
 

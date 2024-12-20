@@ -28,9 +28,11 @@ plugins {
     id "org.jetbrains.dokka" version "1.9.10"
 }
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+base {
+    archivesBaseName = project.archives_base_name
+    version = project.mod_version
+    group = project.maven_group
+}
 
 configurations {
     includeDependency

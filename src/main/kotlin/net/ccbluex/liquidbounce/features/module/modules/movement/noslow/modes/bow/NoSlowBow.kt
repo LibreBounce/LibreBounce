@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sh
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2364MC18
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedInvalidHand
 import net.ccbluex.liquidbounce.utils.client.inGame
-import net.minecraft.util.UseAction
+import net.minecraft.item.consume.UseAction
 
 internal object NoSlowBow : ToggleableConfigurable(ModuleNoSlow, "Bow", true) {
 
