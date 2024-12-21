@@ -12,12 +12,12 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager.color
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -40,7 +40,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
      * Any good anti-cheat will easily detect this module.
      */
     fun includeEntityTruePos(entity: Entity, action: () -> Unit) {
-        if (!handleEvents() || entity !is EntityLivingBase || entity is EntityPlayerSP)
+        if (!handleEvents() || !isSelected(entity, true))
             return
 
         // Would be more fun if we simulated instead.
@@ -68,10 +68,9 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
         val renderManager = mc.renderManager
 
-        for (target in world.loadedEntityList) {
-            if (target is EntityPlayerSP)
-                continue
-
+        world.loadedEntityList.asSequence()
+            .filter { isSelected(it, true) }
+            .forEach { target ->
             target?.run {
                 val vec = usePosition(this)
 
@@ -86,6 +85,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
                     "model" -> {
                         glPushMatrix()
+                        glPushAttrib(GL_ALL_ATTRIB_BITS)
 
                         color(0.6f, 0.6f, 0.6f, 1f)
                         renderManager.doRenderEntity(
@@ -96,6 +96,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                             true
                         )
 
+                        glPopAttrib()
                         glPopMatrix()
                     }
 

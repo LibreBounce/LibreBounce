@@ -377,6 +377,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
                             "model" -> {
                                 glPushMatrix()
                                 glPushAttrib(GL_ALL_ATTRIB_BITS)
+
                                 color(0.6f, 0.6f, 0.6f, 1f)
                                 manager.doRenderEntity(
                                     this,
