@@ -51,6 +51,8 @@ public class MixinItem {
             var itemStack = user.getStackInHand(hand);
             user.setCurrentHand(hand);
             ConsumableComponent consumableComponent = itemStack.get(DataComponentTypes.CONSUMABLE);
+            if (consumableComponent == null)
+                return;
             cir.setReturnValue(consumableComponent.consume(user, itemStack, hand));
         }
     }
