@@ -43,11 +43,15 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
@@ -76,6 +80,26 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         var chunkPosition = packet.sectionPos.toChunkPos();
         EventManager.INSTANCE.callEvent(new ChunkDeltaUpdateEvent(chunkPosition.x, chunkPosition.z));
         ChunkUpdateFlag.chunkUpdate = false;
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @ModifyExpressionValue(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;playerKnockback()Ljava/util/Optional;"))
+    private Optional<Vec3d> onExplosionVelocity(Optional<Vec3d> original) {
+        var present = original.isPresent();
+        if (present && ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
+            var vec = original.get();
+            double fixedX = MathHelper.clamp(vec.x, -10.0, 10.0);
+            double fixedY = MathHelper.clamp(vec.y, -10.0, 10.0);
+            double fixedZ = MathHelper.clamp(vec.z, -10.0, 10.0);
+
+            if (fixedX != vec.x || fixedY != vec.y || fixedZ != vec.z) {
+                ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too strong explosion",
+                        true);
+                return Optional.of(new Vec3d(fixedX, fixedY, fixedZ));
+            }
+        }
+
+        return original;
     }
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
