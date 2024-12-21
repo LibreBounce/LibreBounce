@@ -243,7 +243,6 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
                         }
                     }
                 } catch (_: Exception) {
-
                 }
             }
         } catch (e: Exception) {

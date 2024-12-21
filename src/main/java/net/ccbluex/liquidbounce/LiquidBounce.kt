@@ -224,7 +224,7 @@ object LiquidBounce {
             // Load background
             FileManager.loadBackground()
         } catch (e: Exception) {
-            LOGGER.error("Failed to start client ${e.message}")
+            LOGGER.error("Failed to start client: ${e.message}")
         } finally {
             // Set is starting status
             isStarting = false
