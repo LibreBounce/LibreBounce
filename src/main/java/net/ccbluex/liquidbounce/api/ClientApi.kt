@@ -23,13 +23,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
  */
 object ClientApi {
 
-    /**
-     * For many people the SSL certificate is not being accepted because of outdated Java or odd computer settings.
-     * This is why we use a non-SSL endpoint since we don't handle any sensitive data.
-     *
-     * DO NOT CHANGE THIS ENDPOINT TO SSL.
-     */
-    private const val API_ENDPOINT = "http://nossl.api.liquidbounce.net/api/v1"
+    private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
 
     /**
      * This makes sense because we want forks to be able to use this API and not only the official client.
@@ -40,7 +34,6 @@ object ClientApi {
     fun requestNewestBuildEndpoint(branch: String = HARD_CODED_BRANCH, release: Boolean = false) = endpointRequest<Build>("version/newest/$branch${if (release) "/release" else "" }")
 
     fun requestMessageOfTheDayEndpoint(branch: String = HARD_CODED_BRANCH) = endpointRequest<MessageOfTheDay>("client/$branch/motd")
-
 
     fun requestSettingsList(branch: String = HARD_CODED_BRANCH) = endpointRequest<Array<AutoSettings>>("client/$branch/settings")
 
@@ -108,21 +101,21 @@ object ClientApi {
      */
     private fun textEndpointRequest(endpoint: String): String {
         val (response, code) = request(
-            "$API_ENDPOINT/$endpoint",
+            "$API_V1_ENDPOINT/$endpoint",
             method = "GET",
             agent = ENDPOINT_AGENT,
             headers = arrayOf("X-Session-Token" to SESSION_TOKEN)
         )
 
         if (code != 200) {
-            error(response)
+            error("$endpoint -> $code: $response")
         } else {
             return response
         }
     }
 
     private inline fun textEndpointPost(endpoint: String, body: () -> RequestBody) = post(
-        "$API_ENDPOINT/$endpoint",
+        "$API_V1_ENDPOINT/$endpoint",
         agent = ENDPOINT_AGENT,
         headers = arrayOf("X-Session-Token" to SESSION_TOKEN),
         body = body()
