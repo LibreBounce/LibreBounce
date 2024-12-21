@@ -64,7 +64,11 @@ object BlockESP : Module("BlockESP", Category.RENDER, hideModule = false) {
             it.distanceSqToCenter(x, y, z) >= radiusSq || it.block != selectedBlock
         }
 
-        posList += searchBlocks(radius, setOf(selectedBlock), blockLimit).keys
+        val listSpace = blockLimit - posList.size
+
+        if (listSpace > 0) {
+            posList += searchBlocks(radius, setOf(selectedBlock), listSpace).keys
+        }
 
         delay(1000)
     }
