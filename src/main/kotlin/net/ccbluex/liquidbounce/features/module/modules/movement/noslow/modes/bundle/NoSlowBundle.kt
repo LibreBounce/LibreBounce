@@ -18,10 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.bundle
 
-import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.NoSlowUseActionHandler
 
-object NoSlowBundle : ToggleableConfigurable(ModuleNoSlow, "Bundle", true) {
-    val forwardMultiplier by float("Forward", 1f, 0.2f..1f)
-    val sidewaysMultiplier by float("Sideways", 1f, 0.2f..1f)
-}
+object NoSlowBundle : NoSlowUseActionHandler("Bundle")

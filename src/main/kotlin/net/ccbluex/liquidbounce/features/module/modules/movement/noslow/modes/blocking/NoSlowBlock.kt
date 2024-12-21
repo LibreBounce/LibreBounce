@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking
 
+import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
-import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.NoSlowUseActionHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2360
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2364MC18
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedInvalidHand
@@ -29,13 +29,11 @@ import net.ccbluex.liquidbounce.utils.client.InteractionTracker.isBlocking
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.minecraft.item.consume.UseAction
 
-internal object NoSlowBlock : ToggleableConfigurable(ModuleNoSlow, "Blocking", true) {
+internal object NoSlowBlock : NoSlowUseActionHandler("Blocking") {
 
-    val forwardMultiplier by float("Forward", 1f, 0.2f..1f)
-    val sidewaysMultiplier by float("Sideways", 1f, 0.2f..1f)
-    val onlySlowOnServerSide by boolean("OnlySlowOnServerSide", false)
+    private val onlySlowOnServerSide by boolean("OnlySlowOnServerSide", false)
 
-    val modes = choices<Choice>(this, "Choice", { it.choices[0] }) {
+    val modes = choices<Choice>(this, "Choice", 0) {
         arrayOf(
             NoneChoice(it),
             NoSlowBlockingReuse,
@@ -47,6 +45,14 @@ internal object NoSlowBlock : ToggleableConfigurable(ModuleNoSlow, "Blocking", t
             NoSlowSharedInvalidHand(it),
             NoSlowBlockIntave14(it)
         )
+    }
+
+    override fun getMultiplier(): FloatFloatPair {
+        if (onlySlowOnServerSide && isBlocking) {
+            return DEFAULT_USE_MUL
+        }
+
+        return super.getMultiplier()
     }
 
     override val running: Boolean

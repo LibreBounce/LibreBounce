@@ -20,8 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.b
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
-import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.NoSlowUseActionHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowNoBlockInteract
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2360
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2364MC18
@@ -29,12 +28,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sh
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.minecraft.item.consume.UseAction
 
-internal object NoSlowBow : ToggleableConfigurable(ModuleNoSlow, "Bow", true) {
+internal object NoSlowBow : NoSlowUseActionHandler("Bow") {
 
-    val forwardMultiplier by float("Forward", 1f, 0.2f..1f)
-    val sidewaysMultiplier by float("Sideways", 1f, 0.2f..1f)
-
-    val modes = choices<Choice>(this, "Choice", { it.choices[0] }) {
+    val modes = choices<Choice>(this, "Choice", 0) {
         arrayOf(
             NoneChoice(it),
             NoSlowSharedGrim2360(it),
