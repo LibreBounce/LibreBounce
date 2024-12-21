@@ -19,6 +19,10 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.block.block
+import net.ccbluex.liquidbounce.utils.extensions.component1
+import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.extensions.component3
+import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
@@ -45,14 +49,19 @@ object BlockESP : Module("BlockESP", Category.RENDER, hideModule = false) {
         posList.clear()
     }
 
-    val onUpdate = loopHandler(dispatcher = Dispatchers.Default) {
+    val onSearch = loopHandler(dispatcher = Dispatchers.Default) {
         val selectedBlock = Block.getBlockById(block)
 
-        if (selectedBlock == null || selectedBlock == air)
+        if (selectedBlock == null || selectedBlock == air) {
+            delay(1000)
             return@loopHandler
+        }
+
+        val (x, y, z) = mc.thePlayer.eyes
+        val radiusSq = radius * radius
 
         posList.removeIf {
-            it.block != selectedBlock
+            it.distanceSqToCenter(x, y, z) >= radiusSq || it.block != selectedBlock
         }
 
         posList += searchBlocks(radius, setOf(selectedBlock), blockLimit).keys
