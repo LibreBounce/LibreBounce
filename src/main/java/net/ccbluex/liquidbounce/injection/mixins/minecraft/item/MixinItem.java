@@ -54,6 +54,7 @@ public class MixinItem {
             if (consumableComponent == null) {
                 return;
             }
+
             cir.setReturnValue(consumableComponent.consume(user, itemStack, hand));
         }
     }

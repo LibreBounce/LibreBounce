@@ -21,7 +21,6 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
@@ -32,23 +31,22 @@ import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
 import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
-import net.ccbluex.liquidbounce.interfaces.PostEffectPassTextureAddition;
-import net.ccbluex.liquidbounce.render.engine.UIRenderer;
+import net.ccbluex.liquidbounce.render.engine.UiRenderer;
 import net.ccbluex.liquidbounce.render.shader.shaders.OutlineEffectShader;
 import net.ccbluex.liquidbounce.utils.aiming.RaytracingExtensionsKt;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.PostEffectProcessor;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.Pool;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
@@ -58,7 +56,6 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -73,15 +70,6 @@ public abstract class MixinGameRenderer {
     @Shadow
     public abstract MinecraftClient getClient();
 
-    /**
-     * UI Blur Post-Effect Processor
-     *
-     * @author superblaubeere27
-     */
-    @Final
-    @Unique
-    private final Identifier liquid_bounce$BLUR = Identifier.of("liquidbounce", "ui_blur");
-
     @Shadow
     @Final
     private Camera camera;
@@ -92,10 +80,6 @@ public abstract class MixinGameRenderer {
     @Shadow
     @Final
     private LightmapTextureManager lightmapTextureManager;
-
-    @Shadow
-    @Final
-    private Pool pool;
 
     /**
      * Hook game render event
@@ -209,41 +193,17 @@ public abstract class MixinGameRenderer {
 
     @Inject(method = "onResized", at = @At("HEAD"))
     private void injectResizeUIBlurShader(int width, int height, CallbackInfo ci) {
-        UIRenderer.INSTANCE.setupDimensions(width, height);
-    }
-
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawEntityOutlinesFramebuffer()V", shift = At.Shift.AFTER))
-    private void injectUIBlurRender(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
-        if (!ModuleHud.INSTANCE.isBlurable()) {
-            return;
-        }
-
-        RenderSystem.disableBlend();
-        RenderSystem.disableDepthTest();
-        RenderSystem.resetTextureMatrix();
-
-        var overlayFramebuffer = UIRenderer.INSTANCE.getOverlayFramebuffer();
-        var overlayTexture = overlayFramebuffer.getColorAttachment();
-
-        overlayFramebuffer.beginRead();
-
-        PostEffectProcessor postEffectProcessor = this.client.getShaderLoader().loadPostEffect(liquid_bounce$BLUR, DefaultFramebufferSet.MAIN_ONLY);
-
-        RenderSystem.setShaderTexture(0, overlayTexture);
-        ((PostEffectPassTextureAddition) postEffectProcessor.passes.getFirst()).liquid_bounce$setTextureSampler("Overlay", overlayTexture);
-        postEffectProcessor.passes.getFirst().getProgram().getUniform("Radius").set(UIRenderer.INSTANCE.getBlurRadius());
-
-        postEffectProcessor.render(this.client.getFramebuffer(), pool);
+        UiRenderer.INSTANCE.setupDimensions(width, height);
     }
 
     @Inject(method = "render", at = @At(value = "RETURN"))
     private void hookRenderEventStop(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
-        UIRenderer.INSTANCE.endUIOverlayDrawing();
+        UiRenderer.INSTANCE.endUIOverlayDrawing();
     }
 
-    @Inject(method = "renderBlur", at = @At("HEAD"))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.BEFORE))
     private void injectRenderBlur(CallbackInfo ci) {
-        UIRenderer.INSTANCE.endUIOverlayDrawing();
+        UiRenderer.INSTANCE.endUIOverlayDrawing();
     }
 
     @Inject(method = "showFloatingItem", at = @At("HEAD"), cancellable = true)

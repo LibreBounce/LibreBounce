@@ -84,7 +84,6 @@
     "minecraft.render.MixinLivingEntityRenderer",
     "minecraft.render.MixinOutlineVertexConsumerProvider",
     "minecraft.render.MixinPlayerEntityRenderer",
-    "minecraft.render.MixinPostEffectPass",
     "minecraft.render.MixinRenderTickCounter",
     "minecraft.render.MixinSignText",
     "minecraft.render.MixinTextRenderer",

@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
+import net.ccbluex.liquidbounce.render.engine.UiRenderer
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.client.gui.DrawContext
@@ -53,6 +54,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
                 .program(RenderPhase.POSITION_TEXTURE_COLOR_PROGRAM)
                 .transparency(browserTransparency)
                 .depthTest(RenderPhase.LEQUAL_DEPTH_TEST)
+                .target(UiRenderer.OUTLINE_TARGET)
                 .build(false)
         )
     }

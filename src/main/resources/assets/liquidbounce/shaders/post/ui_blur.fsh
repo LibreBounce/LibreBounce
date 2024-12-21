@@ -1,6 +1,7 @@
 #version 150
 
 uniform sampler2D InSampler;
+
 uniform sampler2D Overlay;
 
 in vec2 texCoord;
