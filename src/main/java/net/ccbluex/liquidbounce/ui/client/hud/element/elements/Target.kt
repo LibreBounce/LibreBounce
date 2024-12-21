@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -21,7 +22,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawScaledCustomSizeMod
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil.debugFPS
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.config.*
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.ResourceLocation
@@ -200,7 +200,6 @@ class Target : Element() {
                 val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
 
                 glPushMatrix()
-                glPushAttrib(GL_ALL_ATTRIB_BITS)
 
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -262,7 +261,6 @@ class Target : Element() {
                     }
                 }
 
-                glPopAttrib()
                 glPopMatrix()
             }
         }
