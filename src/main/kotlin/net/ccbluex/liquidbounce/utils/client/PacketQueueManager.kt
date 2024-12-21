@@ -168,10 +168,7 @@ object PacketQueueManager : EventListener {
 
         renderEnvironmentForWorld(matrixStack) {
             withColor(color) {
-                @Suppress("SpreadOperator")
-                drawLineStrip(*positions.mapArray { vec3d ->
-                    Vec3(relativeToCamera(vec3d))
-                })
+                drawLineStrip(positions = positions.mapArray { vec3d -> Vec3(relativeToCamera(vec3d)) })
             }
         }
 
@@ -217,7 +214,7 @@ object PacketQueueManager : EventListener {
     }
 
     fun cancel() {
-        positions.firstOrNull().let { pos ->
+        positions.firstOrNull()?.let { pos ->
             player.setPosition(pos)
         }
 

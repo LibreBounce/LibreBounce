@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.client.notification
@@ -52,6 +53,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
 
     private val range by floatRange("Range", 2f..5f, 0f..10f)
     private val delay by intRange("Delay", 300..600, 0..1000, "ms")
+    private val recoilTime by int("RecoilTime", 250, 0..1000, "ms")
     private val mode by enumChoice("Mode", Mode.DYNAMIC).apply { tagBy(this) }
 
     private val flushOnEntityInteract by boolean("FlushOnEntityInteract", true)
@@ -64,6 +66,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
     }
 
     private var nextDelay = delay.random()
+    private val chronometer = Chronometer()
 
     private var isEnemyNearby = false
 
@@ -83,8 +86,10 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
             // We have found no packet that avoids getting hit? Then we default to blinking.
             // AutoDoge might save the situation...
             if (evadingPacket == null) {
-                notification("FakeLag", "Unable to evade arrow. Blinking.",
-                    NotificationEvent.Severity.INFO)
+                notification(
+                    "FakeLag", "Unable to evade arrow. Blinking.",
+                    NotificationEvent.Severity.INFO
+                )
                 PacketQueueManager.flush { snapshot -> snapshot.origin == TransferOrigin.SEND }
             } else if (evadingPacket.ticksToImpact != null) {
                 notification("FakeLag", "Trying to evade arrow...", NotificationEvent.Severity.INFO)
@@ -99,7 +104,12 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
     @Suppress("unused")
     private val fakeLagHandler = handler<QueuePacketEvent> { event ->
         if (event.origin != TransferOrigin.SEND || player.isDead || player.isTouchingWater
-            || mc.currentScreen != null) {
+            || mc.currentScreen != null
+        ) {
+            return@handler
+        }
+
+        if (!chronometer.hasAtLeastElapsed(recoilTime.toLong())) {
             return@handler
         }
 
@@ -112,12 +122,14 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
 
             is PlayerPositionLookS2CPacket,
             is ResourcePackStatusC2SPacket -> {
+                chronometer.reset()
                 return@handler
             }
 
             is PlayerInteractEntityC2SPacket,
             is HandSwingC2SPacket -> {
                 if (flushOnEntityInteract) {
+                    chronometer.reset()
                     return@handler
                 }
             }
@@ -125,12 +137,14 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
             is PlayerInteractBlockC2SPacket,
             is UpdateSignC2SPacket -> {
                 if (flushOnBlockInteract) {
+                    chronometer.reset()
                     return@handler
                 }
             }
 
             is PlayerActionC2SPacket -> {
                 if (flushOnAction) {
+                    chronometer.reset()
                     return@handler
                 }
             }
@@ -138,6 +152,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
             // Flush on knockback
             is EntityVelocityUpdateS2CPacket -> {
                 if (packet.entityId == player.id && (packet.velocityX != 0 || packet.velocityY != 0 || packet.velocityZ != 0)) {
+                    chronometer.reset()
                     return@handler
                 }
             }
@@ -145,12 +160,14 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
             // Flush on explosion
             is ExplosionS2CPacket -> {
                 if (packet.playerVelocityX != 0f || packet.playerVelocityY != 0f || packet.playerVelocityZ != 0f) {
+                    chronometer.reset()
                     return@handler
                 }
             }
 
             // Flush on damage
             is HealthUpdateS2CPacket -> {
+                chronometer.reset()
                 return@handler
             }
         }
@@ -161,8 +178,9 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
         }
 
         // Support auto shoot with fake lag
-        if (ModuleAutoShoot.running && ModuleAutoShoot.constantLag &&
-            ModuleAutoShoot.targetTracker.lockedOnTarget == null) {
+        if (running && ModuleAutoShoot.constantLag &&
+            ModuleAutoShoot.targetTracker.lockedOnTarget == null
+        ) {
             event.action = PacketQueueManager.Action.QUEUE
             return@handler
         }

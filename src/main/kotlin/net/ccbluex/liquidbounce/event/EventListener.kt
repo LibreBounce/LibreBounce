@@ -27,7 +27,7 @@ class EventHook<T : Event>(
     val handlerClass: EventListener,
     val handler: Handler<T>,
     val ignoreNotRunning: Boolean,
-    val priority: Int = 0
+    val priority: Short = 0
 )
 
 interface EventListener {
@@ -70,7 +70,7 @@ interface EventListener {
 
 inline fun <reified T : Event> EventListener.handler(
     ignoreNotRunning: Boolean = false,
-    priority: Int = 0,
+    priority: Short = 0,
     noinline handler: Handler<T>
 ): EventHook<T> {
     return EventManager.registerEventHook(T::class.java,
@@ -83,7 +83,7 @@ inline fun <reified T : Event> EventListener.handler(
  */
 inline fun <reified T : Event> EventListener.sequenceHandler(
     ignoreNotRunning: Boolean = false,
-    priority: Int = 0,
+    priority: Short = 0,
     noinline eventHandler: SuspendableHandler<T>
 ) {
     handler<T>(ignoreNotRunning, priority) { event -> Sequence(this, eventHandler, event) }

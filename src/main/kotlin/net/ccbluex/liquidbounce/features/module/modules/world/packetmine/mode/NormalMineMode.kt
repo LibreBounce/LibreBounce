@@ -32,6 +32,7 @@ import net.minecraft.util.math.Direction
 object NormalMineMode : MineMode("Normal") {
 
     private val clientSideSet by boolean("ClientSideSet", false)
+    private val waitForConfirm by boolean("WaitForConfirm", true)
 
     override fun start(blockPos: BlockPos, direction: Direction?) {
         EventManager.callEvent(BlockBreakingProgressEvent(blockPos))
@@ -46,6 +47,9 @@ object NormalMineMode : MineMode("Normal") {
         }
 
         ModulePacketMine.finished = true
+        if (!waitForConfirm) {
+            ModulePacketMine._resetTarget()
+        }
     }
 
     override fun shouldUpdate(

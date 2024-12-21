@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.KeybindIsPressedEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.PlayerInteractedItem
 import net.ccbluex.liquidbounce.event.handler
@@ -37,6 +38,7 @@ import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.item.ToolItem
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Identifier
 import net.minecraft.util.UseAction
@@ -153,6 +155,11 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
                 return@handler
             }
 
+            // Only use silent offhand if we have tools in hand.
+            if (player.mainHandStack.item !is ToolItem) {
+                return@handler
+            }
+
             SilentHotbar.selectSlotSilently(
                 this@SilentOffhand,
                 currentFood.hotbarSlot,
@@ -178,17 +185,26 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
     }
 
     private object AutoEat : ToggleableConfigurable(this, "AutoEat", true) {
+
         private val minHunger by int("MinHunger", 15, 0..20)
+        private var forceUseKey = false
 
+        @Suppress("unused")
         private val tickHandler = tickHandler {
-
             if (player.hungerManager.foodLevel < minHunger) {
                 waitUntil {
                     eat()
                     player.hungerManager.foodLevel > minHunger
                 }
 
-                KeyBinding.setKeyPressed(mc.options.useKey.boundKey, false)
+                forceUseKey = false
+            }
+        }
+
+        @Suppress("unused")
+        private val keyBindIsPressedHandler = handler<KeybindIsPressedEvent> { event ->
+            if (event.keyBinding == mc.options.useKey && forceUseKey) {
+                event.isPressed = true
             }
         }
 
@@ -196,9 +212,9 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
             val currentBestFood = Estimator.findBestFood() ?: return
 
             SilentHotbar.selectSlotSilently(AutoEat, currentBestFood.hotbarSlot, swapBackDelay)
-
-            KeyBinding.setKeyPressed(mc.options.useKey.boundKey, true)
+            forceUseKey = true
         }
+
     }
 
 

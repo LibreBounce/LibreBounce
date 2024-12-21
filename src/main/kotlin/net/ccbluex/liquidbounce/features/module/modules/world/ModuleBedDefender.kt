@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import it.unimi.dsi.fastutil.ints.IntObjectPair
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -41,7 +42,7 @@ import net.minecraft.block.BedBlock
 import net.minecraft.block.DoubleBlockProperties
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.item.BlockItem
-import net.minecraft.util.math.Box
+import net.minecraft.util.math.BlockPos
 
 object ModuleBedDefender : ClientModule("BedDefender", category = Category.WORLD) {
 
@@ -117,12 +118,13 @@ object ModuleBedDefender : ClientModule("BedDefender", category = Category.WORLD
 
         val eyesPos = player.eyes
         val rangeSq = placer.range * placer.range
-        val bedBlocks = eyesPos.searchBlocksInCuboid(placer.range + 1) { pos, state ->
+
+        // The bed that need to be defended may be already covered, so we search further
+        val bedBlocks = eyesPos.searchBlocksInCuboid(placer.range + maxLayers + 1) { pos, state ->
             val block = state.block
             when {
                 block !is BedBlock -> false
                 BedBlock.getBedPart(state) != DoubleBlockProperties.Type.FIRST -> false
-                getNearestPoint(eyesPos, Box(pos)).squaredDistanceTo(eyesPos) > rangeSq -> false
                 else -> isSelfBedMode.activeChoice.shouldDefend(block, pos)
             }
         }
@@ -141,8 +143,11 @@ object ModuleBedDefender : ClientModule("BedDefender", category = Category.WORLD
         }
 
         val updatePositions = placementPositions.toMutableList().apply {
-            // Layer(ASC) Distance(DESC)
-            sortWith(compareBy({ it.keyInt() }, { -it.value().getSquaredDistance(eyesPos) }))
+            // Layer(ASC) Center Distance(DESC)
+            sortWith(
+                Comparator.comparingInt(IntObjectPair<BlockPos>::keyInt)
+                    .thenComparingDouble { -it.value().toCenterPos().squaredDistanceTo(eyesPos) }
+            )
         }
 
         ModuleDebug.debugGeometry(this, "PlacementPosition") {

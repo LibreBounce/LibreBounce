@@ -26,10 +26,10 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.render.MixinBackgroundRenderer
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.minecraft.block.enums.CameraSubmersionType
-import net.minecraft.client.render.BackgroundRenderer.FogType
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.FogShape
 import net.minecraft.util.math.MathHelper
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args
 
 /**
  * CustomAmbience module
@@ -38,31 +38,32 @@ import net.minecraft.util.math.MathHelper
  */
 object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
 
-    val weather = enumChoice("Weather", WeatherType.SUNNY)
-    private val time = enumChoice("Time", TimeType.NOON)
+    val weather = enumChoice("Weather", WeatherType.SNOWY)
+    private val time = enumChoice("Time", TimeType.NIGHT)
 
-    object Precipitation : ToggleableConfigurable(this, "ModifyPrecipitation", false) {
-        val gradient by float("Gradient", 1f, 0.1f..1f)
-        val layers by int("Layers", 7, 1..15)
+    object Precipitation : ToggleableConfigurable(this, "ModifyPrecipitation", true) {
+        val gradient by float("Gradient", 0.7f, 0.1f..1f)
+        val layers by int("Layers", 3, 1..14)
     }
 
-    object Fog : ToggleableConfigurable(this, "Fog", false) {
+    object Fog : ToggleableConfigurable(this, "Fog", true) {
 
-        private val color by color("Color", Color4b(70, 119, 255, 255))
-        private val fogStart by float("FogStart", 0.25f, -8f..2000f)
-        private val fogEnd by float("FogEnd", 1f, 0f..2000f)
-        private val fogShape by enumChoice("FogShape", Shape.CYLINDER)
+        private val color by color("Color", Color4b(47, 128, 255, 201))
+        private val backgroundColor by color("BackgroundColor", Color4b(47, 128, 255, 201))
+        private val fogStart by float("Distance", 0f, -8f..500f)
+        private val density by float("Density", 10f, 0f..100f)
+        private val fogShape by enumChoice("FogShape", Shape.SPHERE)
 
         /**
          * [MixinBackgroundRenderer]
          */
-        fun modifyFog(camera: Camera, fogType: FogType, viewDistance: Float) {
-            if (!this.running || fogType != FogType.FOG_TERRAIN) {
+        fun modifyFog(camera: Camera, viewDistance: Float) {
+            if (!this.running) {
                 return
             }
 
             RenderSystem.setShaderFogStart(MathHelper.clamp(fogStart, -8f, viewDistance))
-            RenderSystem.setShaderFogEnd(MathHelper.clamp(fogEnd, 0f, viewDistance))
+            RenderSystem.setShaderFogEnd(MathHelper.clamp(fogStart + density, 0f, viewDistance))
 
             val type = camera.submersionType
             if (type != CameraSubmersionType.NONE) {
@@ -70,6 +71,12 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
             }
 
             RenderSystem.setShaderFogShape(fogShape.fogShape)
+        }
+
+        fun modifyFogColor() {
+            if (!this.running) {
+                return
+            }
 
             val color = color
             RenderSystem.setShaderFogColor(
@@ -80,6 +87,14 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
             )
         }
 
+        fun modifySetColorArgs(args: Args) {
+            if (!this.running || backgroundColor.a == 0) {
+                return
+            }
+
+            args.setAll(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f, 0f)
+        }
+
         @Suppress("unused")
         private enum class Shape(override val choiceName: String, val fogShape: FogShape) : NamedChoice {
             SPHERE("Sphere", FogShape.SPHERE),
@@ -88,7 +103,7 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
 
     }
 
-    object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", false) {
+    object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", true) {
 
         private val lightColor by color("LightColor", Color4b(70, 119, 255, 255))
 

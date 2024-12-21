@@ -19,6 +19,7 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCustomAmbience;
@@ -30,8 +31,10 @@ import net.minecraft.entity.effect.StatusEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -88,7 +91,17 @@ public abstract class MixinBackgroundRenderer {
 
     @Inject(method = "applyFog", at = @At("RETURN"))
     private static void injectFog(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo ci) {
-        ModuleCustomAmbience.Fog.INSTANCE.modifyFog(camera, fogType, viewDistance);
+        ModuleCustomAmbience.Fog.INSTANCE.modifyFog(camera, viewDistance);
+    }
+
+    @Inject(method = "applyFogColor", at = @At("RETURN"))
+    private static void injectFog(CallbackInfo ci) {
+        ModuleCustomAmbience.Fog.INSTANCE.modifyFogColor();
+    }
+
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V"))
+    private static void injectFog(Args args) {
+        ModuleCustomAmbience.Fog.INSTANCE.modifySetColorArgs(args);
     }
 
 }

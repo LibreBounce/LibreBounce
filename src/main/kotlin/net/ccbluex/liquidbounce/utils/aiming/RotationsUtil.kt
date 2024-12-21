@@ -230,9 +230,13 @@ object RotationManager : EventListener {
     }
 
     fun makeRotation(vec: Vec3d, eyes: Vec3d): Rotation {
-        val diffX = vec.x - eyes.x
-        val diffY = vec.y - eyes.y
-        val diffZ = vec.z - eyes.z
+        return makeRotation(vec.subtract(eyes))
+    }
+
+    fun makeRotation(lookVec: Vec3d): Rotation {
+        val diffX = lookVec.x
+        val diffY = lookVec.y
+        val diffZ = lookVec.z
 
         return Rotation(
             MathHelper.wrapDegrees(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
@@ -266,7 +270,7 @@ object RotationManager : EventListener {
         }
 
         // Prevents any rotation changes when inventory is opened
-        val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
+        val allowedRotation = ((!InventoryManager.isInventoryOpen &&
             mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {

@@ -51,6 +51,8 @@ import net.minecraft.world.RaycastContext
 import kotlin.math.ceil
 import kotlin.math.floor
 
+val DEFAULT_BLOCK_STATE: BlockState = Blocks.AIR.defaultState
+
 fun Vec3i.toBlockPos() = BlockPos(this)
 
 fun BlockPos.getState() = mc.world?.getBlockState(this)
@@ -241,17 +243,19 @@ fun BlockPos.searchLayer(layers: Int, vararg directions: Direction): Sequence<In
                 yield(IntObjectPair.of(layer, BlockPos.fromLong(pos)))
             }
 
-            // Search next layer
-            if (layer < layers) {
-                for (direction in directions) {
-                    mutable.set(pos)
-                    mutable.move(direction)
+            if (layer >= layers) {
+                continue
+            }
 
-                    val newLong = mutable.asLong()
-                    if (visited.add(newLong)) {
-                        layerQueue.enqueue(layer + 1)
-                        longValueQueue.enqueue(newLong)
-                    }
+            // Search next layer
+            for (direction in directions) {
+                mutable.set(pos)
+                mutable.move(direction)
+
+                val newLong = mutable.asLong()
+                if (visited.add(newLong)) {
+                    layerQueue.enqueue(layer + 1)
+                    longValueQueue.enqueue(newLong)
                 }
             }
         }
@@ -353,12 +357,13 @@ fun BlockPos.canStandOn(): Boolean {
 inline fun Box.isBlockAtPosition(
     isCorrectBlock: (Block?) -> Boolean,
 ): Boolean {
-    val blockPos = BlockPos.Mutable(0, minY.toInt(), 0)
+    val blockPos = BlockPos.Mutable(0, floor(minY).toInt(), 0)
 
     for (x in floor(minX).toInt()..ceil(maxX).toInt()) {
-        for (y in floor(minY).toInt()..ceil(maxY).toInt()) {
+        for (z in floor(minZ).toInt()..ceil(maxZ).toInt()) {
             blockPos.x = x
-            blockPos.y = y
+            blockPos.z = z
+
             if (isCorrectBlock(blockPos.getBlock())) {
                 return true
             }
