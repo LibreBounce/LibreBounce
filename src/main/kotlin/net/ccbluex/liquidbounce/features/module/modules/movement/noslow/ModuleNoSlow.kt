@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.bow.NoSlowBow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.bundle.NoSlowBundle
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.consume.NoSlowConsume
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.fluid.NoSlowFluid
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.honey.NoSlowHoney
@@ -45,6 +46,7 @@ object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
         tree(NoSlowBlock)
         tree(NoSlowConsume)
         tree(NoSlowBow)
+        tree(NoSlowBundle)
         tree(NoSlowSneaking)
         tree(NoSlowSoulsand)
         tree(NoSlowSlime)
@@ -79,7 +81,9 @@ object ModuleNoSlow : ClientModule("NoSlow", Category.MOVEMENT) {
             NoSlowBow.forwardMultiplier, NoSlowBow.sidewaysMultiplier
         ) else Pair(0.2f, 0.2f)
 
-        UseAction.BUNDLE -> TODO() // TODO PORT:IMPL
+        UseAction.BUNDLE -> if (NoSlowBundle.enabled) Pair(
+            NoSlowBundle.forwardMultiplier, NoSlowBundle.sidewaysMultiplier
+        ) else Pair(0.2f, 0.2f)
     }
 
 }
