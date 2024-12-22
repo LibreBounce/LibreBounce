@@ -135,6 +135,8 @@ val ClientPlayerEntity.directionYaw: Float
 val ClientPlayerEntity.isBlockAction: Boolean
     get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
 
+fun Entity.lastRenderPos() = Vec3d(this.lastRenderX, this.lastRenderY, this.lastRenderZ)
+
 /**
  * Check if the player can step up by [height] blocks.
  *
