@@ -89,7 +89,7 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         RenderSystem.disableDepthTest()
         enableBlend()
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 0f)
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         shaders.forEachIndexed { i, shader ->
             val inputFramebuffer = framebuffers.getOrNull(i) ?: framebuffers.first()
             val outputFramebuffer = framebuffers.getOrNull(i + 1)
@@ -128,6 +128,7 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
     }
 
     protected open fun endBlend() {
+//        RenderSystem.disableBlend()
     }
 
     fun render(drawAction: () -> Unit) {
