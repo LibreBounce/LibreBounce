@@ -27,7 +27,9 @@ private val FONT_REGISTRY = LinkedHashMap<FontInfo, FontRenderer>()
 
 object Fonts : MinecraftInstance {
 
-    val minecraftFont: FontRenderer = mc.fontRendererObj
+    val minecraftFont: FontRenderer by lazy {
+        mc.fontRendererObj
+    }
 
     lateinit var font35: GameFontRenderer
 
@@ -84,7 +86,7 @@ object Fonts : MinecraftInstance {
         }
     }
 
-    private fun downloadFonts() {
+    fun downloadFonts() {
         val outputFile = File(fontsDir, "roboto.zip")
         if (!outputFile.exists()) {
             LOGGER.info("Downloading fonts...")

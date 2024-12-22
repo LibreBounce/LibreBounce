@@ -7,9 +7,11 @@ package net.ccbluex.liquidbounce
 
 import com.formdev.flatlaf.themes.FlatMacLightLaf
 import kotlinx.coroutines.launch
+import net.ccbluex.liquidbounce.api.ClientUpdate
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.loadSettings
 import net.ccbluex.liquidbounce.api.messageOfTheDay
+import net.ccbluex.liquidbounce.api.reloadMessageOfTheDay
 import net.ccbluex.liquidbounce.cape.CapeService
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventManager
@@ -38,7 +40,7 @@ import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.updat
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.loadActiveGenerators
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
-import net.ccbluex.liquidbounce.ui.font.Fonts.loadFonts
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.client.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -57,6 +59,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.ccbluex.liquidbounce.utils.timing.WaitMsUtils
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import javax.swing.UIManager
 
 object LiquidBounce {
@@ -108,6 +112,37 @@ object LiquidBounce {
     val clientRichPresence = ClientRichPresence
 
     /**
+     * Start IO tasks
+     */
+    fun preload(): Future<*> {
+        val future = CompletableFuture<Unit>()
+
+        SharedScopes.IO.launch {
+            try {
+                LOGGER.info("Starting preload tasks of $CLIENT_NAME")
+
+                // Download and extract fonts
+                Fonts.downloadFonts()
+
+                ClientUpdate.reloadNewestVersion()
+
+                reloadMessageOfTheDay()
+
+                // Load languages
+                loadLanguages()
+
+                LOGGER.info("Preload tasks of $CLIENT_NAME are completed!")
+
+                future.complete(Unit)
+            } catch (e: Exception) {
+                future.completeExceptionally(e)
+            }
+        }
+
+        return future
+    }
+
+    /**
      * Execute if client will be started
      */
     fun startClient() {
@@ -122,11 +157,8 @@ object LiquidBounce {
 
             SharedScopes
 
-            // Load languages
-            loadLanguages()
-
             // Load client fonts
-            loadFonts()
+            Fonts.loadFonts()
 
             // Register listeners
             RotationUtils
