@@ -36,6 +36,24 @@ object ColorUtils {
         return (a and 255 shl 24) or (r and 255 shl 16) or (g and 255 shl 8) or (b and 255)
     }
 
+    fun unpackARGBValue(argb: Int): IntArray {
+        return intArrayOf(
+            argb ushr 24 and 0xFF,
+            argb ushr 16 and 0xFF,
+            argb ushr 8 and 0xFF,
+            argb and 0xFF
+        )
+    }
+
+    fun unpackARGBFloatValue(argb: Int): FloatArray {
+        return floatArrayOf(
+            (argb ushr 24 and 0xFF) / 255F,
+            (argb ushr 16 and 0xFF) / 255F,
+            (argb ushr 8 and 0xFF) / 255F,
+            (argb and 0xFF) / 255F
+        )
+    }
+
     fun stripColor(input: String): String = COLOR_PATTERN.matcher(input).replaceAll("")
 
     fun translateAlternateColorCodes(textToTranslate: String): String {

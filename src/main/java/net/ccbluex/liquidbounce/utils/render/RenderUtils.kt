@@ -15,7 +15,6 @@ import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -32,24 +31,22 @@ object RenderUtils : MinecraftInstance {
     const val CLIENT_COLOR_HALF_ALPHA = 2130735103
 
     private val glCapMap = mutableMapOf<Int, Boolean>()
-    private val DISPLAY_LISTS_2D = IntArray(4)
+    private val DISPLAY_LISTS_2D = IntArray(4) {
+        glGenLists(1)
+    }
     var deltaTime = 0
 
     fun deltaTimeNormalized(ticks: Int = 50) = (deltaTime / ticks.toDouble()).coerceAtMost(1.0)
 
     private const val CIRCLE_STEPS = 40
 
-    private val circlePoints = (0..CIRCLE_STEPS).map {
+    private val circlePoints = Array(CIRCLE_STEPS + 1) {
         val theta = 2 * PI * it / CIRCLE_STEPS
 
         Vec3(-sin(theta), 0.0, cos(theta))
     }
 
     init {
-        for (i in DISPLAY_LISTS_2D.indices) {
-            DISPLAY_LISTS_2D[i] = glGenLists(1)
-        }
-
         glNewList(DISPLAY_LISTS_2D[0], GL_COMPILE)
         quickDrawRect(-7f, 2f, -4f, 3f)
         quickDrawRect(4f, 2f, 7f, 3f)
@@ -159,33 +156,30 @@ object RenderUtils : MinecraftInstance {
         resetCaps()
     }
 
-    fun drawSelectionBoundingBox(boundingBox: AxisAlignedBB) {
-        val tessellator = Tessellator.getInstance()
-        val worldRenderer = tessellator.worldRenderer
-        worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+    fun drawSelectionBoundingBox(boundingBox: AxisAlignedBB) = drawWithTessellatorWorldRenderer {
+        begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
 
         // Lower Rectangle
-        worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
-        worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
-        worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
+        pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
+        pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
+        pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
 
         // Upper Rectangle
-        worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
-        worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
-        worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
+        pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
+        pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
+        pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
 
         // Upper Rectangle
-        worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
-        worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
-        tessellator.draw()
+        pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
+        pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
     }
 
     fun drawCircle(
@@ -304,7 +298,7 @@ object RenderUtils : MinecraftInstance {
         glAlphaFunc(GL_GREATER, 0.0f)
 
         glBegin(renderMode)
-        RenderUtils.glColor(color)
+        glColor(color)
 
         for (i in -1 until CIRCLE_STEPS / 2) {
             val vAngle1 = i * vStep
@@ -491,59 +485,56 @@ object RenderUtils : MinecraftInstance {
         )
     }
 
-    fun drawFilledBox(axisAlignedBB: AxisAlignedBB) {
-        val tessellator = Tessellator.getInstance()
-        val worldRenderer = tessellator.worldRenderer
-        worldRenderer.begin(7, DefaultVertexFormats.POSITION)
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
-        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
-        tessellator.draw()
+    fun drawFilledBox(axisAlignedBB: AxisAlignedBB) = drawWithTessellatorWorldRenderer {
+        begin(7, DefaultVertexFormats.POSITION)
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
+        pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
     }
 
     fun drawRect(x: Float, y: Float, x2: Float, y2: Float, color: Color) = drawRect(x, y, x2, y2, color.rgb)
@@ -619,10 +610,7 @@ object RenderUtils : MinecraftInstance {
     private fun drawRoundedBordered(
         x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, radius: Float, bottom: Boolean = true
     ) {
-        val alpha = (color ushr 24 and 0xFF) / 255.0f
-        val red = (color ushr 16 and 0xFF) / 255.0f
-        val green = (color ushr 8 and 0xFF) / 255.0f
-        val blue = (color and 0xFF) / 255.0f
+        val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
@@ -638,7 +626,7 @@ object RenderUtils : MinecraftInstance {
 
         val radiusD = radius.toDouble()
 
-        val corners = listOf(
+        val corners = arrayOf(
             Triple(newX2 - radiusD, newY2 - radiusD, 0.0),
             Triple(newX2 - radiusD, newY1 + radiusD, 90.0),
             Triple(newX1 + radiusD, newY1 + radiusD, 180.0),
@@ -752,10 +740,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawRoundedRect(x1: Float, y1: Float, x2: Float, y2: Float, color: Int, radius: Float) {
-        val alpha = (color ushr 24 and 0xFF) / 255.0f
-        val red = (color ushr 16 and 0xFF) / 255.0f
-        val green = (color ushr 8 and 0xFF) / 255.0f
-        val blue = (color and 0xFF) / 255.0f
+        val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
@@ -787,10 +772,7 @@ object RenderUtils : MinecraftInstance {
 
 
     fun drawRoundedRectInt(x1: Int, y1: Int, x2: Int, y2: Int, color: Int, radius: Float) {
-        val alpha = (color ushr 24 and 0xFF) / 255.0f
-        val red = (color ushr 16 and 0xFF) / 255.0f
-        val green = (color ushr 8 and 0xFF) / 255.0f
-        val blue = (color and 0xFF) / 255.0f
+        val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1.toFloat(), y1.toFloat(), x2.toFloat(), y2.toFloat())
 
@@ -914,41 +896,37 @@ object RenderUtils : MinecraftInstance {
      */
     fun drawModalRectWithCustomSizedTexture(
         x: Float, y: Float, u: Float, v: Float, width: Float, height: Float, textureWidth: Float, textureHeight: Float
-    ) {
+    ) = drawWithTessellatorWorldRenderer {
         val f = 1f / textureWidth
         val f1 = 1f / textureHeight
-        val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.worldRenderer
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX)
-        worldrenderer.pos(x.toDouble(), (y + height).toDouble(), 0.0)
+        begin(7, DefaultVertexFormats.POSITION_TEX)
+        pos(x.toDouble(), (y + height).toDouble(), 0.0)
             .tex((u * f).toDouble(), ((v + height) * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
+        pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
             .tex(((u + width) * f).toDouble(), ((v + height) * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + width).toDouble(), y.toDouble(), 0.0)
+        pos((x + width).toDouble(), y.toDouble(), 0.0)
             .tex(((u + width) * f).toDouble(), (v * f1).toDouble()).endVertex()
-        worldrenderer.pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
-        tessellator.draw()
+        pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
     }
 
     /**
      * Draws a textured rectangle at the stored z-value. Args: x, y, u, v, width, height.
      */
-    fun drawTexturedModalRect(x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float) {
+    fun drawTexturedModalRect(
+        x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float
+    ) = drawWithTessellatorWorldRenderer {
         val f = 0.00390625f
         val f1 = 0.00390625f
-        val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.worldRenderer
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX)
-        worldrenderer.pos(x.toDouble(), (y + height).toDouble(), zLevel.toDouble())
+        begin(7, DefaultVertexFormats.POSITION_TEX)
+        pos(x.toDouble(), (y + height).toDouble(), zLevel.toDouble())
             .tex((textureX.toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), zLevel.toDouble())
+        pos((x + width).toDouble(), (y + height).toDouble(), zLevel.toDouble())
             .tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble())
             .endVertex()
-        worldrenderer.pos((x + width).toDouble(), y.toDouble(), zLevel.toDouble())
+        pos((x + width).toDouble(), y.toDouble(), zLevel.toDouble())
             .tex(((textureX + width).toFloat() * f).toDouble(), (textureY.toFloat() * f1).toDouble()).endVertex()
-        worldrenderer.pos(x.toDouble(), y.toDouble(), zLevel.toDouble())
+        pos(x.toDouble(), y.toDouble(), zLevel.toDouble())
             .tex((textureX.toFloat() * f).toDouble(), (textureY.toFloat() * f1).toDouble()).endVertex()
-        tessellator.draw()
     }
 
     fun glColor(red: Int, green: Int, blue: Int, alpha: Int) =
@@ -1018,10 +996,10 @@ object RenderUtils : MinecraftInstance {
 
     fun renderNameTag(string: String, x: Double, y: Double, z: Double) {
         val renderManager = mc.renderManager
-        val (x, y, z) = Vec3(x, y, z) - renderManager.renderPos
+        val (x1, y1, z1) = Vec3(x, y, z) - renderManager.renderPos
 
         glPushMatrix()
-        glTranslated(x, y, z)
+        glTranslated(x1, y1, z1)
         glNormal3f(0f, 1f, 0f)
         glRotatef(-renderManager.playerViewY, 0f, 1f, 0f)
         glRotatef(renderManager.playerViewX, 1f, 0f, 0f)
@@ -1098,19 +1076,16 @@ object RenderUtils : MinecraftInstance {
         height: Int,
         tileWidth: Float,
         tileHeight: Float
-    ) {
+    ) = drawWithTessellatorWorldRenderer {
         val f = 1f / tileWidth
         val f1 = 1f / tileHeight
-        val tessellator = Tessellator.getInstance()
-        val worldRenderer = tessellator.worldRenderer
-        worldRenderer.begin(7, DefaultVertexFormats.POSITION_TEX)
-        worldRenderer.pos(x.toDouble(), (y + height).toDouble(), 0.0)
+        begin(7, DefaultVertexFormats.POSITION_TEX)
+        pos(x.toDouble(), (y + height).toDouble(), 0.0)
             .tex((u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
-        worldRenderer.pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
+        pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
             .tex(((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
-        worldRenderer.pos((x + width).toDouble(), y.toDouble(), 0.0)
+        pos((x + width).toDouble(), y.toDouble(), 0.0)
             .tex(((u + uWidth.toFloat()) * f).toDouble(), (v * f1).toDouble()).endVertex()
-        worldRenderer.pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
-        tessellator.draw()
+        pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
     }
 }
