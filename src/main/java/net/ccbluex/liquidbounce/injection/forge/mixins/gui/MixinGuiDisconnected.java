@@ -46,8 +46,6 @@ import static net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME;
 
 @Mixin(GuiDisconnected.class)
 public abstract class MixinGuiDisconnected extends MixinGuiScreen {
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0");
-
     @Shadow
     private int field_175353_i;
 
@@ -167,7 +165,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
         if (!AutoReconnect.INSTANCE.isEnabled()) {
             autoReconnectDelaySlider.displayString = "AutoReconnect: Off";
         } else {
-            autoReconnectDelaySlider.displayString = "AutoReconnect: " + DECIMAL_FORMAT.format(AutoReconnect.INSTANCE.getDelay() / 1000.0) + "s";
+            autoReconnectDelaySlider.displayString = "AutoReconnect: " + Math.floor(AutoReconnect.INSTANCE.getDelay() / 1000.0) + "s";
         }
     }
 
