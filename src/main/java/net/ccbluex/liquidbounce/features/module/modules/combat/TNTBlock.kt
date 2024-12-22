@@ -22,7 +22,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block", 
     private val autoSword by boolean("AutoSword", true)
     private var blocked = false
 
-    val onMotionUpdate = handler<MotionEvent> {
+    val onMotion = handler<MotionEvent> {
         val thePlayer = mc.thePlayer ?: return@handler
         val theWorld = mc.theWorld ?: return@handler
 
