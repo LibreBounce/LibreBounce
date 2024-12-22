@@ -97,7 +97,7 @@ public abstract class MixinGuiInGame extends Gui {
 
                 List<float[]> gradientColors = ColorSettingsKt.toColorArray(hud.getBgGradColors(), hud.getMaxHotbarGradientColors());
 
-                GL11.glPushAttrib(GL_ALL_ATTRIB_BITS);
+                GL11.glPushMatrix();
                 resetColor();
 
                 boolean isGradient = hud.getHotbarMode().equals("Gradient");
@@ -176,7 +176,7 @@ public abstract class MixinGuiInGame extends Gui {
                 disableRescaleNormal();
                 disableBlend();
 
-                GL11.glPopAttrib();
+                GL11.glPopMatrix();
 
                 AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 
