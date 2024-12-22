@@ -43,7 +43,7 @@ object Fonts : MinecraftInstance {
     }
 
     fun loadFonts() {
-        LOGGER.info("Loading Fonts.")
+        LOGGER.info("Start to load fonts.")
         val time = measureTimeMillis {
             downloadFonts()
 
@@ -60,7 +60,7 @@ object Fonts : MinecraftInstance {
 
             loadCustomFonts()
         }
-        LOGGER.info("Loaded Fonts. (${time}ms)")
+        LOGGER.info("Loaded ${FONT_REGISTRY.size} fonts in ${time}ms")
     }
 
     private fun loadCustomFonts() {
