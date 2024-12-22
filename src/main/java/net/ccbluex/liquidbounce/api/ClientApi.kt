@@ -2,20 +2,17 @@ package net.ccbluex.liquidbounce.api
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.applyBypassHttps
+import net.ccbluex.liquidbounce.utils.io.decodeJson
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
-import retrofit2.http.*
 import java.util.concurrent.TimeUnit
 
 private const val HARD_CODED_BRANCH = "legacy"
 
-private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1/"
+private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
 
 /**
  * User agent
@@ -45,76 +42,100 @@ private val client = OkHttpClient.Builder()
         chain.proceed(request)
     }.build()
 
-private val retrofit = Retrofit.Builder()
-    .baseUrl(API_V1_ENDPOINT)
-    .client(client)
-    .addConverterFactory(GsonConverterFactory.create())
-    .build()
-
 /**
- * ClientApi based on Retrofit
- *
- * @author MukjepScarlet
+ * ClientApi
  */
-interface ClientApi {
+object ClientApi {
 
-    companion object : ClientApi by retrofit.create<ClientApi>()
+    fun getNewestBuild(branch: String = HARD_CODED_BRANCH, release: Boolean = false): Build {
+        val url = "$API_V1_ENDPOINT/version/newest/$branch${if (release) "/release" else "" }"
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
 
-    /**
-     * Get the newest build endpoint
-     */
-    @GET("version/newest/{branch}")
-    suspend fun getNewestBuild(
-        @Path("branch") branch: String = HARD_CODED_BRANCH,
-        @Query("release") release: Boolean = false
-    ): Build
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body!!.charStream().decodeJson()
+        }
+    }
 
-    /**
-     * Get the message of the day
-     */
-    @GET("client/{branch}/motd")
-    suspend fun getMessageOfTheDay(
-        @Path("branch") branch: String = HARD_CODED_BRANCH
-    ): MessageOfTheDay
+    fun getMessageOfTheDay(branch: String = HARD_CODED_BRANCH): MessageOfTheDay {
+        val url = "$API_V1_ENDPOINT/client/$branch/motd"
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
 
-    /**
-     * Get the settings list
-     */
-    @GET("client/{branch}/settings")
-    suspend fun getSettingsList(
-        @Path("branch") branch: String = HARD_CODED_BRANCH
-    ): List<AutoSettings>
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body!!.charStream().decodeJson()
+        }
+    }
 
-    /**
-     * Get a specific settings script
-     */
-    @GET("client/{branch}/settings/{settingId}")
-    suspend fun getSettingsScript(
-        @Path("branch") branch: String = HARD_CODED_BRANCH,
-        @Path("settingId") settingId: String
-    ): String
+    fun getSettingsList(branch: String = HARD_CODED_BRANCH): List<AutoSettings> {
+        val url = "$API_V1_ENDPOINT/client/$branch/settings"
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
 
-    /**
-     * TODO: backend not implemented yet
-     * Report settings
-     */
-    @GET("client/{branch}/settings/report/{settingId}")
-    suspend fun reportSettings(
-        @Path("branch") branch: String = HARD_CODED_BRANCH,
-        @Path("settingId") settingId: String
-    ): ReportResponse
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body!!.charStream().decodeJson()
+        }
+    }
 
-    /**
-     * TODO: backend not implemented yet
-     * Upload settings
-     */
-    @Multipart
-    @POST("client/{branch}/settings/upload")
-    suspend fun uploadSettings(
-        @Path("branch") branch: String = HARD_CODED_BRANCH,
-        @Part("name") name: RequestBody,
-        @Part("contributors") contributors: RequestBody,
-        @Part settingsFile: MultipartBody.Part
-    ): UploadResponse
+    fun getSettingsScript(branch: String = HARD_CODED_BRANCH, settingId: String): String {
+        val url = "$API_V1_ENDPOINT/client/$branch/settings/$settingId"
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
 
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body!!.string()
+        }
+    }
+
+    // TODO: backend not implemented yet
+    fun reportSettings(branch: String = HARD_CODED_BRANCH, settingId: String): ReportResponse {
+        val url = "$API_V1_ENDPOINT/client/$branch/settings/report/$settingId"
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body!!.charStream().decodeJson()
+        }
+    }
+
+    // TODO: backend not implemented yet
+    fun uploadSettings(
+        branch: String = HARD_CODED_BRANCH,
+        name: RequestBody,
+        contributors: RequestBody,
+        settingsFile: MultipartBody.Part
+    ): UploadResponse {
+        val url = "$API_V1_ENDPOINT/client/$branch/settings/upload"
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("name", null, name)
+            .addFormDataPart("contributors", null, contributors)
+            .addPart(settingsFile)
+            .build()
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body!!.charStream().decodeJson()
+        }
+    }
 }

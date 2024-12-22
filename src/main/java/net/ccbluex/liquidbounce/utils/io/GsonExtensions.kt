@@ -4,6 +4,7 @@ import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import java.io.File
+import java.io.Reader
 
 private val EMPTY_JSON_ARRAY = JsonArray()
 
@@ -58,3 +59,7 @@ inline fun jsonArray(builderAction: JsonArrayBuilder.() -> Unit): JsonArray {
 }
 
 inline fun <reified T> JsonElement.decode(gson: Gson = PRETTY_GSON): T = gson.fromJson<T>(this, object : TypeToken<T>() {}.type)
+
+inline fun <reified T> Reader.decodeJson(gson: Gson = PRETTY_GSON): T = gson.fromJson<T>(this, object : TypeToken<T>() {}.type)
+
+inline fun <reified T> String.decodeJson(gson: Gson = PRETTY_GSON): T = gson.fromJson<T>(this, object : TypeToken<T>() {}.type)

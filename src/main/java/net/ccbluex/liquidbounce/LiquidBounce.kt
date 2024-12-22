@@ -115,6 +115,10 @@ object LiquidBounce {
      * Start IO tasks
      */
     fun preload(): Future<*> {
+        // Change theme of Swing
+        // TODO: make it configurable
+        UIManager.setLookAndFeel(FlatMacLightLaf())
+
         val future = CompletableFuture<Unit>()
 
         SharedScopes.IO.launch {
@@ -151,10 +155,6 @@ object LiquidBounce {
         LOGGER.info("Starting $CLIENT_NAME $clientVersionText $clientCommit, by $CLIENT_AUTHOR")
 
         try {
-            // Change theme of Swing
-            // TODO: make it configurable
-            UIManager.setLookAndFeel(FlatMacLightLaf())
-
             SharedScopes
 
             // Load client fonts
