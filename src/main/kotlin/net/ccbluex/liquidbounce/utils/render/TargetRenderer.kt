@@ -84,7 +84,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
         choices<Choice>(
             module,
             "Mode",
-            { ghost },
+            { glowingCircle },
             { arrayOf(legacy, circle, glowingCircle, ghost) }
         )
 
