@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
@@ -143,7 +144,7 @@ public abstract class MixinGameRenderer {
     public void drawItemCharms(Camera camera, float tickDelta, Matrix4f matrix4f, CallbackInfo ci) {
         if (ModuleItemChams.INSTANCE.getActive()) {
             ModuleItemChams.INSTANCE.setActive(false);
-            OutlineEffectShader.INSTANCE.apply();
+            OutlineEffectShader.INSTANCE.apply(true);
         }
     }
 
@@ -203,7 +204,9 @@ public abstract class MixinGameRenderer {
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.BEFORE))
     private void injectRenderBlur(CallbackInfo ci) {
-        UiRenderer.INSTANCE.endUIOverlayDrawing();
+        if (!(client.currentScreen instanceof ChatScreen)) {
+            UiRenderer.INSTANCE.endUIOverlayDrawing();
+        }
     }
 
     @Inject(method = "showFloatingItem", at = @At("HEAD"), cancellable = true)

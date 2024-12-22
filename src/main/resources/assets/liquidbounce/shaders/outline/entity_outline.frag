@@ -10,8 +10,6 @@ out vec4 fragColor;
 
 uniform sampler2D texture0;
 
-uniform int radius;
-
 void main() {
     vec2 uv = fragTexCoord.xy;
 
@@ -21,34 +19,36 @@ void main() {
         discard;
     }
 
-    if (glowColor.a == 0.0) {
-        discard;
-    }
-
     vec2 texelSize = vec2(1.0) / textureSize(texture0, 0).xy;
     vec3 outColor = vec3(0.0);
-    float iterations = 0.0;
+    float outAlpha = 0.0;
+    int iterations = 0;
 
-    for (int ix = -radius; ix <= radius; ix++) {
-        for (int iy = -radius; iy <= radius; iy++) {
+    for (int ix = -3; ix <= 3; ix++) {
+        for (int iy = -3; iy <= 3; iy++) {
             if (ix == 0 && iy == 0) {
                 continue;
             }
 
-            float x = float(ix);
-            float y = float(iy);
+            float x = 2.78 * float(ix);
+            float y = 2.78 * float(iy);
 
             vec2 offset = vec2(texelSize.x * x, texelSize.y * y);
-            vec3 positionColor = textureLod(texture0, uv + offset, 0.0).rgb;
+            vec4 positionColor = textureLod(texture0, uv + offset, 0.0);
 
-            outColor += positionColor;
-            iterations++;
+            float distance = length(vec2(x, y));
+            float weight = max(0.0, 1.0 - (distance / 7.08));
+            outAlpha += positionColor.a * weight;
+            if (positionColor.a != 0.0) {
+                outColor += positionColor.rgb;
+                iterations++;
+            }
         }
     }
 
-    if (color.a == 0.0) {
+    if (outAlpha == 0.0 || iterations == 0) {
         discard;
     }
 
-    fragColor = vec4(outColor.rgb / iterations, 1.0);
+    fragColor = vec4(outColor / iterations, outAlpha);
 }

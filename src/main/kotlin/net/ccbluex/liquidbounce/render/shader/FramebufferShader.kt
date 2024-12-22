@@ -75,8 +75,10 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         GlobalFrameBuffer.push(framebuffers[0])
     }
 
-    open fun apply() {
-        GlobalFrameBuffer.pop()
+    open fun apply(popFramebufferStack: Boolean = true) {
+        if (popFramebufferStack) {
+            GlobalFrameBuffer.pop()
+        }
 
         val active = GlStateManager._getActiveTexture()
         val alphaTest = GL11.glIsEnabled(GL11.GL_ALPHA_TEST)

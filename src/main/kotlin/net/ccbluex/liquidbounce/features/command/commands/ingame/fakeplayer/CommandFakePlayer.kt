@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
 import net.ccbluex.liquidbounce.utils.entity.getEffectiveDamage
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -309,8 +310,8 @@ object CommandFakePlayer : CommandFactory, EventListener {
          */
         if (
             packet is PlayerInteractEntityC2SPacket &&
-            fakePlayers.any { fakePlayers ->
-                packet.entityId == fakePlayers.id
+            fakePlayers.any { fakePlayer ->
+                packet.entityId == fakePlayer.id
             }
         ) {
             it.cancelEvent()
@@ -319,10 +320,19 @@ object CommandFakePlayer : CommandFactory, EventListener {
 
     @Suppress("unused")
     val attackHandler = handler<AttackEntityEvent> {
-        val fakePlayer = it.entity
-        if (fakePlayer !is FakePlayer) {
+        if (fakePlayers.isEmpty()) {
             return@handler
         }
+
+        val contains = fakePlayers.none { player ->
+            player.id == it.entity.id
+        }
+
+        if (!contains) {
+            return@handler
+        }
+
+        val fakePlayer = it.entity as LivingEntity
 
         val genericAttackDamage = if (player.isUsingRiptide) {
                 player.riptideAttackDamage

@@ -18,7 +18,6 @@ void main() {
     vec4 overlay_color = texture(Overlay, texCoord);
     if (overlay_color.a <= 0.01) {
         fragColor = vec4(texture(InSampler, texCoord).rgb, 1.0);
-
         return;
     }
 
@@ -42,7 +41,7 @@ void main() {
         totalStrength = totalStrength + strength;
         blurred = blurred + sampleValue;
     }
-    fragColor = vec4(mix(origColor.rgb, blurred.rgb / (Radius * 2.0 + 1.0), opacity), 1.0);
 
+    fragColor = vec4(mix(origColor.rgb, blurred.rgb / (Radius * 2.0 + 1.0), opacity), 1.0);
 }
 

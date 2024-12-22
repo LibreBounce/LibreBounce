@@ -96,6 +96,10 @@ open class FakePlayer(
         }
 
         super.tick()
+
+        if (age % 10 == 0 && health < 20f) {
+            health = (health + 0.5f).coerceAtMost(20f)
+        }
     }
 
     /**

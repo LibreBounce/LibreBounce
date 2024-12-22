@@ -176,3 +176,4 @@ accessible method net/minecraft/block/AbstractBlock getPickStack (Lnet/minecraft
 accessible method net/minecraft/client/texture/NativeImage write (Ljava/nio/channels/WritableByteChannel;)Z
 
 accessible field net/minecraft/client/render/LightmapTextureManager lightmapFramebuffer Lnet/minecraft/client/gl/SimpleFramebuffer;
+accessible field net/minecraft/client/render/WorldRenderer entityOutlineFramebuffer Lnet/minecraft/client/gl/Framebuffer;
