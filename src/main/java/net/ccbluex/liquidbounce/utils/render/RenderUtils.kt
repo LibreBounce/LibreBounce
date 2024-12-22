@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.toVec
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
+import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.client.renderer.Tessellator
@@ -73,6 +74,51 @@ object RenderUtils : MinecraftInstance {
         quickDrawRect(4f, -20.3f, 7.3f, -20f)
         quickDrawRect(-7.3f, -20.3f, -4f, -20f)
         glEndList()
+    }
+
+    @JvmStatic
+    fun BlockPos.drawBlockDamageText(
+        currentDamage: Float,
+        font: FontRenderer,
+        fontShadow: Boolean,
+        color: Int,
+        scale: Float,
+    ) {
+        require(currentDamage in 0f..1f)
+
+        val renderManager = mc.renderManager
+
+        val progress = (currentDamage * 100).coerceIn(0f, 100f).toInt()
+        val progressText = "$progress%"
+
+        glPushAttrib(GL_ENABLE_BIT)
+        glPushMatrix()
+
+        val (x, y, z) = this.center - renderManager.renderPos
+
+        // Translate to block position
+        glTranslated(x, y, z)
+
+        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
+        glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
+
+        disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
+        enableGlCap(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        // Scale
+        val renderScale = (mc.thePlayer.getDistanceSq(this) / 8F).coerceAtLeast(1.5) / 150F * scale
+        glScaled(-renderScale, -renderScale, renderScale)
+
+        // Draw text
+        val width = font.getStringWidth(progressText) * 0.5f
+        font.drawString(
+            progressText, -width, if (font == Fonts.minecraftFont) 1F else 1.5F, color, fontShadow
+        )
+
+        resetCaps()
+        glPopMatrix()
+        glPopAttrib()
     }
 
     fun drawBlockBox(blockPos: BlockPos, color: Color, outline: Boolean) {
