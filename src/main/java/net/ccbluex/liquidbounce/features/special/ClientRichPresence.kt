@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.special
 
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.IPCListener
 import com.jagrosh.discordipc.entities.RichPresence
@@ -24,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
+import net.ccbluex.liquidbounce.utils.io.parseJson
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -155,7 +155,7 @@ object ClientRichPresence : MinecraftInstance {
         val (response, _) = get("$CLIENT_CLOUD/discord.json")
 
         // Read from web and convert to json object
-        val json = JsonParser().parse(response)
+        val json = response.parseJson()
 
         if (json !is JsonObject)
             return
