@@ -33,6 +33,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.crash.CrashReport;
@@ -237,6 +238,17 @@ public abstract class MixinMinecraft {
         final StringBuilder crashInfo = new StringBuilder(LiquidBounce.CLIENT_NAME).append(" crash info\n");
         crashInfo.append("Client version: ").append(LiquidBounce.INSTANCE.getClientVersionText()).append(' ').append(LiquidBounce.INSTANCE.getClientCommit()).append('\n');
         crashInfo.append("Time: ").append(LocalDateTime.now()).append('\n');
+        crashInfo.append("Operating System: ").append(System.getProperty("os.name"))
+                .append(" (Version: ").append(System.getProperty("os.version")).append(", Arch: ")
+                .append(System.getProperty("os.arch")).append(")\n");
+        crashInfo.append("Java Version: ").append(System.getProperty("java.version"))
+                .append(" (Vendor: ").append(System.getProperty("java.vendor")).append(")\n");
+        if (mc.getCurrentServerData() != null) {
+            ServerData serverData = mc.getCurrentServerData();
+            crashInfo.append("\nServer Information:\n");
+            crashInfo.append(" - Server Address: ").append(serverData.serverIP).append("\n");
+            crashInfo.append(" - Server Version: ").append(serverData.gameVersion).append("\n");
+        }
         crashInfo.append('\n');
         MiscUtils.showErrorPopup(crashReport.getCrashCause(), "Game crashed! ", crashInfo.toString());
         MiscUtils.showURL(LiquidBounce.CLIENT_GITHUB + "/issues");

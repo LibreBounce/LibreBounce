@@ -56,6 +56,7 @@ class ScoreboardElement(
     private val rectColorAlpha by int("Rect-Alpha", 255, 0..255) { rect && rectColorMode == "Custom" }
 
     private val serverIp by choices("ServerIP", arrayOf("Normal", "None", "Client", "Website"), "Normal")
+    private val number by boolean("Number", true)
     private val shadow by boolean("Shadow", false)
     private val font by font("Font", Fonts.minecraftFont)
 
@@ -99,12 +100,11 @@ class ScoreboardElement(
 
             for (score in scoreCollection) {
                 val scorePlayerTeam = scoreboard.getPlayersTeam(score.playerName)
-                val width = "${
-                    ScorePlayerTeam.formatPlayerName(
-                        scorePlayerTeam,
-                        score.playerName
-                    )
-                }: ${EnumChatFormatting.RED}${score.scorePoints}"
+                val width = if (number) {
+                    "${ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score.playerName)}: ${EnumChatFormatting.RED}${score.scorePoints}"
+                } else {
+                    ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score.playerName)
+                }
                 maxWidth = maxWidth.coerceAtLeast(fontRenderer.getStringWidth(width))
             }
 
@@ -117,7 +117,7 @@ class ScoreboardElement(
                 val team = scoreboard.getPlayersTeam(score.playerName)
 
                 var name = ScorePlayerTeam.formatPlayerName(team, score.playerName)
-                val scorePoints = "${EnumChatFormatting.RED}${score.scorePoints}"
+                val scorePoints =  if (number) "${EnumChatFormatting.RED}${score.scorePoints}" else ""
 
                 val width = 5 - if (rect) 4 else 0
                 val height = maxHeight - index * fontHeight.toFloat()
@@ -153,13 +153,15 @@ class ScoreboardElement(
                 }
 
                 fontRenderer.drawString(name, l1.toFloat(), height, textColor, shadow)
-                fontRenderer.drawString(
-                    scorePoints,
-                    (width - fontRenderer.getStringWidth(scorePoints)).toFloat(),
-                    height,
-                    textColor,
-                    shadow
-                )
+                if (number) {
+                    fontRenderer.drawString(
+                        scorePoints,
+                        (width - fontRenderer.getStringWidth(scorePoints)).toFloat(),
+                        height,
+                        textColor,
+                        shadow
+                    )
+                }
 
                 if (index == scoreCollection.size - 1) {
                     val displayName = objective.displayName
