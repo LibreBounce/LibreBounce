@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.api
 
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 
-suspend fun reloadMessageOfTheDay() {
+fun reloadMessageOfTheDay() {
     try {
         messageOfTheDay = ClientApi.getMessageOfTheDay()
     } catch (e: Exception) {

@@ -24,7 +24,7 @@ object ClientUpdate {
         }
     }
 
-    suspend fun reloadNewestVersion() {
+    fun reloadNewestVersion() {
         // https://api.liquidbounce.net/api/v1/version/builds/legacy
         try {
             newestVersion = ClientApi.getNewestBuild(release = !IN_DEV)
