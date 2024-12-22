@@ -255,12 +255,18 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
     /**
      * Get module by [moduleClass]
      */
-    operator fun get(moduleClass: Class<out Module>) = MODULE_REGISTRY.find { it.javaClass === moduleClass } ?: error("Module ${moduleClass.simpleName} is not registered")
+    operator fun get(moduleClass: Class<out Module>) = MODULE_REGISTRY.find { it.javaClass === moduleClass }
 
     /**
      * Get module by [moduleName]
      */
-    operator fun get(moduleName: String) = MODULE_REGISTRY.find { it.name.equals(moduleName, ignoreCase = true) } ?: error("No Module found with name [$moduleName]")
+    operator fun get(moduleName: String) = MODULE_REGISTRY.find { it.name.equals(moduleName, ignoreCase = true) }
+
+    @Deprecated(message = "Only for outdated scripts", replaceWith = ReplaceWith("get(moduleClass)"))
+    fun getModule(moduleClass: Class<out Module>) = get(moduleClass)
+
+    @Deprecated(message = "Only for outdated scripts", replaceWith = ReplaceWith("get(moduleName)"))
+    fun getModule(moduleName: String) = get(moduleName)
 
     /**
      * Handle incoming key presses
