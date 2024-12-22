@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.api
 
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.utils.io.HttpUtils.applyBypassHttps
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -31,8 +32,9 @@ private val ENDPOINT_AGENT =
 private val SESSION_TOKEN = RandomUtils.randomString(16)
 
 private val client = OkHttpClient.Builder()
-    .connectTimeout(2, TimeUnit.SECONDS)
-    .readTimeout(10, TimeUnit.SECONDS)
+    .connectTimeout(3, TimeUnit.SECONDS)
+    .readTimeout(15, TimeUnit.SECONDS)
+    .applyBypassHttps()
     .addInterceptor { chain ->
         val original = chain.request()
         val request: Request = original.newBuilder()
