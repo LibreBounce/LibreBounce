@@ -49,7 +49,7 @@ class GameFontRenderer(font: Font) : FontRenderer(
     fun drawCenteredString(s: String, x: Float, y: Float, color: Int, shadow: Boolean) = drawString(s, x - getStringWidth(s) / 2F, y, color, shadow)
 
     fun drawCenteredString(s: String, x: Float, y: Float, color: Int) =
-            drawStringWithShadow(s, x - getStringWidth(s) / 2F, y, color)
+        drawStringWithShadow(s, x - getStringWidth(s) / 2F, y, color)
 
     override fun drawString(text: String, x: Float, y: Float, color: Int, shadow: Boolean): Int {
         glEnable(GL_BLEND)
@@ -100,8 +100,8 @@ class GameFontRenderer(font: Font) : FontRenderer(
 
         val alpha = (currentColor shr 24 and 0xff)
 
-        if ("§" in text) {
-            val parts = text.split("§")
+        if ('§' in text) {
+            val parts = text.split('§')
 
             var currentFont = defaultFont
 
@@ -168,26 +168,24 @@ class GameFontRenderer(font: Font) : FontRenderer(
                         }
                     }
 
-                    currentFont = if (bold && italic)
-                        boldItalicFont
-                    else if (bold)
-                        boldFont
-                    else if (italic)
-                        italicFont
-                    else
-                        defaultFont
+                    currentFont = when {
+                        bold && italic -> boldItalicFont
+                        bold -> boldFont
+                        italic -> italicFont
+                        else -> defaultFont
+                    }
 
                     currentFont.drawString(if (randomCase) ColorUtils.randomMagicText(words) else words, width, 0.0, currentColor)
 
                     if (strikeThrough)
                         drawLine(width / 2.0 + 1, currentFont.height / 3.0,
-                                (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 3.0,
-                                fontHeight / 16F)
+                            (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 3.0,
+                            fontHeight / 16F)
 
                     if (underline)
                         drawLine(width / 2.0 + 1, currentFont.height / 2.0,
-                                (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 2.0,
-                                fontHeight / 16F)
+                            (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 2.0,
+                            fontHeight / 16F)
 
                     width += currentFont.getStringWidth(words)
                 }
@@ -209,8 +207,8 @@ class GameFontRenderer(font: Font) : FontRenderer(
     override fun getStringWidth(text: String): Int {
         val currentText = NameProtect.handleTextMessage(text)
 
-        return if ("§" in currentText) {
-            val parts = currentText.split("§")
+        return if ('§' in currentText) {
+            val parts = currentText.split('§')
 
             var currentFont = defaultFont
             var width = 0
@@ -241,14 +239,12 @@ class GameFontRenderer(font: Font) : FontRenderer(
                         }
                     }
 
-                    currentFont = if (bold && italic)
-                        boldItalicFont
-                    else if (bold)
-                        boldFont
-                    else if (italic)
-                        italicFont
-                    else
-                        defaultFont
+                    currentFont = when {
+                        bold && italic -> boldItalicFont
+                        bold -> boldFont
+                        italic -> italicFont
+                        else -> defaultFont
+                    }
 
                     width += currentFont.getStringWidth(words)
                 }
