@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.colorFromDisplayName
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -116,7 +116,7 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
         glEnable(GL_LINE_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
-        for (entity in world.loadedEntityList.filterNotNull()) {
+        for (entity in world.loadedEntityList) {
             if (entity !is EntityLivingBase || !bot && isBot(entity)) continue
             if (!team && Teams.isInYourTeam(entity)) continue
 
@@ -142,22 +142,8 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
                 val targetHealth = getHealth(entity, healthFromScoreboard, absorption)
                 val arrowsColor = when {
                     targetHealth <= 0 -> Color(255, 0, 0, alpha)
-                    colorTeam -> {
-                        val chars = (entity.displayName ?: return).formattedText.toCharArray()
-                        var color = Int.MAX_VALUE
 
-                        for (i in chars.indices) {
-                            if (chars[i] != '§' || i + 1 >= chars.size) continue
-
-                            val index = getColorIndex(chars[i + 1])
-                            if (index < 0 || index > 15) continue
-
-                            color = ColorUtils.hexColors[index]
-                            break
-                        }
-
-                        Color(color)
-                    }
+                    colorTeam -> entity.colorFromDisplayName() ?: continue
 
                     healthMode == "Custom" -> {
                         ColorUtils.interpolateHealthColor(
