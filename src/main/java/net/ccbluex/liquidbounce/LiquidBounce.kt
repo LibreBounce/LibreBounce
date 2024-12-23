@@ -116,7 +116,6 @@ object LiquidBounce {
      */
     fun preload(): Future<*> {
         // Change theme of Swing
-        // TODO: make it configurable
         UIManager.setLookAndFeel(FlatMacLightLaf())
 
         val future = CompletableFuture<Unit>()
@@ -128,12 +127,17 @@ object LiquidBounce {
                 // Download and extract fonts
                 Fonts.downloadFonts()
 
+                // Check update
                 ClientUpdate.reloadNewestVersion()
 
+                // Get MOTD
                 reloadMessageOfTheDay()
 
                 // Load languages
                 loadLanguages()
+
+                // Load alt generators
+                loadActiveGenerators()
 
                 LOGGER.info("Preload tasks of $CLIENT_NAME are completed!")
 
@@ -155,8 +159,6 @@ object LiquidBounce {
         LOGGER.info("Starting $CLIENT_NAME $clientVersionText $clientCommit, by $CLIENT_AUTHOR")
 
         try {
-            SharedScopes
-
             // Load client fonts
             Fonts.loadFonts()
 
@@ -219,9 +221,6 @@ object LiquidBounce {
 
             // Disable Optifine FastRender
             disableFastRender()
-
-            // Load alt generators
-            loadActiveGenerators()
 
             // Load message of the day
             messageOfTheDay?.message?.let { LOGGER.info("Message of the day: $it") }
