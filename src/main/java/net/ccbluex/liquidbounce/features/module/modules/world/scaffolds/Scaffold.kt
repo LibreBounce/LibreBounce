@@ -209,11 +209,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     val eagleSprint by boolean("EagleSprint", false) { eagle == "Normal" }
     private val blocksToEagle by int("BlocksToEagle", 0, 0..10) { eagle != "Off" }
     private val edgeDistance by float("EagleEdgeDistance", 0f, 0f..0.5f) { eagle != "Off" }
-    private val blockSneakingAgainUntilOnGround by boolean("BlockSneakingAgainUntilOnGround", true)
-    { useMaxSneakTime && eagleMode != "OnGround" }
     private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" }
     private val maxSneakTicks by int("MaxSneakTicks", 3, 0..10) { useMaxSneakTime }
-
+    private val blockSneakingAgainUntilOnGround by boolean(
+        "BlockSneakingAgainUntilOnGround", true
+    ) { useMaxSneakTime && eagleMode != "OnGround" }
 
     // Rotation Options
     private val modeList =
@@ -449,20 +449,18 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                     // For better sneak support we could move this to MovementInputEvent
                     val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
 
-                    var shouldEagle = eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
+                    var shouldEagle =
+                        eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
 
                     if (blockSneaking && !alreadySneaking && useMaxSneakTime) {
                         shouldEagle = pressedOnKeyboard
-                    } else if (!blockSneaking && alreadySneaking) {
-                        return@run
-                    }
+                    } else if (blockSneaking || alreadySneaking) return@run
 
                     if (eagle == "Silent") {
                         if (eagleSneaking != shouldEagle) {
                             sendPacket(
                                 C0BPacketEntityAction(
-                                    player,
-                                    if (shouldEagle) {
+                                    player, if (shouldEagle) {
                                         C0BPacketEntityAction.Action.START_SNEAKING
                                     } else {
                                         C0BPacketEntityAction.Action.STOP_SNEAKING
