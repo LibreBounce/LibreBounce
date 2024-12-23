@@ -82,7 +82,7 @@ object FloorNukerArea : NukerArea("Floor") {
                 for (pos in start..end) {
                     val state = pos.getState() ?: continue
 
-                    if (state.isNotBreakable(pos)) {
+                    if (state.isNotBreakable(pos) || !state.isValid()) {
                         continue
                     }
 

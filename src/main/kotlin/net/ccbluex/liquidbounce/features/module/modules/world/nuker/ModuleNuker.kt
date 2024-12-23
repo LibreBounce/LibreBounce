@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.nuker.area.SphereN
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode.InstantNukerMode
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode.LegitNukerMode
 import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.util.math.BlockPos
 
@@ -42,6 +43,8 @@ object ModuleNuker : ClientModule("Nuker", Category.WORLD, disableOnQuit = true)
         SphereNukerArea,
         arrayOf(SphereNukerArea, FloorNukerArea)
     )
+    val filter by enumChoice("Filter", Filter.BLACKLIST)
+    val blocks by blocks("Blocks", mutableSetOf())
 
     var swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)

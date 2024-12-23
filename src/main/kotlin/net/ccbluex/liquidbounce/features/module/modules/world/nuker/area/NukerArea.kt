@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.areaMode
 import net.minecraft.block.BlockState
 import net.minecraft.util.math.BlockPos
@@ -29,6 +30,10 @@ abstract class NukerArea(name: String) : Choice(name) {
 
     override val parent: ChoiceConfigurable<*>
         get() = areaMode
+
+    protected fun BlockState.isValid(): Boolean {
+        return ModuleNuker.filter.invoke(this.block, ModuleNuker.blocks)
+    }
 
     abstract fun lookupTargets(radius: Float, count: Int? = null): Sequence<Pair<BlockPos, BlockState>>
 }
