@@ -321,6 +321,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
         return isOmniWalking();
     }
 
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/client/network/ClientPlayerEntity;horizontalCollision:Z"))
+    private boolean hookSprintIgnoreCollision(boolean original) {
+        return !ModuleSprint.INSTANCE.shouldIgnoreCollision() && original;
+    }
+
     private boolean isOmniWalking() {
         boolean hasMovement = Math.abs(input.movementForward) > 1.0E-5F || Math.abs(input.movementSideways) > 1.0E-5F;
         boolean isWalking = (double) Math.abs(input.movementForward) >= 0.8 || (double) Math.abs(input.movementSideways) >= 0.8;
