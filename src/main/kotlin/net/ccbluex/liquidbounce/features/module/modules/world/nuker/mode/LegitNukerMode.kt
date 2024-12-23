@@ -52,11 +52,7 @@ object LegitNukerMode : Choice("Legit") {
 
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
-        if (it > range) {
-            range
-        } else {
-            it
-        }
+        minOf(it, range)
     }
 
     private val forceImmediateBreak by boolean("ForceImmediateBreak", false)
@@ -127,7 +123,7 @@ object LegitNukerMode : Choice("Legit") {
         currentTarget?.let { pos ->
             val blockState = pos.getState() ?: return@let
 
-            if (blockState.isNotBreakable(pos)) {
+            if (blockState.isNotBreakable(pos) || !ModuleNuker.isValid(blockState)) {
                 return@let
             }
 

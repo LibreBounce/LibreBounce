@@ -19,6 +19,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 
+import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.ccbluex.liquidbounce.utils.entity.eyes
@@ -82,7 +83,7 @@ object FloorNukerArea : NukerArea("Floor") {
                 for (pos in start..end) {
                     val state = pos.getState() ?: continue
 
-                    if (state.isNotBreakable(pos) || !state.isValid()) {
+                    if (state.isNotBreakable(pos) || !ModuleNuker.isValid(state)) {
                         continue
                     }
 

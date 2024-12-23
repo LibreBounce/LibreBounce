@@ -57,6 +57,7 @@ object InstantNukerMode : Choice("Instant") {
 
         if (targets.isEmpty()) {
             wasTarget = null
+            waitTicks(1)
             return@tickHandler
         }
 
