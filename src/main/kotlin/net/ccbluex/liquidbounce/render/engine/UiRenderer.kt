@@ -72,7 +72,7 @@ object UiRenderer : MinecraftShortcuts {
         }
     }
 
-    fun getBlurRadius(): Float {
+    private fun getBlurRadius(): Float {
         return (this.getBlurRadiusFactor() * 20.0F).coerceIn(5.0F..20.0F)
     }
 
@@ -108,7 +108,7 @@ object UiRenderer : MinecraftShortcuts {
         blur()
 
         RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
 
         this.overlayFramebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
 
