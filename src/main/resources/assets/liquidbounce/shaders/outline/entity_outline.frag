@@ -30,8 +30,10 @@ void main() {
                 continue;
             }
 
-            float x = 2.78 * float(ix);
-            float y = 2.78 * float(iy);
+            // 1.0 could changed to some higher value to improve the shader look
+            // like in the item chams shader
+            float x = 1.0 * float(ix);
+            float y = 1.0 * float(iy);
 
             vec2 offset = vec2(texelSize.x * x, texelSize.y * y);
             vec4 positionColor = textureLod(texture0, uv + offset, 0.0);
