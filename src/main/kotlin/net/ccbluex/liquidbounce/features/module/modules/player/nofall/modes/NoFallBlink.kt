@@ -88,7 +88,7 @@ internal object NoFallBlink : Choice("Blink") {
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
             SimulatedPlayer.SimulatedPlayerInput(
                 event.directionalInput,
-                event.jumping,
+                event.jump,
                 player.isSprinting,
                 true
             ))

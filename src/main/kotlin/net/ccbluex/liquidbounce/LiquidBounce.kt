@@ -57,7 +57,6 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker
-import net.ccbluex.liquidbounce.utils.client.disableConflictingVfpOptions
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
@@ -289,13 +288,6 @@ object LiquidBounce : EventListener {
                 logger.info("Loaded ${it.size} settings from API.")
             }.onFailure {
                 logger.error("Failed to load settings list from API", it)
-            }
-
-            // Disable conflicting options
-            runCatching {
-                disableConflictingVfpOptions()
-            }.onSuccess {
-                logger.info("Disabled conflicting options.")
             }
         }
     }

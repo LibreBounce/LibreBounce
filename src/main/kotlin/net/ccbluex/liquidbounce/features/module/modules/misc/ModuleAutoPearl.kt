@@ -1,3 +1,21 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2024 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import com.oracle.truffle.runtime.collection.ArrayQueue
@@ -28,6 +46,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity
 import net.minecraft.item.Items
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
@@ -47,11 +66,6 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     private val mode by enumChoice("Mode", Modes.TRIGGER)
 
-    init {
-        tree(Rotate)
-        tree(Limits)
-    }
-
     private object Limits : ToggleableConfigurable(this, "Limits", true) {
         val angle by int("Angle", 180, 0..180, suffix = "°")
         val activationDistance by float("MinDistance", 8.0f, 0.0f..10.0f, suffix = "m")
@@ -60,6 +74,10 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     private object Rotate : ToggleableConfigurable(this, "Rotate", true) {
         val rotations = tree(RotationsConfigurable(this))
+    }
+
+    init {
+        treeAll(Rotate, Limits)
     }
 
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
@@ -74,25 +92,19 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     @Suppress("unused")
     private val pearlSpawnHandler = handler<PacketEvent> { event ->
-        if (event.packet !is EntitySpawnS2CPacket) {
+        if (event.packet !is EntitySpawnS2CPacket || event.packet.entityType != EntityType.ENDER_PEARL) {
             return@handler
         }
 
-        if (event.packet.entityType != EntityType.ENDER_PEARL) {
-            return@handler
-        }
-
-        if (enderPearlSlot == null) {
-            return@handler
-        }
+        enderPearlSlot ?: return@handler
 
         val data = event.packet
-        val entity = data.entityType.create(world) as EnderPearlEntity
+        val entity = data.entityType.create(world, SpawnReason.SPAWN_ITEM_USE) as EnderPearlEntity
         entity.onSpawnPacket(data)
 
         proceedPearl(
             pearl = entity,
-            // entity.velocity & entity.pos doesnt work, dont use it
+            // entity.velocity & entity.pos doesn't work, don't use it
             velocity = with(data) { Vec3d(velocityX, velocityY, velocityZ) },
             pearlPos = with(data) { Vec3d(x, y, z) }
         )
@@ -224,11 +236,11 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     override fun disable() {
         queue.clear()
-        super.disable()
     }
 
     private enum class Modes(override val choiceName: String) : NamedChoice {
         TRIGGER("Trigger"),
         TARGET("Target")
     }
+
 }

@@ -23,8 +23,8 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.block.getState
+import net.minecraft.item.consume.UseAction
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
-import net.minecraft.util.UseAction
 
 /**
  * Cancels block interactions allowing to bypass certain anti-cheats

@@ -90,7 +90,7 @@ object CriticalsJump : Choice("Jump") {
         // Change the jump motion only if the jump is a normal jump (small jumps, i.e. honey blocks
         // are not affected) and currently.
         if (enemies.isNotEmpty() && player.isOnGround) {
-            event.jumping = true
+            event.jump = true
             adjustNextJump = true
         }
     }

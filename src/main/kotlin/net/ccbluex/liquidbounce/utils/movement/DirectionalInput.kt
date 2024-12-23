@@ -8,21 +8,26 @@ data class DirectionalInput(
     val left: Boolean,
     val right: Boolean,
 ) {
-    constructor(input: Input) : this(input.pressingForward, input.pressingBack, input.pressingLeft, input.pressingRight)
+    constructor(input: Input) : this(
+        input.playerInput.forward,
+        input.playerInput.backward,
+        input.playerInput.left,
+        input.playerInput.right
+    )
 
     override fun equals(other: Any?): Boolean {
         return other is DirectionalInput &&
-                forwards == other.forwards &&
-                backwards == other.backwards &&
-                left == other.left &&
-                right == other.right
+            forwards == other.forwards &&
+            backwards == other.backwards &&
+            left == other.left &&
+            right == other.right
     }
 
     override fun hashCode(): Int {
         var result = forwards.hashCode()
-        result = 31 * result + backwards.hashCode()
-        result = 31 * result + left.hashCode()
-        result = 31 * result + right.hashCode()
+        result = 30 * result + backwards.hashCode()
+        result = 30 * result + left.hashCode()
+        result = 30 * result + right.hashCode()
         return result
     }
 

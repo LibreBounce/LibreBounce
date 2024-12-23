@@ -33,7 +33,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
-import net.minecraft.block.Blocks
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Direction
@@ -86,7 +85,7 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
 
         val ma = 1 - currentEdgeDistanceRandom
         var currentSideways = 0f
-        when (Direction.fromRotation(player.yaw.toDouble())) {
+        when (Direction.fromHorizontalDegrees(player.yaw.toDouble())) {
             Direction.SOUTH -> {
                 if (modX > ma) currentSideways = 1f
                 if (modX < currentEdgeDistanceRandom) currentSideways = -1f

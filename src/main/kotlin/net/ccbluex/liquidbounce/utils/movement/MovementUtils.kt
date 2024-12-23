@@ -34,6 +34,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.atan2
 
+
 /**
  * Returns the yaw difference the position is from the player position
  *

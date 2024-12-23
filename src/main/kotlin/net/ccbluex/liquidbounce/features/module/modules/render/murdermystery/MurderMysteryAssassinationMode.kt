@@ -74,6 +74,8 @@ object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMo
         val item = equippedItem?.item
 
         if (item !is FilledMapItem) {
+            // reset lastMap when map was removed (no longer in game)
+            lastMap = null
             return
         }
 

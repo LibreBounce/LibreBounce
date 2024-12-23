@@ -146,7 +146,7 @@ class BlockPlacer(
 
         if (sneakTimes > 0) {
             sneakTimes--
-            it.movementEvent.sneaking = true
+            it.movementEvent.sneak = true
         }
 
         if (blocks.isEmpty()) {
@@ -267,7 +267,7 @@ class BlockPlacer(
                 )
             ) {
                 sneakTimes = sneak - 1
-                it.movementEvent.sneaking = true
+                it.movementEvent.sneak = true
             }
 
             if (rotationMode.activeChoice(entry.booleanValue, pos, placementTarget)) {

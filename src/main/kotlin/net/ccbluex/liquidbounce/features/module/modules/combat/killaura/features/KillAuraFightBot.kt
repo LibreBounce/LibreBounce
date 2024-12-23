@@ -82,7 +82,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
 
         // Jump if we are stuck
         if (player.horizontalCollision) {
-            ev.jumping = true
+            ev.jump = true
         }
     }
 

@@ -134,12 +134,12 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
 
         // We want to swim up in water, so we don't drown and can move onwards
         if (player.isTouchingWater) {
-            event.jumping = true
+            event.jump = true
         }
 
         // Auto jump
         if (autoJump && player.horizontalCollision && walkTarget!!.y > player.y) {
-            event.jumping = true
+            event.jump = true
         }
     }
 }

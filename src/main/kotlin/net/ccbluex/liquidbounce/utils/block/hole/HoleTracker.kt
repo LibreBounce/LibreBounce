@@ -77,7 +77,7 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber {
 
         // Only check positions in this chunk (pos is BlockPos.Mutable)
         forEach { pos ->
-            if (chunk != null && (pos.y <= chunk.bottomY || pos.y - 1 >= chunk.topY)) {
+            if (chunk != null && (pos.y <= chunk.bottomY || pos.y - 1 >= chunk.topYInclusive + 1)) {
                 return@forEach
             }
 

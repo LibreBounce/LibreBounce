@@ -45,10 +45,10 @@ import net.minecraft.entity.attribute.EntityAttributeInstance
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.*
+import net.minecraft.item.consume.UseAction
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
-import net.minecraft.util.UseAction
 import net.minecraft.util.math.BlockPos
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
@@ -70,7 +70,7 @@ fun createSplashPotion(name: String, vararg effects: StatusEffectInstance): Item
     itemStack.set(DataComponentTypes.CUSTOM_NAME, regular(name))
     itemStack.set<PotionContentsComponent>(
         DataComponentTypes.POTION_CONTENTS,
-        PotionContentsComponent(Optional.empty(), Optional.empty(), effects.asList())
+        PotionContentsComponent(Optional.empty(), Optional.empty(), effects.asList(), Optional.empty())
     )
 
     return itemStack
@@ -140,7 +140,7 @@ val ItemStack.foodComponent: FoodComponent?
 
 fun isHotbarSlot(slot: Int) = slot == 45 || slot in 36..44
 
-val ToolItem.type: Int
+val MiningToolItem.type: Int
     get() = when (this) {
         is AxeItem -> 0
         is PickaxeItem -> 1
@@ -160,8 +160,8 @@ fun ItemStack.getAttributeValue(attribute: RegistryEntry<EntityAttribute>) = ite
 
 val ItemStack.attackDamage: Double
     get() {
-        val entityBaseDamage = player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
-        val baseDamage = getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+        val entityBaseDamage = player.getAttributeValue(EntityAttributes.ATTACK_DAMAGE)
+        val baseDamage = getAttributeValue(EntityAttributes.ATTACK_DAMAGE)
             ?: return 0.0
 
         /*
@@ -180,7 +180,7 @@ val ItemStack.sharpnessLevel: Int
 fun ItemStack.getSharpnessDamage(level: Int = sharpnessLevel) = if (level == 0) 0.0 else 0.5 * level + 0.5
 
 val ItemStack.attackSpeed: Float
-    get() = item.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)
+    get() = item.getAttributeValue(EntityAttributes.ATTACK_DAMAGE)
 
 private fun Item.getAttributeValue(attribute: RegistryEntry<EntityAttribute>): Float {
     val attribInstance = EntityAttributeInstance(attribute) {}
@@ -202,7 +202,7 @@ fun RegistryKey<Enchantment>.toRegistryEntry(): RegistryEntry<Enchantment> {
     val world = mc.world
     requireNotNull(world) { "World is null" }
 
-    val registry = world.registryManager.getWrapperOrThrow(RegistryKeys.ENCHANTMENT)
+    val registry = world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT)
     return registry.getOptional(this).orElseThrow { IllegalArgumentException("Unknown enchantment key $this") }
 }
 

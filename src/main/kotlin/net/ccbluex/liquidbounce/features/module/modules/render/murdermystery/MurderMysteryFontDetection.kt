@@ -40,7 +40,7 @@ object MurderMysteryFontDetection {
         var lastNonEmptyScanline = -1
         var emptyScanlines = 0
 
-        for (x in 0..128) {
+        for (x in 0 until 128) {
             var isEmpty = true
 
             for (y in 0 until 7) {
@@ -106,8 +106,8 @@ object MurderMysteryFontDetection {
     private fun filterContractLine(rgb: IntArray): IntArray {
         val contractLine = IntArray(128 * 7)
 
-        for (y in 0..7) {
-            for (x in 0..128) {
+        for (y in 0 until 7) {
+            for (x in 0 until 128) {
                 var newRGB = rgb[128 * 105 + y * 128 + x]
 
                 newRGB =
@@ -126,7 +126,7 @@ object MurderMysteryFontDetection {
     private fun extractBitmapFromMap(mapData: MapState): IntArray {
         val rgb = IntArray(128 * 128)
 
-        for (i in 0..rgb.size) {
+        for (i in rgb.indices) {
             val color = MapColor.getRenderColor(mapData.colors[i].toInt())
 
             val r = color and 0xFF
