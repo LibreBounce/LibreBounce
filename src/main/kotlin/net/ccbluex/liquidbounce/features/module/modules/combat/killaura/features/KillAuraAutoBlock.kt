@@ -36,6 +36,7 @@ import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEquals1_7_10
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.minecraft.item.ItemStack
 import net.minecraft.item.consume.UseAction
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
@@ -141,9 +142,9 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
             // Interact with the item in the block hand
             val actionResult = interaction.interactItem(player, blockHand)
+
             if (actionResult.isAccepted) {
-                if (actionResult is ActionResult.Success &&
-                    actionResult.swingSource == ActionResult.SwingSource.CLIENT) {
+                if (actionResult.shouldSwingHand()) {
                     player.swingHand(blockHand)
                 }
             }

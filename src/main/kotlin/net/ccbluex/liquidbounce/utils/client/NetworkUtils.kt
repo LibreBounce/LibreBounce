@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.network.ClientPlayerInteractionManager
@@ -89,7 +90,7 @@ fun clickBlockWithSlot(
         actionResult = itemStack.useOnBlock(itemUsageContext)
     }
 
-    if (actionResult is ActionResult.Success && actionResult.swingSource == ActionResult.SwingSource.CLIENT) {
+    if (actionResult.shouldSwingHand()) {
         swingMode.swing(hand)
     }
 

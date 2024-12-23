@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Blocks
@@ -209,7 +210,7 @@ fun interactItem(
     preInteraction()
 
     interaction.interactItem(player, hand, yaw, pitch).takeIf { it.isAccepted }?.let {
-        if (it is ActionResult.Success && it.swingSource == ActionResult.SwingSource.CLIENT) {
+        if (it.shouldSwingHand()) {
             player.swingHand(hand)
         }
 
