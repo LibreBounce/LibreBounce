@@ -28,12 +28,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ClientLoginNetworkHandler.class)
 public class MixinClientLoginNetworkHandlerMixin {
 
-    @ModifyExpressionValue(method = "onSuccess", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientBrandRetriever;getClientModName()Ljava/lang/String;"))
+    @ModifyExpressionValue(method = "onSuccess", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientBrandRetriever;getClientModName()Ljava/lang/String;", remap = false))
     private String getClientModName(String original) {
         return ModuleSpoofer.INSTANCE.clientBrand(original);
     }

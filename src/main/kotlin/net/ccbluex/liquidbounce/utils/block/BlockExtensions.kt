@@ -489,7 +489,7 @@ private inline fun handleActionsOnAccept(
     onPlacementSuccess: () -> Boolean,
     swingMode: SwingMode = SwingMode.DO_NOT_HIDE,
 ) {
-    if (!interactionResult.shouldSwingHand()) {
+    if (interactionResult.shouldSwingHand()) {
         return
     }
 
@@ -503,6 +503,12 @@ private inline fun handleActionsOnAccept(
 
     return
 }
+
+private fun ActionResult.shouldSwingHand(): Boolean {
+    return this !is ActionResult.Success ||
+        this.swingSource != ActionResult.SwingSource.SERVER
+}
+
 
 /**
  * Just interacts with the item in the hand instead of using it on the block

@@ -37,7 +37,7 @@ object ScaffoldStabilizeMovementFeature : ToggleableConfigurable(ScaffoldNormalT
     @Suppress("unused")
     val moveEvent = handler<MovementInputEvent>(priority = EventPriorityConvention.MODEL_STATE) { event ->
         // Prevents the stabilization from giving the player a boost before jumping that cannot be corrected mid-air.
-        if (event.jumping && player.isOnGround) {
+        if (event.jump && player.isOnGround) {
             return@handler
         }
 

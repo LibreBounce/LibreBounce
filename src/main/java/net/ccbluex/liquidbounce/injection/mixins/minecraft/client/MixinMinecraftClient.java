@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
@@ -37,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility;
 import net.ccbluex.liquidbounce.utils.combat.CombatManager;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -56,9 +58,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -314,14 +314,6 @@ public abstract class MixinMinecraftClient {
         EventManager.INSTANCE.callEvent(new WorldChangeEvent(world));
     }
 
-    /**
-     * Removes frame rate limit
-     */
-    @ModifyConstant(method = "getFramerateLimit", constant = @Constant(intValue = 60))
-    private int getFramerateLimit(int original) {
-        return getWindow().getFramerateLimit();
-    }
-
     @Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentFps:I",
             ordinal = 0, shift = At.Shift.AFTER))
     private void hookFpsChange(CallbackInfo ci) {
@@ -367,6 +359,14 @@ public abstract class MixinMinecraftClient {
         // unintended modification to the attack cooldown, which is not intended.
         return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen ||
                 this.currentScreen instanceof ModuleClickGui.ClickScreen);
+    }
+
+    @Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
+    private void hookSpoofFramebuffer(CallbackInfoReturnable<Framebuffer> cir) {
+        var framebuffer = GlobalFramebuffer.getSpoofedFramebuffer();
+        if (framebuffer != null) {
+            cir.setReturnValue(framebuffer);
+        }
     }
 
 }

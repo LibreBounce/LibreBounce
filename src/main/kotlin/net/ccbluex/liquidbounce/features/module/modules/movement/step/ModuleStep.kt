@@ -176,7 +176,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         @Suppress("unused")
         private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
             if (player.canStep(1.0) && !stepping) {
-                event.jumping = true
+                event.jump = true
                 stepCounter++
 
                 stepping = true
@@ -223,7 +223,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         @Suppress("unused")
         private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
             if (player.canStep(1.0) && !stepping) {
-                event.jumping = true
+                event.jump = true
 
                 stepping = true
                 Timer.requestTimerSpeed(baseTimer, Priority.IMPORTANT_FOR_USAGE_1, ModuleStep, 3)

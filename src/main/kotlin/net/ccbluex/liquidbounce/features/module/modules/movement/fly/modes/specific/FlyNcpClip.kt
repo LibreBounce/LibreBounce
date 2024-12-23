@@ -92,13 +92,13 @@ object FlyNcpClip : Choice("NcpClip") {
                 network.sendPacket(
                     PlayerMoveC2SPacket.PositionAndOnGround(
                         player.x, player.y + clipping, player.z,
-                        false
+                        false, player.horizontalCollision
                     )
                 )
                 network.sendPacket(
                     PlayerMoveC2SPacket.PositionAndOnGround(
                         player.x, player.y, player.z,
-                        false
+                        false, player.horizontalCollision
                     )
                 )
             }

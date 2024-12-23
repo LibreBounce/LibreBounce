@@ -82,7 +82,7 @@ object ChunkRenderer {
                 textureAtlasManager.editChunk(ChunkPos(posToUpdate)) { texture, atlasPosition ->
                     val (x, y) = atlasPosition.getPosOnAtlas(posToUpdate.x and 15, posToUpdate.z and 15)
 
-                    texture.image!!.setColor(x, y, color)
+                    texture.image!!.setColorArgb(x, y, color)
                 }
             }
         }
@@ -165,7 +165,7 @@ object ChunkRenderer {
 
                         val color = getColor(offX or (x shl 4), offZ or (z shl 4))
 
-                        texture.image!!.setColor(texX, texY, color)
+                        texture.image!!.setColorArgb(texX, texY, color)
                     }
                 }
             }
@@ -178,7 +178,7 @@ object ChunkRenderer {
 
                             val color = getColor(offX or otherPos.startX, offZ or otherPos.startZ)
 
-                            texture.image!!.setColor(texX, texY, color)
+                            texture.image!!.setColorArgb(texX, texY, color)
                         }
                     }
                 }

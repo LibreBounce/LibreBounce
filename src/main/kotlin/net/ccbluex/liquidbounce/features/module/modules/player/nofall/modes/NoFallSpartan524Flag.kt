@@ -37,7 +37,7 @@ internal object NoFallSpartan524Flag : Choice("Spartan524Flag") {
 
     val repeatable = tickHandler {
         if (player.fallDistance > 2f) {
-            network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true))
+            network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true, player.horizontalCollision))
             waitTicks(1)
         }
     }

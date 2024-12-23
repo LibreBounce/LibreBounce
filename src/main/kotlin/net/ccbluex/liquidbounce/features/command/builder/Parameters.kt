@@ -57,7 +57,7 @@ fun enchantmentParameter(name: String = "enchantment"): ParameterBuilder<String>
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
         .autocompletedWith { _ ->
-            world.registryManager.get(RegistryKeys.ENCHANTMENT).indexedEntries.map {
+            world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).indexedEntries.map {
                 it.idAsString
             }
         }

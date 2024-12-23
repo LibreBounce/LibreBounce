@@ -16,26 +16,32 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
+package net.ccbluex.liquidbounce.injection.mixins.minecraft.render.entity;
 
-import com.mojang.authlib.GameProfile;
-import net.ccbluex.liquidbounce.interfaces.OtherClientPlayerEntityAddition;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.OtherClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.damage.DamageSource;
+import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition;
+import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(OtherClientPlayerEntity.class)
-public abstract class MixinOtherClientPlayerEntity extends AbstractClientPlayerEntity implements OtherClientPlayerEntityAddition {
+@Mixin(EntityRenderState.class)
+public abstract class MixinEntityRenderState implements EntityRenderStateAddition {
 
-    public MixinOtherClientPlayerEntity(ClientWorld world, GameProfile profile) {
-        super(world, profile);
+    @Unique
+    private Entity liquid_bounce$entity;
+
+    @Unique
+    @Override
+    @SuppressWarnings("unused")
+    public void liquid_bounce$setEntity(Entity entity) {
+        this.liquid_bounce$entity = entity;
     }
 
+    @Unique
     @Override
-    public boolean liquid_bounce$actuallyDamage(DamageSource source, float amount) {
-        return super.damage(source, amount);
+    @SuppressWarnings("unused")
+    public Entity liquid_bounce$getEntity() {
+        return liquid_bounce$entity;
     }
 
 }

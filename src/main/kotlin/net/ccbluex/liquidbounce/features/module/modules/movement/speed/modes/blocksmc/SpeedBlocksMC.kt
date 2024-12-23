@@ -150,7 +150,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent> { event ->
         if (event.directionalInput.isMoving) {
-            event.jumping = true
+            event.jump = true
         }
     }
 

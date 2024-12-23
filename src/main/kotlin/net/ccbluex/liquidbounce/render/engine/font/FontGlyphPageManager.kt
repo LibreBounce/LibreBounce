@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
-import it.unimi.dsi.fastutil.ints.IntCharPair
+import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -8,7 +9,6 @@ import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.dynamic.DynamicFontCacheManager
 import net.ccbluex.liquidbounce.render.engine.font.dynamic.DynamicGlyphPage
 import java.awt.Dimension
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.ceil
 
 private val BASIC_CHARS = '\u0000'..'\u0200'
@@ -18,7 +18,7 @@ class FontGlyphPageManager(
     additionalFonts: Set<FontManager.FontFace> = emptySet()
 ): EventListener {
 
-    private var staticPage: List<StaticGlyphPage> = StaticGlyphPage.createGlyphPages(baseFonts.flatMap { loadedFont ->
+    private val staticPage: List<StaticGlyphPage> = StaticGlyphPage.createGlyphPages(baseFonts.flatMap { loadedFont ->
         loadedFont.styles.filterNotNull().flatMap { font -> BASIC_CHARS.map { ch -> FontGlyph(ch, font) } }
     })
     private val dynamicPage: DynamicGlyphPage = DynamicGlyphPage(
@@ -31,7 +31,7 @@ class FontGlyphPageManager(
     )
 
     private val availableFonts: Map<FontManager.FontFace, FontGlyphRegistry>
-    private val dynamicallyLoadedGlyphs = HashMap<IntCharPair, GlyphDescriptor>()
+    private val dynamicallyLoadedGlyphs = Long2ObjectOpenHashMap<GlyphDescriptor>()
 
     init {
         this.dynamicFontManager.startThread()
@@ -39,46 +39,46 @@ class FontGlyphPageManager(
         this.availableFonts = createGlyphRegistries(baseFonts, this.staticPage)
     }
 
+    private fun packIntCharKey(intValue: Int, charValue: Char): Long {
+        return (intValue.toLong() shl 32) or charValue.code.toLong()
+    }
+
     @Suppress("unused")
     private val renderHandler = handler<GameRenderEvent> {
         this.dynamicFontManager.update().forEach { update ->
-            val key = IntCharPair.of(update.style, update.descriptor.renderInfo.char)
+            val key = packIntCharKey(update.style, update.descriptor.renderInfo.char)
 
             if (!update.removed) {
-                dynamicallyLoadedGlyphs[key] = update.descriptor
+                dynamicallyLoadedGlyphs.put(key, update.descriptor)
             } else {
                 dynamicallyLoadedGlyphs.remove(key)
             }
         }
     }
 
-    @Suppress("NestedBlockDepth")
     private fun createGlyphRegistries(
         baseFonts: Set<FontManager.FontFace>,
         glyphPages: List<StaticGlyphPage>
-    ): Map<FontManager.FontFace, FontGlyphRegistry> {
-        val fontMap = baseFonts.associateWith {
-            Array(4) {
-                ConcurrentHashMap<Char, GlyphDescriptor>()
-            }
-        }
+    ): Map<FontManager.FontFace, FontGlyphRegistry> = baseFonts.associateWith { loadedFont ->
+        val array = Array(4) { Char2ObjectOpenHashMap<GlyphDescriptor>(512) }
 
-        baseFonts.forEach { loadedFont ->
-            loadedFont.styles.filterNotNull().forEach { fontId ->
-                glyphPages.forEach { glyphPage ->
-                    glyphPage.glyphs
-                        .filter { it.first == fontId }
-                        .forEach { (font, glyphRenderInfo) ->
-                            fontMap[loadedFont]!![font.style][glyphRenderInfo.char] =
-                                GlyphDescriptor(glyphPage, glyphRenderInfo)
-                        }
+        loadedFont.styles.forEach { fontId ->
+            if (fontId == null) {
+                return@forEach
+            }
+
+            glyphPages.forEach { glyphPage ->
+                for ((font, glyphRenderInfo) in glyphPage.glyphs) {
+                    if (font != fontId) {
+                        continue
+                    }
+
+                    array[font.style].put(glyphRenderInfo.char, GlyphDescriptor(glyphPage, glyphRenderInfo))
                 }
             }
         }
 
-        return fontMap.entries.associate {
-            it.key to FontGlyphRegistry(it.value, it.value[0]['?']!!)
-        }
+        FontGlyphRegistry(array, array[0]['?']!!)
     }
 
     private fun getFont(font: FontManager.FontFace): FontGlyphRegistry {
@@ -89,7 +89,7 @@ class FontGlyphPageManager(
         val glyph = getFont(font).glyphs[style][ch]
 
         if (glyph == null) {
-            val altGlyph = this.dynamicallyLoadedGlyphs[IntCharPair.of(style, ch)]
+            val altGlyph = this.dynamicallyLoadedGlyphs[packIntCharKey(style, ch)]
 
             if (altGlyph == null) {
                 this.dynamicFontManager.requestGlyph(ch, style)
@@ -111,7 +111,7 @@ class FontGlyphPageManager(
     }
 
     private class FontGlyphRegistry(
-        val glyphs: Array<ConcurrentHashMap<Char, GlyphDescriptor>>,
+        val glyphs: Array<Char2ObjectOpenHashMap<GlyphDescriptor>>,
         val fallbackGlyph: GlyphDescriptor
     )
 

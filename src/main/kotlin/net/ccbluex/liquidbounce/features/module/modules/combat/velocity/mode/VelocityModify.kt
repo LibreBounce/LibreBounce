@@ -91,11 +91,13 @@ internal object VelocityModify : Choice("Modify") {
             // note: explosion packets are being used by hypixel to trick poorly made cheats.
 
             //  Modify packet according to the specified values
-            packet.playerVelocityX *= horizontal
-            packet.playerVelocityY *= vertical
-            packet.playerVelocityZ *= horizontal
+            packet.playerKnockback.ifPresent { knockback ->
+                knockback.x *= horizontal
+                knockback.y *= vertical
+                knockback.z *= horizontal
 
-            NoFallBlink.waitUntilGround = true
+                NoFallBlink.waitUntilGround = true
+            }
         }
     }
 

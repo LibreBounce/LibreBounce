@@ -155,7 +155,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     val isTowering: Boolean
-        get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && player.input.jumping
+        get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && player.input.playerInput.jump
 
     // SafeWalk feature - uses the SafeWalk module as a base
     @Suppress("unused")
@@ -357,11 +357,11 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
                 )
 
                 if (requiresJump) {
-                    it.movementEvent.jumping = true
+                    it.movementEvent.jump = true
                 }
 
                 if (requiresSneak > 0) {
-                    it.movementEvent.sneaking = true
+                    it.movementEvent.sneak = true
                     forceSneak = requiresSneak
                 }
             }
@@ -394,7 +394,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.SAFETY_FEATURE) {
         if (forceSneak > 0) {
-            it.sneaking = true
+            it.sneak = true
             forceSneak--
         }
     }
@@ -481,7 +481,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
                         player.x, player.y, player.z,
                         currentRotation.yaw,
                         currentRotation.pitch,
-                        player.isOnGround
+                        player.isOnGround,
+                        player.horizontalCollision
                     )
                 )
             }
@@ -512,7 +513,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         if (rotationTiming == ON_TICK && RotationManager.serverRotation != player.rotation) {
             network.sendPacket(
                 Full(
-                    player.x, player.y, player.z, player.withFixedYaw(currentRotation), player.pitch, player.isOnGround
+                    player.x, player.y, player.z, player.withFixedYaw(currentRotation), player.pitch, player.isOnGround,
+                    player.horizontalCollision
                 )
             )
         }
