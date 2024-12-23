@@ -162,6 +162,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         if (ModuleEndTick.INSTANCE.getRunning()) {
             this.connection.send(ClientTickEndC2SPacket.INSTANCE);
         }
+
         this.connection.send(new PlayerMoveC2SPacket.Full(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), j, k, false, playerEntity.horizontalCollision));
         Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
         if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
