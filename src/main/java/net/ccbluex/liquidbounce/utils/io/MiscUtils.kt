@@ -5,9 +5,12 @@
  */
 package net.ccbluex.liquidbounce.utils.io
 
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.awt.Desktop
 import java.awt.Font
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -18,6 +21,7 @@ import javax.swing.filechooser.FileFilter
 
 object MiscUtils : MinecraftInstance {
 
+    @JvmStatic
     private fun JTextArea.adjustTextAreaSize() {
         val fontMetrics = getFontMetrics(font)
 
@@ -31,6 +35,27 @@ object MiscUtils : MinecraftInstance {
     }
 
     @JvmStatic
+    fun generateCrashInfo(): String {
+        var base = """
+            --- Game crash info ---
+            Client: ${LiquidBounce.CLIENT_NAME} ${LiquidBounce.clientVersionText} (${LiquidBounce.clientCommit})
+            Time: ${LocalDateTime.now()}
+            OS: ${System.getProperty("os.name")} (Version: ${System.getProperty("os.version")}, Arch: ${System.getProperty("os.arch")})
+            Java: ${System.getProperty("java.version")} (Vendor: ${System.getProperty("java.vendor")})
+        """.trimIndent()
+
+        if (mc.currentServerData != null) {
+            val serverData = mc.currentServerData
+            base += """
+                Server address: ${serverData.serverIP}
+                Server version: ${serverData.gameVersion}
+            """.trimIndent()
+        }
+
+        return base + '\n'
+    }
+
+    @JvmStatic
     fun showErrorPopup(title: String, message: Any) =
         JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE)
 
@@ -39,7 +64,11 @@ object MiscUtils : MinecraftInstance {
         titlePrefix: String = "Exception occurred: ",
         extraContent: String = LocalDateTime.now().toString() + '\n'
     ) {
-        val title = titlePrefix + javaClass.simpleName
+        if (mc.isFullScreen) mc.toggleFullscreen()
+
+        val exceptionType = javaClass.simpleName
+
+        val title = titlePrefix + exceptionType
 
         val content = extraContent + "--- Stacktrace ---\n" + stackTraceToString()
 
@@ -51,7 +80,36 @@ object MiscUtils : MinecraftInstance {
             adjustTextAreaSize()
         }
 
-        showErrorPopup(title, textArea)
+        val scrollPane = JScrollPane(textArea).apply {
+            preferredSize = java.awt.Dimension(800, 600)
+        }
+
+        val copyButton = JButton("Copy Text").apply {
+            addActionListener {
+                val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                clipboard.setContents(StringSelection(content), null)
+                JOptionPane.showMessageDialog(null, "Text copied to clipboard!", "Info", JOptionPane.INFORMATION_MESSAGE)
+            }
+        }
+
+        val openIssueButton = JButton("Open GitHub Issue").apply {
+            addActionListener {
+                showURL("${LiquidBounce.CLIENT_GITHUB}/issues/new?template=bug_report.yml&title=%5BBUG%5D+Game+crashed+$exceptionType")
+            }
+        }
+
+        val buttonPanel = JPanel().apply {
+            add(copyButton)
+            add(openIssueButton)
+        }
+
+        val mainPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            add(scrollPane)
+            add(buttonPanel)
+        }
+
+        showErrorPopup(title, mainPanel)
     }
 
     @JvmStatic
