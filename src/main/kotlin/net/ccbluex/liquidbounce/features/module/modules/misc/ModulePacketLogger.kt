@@ -64,12 +64,14 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
-        val origin = event.origin
+        onPacket(event.origin, event.packet, event.isCancelled)
+    }
+
+    fun onPacket(origin: TransferOrigin, packet: Packet<*>, canceled: Boolean = false) {
         if (origin == TransferOrigin.RECEIVE && !clientbound || origin == TransferOrigin.SEND && !serverbound) {
-            return@handler
+            return
         }
 
-        val packet = event.packet
         val text = Text.empty().styled { it.withFormatting(Formatting.WHITE) }
         if (origin == TransferOrigin.RECEIVE) {
             text.append(message("receive"))
@@ -82,12 +84,12 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
         text.append(" ")
         val packetName = getPacketName(clazz)
         if (!filter(packetName, packets)) {
-            return@handler
+            return
         }
 
         text.append(packetName)
 
-        if (event.isCancelled) {
+        if (canceled) {
             text.append(" (".asText().styled { it.withFormatting(Formatting.RED) })
             text.append(message("canceled").styled { it.withFormatting(Formatting.RED) })
             text.append(")".asText().styled { it.withFormatting(Formatting.RED) })
