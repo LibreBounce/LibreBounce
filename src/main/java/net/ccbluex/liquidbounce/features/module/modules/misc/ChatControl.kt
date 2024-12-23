@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.boolean
 
 object ChatControl : Module("ChatControl", Category.MISC, gameDetecting = false, hideModule = false) {
 

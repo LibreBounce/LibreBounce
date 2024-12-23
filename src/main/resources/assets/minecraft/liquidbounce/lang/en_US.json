@@ -139,6 +139,8 @@
         "module.cameraView.description": "Allows you to modify your camera-Y position.",
         
         "module.chams.description": "Allows you to see targets through blocks.",
+
+        "module.chatControl.description": "Allows you to control chat messages.",
         
         "module.chestAura.description": "Automatically opens chests around you.",
         
