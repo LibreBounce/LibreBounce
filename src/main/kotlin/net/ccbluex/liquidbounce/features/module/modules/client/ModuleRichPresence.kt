@@ -61,7 +61,7 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
     aliases = arrayOf("DiscordPresence")) {
 
     private val detailsText by text("Details", "Nextgen v%clientVersion% by %clientAuthor%")
-    private val stateText by text("MixinEntityRenderState", "%enabledModules% of %totalModules% modules enabled")
+    private val stateText by text("State", "%enabledModules% of %totalModules% modules enabled")
 
     private val largeImageText by text("LargeImage", "Online with %protocol%")
     private val smallImageText by text("SmallImage", "%clientBranch% (%clientCommit%)")

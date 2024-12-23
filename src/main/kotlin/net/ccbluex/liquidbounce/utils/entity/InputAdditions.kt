@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.minecraft.client.input.Input
+import net.minecraft.util.ActionResult
 import net.minecraft.util.PlayerInput
 
 @Suppress("LongParameterList")

@@ -100,14 +100,12 @@
     "truffle.MixinHostClassDesc",
     "truffle.MixinHostClassLoader",
     "truffle.MixinHostContext",
+    "minecraft.item.MixinArmorItem",
+    "minecraft.item.MixinMiningToolItem",
     "truffle.MixinTruffleLanguage"
   ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "minecraft.item.MixinArmorItem",
-    "minecraft.item.MixinMiningToolItem"
-  ]
+  }
 }
