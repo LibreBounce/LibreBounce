@@ -180,7 +180,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 drawCustomMesh(
                     VertexFormat.DrawMode.QUADS,
                     VertexFormats.POSITION_TEXTURE_COLOR,
-                    GameRenderer.getPositionTexColorProgram()!!
+                    ShaderProgramKeys.POSITION_TEX_COLOR
                 ) { matrix ->
                     vertex(matrix, 0.0f, -size, 0.0f)
                         .texture(0.0f, 0.0f)
