@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.block.placer.NoRotationMode
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
 import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
 import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
@@ -386,11 +387,8 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
         if (rotationMode.send) {
             val rotation = placementTarget.rotation.normalize()
-            network.connection!!.send(
                 PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
-                    player.horizontalCollision),
-                null
-            )
+                    player.horizontalCollision).send()
         }
 
         placer.doPlacement(false, blockPos ?: blockPos1!!.toImmutable(), placementTarget)

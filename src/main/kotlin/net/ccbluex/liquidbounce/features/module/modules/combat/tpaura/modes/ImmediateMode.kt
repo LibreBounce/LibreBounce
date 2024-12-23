@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -86,24 +87,24 @@ object ImmediateMode : TpAuraChoice("Immediate") {
         val times = (floor((abs(deltaX) + abs(deltaY) + abs(deltaZ)) / 10) - 1).toInt()
         val packetToSend = MovePacketType.FULL
         repeat(times) {
-            network.sendPacket(packetToSend.generatePacket().apply {
+            packetToSend.generatePacket().apply {
                 this.x = player.x
                 this.y = player.y
                 this.z = player.z
                 this.yaw = player.yaw
                 this.pitch = player.pitch
                 this.onGround = player.isOnGround
-            })
+            }.send()
         }
 
-        network.sendPacket(packetToSend.generatePacket().apply {
+        packetToSend.generatePacket().apply {
             this.x = x
             this.y = y
             this.z = z
             this.yaw = player.yaw
             this.pitch = player.pitch
             this.onGround = player.isOnGround
-        })
+        }.send()
 
         desyncPlayerPosition = position
     }

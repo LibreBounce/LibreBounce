@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.item.isConsumable
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
@@ -116,7 +117,7 @@ object ModuleFastUse : ClientModule("FastUse", Category.PLAYER) {
 
                 waitTicks(delay)
                 repeat(speed) {
-                    network.sendPacket(packetType.generatePacket())
+                    packetType.generatePacket().send()
                 }
                 player.stopUsingItem()
             }
@@ -136,7 +137,7 @@ object ModuleFastUse : ClientModule("FastUse", Category.PLAYER) {
         val repeatable = tickHandler {
             if (accelerateNow && player.itemUseTime >= consumeTime) {
                 repeat(speed) {
-                    network.sendPacket(packetType.generatePacket())
+                    packetType.generatePacket().send()
                 }
 
                 player.stopUsingItem()

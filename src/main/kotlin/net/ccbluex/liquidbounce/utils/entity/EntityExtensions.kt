@@ -23,10 +23,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
 import net.ccbluex.liquidbounce.utils.block.raycast
-import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.client.network
-import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.client.toRadians
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
@@ -53,7 +50,6 @@ import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.Difficulty
 import net.minecraft.world.RaycastContext
-import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.world.explosion.ExplosionImpl
 import kotlin.math.cos
@@ -619,9 +615,9 @@ fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
     }
 
     if (pos != null) {
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(pos.x, pos.y, pos.z, onGround, horizontalCollision))
+        PlayerMoveC2SPacket.PositionAndOnGround(pos.x, pos.y, pos.z, onGround, horizontalCollision).send()
     } else {
-        network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(onGround, horizontalCollision))
+        PlayerMoveC2SPacket.OnGroundOnly(onGround, horizontalCollision).send()
     }
 }
 

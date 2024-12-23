@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
@@ -41,9 +42,9 @@ internal object NoFallHypixelPacket : Choice("HypixelPacket") {
     val repeatable = tickHandler {
         if (player.fallDistance - player.velocity.y >= 3.3 && voidCheck()) {
             Timer.requestTimerSpeed(0.5f, Priority.IMPORTANT_FOR_PLAYER_LIFE, ModuleNoFall)
-            network.sendPacket(MovePacketType.ON_GROUND_ONLY.generatePacket().apply {
+            MovePacketType.ON_GROUND_ONLY.generatePacket().apply {
                 onGround = true
-            })
+            }.send()
             player.fallDistance = 0F
             waitTicks(1)
             Timer.requestTimerSpeed(1f, Priority.NORMAL, ModuleNoFall)

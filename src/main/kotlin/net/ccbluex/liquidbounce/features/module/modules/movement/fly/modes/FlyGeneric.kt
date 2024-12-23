@@ -34,6 +34,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.block.FluidBlock
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -139,7 +140,7 @@ internal object FlyCreative : Choice("Creative") {
         }
 
         if (shouldFlyDown()) {
-            network.sendPacket(MovePacketType.POSITION_AND_ON_GROUND.generatePacket())
+            MovePacketType.POSITION_AND_ON_GROUND.generatePacket().send()
         }
 
     }

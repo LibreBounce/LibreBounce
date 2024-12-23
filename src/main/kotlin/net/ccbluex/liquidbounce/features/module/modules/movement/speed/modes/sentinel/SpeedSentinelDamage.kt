@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePingSpoof
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.directionYaw
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -122,13 +123,14 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
         externalDamageAdjust = 0
         hasBeenHurt = false
         enabledTime = System.currentTimeMillis()
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false))
-        network.sendPacket(
-            PlayerMoveC2SPacket.PositionAndOnGround(
-                player.x, player.y + 3.25, player.z,
-            false, false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true, false))
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false)
+            .send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z, false, false)
+            .send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false)
+            .send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true, false)
+            .send()
     }
 
 }

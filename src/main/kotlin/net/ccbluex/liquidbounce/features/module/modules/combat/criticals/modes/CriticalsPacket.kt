@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleC
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.canDoCriticalHit
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.modes
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.send
 import net.minecraft.entity.LivingEntity
 
 /**
@@ -98,10 +99,10 @@ object CriticalsPacket : Choice("Packet") {
     }
 
     private fun p(mod: Double, onGround: Boolean = false) {
-        network.sendPacket(packetType.generatePacket().apply {
+        packetType.generatePacket().apply {
             this.y += mod
             this.onGround = onGround
-        })
+        }.send()
     }
 
     enum class Mode(override val choiceName: String) : NamedChoice {

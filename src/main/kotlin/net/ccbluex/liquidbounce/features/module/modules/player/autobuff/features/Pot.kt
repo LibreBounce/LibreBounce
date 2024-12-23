@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager.currentRotation
 import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
 import net.ccbluex.liquidbounce.utils.entity.rotation
@@ -133,10 +134,10 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
             }
             ON_TICK -> {
                 rotation = rotation.normalize()
-                network.sendPacket(MovePacketType.FULL.generatePacket().apply {
+                MovePacketType.FULL.generatePacket().apply {
                     yaw = rotation.yaw
                     pitch = rotation.pitch
-                })
+                }.send()
             }
             ON_USE -> {
                 rotation = rotation.normalize()
@@ -151,10 +152,10 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
 
         when (ModuleAutoBuff.rotations.rotationTiming) {
             ON_TICK -> {
-                network.sendPacket(MovePacketType.FULL.generatePacket().apply {
+                MovePacketType.FULL.generatePacket().apply {
                     yaw = player.withFixedYaw(currentRotation ?: player.rotation)
                     pitch = currentRotation?.pitch ?: player.pitch
-                })
+                }.send()
             }
             else -> { }
         }

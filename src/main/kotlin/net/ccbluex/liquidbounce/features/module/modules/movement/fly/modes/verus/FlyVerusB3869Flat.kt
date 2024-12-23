@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.FluidBlock
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -84,11 +85,9 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
         player.velocity.x = 0.0
         player.velocity.z = 0.0
 
-        network.sendPacket(
-            PlayerMoveC2SPacket.PositionAndOnGround(
-                player.x, player.y - 0.5, player.z,
-                false, player.horizontalCollision
-            )
-        )
+        PlayerMoveC2SPacket.PositionAndOnGround(
+            player.x, player.y - 0.5, player.z,
+            false, player.horizontalCollision
+        ).send()
     }
 }

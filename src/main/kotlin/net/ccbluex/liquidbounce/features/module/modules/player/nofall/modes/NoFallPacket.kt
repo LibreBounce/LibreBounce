@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.send
 
 internal object NoFallPacket : Choice("Packet") {
 
@@ -34,9 +35,9 @@ internal object NoFallPacket : Choice("Packet") {
 
     val repeatable = tickHandler {
         if (always || player.fallDistance > 2f && player.age > 20) {
-            network.sendPacket(packetType.generatePacket().apply {
+            packetType.generatePacket().apply {
                 onGround = true
-            })
+            }.send()
         }
     }
 

@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -89,18 +90,14 @@ object FlyNcpClip : Choice("NcpClip") {
             waitUntil { collidesVertical() }
 
             if (clipping != 0f) {
-                network.sendPacket(
-                    PlayerMoveC2SPacket.PositionAndOnGround(
-                        player.x, player.y + clipping, player.z,
-                        false, player.horizontalCollision
-                    )
-                )
-                network.sendPacket(
-                    PlayerMoveC2SPacket.PositionAndOnGround(
-                        player.x, player.y, player.z,
-                        false, player.horizontalCollision
-                    )
-                )
+                PlayerMoveC2SPacket.PositionAndOnGround(
+                    player.x, player.y + clipping, player.z,
+                    false, player.horizontalCollision
+                ).send()
+                PlayerMoveC2SPacket.PositionAndOnGround(
+                    player.x, player.y, player.z,
+                    false, player.horizontalCollision
+                ).send()
             }
 
             if (blink) {

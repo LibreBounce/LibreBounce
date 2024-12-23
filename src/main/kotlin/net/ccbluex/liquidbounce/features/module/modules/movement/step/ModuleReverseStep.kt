@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.getBlock
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
@@ -100,7 +101,7 @@ object ModuleReverseStep : ClientModule("ReverseStep", Category.MOVEMENT) {
                     // and therefore lose the simulation.
                     if (simulatePlayer.onGround) {
                         if (simulationQueue.isNotEmpty()) {
-                            simulationQueue.forEach(network::sendPacket)
+                            simulationQueue.forEach { it.send() }
                         }
 
                         player.setPosition(simulatePlayer.pos)

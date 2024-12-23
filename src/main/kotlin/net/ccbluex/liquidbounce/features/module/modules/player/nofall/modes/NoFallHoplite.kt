@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
+import net.ccbluex.liquidbounce.utils.client.send
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 internal object NoFallHoplite : Choice("Hoplite") {
@@ -25,8 +26,8 @@ internal object NoFallHoplite : Choice("Hoplite") {
         if (!player.isOnGround && player.fallDistance > 2f) {
             // Goes up a tiny bit to stop fall damage on 1.17+ servers.
             // Abuses Grim 1.17 extra packets to not flag timer.
-            network.sendPacket(PlayerMoveC2SPacket.Full(player.x, player.y + 1.0E-9, player.z,
-                player.yaw, player.pitch, player.isOnGround, player.horizontalCollision))
+            PlayerMoveC2SPacket.Full(player.x, player.y + 1.0E-9, player.z,
+                player.yaw, player.pitch, player.isOnGround, player.horizontalCollision).send()
 
             player.onLanding()
         }

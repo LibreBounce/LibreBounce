@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEndTick
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
@@ -34,10 +35,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
+import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -152,6 +150,23 @@ fun sendPacketSilently(packet: Packet<*>) {
     val packetEvent = PacketEvent(TransferOrigin.SEND, packet, false)
     RotationManager.packetHandler.handler(packetEvent)
     mc.networkHandler?.connection?.send(packetEvent.packet, null)
+}
+
+fun PlayerMoveC2SPacket.send(silent: Boolean = false) {
+    if (silent) {
+        if (ModuleEndTick.enabled) {
+            sendPacketSilently(ClientTickEndC2SPacket.INSTANCE)
+        }
+
+        sendPacketSilently(this)
+        return
+    }
+
+    if (ModuleEndTick.enabled) {
+        network.sendPacket(ClientTickEndC2SPacket.INSTANCE)
+    }
+
+    network.sendPacket(this)
 }
 
 enum class MovePacketType(override val choiceName: String, val generatePacket: () -> PlayerMoveC2SPacket)

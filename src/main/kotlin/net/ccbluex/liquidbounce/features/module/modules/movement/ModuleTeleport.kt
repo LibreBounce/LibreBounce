@@ -91,7 +91,7 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
                 return@handler
             }
 
-            sendPacketSilently(MovePacketType.FULL.generatePacket().apply {
+            MovePacketType.FULL.generatePacket().apply {
                 val change = it.packet.change
                 this.x = change.position.x
                 this.y = change.position.y
@@ -99,7 +99,7 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
                 this.yaw = change.yaw
                 this.pitch = change.pitch
                 this.onGround = false
-            })
+            }.send(true)
 
             teleport(indicatedTeleport.x, indicatedTeleport.y, indicatedTeleport.z)
             this.indicatedTeleport = null
@@ -120,7 +120,7 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
             val times = (floor((abs(deltaX) + abs(deltaY) + abs(deltaZ)) / 10) - 1).toInt()
             val packetToSend = if (allFull) MovePacketType.FULL else MovePacketType.POSITION_AND_ON_GROUND
             repeat(times) {
-                network.sendPacket(packetToSend.generatePacket().apply {
+                packetToSend.generatePacket().apply {
                     this.x = player.x
                     this.y = player.y
                     this.z = player.z
@@ -131,10 +131,10 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
                         GroundMode.FALSE -> false
                         GroundMode.CORRECT -> player.isOnGround
                     }
-                })
+                }.send()
             }
 
-            network.sendPacket(packetToSend.generatePacket().apply {
+            packetToSend.generatePacket().apply {
                 this.x = x
                 this.y = y
                 this.z = z
@@ -145,7 +145,7 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
                     GroundMode.FALSE -> false
                     GroundMode.CORRECT -> player.isOnGround
                 }
-            })
+            }.send()
         }
 
         val entity = player.vehicle ?: player

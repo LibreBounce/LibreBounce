@@ -34,6 +34,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.m
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.handlePacket
 import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.send
 import net.minecraft.block.Blocks
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -61,12 +62,10 @@ internal object FlyVulcan286 : Choice("Vulcan286-113") {
         chat(regular(message("vulcanGhostNewMessage")))
 
         // Send Packet to desync
-        network.sendPacket(
-            PlayerMoveC2SPacket.Full(
-                player.x, player.y - 0.1, player.z,
-                player.yaw, player.pitch, player.isOnGround, player.horizontalCollision
-            )
-        )
+        PlayerMoveC2SPacket.Full(
+            player.x, player.y - 0.1, player.z,
+            player.yaw, player.pitch, player.isOnGround, player.horizontalCollision
+        ).send()
     }
 
     override fun disable() {

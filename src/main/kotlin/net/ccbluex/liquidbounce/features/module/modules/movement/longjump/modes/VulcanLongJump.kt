@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.ModuleLongJump
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -102,15 +103,13 @@ internal object VulcanLongJump : Choice("Vulcan289") {
         if (player.isOnGround && !recievedLagback && player.hurtTime == 0 && !didLongJump) {
             repeat(3) {
                 for (position in jumpingSequence) {
-                    network.sendPacket(
-                        PlayerMoveC2SPacket.PositionAndOnGround(
-                            player.pos.x,
-                            player.pos.y + position,
-                            player.pos.z,
-                            false,
-                            false
-                        )
-                    )
+                    PlayerMoveC2SPacket.PositionAndOnGround(
+                        player.pos.x,
+                        player.pos.y + position,
+                        player.pos.z,
+                        false,
+                        false
+                    ).send()
                 }
             }
 

@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.BowItem
@@ -49,7 +50,7 @@ object AutoBowFastChargeFeature : ToggleableConfigurable(ModuleAutoBow, "FastCha
                 }
 
                 // Speed up ticks (MC 1.8)
-                network.sendPacket(packetType.generatePacket())
+                packetType.generatePacket().send()
 
                 // Show visual effect (not required to work - but looks better)
                 player.tickActiveItemStack()

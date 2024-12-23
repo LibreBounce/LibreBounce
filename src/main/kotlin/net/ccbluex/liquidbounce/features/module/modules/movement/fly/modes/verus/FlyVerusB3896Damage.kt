@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly.modes
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.zeroXZ
@@ -49,14 +50,14 @@ internal object FlyVerusB3896Damage : Choice("VerusB3896Damage") {
     private var gotDamage = false
 
     override fun enable() {
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
-            player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z, false,
-            player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
-            player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true,
-            player.horizontalCollision))
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
+            player.horizontalCollision).send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z, false,
+            player.horizontalCollision).send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
+            player.horizontalCollision).send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true,
+            player.horizontalCollision).send()
     }
 
     @Suppress("unused")

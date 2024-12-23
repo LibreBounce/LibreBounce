@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
+import net.ccbluex.liquidbounce.utils.client.send
 import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -70,7 +71,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
             }
 
             oldRotation = RotationManager.serverRotation
-            network.sendPacket(PlayerMoveC2SPacket.Full(
+            PlayerMoveC2SPacket.Full(
                 player.x,
                 player.y,
                 player.z,
@@ -78,7 +79,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 rotation.pitch,
                 player.isOnGround,
                 player.horizontalCollision
-            ))
+            ).send()
         }
 
         fun rotateBack() {
@@ -86,7 +87,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 return
             }
 
-            network.sendPacket(PlayerMoveC2SPacket.Full(
+            PlayerMoveC2SPacket.Full(
                 player.x,
                 player.y,
                 player.z,
@@ -94,7 +95,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 oldRotation!!.pitch,
                 player.isOnGround,
                 player.horizontalCollision
-            ))
+            ).send()
         }
 
     }

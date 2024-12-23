@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
+import net.ccbluex.liquidbounce.utils.client.send
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
@@ -117,11 +118,8 @@ class NoRotationMode(configurable: ChoiceConfigurable<BlockPlacerRotationMode>, 
 
             if (send) {
                 val rotation = placementTarget.rotation.normalize()
-                network.connection!!.send(
-                    PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
-                        player.horizontalCollision),
-                    null
-                )
+                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
+                    player.horizontalCollision).send()
             }
 
             placer.doPlacement(isSupport, pos, placementTarget)

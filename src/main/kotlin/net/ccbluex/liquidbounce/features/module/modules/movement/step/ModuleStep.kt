@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.canStep
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -154,7 +155,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                         }
                         this.z = player.z
                     }
-                }.forEach(network::sendPacket)
+                }.forEach { it.send() }
             ticksWait = wait.random()
         }
 

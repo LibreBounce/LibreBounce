@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEndTick;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleNoRotateSet;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
@@ -40,6 +41,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.c2s.play.ClientTickEndC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
@@ -157,6 +159,9 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         // Confirm teleport
         this.connection.send(new TeleportConfirmC2SPacket(packet.teleportId()));
         // Silently accept yaw and pitch values requested by the server.
+        if (ModuleEndTick.INSTANCE.getRunning()) {
+            this.connection.send(ClientTickEndC2SPacket.INSTANCE);
+        }
         this.connection.send(new PlayerMoveC2SPacket.Full(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), j, k, false, playerEntity.horizontalCollision));
         Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
         if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {

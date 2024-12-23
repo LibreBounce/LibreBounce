@@ -34,6 +34,7 @@ import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.send
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.movement.zeroXZ
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -130,14 +131,14 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
 
     private fun boost() {
         hasBeenHurt = false
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
-            player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z,
-            false, player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
-            player.horizontalCollision))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true,
-            player.horizontalCollision))
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
+            player.horizontalCollision).send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z,
+            false, player.horizontalCollision).send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
+            player.horizontalCollision).send()
+        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true,
+            player.horizontalCollision).send()
     }
 
 }
