@@ -9,11 +9,10 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.NoSlotSet
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestAura
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockBush
@@ -29,7 +28,7 @@ import net.minecraft.network.play.server.S09PacketHeldItemChange
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 
-object InventoryUtils : MinecraftInstance(), Listenable {
+object InventoryUtils : MinecraftInstance, Listenable {
     // Is inventory open on server-side?
     var serverOpenInventory
         get() = _serverOpenInventory
@@ -58,7 +57,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
 
     val CLICK_TIMER = MSTimer()
 
-    val BLOCK_BLACKLIST = listOf(
+    val BLOCK_BLACKLIST = setOf(
         Blocks.chest,
         Blocks.ender_chest,
         Blocks.trapped_chest,
@@ -170,9 +169,8 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return amount
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        if (event.isCancelled) return
+    val onPacket = handler<PacketEvent> { event ->
+        if (event.isCancelled) return@handler
 
         when (val packet = event.packet) {
             is C08PacketPlayerBlockPlacement, is C0EPacketClickWindow -> {
@@ -207,7 +205,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
 
             is S09PacketHeldItemChange -> {
                 if (SilentHotbar.currentSlot == packet.heldItemHotbarIndex)
-                    return
+                    return@handler
 
                 SilentHotbar.ignoreSlotChange = true
 
@@ -228,19 +226,15 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
+    val onRender3D = handler<Render3DEvent> {
         val module = SilentHotbarModule
 
-        val slotToUse = SilentHotbar.renderSlot(module.handleEvents() && module.keepHotbarSlot)
+        val slotToUse = SilentHotbar.renderSlot(module.handleEvents() && module.keepHotbarSlot).toFloat()
 
-        lerpedSlot = AnimationUtil.base(lerpedSlot.toDouble(), slotToUse.toDouble(),
-            RenderUtils.deltaTimeNormalized().coerceAtLeast(0.1)
-        ).toFloat()
+        lerpedSlot = (lerpedSlot..slotToUse).lerpWith(RenderUtils.deltaTimeNormalized())
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent> {
         SilentHotbar.resetSlot()
 
         _serverOpenInventory = false

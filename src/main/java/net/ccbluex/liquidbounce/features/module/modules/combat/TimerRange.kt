@@ -6,28 +6,24 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.BlinkUtils
-import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
-import net.ccbluex.liquidbounce.utils.PacketUtils.queuedPackets
-import net.ccbluex.liquidbounce.utils.RotationUtils.searchCenter
-import net.ccbluex.liquidbounce.utils.SimulatedPlayer
-import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
+import net.ccbluex.liquidbounce.utils.client.BlinkUtils
+import net.ccbluex.liquidbounce.utils.client.PacketUtils
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.ccbluex.liquidbounce.utils.schedulePacketProcess
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
+import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
@@ -54,7 +50,6 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     // Condition to confirm
     private var shouldReset = false
     private var confirmTick = false
-    private var confirmMove = false
     private var confirmStop = false
 
     // Condition to prevent getting timer speed stuck
@@ -131,7 +126,8 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
 
     // Optional
     private val onWeb by boolean("OnWeb", false)
-    private val onWater by boolean("OnWater", false)
+    private val onLiquid by boolean("onLiquid", false)
+    private val onForwardOnly by boolean("OnForwardOnly", true)
     private val resetOnlagBack by boolean("ResetOnLagback", false)
     private val resetOnKnockback by boolean("ResetOnKnockback", false)
     private val chatDebug by boolean("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
@@ -149,7 +145,6 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
         blinked = false
 
         confirmTick = false
-        confirmMove = false
         confirmStop = false
         confirmAttack = false
     }
@@ -157,26 +152,23 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     /**
      * Attack event (Normal & Smart Mode)
      */
-    @EventTarget
-    fun onAttack(event: AttackEvent) {
+    val onAttack = handler<AttackEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
+
         if (event.targetEntity !is EntityLivingBase && playerTicks >= 1) {
             shouldResetTimer()
-            return
+            return@handler
         } else {
             confirmAttack = true
         }
 
-        val targetEntity = event.targetEntity ?: return
-        val entityDistance = targetEntity.let { mc.thePlayer.getDistanceToEntityBox(it) }
-        val randomTickDelay = RandomUtils.nextInt(minTickDelay.get(), maxTickDelay.get() + 1)
-        var shouldReturn = false
+        val targetEntity = event.targetEntity ?: return@handler
+        val entityDistance = targetEntity.let { player.getDistanceToEntityBox(it) }
+        val randomTickDelay = nextInt(minTickDelay.get(), maxTickDelay.get() + 1)
+        val shouldReturn = Backtrack.runWithNearestTrackedDistance(targetEntity) { !updateDistance(targetEntity) }
 
-        Backtrack.runWithNearestTrackedDistance(targetEntity) {
-            shouldReturn = !updateDistance(targetEntity)
-        }
-
-        if (shouldReturn || (mc.thePlayer.isInWeb && !onWeb) || (mc.thePlayer.isInWater && !onWater)) {
-            return
+        if (shouldReturn || (player.isInWeb && !onWeb) || (player.isInLiquid && !onLiquid)) {
+            return@handler
         }
 
         smartTick++
@@ -203,24 +195,19 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     /**
      * Move event (Modern Mode)
      */
-    @EventTarget
-    fun onMove(event: MoveEvent) {
-        if (timerBoostMode != "Modern") {
-            return
-        }
+    val onMove = handler<MoveEvent> {
+        val player = mc.thePlayer ?: return@handler
+        
+        if (timerBoostMode != "Modern") return@handler
 
-        val nearbyEntity = getNearestEntityInRange() ?: return
+        val nearbyEntity = getNearestEntityInRange() ?: return@handler
 
-        val randomTickDelay = RandomUtils.nextInt(minTickDelay.get(), maxTickDelay.get())
+        val randomTickDelay = nextInt(minTickDelay.get(), maxTickDelay.get())
 
-        var shouldReturn = false
+        val shouldReturn = Backtrack.runWithNearestTrackedDistance(nearbyEntity) { !updateDistance(nearbyEntity) }
 
-        Backtrack.runWithNearestTrackedDistance(nearbyEntity) {
-            shouldReturn = !updateDistance(nearbyEntity)
-        }
-
-        if (shouldReturn || (mc.thePlayer.isInWeb && !onWeb) || (mc.thePlayer.isInWater && !onWater)) {
-            return
+        if (shouldReturn || (player.isInWeb && !onWeb) || (player.isInLiquid && !onLiquid)) {
+            return@handler
         }
 
         if (isPlayerMoving()) {
@@ -232,17 +219,15 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
             }
         } else {
             smartTick = 0
-            confirmMove = false
         }
 
         if (isPlayerMoving() && !confirmStop) {
             if (isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) {
-                val entityDistance = mc.thePlayer.getDistanceToEntityBox(nearbyEntity)
-                if (confirmTick && entityDistance <= scanRange.get() && entityDistance >= randomRange) {
+                val entityDistance = player.getDistanceToEntityBox(nearbyEntity)
+                if (confirmTick && entityDistance in randomRange..maxRange.get()) {
                     if (updateDistance(nearbyEntity)) {
                         playerTicks = ticksValue
                         confirmTick = false
-                        confirmMove = true
                     }
                 }
             } else {
@@ -256,10 +241,9 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     private fun updateDistance(entity: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
-        val (predictX, predictY, predictZ) = entity.currPos.subtract(entity.prevPos)
-            .times(2 + predictEnemyPosition.toDouble())
+        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
 
-        val boundingBox = entity.hitBox.offset(predictX, predictY, predictZ)
+        val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
@@ -292,11 +276,10 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      * Motion event
      * (Resets player speed when less/more than target distance)
      */
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
+    val onMotion = handler<MotionEvent> { event ->
         if (blink && event.eventState == EventState.POST) {
             synchronized(packetsReceived) {
-                schedulePacketProcess(packetsReceived)
+                PacketUtils.schedulePacketProcess(packetsReceived)
             }
             packetsReceived.clear()
         }
@@ -306,8 +289,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      * World Event
      * (Clear packets on disconnect)
      */
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent> { event ->
         if (blink && event.worldClient == null) {
             packets.clear()
             packetsReceived.clear()
@@ -317,14 +299,13 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     /**
      * Update event
      */
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         // Randomize the timer & charged delay a bit, to bypass some AntiCheat
-        val timerboost = RandomUtils.nextFloat(minBoostDelay.get(), maxBoostDelay.get())
-        val charged = RandomUtils.nextFloat(minChargedDelay.get(), maxChargedDelay.get())
+        val timerboost = nextFloat(minBoostDelay.get(), maxBoostDelay.get())
+        val charged = nextFloat(minChargedDelay.get(), maxChargedDelay.get())
 
         if (mc.thePlayer != null && mc.theWorld != null) {
-            randomRange = RandomUtils.nextFloat(minRange.get(), maxRange.get())
+            randomRange = nextFloat(minRange.get(), maxRange.get())
         }
 
         if (playerTicks <= 0 || confirmStop) {
@@ -335,7 +316,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
                 blinked = false
             }
 
-            return
+            return@handler
         }
 
         val tickProgress = playerTicks.toDouble() / ticksValue.toDouble()
@@ -356,12 +337,13 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
     /**
      * Render event (Mark)
      */
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        if (timerBoostMode.lowercase() != "modern") return
+    val onRender3D = handler<Render3DEvent> {
+        val player = mc.thePlayer ?: return@handler
+
+        if (timerBoostMode.lowercase() != "modern") return@handler
 
         getNearestEntityInRange()?.let { nearbyEntity ->
-            val entityDistance = mc.thePlayer.getDistanceToEntityBox(nearbyEntity)
+            val entityDistance = player.getDistanceToEntityBox(nearbyEntity)
 
             if (entityDistance > scanRange.get()) return@let
 
@@ -384,7 +366,9 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      * Check if player is moving
      */
     private fun isPlayerMoving(): Boolean {
-        return !mc.gameSettings.keyBindBack.isKeyDown && (mc.thePlayer?.moveForward != 0f || mc.thePlayer?.moveStrafing != 0f)
+        return if (!onForwardOnly) mc.thePlayer?.isMoving == true else {
+            mc.thePlayer?.moveForward != 0f && mc.thePlayer?.moveStrafing == 0f
+        }
     }
 
     /**
@@ -392,22 +376,21 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      */
     private fun getNearestEntityInRange(): Entity? {
         val player = mc.thePlayer ?: return null
+        val world = mc.theWorld ?: return null
 
-        return mc.theWorld?.loadedEntityList?.asSequence()?.mapNotNull { entity ->
-            var isInRange = false
+        return world.loadedEntityList?.asSequence()
+            ?.filter { entity -> isSelected(entity, true) }
+            ?.filter { entity ->
+                Backtrack.runWithNearestTrackedDistance(entity) {
+                    val distance = player.getDistanceToEntityBox(entity)
 
-            Backtrack.runWithNearestTrackedDistance(entity) {
-                val distance = player.getDistanceToEntityBox(entity)
-
-                isInRange = when (timerBoostMode.lowercase()) {
-                    "normal" -> distance <= rangeValue
-                    "smart", "modern" -> distance <= scanRange.get() + randomRange
-                    else -> false
+                    when (timerBoostMode.lowercase()) {
+                        "normal" -> distance <= rangeValue
+                        "smart", "modern" -> distance <= scanRange.get() + randomRange
+                        else -> false
+                    }
                 }
-            }
-
-            entity.takeIf { isInRange }
-        }?.minByOrNull { player.getDistanceToEntityBox(it) }
+            }?.minByOrNull { player.getDistanceToEntityBox(it) }
     }
 
     /**
@@ -422,7 +405,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
                 shouldReset = true
             }
         } else {
-            if (mc.timer.timerSpeed != 1f) {
+            if (!shouldReset && mc.timer.timerSpeed != 1f) {
                 mc.timer.timerSpeed = 1f
                 shouldReset = true
             } else {
@@ -435,12 +418,10 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
      * Lagback Reset is Inspired from Nextgen TimerRange
      * Reset Timer on Lagback & Knockback.
      */
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (mc.thePlayer == null || mc.thePlayer.isDead)
-            return
+        if (mc.thePlayer == null || mc.thePlayer.isDead) return@handler
 
         if (blink) {
             if (playerTicks > 0 && !blinked) {
@@ -453,14 +434,14 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
                     // Flush on doing/getting action.
                     is S08PacketPlayerPosLook, is C07PacketPlayerDigging, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
                         BlinkUtils.unblink()
-                        return
+                        return@handler
                     }
 
                     // Flush on explosion
                     is S27PacketExplosion -> {
                         if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
                             BlinkUtils.unblink()
-                            return
+                            return@handler
                         }
                     }
 
@@ -468,7 +449,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
                     is S06PacketUpdateHealth -> {
                         if (packet.health < mc.thePlayer.health) {
                             BlinkUtils.unblink()
-                            return
+                            return@handler
                         }
                     }
                 }
@@ -492,7 +473,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT, hideModule = false) {
         }
 
         // Check for knockback
-        if (resetOnKnockback && packet is S12PacketEntityVelocity && mc.thePlayer.entityId == packet.entityID) {
+        if (resetOnKnockback && packet is S12PacketEntityVelocity && mc.thePlayer?.entityId == packet.entityID) {
             shouldResetTimer()
 
             if (shouldReset) {

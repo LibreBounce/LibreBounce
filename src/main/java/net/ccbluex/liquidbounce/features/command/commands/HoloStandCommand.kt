@@ -6,16 +6,14 @@
 package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.NBTTagCompound
-import net.ccbluex.liquidbounce.utils.NBTTagList
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.misc.StringUtils
-import net.ccbluex.liquidbounce.utils.set
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.extensions.NBTTagCompound
+import net.ccbluex.liquidbounce.utils.extensions.NBTTagList
+import net.ccbluex.liquidbounce.utils.extensions.set
+import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagDouble
-import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.play.client.C10PacketCreativeInventoryAction
 
 object HoloStandCommand : Command("holostand") {

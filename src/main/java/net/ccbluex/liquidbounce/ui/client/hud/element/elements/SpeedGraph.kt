@@ -9,11 +9,10 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -42,58 +41,56 @@ class SpeedGraph(
     private var lastTick = -1
 
     override fun drawElement(): Border {
-        AWTFontRenderer.Companion.assumeNonVolatile = true
+        assumeNonVolatile {
+            val width = width
 
-        val width = width
+            val player = mc.thePlayer
 
-        val player = mc.thePlayer
+            if (lastTick != player.ticksExisted) {
+                lastTick = player.ticksExisted
+                val z2 = player.posZ
+                val z1 = player.prevPosZ
+                val x2 = player.posX
+                val x1 = player.prevPosX
+                var speed = sqrt((z2 - z1) * (z2 - z1) + (x2 - x1) * (x2 - x1))
+                if (speed < 0)
+                    speed = -speed
 
-        if (lastTick != player.ticksExisted) {
-            lastTick = player.ticksExisted
-            val z2 = player.posZ
-            val z1 = player.prevPosZ
-            val x2 = player.posX
-            val x1 = player.prevPosX
-            var speed = sqrt((z2 - z1) * (z2 - z1) + (x2 - x1) * (x2 - x1))
-            if (speed < 0)
-                speed = -speed
-
-            speedList += speed
-            while (speedList.size > width) {
-                speedList.removeAt(0)
+                speedList += speed
+                while (speedList.size > width) {
+                    speedList.removeAt(0)
+                }
             }
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            glEnable(GL_BLEND)
+            glEnable(GL_LINE_SMOOTH)
+            glLineWidth(thickness)
+            glDisable(GL_TEXTURE_2D)
+            glDisable(GL_DEPTH_TEST)
+            glDepthMask(false)
+
+            glBegin(GL_LINES)
+
+            val size = speedList.size
+
+            val start = (if (size > width) size - width else 0)
+            for (i in start until size - 1) {
+                val y = speedList[i] * 10 * yMultiplier
+                val y1 = speedList[i + 1] * 10 * yMultiplier
+
+                glColor(Color(colorRed, colorGreen, colorBlue, 255))
+                glVertex2d(i.toDouble() - start, height + 1 - y.coerceAtMost(height.toDouble()))
+                glVertex2d(i + 1.0 - start, height + 1 - y1.coerceAtMost(height.toDouble()))
+            }
+
+            glEnd()
+
+            glEnable(GL_TEXTURE_2D)
+            glDisable(GL_LINE_SMOOTH)
+            glEnable(GL_DEPTH_TEST)
+            glDepthMask(true)
+            glDisable(GL_BLEND)
         }
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glEnable(GL_BLEND)
-        glEnable(GL_LINE_SMOOTH)
-        glLineWidth(thickness)
-        glDisable(GL_TEXTURE_2D)
-        glDisable(GL_DEPTH_TEST)
-        glDepthMask(false)
-
-        glBegin(GL_LINES)
-
-        val size = speedList.size
-
-        val start = (if (size > width) size - width else 0)
-        for (i in start until size - 1) {
-            val y = speedList[i] * 10 * yMultiplier
-            val y1 = speedList[i + 1] * 10 * yMultiplier
-
-            glColor(Color(colorRed, colorGreen, colorBlue, 255))
-            glVertex2d(i.toDouble() - start, height + 1 - y.coerceAtMost(height.toDouble()))
-            glVertex2d(i + 1.0 - start, height + 1 - y1.coerceAtMost(height.toDouble()))
-        }
-
-        glEnd()
-
-        glEnable(GL_TEXTURE_2D)
-        glDisable(GL_LINE_SMOOTH)
-        glEnable(GL_DEPTH_TEST)
-        glDepthMask(true)
-        glDisable(GL_BLEND)
-
-        assumeNonVolatile = false
 
         resetColor()
 

@@ -14,12 +14,12 @@ import net.ccbluex.liquidbounce.features.module.modules.player.Blink;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
 import net.ccbluex.liquidbounce.ui.client.hud.HUD;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification;
-import net.ccbluex.liquidbounce.utils.ClientUtils;
-import net.ccbluex.liquidbounce.utils.PacketUtils;
-import net.ccbluex.liquidbounce.utils.Rotation;
-import net.ccbluex.liquidbounce.utils.RotationUtils;
+import net.ccbluex.liquidbounce.utils.client.ClientUtils;
+import net.ccbluex.liquidbounce.utils.client.PacketUtils;
+import net.ccbluex.liquidbounce.utils.rotation.Rotation;
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils;
 import net.ccbluex.liquidbounce.utils.extensions.PlayerExtensionKt;
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils;
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -48,8 +48,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static net.ccbluex.liquidbounce.utils.ClientUtilsKt.chat;
-import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
+import static net.ccbluex.liquidbounce.utils.client.ClientUtilsKt.chat;
+import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 import static net.minecraft.network.play.client.C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD;
 
 @Mixin(NetHandlerPlayClient.class)
@@ -242,7 +242,7 @@ public abstract class MixinNetHandlerPlayClient {
         final Entity entity = packetIn.getEntity(clientWorldController);
 
         if (entity != null)
-            EventManager.INSTANCE.callEvent(new EntityMovementEvent(entity));
+            EventManager.INSTANCE.call(new EntityMovementEvent(entity));
     }
 
     @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))

@@ -5,15 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.GameTickEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
@@ -39,22 +39,21 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hid
     /**
      * Update Event
      */
-    @EventTarget
-    fun onGameTick(event: GameTickEvent) {
-        val player = mc.thePlayer ?: return
+    val onGameTick = handler<GameTickEvent> {
+        val player = mc.thePlayer ?: return@handler
 
         if (!playerInGame() || !player.inventory.hasItemStack(ItemStack(Items.paper))) {
             if (delayTick > 0)
                 delayTick = 0
 
-            return
+            return@handler
         } else {
             delayTick++
         }
 
         when (mode) {
             "Paper" -> {
-                val paper = InventoryUtils.findItem(36, 44, Items.paper) ?: return
+                val paper = InventoryUtils.findItem(36, 44, Items.paper) ?: return@handler
 
                 SilentHotbar.selectSlotSilently(this, paper, immediate = true, resetManually = true)
 

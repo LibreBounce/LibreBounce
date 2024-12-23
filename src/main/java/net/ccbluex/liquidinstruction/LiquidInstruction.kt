@@ -5,13 +5,18 @@
  */
 package net.ccbluex.liquidinstruction
 
+import com.formdev.flatlaf.themes.FlatMacLightLaf
 import net.ccbluex.liquidbounce.LiquidBounce
 import java.awt.BorderLayout
+import java.awt.Desktop
+import javax.swing.JEditorPane
 import javax.swing.JFrame
-import javax.swing.JLabel
 import javax.swing.WindowConstants
+import javax.swing.event.HyperlinkEvent
 
 fun main() {
+    FlatMacLightLaf.setup()
+
     // Setup instruction frame
     val frame = JFrame("LiquidBounce | Installation")
     frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
@@ -19,11 +24,22 @@ fun main() {
     frame.isResizable = false
     frame.isAlwaysOnTop = true
 
-    // Add instruction as label
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-    val label = JLabel(LiquidBounce::class.java.getResourceAsStream("/instructions.html").reader().readText()
-            .replace("{assets}", LiquidBounce.javaClass.classLoader.getResource("assets").toString()))
-    frame.add(label, BorderLayout.CENTER)
+    // Add instruction as editor pane (uneditable)
+    val editorPane = JEditorPane().apply {
+        contentType = "text/html"
+        text = with(LiquidBounce::class.java) {
+            getResourceAsStream("/instructions.html")!!.bufferedReader().readText()
+                .replace("{assets}", classLoader.getResource("assets")!!.toString())
+        }
+        isEditable = false
+        addHyperlinkListener { event ->
+            if (event.eventType == HyperlinkEvent.EventType.ACTIVATED) {
+                Desktop.getDesktop().browse(event.url.toURI())
+            }
+        }
+    }
+
+    frame.add(editorPane, BorderLayout.CENTER)
 
     // Pack frame
     frame.pack()

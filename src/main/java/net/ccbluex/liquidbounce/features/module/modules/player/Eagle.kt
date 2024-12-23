@@ -5,15 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.extensions.block
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.air
@@ -28,9 +27,8 @@ object Eagle : Module("Eagle", Category.PLAYER, hideModule = false) {
     private val sneakTimer = MSTimer()
     private var sneakOn = false
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onUpdate = loopHandler {
+        val thePlayer = mc.thePlayer ?: return@loopHandler
 
         if (thePlayer.onGround && BlockPos(thePlayer).down().block == air) {
             val shouldSneak = !onlyWhenLookingDown || thePlayer.rotationPitch >= lookDownThreshold

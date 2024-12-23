@@ -6,11 +6,11 @@
 package net.ccbluex.liquidbounce.features.command
 
 import net.ccbluex.liquidbounce.LiquidBounce.commandManager
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.minecraft.client.audio.PositionedSoundRecord
-import net.minecraft.util.ResourceLocation
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.asResourceLocation
+import net.ccbluex.liquidbounce.utils.client.playSound
 
-abstract class Command(val command: String, vararg val alias: String) : MinecraftInstance() {
+abstract class Command(val command: String, vararg val alias: String) : MinecraftInstance {
     /**
      * Execute commands with provided [args]
      */
@@ -29,7 +29,7 @@ abstract class Command(val command: String, vararg val alias: String) : Minecraf
     /**
      * Print [msg] to chat
      */
-    protected fun chat(msg: String) = net.ccbluex.liquidbounce.utils.chat("§3$msg")
+    protected fun chat(msg: String) = net.ccbluex.liquidbounce.utils.client.chat("§3$msg")
 
     /**
      * Print [syntax] of command to chat
@@ -55,10 +55,6 @@ abstract class Command(val command: String, vararg val alias: String) : Minecraf
      * Play edit sound
      */
     protected fun playEdit() {
-        synchronized(mc.soundHandler) {
-            mc.soundHandler.playSound(
-                PositionedSoundRecord.create(ResourceLocation("random.anvil_use"), 1F)
-            )
-        }
+        mc.playSound("random.anvil_use".asResourceLocation())
     }
 }

@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.Element
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -22,7 +22,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 @SideOnly(Side.CLIENT)
-abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, val height: Int, var open: Boolean) : MinecraftInstance() {
+abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, val height: Int, var open: Boolean) : MinecraftInstance {
     abstract val elements: List<Element>
 
     var x2 = 0

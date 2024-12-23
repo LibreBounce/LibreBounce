@@ -5,15 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.TickEndEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager
-import net.ccbluex.liquidbounce.utils.CPSCounter
-import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
-import net.ccbluex.liquidbounce.utils.chat
-import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.utils.attack.CPSCounter
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.runTimeTicks
+import net.ccbluex.liquidbounce.utils.client.chat
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChart
 import org.knowm.xchart.XYSeries
@@ -75,8 +75,7 @@ object ClickRecorder : Module("ClickRecorder", Category.MISC) {
         chat("Started recording clicks.")
     }
 
-    @EventTarget
-    fun onTickEnding(event: TickEndEvent) {
+    val onTickEnding = handler<TickEndEvent> {
         updateRecordInfo()
 
         chart?.updateXYSeries("Left Clicks", ticks, leftClicks, null)

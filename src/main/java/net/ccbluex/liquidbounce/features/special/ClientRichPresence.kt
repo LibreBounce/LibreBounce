@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.special
 
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.IPCListener
 import com.jagrosh.discordipc.entities.RichPresence
@@ -19,16 +18,17 @@ import net.ccbluex.liquidbounce.LiquidBounce.MINECRAFT_VERSION
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.ServerUtils
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.ServerUtils
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
+import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
+import net.ccbluex.liquidbounce.utils.io.parseJson
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
 
-object ClientRichPresence : MinecraftInstance() {
+object ClientRichPresence : MinecraftInstance {
 
     var showRPCValue = true
     var showRPCServerIP = true
@@ -112,14 +112,16 @@ object ClientRichPresence : MinecraftInstance() {
                 // Set server info
                 if (showRPCServerIP) {
                     setDetails(customRPCText.ifEmpty {
-                        "Server: ${if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer" 
-                        else ServerUtils.hideSensitiveInformation(serverData.serverIP)}"
+                        "Server: ${
+                            if (mc.isIntegratedServerRunning || serverData == null) "Singleplayer"
+                            else ServerUtils.hideSensitiveInformation(serverData.serverIP)
+                        }"
                     })
                 }
 
                 // Set modules count info
                 if (showRPCModulesCount) {
-                    setState("Enabled ${moduleManager.modules.count { it.state }} of ${moduleManager.modules.size} modules")
+                    setState("Enabled ${moduleManager.count { it.state }} of ${moduleManager.size} modules")
                 }
             }
         }
@@ -153,7 +155,7 @@ object ClientRichPresence : MinecraftInstance() {
         val (response, _) = get("$CLIENT_CLOUD/discord.json")
 
         // Read from web and convert to json object
-        val json = JsonParser().parse(response)
+        val json = response.parseJson()
 
         if (json !is JsonObject)
             return

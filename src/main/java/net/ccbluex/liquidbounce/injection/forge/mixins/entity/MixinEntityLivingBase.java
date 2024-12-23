@@ -15,10 +15,10 @@ import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.render.Rotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Tower;
-import net.ccbluex.liquidbounce.utils.MovementUtils;
-import net.ccbluex.liquidbounce.utils.Rotation;
-import net.ccbluex.liquidbounce.utils.RotationSettings;
-import net.ccbluex.liquidbounce.utils.RotationUtils;
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils;
+import net.ccbluex.liquidbounce.utils.rotation.Rotation;
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings;
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils;
 import net.ccbluex.liquidbounce.utils.extensions.MathExtensionsKt;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -77,7 +77,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Overwrite
     protected void jump() {
         final JumpEvent prejumpEvent = new JumpEvent(getJumpUpwardsMotion(), EventState.PRE);
-        EventManager.INSTANCE.callEvent(prejumpEvent);
+        EventManager.INSTANCE.call(prejumpEvent);
         if (prejumpEvent.isCancelled()) return;
 
         motionY = prejumpEvent.getMotion();
@@ -108,7 +108,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         isAirBorne = true;
 
         final JumpEvent postjumpEvent = new JumpEvent((float) motionY, EventState.POST);
-        EventManager.INSTANCE.callEvent(postjumpEvent);
+        EventManager.INSTANCE.call(postjumpEvent);
     }
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))

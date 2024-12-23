@@ -1,7 +1,8 @@
-
 /run/
 /out/
+/logs/
 /build/
-/.settings/
 /bin/
+/.settings/
 /.gradle/
+/.kotlin/

@@ -5,28 +5,24 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
-import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.RotationUtils.coerceBodyPoint
-import net.ccbluex.liquidbounce.utils.RotationUtils.isFaced
-import net.ccbluex.liquidbounce.utils.RotationUtils.performAngleChange
-import net.ccbluex.liquidbounce.utils.RotationUtils.rotationDifference
-import net.ccbluex.liquidbounce.utils.RotationUtils.searchCenter
-import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
-import net.ccbluex.liquidbounce.utils.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.coerceBodyPoint
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isFaced
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performAngleChange
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
+import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import java.util.*
 import kotlin.math.atan
@@ -41,36 +37,30 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
     private val inViewMaxAngleChange by float("InViewMaxAngleChange", 35f, 1f..180f) { horizontalAim || verticalAim }
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
-    private val highestBodyPointToTargetValue: ListValue = object : ListValue(
-        "HighestBodyPointToTarget",
-        arrayOf("Head", "Body", "Feet"),
-        "Head"
-    ) {
-        override fun isSupported() = verticalAim
+    private val highestBodyPointToTargetValue: ListValue =
+        object : ListValue("HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head") {
+            override fun isSupported() = verticalAim
 
-        override fun onChange(oldValue: String, newValue: String): String {
-            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-            val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
-            val coercedPoint = coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
-            return coercedPoint.name
+            override fun onChange(oldValue: String, newValue: String): String {
+                val newPoint = RotationUtils.BodyPoint.fromString(newValue)
+                val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
+                val coercedPoint = coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
+                return coercedPoint.name
+            }
         }
-    }
     private val highestBodyPointToTarget by highestBodyPointToTargetValue
 
-    private val lowestBodyPointToTargetValue: ListValue = object : ListValue(
-        "LowestBodyPointToTarget",
-        arrayOf("Head", "Body", "Feet"),
-        "Feet"
-    ) {
-        override fun isSupported() = verticalAim
+    private val lowestBodyPointToTargetValue: ListValue =
+        object : ListValue("LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet") {
+            override fun isSupported() = verticalAim
 
-        override fun onChange(oldValue: String, newValue: String): String {
-            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-            val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
-            val coercedPoint = coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-            return coercedPoint.name
+            override fun onChange(oldValue: String, newValue: String): String {
+                val newPoint = RotationUtils.BodyPoint.fromString(newValue)
+                val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+                val coercedPoint = coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+                return coercedPoint.name
+            }
         }
-    }
 
     private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
 
@@ -86,11 +76,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
     }
 
-    private val minRotationDifference by float(
-        "MinRotationDifference",
-        0f,
-        0f..2f
-    ) { verticalAim || horizontalAim }
+    private val minRotationDifference by float("MinRotationDifference", 0f, 0f..2f) { verticalAim || horizontalAim }
 
     private val fov by float("FOV", 180F, 1F..180F)
     private val lock by boolean("Lock", true) { horizontalAim || verticalAim }
@@ -105,59 +91,48 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
 
     private val clickTimer = MSTimer()
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (event.eventState != EventState.POST)
-            return
+    val onMotion = handler<MotionEvent> { event ->
+        if (event.eventState != EventState.POST) return@handler
 
-        val thePlayer = mc.thePlayer ?: return
-        val theWorld = mc.theWorld ?: return
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         // Clicking delay
-        if (mc.gameSettings.keyBindAttack.isKeyDown)
-            clickTimer.reset()
+        if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
 
-        if (onClick && (clickTimer.hasTimePassed(150) || !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents()))
-            return
+        if (onClick && (clickTimer.hasTimePassed(150) ||
+                !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())
+        ) {
+            return@handler
+        }
 
         // Search for the best enemy to target
-        val entity = theWorld.loadedEntityList.asSequence().mapNotNull { entity ->
-            var isValid = false
-
-            Backtrack.runWithNearestTrackedDistance(entity) {
-                isValid = isSelected(entity, true) &&
-                        thePlayer.canEntityBeSeen(entity) &&
-                        thePlayer.getDistanceToEntityBox(entity) <= range &&
-                        rotationDifference(entity) <= fov
+        val entity = world.loadedEntityList.asSequence().mapNotNull { entity ->
+            entity.takeIf {
+                Backtrack.runWithNearestTrackedDistance(it) {
+                    isSelected(it, true) && player.canEntityBeSeen(it) && player.getDistanceToEntityBox(
+                        it
+                    ) <= range && rotationDifference(it) <= fov
+                }
             }
-
-            entity.takeIf { isValid }
-        }.minByOrNull { thePlayer.getDistanceToEntityBox(it) } ?: return
+        }.minByOrNull { player.getDistanceToEntityBox(it) } ?: return@handler
 
         // Should it always keep trying to lock on the enemy or just try to assist you?
-        if (!lock && isFaced(entity, range.toDouble()))
-            return
+        if (!lock && isFaced(entity, range.toDouble())) return@handler
 
         val random = Random()
 
-        var shouldReturn = false
-
-        Backtrack.runWithNearestTrackedDistance(entity) {
-            shouldReturn = !findRotation(entity, random)
-        }
-
-        if (shouldReturn)
-            return
+        if (Backtrack.runWithNearestTrackedDistance(entity) { !findRotation(entity, random) }) return@handler
 
         // Jitter
         // Some players do jitter on their mouses causing them to shake around. This is trying to simulate this behavior.
         if (jitter) {
             if (random.nextBoolean()) {
-                thePlayer.fixedSensitivityYaw += ((random.nextGaussian() - 0.5f) * yawJitterMultiplier).toFloat()
+                player.fixedSensitivityYaw += ((random.nextGaussian() - 0.5f) * yawJitterMultiplier).toFloat()
             }
 
             if (random.nextBoolean()) {
-                thePlayer.fixedSensitivityPitch += ((random.nextGaussian() - 0.5f) * pitchJitterMultiplier).toFloat()
+                player.fixedSensitivityPitch += ((random.nextGaussian() - 0.5f) * pitchJitterMultiplier).toFloat()
             }
         }
     }
@@ -169,10 +144,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
             return false
         }
 
-        val (predictX, predictY, predictZ) = entity.currPos.subtract(entity.prevPos)
-            .times(2 + predictEnemyPosition.toDouble())
+        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
 
-        val boundingBox = entity.hitBox.offset(predictX, predictY, predictZ)
+        val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)

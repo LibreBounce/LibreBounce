@@ -7,6 +7,10 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.hud
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,10 +18,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.util.ResourceLocation
 
@@ -55,23 +55,23 @@ object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetectin
     private val blur by boolean("Blur", false)
     val fontChat by boolean("FontChat", false)
 
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
+    val onRender2D = handler<Render2DEvent> {
         if (mc.currentScreen is GuiHudDesigner)
-            return
+            return@handler
 
         hud.render(false)
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) = hud.update()
+    val onUpdate = loopHandler {
+        hud.update()
+    }
 
-    @EventTarget
-    fun onKey(event: KeyEvent) = hud.handleKey('a', event.key)
+    val onKey = handler<KeyEvent> { event ->
+        hud.handleKey('a', event.key)
+    }
 
-    @EventTarget(ignoreCondition = true)
-    fun onScreen(event: ScreenEvent) {
-        if (mc.theWorld == null || mc.thePlayer == null) return
+    val onScreen = handler<ScreenEvent>(always = true) { event ->
+        if (mc.theWorld == null || mc.thePlayer == null) return@handler
         if (state && blur && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
             !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)
         ) mc.entityRenderer.loadShader(

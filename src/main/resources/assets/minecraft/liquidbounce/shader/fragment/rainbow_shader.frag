@@ -1,4 +1,5 @@
-#version 130
+#version 120
+
 uniform float offset;
 uniform vec2 strength;
 

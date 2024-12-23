@@ -9,9 +9,13 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
@@ -19,24 +23,19 @@ import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeSortedTo
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.isStackUseful
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
-import net.ccbluex.liquidbounce.utils.SilentHotbar
-import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.shuffled
+import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCurrentSlot
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerLastSlot
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.entity.EntityLiving.getArmorPosition
@@ -196,7 +195,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                     chestStealerCurrentSlot = slot
 
                     val stealingDelay = if (smartDelay && index + 1 < itemsToSteal.size) {
-                        val dist = getSquaredDistanceBwSlots(getCords(slot), getCords(itemsToSteal[index + 1].first))
+                        val dist = squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
                         val trueDelay = sqrt(dist.toDouble()) * multiplier
                         randomDelay(trueDelay.toInt(), trueDelay.toInt() + 20)
                     } else {
@@ -235,7 +234,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                     if (simulateShortStop && Math.random() > 0.75) {
                         val minDelays = randomDelay(150, 300)
                         val maxDelays = randomDelay(minDelays, 500)
-                        val randomDelay = (Math.random() * (maxDelays - minDelays) + minDelays).toLong()
+                        val randomDelay = randomDelay(minDelays, maxDelays).toLong()
 
                         delay(randomDelay)
                     }
@@ -252,7 +251,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
             }
 
             // Wait till all scheduled clicks were sent
-            waitUntil(TickScheduler::isEmpty)
+            waitUntil { TickScheduler.isEmpty() }
 
             // Before closing the chest, check all items once more, whether server hadn't cancelled some of the actions.
             stacks = thePlayer.openContainer.inventory
@@ -269,26 +268,34 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
         }
     }
 
-    private fun getCords(slot: Int): Pair<Int, Int> {
-        val x = slot % 9
-        val y = slot / 9
-        return Pair(x, y)
+    private fun squaredDistanceOfSlots(from: Int, to: Int): Int {
+        fun getCoords(slot: Int): IntArray {
+            val x = slot % 9
+            val y = slot / 9
+            return intArrayOf(x, y)
+        }
+
+        val (x1, y1) = getCoords(from)
+        val (x2, y2) = getCoords(to)
+        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
     }
 
-    private fun getSquaredDistanceBwSlots(from: Pair<Int, Int>, to: Pair<Int, Int>): Int {
-        return (from.first - to.first) * (from.first - to.first) + (from.second - to.second) * (from.second - to.second)
-    }
+    private data class ItemTakeRecord(
+        val index: Int,
+        val stack: ItemStack,
+        val sortableToSlot: Int?
+    )
 
-    private fun getItemsToSteal(): MutableList<Triple<Int, ItemStack, Int?>> {
+    private fun getItemsToSteal(): List<ItemTakeRecord> {
         val sortBlacklist = BooleanArray(9)
 
         var spaceInInventory = countSpaceInInventory()
 
         val itemsToSteal = stacks.dropLast(36)
-            .mapIndexedNotNull { index, stack ->
-                stack ?: return@mapIndexedNotNull null
+            .mapIndexedNotNullTo(ArrayList(32)) { index, stack ->
+                stack ?: return@mapIndexedNotNullTo null
 
-                if (index in TickScheduler) return@mapIndexedNotNull null
+                if (index in TickScheduler) return@mapIndexedNotNullTo null
 
                 val mergeableCount = mc.thePlayer.inventory.mainInventory.sumOf { otherStack ->
                     otherStack ?: return@sumOf 0
@@ -302,13 +309,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                 val canFullyMerge = mergeableCount >= stack.stackSize
 
                 // Clicking this item wouldn't take it from chest or merge it
-                if (!canMerge && spaceInInventory <= 0) return@mapIndexedNotNull null
+                if (!canMerge && spaceInInventory <= 0) return@mapIndexedNotNullTo null
 
                 // If stack can be merged without occupying any additional slot, do not take stack limits into account
                 // TODO: player could theoretically already have too many stacks in inventory before opening the chest so no more should even get merged
                 // TODO: if it can get merged but would also need another slot, it could simulate 2 clicks, one which maxes out the stack in inventory and second that puts excess items back
                 if (InventoryCleaner.handleEvents() && !isStackUseful(stack, stacks, noLimits = canFullyMerge))
-                    return@mapIndexedNotNull null
+                    return@mapIndexedNotNullTo null
 
                 var sortableTo: Int? = null
 
@@ -340,42 +347,43 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
                 // If stack gets fully merged, no slot in inventory gets occupied
                 if (!canFullyMerge) spaceInInventory--
 
-                Triple(index, stack, sortableTo)
-            }.shuffled(randomSlot)
+                ItemTakeRecord(index, stack, sortableTo)
+            }.also { it ->
+                if (randomSlot)
+                    it.shuffle()
 
-            // Prioritise armor pieces with lower priority, so that as many pieces can get equipped from hotbar after chest gets closed
-            .sortedByDescending { it.second.item is ItemArmor }
+                // Prioritise armor pieces with lower priority, so that as many pieces can get equipped from hotbar after chest gets closed
+                it.sortByDescending { it.stack.item is ItemArmor }
 
-            // Prioritize items that can be sorted
-            .sortedByDescending { it.third != null }
+                // Prioritize items that can be sorted
+                it.sortByDescending { it.sortableToSlot != null }
 
-            .toMutableList()
-            .also { it ->
                 // Fully prioritise armor pieces when it is possible to equip armor while in chest
                 if (AutoArmor.canEquipFromChest())
-                    it.sortByDescending { it.second.item is ItemArmor }
+                    it.sortByDescending { it.stack.item is ItemArmor }
+
+                if (smartOrder) {
+                    sortBasedOnOptimumPath(it)
+                }
             }
-        if (smartOrder) {
-            sortBasedOnOptimumPath(itemsToSteal)
-        }
+
         return itemsToSteal
     }
 
-    private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<Triple<Int, ItemStack, Int?>>) {
+    private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
         for (i in itemsToSteal.indices) {
             var nextIndex = i
-            var minDistance = Double.MAX_VALUE
-            var next: Triple<Int, ItemStack, Int?>? = null
+            var minDistance = Int.MAX_VALUE
+            var next: ItemTakeRecord? = null
             for (j in i + 1 until itemsToSteal.size) {
-                val distance =
-                    getSquaredDistanceBwSlots(getCords(itemsToSteal[i].first), getCords(itemsToSteal[j].first))
+                val distance = squaredDistanceOfSlots(itemsToSteal[i].index, itemsToSteal[j].index)
                 if (distance < minDistance) {
-                    minDistance = distance.toDouble()
+                    minDistance = distance
                     next = itemsToSteal[j]
                     nextIndex = j
                 }
             }
-            next?.let {
+            if (next != null) {
                 itemsToSteal[nextIndex] = itemsToSteal[i + 1]
                 itemsToSteal[i + 1] = next
             }
@@ -383,12 +391,11 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
     }
 
     // Progress bar
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
+    val onRender2D = handler<Render2DEvent> { event ->
         if (!progressBar || mc.currentScreen !is GuiChest)
-            return
+            return@handler
 
-        val progress = progress ?: return
+        val progress = progress ?: return@handler
 
         val (scaledWidth, scaledHeight) = ScaledResolution(mc)
 
@@ -410,8 +417,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
         )
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
             is C0DPacketCloseWindow, is S2DPacketOpenWindow, is S2EPacketCloseWindow -> {
                 receivedId = null
@@ -420,14 +426,16 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
             is S30PacketWindowItems -> {
                 // Chests never have windowId 0
-                if (packet.func_148911_c() == 0)
-                    return
+                val packetWindowId = packet.func_148911_c()
 
-                if (receivedId != packet.func_148911_c()) {
+                if (packetWindowId == 0)
+                    return@handler
+
+                if (receivedId != packetWindowId) {
                     debug("Chest opened with ${stacks.size} items")
                 }
 
-                receivedId = packet.func_148911_c()
+                receivedId = packetWindowId
 
                 stacks = packet.itemStacks.toList()
             }

@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,17 +15,13 @@ import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac.A
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac.LAAC
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other.*
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other.Blink
-import net.ccbluex.liquidbounce.utils.Rotation
-import net.ccbluex.liquidbounce.utils.RotationSettings
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB.fromBounds
 import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
+import kotlin.math.max
 
 object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
     private val noFallModes = arrayOf(
@@ -60,13 +57,30 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
     val mode by choices("Mode", modes, "MLG")
 
     val minFallDistance by float("MinMLGHeight", 5f, 2f..50f, subjective = true) { mode == "MLG" }
-    val retrieveDelay by int("RetrieveDelayTicks", 5, 1..10, subjective = true) { mode == "MLG" }
+    private val retrieveDelayValue: IntegerValue = object : IntegerValue("RetrieveDelayTicks", 5, 1..10, subjective = true) {
+        override fun isSupported() = mode == "MLG"
+        override fun onChange(oldValue: Int, newValue: Int): Int {
+            maxRetrievalWaitingTimeValue.set(max(maxRetrievalWaitingTime, newValue))
 
-    val autoMLG by choices("AutoMLG", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof") { mode == "MLG" }
+            return newValue
+        }
+    }
+
+    val retrieveDelay by retrieveDelayValue
+
+    val maxRetrievalWaitingTimeValue = object : IntegerValue("MaxRetrievalWaitingTime", 10, 1..20) {
+        override fun isSupported() = mode == "MLG"
+        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(retrieveDelay)
+    }
+
+    val maxRetrievalWaitingTime by maxRetrievalWaitingTimeValue
+
+    val autoMLG by choices("AutoMLG", arrayOf("Off", "Pick", "Spoof"), "Spoof") { mode == "MLG" }
     val swing by boolean("Swing", true) { mode == "MLG" }
 
     val options = RotationSettings(this) { mode == "MLG" }.apply {
-        resetTicksValue.setSupport { { it && keepRotation } }
+        rotationsValue.excludeWithState(true)
+        resetTicksValue.setSupport { mode == "MLG" && keepRotation }
     }
 
     // Using too many times of simulatePlayer could result timer flag. Hence, why this is disabled by default.
@@ -86,34 +100,27 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
     val fakePlayer by boolean("FakePlayer", true, subjective = true) { mode == "Blink" }
 
     var currentMlgBlock: BlockPos? = null
-    var mlgInProgress = false
-    var bucketUsed = false
-    var shouldUse = false
-    var mlgRotation: Rotation? = null
+    var retrievingPos: Vec3? = null
 
     override fun onEnable() {
         modeModule.onEnable()
+        retrievingPos = null
     }
 
     override fun onDisable() {
         if (mode == "MLG") {
             currentMlgBlock = null
-            mlgInProgress = false
-            bucketUsed = false
-            shouldUse = false
-            mlgRotation = null
+            retrievingPos = null
         }
 
         modeModule.onDisable()
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
+    val onTick = handler<GameTickEvent> {
         modeModule.onTick()
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         val thePlayer = mc.thePlayer
 
         if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid } || collideBlock(
@@ -126,48 +133,41 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
                     thePlayer.entityBoundingBox.minZ
                 )
             ) { it is BlockLiquid }
-        ) return
+        ) return@handler
 
         modeModule.onUpdate()
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        modeModule.onRender3D(event)
+    val onRender3D = handler<Render3DEvent> {
+        modeModule.onRender3D(it)
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mc.thePlayer ?: return
+    val onPacket = handler<PacketEvent> {
+        mc.thePlayer ?: return@handler
 
-        modeModule.onPacket(event)
+        modeModule.onPacket(it)
     }
 
-    @EventTarget
-    fun onBB(event: BlockBBEvent) {
-        mc.thePlayer ?: return
+    val onBB = handler<BlockBBEvent> {
+        mc.thePlayer ?: return@handler
 
-        modeModule.onBB(event)
+        modeModule.onBB(it)
     }
 
     // Ignore condition used in LAAC mode
-    @EventTarget(ignoreCondition = true)
-    fun onJump(event: JumpEvent) {
-        modeModule.onJump(event)
+    val onJump = handler<JumpEvent>(always = true) {
+        modeModule.onJump(it)
     }
 
-    @EventTarget
-    fun onStep(event: StepEvent) {
-        modeModule.onStep(event)
+    val onStep = handler<StepEvent> {
+        modeModule.onStep(it)
     }
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        modeModule.onMotion(event)
+    val onMotion = handler<MotionEvent> {
+        modeModule.onMotion(it)
     }
 
-    @EventTarget
-    fun onMove(event: MoveEvent) {
+    val onMove = handler<MoveEvent> {
         val thePlayer = mc.thePlayer
 
         if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid }
@@ -181,9 +181,13 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
                     thePlayer.entityBoundingBox.minZ
                 )
             ) { it is BlockLiquid }
-        ) return
+        ) return@handler
 
-        modeModule.onMove(event)
+        modeModule.onMove(it)
+    }
+
+    val onRotationUpdate = handler<RotationUpdateEvent> {
+        modeModule.onRotationUpdate()
     }
 
     override val tag

@@ -8,7 +8,7 @@ import org.lwjgl.opengl.EXTPackedDepthStencil;
 
 import java.awt.*;
 
-import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
+import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
 import static org.lwjgl.opengl.GL11.*;
 

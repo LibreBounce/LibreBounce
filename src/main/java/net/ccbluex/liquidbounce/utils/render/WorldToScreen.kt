@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.glGetFloat
@@ -15,7 +15,7 @@ import org.lwjgl.util.vector.Vector3f
 import org.lwjgl.util.vector.Vector4f
 import kotlin.math.abs
 
-object WorldToScreen : MinecraftInstance() {
+object WorldToScreen : MinecraftInstance {
     fun getMatrix(matrix: Int): Matrix4f {
         val floatBuffer = BufferUtils.createFloatBuffer(16)
         

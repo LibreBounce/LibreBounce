@@ -5,20 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
-import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
-import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RotationUtils.isEntityHeightVisible
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.extensions.getPing
-import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
-import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexturedModalRect
@@ -26,9 +23,10 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.value.*
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -98,9 +96,8 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
 
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        if (mc.theWorld == null || mc.thePlayer == null) return
+    val onRender3D = handler<Render3DEvent> { event ->
+        if (mc.theWorld == null || mc.thePlayer == null) return@handler
 
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
@@ -305,6 +302,7 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         }
 
         if (armor && entity is EntityPlayer) {
+            RenderHelper.enableGUIStandardItemLighting()
             for (index in 0..4) {
                 val itemStack = entity.getEquipmentInSlot(index) ?: continue
 
@@ -313,6 +311,7 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
                     itemStack, -50 + index * 20, if (potion && foundPotion) -42 else -22
                 )
             }
+            RenderHelper.disableStandardItemLighting()
 
             enableAlpha()
             disableBlend()

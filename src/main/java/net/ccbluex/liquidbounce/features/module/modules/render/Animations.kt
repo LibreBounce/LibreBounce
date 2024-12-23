@@ -5,17 +5,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animations
+import net.ccbluex.liquidbounce.features.module.modules.render.Animations.defaultAnimation
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.util.MathHelper
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.glTranslated
+import org.lwjgl.opengl.GL11.glTranslatef
 
 /**
  * Animations module
@@ -74,7 +77,7 @@ object Animations : Module("Animations", Category.RENDER, gameDetecting = false,
  *
  * @author CCBlueX
  */
-abstract class Animation(val name: String) : MinecraftInstance() {
+abstract class Animation(val name: String) : MinecraftInstance {
     abstract fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer)
 
     /**

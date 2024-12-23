@@ -5,22 +5,23 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
-import net.ccbluex.liquidbounce.utils.MovementUtils.direction
-import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.init.Blocks.*
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
@@ -36,9 +37,11 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
 
     private val mode by choices(
         "Mode",
-        arrayOf("Vanilla", "Jump", "NCP", "MotionNCP",
+        arrayOf(
+            "Vanilla", "Jump", "NCP", "MotionNCP",
             "OldNCP", "AAC", "LAAC", "AAC3.3.4",
-            "Spartan", "Rewinside", "BlocksMCTimer"),
+            "Spartan", "Rewinside", "BlocksMCTimer"
+        ),
         "NCP"
     )
 
@@ -71,14 +74,13 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         thePlayer.stepHeight = 0.6F
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         val mode = mode
-        val thePlayer = mc.thePlayer ?: return
+        val thePlayer = mc.thePlayer ?: return@handler
 
-        if (thePlayer.isOnLadder || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb) return
+        if (thePlayer.isOnLadder || thePlayer.isInLiquid || thePlayer.isInWeb) return@handler
 
-        if (!thePlayer.isMoving) return
+        if (!thePlayer.isMoving) return@handler
 
         // Motion steps
         when (mode) {
@@ -94,7 +96,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
 
                     if (!couldStep() || chest.isNotEmpty()) {
                         mc.timer.timerSpeed = 1f
-                        return
+                        return@handler
                     }
 
                     fakeJump()
@@ -150,12 +152,11 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         }
     }
 
-    @EventTarget
-    fun onMove(event: MoveEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onMove = handler<MoveEvent> { event ->
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (mode != "MotionNCP" || !thePlayer.isCollidedHorizontally || mc.gameSettings.keyBindJump.isKeyDown)
-            return
+            return@handler
 
         // Motion steps
         when {
@@ -183,14 +184,13 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         }
     }
 
-    @EventTarget
-    fun onStep(event: StepEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onStep = handler<StepEvent> { event ->
+        val thePlayer = mc.thePlayer ?: return@handler
 
         // Phase should disable step
         if (Phase.handleEvents()) {
             event.stepHeight = 0F
-            return
+            return@handler
         }
 
         // Some fly modes should disable step
@@ -204,7 +204,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
             && thePlayer.inventory.getCurrentItem() == null
         ) {
             event.stepHeight = 0F
-            return
+            return@handler
         }
 
         val mode = mode
@@ -215,7 +215,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         ) {
             thePlayer.stepHeight = 0.6F
             event.stepHeight = 0.6F
-            return
+            return@handler
         }
 
         // Set step height
@@ -232,12 +232,11 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         }
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onStepConfirm(event: StepConfirmEvent) {
+    val onStepConfirm = handler<StepConfirmEvent>(always = true) {
         val thePlayer = mc.thePlayer
 
         if (thePlayer == null || !isStep) // Check if step
-            return
+            return@handler
 
         if (thePlayer.entityBoundingBox.minY - stepY > 0.6) { // Check if full block step
 
@@ -295,8 +294,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false, hideModul
         stepZ = 0.0
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent>(always = true) { event ->
         val packet = event.packet
 
         if (packet is C03PacketPlayer && isStep && mode == "OldNCP") {

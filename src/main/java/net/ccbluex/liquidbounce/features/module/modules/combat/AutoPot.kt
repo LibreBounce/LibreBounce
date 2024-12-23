@@ -5,29 +5,30 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.*
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
 import net.ccbluex.liquidbounce.utils.inventory.isSplashPotion
-import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
+import net.ccbluex.liquidbounce.utils.rotation.Rotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemPotion
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.potion.Potion
 
 object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
@@ -58,12 +59,11 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
     private val msTimer = MSTimer()
     private var potion = -1
 
-    @EventTarget
-    fun onRotationUpdate(event: RotationUpdateEvent) {
+    val onRotationUpdate = handler<RotationUpdateEvent> {
         if (!msTimer.hasTimePassed(delay) || mc.playerController.isInCreativeMode)
-            return
+            return@handler
 
-        val player = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return@handler
 
         // Hotbar Potion
         val potionInHotbar = findPotion(36, 44)
@@ -81,8 +81,8 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
 
             val collisionBlock = fallingPlayer.findCollision(20)?.pos
 
-            if (player.posY - (collisionBlock?.y ?: return) - 1 > groundDistance)
-                return
+            if (player.posY - (collisionBlock?.y ?: return@handler) - 1 > groundDistance)
+                return@handler
 
             potion = potionInHotbar
 
@@ -91,7 +91,8 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
             }
 
             TickScheduler += {
-                SilentHotbar.selectSlotSilently(this,
+                SilentHotbar.selectSlotSilently(
+                    this,
                     potion - 36,
                     ticksUntilReset = 1,
                     immediate = true,
@@ -106,15 +107,15 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
                     potion = -1
                 }
             }
-            return
+            return@handler
         }
 
         // Inventory Potion -> Hotbar Potion
-        val potionInInventory = findPotion(9, 36) ?: return
+        val potionInInventory = findPotion(9, 36) ?: return@handler
 
         if (InventoryUtils.hasSpaceInHotbar()) {
             if (openInventory && mc.currentScreen !is GuiInventory)
-                return
+                return@handler
 
             TickScheduler += {
                 if (simulateInventory)

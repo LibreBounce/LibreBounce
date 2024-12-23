@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.blockStatus
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -19,10 +20,15 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
-import net.ccbluex.liquidbounce.utils.*
-import net.ccbluex.liquidbounce.utils.MovementUtils.speed
+import net.ccbluex.liquidbounce.utils.attack.CPSCounter
+import net.ccbluex.liquidbounce.utils.client.PPSCounter
+import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.extensions.getPing
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.movement.BPSUtils
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
+import net.ccbluex.liquidbounce.utils.movement.TimerBalanceUtils
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -33,7 +39,6 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
-import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.gui.inventory.GuiInventory
@@ -110,7 +115,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     private val colors = ColorSettingsInteger(
         this,
         zeroAlphaCheck = true,
-        alphaApply = textColorMode != "Rainbow",
+        alphaApply = { textColorMode != "Rainbow" },
         applyMax = true
     ) { textColorMode == "Custom" }
 
@@ -260,126 +265,123 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     /**
      * Draw element
      */
+    @Suppress("UnclearPrecedenceOfBinaryExpression")
     override fun drawElement(): Border {
         val stack = mc.thePlayer?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
         val shouldRender = showBlock && stack?.item is ItemBlock
         val showBlockScale = if (shouldRender) 1.2F else 1F
-        val fontHeight = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT) + if (shouldRender) 1.5F else 0F
+        val fontHeight = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT) + 2
+        val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
-        assumeNonVolatile = true
+        // Calculate width only once
+        val underscoreWidth = font.getStringWidth(underscore).toFloat()
+        val width = font.getStringWidth(displayText) + underscoreWidth
+        val heightPadding = if (font == mc.fontRendererObj) 1F else 0F
 
-        if ((Scaffold.handleEvents() && onScaffold) || !onScaffold || mc.currentScreen is GuiHudDesigner) {
-            val rainbow = textColorMode == "Rainbow"
-            val gradient = textColorMode == "Gradient"
+        val bgScale = max(backgroundScale, 1F)
 
-            val gradientOffset = System.currentTimeMillis() % 10000 / 10000F
-            val gradientX = if (gradientX == 0f) 0f else 1f / gradientX
-            val gradientY = if (gradientY == 0f) 0f else 1f / gradientY
+        val params = floatArrayOf(
+            -(if (shouldRender) 16F else 2F) * bgScale * showBlockScale,
+            -(if (shouldRender) 3F else 2 + heightPadding) * bgScale * showBlockScale,
+            width + bgScale * showBlockScale,
+            (if (shouldRender) 1F else 1 + heightPadding) + fontHeight * bgScale * showBlockScale
+        )
 
-            val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
-            val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
-            val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
+        assumeNonVolatile {
+            if ((Scaffold.handleEvents() && onScaffold) || !onScaffold || mc.currentScreen is GuiHudDesigner) {
+                val rainbow = textColorMode == "Rainbow"
+                val gradient = textColorMode == "Gradient"
 
-            GradientShader.begin(
-                backgroundMode == "Gradient",
-                gradientX,
-                gradientY,
-                bgGradColors.toColorArray(maxBackgroundGradientColors),
-                gradientBackgroundSpeed,
-                gradientOffset
-            ).use {
-                RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
-                    drawRoundedRect(
-                        ((-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale)) * (showBlockScale * 1.15F),
-                        (-2F * (1F + backgroundScale)) * showBlockScale,
-                        ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
-                        fontHeight * max(backgroundScale, 1F) * showBlockScale,
-                        when (backgroundMode) {
-                            "Gradient" -> 0
-                            "Rainbow" -> 0
-                            else -> bgColors.color().rgb
-                        },
-                        roundedBackgroundRadius
-                    )
-                }
-            }
+                val gradientOffset = System.currentTimeMillis() % 10000 / 10000F
+                val gradientX = if (gradientX == 0f) 0f else 1f / gradientX
+                val gradientY = if (gradientY == 0f) 0f else 1f / gradientY
 
-            if (bgBorderColors.color().alpha > 0) {
-                drawRoundedBorder(
-                    ((-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale)) * (showBlockScale * 1.15F),
-                    (-2F * (1F + backgroundScale)) * showBlockScale,
-                    ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
-                    fontHeight * max(backgroundScale, 1F) * showBlockScale,
-                    backgroundBorder,
-                    bgBorderColors.color().rgb,
-                    roundedBackgroundRadius
-                )
-            }
+                val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
+                val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
+                val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
 
-            if (showBlock) {
-                glPushMatrix()
-
-                enableGUIStandardItemLighting()
-
-                // Prevent overlapping while editing
-                if (mc.currentScreen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
-
-                if (shouldRender) {
-                    mc.renderItem.renderItemAndEffectIntoGUI(stack, -2 - 18, -4)
-                }
-
-                disableStandardItemLighting()
-                enableAlpha()
-                disableBlend()
-                disableLighting()
-
-                if (mc.currentScreen is GuiHudDesigner) glEnable(GL_DEPTH_TEST)
-
-                glPopMatrix()
-            }
-
-            GradientFontShader.begin(
-                gradient,
-                gradientX,
-                gradientY,
-                textGradColors.toColorArray(maxTextGradientColors),
-                gradientTextSpeed,
-                gradientOffset
-            ).use {
-                RainbowFontShader.begin(
-                    rainbow,
-                    if (rainbowX == 0f) 0f else 1f / rainbowX,
-                    if (rainbowY == 0f) 0f else 1f / rainbowY,
-                    rainbowOffset
+                GradientShader.begin(
+                    backgroundMode == "Gradient",
+                    gradientX,
+                    gradientY,
+                    bgGradColors.toColorArray(maxBackgroundGradientColors),
+                    gradientBackgroundSpeed,
+                    gradientOffset
                 ).use {
-                    font.drawString(displayText, 0F, 0F, if (rainbow) 0 else if (gradient) 0 else color.rgb, shadow)
-
-                    if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                        font.drawString(
-                            "_",
-                            font.getStringWidth(displayText) + 2F,
-                            0F,
-                            if (rainbow) ColorUtils.rainbow(400000000L).rgb else if (gradient) 0 else color.rgb,
-                            shadow
+                    RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
+                        drawRoundedRect(
+                            params[0], params[1], params[2], params[3],
+                            when (backgroundMode) {
+                                "Gradient" -> 0
+                                "Rainbow" -> 0
+                                else -> bgColors.color().rgb
+                            },
+                            roundedBackgroundRadius
                         )
                     }
                 }
+
+                if (bgBorderColors.color().alpha > 0) {
+                    drawRoundedBorder(
+                        params[0],
+                        params[1],
+                        params[2],
+                        params[3],
+                        backgroundBorder,
+                        bgBorderColors.color().rgb,
+                        roundedBackgroundRadius
+                    )
+                }
+
+                if (showBlock) {
+                    glPushMatrix()
+
+                    enableGUIStandardItemLighting()
+
+                    // Prevent overlapping while editing
+                    if (mc.currentScreen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
+
+                    if (shouldRender) {
+                        mc.renderItem.renderItemAndEffectIntoGUI(stack, -18, -3)
+                    }
+
+                    disableStandardItemLighting()
+                    enableAlpha()
+                    disableBlend()
+                    disableLighting()
+
+                    if (mc.currentScreen is GuiHudDesigner) glEnable(GL_DEPTH_TEST)
+
+                    glPopMatrix()
+                }
+
+                val colorToUse = if (rainbow || gradient) 0 else color.rgb
+
+                GradientFontShader.begin(
+                    gradient,
+                    gradientX,
+                    gradientY,
+                    textGradColors.toColorArray(maxTextGradientColors),
+                    gradientTextSpeed,
+                    gradientOffset
+                ).use {
+                    RainbowFontShader.begin(rainbow, rainbowX, rainbowY, rainbowOffset).use {
+                        font.drawString(displayText, 0F, 2 - heightPadding, colorToUse, shadow)
+
+                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                            font.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                        }
+                    }
+                }
+            }
+
+            if (editMode && mc.currentScreen !is GuiHudDesigner) {
+                editMode = false
+                updateElement()
             }
         }
 
-        if (editMode && mc.currentScreen !is GuiHudDesigner) {
-            editMode = false
-            updateElement()
-        }
-
-        assumeNonVolatile = false
-
-        return Border(
-            (-2F - if (shouldRender) 6F else 0F) * (1F + backgroundScale) * (showBlockScale * 1.15F),
-            (-2F * (1F + backgroundScale)) * showBlockScale,
-            ((font.getStringWidth(displayText) + 2F) + backgroundScale) + showBlockScale,
-            fontHeight * max(backgroundScale, 1F) * showBlockScale
-        )
+        return Border(params[0], params[1], params[2], params[3])
     }
 
     override fun updateElement() {

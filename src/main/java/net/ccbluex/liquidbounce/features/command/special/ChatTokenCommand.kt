@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.chat.packet.packets.ServerRequestJWTPacket
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.modules.misc.LiquidChat
-import net.ccbluex.liquidbounce.utils.misc.StringUtils
+import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 
@@ -63,9 +63,10 @@ object ChatTokenCommand : Command("chattoken") {
         return when (args.size) {
             1 -> {
                 arrayOf("set", "generate", "copy")
-                        .map { it.lowercase() }
-                        .filter { it.startsWith(args[0], true) }
+                    .map { it.lowercase() }
+                    .filter { it.startsWith(args[0], true) }
             }
+
             else -> emptyList()
         }
     }

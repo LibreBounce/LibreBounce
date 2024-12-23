@@ -5,15 +5,14 @@
  */
 package net.ccbluex.liquidbounce.ui.client.tools
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.TabUtils
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
-import net.ccbluex.liquidbounce.utils.misc.MiscUtils
+import net.ccbluex.liquidbounce.utils.client.TabUtils
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
@@ -23,15 +22,11 @@ import java.io.FileWriter
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.swing.JOptionPane
-import kotlin.concurrent.read
-import kotlin.concurrent.write
 
-class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
+class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private val ports = LinkedHashSet<Int>()
-    private val portsLock = ReentrantReadWriteLock()
 
     private lateinit var hostField: GuiTextField
     private lateinit var minPortField: GuiTextField
@@ -61,21 +56,33 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         minPortField = GuiTextField(1, Fonts.minecraftFont, width / 2 - 100, 90, 90, 20).apply {
             maxStringLength = 5
             text = "1"
+            setValidator {
+                val intValue = it?.toIntOrNull() ?: return@setValidator false
+                intValue >= 0 && intValue < maxPortField.text.toInt()
+            }
         }
 
         maxPortField = GuiTextField(2, Fonts.minecraftFont, width / 2 + 10, 90, 90, 20).apply {
             maxStringLength = 5
             text = "65535"
+            setValidator {
+                val intValue = it?.toIntOrNull() ?: return@setValidator false
+                intValue > minPortField.text.toInt() && intValue < 65536
+            }
         }
 
         parallelismField = GuiTextField(3, Fonts.minecraftFont, width / 2 - 100, 120, 200, 20).apply {
             maxStringLength = Int.MAX_VALUE
-            text = "500"
+            text = "64"
+            setValidator {
+                val intValue = it?.toIntOrNull() ?: return@setValidator false
+                intValue > 0
+            }
         }
 
-        buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start").also { buttonToggle = it })
-        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 120, "Back"))
-        buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 155, "Export"))
+        buttonToggle = +GuiButton(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start")
+        +GuiButton(0, width / 2 - 100, height / 4 + 120, "Back")
+        +GuiButton(2, width / 2 - 100, height / 4 + 155, "Export")
 
         super.initGui()
     }
@@ -97,12 +104,10 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
 
         Fonts.font40.drawString("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
 
-        portsLock.read {
-            var yOffset = 12
-            for (port in ports) {
-                Fonts.minecraftFont.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
-                yOffset += Fonts.minecraftFont.FONT_HEIGHT
-            }
+        var yOffset = 12
+        for (port in ports) {
+            Fonts.minecraftFont.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
+            yOffset += Fonts.minecraftFont.FONT_HEIGHT
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
@@ -157,7 +162,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
                                     socket.connect(InetSocketAddress(host, port), 500)
                                 }
 
-                                portsLock.write {
+                                withContext(Dispatchers.Main) {
                                     ports.add(port)
                                 }
                             } catch (ignored: Exception) {
@@ -181,12 +186,13 @@ class GuiPortScanner(private val prevGui: GuiScreen) : GuiScreen() {
         try {
             if (!selectedFile.exists()) selectedFile.createNewFile()
 
-            FileWriter(selectedFile).use { fileWriter ->
-                fileWriter.write("Portscan\r\n")
+            selectedFile.bufferedWriter().use { fileWriter ->
+                fileWriter.write("PortScanner Result\r\n")
                 fileWriter.write("Host: $host\r\n\r\n")
                 fileWriter.write("Ports ($minPort - $maxPort):\r\n")
                 ports.forEach { port -> fileWriter.write("$port\r\n") }
             }
+
             JOptionPane.showMessageDialog(null, "Exported successfully!", "Port Scanner", JOptionPane.INFORMATION_MESSAGE)
         } catch (e: Exception) {
             e.printStackTrace()

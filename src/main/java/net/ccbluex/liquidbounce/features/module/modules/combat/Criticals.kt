@@ -5,21 +5,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.component3
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
@@ -55,17 +52,16 @@ object Criticals : Module("Criticals", Category.COMBAT, hideModule = false) {
             mc.thePlayer.tryJump()
     }
 
-    @EventTarget
-    fun onAttack(event: AttackEvent) {
+    val onAttack = handler<AttackEvent> { event ->
         if (event.targetEntity is EntityLivingBase) {
-            val thePlayer = mc.thePlayer ?: return
+            val thePlayer = mc.thePlayer ?: return@handler
             val entity = event.targetEntity
 
-            if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isInWeb || thePlayer.isInWater ||
-                thePlayer.isInLava || thePlayer.ridingEntity != null || entity.hurtTime > hurtTime ||
+            if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isInWeb || thePlayer.isInLiquid ||
+                thePlayer.ridingEntity != null || entity.hurtTime > hurtTime ||
                 Fly.handleEvents() || !msTimer.hasTimePassed(delay)
             )
-                return
+                return@handler
 
             val (x, y, z) = thePlayer
 
@@ -127,8 +123,7 @@ object Criticals : Module("Criticals", Category.COMBAT, hideModule = false) {
         }
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (packet is C03PacketPlayer && mode == "NoGround")

@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import com.google.gson.JsonObject;
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
@@ -14,21 +13,21 @@ import com.thealtening.api.TheAltening;
 import com.thealtening.api.data.AccountData;
 import me.liuli.elixir.account.MinecraftAccount;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.SessionEvent;
+import net.ccbluex.liquidbounce.event.SessionUpdateEvent;
 import net.ccbluex.liquidbounce.features.special.AutoReconnect;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
 import net.ccbluex.liquidbounce.file.FileManager;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginProgress;
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening;
-import net.ccbluex.liquidbounce.utils.ClientUtils;
-import net.ccbluex.liquidbounce.utils.ServerUtils;
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils;
+import net.ccbluex.liquidbounce.utils.client.ClientUtils;
+import net.ccbluex.liquidbounce.utils.client.ServerUtils;
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Session;
 import net.minecraftforge.fml.client.config.GuiSlider;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,8 +46,6 @@ import static net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME;
 
 @Mixin(GuiDisconnected.class)
 public abstract class MixinGuiDisconnected extends MixinGuiScreen {
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0");
-
     @Shadow
     private int field_175353_i;
 
@@ -92,7 +89,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                         yggdrasilUserAuthentication.logIn();
 
                         mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "microsoft");
-                        EventManager.INSTANCE.callEvent(new SessionEvent());
+                        EventManager.INSTANCE.call(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
                         break;
                     } catch (final Throwable throwable) {
@@ -107,16 +104,13 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
 
                 mc.displayGuiScreen(new GuiLoginProgress(minecraftAccount, () -> {
                     mc.addScheduledTask(() -> {
-                        EventManager.INSTANCE.callEvent(new SessionEvent());
+                        EventManager.INSTANCE.call(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
                     });
                     return null;
                 }, e -> {
                     mc.addScheduledTask(() -> {
-                        final JsonObject jsonObject = new JsonObject();
-                        jsonObject.addProperty("text", e.getMessage());
-
-                        mc.displayGuiScreen(new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), e.getMessage(), IChatComponent.Serializer.jsonToComponent(jsonObject.toString())));
+                        mc.displayGuiScreen(new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), e.getMessage(), new ChatComponentText(e.getMessage())));
                     });
                     return null;
                 }, () -> null));
@@ -171,7 +165,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
         if (!AutoReconnect.INSTANCE.isEnabled()) {
             autoReconnectDelaySlider.displayString = "AutoReconnect: Off";
         } else {
-            autoReconnectDelaySlider.displayString = "AutoReconnect: " + DECIMAL_FORMAT.format(AutoReconnect.INSTANCE.getDelay() / 1000.0) + "s";
+            autoReconnectDelaySlider.displayString = "AutoReconnect: " + Math.floor(AutoReconnect.INSTANCE.getDelay() / 1000.0) + "s";
         }
     }
 

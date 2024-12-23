@@ -19,8 +19,8 @@ import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.script.ScriptManager.reloadScripts
 import net.ccbluex.liquidbounce.script.ScriptManager.scripts
 import net.ccbluex.liquidbounce.script.ScriptManager.scriptsFolder
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.misc.MiscUtils
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import org.apache.commons.io.IOUtils
 import java.awt.Desktop
 import java.io.File
@@ -108,7 +108,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
                     val script = scripts[scriptIndex]
 
-                     scriptManager.deleteScript(script)
+                    scriptManager.deleteScript(script)
 
                     loadConfigs(clickGuiConfig, hudConfig)
 
@@ -129,7 +129,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
                     reloadScripts()
 
-                    for (module in moduleManager.modules) moduleManager.generateCommand(module)
+                    for (module in moduleManager) moduleManager.generateCommand(module)
                     loadConfig(modulesConfig)
 
                     isStarting = false
@@ -159,7 +159,15 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
         if (scriptManager.scripts.isNotEmpty()) {
             chat("§c§lScripts")
-            scriptManager.scripts.forEachIndexed { index, script -> chat("$index: §a§l${script.scriptName} §a§lv${script.scriptVersion} §3by §a§l${script.scriptAuthors.joinToString(", ")}") }
+            scriptManager.scripts.forEachIndexed { index, script ->
+                chat(
+                    "$index: §a§l${script.scriptName} §a§lv${script.scriptVersion} §3by §a§l${
+                        script.scriptAuthors.joinToString(
+                            ", "
+                        )
+                    }"
+                )
+            }
         }
 
         chatSyntax("$usedAlias <import/delete/reload/folder>")
@@ -171,6 +179,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
         return when (args.size) {
             1 -> listOf("delete", "import", "folder", "reload")
                 .filter { it.startsWith(args[0], true) }
+
             else -> emptyList()
         }
     }

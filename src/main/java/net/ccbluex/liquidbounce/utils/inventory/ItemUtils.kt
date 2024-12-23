@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.injection.implementations.IMixinItemStack
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.*
@@ -16,7 +16,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.roundToInt
 
-object ItemUtils : MinecraftInstance() {
+object ItemUtils : MinecraftInstance {
     /**
      * Allows you to create an item using the item json
      *

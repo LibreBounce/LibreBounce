@@ -1,18 +1,19 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.MovementUtils.direction
-import net.ccbluex.liquidbounce.utils.MovementUtils.speed
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toDegreesF
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -26,8 +27,7 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false, hideM
     private var wasDown = false
     private var jump = false
 
-    @EventTarget
-    fun onJump(event: JumpEvent) {
+    val onJump = handler<JumpEvent> { event ->
         if (jump) {
             event.cancelEvent()
         }
@@ -37,9 +37,8 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false, hideM
         wasDown = false
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer.onGround && mc.gameSettings.keyBindJump.isKeyDown && allDirectionsJump && mc.thePlayer.isMoving && !(mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isOnLadder || mc.thePlayer.isInWeb)) {
+    val onUpdate = handler<UpdateEvent> {
+        if (mc.thePlayer.onGround && mc.gameSettings.keyBindJump.isKeyDown && allDirectionsJump && mc.thePlayer.isMoving && !(mc.thePlayer.isInLiquid || mc.thePlayer.isOnLadder || mc.thePlayer.isInWeb)) {
             if (mc.gameSettings.keyBindJump.isKeyDown) {
                 mc.gameSettings.keyBindJump.pressed = false
                 wasDown = true
@@ -58,14 +57,13 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false, hideM
         }
     }
 
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
+    val onStrafe = handler<StrafeEvent> {
         if (!mc.thePlayer.isMoving) {
             if (noMoveStop) {
                 mc.thePlayer.motionX = .0
                 mc.thePlayer.motionZ = .0
             }
-            return
+            return@handler
         }
 
         val shotSpeed = speed

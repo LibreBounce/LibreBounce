@@ -11,14 +11,14 @@ import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.misc.MiscUtils
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
 import java.net.BindException
 
-class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: () -> Unit) : GuiScreen() {
+class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: () -> Unit) : AbstractScreen() {
 
     private var oAuthServer: OAuthServer? = null
     private var loginUrl: String? = null
@@ -73,21 +73,19 @@ class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: ()
             LOGGER.error("Failed to start login server.", e)
         }
 
-        buttonList.run {
-            add(GuiButton(0, width / 2 - 100, height / 2 + 60, "Open URL"))
-            add(GuiButton(1, width / 2 - 100, height / 2 + 90, "Cancel"))
-        }
+        +GuiButton(0, width / 2 - 100, height / 2 + 60, "Open URL")
+        +GuiButton(1, width / 2 - 100, height / 2 + 90, "Cancel")
+
         super.initGui()
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            drawDefaultBackground()
+            drawLoadingCircle(width / 2f, height / 4f + 70)
+            Fonts.font40.drawCenteredString("Logging into account...", width / 2f, height / 2 - 60f, 0xffffff)
 
-        drawDefaultBackground()
-        drawLoadingCircle(width / 2f, height / 4f + 70)
-        Fonts.font40.drawCenteredString("Logging into account...", width / 2f, height / 2 - 60f, 0xffffff)
-
-        assumeNonVolatile = false
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

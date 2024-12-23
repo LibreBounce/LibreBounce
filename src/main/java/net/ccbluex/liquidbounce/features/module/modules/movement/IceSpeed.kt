@@ -5,14 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.extensions.block
+import net.ccbluex.liquidbounce.utils.block.block
+import net.ccbluex.liquidbounce.utils.block.material
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.material
-import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 
@@ -26,8 +26,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
         super.onEnable()
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         val mode = mode
         if (mode == "NCP") {
             Blocks.ice.slipperiness = 0.39f
@@ -37,34 +36,37 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
             Blocks.packed_ice.slipperiness = 0.98f
         }
 
-        val thePlayer = mc.thePlayer ?: return
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isSneaking && thePlayer.isSprinting && thePlayer.isMoving) {
-            if (mode == "AAC") {
-                thePlayer.position.down().material.let {
-                    if (it == Blocks.ice || it == Blocks.packed_ice) {
-                        thePlayer.motionX *= 1.342
-                        thePlayer.motionZ *= 1.342
-                        Blocks.ice.slipperiness = 0.6f
-                        Blocks.packed_ice.slipperiness = 0.6f
-                    }
-                }
-            }
-            if (mode == "Spartan") {
-                thePlayer.position.down().material.let {
-                    if (it == Blocks.ice || it == Blocks.packed_ice) {
-                        val upBlock = BlockPos(thePlayer).up(2).block
-
-                        if (upBlock != Blocks.air) {
+            when (mode) {
+                "AAC" -> {
+                    thePlayer.position.down().material.let {
+                        if (it == Blocks.ice || it == Blocks.packed_ice) {
                             thePlayer.motionX *= 1.342
                             thePlayer.motionZ *= 1.342
-                        } else {
-                            thePlayer.motionX *= 1.18
-                            thePlayer.motionZ *= 1.18
+                            Blocks.ice.slipperiness = 0.6f
+                            Blocks.packed_ice.slipperiness = 0.6f
                         }
+                    }
+                }
 
-                        Blocks.ice.slipperiness = 0.6f
-                        Blocks.packed_ice.slipperiness = 0.6f
+                "Spartan" -> {
+                    thePlayer.position.down().material.let {
+                        if (it == Blocks.ice || it == Blocks.packed_ice) {
+                            val upBlock = BlockPos(thePlayer).up(2).block
+
+                            if (upBlock != Blocks.air) {
+                                thePlayer.motionX *= 1.342
+                                thePlayer.motionZ *= 1.342
+                            } else {
+                                thePlayer.motionX *= 1.18
+                                thePlayer.motionZ *= 1.18
+                            }
+
+                            Blocks.ice.slipperiness = 0.6f
+                            Blocks.packed_ice.slipperiness = 0.6f
+                        }
                     }
                 }
             }

@@ -31,11 +31,11 @@ import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.parti
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.stylisedAlts
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.unformattedAlts
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetDead
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetAnimals
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetDead
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
 import java.io.*
 
 class ValuesConfig(file: File) : FileConfig(file) {
@@ -192,7 +192,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
         }
         jsonObject.add("clientConfiguration", clientObject)
 
-        for (module in moduleManager.modules) {
+        for (module in moduleManager) {
             if (module.values.isEmpty()) continue
 
             val jsonModule = JsonObject()

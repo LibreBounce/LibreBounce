@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -33,11 +34,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulc
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulcan.VulcanHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulcan.VulcanLowHop
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 
 object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
 
@@ -189,12 +185,11 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
     val damageLowHop by boolean("DamageLowHop", false) { mode.get() == "BlocksMCHop" }
     val safeY by boolean("SafeY", true) { mode.get() == "BlocksMCHop" }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (thePlayer.isSneaking)
-            return
+            return@handler
 
         if (thePlayer.isMoving && !sprintManually)
             thePlayer.isSprinting = true
@@ -202,12 +197,11 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         modeModule.onUpdate()
     }
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onMotion = handler<MotionEvent> { event ->
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (thePlayer.isSneaking || event.eventState != EventState.PRE)
-            return
+            return@handler
 
         if (thePlayer.isMoving && !sprintManually)
             thePlayer.isSprinting = true
@@ -215,42 +209,37 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         modeModule.onMotion()
     }
 
-    @EventTarget
-    fun onMove(event: MoveEvent) {
+    val onMove = handler<MoveEvent> { event ->
         if (mc.thePlayer?.isSneaking == true)
-            return
+            return@handler
 
         modeModule.onMove(event)
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
+    val tickHandler = handler<GameTickEvent> {
         if (mc.thePlayer?.isSneaking == true)
-            return
+            return@handler
 
         modeModule.onTick()
     }
 
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
+    val onStrafe = handler<StrafeEvent> {
         if (mc.thePlayer?.isSneaking == true)
-            return
+            return@handler
 
         modeModule.onStrafe()
     }
 
-    @EventTarget
-    fun onJump(event: JumpEvent) {
+    val onJump = handler<JumpEvent> { event ->
         if (mc.thePlayer?.isSneaking == true)
-            return
+            return@handler
 
         modeModule.onJump(event)
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         if (mc.thePlayer?.isSneaking == true)
-            return
+            return@handler
 
         modeModule.onPacket(event)
     }

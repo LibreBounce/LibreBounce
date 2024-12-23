@@ -5,17 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.Breadcrumbs
-import net.ccbluex.liquidbounce.utils.BlinkUtils
+import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.int
 import org.lwjgl.opengl.GL11.*
 
 object Blink : Module("Blink", Category.PLAYER, gameDetecting = false, hideModule = false) {
@@ -43,12 +43,11 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false, hideModul
         BlinkUtils.unblink()
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (mc.thePlayer == null || mc.thePlayer.isDead)
-            return
+            return@handler
 
         when (mode.lowercase()) {
             "sent" -> {
@@ -65,10 +64,9 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false, hideModul
         }
     }
 
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
+    val onMotion = handler<MotionEvent> { event ->
         if (event.eventState == EventState.POST) {
-            val thePlayer = mc.thePlayer ?: return
+            val thePlayer = mc.thePlayer ?: return@handler
 
             if (thePlayer.isDead || mc.thePlayer.ticksExisted <= 10) {
                 BlinkUtils.unblink()
@@ -94,8 +92,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false, hideModul
         }
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
+    val onRender3D = handler<Render3DEvent> {
         val color =
             if (Breadcrumbs.rainbow) rainbow()
             else Breadcrumbs.colors.color()

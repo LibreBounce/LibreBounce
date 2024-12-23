@@ -15,8 +15,9 @@ import net.ccbluex.liquidbounce.script.ScriptManager.scripts
 import net.ccbluex.liquidbounce.script.ScriptManager.scriptsFolder
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.misc.MiscUtils
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiSlot
@@ -28,7 +29,7 @@ import java.io.File
 import java.net.URL
 import java.util.zip.ZipFile
 
-class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
+class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private lateinit var list: GuiList
 
@@ -38,27 +39,23 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
         list.elementClicked(-1, false, 0, 0)
 
         val j = 22
-        buttonList.run {
-            add(GuiButton(0, width - 80, height - 65, 70, 20, "Back"))
-            add(GuiButton(1, width - 80, j + 24, 70, 20, "Import"))
-            add(GuiButton(2, width - 80, j + 24 * 2, 70, 20, "Delete"))
-            add(GuiButton(3, width - 80, j + 24 * 3, 70, 20, "Reload"))
-            add(GuiButton(4, width - 80, j + 24 * 4, 70, 20, "Folder"))
-            add(GuiButton(5, width - 80, j + 24 * 5, 70, 20, "Docs"))
-            add(GuiButton(6, width - 80, j + 24 * 6, 70, 20, "Find Scripts"))
-        }
+        +GuiButton(0, width - 80, height - 65, 70, 20, "Back")
+        +GuiButton(1, width - 80, j + 24, 70, 20, "Import")
+        +GuiButton(2, width - 80, j + 24 * 2, 70, 20, "Delete")
+        +GuiButton(3, width - 80, j + 24 * 3, 70, 20, "Reload")
+        +GuiButton(4, width - 80, j + 24 * 4, 70, 20, "Folder")
+        +GuiButton(5, width - 80, j + 24 * 5, 70, 20, "Docs")
+        +GuiButton(6, width - 80, j + 24 * 6, 70, 20, "Find Scripts")
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            drawBackground(0)
 
-        drawBackground(0)
+            list.drawScreen(mouseX, mouseY, partialTicks)
 
-        list.drawScreen(mouseX, mouseY, partialTicks)
-
-        Fonts.font40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
-
-        assumeNonVolatile = false
+            Fonts.font40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
@@ -125,23 +122,30 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
                 LOGGER.error("Something went wrong while deleting a script.", t)
                 MiscUtils.showErrorPopup(t.javaClass.name, t.message!!)
             }
+
             3 -> try {
                 reloadScripts()
             } catch (t: Throwable) {
                 LOGGER.error("Something went wrong while reloading all scripts.", t)
                 MiscUtils.showErrorPopup(t.javaClass.name, t.message!!)
             }
+
             4 -> try {
                 Desktop.getDesktop().open(scriptsFolder)
             } catch (t: Throwable) {
                 LOGGER.error("Something went wrong while trying to open your scripts folder.", t)
                 MiscUtils.showErrorPopup(t.javaClass.name, t.message!!)
             }
+
             5 -> try {
-                Desktop.getDesktop().browse(URL("https://github.com/CCBlueX/Documentation/blob/master/md/scriptapi_v2/getting_started.md").toURI())
+                Desktop.getDesktop()
+                    .browse(URL("https://github.com/CCBlueX/Documentation/blob/master/md/scriptapi_v2/getting_started.md").toURI())
             } catch (e: Exception) {
                 LOGGER.error("Something went wrong while trying to open the web scripts docs.", e)
-                MiscUtils.showErrorPopup("Scripts Error | Manual Link", "github.com/CCBlueX/Documentation/blob/master/md/scriptapi_v2/getting_started.md")
+                MiscUtils.showErrorPopup(
+                    "Scripts Error | Manual Link",
+                    "github.com/CCBlueX/Documentation/blob/master/md/scriptapi_v2/getting_started.md"
+                )
             }
 
             6 -> try {
@@ -168,7 +172,7 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     private inner class GuiList(gui: GuiScreen) :
-            GuiSlot(mc, gui.width, gui.height, 40, gui.height - 40, 30) {
+        GuiSlot(mc, gui.width, gui.height, 40, gui.height - 40, 30) {
 
         private var selectedSlot = 0
 
@@ -185,10 +189,20 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
         override fun drawSlot(id: Int, x: Int, y: Int, var4: Int, var5: Int, var6: Int) {
             val script = scripts[id]
 
-            Fonts.font40.drawCenteredString("§9" + script.scriptName + " §7v" + script.scriptVersion, width / 2f, y + 2f, Color.LIGHT_GRAY.rgb)
-            Fonts.font40.drawCenteredString("by §c" + script.scriptAuthors.joinToString(", "), width / 2f, y + 15f, Color.LIGHT_GRAY.rgb).coerceAtLeast(x)
+            Fonts.font40.drawCenteredString(
+                "§9" + script.scriptName + " §7v" + script.scriptVersion,
+                width / 2f,
+                y + 2f,
+                Color.LIGHT_GRAY.rgb
+            )
+            Fonts.font40.drawCenteredString(
+                "by §c" + script.scriptAuthors.joinToString(", "),
+                width / 2f,
+                y + 15f,
+                Color.LIGHT_GRAY.rgb
+            ).coerceAtLeast(x)
         }
 
-        override fun drawBackground() { }
+        override fun drawBackground() {}
     }
 }

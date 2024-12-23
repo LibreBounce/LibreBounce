@@ -5,19 +5,17 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
-import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedAngleDelta
-import net.ccbluex.liquidbounce.value.FloatRangeValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerRangeValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.config.FloatRangeValue
+import net.ccbluex.liquidbounce.config.FloatValue
+import net.ccbluex.liquidbounce.config.IntegerRangeValue
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.utils.block.toVec
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.Vec3
-import net.minecraft.util.Vec3i
+import net.minecraft.util.*
 import javax.vecmath.Vector2f
 import kotlin.math.roundToInt
 
@@ -66,12 +64,13 @@ operator fun ScaledResolution.component2() = this.scaledHeight
 
 /**
  * Provides:
- * `vec + othervec`, `vec - othervec`, `vec * number`, `vec / number`
+ * `vec + othervec`, `vec - othervec`, `vec * number`, `vec / number`, `-vec`
  * */
 operator fun Vec3.plus(vec: Vec3): Vec3 = add(vec)
 operator fun Vec3.minus(vec: Vec3): Vec3 = subtract(vec)
 operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number, zCoord * number)
 operator fun Vec3.div(number: Double) = times(1 / number)
+operator fun Vec3.unaryMinus(): Vec3 = this.times(-1.0)
 
 fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
     val vec3i = direction.directionVec
@@ -83,8 +82,8 @@ fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
     )
 }
 
-fun Vec3.withY(value: Double): Vec3 {
-    return Vec3(xCoord, value, zCoord)
+fun Vec3.withY(value: Double, useCurrentY: Boolean = false): Vec3 {
+    return Vec3(xCoord, (yCoord.takeIf { useCurrentY } ?: 0.0) + value, zCoord)
 }
 
 val Vec3_ZERO: Vec3
@@ -93,9 +92,11 @@ val Vec3_ZERO: Vec3
 val RenderManager.renderPos
     get() = Vec3(renderPosX, renderPosY, renderPosZ)
 
-fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
+fun Vec3.toFloatArray() = floatArrayOf(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
 fun Vec3.toDoubleArray() = doubleArrayOf(xCoord, yCoord, zCoord)
 
+fun Float.ceilInt() = MathHelper.ceiling_float_int(this)
+fun Float.floorInt() = MathHelper.floor_float(this)
 fun Float.toRadians() = this * 0.017453292f
 fun Float.toRadiansD() = toRadians().toDouble()
 fun Float.toDegrees() = this * 57.29578f
@@ -108,6 +109,8 @@ fun Float.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngle
 infix fun Int.safeDiv(b: Int) = if (b == 0) 0f else this.toFloat() / b.toFloat()
 infix fun Float.safeDiv(b: Float) = if (b == 0f) 0f else this / b
 
+fun Double.ceilInt() = MathHelper.ceiling_double_int(this)
+fun Double.floorInt() = MathHelper.floor_double(this)
 fun Double.toRadians() = this * 0.017453292
 fun Double.toRadiansF() = toRadians().toFloat()
 fun Double.toDegrees() = this * 57.295779513
@@ -154,6 +157,8 @@ fun AxisAlignedBB.lerpWith(x: Double, y: Double, z: Double) =
 
 fun AxisAlignedBB.lerpWith(point: Vec3) = lerpWith(point.xCoord, point.yCoord, point.zCoord)
 fun AxisAlignedBB.lerpWith(value: Double) = lerpWith(value, value, value)
+fun AxisAlignedBB.offset(other: Vec3) = offset(other.xCoord, other.yCoord, other.zCoord)
+fun AxisAlignedBB.offset(other: BlockPos) = offset(other.toVec())
 
 val AxisAlignedBB.center
     get() = lerpWith(0.5)
@@ -172,7 +177,9 @@ fun Vec3.lerpWith(other: Vec3, tickDelta: Double) = Vec3(
 
 fun Vec3.lerpWith(other: Vec3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
 
-fun ClosedFloatingPointRange<Float>.lerpWith(t: Float) = start + (endInclusive - start) * t
+fun ClosedFloatingPointRange<Double>.lerpWith(t: Number) = start + (endInclusive - start) * t.toDouble()
+
+fun ClosedFloatingPointRange<Float>.lerpWith(t: Number) = start + (endInclusive - start) * t.toFloat()
 
 fun IntegerRangeValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
 

@@ -5,27 +5,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
-import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
-import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RotationUtils.isEntityHeightVisible
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
-import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
-import net.ccbluex.liquidbounce.utils.extensions.minus
-import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -62,62 +54,63 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
     private val thruBlocks by boolean("ThruBlocks", true)
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onRender3D = handler<Render3DEvent> {
+        val thePlayer = mc.thePlayer ?: return@handler
 
         val originalViewBobbing = mc.gameSettings.viewBobbing
 
-        // Temporarily disable view bobbing and re-apply camera transformation
-        mc.gameSettings.viewBobbing = false
-        mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 0)
+        FreeLook.runWithoutSavingRotations {
+            // Temporarily disable view bobbing and re-apply camera transformation
+            mc.gameSettings.viewBobbing = false
+            mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 0)
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glEnable(GL_BLEND)
-        glEnable(GL_LINE_SMOOTH)
-        glLineWidth(thickness)
-        glDisable(GL_TEXTURE_2D)
-        glDisable(GL_DEPTH_TEST)
-        glDepthMask(false)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            glEnable(GL_BLEND)
+            glEnable(GL_LINE_SMOOTH)
+            glLineWidth(thickness)
+            glDisable(GL_TEXTURE_2D)
+            glDisable(GL_DEPTH_TEST)
+            glDepthMask(false)
 
-        glBegin(GL_LINES)
+            glBegin(GL_LINES)
 
-        for (entity in mc.theWorld.loadedEntityList) {
-            val distanceSquared = thePlayer.getDistanceSqToEntity(entity)
+            for (entity in mc.theWorld.loadedEntityList) {
+                val distanceSquared = thePlayer.getDistanceSqToEntity(entity)
 
-            if (distanceSquared <= maxRenderDistanceSq) {
-                if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble())) continue
-                if (entity !is EntityLivingBase || !bot && isBot(entity)) continue
-                if (!thruBlocks && !isEntityHeightVisible(entity)) continue
+                if (distanceSquared <= maxRenderDistanceSq) {
+                    if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble())) continue
+                    if (entity !is EntityLivingBase || !bot && isBot(entity)) continue
+                    if (!thruBlocks && !isEntityHeightVisible(entity)) continue
 
-                if (entity != thePlayer && isSelected(entity, false)) {
-                    val dist = (thePlayer.getDistanceToEntity(entity) * 2).toInt().coerceAtMost(255)
+                    if (entity != thePlayer && isSelected(entity, false)) {
+                        val dist = (thePlayer.getDistanceToEntity(entity) * 2).toInt().coerceAtMost(255)
 
-                    val colorMode = colorMode.lowercase()
-                    val color = when {
-                        entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
-                        teams && state && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
-                        colorMode == "custom" -> Color(colorRed, colorGreen, colorBlue, 150)
-                        colorMode == "distancecolor" -> Color(255 - dist, dist, 0, 150)
-                        colorMode == "rainbow" -> ColorUtils.rainbow()
-                        else -> Color(255, 255, 255, 150)
+                        val colorMode = colorMode.lowercase()
+                        val color = when {
+                            entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
+                            teams && state && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
+                            colorMode == "custom" -> Color(colorRed, colorGreen, colorBlue, 150)
+                            colorMode == "distancecolor" -> Color(255 - dist, dist, 0, 150)
+                            colorMode == "rainbow" -> ColorUtils.rainbow()
+                            else -> Color(255, 255, 255, 150)
+                        }
+
+                        drawTraces(entity, color)
                     }
-
-                    drawTraces(entity, color)
                 }
             }
+
+            glEnd()
+
+            mc.gameSettings.viewBobbing = originalViewBobbing
+
+            glEnable(GL_TEXTURE_2D)
+            glDisable(GL_LINE_SMOOTH)
+            glEnable(GL_DEPTH_TEST)
+            glDepthMask(true)
+            glDisable(GL_BLEND)
+            glColor4f(1f, 1f, 1f, 1f)
         }
-
-        glEnd()
-
-        mc.gameSettings.viewBobbing = originalViewBobbing
-
-        glEnable(GL_TEXTURE_2D)
-        glDisable(GL_LINE_SMOOTH)
-        glEnable(GL_DEPTH_TEST)
-        glDepthMask(true)
-        glDisable(GL_BLEND)
-        glColor4f(1f, 1f, 1f, 1f)
     }
 
     private fun drawTraces(entity: Entity, color: Color) {

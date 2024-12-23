@@ -5,36 +5,27 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.TextValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils.randomString
-import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomString
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.TextValue
-import net.ccbluex.liquidbounce.value.boolean
 
 object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule = false) {
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0..5000) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            delay = randomDelay(minDelay, get())
-        }
     }
     private val maxDelay by maxDelayValue
 
     private val minDelay: Int by object : IntegerValue("MinDelay", 500, 0..5000) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            delay = randomDelay(get(), maxDelay)
-        }
 
         override fun isSupported() = !maxDelayValue.isMinimal()
     }
@@ -44,19 +35,13 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule 
 
     private val custom by boolean("Custom", false)
 
-    private val msTimer = MSTimer()
-    private var delay = randomDelay(minDelay, maxDelay)
+    val onUpdate = loopHandler {
+        mc.thePlayer.sendChatMessage(
+            if (custom) replace(message)
+            else message + " >" + randomString(nextInt(5, 11)) + "<"
+        )
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (msTimer.hasTimePassed(delay)) {
-            mc.thePlayer.sendChatMessage(
-                if (custom) replace(message)
-                else message + " >" + randomString(nextInt(5, 11)) + "<"
-            )
-            msTimer.reset()
-            delay = randomDelay(minDelay, maxDelay)
-        }
+        delay(randomDelay(minDelay, maxDelay).toLong())
     }
 
     private fun replace(text: String): String {

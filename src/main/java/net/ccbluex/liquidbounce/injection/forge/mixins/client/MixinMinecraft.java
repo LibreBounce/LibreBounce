@@ -19,9 +19,10 @@ import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration;
 import net.ccbluex.liquidbounce.ui.client.GuiMainMenu;
 import net.ccbluex.liquidbounce.ui.client.GuiUpdate;
 import net.ccbluex.liquidbounce.ui.client.GuiWelcome;
-import net.ccbluex.liquidbounce.utils.CPSCounter;
-import net.ccbluex.liquidbounce.utils.ClientUtils;
-import net.ccbluex.liquidbounce.utils.SilentHotbar;
+import net.ccbluex.liquidbounce.utils.attack.CPSCounter;
+import net.ccbluex.liquidbounce.utils.client.ClientUtils;
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
+import net.ccbluex.liquidbounce.utils.io.MiscUtils;
 import net.ccbluex.liquidbounce.utils.render.IconUtils;
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -32,8 +33,10 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -52,9 +55,12 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
+import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
 @Mixin(Minecraft.class)
 @SideOnly(Side.CLIENT)
@@ -96,20 +102,27 @@ public abstract class MixinMinecraft {
     @Shadow
     public abstract void displayGuiScreen(GuiScreen guiScreenIn);
 
+    @Unique
+    private Future<?> liquidBounce$preloadFuture;
+
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
         if (displayWidth < 1067) displayWidth = 1067;
 
         if (displayHeight < 622) displayHeight = 622;
+
+        liquidBounce$preloadFuture = LiquidBounce.INSTANCE.preload();
     }
 
     @Inject(method = "runGameLoop", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;startSection(Ljava/lang/String;)V", ordinal = 1))
     private void hook(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new GameLoopEvent());
+        EventManager.INSTANCE.call(GameLoopEvent.INSTANCE);
     }
 
     @Inject(method = "startGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;checkGLError(Ljava/lang/String;)V", ordinal = 2, shift = At.Shift.AFTER))
-    private void startGame(CallbackInfo callbackInfo) {
+    private void startGame(CallbackInfo callbackInfo) throws ExecutionException, InterruptedException {
+        liquidBounce$preloadFuture.get();
+
         LiquidBounce.INSTANCE.startClient();
     }
 
@@ -154,7 +167,7 @@ public abstract class MixinMinecraft {
             skipRenderWorld = false;
         }
 
-        EventManager.INSTANCE.callEvent(new ScreenEvent(currentScreen));
+        EventManager.INSTANCE.call(new ScreenEvent(currentScreen));
     }
 
     @Unique
@@ -182,24 +195,25 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "runTick", at = @At("TAIL"))
     private void injectEndTickEvent(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new TickEndEvent());
+        EventManager.INSTANCE.call(TickEndEvent.INSTANCE);
     }
 
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", ordinal = 0))
     private void onTick(final CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new GameTickEvent());
+        EventManager.INSTANCE.call(GameTickEvent.INSTANCE);
     }
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;dispatchKeypresses()V", shift = At.Shift.AFTER))
     private void onKey(CallbackInfo callbackInfo) {
         if (Keyboard.getEventKeyState() && currentScreen == null)
-            EventManager.INSTANCE.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
+            EventManager.INSTANCE.call(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
     }
 
     @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MovingObjectPosition;getBlockPos()Lnet/minecraft/util/BlockPos;"))
     private void onClickBlock(CallbackInfo callbackInfo) {
-        if (leftClickCounter == 0 && theWorld.getBlockState(objectMouseOver.getBlockPos()).getBlock().getMaterial() != Material.air) {
-            EventManager.INSTANCE.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), objectMouseOver.sideHit));
+        final BlockPos blockPos = objectMouseOver.getBlockPos();
+        if (leftClickCounter == 0 && theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
+            EventManager.INSTANCE.call(new ClickBlockEvent(blockPos, objectMouseOver.sideHit));
         }
     }
 
@@ -219,6 +233,11 @@ public abstract class MixinMinecraft {
     @Inject(method = "shutdown", at = @At("HEAD"))
     private void shutdown(CallbackInfo callbackInfo) {
         LiquidBounce.INSTANCE.stopClient();
+    }
+
+    @Inject(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;instance()Lnet/minecraftforge/fml/common/FMLCommonHandler;"))
+    private void injectDisplayCrashReport(CrashReport crashReport, CallbackInfo callbackInfo) {
+        MiscUtils.showErrorPopup(crashReport.getCrashCause(), "Game crashed! ", MiscUtils.generateCrashInfo());
     }
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
@@ -266,7 +285,7 @@ public abstract class MixinMinecraft {
             MiniMapRegister.INSTANCE.unloadAllChunks();
         }
 
-        EventManager.INSTANCE.callEvent(new WorldEvent(p_loadWorld_1_));
+        EventManager.INSTANCE.call(new WorldEvent(p_loadWorld_1_));
     }
 
 

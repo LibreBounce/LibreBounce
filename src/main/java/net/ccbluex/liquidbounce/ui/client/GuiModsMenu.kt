@@ -11,27 +11,41 @@ import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import net.minecraftforge.fml.client.GuiModList
 import org.lwjgl.input.Keyboard
 
-class GuiModsMenu(private val prevGui: GuiScreen) : GuiScreen() {
+class GuiModsMenu(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private lateinit var customTextField: GuiTextField
 
     override fun initGui() {
-        buttonList.run {
-            add(GuiButton(0, width / 2 - 100, height / 4 + 48, "Forge Mods"))
-            add(GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Scripts"))
-            add(GuiButton(2, width / 2 - 100, height / 4 + 48 + 85, "Toggle: ${if (clientRichPresence.showRPCValue) "§aON" else "§cOFF"}"))
-            add(GuiButton(3, width / 2 - 100, height / 4 + 48 + 110, "Show IP: ${if (clientRichPresence.showRPCServerIP) "§aON" else "§cOFF"}"))
-            add(GuiButton(4, width / 2 - 100, height / 4 + 48 + 135, "Show Modules Count: ${if (clientRichPresence.showRPCModulesCount) "§aON" else "§cOFF"}"))
-            add(GuiButton(5, width / 2 - 100, height / 4 + 48 + 255, "Back"))
-        }
+        +GuiButton(0, width / 2 - 100, height / 4 + 48, "Forge Mods")
+        +GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Scripts")
+        +GuiButton(
+            2,
+            width / 2 - 100,
+            height / 4 + 48 + 85,
+            "Toggle: ${if (clientRichPresence.showRPCValue) "§aON" else "§cOFF"}"
+        )
+        +GuiButton(
+            3,
+            width / 2 - 100,
+            height / 4 + 48 + 110,
+            "Show IP: ${if (clientRichPresence.showRPCServerIP) "§aON" else "§cOFF"}"
+        )
+        +GuiButton(
+            4,
+            width / 2 - 100,
+            height / 4 + 48 + 135,
+            "Show Modules Count: ${if (clientRichPresence.showRPCModulesCount) "§aON" else "§cOFF"}"
+        )
+        +GuiButton(5, width / 2 - 100, height / 4 + 48 + 255, "Back")
 
         customTextField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 48 + 190, 200, 20)
         customTextField.maxStringLength = Int.MAX_VALUE

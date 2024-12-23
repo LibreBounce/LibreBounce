@@ -5,11 +5,11 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element
 
-import net.ccbluex.liquidbounce.utils.ClassUtils
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.ClassUtils
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
-import net.ccbluex.liquidbounce.value.Value
+import net.ccbluex.liquidbounce.config.Value
 import net.minecraft.client.gui.ScaledResolution
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.math.max
@@ -20,7 +20,7 @@ import kotlin.math.min
  */
 abstract class Element(
     var x: Double = 2.0, var y: Double = 2.0, scale: Float = 1F, var side: Side = Side.default(),
-) : MinecraftInstance() {
+) : MinecraftInstance {
 
     val info = javaClass.getAnnotation(ElementInfo::class.java)
         ?: throw IllegalArgumentException("Passed element with missing element info")

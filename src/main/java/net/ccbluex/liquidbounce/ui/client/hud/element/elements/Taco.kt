@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
-import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.config.float
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.ResourceLocation
 

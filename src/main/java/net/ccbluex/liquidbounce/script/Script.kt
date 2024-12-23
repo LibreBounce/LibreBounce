@@ -22,13 +22,13 @@ import net.ccbluex.liquidbounce.script.api.ScriptTab
 import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.script.api.global.Item
 import net.ccbluex.liquidbounce.script.api.global.Setting
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.io.File
 import java.util.function.Function
 import javax.script.ScriptEngine
 
-class Script(val scriptFile: File) : MinecraftInstance() {
+class Script(val scriptFile: File) : MinecraftInstance {
 
     private val scriptEngine: ScriptEngine
     private val scriptText = scriptFile.readText()
@@ -145,10 +145,10 @@ class Script(val scriptFile: File) : MinecraftInstance() {
     private fun getMagicComment(name: String): String? {
         val magicPrefix = "///"
 
-        scriptText.lines().forEach {
+        scriptText.lineSequence().forEach {
             if (!it.startsWith(magicPrefix)) return null
 
-            val commentData = it.substring(magicPrefix.length).split("=", limit = 2)
+            val commentData = it.subSequence(magicPrefix.length, it.length).split("=", limit = 2)
 
             if (commentData.first().trim() == name) {
                 return commentData.last().trim()

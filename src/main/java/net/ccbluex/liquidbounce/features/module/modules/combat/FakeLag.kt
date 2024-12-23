@@ -6,21 +6,22 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import com.google.common.collect.Queues
+import net.ccbluex.liquidbounce.config.FloatValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.pos
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.pos
+import net.ccbluex.liquidbounce.utils.kotlin.removeEach
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.handshake.client.C00Handshake
@@ -55,24 +56,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
 
     private val line by boolean("Line", true, subjective = true)
     private val rainbow by boolean("Rainbow", false, subjective = true) { line }
-    private val red by int(
-        "R",
-        0,
-        0..255,
-        subjective = true
-    ) { !rainbow && line }
-    private val green by int(
-        "G",
-        255,
-        0..255,
-        subjective = true
-    ) { !rainbow && line }
-    private val blue by int(
-        "B",
-        0,
-        0..255,
-        subjective = true
-    ) { !rainbow && line }
+    private val red by int("R", 0, 0..255, subjective = true) { !rainbow && line }
+    private val green by int("G", 255, 0..255, subjective = true) { !rainbow && line }
+    private val blue by int("B", 0, 0..255, subjective = true) { !rainbow && line }
 
     private val packetQueue = Queues.newArrayDeque<QueueData>()
     private val positions = Queues.newArrayDeque<PositionData>()
@@ -81,91 +67,85 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
     private var ignoreWholeTick = false
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
-            return
+        if (mc.thePlayer == null) return
 
         blink()
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        val player = mc.thePlayer ?: return
+    val onPacket = handler<PacketEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
         val packet = event.packet
 
-        if (!handleEvents() || player.isDead || event.isCancelled ||
-            maxAllowedDistToEnemy.get() > 0.0 && wasNearEnemy ||
-            ignoreWholeTick
-        ) {
-            return
+        if (!handleEvents() || player.isDead || event.isCancelled || maxAllowedDistToEnemy.get() > 0.0 && wasNearEnemy || ignoreWholeTick) {
+            return@handler
         }
 
         if (pauseOnNoMove && !player.isMoving) {
             blink()
-            return
+            return@handler
         }
 
         // Flush on damaged received
         if (player.health < player.maxHealth) {
             if (player.hurtTime != 0) {
                 blink()
-                return
+                return@handler
             }
         }
 
         // Flush on scaffold/tower usage
         if (Scaffold.handleEvents() && Scaffold.placeRotation != null) {
             blink()
-            return
+            return@handler
         }
 
         // Flush on attack/interact
         if (blinkOnAction && packet is C02PacketUseEntity) {
             blink()
-            return
+            return@handler
         }
 
         if (pauseOnChest && mc.currentScreen is GuiContainer) {
             blink()
-            return
+            return@handler
         }
 
         when (packet) {
-            is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is C01PacketChatMessage, is S01PacketPong -> return
+            is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is C01PacketChatMessage, is S01PacketPong -> return@handler
 
             // Flush on window clicked (Inventory)
             is C0EPacketClickWindow, is C0DPacketCloseWindow -> {
                 blink()
-                return
+                return@handler
             }
 
             // Flush on doing action/getting action
             is S08PacketPlayerPosLook, is C08PacketPlayerBlockPlacement, is C07PacketPlayerDigging, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
                 blink()
-                return
+                return@handler
             }
 
             // Flush on knockback
             is S12PacketEntityVelocity -> {
                 if (player.entityId == packet.entityID) {
                     blink()
-                    return
+                    return@handler
                 }
             }
 
             is S27PacketExplosion -> {
                 if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
                     blink()
-                    return
+                    return@handler
                 }
             }
         }
 
-        if (!resetTimer.hasTimePassed(recoilTime))
-            return
+        if (!resetTimer.hasTimePassed(recoilTime)) return@handler
 
         if (mc.isSingleplayer || mc.currentServerData == null) {
             blink()
-            return
+            return@handler
         }
 
         if (event.eventType == EventState.SEND) {
@@ -183,11 +163,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         }
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
+    val onWorld = handler<WorldEvent> { event ->
         // Clear packets on disconnect only
-        if (event.worldClient == null)
-            blink(false)
+        if (event.worldClient == null) blink(false)
     }
 
     private fun getTruePositionEyes(player: EntityPlayer): Vec3 {
@@ -195,35 +173,35 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         return Vec3(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
     }
 
-    @EventTarget
-    fun onGameLoop(event: GameLoopEvent) {
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+    val onGameLoop = handler<GameLoopEvent> {
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         if (maxAllowedDistToEnemy.get() > 0) {
             val playerPos = player.currPos
             val serverPos = positions.firstOrNull()?.pos ?: playerPos
 
-            val (dx, dy, dz) = serverPos - playerPos
-            val playerBox = player.hitBox.offset(dx, dy, dz)
+            val playerBox = player.hitBox.offset(serverPos - playerPos)
 
             wasNearEnemy = false
 
             world.playerEntities.forEach { otherPlayer ->
-                if (otherPlayer == player)
-                    return@forEach
+                if (otherPlayer == player) return@forEach
 
                 val entityMixin = otherPlayer as? IMixinEntity
 
                 if (entityMixin != null) {
                     val eyes = getTruePositionEyes(otherPlayer)
 
-                    if (eyes.distanceTo(getNearestPointBB(eyes, playerBox))
-                        in minAllowedDistToEnemy.get()..maxAllowedDistToEnemy.get()
+                    if (eyes.distanceTo(
+                            getNearestPointBB(
+                                eyes, playerBox
+                            )
+                        ) in minAllowedDistToEnemy.get()..maxAllowedDistToEnemy.get()
                     ) {
                         blink()
                         wasNearEnemy = true
-                        return
+                        return@handler
                     }
                 }
             }
@@ -231,22 +209,19 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
 
         if (Blink.blinkingSend() || player.isDead || player.isUsingItem) {
             blink()
-            return
+            return@handler
         }
 
-        if (!resetTimer.hasTimePassed(recoilTime))
-            return
+        if (!resetTimer.hasTimePassed(recoilTime)) return@handler
 
         handlePackets()
         ignoreWholeTick = false
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
+    val onRender3D = handler<Render3DEvent> {
         val color = if (rainbow) rainbow() else Color(red, green, blue)
 
-        if (!line || Blink.blinkingSend() || positions.isEmpty())
-            return
+        if (!line || Blink.blinkingSend() || positions.isEmpty()) return@handler
 
         glPushMatrix()
         glDisable(GL_TEXTURE_2D)
@@ -262,8 +237,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         val renderPosY = mc.renderManager.viewerPosY
         val renderPosZ = mc.renderManager.viewerPosZ
 
-        for ((pos) in positions)
-            glVertex3d(pos.xCoord - renderPosX, pos.yCoord - renderPosY, pos.zCoord - renderPosZ)
+        for ((pos) in positions) glVertex3d(pos.xCoord - renderPosX, pos.yCoord - renderPosY, pos.zCoord - renderPosZ)
 
         glColor4d(1.0, 1.0, 1.0, 1.0)
         glEnd()
@@ -278,17 +252,19 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         get() = packetQueue.size.toString()
 
     private fun blink(handlePackets: Boolean = true) {
-        if (handlePackets) {
-            resetTimer.reset()
-        }
+        mc.addScheduledTask {
+            if (handlePackets) {
+                resetTimer.reset()
+            }
 
-        handlePackets(true)
-        ignoreWholeTick = true
+            handlePackets(true)
+            ignoreWholeTick = true
+        }
     }
 
     private fun handlePackets(clear: Boolean = false) {
         synchronized(packetQueue) {
-            packetQueue.removeAll { (packet, timestamp) ->
+            packetQueue.removeEach { (packet, timestamp) ->
                 if (timestamp <= System.currentTimeMillis() - delay || clear) {
                     sendPacket(packet, false)
                     true
@@ -297,7 +273,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
         }
 
         synchronized(positions) {
-            positions.removeAll { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay || clear }
+            positions.removeEach { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay || clear }
         }
     }
 

@@ -5,16 +5,16 @@
  */
 package net.ccbluex.liquidbounce.utils.timing
 
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.GameLoopEvent
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 
-object WaitMsUtils : MinecraftInstance(), Listenable {
+object WaitMsUtils : MinecraftInstance, Listenable {
 
     private val scheduledActions = mutableListOf<ScheduledAction>()
 
-    fun schedule(ms: Long, requester: Any? = null, action: () -> Unit = { }) =
+    fun schedule(requester: Any? = null, ms: Long = 1L, action: () -> Unit = { }) =
         conditionalSchedule(requester, ms) { action(); true }
 
     fun conditionalSchedule(requester: Any? = null, ms: Long? = null, action: () -> Boolean) {
@@ -31,8 +31,7 @@ object WaitMsUtils : MinecraftInstance(), Listenable {
 
     fun hasScheduled(obj: Any) = scheduledActions.firstOrNull { it.requester == obj } != null
 
-    @EventTarget(priority = -1)
-    fun onRender(event: GameLoopEvent) {
+    val onRender = handler<GameLoopEvent>(priority = -1) {
         synchronized(scheduledActions) {
             scheduledActions.removeIf {
                 System.currentTimeMillis() >= it.ms && it.action()

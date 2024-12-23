@@ -6,16 +6,16 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.config.text
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.int
-import net.ccbluex.liquidbounce.value.text
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S40PacketDisconnect
 import java.util.*
@@ -76,12 +76,11 @@ object NameProtect :
         playerRandomNames.clear()
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (mc.thePlayer == null || mc.theWorld == null)
-            return
+            return@handler
 
         // Check for new players
         if (packet is S01PacketJoinGame) {

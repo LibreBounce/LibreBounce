@@ -28,7 +28,7 @@ object AutoDisableCommand : Command("autodisable") {
                 }
 
                 val moduleName = args[2]
-                val module = ModuleManager.getModule(moduleName)
+                val module = ModuleManager[moduleName]
 
                 if (module != null) {
                     if (AutoDisable.getModules().contains(module)) {
@@ -41,6 +41,7 @@ object AutoDisableCommand : Command("autodisable") {
                     chat("§cModule §b$moduleName §cnot found.")
                 }
             }
+
             "remove" -> {
                 if (args.size < 3) {
                     chatSyntax("autodisable remove <module>")
@@ -48,7 +49,7 @@ object AutoDisableCommand : Command("autodisable") {
                 }
 
                 val moduleName = args[2]
-                val module = ModuleManager.getModule(moduleName)
+                val module = ModuleManager[moduleName]
 
                 if (module != null) {
                     if (AutoDisable.getModules().contains(module)) {
@@ -61,11 +62,13 @@ object AutoDisableCommand : Command("autodisable") {
                     chat("§cModule §b$moduleName §cnot found.")
                 }
             }
+
             "list" -> {
                 val modules = AutoDisable.getModules()
                 chat("Modules in the auto-disable list:")
                 modules.forEach { chat(it.name) }
             }
+
             else -> chatSyntax("autodisable <add/remove/list>")
         }
     }
@@ -81,15 +84,18 @@ object AutoDisableCommand : Command("autodisable") {
                 when (args[0].lowercase()) {
                     "add" -> {
                         val input = args[1].lowercase()
-                        ModuleManager.modules.filter { it.name.lowercase().startsWith(input) }.map { it.name }
+                        ModuleManager.filter { it.name.lowercase().startsWith(input) }.map { it.name }
                     }
+
                     "remove" -> {
                         val input = args[1].lowercase()
                         AutoDisable.getModules().filter { it.name.lowercase().startsWith(input) }.map { it.name }
                     }
+
                     else -> emptyList()
                 }
             }
+
             else -> emptyList()
         }
     }

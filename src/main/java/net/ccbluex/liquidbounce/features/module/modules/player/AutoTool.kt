@@ -5,35 +5,33 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.ClickBlockEvent
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.GameTickEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.SilentHotbar
-import net.ccbluex.liquidbounce.value.boolean
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 
 object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDetecting = false, hideModule = false) {
 
     private val switchBack by boolean("SwitchBack", false)
     private val onlySneaking by boolean("OnlySneaking", false)
 
-    @EventTarget
-    fun onGameTick(event: GameTickEvent) {
+    val onGameTick = handler<GameTickEvent> {
         if (!switchBack || mc.gameSettings.keyBindAttack.isKeyDown)
-            return
+            return@handler
 
         SilentHotbar.resetSlot(this)
     }
 
-    @EventTarget
-    fun onClick(event: ClickBlockEvent) {
-        val player = mc.thePlayer ?: return
+    val onClick = handler<ClickBlockEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
 
-        val block = mc.theWorld.getBlockState(event.clickedBlock ?: return).block
+        val block = mc.theWorld.getBlockState(event.clickedBlock ?: return@handler).block
 
         if (onlySneaking && !player.isSneaking || block.getBlockHardness(mc.theWorld, event.clickedBlock) == 0f)
-            return
+            return@handler
 
         var fastest = 1f
 
@@ -41,10 +39,10 @@ object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDet
             val item = player.inventory.getStackInSlot(it) ?: return@maxByOrNull 1f
 
             item.getStrVsBlock(block).also { speed -> fastest = fastest.coerceAtLeast(speed) }
-        } ?: return
+        } ?: return@handler
 
         if (fastest == (player.currentEquippedItem?.getStrVsBlock(block) ?: 1f))
-            return
+            return@handler
 
         SilentHotbar.selectSlotSilently(this, slot, render = false, resetManually = true)
     }

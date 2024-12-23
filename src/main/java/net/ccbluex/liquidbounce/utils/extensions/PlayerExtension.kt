@@ -7,14 +7,16 @@ package net.ccbluex.liquidbounce.utils.extensions
 
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
-import net.ccbluex.liquidbounce.utils.CPSCounter
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
-import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.Rotation
-import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedSensitivityAngle
-import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.attack.CPSCounter
+import net.ccbluex.liquidbounce.utils.block.state
+import net.ccbluex.liquidbounce.utils.block.toVec
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.ccbluex.liquidbounce.utils.rotation.Rotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedSensitivityAngle
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -132,6 +134,9 @@ val Entity.lastTickPos: Vec3
 val EntityLivingBase?.isMoving: Boolean
     get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
 
+val Entity.isInLiquid: Boolean
+    get() = isInWater || isInLava
+
 fun Entity.setPosAndPrevPos(currPos: Vec3, prevPos: Vec3 = currPos, lastTickPos: Vec3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
     prevPosX = prevPos.xCoord
@@ -204,7 +209,7 @@ fun EntityPlayerSP.onPlayerRightClick(
     if (clickPos !in worldObj.worldBorder)
         return false
 
-    val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatTriple()
+    val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatArray()
 
     val sendClick = {
         sendPacket(C08PacketPlayerBlockPlacement(clickPos, side.index, stack, facingX, facingY, facingZ))

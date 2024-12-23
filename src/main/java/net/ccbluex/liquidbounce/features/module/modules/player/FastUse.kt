@@ -5,19 +5,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.MovementUtils.serverOnGround
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.inventory.ItemUtils.isConsumingItem
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.serverOnGround
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.network.play.client.C03PacketPlayer
 
 object FastUse : Module("FastUse", Category.PLAYER) {
@@ -33,9 +33,8 @@ object FastUse : Module("FastUse", Category.PLAYER) {
     private val msTimer = MSTimer()
     private var usedTimer = false
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (usedTimer) {
             mc.timer.timerSpeed = 1F
@@ -44,7 +43,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
 
         if (!isConsumingItem()) {
             msTimer.reset()
-            return
+            return@handler
         }
 
         when (mode.lowercase()) {
@@ -74,7 +73,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
                 usedTimer = true
 
                 if (!msTimer.hasTimePassed(delay))
-                    return
+                    return@handler
 
                 repeat(customSpeed) {
                     sendPacket(C03PacketPlayer(serverOnGround))
@@ -85,12 +84,11 @@ object FastUse : Module("FastUse", Category.PLAYER) {
         }
     }
 
-    @EventTarget
-    fun onMove(event: MoveEvent) {
-        mc.thePlayer ?: return
+    val onMove = handler<MoveEvent> { event ->
+        mc.thePlayer ?: return@handler
 
         if (!isConsumingItem() || !noMove)
-            return
+            return@handler
 
         event.zero()
     }

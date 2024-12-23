@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.RotationSetEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.extensions.prevRotation
 import net.ccbluex.liquidbounce.utils.extensions.rotation
+import net.ccbluex.liquidbounce.utils.rotation.Rotation
 
 object FreeLook : Module("FreeLook", Category.RENDER) {
 
@@ -23,6 +23,8 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     private var savedCurrRotation = Rotation.ZERO
     private var savedPrevRotation = Rotation.ZERO
 
+    private var modifySavedRotations = true
+
     override fun onEnable() {
         mc.thePlayer?.run {
             currRotation = rotation
@@ -30,10 +32,12 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
         }
     }
 
-    @EventTarget
-    fun onRotationSet(event: RotationSetEvent) {
+    val onRotationSet = handler<RotationSetEvent> { event ->
         if (mc.gameSettings.thirdPersonView != 0) {
             event.cancelEvent()
+        } else {
+            currRotation = mc.thePlayer.rotation
+            prevRotation = currRotation
         }
 
         prevRotation = currRotation
@@ -45,8 +49,13 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     fun useModifiedRotation() {
         val player = mc.thePlayer ?: return
 
-        savedCurrRotation = player.rotation
-        savedPrevRotation = player.prevRotation
+        if (mc.gameSettings.thirdPersonView == 0)
+            return
+
+        if (modifySavedRotations) {
+            savedCurrRotation = player.rotation
+            savedPrevRotation = player.prevRotation
+        }
 
         if (!handleEvents())
             return
@@ -58,16 +67,21 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     fun restoreOriginalRotation() {
         val player = mc.thePlayer ?: return
 
-        if (mc.gameSettings.thirdPersonView == 0) {
-            savedCurrRotation = player.rotation
-            savedPrevRotation = player.prevRotation
-            return
-        }
-
-        if (!handleEvents())
+        if (!handleEvents() || mc.gameSettings.thirdPersonView == 0)
             return
 
         player.rotation = savedCurrRotation
         player.prevRotation = savedPrevRotation
+    }
+
+    fun runWithoutSavingRotations(f: () -> Unit) {
+        modifySavedRotations = false
+
+        try {
+            f()
+        } catch (_: Exception) {
+        }
+
+        modifySavedRotations = true
     }
 }

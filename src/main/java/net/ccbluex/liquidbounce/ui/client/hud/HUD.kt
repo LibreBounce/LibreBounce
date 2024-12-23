@@ -7,23 +7,25 @@ package net.ccbluex.liquidbounce.ui.client.hud
 
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
+import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Target
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.minecraft.client.gui.ScaledResolution
 import org.lwjgl.opengl.GL11.*
+import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
-object HUD : MinecraftInstance() {
+object HUD : MinecraftInstance {
 
     val elements = mutableListOf<Element>()
     val notifications = mutableListOf<Notification>()
 
-    val ELEMENTS = arrayOf(
+    private val ALL_ELEMENT_CLASSES = arrayOf(
         Armor::class.java,
         Arraylist::class.java,
         Effects::class.java,
@@ -39,8 +41,13 @@ object HUD : MinecraftInstance() {
         SpeedGraph::class.java,
         Cooldown::class.java,
         BlockCounter::class.java,
-        Taco::class.java
+        Taco::class.java,
+        Keystrokes::class.java
     )
+
+    val ELEMENTS = ALL_ELEMENT_CLASSES.associateWithTo(IdentityHashMap(ALL_ELEMENT_CLASSES.size)) {
+        it.getAnnotation(ElementInfo::class.java)
+    }
 
     /** Create default HUD */
     fun setDefault() {
@@ -54,6 +61,7 @@ object HUD : MinecraftInstance() {
         addElement(Armor())
         addElement(Effects())
         addElement(Notifications())
+        addElement(Keystrokes())
     }
 
     /** Render all elements */

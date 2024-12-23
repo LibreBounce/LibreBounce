@@ -5,12 +5,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.potion.Potion.*
 import net.minecraft.potion.PotionEffect
 
@@ -66,12 +65,12 @@ object PotionSpoof : Module("PotionSpoof", Category.PLAYER, hideModule = false) 
             .forEach { mc.thePlayer.removePotionEffect(it.potionID) }
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) =
+    val onUpdate = loopHandler {
         potionMap.forEach { (potionId, value) ->
             if (value.get())
                 mc.thePlayer.addPotionEffect(PotionEffect(potionId, 0, level - 1, false, false))
             else if (mc.thePlayer.activePotionEffects.any { it.duration == 0 && it.potionID == potionId })
                 mc.thePlayer.removePotionEffect(potionId)
         }
+    }
 }

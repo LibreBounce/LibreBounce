@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.utils.inventory
 
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
 
-object ArmorComparator: MinecraftInstance() {
+object ArmorComparator: MinecraftInstance {
 	fun getBestArmorSet(stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, EntityItem>? = null): ArmorSet? {
 		val thePlayer = mc.thePlayer ?: return null
 
@@ -24,7 +24,7 @@ object ArmorComparator: MinecraftInstance() {
 		val equippedArmorWhenInChest =
 			if (thePlayer.openContainer.windowId != 0)
 				// Filter out any non armor items player could be equipped (skull / pumpkin)
-				thePlayer.inventory.armorInventory.toList().indexedArmorStacks { null }
+				thePlayer.inventory.armorInventory.asIterable().indexedArmorStacks { null }
 			else emptyList()
 
 		val inventoryStacks = stacks.indexedArmorStacks()

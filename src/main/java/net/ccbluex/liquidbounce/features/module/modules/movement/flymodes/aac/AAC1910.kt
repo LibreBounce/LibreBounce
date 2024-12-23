@@ -9,37 +9,38 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.aacSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.startY
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.minecraft.network.play.client.C03PacketPlayer
 import java.awt.Color
 
 object AAC1910 : FlyMode("AAC1.9.10") {
 
-	private var jump = 0.0
+    private var jump = 0.0
 
-	override fun onEnable() {
-		jump = 3.8
-	}
-	override fun onUpdate() {
-		if (mc.gameSettings.keyBindJump.isKeyDown)
-			jump += 0.2
+    override fun onEnable() {
+        jump = 3.8
+    }
 
-		if (mc.gameSettings.keyBindSneak.isKeyDown)
-			jump -= 0.2
+    override fun onUpdate() {
+        if (mc.gameSettings.keyBindJump.isKeyDown)
+            jump += 0.2
 
-		if (startY + jump > mc.thePlayer.posY) {
-			sendPacket(C03PacketPlayer(true))
-			mc.thePlayer.motionY = 0.8
-			strafe(aacSpeed)
-		}
+        if (mc.gameSettings.keyBindSneak.isKeyDown)
+            jump -= 0.2
 
-		// TODO: Doesn't this always overwrite the strafe(aacSpeed)?
-		strafe()
-	}
+        if (startY + jump > mc.thePlayer.posY) {
+            sendPacket(C03PacketPlayer(true))
+            mc.thePlayer.motionY = 0.8
+            strafe(aacSpeed)
+        }
 
-	override fun onRender3D(event: Render3DEvent) {
-		drawPlatform(startY + jump, Color(0, 0, 255, 90), 1.0)
-	}
+        // TODO: Doesn't this always overwrite the strafe(aacSpeed)?
+        strafe()
+    }
+
+    override fun onRender3D(event: Render3DEvent) {
+        drawPlatform(startY + jump, Color(0, 0, 255, 90), 1.0)
+    }
 }

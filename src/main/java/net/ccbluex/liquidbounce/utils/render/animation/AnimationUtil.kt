@@ -115,4 +115,10 @@ object AnimationUtil {
         t = t / d - 1
         return c * (t * t * ((s + 1) * t + s) + 1) + b
     }
+
+    fun breathe(duration: Float): Float {
+        val progress = System.currentTimeMillis() % duration.toLong() / duration
+
+        return 0.5f * (sin(2 * Math.PI * progress) + 1).toFloat()
+    }
 }

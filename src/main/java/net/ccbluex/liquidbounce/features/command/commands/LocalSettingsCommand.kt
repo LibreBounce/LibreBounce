@@ -5,15 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.ccbluex.liquidbounce.config.SettingsUtils
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.file.FileManager.settingsDir
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.SettingsUtils
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
-import net.ccbluex.liquidbounce.utils.misc.StringUtils
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
+import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import java.awt.Desktop
 import java.io.File
 import java.io.IOException
@@ -167,13 +169,20 @@ object LocalSettingsCommand : Command("localsettings", "localsetting", "localcon
                         val settings = settingsDir.listFiles() ?: return emptyList()
                         settings.map { it.name.removeSuffix(".txt") }.filter { it.startsWith(args[1], true) }
                     }
+
                     else -> emptyList()
                 }
             }
 
             3 -> {
                 when (args[0].lowercase()) {
-                    "save" -> listOf("all", "default", "values", "binds", "states").filter { it.startsWith(args[2], true) }
+                    "save" -> listOf("all", "default", "values", "binds", "states").filter {
+                        it.startsWith(
+                            args[2],
+                            true
+                        )
+                    }
+
                     else -> emptyList()
                 }
             }

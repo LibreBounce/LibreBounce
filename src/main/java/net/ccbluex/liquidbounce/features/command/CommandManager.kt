@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.command.shortcuts.ShortcutParser
 import net.ccbluex.liquidbounce.features.command.special.*
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.shortcutsConfig
-import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.client.chat
 
 object CommandManager {
     val commands = mutableListOf<Command>()

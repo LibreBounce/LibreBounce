@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.network.play.client.C10PacketCreativeInventoryAction
 
@@ -72,6 +72,7 @@ object EnchantCommand : Command("enchant") {
                     .map { it.resourcePath.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }
+
             else -> emptyList()
         }
     }

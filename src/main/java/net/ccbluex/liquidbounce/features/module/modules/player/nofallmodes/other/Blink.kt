@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other
 
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.autoOff
@@ -17,16 +16,14 @@ import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.simulateDe
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.state
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
-import net.ccbluex.liquidbounce.utils.BlinkUtils
-import net.ccbluex.liquidbounce.utils.SimulatedPlayer
-import net.ccbluex.liquidbounce.utils.chat
+import net.ccbluex.liquidbounce.utils.client.BlinkUtils
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.extensions.renderPos
-import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
+import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
+import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.util.AxisAlignedBB
 import java.awt.Color
 
 object Blink : NoFallMode("Blink") {
@@ -121,7 +118,6 @@ object Blink : NoFallMode("Blink") {
         }
     }
 
-    @EventTarget
     override fun onRender3D(event: Render3DEvent) {
         if (!simulateDebug) return
 
@@ -137,9 +133,9 @@ object Blink : NoFallMode("Blink") {
             val targetEntity = thePlayer as IMixinEntity
 
             if (targetEntity.truePos) {
-                val (x, y, z) = simPlayer.pos.minus(mc.renderManager.renderPos)
+                val pos = simPlayer.pos - mc.renderManager.renderPos
 
-                val axisAlignedBB = entityBoundingBox.offset(-posX, -posY, -posZ).offset(x, y, z)
+                val axisAlignedBB = entityBoundingBox.offset(-currPos + pos)
 
                 drawBacktrackBox(axisAlignedBB, Color.BLUE)
             }

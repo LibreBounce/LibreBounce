@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.choices
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionEffect
 
@@ -32,8 +32,7 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false,
         mc.thePlayer?.removePotionEffectClient(Potion.nightVision.id)
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = loopHandler(always = true) {
         if (state || XRay.handleEvents()) {
             when (mode.lowercase()) {
                 "gamma" -> when {
@@ -48,8 +47,7 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false,
         }
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onShutdown(event: ClientShutdownEvent) {
+    val onShutdown = handler<ClientShutdownEvent>(always = true) {
         onDisable()
     }
 }

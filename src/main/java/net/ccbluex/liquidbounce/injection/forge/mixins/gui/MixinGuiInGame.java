@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
-import net.ccbluex.liquidbounce.utils.ClassUtils;
-import net.ccbluex.liquidbounce.utils.SilentHotbar;
+import net.ccbluex.liquidbounce.utils.client.ClassUtils;
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils;
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsKt;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -28,6 +28,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,8 +41,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 import static net.minecraft.client.renderer.GlStateManager.*;
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(GuiIngame.class)
 @SideOnly(Side.CLIENT)
@@ -97,6 +97,7 @@ public abstract class MixinGuiInGame extends Gui {
 
                 List<float[]> gradientColors = ColorSettingsKt.toColorArray(hud.getBgGradColors(), hud.getMaxHotbarGradientColors());
 
+                GL11.glPushMatrix();
                 resetColor();
 
                 boolean isGradient = hud.getHotbarMode().equals("Gradient");
@@ -175,6 +176,8 @@ public abstract class MixinGuiInGame extends Gui {
                 disableRescaleNormal();
                 disableBlend();
 
+                GL11.glPopMatrix();
+
                 AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 
                 ci.cancel();
@@ -209,7 +212,7 @@ public abstract class MixinGuiInGame extends Gui {
     @Unique
     private void liquidBounce$updateGarbageCollection(float delta) {
         if (!ClassUtils.INSTANCE.hasClass("net.labymod.api.LabyModAPI")) {
-            EventManager.INSTANCE.callEvent(new Render2DEvent(delta));
+            EventManager.INSTANCE.call(new Render2DEvent(delta));
             AWTFontRenderer.Companion.garbageCollectionTick();
         }
     }

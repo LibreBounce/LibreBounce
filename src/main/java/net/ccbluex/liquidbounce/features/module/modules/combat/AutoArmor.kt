@@ -5,13 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeRepairedWithOther
-import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.SilentHotbar
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.autoArmorCurrentSlot
@@ -22,11 +26,9 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.passedPostInven
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.item.ItemStack
@@ -91,7 +93,9 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
 
         var hasClickedHotbar = false
 
-        val stacks = thePlayer.openContainer.inventory
+        val stacks = withContext(Dispatchers.Main) {
+            thePlayer.openContainer.inventorySlots.map { it.stack }
+        }
 
         val bestArmorSet = getBestArmorSet(stacks) ?: return
 
@@ -146,7 +150,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
         // Not really needed to bypass
         delay(randomDelay(minDelay, maxDelay).toLong())
 
-        waitUntil(TickScheduler::isEmpty)
+        waitUntil { TickScheduler.isEmpty() }
 
         // Sync selected slot next tick
         if (hasClickedHotbar)
@@ -169,7 +173,9 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
                 return
             }
 
-            val stacks = thePlayer.openContainer.inventory
+            val stacks = withContext(Dispatchers.Main) {
+                thePlayer.openContainer.inventorySlots.map { it.stack }
+            }
 
             val armorSet = getBestArmorSet(stacks) ?: continue
 
@@ -234,7 +240,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
         }
 
         // Wait till all scheduled clicks were sent
-        waitUntil(TickScheduler::isEmpty)
+        waitUntil { TickScheduler.isEmpty() }
     }
 
     fun equipFromHotbarInChest(hotbarIndex: Int?, stack: ItemStack) {

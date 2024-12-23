@@ -5,23 +5,28 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.RotationSettings
-import net.ccbluex.liquidbounce.utils.RotationUtils.faceBlock
-import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
+import net.ccbluex.liquidbounce.utils.block.block
+import net.ccbluex.liquidbounce.utils.block.blockById
+import net.ccbluex.liquidbounce.utils.block.center
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
-import net.ccbluex.liquidbounce.value.*
 import net.minecraft.block.Block
 import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks.air
@@ -32,7 +37,6 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.START_DES
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
@@ -76,7 +80,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
      * VALUES
      */
 
-    private val attackedBlocks = arrayListOf<BlockPos>()
+    private val attackedBlocks = hashSetOf<BlockPos>()
     private var currentBlock: BlockPos? = null
     private var blockHitDelay = 0
 
@@ -85,16 +89,16 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
 
     var currentDamage = 0F
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         // Block hit delay
         if (blockHitDelay > 0 && !FastBreak.handleEvents()) {
             blockHitDelay--
-            return
+            return@handler
         }
 
         // Reset bps
         nukeTimer.update()
+
         if (nukeTimer.hasTimePassed(nukeDelay)) {
             nukedCount = 0
             nukeTimer.reset()
@@ -103,78 +107,60 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
         // Clear blocks
         attackedBlocks.clear()
 
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
+
+        val eyes = player.eyes
 
         if (!mc.playerController.isInCreativeMode) {
-            // Default nuker
-
-            val eyesPos = thePlayer.eyes
-            val validBlocks = searchBlocks(radius.roundToInt() + 1, null).filter { (pos, block) ->
+            val validBlocks = searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {
                     if (!allBlocks && Block.getIdFromBlock(block) != blocks) {
-                        return@filter false
+                        return@searchBlocks false
                     }
 
-                    if (layer && pos.y < thePlayer.posY) { // Layer: Break all blocks above you
-                        return@filter false
+                    // Layer: Break all blocks above you
+                    if (layer && pos.y < player.posY) {
+                        return@searchBlocks false
                     }
 
-                    if (!throughWalls) { // ThroughWalls: Just break blocks in your sight
-                        // Raytrace player eyes to block position (through walls check)
-                        val blockVec = Vec3(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5)
-                        val rayTrace = mc.theWorld.rayTraceBlocks(
-                            eyesPos, blockVec,
-                            false, true, false
-                        )
-
-                        // Check if block is visible
-                        rayTrace != null && rayTrace.blockPos == pos
-                    } else true // Done
+                    // ThroughWalls: Just break blocks in your sight
+                    // Raytrace player eyes to block position (through walls check) and check if block is visible
+                    throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.blockPos == pos
                 } else false // Bad block
-            }.toMutableMap()
+            }
 
-            while (nukedCount < nuke) {
-                val (blockPos, block) = when (priority) {
-                    "Distance" -> validBlocks.minByOrNull { (pos) ->
-                        val distance = getCenterDistance(pos)
-                        val safePos = BlockPos(thePlayer).down()
+            val safePos = BlockPos(player).down()
 
-                        if (pos.x == safePos.x && safePos.y <= pos.y && pos.z == safePos.z)
-                            Double.MAX_VALUE - distance // Last block
-                        else
-                            distance
-                    }
+            val sortedBlocks = when (priority) {
+                "Distance" -> validBlocks.entries.sortedBy { (pos, _) ->
+                    val distance = getCenterDistance(pos)
+                    if (pos.x == safePos.x && safePos.y <= pos.y && pos.z == safePos.z) Double.MAX_VALUE - distance // Last block
+                    else distance
+                }
 
-                    "Hardness" -> validBlocks.maxByOrNull { (pos, block) ->
-                        val hardness = block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld, pos).toDouble()
+                "Hardness" -> validBlocks.entries.sortedByDescending { (pos, block) ->
+                    val hardness = block.getPlayerRelativeBlockHardness(player, world, pos).toDouble()
+                    if (pos.x == safePos.x && safePos.y <= pos.y && pos.z == safePos.z) Double.MIN_VALUE + hardness // Last block
+                    else hardness
+                }
 
-                        val safePos = BlockPos(thePlayer).down()
-                        if (pos.x == safePos.x && safePos.y <= pos.y && pos.z == safePos.z)
-                            Double.MIN_VALUE + hardness // Last block
-                        else
-                            hardness
-                    }
+                "LightOpacity" -> validBlocks.entries.sortedByDescending { (pos, block) ->
+                    val opacity = block.getLightOpacity(world, pos).toDouble()
+                    if (pos.x == safePos.x && safePos.y <= pos.y && pos.z == safePos.z) Double.MIN_VALUE + opacity // Last block
+                    else opacity
+                }
 
-                    "LightOpacity" -> validBlocks.maxByOrNull { (pos, block) ->
-                        val opacity = block.getLightOpacity(mc.theWorld, pos).toDouble()
+                else -> return@handler // Handle invalid priority
+            }
 
-                        val safePos = BlockPos(thePlayer).down()
-                        if (pos.x == safePos.x && safePos.y <= pos.y && pos.z == safePos.z)
-                            Double.MIN_VALUE + opacity // Last block
-                        else
-                            opacity
-                    }
-
-                    else -> return // what? why?
-                } ?: return // well I guess there is no block to break :(
-
+            for ((blockPos, block) in sortedBlocks) {
                 // Reset current damage in case of block switch
-                if (blockPos != currentBlock)
-                    currentDamage = 0F
+                if (blockPos != currentBlock) currentDamage = 0F
 
                 // Change head rotations to next block
                 if (options.rotationsActive) {
-                    val rotation = faceBlock(blockPos) ?: return // In case of a mistake. Prevent flag.
+                    val rotation = faceBlock(blockPos) ?: return@handler // In case of a mistake. Prevent flag.
 
                     setTargetRotation(rotation.rotation, options = options)
                 }
@@ -183,16 +169,16 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
                 currentBlock = blockPos
                 attackedBlocks += blockPos
 
-                EventManager.callEvent(ClickBlockEvent(blockPos, EnumFacing.DOWN))
+                EventManager.call(ClickBlockEvent(blockPos, EnumFacing.DOWN))
 
                 // Start block breaking
                 if (currentDamage == 0F) {
                     sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, EnumFacing.DOWN))
 
                     // End block break if able to break instant
-                    if (block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld, blockPos) >= 1F) {
+                    if (block.getPlayerRelativeBlockHardness(player, world, blockPos) >= 1F) {
                         currentDamage = 0F
-                        thePlayer.swingItem()
+                        player.swingItem()
                         mc.playerController.onPlayerDestroyBlock(blockPos, EnumFacing.DOWN)
                         blockHitDelay = hitDelay
                         validBlocks -= blockPos
@@ -202,9 +188,9 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
                 }
 
                 // Break block
-                thePlayer.swingItem()
-                currentDamage += block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld, blockPos)
-                mc.theWorld.sendBlockBreakProgress(thePlayer.entityId, blockPos, (currentDamage * 10F).toInt() - 1)
+                player.swingItem()
+                currentDamage += block.getPlayerRelativeBlockHardness(player, world, blockPos)
+                world.sendBlockBreakProgress(player.entityId, blockPos, (currentDamage * 10F).toInt() - 1)
 
                 // End of breaking block
                 if (currentDamage >= 1F) {
@@ -213,90 +199,57 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
                     blockHitDelay = hitDelay
                     currentDamage = 0F
                 }
-                return // Break out
+
+                return@handler // Break out
             }
         } else {
             // Fast creative mode nuker (CreativeStorm option)
 
             // Unable to break with swords in creative mode
-            if (thePlayer.heldItem?.item is ItemSword)
-                return
+            if (player.heldItem?.item is ItemSword) return@handler
 
-            // Search for new blocks to break
-            searchBlocks(radius.roundToInt() + 1, null)
-                .filter { (pos, block) ->
-                    if (getCenterDistance(pos) <= radius && validBlock(block)) {
-                        if (layer && pos.y < thePlayer.posY) { // Layer: Break all blocks above you
-                            return@filter false
-                        }
+            searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
+                if (getCenterDistance(pos) <= radius && validBlock(block)) {
+                    // Layer: Break all blocks above you
+                    if (layer && pos.y < player.posY) {
+                        return@searchBlocks false
+                    }
 
-                        if (!throughWalls) { // ThroughWalls: Just break blocks in your sight
-                            // Raytrace player eyes to block position (through walls check)
-                            val eyesPos = thePlayer.eyes
-                            val blockVec = Vec3(thePlayer.position)
-                            val rayTrace = mc.theWorld.rayTraceBlocks(
-                                eyesPos, blockVec,
-                                false, true, false
-                            )
+                    // ThroughWalls: Only break blocks in sight
+                    // Raytrace player eyes to block position (through walls check) and check if block is visible
+                    val isVisible =
+                        throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.blockPos == pos
 
-                            // Check if block is visible
-                            rayTrace != null && rayTrace.blockPos == pos
-                        } else true // Done
-                    } else false // Bad block
+                    if (isVisible) {
+                        // Instant break block
+                        sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+                        player.swingItem()
+                        sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+                        attackedBlocks += pos
+                    }
+
+                    return@searchBlocks true
                 }
-                .forEach { (pos, _) ->
-                    // Instant break block
-                    sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, pos, EnumFacing.DOWN))
-                    thePlayer.swingItem()
-                    sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
-                    attackedBlocks += pos
-                }
+
+                return@searchBlocks false
+            }
         }
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        val player = mc.thePlayer ?: return
-        val renderManager = mc.renderManager
+    val onRender3D = handler<Render3DEvent> {
+        val player = mc.thePlayer ?: return@handler
+
+        if (blocks.blockById == air) return@handler
 
         for (pos in attackedBlocks) {
             if (blockProgress) {
-                if (Block.getBlockById(blocks) == air) return
-
-                val progress = (currentDamage * 100).coerceIn(0f, 100f).toInt()
-                val progressText = "%d%%".format(progress)
-
-                glPushAttrib(GL_ENABLE_BIT)
-                glPushMatrix()
-
-                val (x, y, z) = pos.center - renderManager.renderPos
-
-                // Translate to block position
-                glTranslated(x, y, z)
-
-                glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-                glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
-
-                disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
-                enableGlCap(GL_BLEND)
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-                val fontRenderer = font
-                val color = ((colorRed and 0xFF) shl 16) or ((colorGreen and 0xFF) shl 8) or (colorBlue and 0xFF)
-
-                // Scale
-                val scale = ((player.getDistanceSq(pos) / 8F).coerceAtLeast(1.5) / 150F) * scale
-                glScaled(-scale, -scale, scale)
-
-                // Draw text
-                val width = fontRenderer.getStringWidth(progressText) * 0.5f
-                fontRenderer.drawString(
-                    progressText, -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, color, fontShadow
+                pos.drawBlockDamageText(
+                    currentDamage,
+                    font,
+                    fontShadow,
+                    ColorUtils.packARGBValue(colorRed, colorGreen, colorBlue),
+                    scale,
                 )
-
-                resetCaps()
-                glPopMatrix()
-                glPopAttrib()
             }
 
             // Just draw all blocks
@@ -307,8 +260,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
         if (!layer) {
             val safePos = BlockPos(player).down()
             val safeBlock = safePos.block
-            if (safeBlock != null && validBlock(safeBlock))
-                drawBlockBox(safePos, Color.GREEN, true)
+            if (safeBlock != null && validBlock(safeBlock)) drawBlockBox(safePos, Color.GREEN, true)
         }
     }
 

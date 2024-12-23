@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac
 
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.minecraft.network.play.client.C03PacketPlayer
 
 object AAC : NoFallMode("AAC") {
@@ -30,10 +30,12 @@ object AAC : NoFallMode("AAC") {
                 thePlayer.motionY = 0.1
                 currentState = 4
             }
+
             4 -> {
                 thePlayer.motionY = 0.1
                 currentState = 5
             }
+
             5 -> {
                 thePlayer.motionY = 0.1
                 currentState = 1

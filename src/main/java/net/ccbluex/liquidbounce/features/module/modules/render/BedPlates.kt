@@ -5,20 +5,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import net.ccbluex.liquidbounce.event.EventTarget
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.BEDWARS_BLOCKS
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockTexture
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
-import net.ccbluex.liquidbounce.value.*
 import net.minecraft.block.Block
 import net.minecraft.block.BlockBed
 import net.minecraft.block.state.IBlockState
@@ -35,7 +34,6 @@ import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.max
 import kotlin.math.pow
@@ -92,52 +90,40 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
     private var bed: Array<BlockPos>? = null
     private val beds: MutableList<BlockPos?> = mutableListOf()
     private val bedBlocks: MutableList<MutableList<Block>> = mutableListOf()
-    private var searchJob: Job? = null
 
-    override fun onDisable() {
-        searchJob?.cancel()
-    }
+    val onUpdate = loopHandler(dispatcher = Dispatchers.Default) {
+        val player = mc.thePlayer ?: return@loopHandler
+        val world = mc.theWorld ?: return@loopHandler
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+        val blockList = mutableListOf<BlockPos>()
+        val bedBlockLists = mutableListOf<MutableList<Block>>()
+        val bedSet = mutableSetOf<BlockPos>()
 
-        try {
-            if (searchJob?.isActive != true) {
-                searchJob = SharedScopes.Default.launch {
-                    val blockList = mutableListOf<BlockPos>()
-                    val bedBlockLists = mutableListOf<MutableList<Block>>()
-                    val bedSet = mutableSetOf<BlockPos>()
+        val radius = maxRenderDistance
+        val mutable = BlockPos.MutableBlockPos(0, 0, 0)
+        for (i in -radius..radius) {
+            for (j in -radius..radius) {
+                for (k in -radius..radius) {
+                    mutable.set(player.posX.toInt() + j, player.posY.toInt() + i, player.posZ.toInt() + k)
+                    val blockState: IBlockState = world.getBlockState(mutable)
 
-                    val radius = maxRenderDistance
-                    val mutable = BlockPos.MutableBlockPos(0, 0, 0)
-                    for (i in -radius..radius) {
-                        for (j in -radius..radius) {
-                            for (k in -radius..radius) {
-                                mutable.set(player.posX.toInt() + j, player.posY.toInt() + i, player.posZ.toInt() + k)
-                                val blockState: IBlockState = world.getBlockState(mutable)
-
-                                if (blockState.block == Blocks.bed && blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.FOOT) {
-                                    bedBlocks(mutable.immutable, blockList, bedBlockLists, bedSet)
-                                }
-                            }
-                        }
-                    }
-
-                    synchronized(beds) {
-                        if (beds.size != blockList.size || !beds.containsAll(blockList)) {
-                            beds.clear()
-                            beds.addAll(blockList)
-                            bedBlocks.clear()
-                            bedBlocks.addAll(bedBlockLists)
-                        }
+                    if (blockState.block == Blocks.bed && blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.FOOT) {
+                        bedBlocks(mutable.immutable, blockList, bedBlockLists, bedSet)
                     }
                 }
             }
-        } catch (e: Exception) {
-            LOGGER.error("Failed to run BedPlates Coroutine Job.", e)
         }
+
+        withContext(Dispatchers.Main) {
+            if (beds.size != blockList.size || !beds.containsAll(blockList)) {
+                beds.clear()
+                beds.addAll(blockList)
+                bedBlocks.clear()
+                bedBlocks.addAll(bedBlockLists)
+            }
+        }
+
+        delay(1000L)
     }
 
     private fun bedBlocks(
@@ -153,22 +139,16 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         }
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
-        searchJob?.cancel()
+    val onWorld = handler<WorldEvent> {
         beds.clear()
         bedBlocks.clear()
         bed = null
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        if (mc.thePlayer == null || mc.theWorld == null) return
-        if (beds.isEmpty()) return
+    val onRender3D = handler<Render3DEvent> {
+        if (mc.thePlayer == null || mc.theWorld == null || beds.isEmpty()) return@handler
 
-        val bedsCopy = beds.toList()
-
-        bedsCopy.forEachIndexed { index, blockPos ->
+        beds.forEachIndexed { index, blockPos ->
             if (blockPos != null && mc.theWorld.getBlockState(blockPos).block is BlockBed) {
                 findAndRenderBed(blockPos, index)
             }

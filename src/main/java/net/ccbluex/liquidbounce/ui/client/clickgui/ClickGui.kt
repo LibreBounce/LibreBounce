@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.api.ClientApi
 import net.ccbluex.liquidbounce.api.autoSettingsList
+import net.ccbluex.liquidbounce.config.SettingsUtils
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
@@ -27,18 +28,18 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
-import net.ccbluex.liquidbounce.utils.ClientUtils
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetDead
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
-import net.ccbluex.liquidbounce.utils.SettingsUtils
-import net.ccbluex.liquidbounce.utils.chat
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetAnimals
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetDead
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.client.ClientUtils
+import net.ccbluex.liquidbounce.utils.client.asResourceLocation
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.playSound
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
-import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager.disableLighting
 import net.minecraft.client.renderer.RenderHelper
@@ -75,7 +76,7 @@ object ClickGui : GuiScreen() {
 
         for (category in Category.values()) {
             panels += object : Panel(category.displayName, 100, yPos, width, height, false) {
-                override val elements = moduleManager.modules.mapNotNull {
+                override val elements = moduleManager.mapNotNull {
                     it.takeIf { module -> module.category == category }?.let(::ModuleElement)
                 }
 
@@ -130,18 +131,14 @@ object ClickGui : GuiScreen() {
                                     chat("Loading settings...")
 
                                     // Load settings and apply them
-                                    val settings = ClientApi.requestSettingsScript(setting.settingId)
+                                    val settings = ClientApi.getSettingsScript(settingId = setting.settingId)
 
                                     chat("Applying settings...")
                                     SettingsUtils.applyScript(settings)
 
                                     chat("§6Settings applied successfully")
                                     HUD.addNotification(Notification("Updated Settings"))
-                                    synchronized(mc.soundHandler) {
-                                        mc.soundHandler.playSound(
-                                            PositionedSoundRecord.create(ResourceLocation("random.anvil_use"), 1F)
-                                        )
-                                    }
+                                    mc.playSound("random.anvil_use".asResourceLocation())
                                 } catch (e: Exception) {
                                     ClientUtils.LOGGER.error("Failed to load settings", e)
                                     chat("Failed to load settings: ${e.message}")
@@ -163,62 +160,60 @@ object ClickGui : GuiScreen() {
 
     override fun drawScreen(x: Int, y: Int, partialTicks: Float) {
         // Enable DisplayList optimization
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            mouseX = (x / scale).roundToInt()
+            mouseY = (y / scale).roundToInt()
 
-        mouseX = (x / scale).roundToInt()
-        mouseY = (y / scale).roundToInt()
+            drawDefaultBackground()
+            drawImage(hudIcon, 9, height - 41, 32, 32)
 
-        drawDefaultBackground()
-        drawImage(hudIcon, 9, height - 41, 32, 32)
+            val scale = scale.toDouble()
+            glScaled(scale, scale, scale)
 
-        val scale = scale.toDouble()
-        glScaled(scale, scale, scale)
+            for (panel in panels) {
+                panel.updateFade(deltaTime)
+                panel.drawScreenAndClick(mouseX, mouseY)
+            }
 
-        for (panel in panels) {
-            panel.updateFade(deltaTime)
-            panel.drawScreenAndClick(mouseX, mouseY)
-        }
+            descriptions@ for (panel in panels.reversed()) {
+                // Don't draw hover text when hovering over a panel header.
+                if (panel.isHovered(mouseX, mouseY)) break
 
-        descriptions@ for (panel in panels.reversed()) {
-            // Don't draw hover text when hovering over a panel header.
-            if (panel.isHovered(mouseX, mouseY)) break
-
-            for (element in panel.elements) {
-                if (element is ButtonElement) {
-                    if (element.isVisible && element.hoverText.isNotBlank() && element.isHovered(
-                            mouseX, mouseY
-                        ) && element.y <= panel.y + panel.fade
-                    ) {
-                        style.drawHoverText(mouseX, mouseY, element.hoverText)
-                        // Don't draw hover text for any elements below.
-                        break@descriptions
+                for (element in panel.elements) {
+                    if (element is ButtonElement) {
+                        if (element.isVisible && element.hoverText.isNotBlank() && element.isHovered(
+                                mouseX, mouseY
+                            ) && element.y <= panel.y + panel.fade
+                        ) {
+                            style.drawHoverText(mouseX, mouseY, element.hoverText)
+                            // Don't draw hover text for any elements below.
+                            break@descriptions
+                        }
                     }
                 }
             }
-        }
 
-        if (Mouse.hasWheel()) {
-            val wheel = Mouse.getDWheel()
-            if (wheel != 0) {
-                var handledScroll = false
+            if (Mouse.hasWheel()) {
+                val wheel = Mouse.getDWheel()
+                if (wheel != 0) {
+                    var handledScroll = false
 
-                // Handle foremost panel.
-                for (panel in panels.reversed()) {
-                    if (panel.handleScroll(mouseX, mouseY, wheel)) {
-                        handledScroll = true
-                        break
+                    // Handle foremost panel.
+                    for (panel in panels.reversed()) {
+                        if (panel.handleScroll(mouseX, mouseY, wheel)) {
+                            handledScroll = true
+                            break
+                        }
                     }
+
+                    if (!handledScroll) handleScroll(wheel)
                 }
-
-                if (!handledScroll) handleScroll(wheel)
             }
+
+            disableLighting()
+            RenderHelper.disableStandardItemLighting()
+            glScaled(1.0, 1.0, 1.0)
         }
-
-        disableLighting()
-        RenderHelper.disableStandardItemLighting()
-        glScaled(1.0, 1.0, 1.0)
-
-        assumeNonVolatile = false
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

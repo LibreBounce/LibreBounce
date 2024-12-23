@@ -5,27 +5,24 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
-import net.ccbluex.liquidbounce.utils.RotationUtils.isEntityHeightVisible
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
-import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
-import net.ccbluex.liquidbounce.utils.extensions.renderPos
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
-import net.ccbluex.liquidbounce.value.*
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.entity.item.EntityItem
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -72,10 +69,9 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
 
     // TODO: Removed highlighting of EntityArrow to not complicate things even further
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
+    val onRender3D = handler<Render3DEvent> {
         if (mc.theWorld == null || mc.thePlayer == null || mode == "Glow")
-            return
+            return@handler
 
         runCatching {
             mc.theWorld.loadedEntityList.asSequence()
@@ -103,12 +99,11 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
         }
     }
 
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
+    val onRender2D = handler<Render2DEvent> { event ->
         if (mc.theWorld == null || mc.thePlayer == null || mode != "Glow")
-            return
+            return@handler
 
-        runCatching {
+        try {
             mc.theWorld.loadedEntityList.asSequence()
                 .filterIsInstance<EntityItem>()
                 .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
@@ -129,8 +124,8 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
                     // Only render green boxes on useful items, if ItemESP is enabled, render boxes of ItemESP.color on useless items as well
                     GlowShader.stopDraw(if (isUseful) Color.green else color, glowRadius, glowFade, glowTargetAlpha)
                 }
-        }.onFailure {
-            LOGGER.error("An error occurred while rendering ItemESP!", it)
+        } catch (e: Throwable) {
+            LOGGER.error("An error occurred while rendering ItemESP!", e)
         }
     }
 

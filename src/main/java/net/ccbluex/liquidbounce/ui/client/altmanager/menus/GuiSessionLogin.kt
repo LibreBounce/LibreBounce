@@ -10,16 +10,16 @@ import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.extensions.SharedScopes
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.LoginUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import org.lwjgl.input.Keyboard
 
-class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
+class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
 
     // Buttons
     private lateinit var loginButton: GuiButton
@@ -38,12 +38,9 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
         Keyboard.enableRepeatEvents(true)
 
         // Add buttons to screen
+        loginButton = +GuiButton(1, width / 2 - 100, height / 2 - 60, "Login")
 
-        buttonList.run {
-            add(GuiButton(1, width / 2 - 100, height / 2 - 60, "Login").also { loginButton = it })
-
-            add(GuiButton(0, width / 2 - 100, height / 2 - 30, "Back"))
-        }
+        +GuiButton(0, width / 2 - 100, height / 2 - 30, "Back")
 
         // Add fields to screen
         sessionTokenField = GuiTextField(666, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
@@ -58,23 +55,21 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
      * Draw screen
      */
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        assumeNonVolatile = true
+        assumeNonVolatile {
+            // Draw background to screen
+            drawBackground(0)
+            drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
 
-        // Draw background to screen
-        drawBackground(0)
-        drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
+            // Draw title and status
+            Fonts.font40.drawCenteredString("Session Login", width / 2f, height / 2 - 150f, 0xffffff)
+            Fonts.font35.drawCenteredString(status, width / 2f, height / 2f, 0xffffff)
 
-        // Draw title and status
-        Fonts.font40.drawCenteredString("Session Login", width / 2f, height / 2 - 150f, 0xffffff)
-        Fonts.font35.drawCenteredString(status, width / 2f, height / 2f, 0xffffff)
+            // Draw fields
+            sessionTokenField.drawTextBox()
 
-        // Draw fields
-        sessionTokenField.drawTextBox()
-
-        if (sessionTokenField.text.isEmpty() && !sessionTokenField.isFocused)
-            Fonts.font40.drawCenteredString("§7Session Token", width / 2f - 60f, height / 2 - 84f, 0xffffff)
-
-        assumeNonVolatile = false
+            if (sessionTokenField.text.isEmpty() && !sessionTokenField.isFocused)
+                Fonts.font40.drawCenteredString("§7Session Token", width / 2f - 60f, height / 2 - 84f, 0xffffff)
+        }
 
         // Call sub method
         super.drawScreen(mouseX, mouseY, partialTicks)
@@ -109,6 +104,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : GuiScreen() {
 
                             "§aLogged into §f§l${mc.session.username}§a."
                         }
+
                         LoginUtils.LoginResult.FAILED_PARSE_TOKEN -> "§cFailed to parse Session ID!"
                         LoginUtils.LoginResult.INVALID_ACCOUNT_DATA -> "§cInvalid Session ID!"
                     }

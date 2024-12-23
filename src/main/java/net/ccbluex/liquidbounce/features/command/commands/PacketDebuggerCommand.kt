@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.modules.misc.PacketDebugger.packetType
 import net.ccbluex.liquidbounce.features.module.modules.misc.PacketDebugger.selectedPackets
-import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.client.ClientUtils
 
 object PacketDebuggerCommand : Command("packetdebugger", "debug") {
 
@@ -55,6 +55,7 @@ object PacketDebuggerCommand : Command("packetdebugger", "debug") {
                     chat("§b$packetName §ahas been added to the list.")
                 }
             }
+
             "remove" -> {
                 if (args.size < 3) {
                     chatSyntax("$usedAlias remove <packet>")
@@ -69,11 +70,13 @@ object PacketDebuggerCommand : Command("packetdebugger", "debug") {
                     chat("§b$packetName §cis not in the list.")
                 }
             }
+
             "list" -> {
                 val packets = selectedPackets
                 chat("Packets List:")
                 packets.forEach { chat("§b$it") }
             }
+
             else -> chatSyntax("$usedAlias <add/remove/list>")
         }
     }
@@ -91,13 +94,16 @@ object PacketDebuggerCommand : Command("packetdebugger", "debug") {
                         val input = args[1].lowercase()
                         packetList.filter { it.lowercase().startsWith(input) }
                     }
+
                     "remove" -> {
                         val input = args[1].lowercase()
                         selectedPackets.filter { it.lowercase().startsWith(input) }
                     }
+
                     else -> emptyList()
                 }
             }
+
             else -> emptyList()
         }
     }

@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.misc.StringUtils
+import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 
 object ShortcutCommand : Command("shortcut") {
     /**
@@ -17,8 +17,10 @@ object ShortcutCommand : Command("shortcut") {
         when {
             args.size > 3 && args[1].equals("add", true) -> {
                 try {
-                    commandManager.registerShortcut(args[2],
-                            StringUtils.toCompleteString(args, 3))
+                    commandManager.registerShortcut(
+                        args[2],
+                        StringUtils.toCompleteString(args, 3)
+                    )
 
                     chat("Successfully added shortcut.")
                 } catch (e: IllegalArgumentException) {

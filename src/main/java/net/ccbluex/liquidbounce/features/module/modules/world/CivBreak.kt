@@ -5,19 +5,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.RotationSettings
-import net.ccbluex.liquidbounce.utils.RotationUtils.faceBlock
-import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
-import net.ccbluex.liquidbounce.utils.extensions.block
+import net.ccbluex.liquidbounce.utils.block.block
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -38,14 +38,13 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
     private var blockPos: BlockPos? = null
     private var enumFacing: EnumFacing? = null
 
-    @EventTarget
-    fun onBlockClick(event: ClickBlockEvent) {
-        if (event.clickedBlock?.let { it.block } == bedrock) {
-            return
+    val onBlockClick = handler<ClickBlockEvent> { event ->
+        if (event.clickedBlock?.block == bedrock) {
+            return@handler
         }
 
-        blockPos = event.clickedBlock ?: return
-        enumFacing = event.enumFacing ?: return
+        blockPos = event.clickedBlock ?: return@handler
+        enumFacing = event.enumFacing ?: return@handler
 
         // Break
         sendPackets(
@@ -54,27 +53,25 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
         )
     }
 
-    @EventTarget
-    fun onRotationUpdate(event: RotationUpdateEvent) {
-        val pos = blockPos ?: return
+    val onRotationUpdate = handler<RotationUpdateEvent> {
+        val pos = blockPos ?: return@handler
         val isAirBlock = pos.block == air
 
         if (isAirBlock || getCenterDistance(pos) > range) {
             blockPos = null
-            return
+            return@handler
         }
 
         if (options.rotationsActive) {
-            val spot = faceBlock(pos) ?: return
+            val spot = faceBlock(pos) ?: return@handler
 
             setTargetRotation(spot.rotation, options = options)
         }
     }
 
-    @EventTarget
-    fun onTick(event: GameTickEvent) {
-        blockPos ?: return
-        enumFacing ?: return
+    val onTick = handler<GameTickEvent> {
+        blockPos ?: return@handler
+        enumFacing ?: return@handler
 
         if (visualSwing) {
             mc.thePlayer.swingItem()
@@ -91,8 +88,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
         mc.playerController.clickBlock(blockPos, enumFacing)
     }
 
-    @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        drawBlockBox(blockPos ?: return, Color.RED, true)
+    val onRender3D = handler<Render3DEvent> {
+        drawBlockBox(blockPos ?: return@handler, Color.RED, true)
     }
 }

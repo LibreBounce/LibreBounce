@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.float
 import kotlin.math.max
 
 object Reach : Module("Reach", Category.PLAYER, hideModule = false) {

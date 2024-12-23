@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.file.FileManager.loadConfig
 import net.ccbluex.liquidbounce.file.FileManager.themesDir
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import java.awt.Desktop
 import java.io.File
 import java.io.FileFilter

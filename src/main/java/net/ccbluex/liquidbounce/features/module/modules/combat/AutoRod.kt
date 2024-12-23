@@ -5,20 +5,20 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
-import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.RaycastUtils
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
+import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.float
-import net.ccbluex.liquidbounce.value.int
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Items
@@ -57,8 +57,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
     private var rodInUse = false
     private var switchBack = -1
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    val onUpdate = handler<UpdateEvent> {
         // Check if player is using rod
         val usingRod = (mc.thePlayer.isUsingItem && mc.thePlayer.heldItem?.item == Items.fishing_rod) || rodInUse
 
@@ -97,13 +96,13 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
                 // Check whether player is using items/blocking.
                 if (!onUsingItem) {
                     if (mc.thePlayer?.itemInUse?.item != Items.fishing_rod && (mc.thePlayer?.isUsingItem == true || KillAura.blockStatus)) {
-                        return
+                        return@handler
                     }
                 }
 
                 if (isSelected(facingEntity, true)) {
                     // Checks how many enemy is nearby, if <= then should rod.
-                    if (nearbyEnemies?.size!! <= enemiesNearby) {
+                    if (nearbyEnemies.size <= enemiesNearby) {
 
                         // Check if the enemy's health is below the threshold.
                         if (ignoreOnEnemyLowHealth) {
@@ -136,7 +135,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
 
                     if (rod == -1) {
                         // There is no rod in hotbar
-                        return
+                        return@handler
                     }
 
                     // Switch to rod
@@ -178,8 +177,8 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
         return -1
     }
 
-    private fun getAllNearbyEnemies(): List<Entity>? {
-        val player = mc.thePlayer ?: return null
+    private fun getAllNearbyEnemies(): List<Entity> {
+        val player = mc.thePlayer ?: return emptyList()
 
         return mc.theWorld.loadedEntityList.filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) < activationDistance

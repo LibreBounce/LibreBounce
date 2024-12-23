@@ -5,19 +5,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.extensions.block
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.value.boolean
-import net.ccbluex.liquidbounce.value.choices
-import net.ccbluex.liquidbounce.value.float
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.block.BlockSlab
 import net.minecraft.block.BlockSlime
 import net.minecraft.block.BlockStairs
@@ -64,13 +64,12 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
     private var hadFastHop = false
     private var legitHop = false
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+    val onUpdate = handler<UpdateEvent> {
+        val thePlayer = mc.thePlayer ?: return@handler
 
         if (Speed.handleEvents() || noHurt && thePlayer.hurtTime > 0) {
             reset()
-            return
+            return@handler
         }
 
         val blockPos = BlockPos(thePlayer)
@@ -91,7 +90,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
 
         if (!thePlayer.isMoving || thePlayer.isSneaking || thePlayer.isInWater || mc.gameSettings.keyBindJump.isKeyDown) {
             reset()
-            return
+            return@handler
         }
 
         if (thePlayer.onGround) {
@@ -105,13 +104,13 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                 thePlayer.motionZ = thePlayer.motionY * 1.132
 
                 down = true
-                return
+                return@handler
             }
             if (slabs && blockPos.block is BlockSlab) {
                 when (slabsMode.lowercase()) {
                     "old" -> {
                         boost(slabsBoost)
-                        return
+                        return@handler
                     }
 
                     "new" -> {
@@ -120,7 +119,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                             thePlayer.tryJump()
                             thePlayer.onGround = false
                             legitHop = false
-                            return
+                            return@handler
                         }
                         thePlayer.onGround = false
 
@@ -128,7 +127,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
 
                         thePlayer.tryJump()
                         thePlayer.motionY = 0.41
-                        return
+                        return@handler
                     }
                 }
             }
@@ -136,7 +135,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                 when (stairsMode.lowercase()) {
                     "old" -> {
                         boost(stairsBoost)
-                        return
+                        return@handler
                     }
 
                     "new" -> {
@@ -146,14 +145,14 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                             thePlayer.tryJump()
                             thePlayer.onGround = false
                             legitHop = false
-                            return
+                            return@handler
                         }
 
                         thePlayer.onGround = false
                         strafe(0.375f)
                         thePlayer.tryJump()
                         thePlayer.motionY = 0.41
-                        return
+                        return@handler
                     }
                 }
             }
@@ -161,12 +160,12 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
 
             if (headBlock && blockPos.up(2).block == Blocks.air) {
                 boost(headBlockBoost)
-                return
+                return@handler
             }
 
             if (ice && (blockPos.down().block == Blocks.ice || blockPos.down().block == Blocks.packed_ice)) {
                 boost(iceBoost)
-                return
+                return@handler
             }
 
             if (snow && blockPos.block == Blocks.snow_layer && (snowPort || thePlayer.posY - thePlayer.posY.toInt() >= 0.12500)) {
@@ -176,14 +175,14 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                     thePlayer.tryJump()
                     forceDown = true
                 }
-                return
+                return@handler
             }
 
             if (wall) {
                 when (wallMode.lowercase()) {
                     "old" -> if (thePlayer.isCollidedVertically && isNearBlock || BlockPos(thePlayer).up(2).block != Blocks.air) {
                         boost(wallBoost)
-                        return
+                        return@handler
                     }
 
                     "new" ->
@@ -193,7 +192,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                             thePlayer.motionX *= 0.99
                             thePlayer.motionZ *= 0.99
                             down = true
-                            return
+                            return@handler
                         }
                 }
             }
@@ -214,8 +213,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
         }
     }
 
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
+    val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
         if (packet is S08PacketPlayerPosLook)
             speed = 0.0

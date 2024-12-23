@@ -5,11 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.event.EventManager.registerListener
 import net.ccbluex.liquidbounce.event.EventManager.unregisterListener
-import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.CommandManager.registerCommand
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
@@ -22,18 +21,12 @@ import net.ccbluex.liquidbounce.features.module.modules.render.*
 import net.ccbluex.liquidbounce.features.module.modules.world.*
 import net.ccbluex.liquidbounce.features.module.modules.world.Timer
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
-import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import java.util.*
 
-object ModuleManager : Listenable {
+private val MODULE_REGISTRY = TreeSet(Comparator.comparing(Module::name))
 
-    val modules = TreeSet<Module> { module1, module2 -> module1.name.compareTo(module2.name) }
-    private val moduleClassMap = hashMapOf<Class<*>, Module>()
-
-    init {
-        registerListener(this)
-    }
+object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
 
     /**
      * Register all modules
@@ -42,7 +35,7 @@ object ModuleManager : Listenable {
         LOGGER.info("[ModuleManager] Loading modules...")
 
         // Register modules
-        registerModules(
+        val modules = arrayOf(
             AbortBreaking,
             Aimbot,
             Ambience,
@@ -220,7 +213,7 @@ object ModuleManager : Listenable {
             ClickRecorder
         )
 
-        InventoryManager.startCoroutine()
+        registerModules(modules = modules)
 
         LOGGER.info("[ModuleManager] Loaded ${modules.size} modules.")
     }
@@ -229,30 +222,9 @@ object ModuleManager : Listenable {
      * Register [module]
      */
     fun registerModule(module: Module) {
-        modules += module
-        moduleClassMap[module.javaClass] = module
-
+        MODULE_REGISTRY += module
         generateCommand(module)
-        registerListener(module)
     }
-
-    /**
-     * Register [moduleClass] with new instance
-     */
-    private fun registerModule(moduleClass: Class<out Module>) {
-        try {
-            registerModule(moduleClass.newInstance())
-        } catch (e: Throwable) {
-            LOGGER.error("Failed to load module: ${moduleClass.name} (${e.javaClass.name}: ${e.message})")
-        }
-    }
-
-    /**
-     * Register a list of modules
-     */
-    @SafeVarargs
-    fun registerModules(vararg modules: Class<out Module>) = modules.forEach(this::registerModule)
-
 
     /**
      * Register a list of modules
@@ -264,8 +236,7 @@ object ModuleManager : Listenable {
      * Unregister module
      */
     fun unregisterModule(module: Module) {
-        modules.remove(module)
-        moduleClassMap.remove(module::class.java)
+        MODULE_REGISTRY.remove(module)
         unregisterListener(module)
     }
 
@@ -284,26 +255,24 @@ object ModuleManager : Listenable {
     /**
      * Get module by [moduleClass]
      */
-    fun getModule(moduleClass: Class<*>) = moduleClassMap[moduleClass]!!
-
-    operator fun get(clazz: Class<*>) = getModule(clazz)
+    operator fun get(moduleClass: Class<out Module>) = MODULE_REGISTRY.find { it.javaClass === moduleClass }
 
     /**
      * Get module by [moduleName]
      */
-    fun getModule(moduleName: String?) = modules.find { it.name.equals(moduleName, ignoreCase = true) }
+    operator fun get(moduleName: String) = MODULE_REGISTRY.find { it.name.equals(moduleName, ignoreCase = true) }
 
-    operator fun get(name: String) = getModule(name)
+    @Deprecated(message = "Only for outdated scripts", replaceWith = ReplaceWith("get(moduleClass)"))
+    fun getModule(moduleClass: Class<out Module>) = get(moduleClass)
 
-    /**
-     * Module related events
-     */
+    @Deprecated(message = "Only for outdated scripts", replaceWith = ReplaceWith("get(moduleName)"))
+    fun getModule(moduleName: String) = get(moduleName)
 
     /**
      * Handle incoming key presses
      */
-    @EventTarget
-    private fun onKey(event: KeyEvent) = modules.forEach { if (it.keyBind == event.key) it.toggle() }
+    private val onKey = handler<KeyEvent> { event ->
+        MODULE_REGISTRY.forEach { if (it.keyBind == event.key) it.toggle() }
+    }
 
-    
 }

@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.value.boolean
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemArmor
 
@@ -47,21 +47,16 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false, hideModule 
 
         if (armorColor) {
             for (i in 0..3) {
-                val playerArmor = thePlayer.getCurrentArmor(i)
-                val entityArmor = entity.getCurrentArmor(i)
+                val playerArmor = thePlayer.getCurrentArmor(i) ?: continue
+                val entityArmor = entity.getCurrentArmor(i) ?: continue
 
-                if (playerArmor != null && entityArmor != null) {
-                    val playerItem = playerArmor.item
-                    val entityItem = entityArmor.item
+                val playerItem = playerArmor.item as? ItemArmor ?: continue
+                val entityItem = entityArmor.item as? ItemArmor ?: continue
 
-                    if (playerItem is ItemArmor && entityItem is ItemArmor) {
-                        val playerArmorColor = playerItem.getColor(playerArmor)
-                        val entityArmorColor = entityItem.getColor(entityArmor)
-
-                        if (entityArmorColor == playerArmorColor) {
-                            return true
-                        }
-                    }
+                if (playerItem.getColor(playerArmor) == entityItem.getColor(entityArmor) &&
+                    entityItem.armorMaterial == ItemArmor.ArmorMaterial.LEATHER
+                ) {
+                    return true
                 }
             }
         }
