@@ -2,12 +2,13 @@ package net.ccbluex.liquidbounce.render.ui
 
 import com.mojang.blaze3d.systems.ProjectionType
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.common.GlobalFrameBuffer
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ResourceReloadEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.math.Vec2i
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.Framebuffer
 import net.minecraft.client.gl.SimpleFramebuffer
 import net.minecraft.client.gui.DrawContext
@@ -43,8 +44,9 @@ object ItemImageAtlas: EventListener {
     private var atlas: Atlas? = null
 
     fun updateAtlas(drawContext: DrawContext) {
-        if (this.atlas != null)
+        if (this.atlas != null) {
             return
+        }
 
         val renderer = ItemFramebufferRenderer(
             Registries.ITEM.stream().collect(Collectors.toList()),
@@ -114,7 +116,7 @@ object ItemImageAtlas: EventListener {
 private class ItemFramebufferRenderer(
     val items: List<Item>,
     val scale: Int,
-) {
+): MinecraftShortcuts {
     val itemsPerDimension = ceil(sqrt(items.size.toDouble())).toInt()
 
     val framebuffer: Framebuffer = run {
@@ -152,6 +154,7 @@ private class ItemFramebufferRenderer(
         )
 
         RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC)
+        GlobalFrameBuffer.push(framebuffer)
 
         val map = this.items.mapIndexed { idx, item ->
             val from = Vec2i(
@@ -172,7 +175,8 @@ private class ItemFramebufferRenderer(
 
         ctx.matrices.pop()
 
-        MinecraftClient.getInstance().framebuffer.beginWrite(true)
+        GlobalFrameBuffer.pop()
+        mc.framebuffer.beginWrite(true)
 
         RenderSystem.setProjectionMatrix(projectionMatrix, ProjectionType.ORTHOGRAPHIC)
 
