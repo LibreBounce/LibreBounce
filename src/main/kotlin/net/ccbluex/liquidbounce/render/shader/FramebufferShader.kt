@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.common.GlobalFrameBuffer
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.minecraft.client.gl.GlUsage
 import net.minecraft.client.gl.SimpleFramebuffer
@@ -72,12 +72,12 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         framebuffers[0].clear()
         framebuffers[0].beginWrite(true)
 
-        GlobalFrameBuffer.push(framebuffers[0])
+        GlobalFramebuffer.push(framebuffers[0])
     }
 
     open fun apply(popFramebufferStack: Boolean = true) {
         if (popFramebufferStack) {
-            GlobalFrameBuffer.pop()
+            GlobalFramebuffer.pop()
         }
 
         val active = GlStateManager._getActiveTexture()
@@ -128,7 +128,6 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
     }
 
     protected open fun endBlend() {
-//        RenderSystem.disableBlend()
     }
 
     fun render(drawAction: () -> Unit) {

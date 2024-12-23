@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.common.GlobalFrameBuffer;
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
@@ -363,7 +363,7 @@ public abstract class MixinMinecraftClient {
 
     @Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
     private void hookSpoofFramebuffer(CallbackInfoReturnable<Framebuffer> cir) {
-        var framebuffer = GlobalFrameBuffer.getSpoofedFramebuffer();
+        var framebuffer = GlobalFramebuffer.getSpoofedFramebuffer();
         if (framebuffer != null) {
             cir.setReturnValue(framebuffer);
         }

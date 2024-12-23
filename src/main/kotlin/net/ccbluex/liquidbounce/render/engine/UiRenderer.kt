@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.render.engine
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.common.GlobalFrameBuffer
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
@@ -84,7 +84,7 @@ object UiRenderer : MinecraftShortcuts {
 
             this.overlayFramebuffer.clear()
             this.overlayFramebuffer.beginWrite(true)
-            GlobalFrameBuffer.push(overlayFramebuffer)
+            GlobalFramebuffer.push(overlayFramebuffer)
         }
 
         callEvent(OverlayRenderEvent(context, tickDelta))
@@ -97,7 +97,7 @@ object UiRenderer : MinecraftShortcuts {
 
         this.isDrawingHudFramebuffer = false
 
-        GlobalFrameBuffer.pop()
+        GlobalFramebuffer.pop()
         this.overlayFramebuffer.endWrite()
 
         // Remember the previous projection matrix because the draw method changes it AND NEVER FUCKING CHANGES IT

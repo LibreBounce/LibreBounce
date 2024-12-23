@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.render.ui
 
 import com.mojang.blaze3d.systems.ProjectionType
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.common.GlobalFrameBuffer
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ResourceReloadEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -154,7 +154,7 @@ private class ItemFramebufferRenderer(
         )
 
         RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC)
-        GlobalFrameBuffer.push(framebuffer)
+        GlobalFramebuffer.push(framebuffer)
 
         val map = this.items.mapIndexed { idx, item ->
             val from = Vec2i(
@@ -175,7 +175,7 @@ private class ItemFramebufferRenderer(
 
         ctx.matrices.pop()
 
-        GlobalFrameBuffer.pop()
+        GlobalFramebuffer.pop()
         mc.framebuffer.beginWrite(true)
 
         RenderSystem.setProjectionMatrix(projectionMatrix, ProjectionType.ORTHOGRAPHIC)

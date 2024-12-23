@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author ccetl
  */
-public class GlobalFrameBuffer {
+public class GlobalFramebuffer {
 
     public final static List<Framebuffer> stack = new ArrayList<>(2);
 
@@ -41,11 +41,11 @@ public class GlobalFrameBuffer {
     }
 
     public static void push(Framebuffer spoofedFramebuffer) {
-        if (GlobalFrameBuffer.spoofedFramebuffer != null) {
-            stack.addLast(GlobalFrameBuffer.spoofedFramebuffer);
+        if (GlobalFramebuffer.spoofedFramebuffer != null) {
+            stack.addLast(GlobalFramebuffer.spoofedFramebuffer);
         }
 
-        GlobalFrameBuffer.spoofedFramebuffer = spoofedFramebuffer;
+        GlobalFramebuffer.spoofedFramebuffer = spoofedFramebuffer;
     }
 
     public static void pop() {
