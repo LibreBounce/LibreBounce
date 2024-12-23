@@ -554,9 +554,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             return@handler
         }
 
-        /**
-         * Change/Schedule slot once per tick according to vanilla-logic.
-         */
+
+        // Change/Schedule slot once per tick according to vanilla-logic
         if (alreadyPlaced || SilentHotbar.modifiedThisTick) {
             return@handler
         }
@@ -716,7 +715,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
             stack = player.hotBarSlot(blockSlot).stack
 
-            // Check if block is placeable on target side
+            // Check if block is placeable on target side before switching slots
             if ((stack.item as? ItemBlock)?.canPlaceBlockOnSide(
                     world, placeInfo.blockPos, placeInfo.enumFacing, player, stack
                 ) == false
