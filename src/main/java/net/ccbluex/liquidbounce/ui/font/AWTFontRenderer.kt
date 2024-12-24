@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.bindTexture
@@ -55,7 +56,7 @@ class AWTFontRenderer(
         // Garbage collection constants
         private const val GC_TICKS = 600                    // Do GC every 600 frames
         private const val CACHED_FONT_REMOVAL_TIME = 30000L // 30s time-based eviction
-        private const val MAX_CACHED_STRINGS = 128          // LRU cache size limit
+        private const val MAX_CACHED_STRINGS = 256          // LRU cache size limit
 
         private var gcTicks = 0
 
@@ -97,11 +98,12 @@ class AWTFontRenderer(
      * - If the size exceeds [MAX_CACHED_STRINGS], we remove the eldest entry.
      * - If an entry hasn't been used for 30s, we remove it.
      */
-    private val cachedStrings = object : LinkedHashMap<String, CachedFont>(MAX_CACHED_STRINGS, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CachedFont>?): Boolean {
-            return size > MAX_CACHED_STRINGS
-        }
-    }
+    private val cachedStringFonts = LruCache<String, CachedFont>(MAX_CACHED_STRINGS)
+
+    /**
+     * We don't do GC for the cached widths because they are constant for each string
+     */
+    private val cachedStringWidths = LruCache<String, Int>(MAX_CACHED_STRINGS)
 
     private var textureID: Int = -1
     private var textureWidth: Int = 0
@@ -145,7 +147,7 @@ class AWTFontRenderer(
         glColor4f(red, green, blue, alpha)
 
         // 1) If we've cached this text, just call the display list
-        val cached = cachedStrings[text]
+        val cached = cachedStringFonts[text]
         if (cached != null) {
             glCallList(cached.displayList)
             cached.lastUsage = System.currentTimeMillis()
@@ -205,7 +207,7 @@ class AWTFontRenderer(
 
         if (assumeNonVolatile && listID >= 0) {
             // Insert into our LRU + time-based map
-            cachedStrings[text] = CachedFont(listID, System.currentTimeMillis())
+            cachedStringFonts[text] = CachedFont(listID, System.currentTimeMillis())
             glEndList()
         }
 
@@ -216,7 +218,7 @@ class AWTFontRenderer(
      * Returns the pixel-width of [text]. If a character is not in [charLocations],
      * we fallback to MC's font (approx).
      */
-    fun getStringWidth(text: String): Int {
+    fun getStringWidth(text: String): Int = cachedStringWidths.getOrPut(text) {
         var myWidth = 0
         var fallbackWidth = 0f
         val fallbackScale = font.size / 32f
@@ -230,7 +232,8 @@ class AWTFontRenderer(
                 myWidth += (loc.width - 8)
             }
         }
-        return (myWidth / 2) + fallbackWidth.roundToInt()
+
+        (myWidth / 2) + fallbackWidth.roundToInt()
     }
 
     /**
@@ -363,7 +366,7 @@ class AWTFontRenderer(
     private fun collectGarbage() {
         val now = System.currentTimeMillis()
 
-        with(cachedStrings.entries.iterator()) {
+        with(cachedStringFonts.entries.iterator()) {
             while (hasNext()) {
                 val cached = next().value
                 if (!cached.deleted && (now - cached.lastUsage) > CACHED_FONT_REMOVAL_TIME) {
