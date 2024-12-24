@@ -18,6 +18,9 @@ import net.ccbluex.liquidbounce.LiquidBounce.MINECRAFT_VERSION
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
+import net.ccbluex.liquidbounce.event.ClientShutdownEvent
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
@@ -28,7 +31,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
 
-object ClientRichPresence : MinecraftInstance {
+object ClientRichPresence : MinecraftInstance, Listenable {
 
     var showRPCValue = true
     var showRPCServerIP = true
@@ -144,6 +147,10 @@ object ClientRichPresence : MinecraftInstance {
         } catch (e: Throwable) {
             LOGGER.error("Failed to close Discord RPC.", e)
         }
+    }
+
+    private val onClientShutdown = handler<ClientShutdownEvent> {
+        shutdown()
     }
 
     /**

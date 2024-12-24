@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager.menus
 
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.cape.CapeService
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
@@ -41,12 +42,11 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
         Keyboard.enableRepeatEvents(true)
 
         // Add buttons to screen
-        val upperButtonText = if (!loggedIntoAccount)
-            "Login"
-        else if (CapeService.clientCapeUser?.enabled == true)
-            "Disable visibility"
-        else
-            "Enable visibility"
+        val upperButtonText = when {
+            !loggedIntoAccount -> "Login"
+            CapeService.clientCapeUser?.enabled == true -> "Disable visibility"
+            else -> "Enable visibility"
+        }
 
         upperButton = +GuiButton(1, width / 2 - 100, height / 2 - 60, upperButtonText)
         lowerButton =
@@ -97,12 +97,11 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
                 }
             }
 
-            upperButton.displayString = if (!loggedIntoAccount)
-                "Login"
-            else if (CapeService.clientCapeUser?.enabled == true)
-                "Disable visibility"
-            else
-                "Enable visibility"
+            upperButton.displayString = when {
+                !loggedIntoAccount -> "Login"
+                CapeService.clientCapeUser?.enabled == true -> "Disable visibility"
+                else -> "Enable visibility"
+            }
 
             lowerButton.displayString = if (loggedIntoAccount) "Logout" else "Donate to get Cape"
         }
@@ -144,7 +143,9 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
                     }
 
                     runCatching {
-                        CapeService.login(transferCodeField.text)
+                        runBlocking {
+                            CapeService.login(transferCodeField.text)
+                        }
                     }.onSuccess {
                         status = "§aSuccessfully logged in"
                     }.onFailure {

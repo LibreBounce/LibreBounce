@@ -238,18 +238,20 @@ object LiquidBounce {
 
             // Login into known token if not empty
             if (CapeService.knownToken.isNotBlank()) {
-                runCatching {
-                    CapeService.login(CapeService.knownToken)
-                }.onFailure {
-                    LOGGER.error("Failed to login into known cape token.", it)
-                }.onSuccess {
-                    LOGGER.info("Successfully logged in into known cape token.")
+                SharedScopes.IO.launch {
+                    runCatching {
+                        CapeService.login(CapeService.knownToken)
+                    }.onFailure {
+                        LOGGER.error("Failed to login into known cape token.", it)
+                    }.onSuccess {
+                        LOGGER.info("Successfully logged in into known cape token.")
+                    }
                 }
             }
 
             // Refresh cape service
             CapeService.refreshCapeCarriers {
-                LOGGER.info("Successfully loaded ${CapeService.capeCarriers.size} cape carriers.")
+                LOGGER.info("Successfully loaded ${it.size} cape carriers.")
             }
 
             // Load background
@@ -277,9 +279,6 @@ object LiquidBounce {
 
         // Save all available configs
         saveAllConfigs()
-
-        // Shutdown discord rpc
-        clientRichPresence.shutdown()
     }
 
 }
