@@ -20,7 +20,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.vulcan
 
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
@@ -39,7 +39,8 @@ class SpeedVulcan286(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
     private inline val goingSideways: Boolean
         get() = player.input.movementSideways != 0f
 
-    val afterJumpEvent = sequenceHandler<PlayerAfterJumpEvent> {
+    @Suppress("unused")
+    private val afterJumpHandler = sequenceHandler<PlayerAfterJumpEvent> {
         // We might lose the effect during runtime of the sequence,
         // but we don't care, since it is Vulcan.
         val speedLevel = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)

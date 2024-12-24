@@ -22,11 +22,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.combat.visualTargetsConfigurable
 
-object ModuleTargets : Module("Targets", Category.CLIENT, disableActivation = true, hide = true,
+object ModuleTargets : ClientModule("Targets", Category.CLIENT, disableActivation = true, hide = true,
     aliases = arrayOf("Enemies")) {
     init {
         tree(combatTargetsConfigurable)

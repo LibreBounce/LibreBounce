@@ -18,11 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.random
  *
  * Makes it look as if you were derping around.
  */
-object ModuleDerp : Module("Derp", Category.FUN) {
+object ModuleDerp : ClientModule("Derp", Category.FUN) {
 
     private val yawMode = choices("Yaw", YawSpin,
         arrayOf(YawStatic, YawOffset, YawRandom, YawJitter, YawSpin))
@@ -46,9 +46,9 @@ object ModuleDerp : Module("Derp", Category.FUN) {
     // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
     private val rotationsConfigurable = RotationsConfigurable(this)
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (notDuringSprint && (mc.options.sprintKey.isPressed || player.isSprinting)) {
-            return@repeatable
+            return@tickHandler
         }
 
         val yaw = yawMode.activeChoice.yaw
@@ -96,7 +96,7 @@ object ModuleDerp : Module("Derp", Category.FUN) {
         val yawBackwardTicks by int("BackwardTicks", 2, 0..100, "ticks")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             repeat(yawForwardTicks) {
                 yaw = player.yaw
                 waitTicks(1)
@@ -117,7 +117,7 @@ object ModuleDerp : Module("Derp", Category.FUN) {
         val yawSpinSpeed by int("Speed", 50, -70..70, "°/tick")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             yaw += yawSpinSpeed
             waitTicks(1)
         }

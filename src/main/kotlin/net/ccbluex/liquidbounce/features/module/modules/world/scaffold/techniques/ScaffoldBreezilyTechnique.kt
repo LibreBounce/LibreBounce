@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.getTargetedPosition
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique.NORMAL_INVESTIGATION_OFFSETS
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
 import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
@@ -32,7 +33,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
-import net.minecraft.block.Blocks
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Direction
@@ -74,7 +74,7 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
             return@handler
         }
 
-        if (world.getBlockState(player.blockPos.offset(Direction.DOWN, 1)).block == Blocks.AIR) {
+        if (player.blockPos.down().getState()!!.isAir) {
             lastAirTime = System.currentTimeMillis()
         } else if (System.currentTimeMillis() - lastAirTime > 500) {
             return@handler
@@ -85,7 +85,7 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
 
         val ma = 1 - currentEdgeDistanceRandom
         var currentSideways = 0f
-        when (Direction.fromRotation(player.yaw.toDouble())) {
+        when (Direction.fromHorizontalDegrees(player.yaw.toDouble())) {
             Direction.SOUTH -> {
                 if (modX > ma) currentSideways = 1f
                 if (modX < currentEdgeDistanceRandom) currentSideways = -1f

@@ -21,8 +21,8 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -39,17 +39,17 @@ internal object LiquidWalkVanilla : Choice("Vanilla") {
 
     @Suppress("unused")
     val inputHandler = handler<MovementInputEvent> { event ->
-        if (event.sneaking || !player.box.isBlockAtPosition { it is FluidBlock }) {
+        if (event.sneak || !player.box.isBlockAtPosition { it is FluidBlock }) {
             return@handler
         }
 
         // Swims up
-        event.jumping = true
+        event.jump = true
     }
 
     @Suppress("unused")
     val shapeHandler = handler<BlockShapeEvent> { event ->
-        if (player.input.sneaking || player.fallDistance > 3.0f || player.isOnFire) {
+        if (player.input.playerInput.sneak || player.fallDistance > 3.0f || player.isOnFire) {
             return@handler
         }
 

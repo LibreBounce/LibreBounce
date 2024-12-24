@@ -28,6 +28,8 @@ import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.publicGson
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.lang.LanguageManager
@@ -52,10 +54,10 @@ import java.io.StringWriter
  * This command will create a JSON file with all the information
  * and send it to the CCBlueX Paste API.
  */
-object CommandDebug {
+object CommandDebug : CommandFactory {
 
-    fun createCommand() = CommandBuilder.begin("debug")
-        .handler { _, args ->
+    override fun createCommand() = CommandBuilder.begin("debug")
+        .handler { _, _ ->
             chat("§7Collecting debug information...")
 
             val autoConfig = StringWriter().use { writer ->
@@ -138,7 +140,7 @@ object CommandDebug {
         addProperty("config", autoConfigPaste)
 
         add("activeModules", JsonArray().apply {
-            ModuleManager.filter { it.enabled }.forEach { module ->
+            ModuleManager.filter { it.running }.forEach { module ->
                 add(JsonPrimitive(module.name))
             }
         })
@@ -154,8 +156,7 @@ object CommandDebug {
             }
         })
 
-        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable,
-            ConfigSystem.clientGson))
+        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable, publicGson))
     }
 
     /**

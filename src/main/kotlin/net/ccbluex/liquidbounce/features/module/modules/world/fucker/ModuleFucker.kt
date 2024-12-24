@@ -18,15 +18,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.fucker
 
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.CancelBlockBreakingEvent
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -57,7 +58,7 @@ import kotlin.math.max
  *
  * Destroys/Uses selected blocks around you.
  */
-object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBreaker", "IdNuker")) {
+object ModuleFucker : ClientModule("Fucker", Category.WORLD, aliases = arrayOf("BedBreaker", "IdNuker")) {
 
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
@@ -136,9 +137,9 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
     }
 
     @Suppress("unused")
-    private val breaker = repeatable {
+    private val breaker = tickHandler {
         if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Delay if the target changed - this also includes when introducing a new target from null.
@@ -152,20 +153,25 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
         }
 
         // Check if blink is enabled - if so, we don't want to do anything.
-        if (ModuleBlink.enabled) {
-            return@repeatable
+        if (ModuleBlink.running) {
+            return@tickHandler
         }
 
-        val destroyerTarget = currentTarget ?: return@repeatable
+        val destroyerTarget = currentTarget ?: return@tickHandler
         val currentRotation = RotationManager.serverRotation
+
+        if (ModulePacketMine.running && destroyerTarget.action == DestroyAction.DESTROY) {
+            ModulePacketMine.setTarget(destroyerTarget.pos)
+            return@tickHandler
+        }
 
         // Check if we are already looking at the block
         val rayTraceResult = raytraceBlock(
             max(range, wallRange).toDouble(),
             currentRotation,
             destroyerTarget.pos,
-            destroyerTarget.pos.getState() ?: return@repeatable
-        ) ?: return@repeatable
+            destroyerTarget.pos.getState() ?: return@tickHandler
+        ) ?: return@tickHandler
 
         val raytracePos = rayTraceResult.blockPos
 
@@ -173,7 +179,7 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
         if (rayTraceResult.type != HitResult.Type.BLOCK ||
             raytracePos != destroyerTarget.pos || raytracePos.getState()!!.isNotBreakable(raytracePos)
         ) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Use action should be used if the block is the same as the current target and the action is set to use.
@@ -190,7 +196,7 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
 
     @Suppress("unused")
     private val cancelBlockBreakingHandler = handler<CancelBlockBreakingEvent> {
-        if (currentTarget != null) {
+        if (currentTarget != null && !ModulePacketMine.running) {
             it.cancelEvent()
         }
     }
@@ -327,14 +333,16 @@ object ModuleFucker : Module("Fucker", Category.WORLD, aliases = arrayOf("BedBre
             return null
         }
 
-        val (rotation, _) = raytrace
-        RotationManager.aimAt(
-            rotation,
-            considerInventory = !ignoreOpenInventory,
-            configurable = rotations,
-            if (prioritizeOverKillAura) Priority.IMPORTANT_FOR_USAGE_3 else Priority.IMPORTANT_FOR_USAGE_1,
-            this@ModuleFucker
-        )
+        if (!ModulePacketMine.running) {
+            val (rotation, _) = raytrace
+            RotationManager.aimAt(
+                rotation,
+                considerInventory = !ignoreOpenInventory,
+                configurable = rotations,
+                if (prioritizeOverKillAura) Priority.IMPORTANT_FOR_USAGE_3 else Priority.IMPORTANT_FOR_USAGE_1,
+                this@ModuleFucker
+            )
+        }
 
         ModuleFucker.currentTarget = target
 

@@ -21,8 +21,10 @@
 
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 
-import net.ccbluex.liquidbounce.features.module.modules.misc.sanitizeWithNameProtect
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
+import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.hideShieldSlot
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.shouldHideOffhand
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -42,14 +44,15 @@ import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
+import kotlin.math.min
 
 // GET /api/v1/client/player
 @Suppress("UNUSED_PARAMETER")
-fun getPlayerData(requestObject: RequestObject) = httpOk(protocolGson.toJsonTree(PlayerData.fromPlayer(player)))
+fun getPlayerData(requestObject: RequestObject) = httpOk(interopGson.toJsonTree(PlayerData.fromPlayer(player)))
 
 // GET /api/v1/client/crosshair
 @Suppress("UNUSED_PARAMETER")
-fun getCrosshairData(requestObject: RequestObject) = httpOk(protocolGson.toJsonTree(mc.crosshairTarget))
+fun getCrosshairData(requestObject: RequestObject) = httpOk(interopGson.toJsonTree(mc.crosshairTarget))
 
 data class PlayerData(
     val username: String,
@@ -73,7 +76,7 @@ data class PlayerData(
     val mainHandStack: ItemStack,
     val offHandStack: ItemStack,
     val armorItems: List<ItemStack> = emptyList(),
-    val scoreboard: ScoreboardData? = null
+    val scoreboard: ScoreboardData? = null,
 ) {
 
     companion object {
@@ -91,14 +94,14 @@ data class PlayerData(
             player.maxHealth.fixNaN(),
             player.absorptionAmount.fixNaN(),
             player.armor,
-            player.hungerManager.foodLevel,
+            min(player.hungerManager.foodLevel, 20),
             player.air,
             player.maxAir,
             player.experienceLevel,
             player.experienceProgress.fixNaN(),
             player.statusEffects.toList(),
             player.mainHandStack,
-            player.offHandStack,
+            if (shouldHideOffhand(player = player) && hideShieldSlot) ItemStack.EMPTY else player.offHandStack,
             player.armorItems.toList(),
             if (mc.player == player) ScoreboardData.fromScoreboard(player.scoreboard) else null
         )
@@ -145,11 +148,11 @@ data class ScoreboardData(val header: Text, val entries: Array<SidebarEntry?>) {
                     val entryWithDecoration: Text = Team.decorateName(team, entryName)
                     val entryValue: Text = scoreboardEntry.formatted(numberFormat)
 
-                    SidebarEntry(entryWithDecoration.sanitizeWithNameProtect(), entryValue.sanitizeWithNameProtect())
+                    SidebarEntry(entryWithDecoration.sanitizeForeignInput(), entryValue.sanitizeForeignInput())
                 }
                 .toArray { arrayOfNulls<SidebarEntry>(it) }
 
-            return ScoreboardData(objective.displayName.sanitizeWithNameProtect(), sidebarEntries)
+            return ScoreboardData(objective.displayName.sanitizeForeignInput(), sidebarEntries)
         }
     }
 

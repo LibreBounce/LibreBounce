@@ -19,8 +19,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
@@ -137,7 +137,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     private val calculations = Chronometer()
     private val trying = Chronometer()
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (currentTarget != null && trying.hasElapsed(timeOut.toLong())) {
             placer.clear()
             currentTarget = null

@@ -20,6 +20,7 @@
 package net.ccbluex.liquidbounce.utils.input
 
 import net.minecraft.client.util.InputUtil
+import net.minecraft.util.ActionResult
 
 /**
  * Translates a key name to an InputUtil.Key using GLFW key codes.
@@ -82,3 +83,5 @@ val keyList: Set<String>
     get() = InputUtil.Type.KEYSYM.map.values
         .map { key -> reduceInputName(key.translationKey) }
         .toSet()
+
+fun ActionResult.shouldSwingHand() = this is ActionResult.Success && this.swingSource == ActionResult.SwingSource.CLIENT

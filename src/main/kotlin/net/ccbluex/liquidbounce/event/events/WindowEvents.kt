@@ -22,8 +22,9 @@ package net.ccbluex.liquidbounce.event.events
 
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
-import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
+import net.ccbluex.liquidbounce.utils.client.Nameable
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.InputUtil
 
 @Nameable("windowResize")
@@ -51,7 +52,8 @@ class KeyboardKeyEvent(
     val keyCode: Int,
     val scanCode: Int,
     val action: Int,
-    val mods: Int
+    val mods: Int,
+    val screen: Screen? = null
 ) : Event()
 
 @Nameable("keyboardChar")

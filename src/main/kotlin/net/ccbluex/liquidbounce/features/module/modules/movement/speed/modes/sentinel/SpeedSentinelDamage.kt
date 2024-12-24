@@ -20,12 +20,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.sentinel
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePingSpoof
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
@@ -68,9 +68,9 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
         super.enable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (!player.moving) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (externalDamageAdjust != 0) {
@@ -112,9 +112,9 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
     }
 
     @Suppress("unused")
-    private val movementInputHandler = handler<MovementInputEvent> {
-        if (player.moving && hasBeenHurt) {
-            it.jumping = true
+    private val movementInputHandler = handler<MovementInputEvent> { event ->
+        if (event.directionalInput.isMoving && hasBeenHurt) {
+            event.jump = true
         }
     }
 
@@ -122,13 +122,13 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
         externalDamageAdjust = 0
         hasBeenHurt = false
         enabledTime = System.currentTimeMillis()
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false))
         network.sendPacket(
             PlayerMoveC2SPacket.PositionAndOnGround(
                 player.x, player.y + 3.25, player.z,
-            false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true))
+            false, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true, false))
     }
 
 }

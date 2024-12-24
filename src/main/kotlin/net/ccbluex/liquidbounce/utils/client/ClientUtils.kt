@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.interfaces.ClientTextColorAdditions
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.MutableText
@@ -133,11 +133,11 @@ fun chat(vararg texts: Text, metadata: MessageMetadata = defaultMessageMetadata)
     chatHud.addMessage(literalText, metadata.id, metadata.count)
 }
 
-fun chat(text: Text, module: Module) = chat(text, metadata = MessageMetadata(id = "${module.name}#info"))
+fun chat(text: Text, module: ClientModule) = chat(text, metadata = MessageMetadata(id = "M${module.name}#info"))
 
-fun chat(text: Text, command: Command) = chat(text, metadata = MessageMetadata(id = "${command.name}#info"))
+fun chat(text: Text, command: Command) = chat(text, metadata = MessageMetadata(id = "C${command.name}#info"))
 
-fun chat(text: String, module: Module) = chat(text.asText(), module)
+fun chat(text: String, module: ClientModule) = chat(text.asText(), module)
 
 fun chat(text: String, command: Command) = chat(text.asText(), command)
 

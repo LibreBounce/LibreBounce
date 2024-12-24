@@ -21,16 +21,21 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.Buff
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff
+import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff.AutoBuffRotationsConfigurable.RotationTimingMode.*
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features.Pot.isPotion
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager.currentRotation
+import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
+import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.ccbluex.liquidbounce.utils.item.getPotionEffects
 import net.ccbluex.liquidbounce.utils.item.isNothing
@@ -99,6 +104,7 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
 
     private val strengthPotion by boolean("StrengthPotion", true)
     private val speedPotion by boolean("SpeedPotion", true)
+    private val fireResistancePotion by boolean("FireResistancePotion", true)
 
     private val tillGroundDistance by float("TillGroundDistance", 2f, 1f..5f)
     private val doNotBenefitOthers by boolean("DoNotBenefitOthers", true)
@@ -106,20 +112,52 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
     private val allowLingering by boolean("AllowLingering", false)
 
     override suspend fun execute(sequence: Sequence<*>, slot: HotbarItemSlot) {
-        sequence.waitUntil {
-            // TODO: Use movement prediction to splash against walls and away from the player
-            //   See https://github.com/CCBlueX/LiquidBounce/issues/2051
-            RotationManager.aimAt(
-                Rotation(player.yaw, (85f..90f).random().toFloat()),
-                configurable = ModuleAutoBuff.rotations,
-                provider = ModuleAutoBuff,
-                priority = Priority.IMPORTANT_FOR_PLAYER_LIFE
-            )
+        // TODO: Use movement prediction to splash against walls and away from the player
+        //   See https://github.com/CCBlueX/LiquidBounce/issues/2051
+        var rotation = Rotation(player.yaw, (85f..90f).random().toFloat())
 
-            RotationManager.serverRotation.pitch > 85
+        when (ModuleAutoBuff.rotations.rotationTiming) {
+            NORMAL -> {
+                RotationManager.aimAt(
+                    rotation,
+                    configurable = ModuleAutoBuff.rotations,
+                    provider = ModuleAutoBuff,
+                    priority = Priority.IMPORTANT_FOR_PLAYER_LIFE
+                )
+
+                sequence.waitUntil {
+                    (currentRotation ?: player.rotation).pitch > 85
+                }
+
+                rotation = rotation.normalize()
+            }
+            ON_TICK -> {
+                rotation = rotation.normalize()
+                network.sendPacket(MovePacketType.FULL.generatePacket().apply {
+                    yaw = rotation.yaw
+                    pitch = rotation.pitch
+                })
+            }
+            ON_USE -> {
+                rotation = rotation.normalize()
+            }
         }
 
-        useHotbarSlotOrOffhand(slot)
+        useHotbarSlotOrOffhand(
+            slot,
+            yaw = rotation.yaw,
+            pitch = rotation.pitch,
+        )
+
+        when (ModuleAutoBuff.rotations.rotationTiming) {
+            ON_TICK -> {
+                network.sendPacket(MovePacketType.FULL.generatePacket().apply {
+                    yaw = player.withFixedYaw(currentRotation ?: player.rotation)
+                    pitch = currentRotation?.pitch ?: player.pitch
+                })
+            }
+            else -> { }
+        }
 
         // Wait at least 1 tick to make sure, we do not continue with something else too early
         sequence.waitTicks(1)
@@ -134,15 +172,6 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
         return stack.getPotionEffects().any { foundTargetEffect(it, health) }
     }
 
-    private fun releaseUseKey() {
-        mc.options.useKey.isPressed = false
-    }
-
-    override fun disable() {
-        releaseUseKey()
-        super.disable()
-    }
-
     private fun isValidPotion(stack: ItemStack) =
         stack.item is SplashPotionItem || stack.item is LingeringPotionItem && allowLingering
 
@@ -153,6 +182,8 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
                 && !player.hasStatusEffect(StatusEffects.REGENERATION)
             StatusEffects.STRENGTH -> strengthPotion && !player.hasStatusEffect(StatusEffects.STRENGTH)
             StatusEffects.SPEED -> speedPotion && !player.hasStatusEffect(StatusEffects.SPEED)
+            StatusEffects.FIRE_RESISTANCE -> fireResistancePotion &&
+                !player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)
             else -> false
         }
 

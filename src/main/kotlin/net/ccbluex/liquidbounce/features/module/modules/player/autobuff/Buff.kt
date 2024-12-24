@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.player.autobuff
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.OffHandSlot
@@ -37,8 +37,7 @@ abstract class Buff(
 ) : ToggleableConfigurable(ModuleAutoBuff, name, true) {
 
     internal open val passesRequirements: Boolean
-        get() = enabled && !player.isDead && !InventoryManager.isInventoryOpenServerSide
-            && !interaction.currentGameMode.isCreative
+        get() = enabled && !InventoryManager.isInventoryOpen
 
     /**
      * Try to run feature if possible, otherwise return false

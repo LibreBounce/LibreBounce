@@ -24,7 +24,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.Perspective
@@ -32,7 +32,7 @@ import net.minecraft.client.option.Perspective
 /**
  * Automatically goes into F5 mode when opening the inventory
  */
-object ModuleAutoF5 : Module("AutoF5", Category.RENDER) {
+object ModuleAutoF5 : ClientModule("AutoF5", Category.RENDER) {
 
     @Suppress("unused")
     private val perspectiveHandler = handler<PerspectiveEvent> { event ->

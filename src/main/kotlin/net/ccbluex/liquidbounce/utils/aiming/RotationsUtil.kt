@@ -18,18 +18,18 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerVelocityStrafe
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.FakeLag
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -57,7 +57,7 @@ import kotlin.math.sqrt
  * Configurable to configure the dynamic rotation engine
  */
 open class RotationsConfigurable(
-    owner: Listenable,
+    owner: EventListener,
     fixVelocity: Boolean = true,
     changeLook: Boolean = false,
     combatSpecific: Boolean = false
@@ -133,7 +133,7 @@ open class RotationsConfigurable(
 /**
  * A rotation manager
  */
-object RotationManager : Listenable {
+object RotationManager : EventListener {
 
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.
@@ -165,7 +165,7 @@ object RotationManager : Listenable {
     var previousRotation: Rotation? = null
 
     private val fakeLagging
-        get() = FakeLag.isLagging || ModuleBacktrack.isLagging()
+        get() = PacketQueueManager.isLagging || ModuleBacktrack.isLagging()
 
     val serverRotation: Rotation
         get() = if (fakeLagging) theoreticalServerRotation else actualServerRotation
@@ -195,7 +195,7 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module
+        provider: ClientModule
     ) {
         val (rotation, vec) = vecRotation
         aimAt(configurable.toAimPlan(rotation, vec, entity, considerInventory = considerInventory), priority, provider)
@@ -206,7 +206,7 @@ object RotationManager : Listenable {
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
         priority: Priority,
-        provider: Module,
+        provider: ClientModule,
         whenReached: RestrictedSingleUseAction? = null
     ) {
         aimAt(configurable.toAimPlan(
@@ -214,7 +214,7 @@ object RotationManager : Listenable {
         ), priority, provider)
     }
 
-    fun aimAt(plan: AimPlan, priority: Priority, provider: Module) {
+    fun aimAt(plan: AimPlan, priority: Priority, provider: ClientModule) {
         if (!allowedToUpdate()) {
             return
         }
@@ -230,9 +230,13 @@ object RotationManager : Listenable {
     }
 
     fun makeRotation(vec: Vec3d, eyes: Vec3d): Rotation {
-        val diffX = vec.x - eyes.x
-        val diffY = vec.y - eyes.y
-        val diffZ = vec.z - eyes.z
+        return makeRotation(vec.subtract(eyes))
+    }
+
+    fun makeRotation(lookVec: Vec3d): Rotation {
+        val diffX = lookVec.x
+        val diffY = lookVec.y
+        val diffZ = lookVec.z
 
         return Rotation(
             MathHelper.wrapDegrees(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
@@ -266,7 +270,7 @@ object RotationManager : Listenable {
         }
 
         // Prevents any rotation changes when inventory is opened
-        val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
+        val allowedRotation = ((!InventoryManager.isInventoryOpen &&
             mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
@@ -351,8 +355,10 @@ object RotationManager : Listenable {
     val tickHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
         val input = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(event.directionalInput)
 
-        input.sneaking = event.sneaking
-        input.jumping = event.jumping
+        input.set(
+            sneak = event.sneak,
+            jump = event.jump
+        )
 
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(input)
         simulatedPlayer.tick()
@@ -378,10 +384,11 @@ object RotationManager : Listenable {
      * sometimes we update the rotation off chain (e.g. on interactItem)
      * and the player.lastYaw and player.lastPitch are not updated.
      */
-    val packetHandler = handler<PacketEvent>(priority = -1000) { event ->
-        val packet = event.packet
-
-        val rotation = when (packet) {
+    @Suppress("unused")
+    val packetHandler = handler<PacketEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) { event ->
+        val rotation = when (val packet = event.packet) {
             is PlayerMoveC2SPacket -> {
                 // If we are not changing the look, we don't need to update the rotation
                 // but, we want to handle slow start triggers
@@ -393,7 +400,7 @@ object RotationManager : Listenable {
                 // We trust that we have sent a normalized rotation, if not, ... why?
                 Rotation(packet.yaw, packet.pitch, isNormalized = true)
             }
-            is PlayerPositionLookS2CPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
+            is PlayerPositionLookS2CPacket -> Rotation(packet.change.yaw, packet.change.pitch, isNormalized = true)
             is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
             else -> return@handler
         }
@@ -402,7 +409,6 @@ object RotationManager : Listenable {
         if (!event.isCancelled) {
             actualServerRotation = rotation
         }
-
         theoreticalServerRotation = rotation
     }
 

@@ -20,13 +20,13 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.events.PlayerPostTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
+import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.Entity
@@ -40,7 +40,7 @@ import net.minecraft.util.math.Vec3i
  *
  * Allows you to move out of your body.
  */
-object ModuleFreeCam : Module("FreeCam", Category.RENDER, disableOnQuit = true) {
+object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = true) {
 
     private val speed by float("Speed", 1f, 0.1f..2f)
 
@@ -92,8 +92,8 @@ object ModuleFreeCam : Module("FreeCam", Category.RENDER, disableOnQuit = true) 
     val inputHandler = handler<MovementInputEvent> { event ->
         val speed = this.speed.toDouble()
         val yAxisMovement = when {
-            event.jumping -> 1.0f
-            event.sneaking -> -1.0f
+            event.jump -> 1.0f
+            event.sneak -> -1.0f
             else -> 0.0f
         }
         val directionYaw = getMovementDirectionOfInput(player.yaw, event.directionalInput)
@@ -104,14 +104,14 @@ object ModuleFreeCam : Module("FreeCam", Category.RENDER, disableOnQuit = true) 
         updatePosition(velocity)
 
         event.directionalInput = DirectionalInput.NONE
-        event.jumping = false
-        event.sneaking = false
+        event.jump = false
+        event.sneak = false
     }
 
     fun applyCameraPosition(entity: Entity, tickDelta: Float) {
         val camera = mc.gameRenderer.camera
 
-        if (!enabled || entity != player) {
+        if (!running || entity != player) {
             return
         }
 
@@ -119,7 +119,7 @@ object ModuleFreeCam : Module("FreeCam", Category.RENDER, disableOnQuit = true) 
     }
 
     fun renderPlayerFromAllPerspectives(entity: LivingEntity): Boolean {
-        if (!enabled || entity != player) {
+        if (!running || entity != player) {
             return entity.isSleeping
         }
 
@@ -130,16 +130,16 @@ object ModuleFreeCam : Module("FreeCam", Category.RENDER, disableOnQuit = true) 
      * Modify the raycast position
      */
     fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float): Vec3d {
-        if (!enabled || entity != mc.player || !allowCameraInteract) {
+        if (!running || entity != mc.player || !allowCameraInteract) {
             return original
         }
 
         return pos?.interpolate(tickDelta) ?: original
     }
 
-    fun shouldDisableCrosshair() = enabled && !allowCameraInteract
+    fun shouldDisableCrosshair() = running && !allowCameraInteract
 
-    fun shouldDisableRotations() = enabled && !allowRotationChange
+    fun shouldDisableRotations() = running && !allowRotationChange
 
     private fun updatePosition(velocity: Vec3d) {
         pos = (pos ?: PositionPair(player.eyes, player.eyes)).apply { this += velocity }

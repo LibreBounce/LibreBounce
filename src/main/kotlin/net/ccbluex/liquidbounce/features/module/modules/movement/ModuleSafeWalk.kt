@@ -18,14 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NoneChoice
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.isCloseToEdge
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
  *
  * Prevents you from falling down as if you were sneaking.
  */
-object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
+object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
 
     @Suppress("UnusedPrivateProperty")
     private val modes = choices("Mode", 1, ::safeWalkChoices) // Default safe mode
@@ -60,7 +60,7 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
                         event.directionalInput,
-                        event.jumping,
+                        event.jump,
                         player.isSprinting,
                         true
                     )
@@ -68,7 +68,7 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                 simulatedPlayer.tick()
 
                 if (simulatedPlayer.clipLedged) {
-                    event.sneaking = true
+                    event.sneak = true
                 }
             }
         }
@@ -93,7 +93,7 @@ object ModuleSafeWalk : Module("SafeWalk", Category.MOVEMENT) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
                         event.directionalInput,
-                        event.jumping,
+                        event.jump,
                         player.isSprinting,
                         true
                     )

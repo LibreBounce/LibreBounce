@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.moving
 
 /**
@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.entity.moving
  *
  * Automatically jumps at the very edge of a block.
  */
-object ModuleParkour : Module("Parkour", Category.MOVEMENT) {
+object ModuleParkour : ClientModule("Parkour", Category.MOVEMENT) {
 
     @Suppress("unused")
     private val simulatedTickHandler = handler<SimulatedTickEvent> { event ->
@@ -42,7 +42,7 @@ object ModuleParkour : Module("Parkour", Category.MOVEMENT) {
         val movementInput = event.movementEvent
 
         if (shouldJump) {
-            movementInput.jumping = true
+            movementInput.jump = true
         }
     }
 

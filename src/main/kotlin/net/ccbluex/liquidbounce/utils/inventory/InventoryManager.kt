@@ -21,14 +21,14 @@
 
 package net.ccbluex.liquidbounce.utils.inventory
 
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ContainerItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
@@ -53,10 +53,18 @@ import kotlin.random.Random
  *  - Progress Bar
  *  - Off-screen actions
  */
-object InventoryManager : Listenable {
+object InventoryManager : EventListener {
+
+    val isInventoryOpen
+        get() = isInInventoryScreen || isInventoryOpenServerSide
 
     var isInventoryOpenServerSide = false
-        internal set
+        internal set(value) {
+            if (!field && value) {
+                inventoryOpened()
+            }
+            field = value
+        }
 
     var lastClickedSlot: Int = 0
         private set
@@ -74,10 +82,10 @@ object InventoryManager : Listenable {
      * and schedule the inventory actions
      */
     @Suppress("unused")
-    private val repeatingSchedulerExecutor = repeatable {
+    private val repeatingSchedulerExecutor = tickHandler {
         // We are not in-game, so we don't need to do anything and throw away the schedule
         if (!inGame) {
-            return@repeatable
+            return@tickHandler
         }
 
         var maximumCloseDelay = 0
@@ -137,13 +145,13 @@ object InventoryManager : Listenable {
                     // Handle player inventory open requirements
                     val requiresPlayerInventory = action.requiresPlayerInventoryOpen()
                     if (requiresPlayerInventory) {
-                        if (!isInventoryOpenServerSide) {
+                        if (!isInventoryOpen) {
                             openInventorySilently()
                             waitTicks(constraints.startDelay.random())
                         }
                     } else if (canCloseMainInventory) {
                         // When all scheduled actions are done, we can close the inventory
-                        if (isInventoryOpenServerSide) {
+                        if (isInventoryOpen) {
                             waitTicks(constraints.closeDelay.random())
                             closeInventorySilently()
                         }
@@ -181,7 +189,7 @@ object InventoryManager : Listenable {
         } while (schedule.isNotEmpty())
 
         // When all scheduled actions are done, we can close the inventory
-        if (isInventoryOpenServerSide && canCloseMainInventory) {
+        if (isInventoryOpen && canCloseMainInventory) {
             waitTicks(maximumCloseDelay)
             closeInventorySilently()
         }
@@ -233,7 +241,10 @@ object InventoryManager : Listenable {
         }
     }
 
-    val screenHandler = handler<ScreenEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
+    @Suppress("unused")
+    private val screenHandler = handler<ScreenEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) { event ->
         val screen = event.screen
 
         if (event.isCancelled) {
@@ -242,14 +253,11 @@ object InventoryManager : Listenable {
 
         if (screen is InventoryScreen || screen is GenericContainerScreen) {
             inventoryOpened()
-
-            if (screen is InventoryScreen) {
-                isInventoryOpenServerSide = true
-            }
         }
     }
 
-    val handleWorldChange = handler<WorldChangeEvent> {
+    @Suppress("unused")
+    private val handleWorldChange = handler<WorldChangeEvent> {
         isInventoryOpenServerSide = false
     }
 
@@ -382,7 +390,7 @@ data class UseInventoryAction(
 ) : InventoryAction {
 
     override fun canPerformAction(inventoryConstraints: InventoryConstraints) =
-        !InventoryManager.isInventoryOpenServerSide && !isInContainerScreen && !isInInventoryScreen
+        !InventoryManager.isInventoryOpen && !isInContainerScreen && !isInInventoryScreen
 
     override fun performAction(): Boolean {
         useHotbarSlotOrOffhand(hotbarItemSlot)

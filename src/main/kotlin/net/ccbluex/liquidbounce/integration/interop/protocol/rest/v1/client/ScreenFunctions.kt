@@ -23,7 +23,7 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 
 import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
@@ -35,7 +35,7 @@ import net.minecraft.client.gui.screen.SplashOverlay
 @Suppress("UNUSED_PARAMETER")
 fun getVirtualScreenInfo(requestObject: RequestObject): FullHttpResponse {
     return httpOk(JsonObject().apply {
-        addProperty("name", IntegrationHandler.momentaryVirtualScreen?.type?.routeName)
+        addProperty("name", IntegrationListener.momentaryVirtualScreen?.type?.routeName)
         addProperty("showingSplash", mc.overlay is SplashOverlay)
     })
 }
@@ -45,12 +45,12 @@ fun postVirtualScreen(requestObject: RequestObject): FullHttpResponse {
     val body = requestObject.asJson<JsonObject>()
     val name = body["name"]?.asString ?: return httpForbidden("No name")
 
-    val virtualScreen = IntegrationHandler.momentaryVirtualScreen
+    val virtualScreen = IntegrationListener.momentaryVirtualScreen
     if ((virtualScreen?.type?.routeName ?: "none") != name) {
         return httpForbidden("Wrong virtual screen")
     }
 
-    IntegrationHandler.acknowledgement.confirm()
+    IntegrationListener.acknowledgement.confirm()
     return httpOk(JsonObject())
 }
 

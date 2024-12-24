@@ -18,15 +18,16 @@
  */
 package net.ccbluex.liquidbounce.features.misc
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -42,22 +43,22 @@ import kotlin.concurrent.thread
  *
  * using 2x CRTL + SHIFT to hide and unhide the client
  */
-object HideAppearance : Listenable {
+object HideAppearance : EventListener {
 
     val shiftChronometer = Chronometer()
 
     var isHidingNow = false
         set(value) {
             field = value
-            updateClient()
+            RenderSystem.recordRenderCall(::updateClient)
         }
     var isDestructed = false
 
     private fun updateClient() {
         if (isHidingNow) {
-            IntegrationHandler.restoreOriginalScreen()
+            IntegrationListener.restoreOriginalScreen()
         } else {
-            IntegrationHandler.updateIntegrationBrowser()
+            IntegrationListener.updateIntegrationBrowser()
         }
 
         mc.updateWindowTitle()
@@ -67,7 +68,7 @@ object HideAppearance : Listenable {
     }
 
     @Suppress("unused")
-    val keyHandler = handler<KeyboardKeyEvent>(ignoreCondition = true) {
+    val keyHandler = handler<KeyboardKeyEvent>(ignoreNotRunning = true) {
         val keyCode = it.keyCode
         val modifier = it.mods
 

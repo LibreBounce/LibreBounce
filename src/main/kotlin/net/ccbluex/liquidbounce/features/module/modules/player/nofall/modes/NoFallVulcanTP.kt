@@ -18,12 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
+import net.ccbluex.liquidbounce.utils.entity.set
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 /**
@@ -50,7 +51,9 @@ internal object NoFallVulcanTP : Choice("VulcanTP288") {
 
             // Extreme high fall velocity
             player.setVelocity(0.0, -99.887575, 0.0)
-            player.input.sneaking = true
+            player.input.set(
+                sneak = true
+            )
         }
     }
 

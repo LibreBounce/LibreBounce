@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {createEventDispatcher, onMount} from "svelte";
+    import {createEventDispatcher} from "svelte";
     import type {BindSetting, ModuleSetting} from "../../../integration/types";
     import {listen} from "../../../integration/ws";
     import {getPrintableKeyName} from "../../../integration/rest";
@@ -28,6 +28,11 @@
     }
 
     listen("keyboardKey", async (e: KeyboardKeyEvent) => {
+        if (e.screen === undefined || !e.screen.class.startsWith("net.ccbluex.liquidbounce") ||
+            !(e.screen.title === "ClickGUI" || e.screen.title === "VS-CLICKGUI")) {
+            return;
+        }
+
         if (!binding) {
             return;
         }
@@ -85,7 +90,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../colors.scss";
+  @use "../../../colors.scss" as *;
 
   .setting {
     padding: 7px 0px;

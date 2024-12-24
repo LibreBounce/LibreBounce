@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.sneaking
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.NoneChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.NoneChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerSneakMultiplier
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
@@ -42,8 +42,9 @@ internal object NoSlowSneaking : ToggleableConfigurable(ModuleNoSlow, "Sneaking"
 
     @Suppress("unused")
     val multiplierHandler = handler<PlayerSneakMultiplier> { event ->
-        event.multiplier = max(event.multiplier, minMultiplier)
+        event.multiplier = max(event.multiplier, minMultiplier.toDouble())
     }
 
-    override fun handleEvents() = super.handleEvents() && inGame && player.isSneaking
+    override val running: Boolean
+        get() = super.running && inGame && player.isSneaking
 }

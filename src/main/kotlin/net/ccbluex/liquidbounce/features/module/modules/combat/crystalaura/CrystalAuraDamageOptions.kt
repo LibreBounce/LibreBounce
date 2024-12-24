@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.config.Configurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.currentTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.player
@@ -185,8 +185,8 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
             ): DamageProvider {
                 return NormalDamageProvider(entity.getDamageFromExplosion(
                     crystal,
-                    maxBlastResistance = maxBlastResistance,
-                    include = include
+                    include = include,
+                    maxBlastResistance = maxBlastResistance
                 ))
             }
         };

@@ -21,12 +21,12 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.sentinel
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePingSpoof
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
@@ -82,7 +82,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
         player.zeroXZ()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         boost()
         waitTicks(reboostTicks)
 
@@ -118,8 +118,8 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
         }
 
         event.movement.y = when {
-            player.input.jumping -> verticalSpeed.toDouble()
-            player.input.sneaking -> (-verticalSpeed).toDouble()
+            player.input.playerInput.jump -> verticalSpeed.toDouble()
+            player.input.playerInput.sneak -> (-verticalSpeed).toDouble()
             else -> 0.0
         }
 
@@ -130,13 +130,14 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
 
     private fun boost() {
         hasBeenHurt = false
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
+            player.horizontalCollision))
         network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y + 3.25, player.z,
-            false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true))
+            false, player.horizontalCollision))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false,
+            player.horizontalCollision))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true,
+            player.horizontalCollision))
     }
-
-
 
 }

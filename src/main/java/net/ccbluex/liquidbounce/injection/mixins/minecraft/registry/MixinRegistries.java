@@ -33,4 +33,5 @@ public class MixinRegistries {
     private static void injectInitializeTabs(CallbackInfo ci) {
         ClientItemGroups.INSTANCE.setup();
     }
+
 }

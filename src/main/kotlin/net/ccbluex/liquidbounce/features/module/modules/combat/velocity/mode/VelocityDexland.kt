@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 
 internal object VelocityDexland : Choice("Dexland") {
@@ -36,7 +36,7 @@ internal object VelocityDexland : Choice("Dexland") {
     var count = 0
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> {
+    private val attackHandler = handler<AttackEntityEvent> {
         if (player.hurtTime > 0 && ++count % times == 0 && System.currentTimeMillis() - lastAttackTime <= 8000) {
             player.velocity.x *= hReduce
             player.velocity.z *= hReduce

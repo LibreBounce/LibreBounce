@@ -21,14 +21,14 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk.collidesWithAnythingElse
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk.standingOnWater
@@ -52,7 +52,7 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
 
     @Suppress("unused")
     val shapeHandler = handler<BlockShapeEvent> { event ->
-        if (player.input.sneaking || player.fallDistance > 3.0f || player.isOnFire) {
+        if (player.input.playerInput.sneak || player.fallDistance > 3.0f || player.isOnFire) {
             return@handler
         }
 
@@ -63,8 +63,8 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
         }
     }
 
-    val repeatable = repeatable {
-        if (player.box.isBlockAtPosition { it is FluidBlock } && !player.input.sneaking) {
+    val repeatable = tickHandler {
+        if (player.box.isBlockAtPosition { it is FluidBlock } && !player.input.playerInput.sneak) {
             player.velocity.y = 0.08
         }
     }
@@ -73,7 +73,11 @@ internal object LiquidWalkNoCheatPlus : Choice("NoCheatPlus") {
         val packet = event.packet
 
         if (event.origin == TransferOrigin.SEND && packet is PlayerMoveC2SPacket) {
-            if (!player.input.sneaking && !player.isTouchingWater && standingOnWater() && !collidesWithAnythingElse()) {
+            if (!player.input.playerInput.sneak &&
+                !player.isTouchingWater &&
+                standingOnWater() &&
+                !collidesWithAnythingElse()
+                ) {
                 if (shiftDown) {
                     packet.y -= 0.001
                 }

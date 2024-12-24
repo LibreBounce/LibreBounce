@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.Timer
@@ -38,7 +38,7 @@ internal object NoFallHypixelPacket : Choice("HypixelPacket") {
         return (!player.isFallingToVoid() && !void || void)
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.fallDistance - player.velocity.y >= 3.3 && voidCheck()) {
             Timer.requestTimerSpeed(0.5f, Priority.IMPORTANT_FOR_PLAYER_LIFE, ModuleNoFall)
             network.sendPacket(MovePacketType.ON_GROUND_ONLY.generatePacket().apply {

@@ -20,6 +20,7 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility1_8
 import net.minecraft.SharedConstants
@@ -111,7 +112,9 @@ fun selectProtocolVersion(protocolId: Int) {
         VfpCompatibility.INSTANCE.unsafeSelectProtocolVersion(protocolId)
 
         // Update the window title
-        mc.updateWindowTitle()
+        RenderSystem.recordRenderCall {
+            mc.updateWindowTitle()
+        }
     } else {
         error("ViaFabricPlus is not loaded")
     }
@@ -125,15 +128,6 @@ fun openVfpProtocolSelection() {
     }
 
     VfpCompatibility.INSTANCE.unsafeOpenVfpProtocolSelection()
-}
-
-fun disableConflictingVfpOptions() {
-    // Check if the ViaFabricPlus mod is loaded
-    if (!usesViaFabricPlus || !hasVisualSettings) {
-        return
-    }
-
-    VfpCompatibility.INSTANCE.unsafeDisableConflictingVfpOptions()
 }
 
 fun sendSignUpdate(blockPos: BlockPos, lines: Array<String>) {

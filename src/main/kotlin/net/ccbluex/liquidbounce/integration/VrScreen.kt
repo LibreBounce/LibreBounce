@@ -19,33 +19,25 @@
  */
 package net.ccbluex.liquidbounce.integration
 
-import net.ccbluex.liquidbounce.utils.client.asText
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.integration.theme.Theme
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.minecraft.client.gui.DrawContext
+import net.ccbluex.liquidbounce.utils.client.asText
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.screen.Screen
 
 class VrScreen(
     private val screenType: VirtualScreenType,
     private val theme: Theme = ThemeManager.route(screenType).theme,
-    val originalScreen: Screen? = null) : Screen("VS $screenType".asText()) {
+    val originalScreen: Screen? = null) : Screen("VS-${screenType.routeName.uppercase()}".asText()) {
 
     override fun init() {
-        IntegrationHandler.virtualOpen(theme, screenType)
+        IntegrationListener.virtualOpen(theme, screenType)
     }
 
     override fun close() {
-        IntegrationHandler.virtualClose()
+        IntegrationListener.virtualClose()
         mc.mouse.lockCursor()
         super.close()
-    }
-
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        // Only render the background if the world is not null, otherwise the html should draw the background.
-        if (mc.world == null) {
-            this.renderBackground(context, mouseX, mouseY, delta)
-        }
     }
 
     override fun shouldPause(): Boolean {

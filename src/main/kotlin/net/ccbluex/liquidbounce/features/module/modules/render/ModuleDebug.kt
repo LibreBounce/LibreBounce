@@ -18,15 +18,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
@@ -34,9 +34,10 @@ import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.entity.eyes
-import net.ccbluex.liquidbounce.utils.math.geometry.Face
+import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.LineSegment
+import net.ccbluex.liquidbounce.utils.math.geometry.PlaneSection
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Text
@@ -51,7 +52,7 @@ import java.awt.Color
  * Allows you to see server-sided rotations.
  */
 
-object ModuleDebug : Module("Debug", Category.RENDER) {
+object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     private val parameters by boolean("Parameters", true)
     private val geometry by boolean("Geometry", true)
@@ -64,7 +65,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         val tickRep = handler<MovementInputEvent> { _ ->
             // We aren't actually where we are because of blink.
             // So this module shall not cause any disturbance in that case.
-            if (ModuleBlink.enabled) {
+            if (ModuleBlink.running) {
                 return@handler
             }
 
@@ -105,13 +106,13 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         }
     }
 
-    val repeatable = repeatable {
-        if (!ModuleSpeed.enabled) {
-            return@repeatable
+    val repeatable = tickHandler {
+        if (!ModuleSpeed.running) {
+            return@tickHandler
         }
 
         val pos0 = Vec3d(77.0, 75.0, -52.0)
-        val face = Face(pos0, pos0.add(1.0, 1.0, 0.0))
+        val face = AlignedFace(pos0, pos0.add(1.0, 1.0, 0.0))
 
         ModuleDebug.debugGeometry(
             ModuleScaffold,
@@ -160,8 +161,8 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
         debuggedOwners.onEach { (owner, parameter) ->
             val ownerName = when (owner) {
-                is Module -> owner.name
-                is Listenable -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
+                is ClientModule -> owner.name
+                is EventListener -> "${owner.parent()?.javaClass?.simpleName}::${owner.javaClass.simpleName}"
                 else -> owner.javaClass.simpleName
             }
 
@@ -204,7 +205,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
     }
 
     inline fun debugGeometry(owner: Any, name: String, lazyGeometry: () -> DebuggedGeometry) {
-        if (!enabled) {
+        if (!running) {
             return
         }
 
@@ -213,7 +214,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
 
     fun debugGeometry(owner: Any, name: String, geometry: DebuggedGeometry) {
         // Do not take any new debugging while the module is off
-        if (!enabled) {
+        if (!running) {
             return
         }
 
@@ -227,7 +228,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
     private val debugParameters = hashMapOf<DebuggedParameter, Any>()
 
     inline fun debugParameter(owner: Any, name: String, lazyValue: () -> Any) {
-        if (!enabled) {
+        if (!running) {
             return
         }
 
@@ -235,7 +236,7 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
     }
 
     fun debugParameter(owner: Any, name: String, value: Any) {
-        if (!enabled) {
+        if (!running) {
             return
         }
 
@@ -265,6 +266,14 @@ object ModuleDebug : Module("Debug", Category.RENDER) {
         override fun render(env: WorldRenderEnvironment) {
             env.withColor(color) {
                 this.drawLineStrip(relativeToCamera(from).toVec3(), relativeToCamera(to).toVec3())
+            }
+        }
+    }
+
+    class DebuggedQuad(val p1: Vec3d, val p2: Vec3d, color: Color4b) : DebuggedGeometry(color) {
+        override fun render(env: WorldRenderEnvironment) {
+            env.withColor(color) {
+                this.drawQuad(relativeToCamera(p1).toVec3(), relativeToCamera(p2).toVec3())
             }
         }
     }

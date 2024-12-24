@@ -18,17 +18,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.TagEntityEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.minecraft.client.network.AbstractClientPlayerEntity
 
@@ -37,7 +37,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity
  *
  * Filters out any other entity to be targeted except the one focus is set to
  */
-object ModuleFocus : Module("Focus", Category.MISC) {
+object ModuleFocus : ClientModule("Focus", Category.MISC) {
 
     private val mode = choices("Mode", Filter, arrayOf(Temporary, Filter))
 
@@ -46,7 +46,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
      */
     private val combatOnly by boolean("Combat", false)
 
-    private abstract class FocusChoice(name: String) : Choice(name) {
+    private sealed class FocusChoice(name: String) : Choice(name) {
         override val parent: ChoiceConfigurable<*>
             get() = mode
         abstract fun isFocused(playerEntity: AbstractClientPlayerEntity): Boolean
@@ -83,7 +83,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
         private val whenNoFocus by enumChoice("WhenNoFocus", NoFocusMode.ALLOW_ALL)
 
         // Combination of [entityId] and [time]
-        private val focus = mutableMapOf<Int, Long>()
+        private val focus = Int2LongLinkedOpenHashMap()
 
         enum class NoFocusMode(override val choiceName: String) : NamedChoice {
             ALLOW_ALL("AllowAll"),
@@ -91,8 +91,8 @@ object ModuleFocus : Module("Focus", Category.MISC) {
         }
 
         @Suppress("unused")
-        private val attackHandler = handler<AttackEvent> { event ->
-            val target = event.enemy as? AbstractClientPlayerEntity ?: return@handler
+        private val attackHandler = handler<AttackEntityEvent> { event ->
+            val target = event.entity as? AbstractClientPlayerEntity ?: return@handler
 
             if (!focus.containsKey(target.id)) {
                 notification(
@@ -101,18 +101,18 @@ object ModuleFocus : Module("Focus", Category.MISC) {
                     NotificationEvent.Severity.INFO
                 )
             }
-            focus[target.id] = System.currentTimeMillis() + timeUntilReset * 1000
+            focus.put(target.id, System.currentTimeMillis() + timeUntilReset * 1000)
         }
 
         @Suppress("unused")
-        private val cleanUpTask = repeatable {
+        private val cleanUpTask = tickHandler {
             if (player.isDead) {
                 focus.clear()
-                return@repeatable
+                return@tickHandler
             }
 
             val currentTime = System.currentTimeMillis()
-            focus.entries.removeIf { (entityId, time) ->
+            focus.int2LongEntrySet().removeIf { (entityId, time) ->
                 // Remove if entity is out of range
                 val entity = world.getEntityById(entityId) as? AbstractClientPlayerEntity ?: return@removeIf true
 
@@ -171,7 +171,7 @@ object ModuleFocus : Module("Focus", Category.MISC) {
      * Check if [entity] is in your focus
      */
     private fun isInFocus(entity: AbstractClientPlayerEntity): Boolean {
-        if (!enabled) {
+        if (!running) {
             return false
         }
 

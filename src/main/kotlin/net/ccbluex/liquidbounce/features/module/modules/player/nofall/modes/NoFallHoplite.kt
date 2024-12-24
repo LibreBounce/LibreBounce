@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
@@ -26,7 +26,7 @@ internal object NoFallHoplite : Choice("Hoplite") {
             // Goes up a tiny bit to stop fall damage on 1.17+ servers.
             // Abuses Grim 1.17 extra packets to not flag timer.
             network.sendPacket(PlayerMoveC2SPacket.Full(player.x, player.y + 1.0E-9, player.z,
-                player.yaw, player.pitch, player.isOnGround))
+                player.yaw, player.pitch, player.isOnGround, player.horizontalCollision))
 
             player.onLanding()
         }

@@ -18,29 +18,32 @@
  */
 package net.ccbluex.liquidbounce.utils.block
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.chunk.WorldChunk
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
 
-object ChunkScanner : Listenable {
+object ChunkScanner : EventListener, MinecraftShortcuts {
 
     private val subscribers = CopyOnWriteArrayList<BlockChangeSubscriber>()
 
-    private val loadedChunks = hashSetOf<ChunkLocation>()
+    private val loadedChunks = LongOpenHashSet()
 
     private fun clearAllChunks() {
         subscribers.forEach(BlockChangeSubscriber::clearAllChunks)
@@ -48,29 +51,29 @@ object ChunkScanner : Listenable {
     }
 
     @Suppress("unused")
-    val chunkLoadHandler = handler<ChunkLoadEvent> { event ->
-        val chunk = mc.world!!.getChunk(event.x, event.z)
+    private val chunkLoadHandler = handler<ChunkLoadEvent> { event ->
+        val chunk = world.getChunk(event.x, event.z)
 
         ChunkScannerThread.enqueueChunkUpdate(ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(chunk))
 
-        this.loadedChunks.add(ChunkLocation(event.x, event.z))
+        this.loadedChunks.add(ChunkPos.toLong(event.x, event.z))
     }
 
     @Suppress("unused")
-    val chunkDeltaUpdateHandler = handler<ChunkDeltaUpdateEvent> { event ->
-        val chunk = mc.world!!.getChunk(event.x, event.z)
+    private val chunkDeltaUpdateHandler = handler<ChunkDeltaUpdateEvent> { event ->
+        val chunk = world.getChunk(event.x, event.z)
         ChunkScannerThread.enqueueChunkUpdate(ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(chunk))
     }
 
     @Suppress("unused")
-    val chunkUnloadHandler = handler<ChunkUnloadEvent> { event ->
+    private val chunkUnloadHandler = handler<ChunkUnloadEvent> { event ->
         ChunkScannerThread.enqueueChunkUpdate(ChunkScannerThread.UpdateRequest.ChunkUnloadRequest(event.x, event.z))
 
-        this.loadedChunks.remove(ChunkLocation(event.x, event.z))
+        this.loadedChunks.remove(ChunkPos.toLong(event.x, event.z))
     }
 
     @Suppress("unused")
-    val blockChangeEvent = handler<BlockChangeEvent> { event ->
+    private val blockChangeEvent = handler<BlockChangeEvent> { event ->
         ChunkScannerThread.enqueueChunkUpdate(
             ChunkScannerThread.UpdateRequest.BlockUpdateEvent(
                 event.blockPos,
@@ -80,12 +83,12 @@ object ChunkScanner : Listenable {
     }
 
     @Suppress("unused")
-    val worldChangeHandler = handler<WorldChangeEvent> { event ->
+    private val worldChangeHandler = handler<WorldChangeEvent> {
         clearAllChunks()
     }
 
     @Suppress("unused")
-    val disconnectHandler = handler<DisconnectEvent> {
+    private val disconnectHandler = handler<DisconnectEvent> {
         clearAllChunks()
     }
 
@@ -100,16 +103,19 @@ object ChunkScanner : Listenable {
 
         logger.debug("Scanning ${this.loadedChunks.size} chunks for ${newSubscriber.javaClass.simpleName}")
 
-        for (loadedChunk in this.loadedChunks) {
-            ChunkScannerThread.enqueueChunkUpdate(
-                ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(
-                    world.getChunk(
-                        loadedChunk.x,
-                        loadedChunk.z
-                    ),
-                    newSubscriber
+        with(this.loadedChunks.longIterator()) {
+            while (hasNext()) {
+                val longChunkPos = nextLong()
+                ChunkScannerThread.enqueueChunkUpdate(
+                    ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(
+                        world.getChunk(
+                            ChunkPos.getPackedX(longChunkPos),
+                            ChunkPos.getPackedZ(longChunkPos)
+                        ),
+                        newSubscriber
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -224,14 +230,21 @@ object ChunkScanner : Listenable {
 
             val start = System.nanoTime()
 
-            (chunk.bottomY..chunk.topY).map { y ->
+            val startX = chunk.pos.startX
+            val startZ = chunk.pos.startZ
+
+            (chunk.bottomY..chunk.topYInclusive + 1).map { y ->
                 scope.launch {
-                    val startX = chunk.pos.startX
-                    val startZ = chunk.pos.startZ
+                    /**
+                     * @see WorldChunk.getBlockState
+                     */
+                    val chunkSection = chunk.sectionArray.getOrNull((y shr 4) - (chunk.bottomY shr 4))
+
                     for (x in 0..15) {
                         for (z in 0..15) {
+                            val blockState = chunkSection?.getBlockState(x, y and 15, z) ?: DEFAULT_BLOCK_STATE
+
                             val pos = mutable.set(startX or x, y, startZ or z)
-                            val blockState = chunk.getBlockState(pos)
                             subscribersForRecordBlock.forEach { it.recordBlock(pos, blockState, cleared = true) }
                         }
                     }
@@ -278,13 +291,11 @@ object ChunkScanner : Listenable {
         fun recordBlock(pos: BlockPos, state: BlockState, cleared: Boolean)
 
         /**
-         * Is called when a chunk is loaded or entirely updated.
+         * Is called when a chunk is initially loaded or entirely updated.
          */
         fun chunkUpdate(x: Int, z: Int)
         fun clearChunk(x: Int, z: Int)
         fun clearAllChunks()
     }
 
-    @JvmRecord
-    data class ChunkLocation(val x: Int, val z: Int)
 }

@@ -41,7 +41,12 @@ data class DirectionalInput(
     val left: Boolean,
     val right: Boolean,
 ) {
-    constructor(input: Input) : this(input.pressingForward, input.pressingBack, input.pressingLeft, input.pressingRight)
+    constructor(input: Input) : this(
+        input.playerInput.forward,
+        input.playerInput.backward,
+        input.playerInput.left,
+        input.playerInput.right
+    )
 
     override fun equals(other: Any?): Boolean {
         return other is DirectionalInput &&
@@ -59,9 +64,8 @@ data class DirectionalInput(
         return result
     }
 
-    fun isMoving(): Boolean {
-        return forwards || backwards || left || right
-    }
+    val isMoving: Boolean
+        get() = forwards || backwards || left || right
 
     companion object {
         val NONE = DirectionalInput(forwards = false, backwards = false, left = false, right = false)

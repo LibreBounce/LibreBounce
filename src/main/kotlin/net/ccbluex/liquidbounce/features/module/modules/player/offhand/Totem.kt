@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.offhand
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.entity.*
@@ -92,11 +92,11 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
             val ignoreElytra by boolean("IgnoreElytra", false)
 
             fun getFallDamage(): Float {
-                if (ModuleNoFall.enabled || !FallDamage.enabled || player.fallDistance <= 3f) {
+                if (ModuleNoFall.running || !FallDamage.enabled || player.fallDistance <= 3f) {
                     return 0f
                 }
 
-                if (ignoreElytra && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
+                if (ignoreElytra && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
                     return 0f
                 }
 
@@ -221,7 +221,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
                 }
 
                 maxDamage = maxDamage.coerceAtLeast(
-                    player.getDamageFromExplosion(pos.toVec3d(), null, 5f, 10f, 100f, exclude)
+                    player.getDamageFromExplosion(pos.toVec3d(), 5f, 10f, 100f, exclude)
                 )
 
                 if (maxDamage >= allowedDamage) {
