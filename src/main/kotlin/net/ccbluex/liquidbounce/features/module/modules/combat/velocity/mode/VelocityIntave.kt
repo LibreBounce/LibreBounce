@@ -37,12 +37,13 @@ object VelocityIntave : Choice("Intave") {
         true
     ) {
         private val reduceFactor by float("Factor", 0.6f, 0.6f..1f)
-        private val hurtTime by int("HurtTime", 9, 1..10)
+        private val hurtTime by intRange("HurtTime", 5..7, 1..10)
+        private val lastAttackTimeToReduce by int("LastAttackTimeToReduce", 2000, 1..10000)
         var lastAttackTime = 0L
 
         @Suppress("unused")
         private val attackHandler = handler<AttackEntityEvent> {
-            if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
+            if (player.hurtTime in hurtTime && System.currentTimeMillis() - lastAttackTime <= lastAttackTimeToReduce) {
                 player.velocity.x *= reduceFactor
                 player.velocity.z *= reduceFactor
             }
@@ -61,8 +62,31 @@ object VelocityIntave : Choice("Intave") {
 
         private val chance by float("Chance", 50f, 0f..100f, "%")
 
+        private inner class RandomiseDelay : ToggleableConfigurable(this, "RandomiseDelay", false) {
+            val delayTicks by intRange("DelayTicks", 0..5, 0..10)
+        }
+
+        private val randomiseDelay = tree(RandomiseDelay())
+
+        private var currentDelay = 0
+        private var delayCounter = 0
+
         @Suppress("unused")
         private val repeatable = tickHandler {
+            if (randomiseDelay.enabled) {
+                delayCounter++
+
+                if (delayCounter >= currentDelay) {
+                    jump()
+                    delayCounter = 0
+                    currentDelay = randomiseDelay.delayTicks.random()
+                }
+            } else {
+                jump()
+            }
+        }
+
+        private fun jump() {
             val shouldJump = Math.random() * 100 < chance && player.hurtTime > 5
             val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
 
