@@ -225,8 +225,7 @@ class AWTFontRenderer(
             val loc = charLocations.getOrNull(char.code)
             if (loc == null) {
                 val w = mc.fontRendererObj.getCharWidth(char)
-                val testValue = ((w + 8) * fallbackScale).coerceAtLeast(0f)
-                fallbackWidth += testValue
+                fallbackWidth += ((w + 8) * fallbackScale).coerceAtLeast(0f)
             } else {
                 myWidth += (loc.width - 8)
             }
