@@ -5,7 +5,11 @@
  */
 package net.ccbluex.liquidbounce.ui.font
 
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.bindTexture
 import net.minecraft.client.renderer.texture.TextureUtil
@@ -30,11 +34,11 @@ class AWTFontRenderer(
     private val loadingScreen: Boolean = false
 ) : MinecraftInstance {
 
-    companion object {
+    companion object : Listenable {
         var assumeNonVolatile: Boolean = false
 
         /** All active font renderers (for GC tasks). */
-        val activeFontRenderers = mutableListOf<AWTFontRenderer>()
+        private val activeFontRenderers = mutableListOf<AWTFontRenderer>()
 
         /**
          * Runs a block with [assumeNonVolatile] = true, then restores it.
@@ -59,7 +63,7 @@ class AWTFontRenderer(
          * Should be called each frame or so. Every 600 frames, we run garbage collection
          * on every active font renderer.
          */
-        fun garbageCollectionTick() {
+        private val onRender2D = handler<Render2DEvent>(priority = Byte.MIN_VALUE) {
             if (++gcTicks > GC_TICKS) {
                 activeFontRenderers.forEach { it.collectGarbage() }
                 gcTicks = 0
@@ -137,10 +141,7 @@ class AWTFontRenderer(
         }
 
         // Extract ARGB
-        val alpha = ((color ushr 24) and 0xFF) / 255f
-        val red   = ((color ushr 16) and 0xFF) / 255f
-        val green = ((color ushr 8)  and 0xFF) / 255f
-        val blue  = ( color          and 0xFF) / 255f
+        val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
         glColor4f(red, green, blue, alpha)
 
         // 1) If we've cached this text, just call the display list
@@ -174,12 +175,15 @@ class AWTFontRenderer(
                 glPushMatrix()
 
                 // Because we scaled by 0.25 => revert
-                val rev = 4.0
-                glScaled(rev, rev, rev)
+                val rev = 4.0f
+                glScalef(rev, rev, rev)
 
                 // Then scale by (font.size / 32.0)
-                val scale = font.size / 32.0
-                glScaled(scale, scale, 1.0)
+                val scale = font.size / 32.0f
+                glScalef(scale, scale, 1.0f)
+
+                mc.fontRendererObj.posY = 1.0f
+                mc.fontRendererObj.posX = (currX / rev) + fallbackWidth
 
                 val fallbackW = mc.fontRendererObj.renderUnicodeChar(char, false).coerceAtLeast(0f)
                 fallbackWidth += fallbackW
@@ -215,13 +219,14 @@ class AWTFontRenderer(
     fun getStringWidth(text: String): Int {
         var myWidth = 0
         var fallbackWidth = 0f
-        val fallbackScale = font.size / 32.0
+        val fallbackScale = font.size / 32f
 
         for (char in text) {
             val loc = charLocations.getOrNull(char.code)
             if (loc == null) {
                 val w = mc.fontRendererObj.getCharWidth(char)
-                fallbackWidth += ((w + 8) * fallbackScale).coerceAtLeast(0.0).toFloat()
+                val testValue = ((w + 8) * fallbackScale).coerceAtLeast(0f)
+                fallbackWidth += testValue
             } else {
                 myWidth += (loc.width - 8)
             }
@@ -269,7 +274,7 @@ class AWTFontRenderer(
     }
 
     /**
-     * Builds the single large texture with [startChar.stopChar] glyphs.
+     * Builds the single large texture with [startChar] to [stopChar] glyphs.
      */
     private fun renderBitmap(startChar: Int, stopChar: Int) {
         val fontImages = arrayOfNulls<BufferedImage>(stopChar)
@@ -297,7 +302,8 @@ class AWTFontRenderer(
             }
             // If exceeding ~2k width, break line
             if (charX > 2048) {
-                if (charX > textureWidth) textureWidth = charX
+                if (charX > textureWidth)
+                    textureWidth = charX
                 charX = 0
                 charY += rowHeight
                 rowHeight = 0
@@ -357,15 +363,16 @@ class AWTFontRenderer(
      */
     private fun collectGarbage() {
         val now = System.currentTimeMillis()
-        val toRemove = mutableListOf<String>()
 
-        for ((text, cached) in cachedStrings) {
-            if (!cached.deleted && (now - cached.lastUsage) > CACHED_FONT_REMOVAL_TIME) {
-                glDeleteLists(cached.displayList, 1)
-                cached.deleted = true
-                toRemove += text
+        with(cachedStrings.entries.iterator()) {
+            while (hasNext()) {
+                val cached = next().value
+                if (!cached.deleted && (now - cached.lastUsage) > CACHED_FONT_REMOVAL_TIME) {
+                    glDeleteLists(cached.displayList, 1)
+                    cached.deleted = true
+                    remove()
+                }
             }
         }
-        toRemove.forEach { cachedStrings.remove(it) }
     }
 }
