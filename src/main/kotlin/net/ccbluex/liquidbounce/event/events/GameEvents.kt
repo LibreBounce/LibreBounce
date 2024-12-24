@@ -53,7 +53,7 @@ class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 class InputHandleEvent : Event()
 
 @Nameable("movementInput")
-class MovementInputEvent(var directionalInput: DirectionalInput, var jumping: Boolean, var sneaking: Boolean) : Event()
+class MovementInputEvent(var directionalInput: DirectionalInput, var jump: Boolean, var sneak: Boolean) : Event()
 
 @Nameable("mouseRotation")
 class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : CancellableEvent()

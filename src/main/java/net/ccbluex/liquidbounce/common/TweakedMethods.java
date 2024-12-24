@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.common;
 
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleGhostHand;
@@ -66,4 +65,5 @@ public class TweakedMethods {
             return BlockHitResult.createMissed(contextx.getEnd(), Direction.getFacing(vec3d.x, vec3d.y, vec3d.z), BlockPos.ofFloored(contextx.getEnd()));
         });
     }
+
 }

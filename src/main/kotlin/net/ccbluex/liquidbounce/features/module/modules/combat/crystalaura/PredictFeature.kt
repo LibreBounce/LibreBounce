@@ -95,16 +95,16 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
         if (!enabled) {
             return NormalDamageProvider(player.getDamageFromExplosion(
                 crystal,
-                maxBlastResistance = maxBlastResistance,
-                include = include
+                include = include,
+                maxBlastResistance = maxBlastResistance
             ))
         }
 
         val simulated = getSnapshotPos(player, ticks)
         val predictedDamage = player.getDamageFromExplosion(
             crystal,
-            maxBlastResistance = maxBlastResistance,
             include = include,
+            maxBlastResistance = maxBlastResistance,
             entityBoundingBox = Box(
                 simulated.x,
                 simulated.y,
@@ -120,7 +120,7 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
             return NormalDamageProvider(predictedDamage)
         }
 
-        val damage = player.getDamageFromExplosion(crystal, maxBlastResistance = maxBlastResistance, include = include)
+        val damage = player.getDamageFromExplosion(crystal, include = include, maxBlastResistance = maxBlastResistance)
         calcMode as Both
         return calcMode.logicalOperator.getDamageProvider(damage, predictedDamage)
     }

@@ -119,9 +119,9 @@ object ModuleVehicleControl : ClientModule("VehicleControl", Category.MOVEMENT, 
             val isVehicleSafe = player.controllingVehicle?.let { it.isOnGround || it.isTouchingWater } == true
 
             // Do not quit vehicle if not safe to do so
-            event.sneaking = event.sneaking && isVehicleSafe
+            event.sneak = event.sneak && isVehicleSafe
 
-            if (event.sneaking) {
+            if (event.sneak) {
                 Rehook.vehicleId = -1
             }
         }

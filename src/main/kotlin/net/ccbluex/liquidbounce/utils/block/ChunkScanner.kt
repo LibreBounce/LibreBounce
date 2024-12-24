@@ -233,7 +233,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
             val startX = chunk.pos.startX
             val startZ = chunk.pos.startZ
 
-            (chunk.bottomY..chunk.topY).map { y ->
+            (chunk.bottomY..chunk.topYInclusive + 1).map { y ->
                 scope.launch {
                     /**
                      * @see WorldChunk.getBlockState

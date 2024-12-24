@@ -21,9 +21,8 @@ import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
 import org.joml.Vector2d
 import org.lwjgl.glfw.GLFW
-import java.lang.Math.pow
 import kotlin.math.hypot
-import kotlin.math.log
+import kotlin.math.pow
 
 private const val DRAG_BUTTON = 0
 
@@ -45,8 +44,8 @@ class DroneControlScreen : Screen("BowAimbot Control Panel".asText()) {
 
     private var zoomSteps = 0.0
 
-    fun getZoomFactor(): Double {
-        return pow(ZOOM_STEP_BASE, zoomSteps)
+    fun getZoomFactor(): Float {
+        return ZOOM_STEP_BASE.pow(zoomSteps).toFloat()
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {

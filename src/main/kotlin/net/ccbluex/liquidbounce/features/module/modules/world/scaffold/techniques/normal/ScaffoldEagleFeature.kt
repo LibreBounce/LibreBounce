@@ -40,7 +40,7 @@ object ScaffoldEagleFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "E
     val stateUpdateHandler =
         handler<MovementInputEvent>(priority = EventPriorityConvention.SAFETY_FEATURE) {
             if (mode == EagleMode.INPUT && shouldEagle(it.directionalInput)) {
-                it.sneaking = true
+                it.sneak = true
             }
         }
 

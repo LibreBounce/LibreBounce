@@ -34,14 +34,14 @@ import net.ccbluex.liquidbounce.utils.item.foodComponent
 import net.ccbluex.liquidbounce.utils.item.getPotionEffects
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.option.KeyBinding
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.item.ToolItem
+import net.minecraft.item.MiningToolItem
+import net.minecraft.item.consume.UseAction
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Identifier
-import net.minecraft.util.UseAction
 import kotlin.math.absoluteValue
 
 /**
@@ -119,7 +119,10 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
 
     private object SilentOffhand : ToggleableConfigurable(this, "SilentOffhand", true) {
         private object RenderSlot : ToggleableConfigurable(this, "RenderSlot", true) {
+
             private val offset by int("Offset", 40, 30..70)
+
+            @Suppress("unused")
             val renderHandler = handler<OverlayRenderEvent> {
                 renderEnvironmentForGUI {
                     // MC-Rendering code for off-hand
@@ -131,16 +134,19 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
                     val i: Int = scaledWidth / 2
                     val x = i - 91 - 26 - offset
                     val y = scaledHeight - 16 - 3
-                    dc.drawItemInSlot(mc.textRenderer, currentFood.itemStack, x, y)
+                    dc.drawStackOverlay(mc.textRenderer, currentFood.itemStack, x, y)
                     dc.drawItem(currentFood.itemStack, x, y)
                     dc.drawGuiTexture(
+                        RenderLayer::getGuiTextured,
                         HOTBAR_OFFHAND_LEFT_TEXTURE, i - 91 - 29 - offset,
                         scaledHeight - 23, 29, 24
                     )
                 }
             }
+
         }
 
+        @Suppress("unused")
         val InteractionHandler = handler<PlayerInteractedItem> { event ->
             if (!enabled)
                 return@handler
@@ -156,7 +162,7 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
             }
 
             // Only use silent offhand if we have tools in hand.
-            if (player.mainHandStack.item !is ToolItem) {
+            if (player.mainHandStack.item !is MiningToolItem) {
                 return@handler
             }
 
@@ -167,6 +173,7 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
             )
         }
 
+        @Suppress("unused")
         val tickHandler = tickHandler {
             val useAction = player.activeItem.useAction
 
@@ -217,11 +224,9 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
 
     }
 
-
     init {
         tree(SilentOffhand)
         tree(AutoEat)
     }
-
 
 }

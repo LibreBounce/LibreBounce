@@ -27,7 +27,6 @@ import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.math.ChunkPos
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.Semaphore
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -73,7 +72,7 @@ class MinimapTextureAtlasManager {
             for (y in 0..15) {
                 val color = if ((x and 1) xor (y and 1) == 0) Color4b.BLACK.toARGB() else Color4b.WHITE.toARGB()
 
-                this.texture.image!!.setColor(x, y, color)
+                this.texture.image!!.setColorArgb(x, y, color)
             }
         }
 
@@ -183,7 +182,7 @@ class MinimapTextureAtlasManager {
                     dirtyAtlasPosition.baseXOnAtlas, dirtyAtlasPosition.baseYOnAtlas,
                     0, 0,
                     16, 16,
-                    false, false
+                    false
                 )
             }
         }

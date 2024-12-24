@@ -76,7 +76,7 @@ object CommandConfig : CommandFactory {
                         // Load the config in a separate thread to prevent the client from freezing
                         AutoConfig.startLoaderTask {
                             runCatching {
-                                if(name.startsWith("http")) {
+                                if (name.startsWith("http")) {
                                     // Load the config from the specified URL
                                     get(name).reader()
                                 } else {

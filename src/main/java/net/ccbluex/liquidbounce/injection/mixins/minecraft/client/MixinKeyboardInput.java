@@ -34,10 +34,12 @@ import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.util.PlayerInput;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -59,29 +61,29 @@ public class MixinKeyboardInput extends MixinInput {
                 ? InputTracker.INSTANCE.isPressedOnAny(keyBinding) : keyBinding.isPressed();
     }
 
-    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;pressingBack:Z", ordinal = 0))
-    private void hookInventoryMoveSprint(boolean slowDown, float f, CallbackInfo ci) {
+    /**
+     * At settings.backKey.isPressed()
+     */
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 1))
+    private void hookInventoryMoveSprint(CallbackInfo ci) {
         if (ModuleInventoryMove.INSTANCE.shouldHandleInputs(this.settings.sprintKey)) {
             this.settings.sprintKey.setPressed(InputTracker.INSTANCE.isPressedOnAny(this.settings.sprintKey));
         }
     }
 
-    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;sneaking:Z", shift = At.Shift.AFTER), allow = 1)
-    private void injectMovementInputEvent(boolean slowDown, float f, CallbackInfo ci) {
-        var event = new MovementInputEvent(new DirectionalInput(this.pressingForward, this.pressingBack, this.pressingLeft, this.pressingRight), this.jumping, this.sneaking);
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void injectMovementInputEvent(CallbackInfo ci) {
+        var event = new MovementInputEvent(new DirectionalInput(this.playerInput.forward(), this.playerInput.backward(), this.playerInput.left(), this.playerInput.right()), this.playerInput.jump(), this.playerInput.sneak());
 
         EventManager.INSTANCE.callEvent(event);
 
         var directionalInput = event.getDirectionalInput();
 
-        this.pressingForward = directionalInput.getForwards();
-        this.pressingBack = directionalInput.getBackwards();
-        this.pressingLeft = directionalInput.getLeft();
-        this.pressingRight = directionalInput.getRight();
+        playerInput = new PlayerInput(directionalInput.getForwards(), directionalInput.getBackwards(), directionalInput.getLeft(), directionalInput.getRight(), playerInput.jump(), playerInput.sneak(), playerInput.sprint());
         this.movementForward = KeyboardInput.getMovementMultiplier(directionalInput.getForwards(), directionalInput.getBackwards());
         this.movementSideways = KeyboardInput.getMovementMultiplier(directionalInput.getLeft(), directionalInput.getRight());
 
-        this.fixStrafeMovement();
+        this.liquid_bounce$fixStrafeMovement();
 
         if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
             this.movementForward = 0f;
@@ -93,11 +95,11 @@ public class MixinKeyboardInput extends MixinInput {
             }
         }
 
-        this.jumping = event.getJumping();
-        this.sneaking = event.getSneaking();
+        playerInput = new PlayerInput(playerInput.forward(), playerInput.backward(), playerInput.left(), playerInput.right(), event.getJump(), event.getSneak(), playerInput.sprint());
     }
 
-    private void fixStrafeMovement() {
+    @Unique
+    private void liquid_bounce$fixStrafeMovement() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();

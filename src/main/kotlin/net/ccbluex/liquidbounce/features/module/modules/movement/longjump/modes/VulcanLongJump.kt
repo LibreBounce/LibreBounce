@@ -107,6 +107,7 @@ internal object VulcanLongJump : Choice("Vulcan289") {
                             player.pos.x,
                             player.pos.y + position,
                             player.pos.z,
+                            false,
                             false
                         )
                     )
