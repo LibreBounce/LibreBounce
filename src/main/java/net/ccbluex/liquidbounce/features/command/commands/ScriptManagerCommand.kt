@@ -54,16 +54,12 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
                         }
 
                         "zip" -> {
-                            val existingFiles = scriptsFolder.walkTopDown()
-                                .filter { it.isFile }
-                                .toSet()
+                            val existingFiles = ScriptManager.availableScriptFiles.toSet()
 
                             file.extractZipTo(scriptsFolder)
 
-                            scriptsFolder.walkTopDown().filter { scriptFile ->
-                                scriptFile.isFile
-                                    && '/' !in scriptsFolder.relativeTo(scriptFile).path
-                                    && scriptFile !in existingFiles
+                            ScriptManager.availableScriptFiles.filterNot {
+                                it in existingFiles
                             }.forEach(scriptManager::loadScript)
 
                             loadConfigs(clickGuiConfig, hudConfig)

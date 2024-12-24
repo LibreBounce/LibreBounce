@@ -27,6 +27,7 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.awt.Desktop
 import java.io.File
+import java.io.FileFilter
 import java.net.URL
 import java.util.zip.ZipFile
 
@@ -75,16 +76,12 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
                     }
 
                     "zip" -> {
-                        val existingFiles = scriptsFolder.walkTopDown()
-                            .filter { it.isFile }
-                            .toSet()
+                        val existingFiles = ScriptManager.availableScriptFiles.toSet()
 
                         file.extractZipTo(scriptsFolder)
 
-                        scriptsFolder.walkTopDown().filter { scriptFile ->
-                            scriptFile.isFile
-                                    && '/' !in scriptsFolder.relativeTo(scriptFile).path
-                                    && scriptFile !in existingFiles
+                        ScriptManager.availableScriptFiles.filterNot {
+                            it in existingFiles
                         }.forEach(scriptManager::loadScript)
 
                         loadConfigs(clickGuiConfig, hudConfig)

@@ -16,7 +16,16 @@ private val scripts = mutableListOf<Script>()
 object ScriptManager : List<Script> by scripts {
 
     val scriptsFolder = File(dir, "scripts")
-    private const val scriptFileExtension = ".js"
+
+    private val SCRIPT_FILE_FILTER = FileFilter {
+        it.extension.lowercase() == "js"
+    }
+
+    /**
+     * Only includes files in the root directory ([scriptsFolder])
+     */
+    val availableScriptFiles: Array<File>
+        get() = scriptsFolder.listFiles(SCRIPT_FILE_FILTER) ?: emptyArray()
 
     /**
      * Loads all scripts inside the scripts folder.
@@ -25,7 +34,7 @@ object ScriptManager : List<Script> by scripts {
         if (!scriptsFolder.exists())
             scriptsFolder.mkdir()
 
-        scriptsFolder.listFiles(FileFilter { it.name.endsWith(scriptFileExtension) })?.forEach(::loadScript)
+        availableScriptFiles.forEach(::loadScript)
     }
 
     /**
