@@ -11,20 +11,19 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isBlockBBValid
-import net.ccbluex.liquidbounce.utils.block.block
-import net.ccbluex.liquidbounce.utils.block.blockById
-import net.ccbluex.liquidbounce.utils.block.center
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.extensions.ceilInt
+import net.ccbluex.liquidbounce.utils.extensions.eyes
+import net.ccbluex.liquidbounce.utils.extensions.onPlayerRightClick
+import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
@@ -42,7 +41,6 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
-import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
 object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
@@ -126,7 +124,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
 
         val targetId = block
 
-        if (pos == null || Block.getIdFromBlock(pos!!.block) != targetId || getCenterDistance(pos!!) > range) {
+        if (pos == null || pos!!.block!!.id != targetId || getCenterDistance(pos!!) > range) {
             pos = find(targetId)
         }
 
@@ -329,36 +327,26 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
      * Find new target block by [targetID]
      */
     private fun find(targetID: Int): BlockPos? {
-        val thePlayer = mc.thePlayer ?: return null
+        val eyes = mc.thePlayer?.eyes ?: return null
 
-        val radius = range.toInt() + 1
+        var nearestBlockDistanceSq = Double.MAX_VALUE
+        val nearestBlock = BlockPos.MutableBlockPos()
 
-        var nearestBlockDistance = Double.MAX_VALUE
-        var nearestBlock: BlockPos? = null
+        val rangeSq = range * range
 
-        for (x in radius downTo -radius + 1) {
-            for (y in radius downTo -radius + 1) {
-                for (z in radius downTo -radius + 1) {
-                    val blockPos = BlockPos(thePlayer).add(x, y, z)
-                    val block = blockPos.block ?: continue
+        eyes.getAllInBoxMutable(range + 1.0).forEach {
+            val distSq = it.distanceSqToCenter(eyes.xCoord, eyes.yCoord, eyes.zCoord)
 
-                    val distance = getCenterDistance(blockPos)
+            if (it.block?.id != targetID
+                || distSq > rangeSq || distSq > nearestBlockDistanceSq
+                || !isHittable(it) && !surroundings && !hypixel
+            ) return@forEach
 
-                    if (Block.getIdFromBlock(block) != targetID
-                        || getCenterDistance(blockPos) > range
-                        || nearestBlockDistance < distance
-                        || !isHittable(blockPos) && !surroundings && !hypixel
-                    ) {
-                        continue
-                    }
-
-                    nearestBlockDistance = distance
-                    nearestBlock = blockPos
-                }
-            }
+            nearestBlockDistanceSq = distSq
+            nearestBlock.set(it)
         }
 
-        return nearestBlock
+        return nearestBlock.takeIf { nearestBlockDistanceSq != Double.MAX_VALUE }
     }
 
     /**

@@ -28,7 +28,7 @@ object ClientFixes : MinecraftInstance, Listenable {
 
     var clientBrand = "Vanilla"
 
-    var possibleBrands = arrayOf(
+    val possibleBrands = arrayOf(
         "Vanilla",
         "Forge",
         "LunarClient",

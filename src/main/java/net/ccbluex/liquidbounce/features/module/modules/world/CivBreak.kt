@@ -39,11 +39,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
     private var enumFacing: EnumFacing? = null
 
     val onBlockClick = handler<ClickBlockEvent> { event ->
-        if (event.clickedBlock?.block == bedrock) {
-            return@handler
-        }
-
-        blockPos = event.clickedBlock ?: return@handler
+        blockPos = event.clickedBlock?.takeIf { it.block != bedrock } ?: return@handler
         enumFacing = event.enumFacing ?: return@handler
 
         // Break
