@@ -85,7 +85,7 @@ class CommandBuilder private constructor(val name: String) {
 
     fun build(): Command {
         require(executable || this.handler == null) {
-            "The command is marked as not executable (hub), but no handler was specified"
+            "The command is marked as not executable (hub), but a handler was specified"
         }
         require(!executable || this.handler != null) {
             "The command is marked as executable, but no handler was specified."
