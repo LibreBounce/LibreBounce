@@ -105,6 +105,7 @@ dependencies {
     // JCEF Support
     includeModDependency "com.github.CCBlueX:mcef:${project.mcef_version}"
     includeDependency "org.apache.commons:commons-exec:1.3"
+    includeDependency "org.apache.commons:commons-compress:1.27.1"
     includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
     }
