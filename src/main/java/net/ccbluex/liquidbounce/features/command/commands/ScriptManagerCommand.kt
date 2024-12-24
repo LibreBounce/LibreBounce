@@ -20,10 +20,10 @@ import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.script.ScriptManager.reloadScripts
 import net.ccbluex.liquidbounce.script.ScriptManager.scriptsFolder
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.io.FileFilters
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.io.extractZipTo
 import java.awt.Desktop
-import javax.swing.filechooser.FileNameExtensionFilter
 
 object ScriptManagerCommand : Command("scriptmanager", "scripts") {
     /**
@@ -40,9 +40,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
         when (args[1].lowercase()) {
             "import" -> {
                 try {
-                    val file = MiscUtils.openFileChooser(FileNameExtensionFilter(
-                        "Script file(s) (*.js, *.zip)", "js", "zip"
-                    )).takeIf { it != null && it.isFile } ?: return
+                    val file = MiscUtils.openFileChooser(FileFilters.JAVASCRIPT, FileFilters.ARCHIVE) ?: return
 
                     when (file.extension.lowercase()) {
                         "js" -> {

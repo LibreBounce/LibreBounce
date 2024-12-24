@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.io.FileFilters
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.io.MiscUtils.showErrorPopup
 import net.ccbluex.liquidbounce.utils.render.IconUtils
@@ -25,7 +26,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.Display
-import javax.swing.filechooser.FileNameExtensionFilter
 
 class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
 
@@ -170,11 +170,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             2 -> {
-                val file = MiscUtils.openFileChooser(
-                    FileNameExtensionFilter("Image and Shader (*.png, *.frag *.glsl *.shader)", "png", "frag", "glsl", "shader")
-                ) ?: return
-
-                if (file.isDirectory) return
+                val file = MiscUtils.openFileChooser(FileFilters.IMAGE, FileFilters.SHADER) ?: return
 
                 // Delete old files
                 background = null
@@ -185,7 +181,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
                 val fileExtension = file.extension
 
                 background = try {
-                    val destFile = when (fileExtension) {
+                    val destFile = when (fileExtension.lowercase()) {
                         "png" -> backgroundImageFile
                         "frag", "glsl", "shader" -> backgroundShaderFile
                         else -> {

@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.script.ScriptManager.scriptsFolder
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.io.FileFilters
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.io.extractZipTo
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
@@ -25,7 +26,6 @@ import net.minecraft.client.gui.GuiSlot
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.awt.Desktop
-import javax.swing.filechooser.FileNameExtensionFilter
 
 class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
 
@@ -62,9 +62,7 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
         when (button.id) {
             0 -> mc.displayGuiScreen(prevGui)
             1 -> try {
-                val file = MiscUtils.openFileChooser(FileNameExtensionFilter(
-                    "Script file(s) (*.js, *.zip)", "js", "zip"
-                )).takeIf { it != null && it.isFile } ?: return
+                val file = MiscUtils.openFileChooser(FileFilters.JAVASCRIPT, FileFilters.ARCHIVE) ?: return
 
                 when (file.extension.lowercase()) {
                     "js" -> {
