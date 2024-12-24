@@ -18,6 +18,7 @@ import java.net.URISyntaxException
 import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.filechooser.FileFilter
+import javax.swing.filechooser.FileNameExtensionFilter
 
 object MiscUtils : MinecraftInstance {
 

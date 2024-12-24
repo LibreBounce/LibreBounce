@@ -22,14 +22,10 @@ import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiSlot
-import org.apache.commons.io.IOUtils
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.awt.Desktop
-import java.io.File
-import java.io.FileFilter
-import java.net.URL
-import java.util.zip.ZipFile
+import javax.swing.filechooser.FileNameExtensionFilter
 
 class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
 
@@ -66,7 +62,9 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
         when (button.id) {
             0 -> mc.displayGuiScreen(prevGui)
             1 -> try {
-                val file = MiscUtils.openFileChooser().takeIf { it != null && it.isFile } ?: return
+                val file = MiscUtils.openFileChooser(FileNameExtensionFilter(
+                    "Script file(s) (*.js, *.zip)", "js", "zip"
+                )).takeIf { it != null && it.isFile } ?: return
 
                 when (file.extension.lowercase()) {
                     "js" -> {
