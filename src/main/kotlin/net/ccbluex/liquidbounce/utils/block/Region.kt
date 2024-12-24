@@ -51,14 +51,14 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
             val pos = chunk.pos
             return Region(
                 BlockPos(pos.x shl 4, chunk.bottomY, pos.z shl 4),
-                BlockPos(pos.x shl 4 or 15, chunk.topYInclusive + 1, pos.z shl 4 or 15)
+                BlockPos(pos.x shl 4 or 15, chunk.topYInclusive, pos.z shl 4 or 15)
             )
         }
 
         fun fromChunkPos(x: Int, z: Int): Region {
             return Region(
                 BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
-                BlockPos(x shl 4 or 15, mc.world!!.topYInclusive + 1, z shl 4 or 15)
+                BlockPos(x shl 4 or 15, mc.world!!.topYInclusive, z shl 4 or 15)
             )
         }
 
