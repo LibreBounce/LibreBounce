@@ -1,10 +1,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.murdermystery
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.math.levenshtein
 import net.minecraft.client.network.AbstractClientPlayerEntity
@@ -20,7 +20,7 @@ import java.util.*
 import kotlin.math.absoluteValue
 
 object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMode {
-    override val parent: ChoiceConfigurable<Choice>
+    override val parent
         get() = ModuleMurderMystery.modes
 
     private var lastMap: MapIdComponent? = null
@@ -61,7 +61,7 @@ object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMo
     }
 
     val repeatable =
-        repeatable {
+        tickHandler {
             assassinModeBs(player, world)
         }
 
@@ -74,6 +74,8 @@ object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMo
         val item = equippedItem?.item
 
         if (item !is FilledMapItem) {
+            // reset lastMap when map was removed (no longer in game)
+            lastMap = null
             return
         }
 

@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.FullHttpResponse
 import io.netty.handler.codec.http.HttpMethod
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager.modulesConfigurable
@@ -33,8 +34,6 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
-import net.ccbluex.liquidbounce.integration.interop.protocol.genericProtocolGson
 import java.io.StringReader
 
 // GET /api/v1/client/modules
@@ -45,12 +44,12 @@ fun getModules(requestObject: RequestObject): FullHttpResponse {
         mods.add(JsonObject().apply {
             addProperty("name", module.name)
             addProperty("category", module.category.readableName)
-            add("keyBind", protocolGson.toJsonTree(module.bind))
+            add("keyBind", interopGson.toJsonTree(module.bind))
             addProperty("enabled", module.enabled)
-            addProperty("description", module.description)
+            addProperty("description", module.description.get())
             addProperty("tag", module.tag)
             addProperty("hidden", module.hidden)
-            add("aliases", protocolGson.toJsonTree(module.aliases))
+            add("aliases", interopGson.toJsonTree(module.aliases))
         })
     }
     return httpOk(mods)
@@ -77,23 +76,21 @@ fun putSettings(requestObject: RequestObject): FullHttpResponse {
 @Suppress("UNUSED_PARAMETER")
 fun postPanic(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
-        AutoConfig.loadingNow = true
+        AutoConfig.withLoading {
+            runCatching {
+                for (module in ModuleManager) {
+                    if (module.category == Category.RENDER || module.category == Category.CLIENT) {
+                        continue
+                    }
 
-        runCatching {
-            for (module in ModuleManager) {
-                if (module.category == Category.RENDER || module.category == Category.CLIENT) {
-                    continue
+                    module.enabled = false
                 }
 
-                module.enabled = false
+                ConfigSystem.storeConfigurable(modulesConfigurable)
+            }.onFailure {
+                logger.error("Failed to panic disable modules", it)
             }
-
-            ConfigSystem.storeConfigurable(modulesConfigurable)
-        }.onFailure {
-            logger.error("Failed to panic disable modules", it)
         }
-
-        AutoConfig.loadingNow = false
     }
     return httpOk(JsonObject())
 }
@@ -123,7 +120,7 @@ data class ModuleRequest(val name: String) {
 
     fun acceptGetSettingsRequest(): FullHttpResponse {
         val module = ModuleManager[name] ?: return httpForbidden("$name not found")
-        return httpOk(ConfigSystem.serializeConfigurable(module, gson = genericProtocolGson))
+        return httpOk(ConfigSystem.serializeConfigurable(module, gson = interopGson))
     }
 
     fun acceptPutSettingsRequest(content: String): FullHttpResponse {

@@ -18,15 +18,16 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 
 /**
  * A rotation manager
  */
-object CombatManager : Listenable {
+object CombatManager : EventListener {
 
     // useful for something like autoSoup
     private var pauseCombat: Int = 0
@@ -79,7 +80,7 @@ object CombatManager : Listenable {
     }
 
     @Suppress("unused")
-    val attackHandler = handler<AttackEvent> {
+    val attackHandler = handler<AttackEntityEvent> {
         // 40 ticks = 2 seconds
         duringCombat = 40
     }
@@ -91,7 +92,8 @@ object CombatManager : Listenable {
     val shouldPauseBlocking: Boolean
         get() = this.pauseBlocking > 0
     val isInCombat: Boolean
-        get() = this.duringCombat > 0
+        get() = this.duringCombat > 0 ||
+            (ModuleKillAura.running && ModuleKillAura.targetTracker.lockedOnTarget != null)
 
     fun pauseCombatForAtLeast(pauseTime: Int) {
         this.pauseCombat = this.pauseCombat.coerceAtLeast(pauseTime)

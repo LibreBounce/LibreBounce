@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -40,7 +40,7 @@ import kotlin.math.sin
  *
  * Highlight the active TNTs.
  */
-object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
+object ModuleTNTTimer : ClientModule("TNTTimer", Category.RENDER) {
 
     override val baseKey: String
         get() = "liquidbounce.module.tntTimer"
@@ -74,9 +74,8 @@ object ModuleTNTTimer : Module("TNTTimer", Category.RENDER) {
         tree(ShowTimer)
     }
 
-    private val fontRenderer by lazy {
-        Fonts.DEFAULT_FONT.get()
-    }
+    private val fontRenderer
+        get() = FontManager.FONT_RENDERER
 
     private const val DEFAULT_FUSE = 80
 

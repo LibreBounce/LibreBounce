@@ -21,11 +21,11 @@ package net.ccbluex.liquidbounce.features.misc.proxy
 import io.netty.handler.proxy.Socks5ProxyHandler
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.ListValueType
-import net.ccbluex.liquidbounce.config.ValueType
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ListValueType
+import net.ccbluex.liquidbounce.config.types.ValueType
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.PipelineEvent
 import net.ccbluex.liquidbounce.event.events.ProxyAdditionResultEvent
 import net.ccbluex.liquidbounce.event.events.ProxyCheckResultEvent
@@ -38,7 +38,7 @@ import net.ccbluex.liquidbounce.features.misc.proxy.Proxy.Credentials.Companion.
  *
  * Only supports SOCKS5 proxies.
  */
-object ProxyManager : Configurable("proxy"), Listenable {
+object ProxyManager : Configurable("proxy"), EventListener {
 
     private val NO_PROXY = Proxy("", 0, null)
 

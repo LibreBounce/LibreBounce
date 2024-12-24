@@ -18,27 +18,25 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.autododge
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.client.EventScheduler
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.entity.CachedPlayerSimulation
-import net.ccbluex.liquidbounce.utils.entity.PlayerSimulation
-import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.entity.SimulatedArrow
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
-object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
+object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
     private object AllowRotationChange : ToggleableConfigurable(this, "AllowRotationChange", false) {
         val allowJump by boolean("AllowJump", true)
     }
@@ -55,7 +53,7 @@ object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
     @Suppress("unused")
     val tickRep = handler<MovementInputEvent> { event ->
         // We aren't where we are because of blink. So this module shall not cause any disturbance in that case.
-        if (ModuleBlink.enabled) {
+        if (ModuleBlink.running) {
             return@handler
         }
         if (ModuleMurderMystery.disallowsArrowDodge()) {
@@ -84,7 +82,7 @@ object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
 
         if (dodgePlan.shouldJump && AllowRotationChange.allowJump && player.isOnGround) {
             EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                it.jumping = true
+                it.jump = true
             }
         }
 
@@ -98,7 +96,8 @@ object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
             if (it !is ArrowEntity) {
                 return@mapNotNull null
             }
-            if (it.inGround) {
+
+            if (it.isInGround()) {
                 return@mapNotNull null
             }
 
@@ -139,6 +138,65 @@ object ModuleAutoDodge : Module("AutoDodge", Category.COMBAT) {
         }
 
         return null
+    }
+
+    data class EvadingPacket(
+        val idx: Int,
+        /**
+         * Ticks until impact. Null if evaded
+         */
+        val ticksToImpact: Int?
+    )
+
+    /**
+     * Returns the index of the first position packet that avoids all arrows in the next X seconds
+     */
+    fun findAvoidingArrowPosition(): EvadingPacket? {
+        var packetIndex = 0
+
+        var lastPosition: Vec3d? = null
+
+        var bestPacketPosition: Vec3d? = null
+        var bestPacketIdx: Int? = null
+        var bestTimeToImpact = 0
+
+        for (position in PacketQueueManager.positions) {
+            packetIndex += 1
+
+            // Process packets only if they are at least some distance away from each other
+            if (lastPosition != null) {
+                if (lastPosition.squaredDistanceTo(position) < 0.9 * 0.9) {
+                    continue
+                }
+            }
+
+            lastPosition = position
+
+            val inflictedHit = getInflictedHit(position)
+
+            if (inflictedHit == null) {
+                return EvadingPacket(packetIndex - 1, null)
+            } else if (inflictedHit.tickDelta > bestTimeToImpact) {
+                bestTimeToImpact = inflictedHit.tickDelta
+                bestPacketIdx = packetIndex - 1
+                bestPacketPosition = position
+            }
+        }
+
+        // If the evading packet is less than one player hitbox away from the current position, we should rather
+        // call the evasion a failure
+        if (bestPacketIdx != null && bestPacketPosition!!.squaredDistanceTo(lastPosition!!) > 0.9) {
+            return EvadingPacket(bestPacketIdx, bestTimeToImpact)
+        }
+
+        return null
+    }
+
+    fun getInflictedHit(pos: Vec3d): HitInfo? {
+        val arrows = findFlyingArrows(net.ccbluex.liquidbounce.utils.client.world)
+        val playerSimulation = RigidPlayerSimulation(pos)
+
+        return getInflictedHits(playerSimulation, arrows, maxTicks = 40)
     }
 
     data class HitInfo(

@@ -2,8 +2,8 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.mode
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
 import net.ccbluex.liquidbounce.utils.io.toJson
 import net.minecraft.entity.Entity
@@ -19,7 +19,7 @@ object GenericDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Generic") {
         waitingEntites.add(ScheduledEntityDebug(ticks, entity.id))
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val due = waitingEntites.filter {
             it.ticksLeft--
             it.ticksLeft <= 0
@@ -36,7 +36,7 @@ object GenericDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Generic") {
         waitingEntites.removeAll(due)
     }
 
-    fun recordDebugInfo(module: Module, packetName: String, packet: JsonElement) {
+    fun recordDebugInfo(module: ClientModule, packetName: String, packet: JsonElement) {
         recordPacket(JsonObject().apply {
             addProperty("module", module.name)
             addProperty("packet", packetName)

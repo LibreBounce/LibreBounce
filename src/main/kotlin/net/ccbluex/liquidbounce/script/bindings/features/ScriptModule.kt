@@ -18,15 +18,16 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.features
 
-import net.ccbluex.liquidbounce.config.Value
+import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.script.PolyglotScript
 import net.ccbluex.liquidbounce.utils.client.*
+import java.util.function.Supplier
 import kotlin.reflect.KClass
 
-class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) : Module(
+class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) : ClientModule(
     name = moduleObject["name"] as String,
     category = Category.fromReadableName(moduleObject["category"] as String)!!
 ) {
@@ -38,8 +39,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
         get() = _tag
 
     private var _description: String? = null
-    override var description: String? = ""
-        get() = _description ?: ""
+    override var description: Supplier<String?> = Supplier { _description ?: "" }
 
     /**
      * Allows the user to access values by typing module.settings.<valuename>

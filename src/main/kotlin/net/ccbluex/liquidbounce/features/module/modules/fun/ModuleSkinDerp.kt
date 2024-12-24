@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.entity.player.PlayerModelPart
 import kotlin.random.Random
 
@@ -29,7 +29,7 @@ import kotlin.random.Random
  *
  * Makes your skin blink (Requires multi-layer skin).
  */
-object ModuleSkinDerp : Module("SkinDerp", Category.FUN) {
+object ModuleSkinDerp : ClientModule("SkinDerp", Category.FUN) {
 
     private val sync by boolean("Sync", false)
     private val delay by int("Delay", 0, 0..20, "ticks")
@@ -50,15 +50,15 @@ object ModuleSkinDerp : Module("SkinDerp", Category.FUN) {
     override fun disable() {
         // Disable all current model parts
         for (modelPart in PlayerModelPart.entries) {
-            mc.options.togglePlayerModelPart(modelPart, false)
+            mc.options.setPlayerModelPart(modelPart, false)
         }
         // Enable all old model parts
         for (modelPart in prevModelParts) {
-            mc.options.togglePlayerModelPart(modelPart, true)
+            mc.options.setPlayerModelPart(modelPart, true)
         }
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         waitTicks(delay)
         val partsMap = mapOf(
             PlayerModelPart.HAT to hat,
@@ -72,9 +72,9 @@ object ModuleSkinDerp : Module("SkinDerp", Category.FUN) {
         for ((part, isEnabled) in partsMap) {
             if (isEnabled) {
                 if (sync)
-                    mc.options.togglePlayerModelPart(part, !mc.options.isPlayerModelPartEnabled(part))
+                    mc.options.setPlayerModelPart(part, !mc.options.isPlayerModelPartEnabled(part))
                 else
-                    mc.options.togglePlayerModelPart(part, Random.nextBoolean())
+                    mc.options.setPlayerModelPart(part, Random.nextBoolean())
             }
         }
     }

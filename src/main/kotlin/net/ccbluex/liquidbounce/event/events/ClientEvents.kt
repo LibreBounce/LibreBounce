@@ -21,8 +21,9 @@
 package net.ccbluex.liquidbounce.event.events
 
 import com.google.gson.annotations.SerializedName
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.Value
+import net.ccbluex.liquidbounce.config.gson.GsonInstance
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.features.chat.packet.User
 import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
@@ -62,13 +63,21 @@ class ClientStartEvent : Event()
 @Nameable("clientShutdown")
 class ClientShutdownEvent : Event()
 
+@Nameable("clientLanguageChanged")
+@WebSocketEvent
+class ClientLanguageChangedEvent : Event()
+
 @Nameable("valueChanged")
 @WebSocketEvent
 class ValueChangedEvent(val value: Value<*>) : Event()
 
-@Nameable("toggleModule")
+@Nameable("moduleActivation")
 @WebSocketEvent
-class ToggleModuleEvent(val moduleName: String, val hidden: Boolean, val enabled: Boolean) : Event()
+class ModuleActivationEvent(val moduleName: String) : Event()
+
+@Nameable("moduleToggle")
+@WebSocketEvent
+class ModuleToggleEvent(val moduleName: String, val hidden: Boolean, val enabled: Boolean) : Event()
 
 @Nameable("refreshArrayList")
 @WebSocketEvent
@@ -184,7 +193,7 @@ class VirtualScreenEvent(val screenName: String, val action: Action) : Event() {
 class ServerPingedEvent(val server: ServerInfo) : Event()
 
 @Nameable("componentsUpdate")
-@WebSocketEvent
+@WebSocketEvent(serializer = GsonInstance.ACCESSIBLE_INTEROP)
 class ComponentsUpdate(val components: List<Component>) : Event()
 
 /**

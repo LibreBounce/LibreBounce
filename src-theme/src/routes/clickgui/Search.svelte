@@ -2,7 +2,7 @@
     import type {ConfigurableSetting, Module} from "../../integration/types";
     import {getModuleSettings, setModuleEnabled} from "../../integration/rest";
     import {listen} from "../../integration/ws";
-    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ToggleModuleEvent} from "../../integration/events";
+    import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ModuleToggleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
     import {onMount} from "svelte";
     import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
@@ -31,32 +31,39 @@
 
         selectedIndex = 0;
 
-        filteredModules = modules.filter((m) => m.name.toLowerCase().includes(query.toLowerCase().replaceAll(" ", ""))
-            || m.aliases.some(a => a.toLowerCase().includes(query.toLowerCase().replaceAll(" ", "")))
+        const pureQuery = query.toLowerCase().replaceAll(" ", "");
+
+        filteredModules = modules.filter((m) => m.name.toLowerCase().includes(pureQuery)
+            || m.aliases.some(a => a.toLowerCase().includes(pureQuery))
         );
     }
 
     async function handleKeyDown(e: KeyboardKeyEvent) {
+        if (e.screen === undefined || !e.screen.class.startsWith("net.ccbluex.liquidbounce") ||
+            !(e.screen.title === "ClickGUI" || e.screen.title === "VS-CLICKGUI")) {
+            return;
+        }
+
         if (filteredModules.length === 0 || e.action === 0) {
             return;
         }
 
-        switch (e.keyCode) {
-            case 264:
+        switch (e.key) {
+            case "key.keyboard.down":
                 selectedIndex = (selectedIndex + 1) % filteredModules.length;
                 break;
-            case 265:
+            case "key.keyboard.up":
                 selectedIndex =
                     (selectedIndex - 1 + filteredModules.length) %
                     filteredModules.length;
                 break;
-            case 257:
+            case "key.keyboard.enter":
                 await toggleModule(
                     filteredModules[selectedIndex].name,
                     !filteredModules[selectedIndex].enabled,
                 );
                 break;
-            case 258:
+            case "key.keyboard.tab":
                 const m = filteredModules[selectedIndex]?.name;
                 if (m) {
                     $highlightModuleName = m;
@@ -108,8 +115,8 @@
         }
     });
 
-    listen("toggleModule", (e: ToggleModuleEvent) => {
-        const mod = filteredModules.find((m) => m.name === e.moduleName);
+    listen("moduleToggle", (e: ModuleToggleEvent) => {
+        const mod = modules.find((m) => m.name === e.moduleName);
         if (!mod) {
             return;
         }
@@ -174,7 +181,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as *;
 
   .search {
     position: fixed;

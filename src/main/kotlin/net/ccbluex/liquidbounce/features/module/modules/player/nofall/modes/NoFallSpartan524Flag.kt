@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
@@ -35,9 +35,9 @@ internal object NoFallSpartan524Flag : Choice("Spartan524Flag") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleNoFall.modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.fallDistance > 2f) {
-            network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true))
+            network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true, player.horizontalCollision))
             waitTicks(1)
         }
     }

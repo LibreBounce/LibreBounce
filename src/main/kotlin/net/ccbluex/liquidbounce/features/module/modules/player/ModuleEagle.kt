@@ -18,11 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ScaffoldBlockItemSelection.isValidBlock
 import net.ccbluex.liquidbounce.utils.entity.isCloseToEdge
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
  *
  * Legit trick to build faster.
  */
-object ModuleEagle : Module("Eagle", Category.PLAYER, aliases = arrayOf("FastBridge", "BridgeAssistant")) {
+object ModuleEagle : ClientModule("Eagle", Category.PLAYER, aliases = arrayOf("FastBridge", "BridgeAssistant")) {
 
     private val edgeDistance by float("EagleEdgeDistance", 0.4f, 0.01f..1.3f)
 
@@ -47,11 +47,11 @@ object ModuleEagle : Module("Eagle", Category.PLAYER, aliases = arrayOf("FastBri
         val backwards by boolean("Backwards", false)
 
         fun shouldSneak(event: MovementInputEvent): Boolean = when {
-            !enabled || event.sneaking -> true
+            !enabled || event.sneak -> true
             holdingBlocks && !isValidBlock(player.mainHandStack) && !isValidBlock(player.offHandStack) -> false
             onGround && !player.isOnGround -> false
             player.pitch !in pitch -> false
-            sneak && !event.sneaking -> false
+            sneak && !event.sneak -> false
             left && !event.directionalInput.left -> false
             right && !event.directionalInput.right -> false
             forwards && !event.directionalInput.forwards -> false
@@ -70,7 +70,7 @@ object ModuleEagle : Module("Eagle", Category.PLAYER, aliases = arrayOf("FastBri
     ) { event ->
         val shouldBeActive = !player.abilities.flying && Conditional.shouldSneak(event)
 
-        event.sneaking = shouldBeActive && player.isCloseToEdge(event.directionalInput, edgeDistance.toDouble())
+        event.sneak = shouldBeActive && player.isCloseToEdge(event.directionalInput, edgeDistance.toDouble())
     }
 
 }

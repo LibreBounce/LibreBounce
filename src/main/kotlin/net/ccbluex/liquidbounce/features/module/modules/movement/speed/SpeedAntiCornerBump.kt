@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.entity.set
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.block.BlockState
 import net.minecraft.entity.EntityPose
@@ -38,7 +39,9 @@ object SpeedAntiCornerBump : MinecraftShortcuts {
     fun shouldDelayJump(): Boolean {
         val input = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(DirectionalInput(player.input))
 
-        input.jumping = true
+        input.set(
+            jump = true
+        )
 
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(input)
 
@@ -120,10 +123,12 @@ object SpeedAntiCornerBump : MinecraftShortcuts {
             return false
         }
 
+        val jumpOnPos = BlockPos.Mutable(0, blockPos.y, 0)
         for (x in blockPos.x..blockPos2.x) {
             for (z in blockPos.z..blockPos2.z) {
-                val jumpOnPos = BlockPos(x, blockPos.y, z)
-                val jumpOnState = world.getBlockState(jumpOnPos)
+                jumpOnPos.x = x
+                jumpOnPos.z = z
+                val jumpOnState = jumpOnPos.getState()!!
 
                 // Simple check that asserts that we can actually reach the block with a jump.
                 if (jumpOnPos.y + 1 - lastGroundPos.y > 1.3) {

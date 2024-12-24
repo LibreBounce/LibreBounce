@@ -21,14 +21,15 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleNoMissCooldown;
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura;
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.AutoBlock;
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAction;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
@@ -37,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility;
 import net.ccbluex.liquidbounce.utils.combat.CombatManager;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -56,9 +58,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -90,7 +90,7 @@ public abstract class MixinMinecraftClient {
     @Inject(method = "isAmbientOcclusionEnabled()Z", at = @At("HEAD"), cancellable = true)
     private static void injectXRayFullBright(CallbackInfoReturnable<Boolean> callback) {
         ModuleXRay module = ModuleXRay.INSTANCE;
-        if (!module.getEnabled() || !module.getFullBright()) {
+        if (!module.getRunning() || !module.getFullBright()) {
             return;
         }
 
@@ -239,6 +239,14 @@ public abstract class MixinMinecraftClient {
     }
 
     /**
+     * Hook game render task queue event
+     */
+    @Inject(method = "render", at = @At("HEAD"))
+    private void hookRenderTaskQueue(CallbackInfo callbackInfo) {
+        EventManager.INSTANCE.callEvent(new GameRenderTaskQueueEvent());
+    }
+
+    /**
      * Hook input handling
      */
     @Inject(method = "handleInputEvents", at = @At("RETURN"))
@@ -273,7 +281,7 @@ public abstract class MixinMinecraftClient {
     @ModifyExpressionValue(method = "doAttack",
             at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I", ordinal = 0))
     private int injectNoMissCooldown(int original) {
-        if (ModuleNoMissCooldown.INSTANCE.getEnabled() && ModuleNoMissCooldown.INSTANCE.getRemoveAttackCooldown()) {
+        if (ModuleNoMissCooldown.INSTANCE.getRunning() && ModuleNoMissCooldown.INSTANCE.getRemoveAttackCooldown()) {
             return 0;
         }
 
@@ -283,13 +291,13 @@ public abstract class MixinMinecraftClient {
     @WrapWithCondition(method = "doAttack", at = @At(value = "FIELD",
             target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I", ordinal = 1))
     private boolean disableAttackCooldown(MinecraftClient instance, int value) {
-        return !(ModuleNoMissCooldown.INSTANCE.getEnabled() && ModuleNoMissCooldown.INSTANCE.getRemoveAttackCooldown());
+        return !(ModuleNoMissCooldown.INSTANCE.getRunning() && ModuleNoMissCooldown.INSTANCE.getRemoveAttackCooldown());
     }
 
     @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
     private void injectCombatPause(CallbackInfoReturnable<Boolean> cir) {
         if (player == null || crosshairTarget == null || crosshairTarget.getType() == HitResult.Type.MISS) {
-            if (ModuleNoMissCooldown.INSTANCE.getEnabled() && ModuleNoMissCooldown.INSTANCE.getCancelAttackOnMiss()) {
+            if (ModuleNoMissCooldown.INSTANCE.getRunning() && ModuleNoMissCooldown.INSTANCE.getCancelAttackOnMiss()) {
                 // Prevent swinging
                 cir.setReturnValue(true);
             }
@@ -306,14 +314,6 @@ public abstract class MixinMinecraftClient {
         EventManager.INSTANCE.callEvent(new WorldChangeEvent(world));
     }
 
-    /**
-     * Removes frame rate limit
-     */
-    @ModifyConstant(method = "getFramerateLimit", constant = @Constant(intValue = 60))
-    private int getFramerateLimit(int original) {
-        return getWindow().getFramerateLimit();
-    }
-
     @Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentFps:I",
             ordinal = 0, shift = At.Shift.AFTER))
     private void hookFpsChange(CallbackInfo ci) {
@@ -327,23 +327,22 @@ public abstract class MixinMinecraftClient {
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean injectMultiActionsBreakingWhileUsing(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.handleEvents() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
+        return original && !(ModuleMultiActions.INSTANCE.getRunning() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
     }
 
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
     private boolean injectMultiActionsPlacingWhileBreaking(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.handleEvents() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
+        return original && !(ModuleMultiActions.INSTANCE.getRunning() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
     }
 
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
     private boolean injectMultiActionsAttackingWhileUsingAndEnforcedBlockingState(boolean isUsingItem) {
         if (isUsingItem) {
-            if (!this.options.useKey.isPressed() && !(ModuleKillAura.INSTANCE.getEnabled()
-                    && AutoBlock.INSTANCE.getEnabled() && AutoBlock.INSTANCE.getBlockingStateEnforced())) {
+            if (!this.options.useKey.isPressed() && !(KillAuraAutoBlock.INSTANCE.getRunning() && KillAuraAutoBlock.INSTANCE.getBlockingStateEnforced())) {
                 this.interactionManager.stopUsingItem(this.player);
             }
 
-            if (!ModuleMultiActions.INSTANCE.handleEvents() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
+            if (!ModuleMultiActions.INSTANCE.getRunning() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
                 this.options.attackKey.timesPressed = 0;
             }
 
@@ -358,7 +357,16 @@ public abstract class MixinMinecraftClient {
     private boolean injectFixAttackCooldownOnVirtualBrowserScreen(MinecraftClient instance, int value) {
         // Do not reset attack cooldown when we are in the vr/browser screen, as this poses an
         // unintended modification to the attack cooldown, which is not intended.
-        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen);
+        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen ||
+                this.currentScreen instanceof ModuleClickGui.ClickScreen);
+    }
+
+    @Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
+    private void hookSpoofFramebuffer(CallbackInfoReturnable<Framebuffer> cir) {
+        var framebuffer = GlobalFramebuffer.getSpoofedFramebuffer();
+        if (framebuffer != null) {
+            cir.setReturnValue(framebuffer);
+        }
     }
 
 }

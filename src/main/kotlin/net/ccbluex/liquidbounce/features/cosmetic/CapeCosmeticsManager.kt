@@ -20,6 +20,9 @@ package net.ccbluex.liquidbounce.features.cosmetic
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.DisconnectEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
@@ -31,7 +34,7 @@ import java.net.URI
 /**
  * A cape cosmetic manager
  */
-object CapeCosmeticsManager {
+object CapeCosmeticsManager : EventListener {
 
     /**
      * I would prefer to use CLIENT_API but due to Cloudflare causing issues with SSL and their browser integrity check,
@@ -87,15 +90,16 @@ object CapeCosmeticsManager {
 
                     LiquidBounce.logger.info("Successfully loaded cape for ${player.name}")
 
+                    val id = Identifier.of("liquidbounce", "cape-$name")
+
                     // Register cape texture
-                    val capeTexture = mc.textureManager.registerDynamicTexture("liquidbounce-$name",
-                            nativeImageBackedTexture)
+                    mc.textureManager.registerTexture(id, nativeImageBackedTexture)
 
                     // Cache cape texture
-                    cachedCapes[name] = capeTexture
+                    cachedCapes[name] = id
 
                     // Return cape texture
-                    response.response(capeTexture)
+                    response.response(id)
                 }
             }
         }
@@ -134,6 +138,12 @@ object CapeCosmeticsManager {
         // Extra should not be null if the cape is present
         val name = cosmetic.extra ?: return null
         return name to String.format(CAPE_NAME_DL_BASE_URL, name)
+    }
+
+    @Suppress("unused")
+    private val disconnectHandler = handler<DisconnectEvent> {
+        cachedCapes.values.forEach { mc.textureManager.destroyTexture(it) }
+        cachedCapes.clear()
     }
 
 }

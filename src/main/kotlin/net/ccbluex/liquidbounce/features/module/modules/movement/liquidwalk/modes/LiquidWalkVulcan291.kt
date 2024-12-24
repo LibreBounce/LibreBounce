@@ -20,9 +20,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -41,7 +41,7 @@ internal object LiquidWalkVulcan291 : Choice("Vulcan291") {
         get() = ModuleLiquidWalk.modes
 
     @Suppress("unused")
-    private val tickHandler = repeatable {
+    private val tickHandler = tickHandler {
         // It DOES NOT bypass with Lava - do not use [player.isInFluid].
         if (player.isInsideWaterOrBubbleColumn) {
             // One tick speed-up for extra speed

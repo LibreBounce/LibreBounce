@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.script.bindings.features
 
 import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.minecraft.client.util.InputUtil
 import org.graalvm.polyglot.Value as PolyglotValue;

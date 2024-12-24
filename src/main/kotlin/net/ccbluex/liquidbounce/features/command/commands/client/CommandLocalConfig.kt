@@ -18,14 +18,16 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.config.AutoConfig.loadingNow
+import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.IncludeConfiguration
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
@@ -38,9 +40,9 @@ import net.minecraft.util.Util
  *
  * Allows you to load, list, and create local configurations.
  */
-object CommandLocalConfig {
+object CommandLocalConfig : CommandFactory {
 
-    fun createCommand(): Command {
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("localconfig")
             .hub()
@@ -64,16 +66,18 @@ object CommandLocalConfig {
                                 return@handler
                             }
 
-                            loadingNow = true
-                            ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(),
-                                ConfigSystem.autoConfigGson)
+                            AutoConfig.withLoading {
+                                ConfigSystem.deserializeConfigurable(
+                                    ModuleManager.modulesConfigurable,
+                                    bufferedReader(),
+                                    publicGson
+                                )
+                            }
                         }.onFailure {
                             chat(markAsError(command.result("failedToLoad", variable(name))))
                         }.onSuccess {
                             chat(regular(command.result("loaded", variable(name))))
                         }
-
-                        loadingNow = false
                     }
                     .build()
             )
@@ -115,7 +119,7 @@ object CommandLocalConfig {
                             .begin<String>("include")
                             .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
                             .autocompletedWith { s ->
-                                listOf(
+                                arrayOf(
                                     "binds",
                                     "hidden"
                                 ).filter { it.startsWith(s) }
@@ -140,7 +144,7 @@ object CommandLocalConfig {
                             }
 
                             createNewFile()
-                            serializeAutoConfig(writer(), includeConfiguration)
+                            serializeAutoConfig(bufferedWriter(), includeConfiguration)
                         }.onFailure {
                             chat(regular(command.result("failedToCreate", variable(name))))
                         }.onSuccess {
@@ -152,7 +156,7 @@ object CommandLocalConfig {
             .build()
     }
 
-    private fun autoComplete(begin: String, validator: (Module) -> Boolean = { true }): List<String> {
+    private fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         return ConfigSystem.userConfigsFolder.listFiles()?.map { it.nameWithoutExtension }
             ?.filter { it.startsWith(begin) } ?: emptyList()
     }

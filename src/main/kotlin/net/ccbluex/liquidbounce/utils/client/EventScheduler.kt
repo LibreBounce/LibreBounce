@@ -20,14 +20,14 @@ package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.event.ALL_EVENT_CLASSES
 import net.ccbluex.liquidbounce.event.Event
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Useful for sending actions to other events.
  */
-object EventScheduler : Listenable {
+object EventScheduler : EventListener {
 
     /**
      * Maps the event class to the scheduled tasks that currently wait for it.
@@ -47,7 +47,7 @@ object EventScheduler : Listenable {
      * or the event does not exist.
      */
     inline fun <reified T : Event> schedule(
-        module: Module,
+        module: ClientModule,
         uniqueId: Int? = null,
         noinline action: (T) -> Unit
     ): Boolean {
@@ -58,7 +58,7 @@ object EventScheduler : Listenable {
      * @see schedule
      */
     fun schedule(
-        module: Module,
+        module: ClientModule,
         eventClass: Class<out Event>,
         uniqueId: Int?,
         action: (Event) -> Unit
@@ -79,7 +79,7 @@ object EventScheduler : Listenable {
     }
 
 
-    fun clear(module: Module) {
+    fun clear(module: ClientModule) {
         for (value in eventActionsMap.values) {
             value.removeIf { it.module == module }
         }
@@ -104,7 +104,7 @@ object EventScheduler : Listenable {
     // An event here that detects world change then clears the list
 
     data class ScheduleInfo(
-        val module: Module,
+        val module: ClientModule,
         val id: Int?,
         val action: (Event) -> Unit,
         var discarded: Boolean = false

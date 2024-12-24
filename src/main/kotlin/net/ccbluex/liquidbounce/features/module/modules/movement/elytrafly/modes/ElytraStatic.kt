@@ -18,13 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instant
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instantStop
 import net.ccbluex.liquidbounce.utils.entity.moving
+import net.ccbluex.liquidbounce.utils.entity.set
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.Items
@@ -33,27 +34,27 @@ internal object ElytraStatic : Choice("Static") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleElytraFly.modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
 
         if (player.vehicle != null) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Find the chest slot
         val chestSlot = player.getEquippedStack(EquipmentSlot.CHEST)
 
         if (player.abilities.creativeMode) {
-            return@repeatable
+            return@tickHandler
         }
 
         // If the player doesn't have an elytra in the chest slot
         if (chestSlot.item != Items.ELYTRA) {
-            return@repeatable
+            return@tickHandler
         }
 
         if (mc.options.sneakKey.isPressed && instantStop) {
-            player.stopFallFlying()
-            return@repeatable
+            player.stopGliding()
+            return@tickHandler
         }
         fun isAnyMovementKeyPressed(): Boolean {
             return mc.options.forwardKey.isPressed || mc.options.backKey.isPressed
@@ -62,7 +63,7 @@ internal object ElytraStatic : Choice("Static") {
         }
 
         // If player is flying
-        if (player.isFallFlying && isAnyMovementKeyPressed()) {
+        if (player.isGliding && isAnyMovementKeyPressed()) {
             if (ModuleElytraFly.Speed.enabled) {
                 if (player.moving) {
                     player.strafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
@@ -70,15 +71,16 @@ internal object ElytraStatic : Choice("Static") {
                 player.velocity.y = when {
                     mc.options.jumpKey.isPressed -> ModuleElytraFly.Speed.vertical.toDouble()
                     mc.options.sneakKey.isPressed -> -ModuleElytraFly.Speed.vertical.toDouble()
-                    else -> return@repeatable
+                    else -> return@tickHandler
                 }
             }
             // If the player has an elytra and wants to fly instead
-        } else if (chestSlot.item == Items.ELYTRA && player.input.jumping) {
+        } else if (chestSlot.item == Items.ELYTRA && player.input.playerInput.jump) {
             if (instant) {
                 // Jump must be off due to abnormal speed boosts
-                player.input.jumping = true
-                player.input.jumping = false
+                player.input.set(
+                    jump = false
+                )
             }
         }
 

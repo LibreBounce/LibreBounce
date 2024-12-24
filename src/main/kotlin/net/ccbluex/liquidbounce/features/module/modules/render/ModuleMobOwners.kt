@@ -18,9 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.HorseEntity
@@ -39,14 +39,14 @@ import java.util.concurrent.ConcurrentHashMap
  * Shows you from which player a tamable entity or projectile belongs to.
  */
 
-object ModuleMobOwners : Module("MobOwners", Category.RENDER) {
+object ModuleMobOwners : ClientModule("MobOwners", Category.RENDER) {
 
     private val projectiles by boolean("Projectiles", false)
 
     private val uuidNameCache = ConcurrentHashMap<UUID, OrderedText>()
 
     fun getOwnerInfoText(entity: Entity): OrderedText? {
-        if (!this.enabled) {
+        if (!this.running) {
             return null
         }
 

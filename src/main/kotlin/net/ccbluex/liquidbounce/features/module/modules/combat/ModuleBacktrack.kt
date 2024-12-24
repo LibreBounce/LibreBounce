@@ -18,26 +18,31 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.fakelag.DelayData
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
 import net.ccbluex.liquidbounce.utils.client.handlePacket
+import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.TrackedPosition
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket
@@ -48,30 +53,54 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
-object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
+object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
-    private val range by floatRange("Range", 1f..3f, 0f..6f)
+    private val range by floatRange("Range", 1f..3f, 0f..10f)
     private val delay by intRange("Delay", 100..150, 0..1000, "ms")
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
+    private val trackingBuffer by int("TrackingBuffer", 500, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
-    private val espMode = choices("EspMode", Wireframe, arrayOf(Box, Model, Wireframe, None)).apply {
+
+    private object PauseOnHurtTime : ToggleableConfigurable(this, "PauseOnHurtTime", false) {
+        val hurtTime by int("HurtTime", 3, 0..10)
+    }
+
+    private val pauseOnHurtTime = tree(PauseOnHurtTime)
+
+    private val targetMode by enumChoice("TargetMode", Mode.ATTACK)
+    private val lastAttackTimeToWork by int("LastAttackTimeToWork", 1000, 0..5000)
+
+    enum class Mode(override val choiceName: String) : NamedChoice {
+        ATTACK("Attack"),
+        RANGE("Range")
+    }
+
+    private val espMode = choices(
+        "EspMode", Wireframe, arrayOf(
+            Box, Model, Wireframe, None
+        )
+    ).apply {
         doNotIncludeAlways()
     }
 
-    private val packetQueue = LinkedHashSet<DelayData>()
+    private val packetQueue = LinkedHashSet<PacketSnapshot>()
     private val chronometer = Chronometer()
+    private val trackingBufferChronometer = Chronometer()
+    private val attackChronometer = Chronometer()
+
+    private var shouldPause = false
 
     private var target: Entity? = null
     private var position: TrackedPosition? = null
 
     @Suppress("unused")
-    private val packetHandler = handler<PacketEvent> {
+    private val packetHandler = handler<PacketEvent> { event ->
         if (packetQueue.isNotEmpty()) {
             chronometer.waitForAtLeast(nextBacktrackDelay.random().toLong())
         }
 
         synchronized(packetQueue) {
-            if (it.origin != TransferOrigin.RECEIVE || it.isCancelled) {
+            if (event.origin != TransferOrigin.RECEIVE || event.isCancelled) {
                 return@handler
             }
 
@@ -79,7 +108,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            val packet = it.packet
+            val packet = event.packet
 
             when (packet) {
                 // Ignore message-related packets
@@ -116,7 +145,9 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
                 val pos = if (packet is EntityS2CPacket) {
                     position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
                 } else {
-                    (packet as EntityPositionS2CPacket).let { vec -> Vec3d(vec.x, vec.y, vec.z) }
+                    (packet as EntityPositionS2CPacket).let { p ->
+                        Vec3d(p.change.position.x, p.change.position.y, p.change.position.z)
+                    }
                 }
 
                 position?.setPos(pos)
@@ -130,9 +161,8 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
                 }
             }
 
-            it.cancelEvent()
-
-            packetQueue.add(DelayData(packet, System.currentTimeMillis()))
+            event.cancelEvent()
+            packetQueue.add(PacketSnapshot(packet, event.origin, System.currentTimeMillis()))
         }
     }
 
@@ -189,8 +219,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
                         0.0,
                         0.0,
                         0.0,
-                        entity.yaw,
-                        1.0f,
+                        1f,
                         event.matrixStack,
                         mc.bufferBuilders.entityVertexConsumers,
                         reducedLight
@@ -235,7 +264,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
      * That gets called first, then the client's packets.
      */
     @Suppress("unused")
-    private val tickHandler = handler<GameTickEvent>(priority = 1002) {
+    private val handleRenderTaskQueue = handler<GameRenderTaskQueueEvent> {
         if (shouldCancelPackets()) {
             processPackets()
         } else {
@@ -251,12 +280,41 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         }
     }
 
+    private fun getTargetEntity(): Entity? {
+        return when (targetMode) {
+            Mode.ATTACK -> null // the attack handler will handle this
+            Mode.RANGE -> world.findEnemy(range)
+        }
+    }
+
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> {
-        val enemy = it.enemy
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        attackChronometer.reset() // Update the last attack time
+
+        if (targetMode != Mode.ATTACK) return@handler
+
+        val enemy = event.entity
+        processTarget(enemy)
+    }
+
+    @Suppress("unused")
+    private val rangeTargetHandler = tickHandler {
+        if (targetMode != Mode.RANGE) return@tickHandler
+
+        val enemy = getTargetEntity()
+        if (enemy == null) {
+            clear()
+            return@tickHandler
+        }
+
+        processTarget(enemy)
+    }
+
+    private fun processTarget(enemy: Entity) {
+        shouldPause = enemy is LivingEntity && enemy.hurtTime >= pauseOnHurtTime.hurtTime
 
         if (!shouldBacktrack(enemy)) {
-            return@handler
+            return
         }
 
         // Reset on enemy change
@@ -281,7 +339,7 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
     private fun processPackets(clear: Boolean = false) {
         synchronized(packetQueue) {
             packetQueue.removeIf {
-                if (clear || it.delay <= System.currentTimeMillis() - delay.random()) {
+                if (clear || it.timestamp <= System.currentTimeMillis() - delay.random()) {
                     mc.renderTaskQueue.add { handlePacket(it.packet) }
                     return@removeIf true
                 }
@@ -303,16 +361,26 @@ object ModuleBacktrack : Module("Backtrack", Category.COMBAT) {
         position = null
     }
 
-    fun isLagging() =
-        enabled && packetQueue.isNotEmpty()
+    private fun shouldBacktrack(target: Entity): Boolean {
+        val inRange = target.boxedDistanceTo(player) in range
 
-    private fun shouldBacktrack(target: Entity) =
-        target.shouldBeAttacked() &&
-            target.boxedDistanceTo(player) in range &&
+        if (inRange) {
+            trackingBufferChronometer.reset()
+        }
+
+        return (inRange || !trackingBufferChronometer.hasElapsed(trackingBuffer.toLong())) &&
+            target.shouldBeAttacked() &&
             player.age > 10 &&
             Math.random() * 100 < chance &&
-            chronometer.hasElapsed()
+            chronometer.hasElapsed() &&
+            !shouldPause() &&
+            !attackChronometer.hasElapsed(lastAttackTimeToWork.toLong())
+    }
+
+    fun isLagging() = running && packetQueue.isNotEmpty()
+
+    private fun shouldPause() = pauseOnHurtTime.enabled && shouldPause
 
     private fun shouldCancelPackets() =
-        target != null && target!!.isAlive && shouldBacktrack(target!!)
+        target?.let { target -> target.isAlive && shouldBacktrack(target) } ?: false
 }

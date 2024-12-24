@@ -29,6 +29,7 @@ import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.shape.VoxelShape
 
@@ -52,6 +53,9 @@ class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: Voxel
 
 @Nameable("blockBreakingProgress")
 class BlockBreakingProgressEvent(val pos: BlockPos) : Event()
+
+@Nameable("blockBreakingProgress")
+class BlockAttackEvent(val pos: BlockPos) : CancellableEvent()
 
 @Nameable("blockVelocityMultiplier")
 class BlockVelocityMultiplierEvent(val block: Block, var multiplier: Float) : Event()

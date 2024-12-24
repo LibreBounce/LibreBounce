@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.entity.moving
 
@@ -27,7 +27,7 @@ object ScaffoldHeadHitterFeature : ToggleableConfigurable(ModuleScaffold, "HeadH
     fun canHeadHit() =
         !world.getBlockState(player.blockPos.add(0, 2, 0)).isAir && player.isOnGround
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (canHeadHit() && player.moving) {
             player.jump()
         }

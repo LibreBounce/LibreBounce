@@ -21,10 +21,10 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
 import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.minecraft.item.Items
@@ -39,10 +39,10 @@ object AutoQueueHypixelSW : Choice("HypixelSW") {
     private val hasPaper
         get() = (findHotbarSlot { it.item == Items.PAPER } ?: -1) != -1
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         // Check if we have paper in our hotbar
         if (!hasPaper) {
-            return@repeatable
+            return@tickHandler
         }
 
         // Send join command

@@ -18,10 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
 import net.minecraft.entity.LivingEntity
@@ -95,16 +95,16 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
         if (!enabled) {
             return NormalDamageProvider(player.getDamageFromExplosion(
                 crystal,
-                maxBlastResistance = maxBlastResistance,
-                include = include
+                include = include,
+                maxBlastResistance = maxBlastResistance
             ))
         }
 
         val simulated = getSnapshotPos(player, ticks)
         val predictedDamage = player.getDamageFromExplosion(
             crystal,
-            maxBlastResistance = maxBlastResistance,
             include = include,
+            maxBlastResistance = maxBlastResistance,
             entityBoundingBox = Box(
                 simulated.x,
                 simulated.y,
@@ -120,7 +120,7 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
             return NormalDamageProvider(predictedDamage)
         }
 
-        val damage = player.getDamageFromExplosion(crystal, maxBlastResistance = maxBlastResistance, include = include)
+        val damage = player.getDamageFromExplosion(crystal, include = include, maxBlastResistance = maxBlastResistance)
         calcMode as Both
         return calcMode.logicalOperator.getDamageProvider(damage, predictedDamage)
     }

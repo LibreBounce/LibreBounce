@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
@@ -62,7 +62,7 @@ open class TargetTracker(
      * Update should be called to always pick the best target out of the current world context
      */
     fun enemies(): List<LivingEntity> {
-        var entities = world.entities
+        val entities = world.entities
             .asSequence()
             .filterIsInstance<LivingEntity>()
             .filter(this::validate)
@@ -70,33 +70,36 @@ open class TargetTracker(
             .filter { it.second <= range }
             // Sort by distance (closest first) - in case of tie at priority level
             .sortedBy { it.second }
-            .map { it.first }
-            // Sort by entity type
-            .sortedBy { entity ->
-                when (entity) {
-                    is PlayerEntity -> 0
-                    is HostileEntity -> 1
-                    else -> 2
-                }
-            }
-            .toList()
+            .mapTo(mutableListOf()) { it.first }
 
-        entities = when (priority) {
+        if (entities.isEmpty()) {
+            return entities
+        }
+
+        // Sort by entity type
+        entities.sortWith(Comparator.comparingInt { entity ->
+            when (entity) {
+                is PlayerEntity -> 0
+                is HostileEntity -> 1
+                else -> 2
+            }
+        })
+
+        when (priority) {
             // Lowest health first
-            PriorityEnum.HEALTH -> entities.sortedBy { it.getActualHealth() }
+            PriorityEnum.HEALTH -> entities.sortBy { it.getActualHealth() }
             // Closest to your crosshair first
-            PriorityEnum.DIRECTION -> entities.sortedBy { RotationManager.rotationDifference(it) }
+            PriorityEnum.DIRECTION -> entities.sortBy { RotationManager.rotationDifference(it) }
             // Oldest entity first
-            PriorityEnum.AGE -> entities.sortedBy { -it.age }
+            PriorityEnum.AGE -> entities.sortByDescending { it.age }
             // With the lowest hurt time first
-            PriorityEnum.HURT_TIME -> entities.sortedBy { it.hurtTime } // Sort by hurt time
+            PriorityEnum.HURT_TIME -> entities.sortBy { it.hurtTime } // Sort by hurt time
             // Closest to you first
-            else -> entities
+            else -> {} // Do nothing
         }
 
         // Update max distance squared
-        entities.minByOrNull { it.squaredBoxedDistanceTo(player) }
-            ?.let { maximumDistance = it.squaredBoxedDistanceTo(player) }
+        maximumDistance = entities.minOf { it.squaredBoxedDistanceTo(player) }
 
         return entities
     }

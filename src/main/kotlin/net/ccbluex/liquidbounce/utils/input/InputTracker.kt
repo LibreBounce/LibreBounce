@@ -19,7 +19,7 @@
 
 package net.ccbluex.liquidbounce.utils.input
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -32,10 +32,15 @@ import org.lwjgl.glfw.GLFW
  * It listens for mouse button events and provides utility functions to check if
  * a key or mouse button is currently pressed.
  */
-object InputTracker : Listenable {
+object InputTracker : EventListener {
 
-    // Tracks the state of each mouse button (pressed or not).
-    private val mouseStates = mutableMapOf<Int, Boolean>()
+    /**
+     * Tracks the state of each mouse button.
+     *
+     * [GLFW.GLFW_RELEASE], [GLFW.GLFW_PRESS] or [GLFW.GLFW_REPEAT]
+     * @see GLFW
+     */
+    private val mouseStates = IntArray(32)
 
     /**
      * Extension property that checks if a key binding is pressed on either the keyboard or mouse.
@@ -68,7 +73,7 @@ object InputTracker : Listenable {
      */
     @Suppress("unused")
     private val handleMouseAction = handler<MouseButtonEvent> {
-        mouseStates[it.button] = it.action == GLFW.GLFW_PRESS
+        mouseStates[it.button] = it.action
     }
 
     /**
@@ -77,5 +82,5 @@ object InputTracker : Listenable {
      * @param button The GLFW code of the mouse button.
      * @return True if the mouse button is pressed, false otherwise.
      */
-    fun isMouseButtonPressed(button: Int): Boolean = mouseStates.getOrDefault(button, false)
+    fun isMouseButtonPressed(button: Int): Boolean = mouseStates[button] == GLFW.GLFW_PRESS
 }

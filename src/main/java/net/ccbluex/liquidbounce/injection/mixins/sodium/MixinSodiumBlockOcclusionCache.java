@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockOcclusionCache;
@@ -38,11 +37,12 @@ public class MixinSodiumBlockOcclusionCache {
     @Inject(method = "shouldDrawSide", at = @At("RETURN"), cancellable = true)
     private void injectXRay(BlockState selfState, BlockView view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> cir) {
         ModuleXRay module = ModuleXRay.INSTANCE;
-        if (!module.getEnabled()) {
+        if (!module.getRunning()) {
             return;
         }
 
         cir.setReturnValue(module.shouldRender(selfState, pos));
         cir.cancel();
     }
+
 }

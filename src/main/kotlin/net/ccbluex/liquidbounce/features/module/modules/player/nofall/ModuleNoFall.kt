@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.*
 import net.minecraft.entity.EntityPose
 
@@ -29,7 +29,7 @@ import net.minecraft.entity.EntityPose
  * Protects you from taking fall damage.
  */
 
-object ModuleNoFall : Module("NoFall", Category.PLAYER) {
+object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
 
     internal val modes = choices(
         "Mode", NoFallSpoofGround, arrayOf(
@@ -52,27 +52,28 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
 
     private var duringFallFlying by boolean("DuringFallFlying", false)
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents()) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (!super.running) {
+                return false
+            }
 
-        // In creative mode, we don't need to reduce fall damage
-        if (player.isCreative || player.isSpectator) {
-            return false
-        }
+            // In creative mode, we don't need to reduce fall damage
+            if (player.isCreative || player.isSpectator) {
+                return false
+            }
 
-        // Check if we are invulnerable or flying
-        if (player.abilities.invulnerable || player.abilities.flying) {
-            return false
-        }
+            // Check if we are invulnerable or flying
+            if (player.abilities.invulnerable || player.abilities.flying) {
+                return false
+            }
 
-        // With Elytra - we don't want to reduce fall damage.
-        if (!duringFallFlying && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
-            return false
-        }
+            // With Elytra - we don't want to reduce fall damage.
+            if (!duringFallFlying && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
+                return false
+            }
 
-        return true
-    }
+            return true
+        }
 
 }

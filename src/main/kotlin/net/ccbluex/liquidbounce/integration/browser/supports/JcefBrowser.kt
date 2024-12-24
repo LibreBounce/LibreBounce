@@ -20,17 +20,23 @@ package net.ccbluex.liquidbounce.integration.browser.supports
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
 import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
+import net.ccbluex.liquidbounce.utils.client.formatBytesAsSize
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import net.ccbluex.liquidbounce.utils.validation.HashValidator
 import kotlin.concurrent.thread
+
+/**
+ * The time threshold for cleaning up old cache directories.
+ */
+private const val CACHE_CLEANUP_THRESHOLD = 1000 * 60 * 60 * 24 * 7 // 7 days
 
 /**
  * Uses a modified fork of the JCEF library browser backend made for Minecraft.
@@ -43,7 +49,7 @@ import kotlin.concurrent.thread
  * @author 1zuna <marco@ccbluex.net>
  */
 @Suppress("TooManyFunctions")
-class JcefBrowser : IBrowser, Listenable {
+class JcefBrowser : IBrowser, EventListener {
 
     private val mcefFolder = ConfigSystem.rootFolder.resolve("mcef")
     private val librariesFolder = mcefFolder.resolve("libraries")
@@ -73,6 +79,44 @@ class JcefBrowser : IBrowser, Listenable {
                 }
             } else {
                 whenAvailable()
+            }
+        }
+
+        // Clean up old cache directories
+        thread(name = "mcef-cache-cleanup", block = this::cleanup)
+    }
+
+    /**
+     * Cleans up old cache directories.
+     *
+     * TODO: Check if we have an active PID using the cache directory, if so, check if the LiquidBounce
+     *   process attached to the JCEF PID is still running or not. If not, we could kill the JCEF process
+     *   and clean up the cache directory.
+     */
+    fun cleanup() {
+        if (cacheFolder.exists()) {
+            runCatching {
+                cacheFolder.listFiles()
+                    ?.filter { file ->
+                        file.isDirectory && System.currentTimeMillis() - file.lastModified() > CACHE_CLEANUP_THRESHOLD
+                    }
+                    ?.sumOf { file ->
+                        try {
+                            val fileSize = file.walkTopDown().sumOf { uFile -> uFile.length() }
+                            file.deleteRecursively()
+                            fileSize
+                        } catch (e: Exception) {
+                            logger.error("Failed to clean up old cache directory", e)
+                            0
+                        }
+                    } ?: 0
+            }.onFailure {
+                // Not a big deal, not fatal.
+                logger.error("Failed to clean up old JCEF cache directories", it)
+            }.onSuccess { size ->
+                if (size > 0) {
+                    logger.info("Cleaned up ${size.formatBytesAsSize()} JCEF cache directories")
+                }
             }
         }
     }

@@ -19,15 +19,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.offhand
 
 import com.google.common.base.Predicate
-import net.ccbluex.liquidbounce.config.NamedChoice
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.KeyEvent
 import net.ccbluex.liquidbounce.event.events.RefreshArrayListEvent
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
@@ -56,7 +56,7 @@ import org.lwjgl.glfw.GLFW
  *
  * Manages your offhand.
  */
-object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("AutoTotem")) {
+object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayOf("AutoTotem")) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
     private var switchMode = enumChoice("SwitchMode", SwitchMode.AUTOMATIC)
@@ -224,7 +224,7 @@ object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("Aut
         return actions
     }
 
-    fun isOperating() = enabled && activeMode != Mode.NONE
+    fun isOperating() = running && activeMode != Mode.NONE
 
     private enum class Mode(val modeName: String, private val item: Item, private val fallBackItem: Item? = null) {
         TOTEM("Totem", Items.TOTEM_OF_UNDYING) {
@@ -262,7 +262,7 @@ object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("Aut
             }
 
             override fun shouldEquip(): Boolean {
-                val killAura = Strength.onlyWhileKa && !ModuleKillAura.enabled
+                val killAura = Strength.onlyWhileKa && !ModuleKillAura.running
                 if (!Strength.enabled || killAura || player.hasStatusEffect(StatusEffects.STRENGTH)) {
                     return false
                 }
@@ -286,7 +286,7 @@ object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("Aut
 
                 if (player.mainHandStack.item is SwordItem && Gapple.WhileHoldingSword.enabled) {
                     return if (Gapple.WhileHoldingSword.onlyWhileKa) {
-                        ModuleKillAura.enabled
+                        ModuleKillAura.running
                     } else {
                         true
                     }
@@ -298,7 +298,7 @@ object ModuleOffhand : Module("Offhand", Category.PLAYER, aliases = arrayOf("Aut
             override fun canCycleTo() = Gapple.enabled
         },
         CRYSTAL("Crystal", Items.END_CRYSTAL) {
-            override fun canCycleTo() = Crystal.enabled && (!Crystal.onlyWhileCa || ModuleCrystalAura.enabled)
+            override fun canCycleTo() = Crystal.enabled && (!Crystal.onlyWhileCa || ModuleCrystalAura.running)
         },
         BACK("Back", Items.AIR) {
             override fun getSlot(): ItemSlot? {

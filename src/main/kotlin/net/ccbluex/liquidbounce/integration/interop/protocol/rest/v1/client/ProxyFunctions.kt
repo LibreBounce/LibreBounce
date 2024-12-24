@@ -23,8 +23,8 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
+import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
@@ -38,7 +38,7 @@ import org.lwjgl.glfw.GLFW
 // GET /api/v1/client/proxy
 @Suppress("UNUSED_PARAMETER")
 fun getProxyInfo(requestObject: RequestObject) = httpOk(ProxyManager.currentProxy?.let { proxy ->
-    protocolGson.toJsonTree(proxy).asJsonObject.apply {
+    interopGson.toJsonTree(proxy).asJsonObject.apply {
         addProperty("id", ProxyManager.proxies.indexOf(proxy))
     }
 } ?: JsonObject())
@@ -68,7 +68,7 @@ fun deleteProxy(requestObject: RequestObject): FullHttpResponse {
 @Suppress("UNUSED_PARAMETER")
 fun getProxies(requestObject: RequestObject) = httpOk(JsonArray().apply {
     ProxyManager.proxies.forEachIndexed { index, proxy ->
-        add(protocolGson.toJsonTree(proxy).asJsonObject.apply {
+        add(interopGson.toJsonTree(proxy).asJsonObject.apply {
             addProperty("id", index)
         })
     }

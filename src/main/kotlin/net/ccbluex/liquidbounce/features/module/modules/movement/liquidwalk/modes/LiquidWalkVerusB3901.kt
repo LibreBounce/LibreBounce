@@ -21,8 +21,8 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
@@ -50,7 +50,7 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
 
     @Suppress("unused")
     val shapeHandler = handler<BlockShapeEvent> { event ->
-        if (player.input.sneaking || player.fallDistance > 3.0f || player.isOnFire) {
+        if (player.input.playerInput.sneak || player.fallDistance > 3.0f || player.isOnFire) {
             return@handler
         }
 
@@ -63,7 +63,11 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
         val packet = event.packet
 
         if (event.origin == TransferOrigin.SEND && packet is PlayerMoveC2SPacket) {
-            if (!player.input.sneaking && !player.isTouchingWater && standingOnWater() && !collidesWithAnythingElse()) {
+            if (!player.input.playerInput.sneak &&
+                !player.isTouchingWater &&
+                standingOnWater() &&
+                !collidesWithAnythingElse()
+                ) {
                 packet.onGround = spoof
                 spoof = !spoof
             } else {

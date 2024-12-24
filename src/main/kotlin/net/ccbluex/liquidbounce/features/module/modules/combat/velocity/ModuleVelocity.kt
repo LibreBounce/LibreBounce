@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode.*
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
@@ -39,7 +39,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Modifies the amount of velocity you take.
  */
 
-object ModuleVelocity : Module("Velocity", Category.COMBAT) {
+object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
 
     init {
         enableLock()
@@ -55,7 +55,8 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
             VelocityDexland,
             VelocityJumpReset,
             VelocityIntave,
-            VelocityHylex
+            VelocityHylex,
+            VelocityBlocksMC
         )
     ).apply(::tagBy)
 
@@ -65,24 +66,24 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
     private var pause = 0
 
     @Suppress("unused")
-    private val countHandler = handler<GameTickEvent>(ignoreCondition = true) {
+    private val countHandler = handler<GameTickEvent>(ignoreNotRunning = true) {
         if (pause > 0) {
             pause--
         }
     }
 
     @Suppress("unused")
-    private val packetHandler = sequenceHandler<PacketEvent>(priority = 1) {
-        val packet = it.packet
+    private val packetHandler = sequenceHandler<PacketEvent>(priority = 1) { event ->
+        val packet = event.packet
 
-        if (!it.original) {
+        if (!event.original) {
             return@sequenceHandler
         }
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id || packet is ExplosionS2CPacket) {
             // When delay is above 0, we will delay the velocity update
             if (delay.last > 0) {
-                it.cancelEvent()
+                event.cancelEvent()
 
                 delay.random().let { ticks ->
                     if (ticks > 0) {
@@ -104,6 +105,7 @@ object ModuleVelocity : Module("Velocity", Category.COMBAT) {
         }
     }
 
-    override fun handleEvents() = super.handleEvents() && pause == 0
+    override val running: Boolean
+        get() = super.running && pause == 0
 
 }

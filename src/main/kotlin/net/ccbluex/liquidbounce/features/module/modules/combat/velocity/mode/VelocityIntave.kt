@@ -18,13 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.minecraft.client.gui.screen.ingame.InventoryScreen
 
@@ -32,7 +32,7 @@ object VelocityIntave : Choice("Intave") {
     override val parent: ChoiceConfigurable<Choice>
         get() = modes
 
-    private class ReduceOnAttack(parent: Listenable?) : ToggleableConfigurable(
+    private class ReduceOnAttack(parent: EventListener?) : ToggleableConfigurable(
         parent, "ReduceOnAttack",
         true
     ) {
@@ -41,7 +41,7 @@ object VelocityIntave : Choice("Intave") {
         var lastAttackTime = 0L
 
         @Suppress("unused")
-        private val attackHandler = handler<AttackEvent> {
+        private val attackHandler = handler<AttackEntityEvent> {
             if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
                 player.velocity.x *= reduceFactor
                 player.velocity.z *= reduceFactor
@@ -54,7 +54,7 @@ object VelocityIntave : Choice("Intave") {
         tree(ReduceOnAttack(this))
     }
 
-    private class JumpReset(parent: Listenable?) : ToggleableConfigurable(
+    private class JumpReset(parent: EventListener?) : ToggleableConfigurable(
         parent, "JumpReset",
         true
     ) {
@@ -62,7 +62,7 @@ object VelocityIntave : Choice("Intave") {
         private val chance by float("Chance", 50f, 0f..100f, "%")
 
         @Suppress("unused")
-        private val repeatable = repeatable {
+        private val repeatable = tickHandler {
             val shouldJump = Math.random() * 100 < chance && player.hurtTime > 5
             val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
 

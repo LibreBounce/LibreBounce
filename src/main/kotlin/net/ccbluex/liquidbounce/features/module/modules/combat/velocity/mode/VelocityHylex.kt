@@ -18,17 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.minecraft.client.gui.screen.ingame.InventoryScreen
 
 /**
  * Hylex Velocity
@@ -41,7 +37,7 @@ object VelocityHylex : Choice("Hylex") {
         get() = modes
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> {
+    private val attackHandler = handler<AttackEntityEvent> {
         if (!player.moving) {
             return@handler
         }
@@ -79,7 +75,7 @@ object VelocityHylex : Choice("Hylex") {
     }
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         val shouldJump = player.hurtTime > 5
         val canJump = player.isOnGround
 
