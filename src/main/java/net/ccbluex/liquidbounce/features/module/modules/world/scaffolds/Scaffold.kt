@@ -316,6 +316,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
     var eagleSneaking = false
 
+    private var requestedStopSneak = false
+
     private val isEagleEnabled
         get() = eagle != "Off" && !shouldGoDown && scaffoldMode != "GodBridge"
 
@@ -439,7 +441,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             run {
                 val options = mc.gameSettings
 
-                if (placedBlocksWithoutEagle >= blocksToEagle || alreadySneaking || blockSneaking) {
+                if (placedBlocksWithoutEagle >= blocksToEagle || alreadySneaking || blockSneaking || eagleSneaking || requestedStopSneak) {
                     val eagleCondition = when (eagleMode) {
                         "OnGround" -> player.onGround
                         "InAir" -> !player.onGround
@@ -452,9 +454,17 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                     var shouldEagle =
                         eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
 
-                    if (blockSneaking && !alreadySneaking && useMaxSneakTime) {
-                        shouldEagle = pressedOnKeyboard
-                    } else if (blockSneaking || alreadySneaking) return@run
+                    val shouldSchedule = !requestedStopSneak
+
+                    if (requestedStopSneak) {
+                        requestedStopSneak = false
+
+                        if (!player.onGround) {
+                            shouldEagle = pressedOnKeyboard
+                        }
+                    } else if (blockSneaking || alreadySneaking) {
+                        return@run
+                    }
 
                     if (eagle == "Silent") {
                         if (eagleSneaking != shouldEagle) {
@@ -481,13 +491,17 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
                         eagleSneaking = shouldEagle
                     }
 
-                    if (eagleSneaking) {
+                    if (eagleSneaking && shouldSchedule) {
                         if (useMaxSneakTime) {
-                            WaitTickUtils.schedule(maxSneakTicks + 1, "sneak")
+                            WaitTickUtils.conditionalSchedule("sneak") { elapsed ->
+                                (elapsed >= maxSneakTicks + 1).also { requestedStopSneak = it }
+                            }
                         }
 
                         if (blockSneakingAgainUntilOnGround && !player.onGround) {
-                            WaitTickUtils.conditionalSchedule("block") { player.onGround }
+                            WaitTickUtils.conditionalSchedule("block") {
+                                player.onGround.also { if (it) requestedStopSneak = true }
+                            }
                         }
                     }
 
@@ -581,7 +595,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             }
             return@handler
         }
-
 
         // Change/Schedule slot once per tick according to vanilla-logic
         if (alreadyPlaced || SilentHotbar.modifiedThisTick) {
@@ -703,8 +716,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
 
         BlockPos.getAllInBox(
-            blockPosition.add(-horizontal, 0, -horizontal),
-            blockPosition.add(horizontal, -vertical, horizontal)
+            blockPosition.add(-horizontal, 0, -horizontal), blockPosition.add(horizontal, -vertical, horizontal)
         ).sortedBy {
             BlockUtils.getCenterDistance(it)
         }.forEach {
