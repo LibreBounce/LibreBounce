@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
 object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false, hideModule = false) {
-    val modulesList = arrayListOf(KillAura, Scaffold, Fly, Speed)
+    private val modulesList = hashSetOf(KillAura, Scaffold, Fly, Speed)
 
     private val onFlagged by boolean("onFlag", true)
     private val onWorldChange by boolean("onWorldChange", false)
@@ -79,7 +79,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false,
         modulesList.remove(module)
     }
 
-    fun getModules(): List<Module> {
+    fun getModules(): Collection<Module> {
         return modulesList
     }
 }

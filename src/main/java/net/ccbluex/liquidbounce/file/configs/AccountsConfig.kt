@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonArray
-import com.google.gson.JsonNull
-import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
 import me.liuli.elixir.account.CrackedAccount
 import me.liuli.elixir.account.MinecraftAccount
@@ -16,6 +14,7 @@ import me.liuli.elixir.manage.AccountSerializer.fromJson
 import me.liuli.elixir.manage.AccountSerializer.toJson
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
+import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*
 
 class AccountsConfig(file: File) : FileConfig(file) {
@@ -30,10 +29,10 @@ class AccountsConfig(file: File) : FileConfig(file) {
     @Throws(IOException::class)
     override fun loadConfig() {
         clearAccounts()
-        val jsonElement = JsonParser().parse(file.bufferedReader())
-        if (jsonElement is JsonNull) return
 
-        for (accountElement in jsonElement.asJsonArray) {
+        val json = file.readJson() as? JsonArray ?: return
+
+        for (accountElement in json) {
             val accountObject = accountElement.asJsonObject
             try {
                 // Import Elixir account format
@@ -137,7 +136,7 @@ class AccountsConfig(file: File) : FileConfig(file) {
      * Check if the account is already added
      */
     fun accountExists(newAccount: MinecraftAccount) =
-        accounts.any { it::class == newAccount::class && it.name == newAccount.name }
+        accounts.any { it.javaClass == newAccount.javaClass && it.name == newAccount.name }
 
     /**
      * Clear all minecraft accounts from alt array
