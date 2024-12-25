@@ -1,13 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.deepl
 
 import com.google.gson.GsonBuilder
+import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.ILanguages
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.Provider
+import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.deepl.DeepLSettings.apiKey
+import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.deepl.DeepLSettings.pro
 import java.net.HttpURLConnection
 import java.net.URI
 
-object DeepL : Provider("DeepL") {
-    private val apiKey by text("API Key", "").doNotIncludeAlways()
-    private val pro by boolean("Use Pro API", false)
+object DeepL : Provider {
     /**
      * Translates [text] to the specified language ([to]) from the language specified. ([from])
      * If [from] is `null`, the provider will try to detect the language.
@@ -22,7 +23,7 @@ object DeepL : Provider("DeepL") {
         connection.setRequestProperty("Accept", "application/json")
         connection.setRequestProperty(
             "Authorization",
-            "DeepL-Auth-Key $apiKey"
+            "DeepLSettings-Auth-Key $apiKey"
         )
         connection.doOutput = true
         connection.doInput = true
@@ -31,9 +32,50 @@ object DeepL : Provider("DeepL") {
         outputStream.close()
         connection.connect()
         val inputStream = connection.inputStream
-        val response = inputStream.bufferedReader().use { it.readText() }
+        val reader = inputStream.bufferedReader()
         val gson = GsonBuilder().create()
-        val responseObj = gson.fromJson(response, ResponseData::class.java)
+        val responseObj = gson.fromJson(reader, ResponseData::class.java)
         return responseObj.translations.map { it.text }.filter { t -> t.isNotEmpty() }.joinToString(" ")
+    }
+
+    /**
+     * All languages DeepL supports
+     * ! IMPORTANT: Use [id] as the language code, not the enum [name].
+     */
+    enum class Languages(override val id: String, override val choiceName: String) : ILanguages {
+        DETECT("" ,"Detect language"),
+        AR("ar","Arabic"),
+        BG("bg","Bulgarian"),
+        ZH_HANS("zh-hans","Chinese (Simplified)"),
+        ZH_HANT("zh-hant","Chinese (Traditional)"),
+        CS("cs","Czech"),
+        DA("da","Danish"),
+        NL("nl","Dutch"),
+        EN_US("en-us","English (American)"),
+        EN_GB("en-gb","English (British)"),
+        ET("et","Estonian"),
+        FI("fi","Finnish"),
+        FR("fr","French"),
+        DE("de","German"),
+        EL("el","Greek"),
+        HU("hu","Hungarian"),
+        ID("id","Indonesian"),
+        IT("it","Italian"),
+        JA("ja","Japanese"),
+        KO("ko","Korean"),
+        LV("lv","Latvian"),
+        LT("lt","Lithuanian"),
+        NB("nb","Norwegian"),
+        PL("pl","Polish"),
+        PT_BR("pt-br","Portuguese (Brazilian)"),
+        PT_PT("pt-pt","Portuguese (European)"),
+        RO("ro","Romanian"),
+        RU("ru","Russian"),
+        SK("sk","Slovak"),
+        SL("sl","Slovenian"),
+        ES("es","Spanish"),
+        SV("sv","Swedish"),
+        TR("tr","Turkish"),
+        UK("uk","Ukrainian")
     }
 }
