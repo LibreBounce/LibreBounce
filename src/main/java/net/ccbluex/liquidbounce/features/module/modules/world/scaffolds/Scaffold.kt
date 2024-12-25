@@ -203,17 +203,19 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val eagleValue =
         ListValue("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal") { scaffoldMode != "GodBridge" }
     val eagle by eagleValue
-    private val eagleMode by choices("EagleMode", arrayOf("Both", "OnGround", "InAir"), "Both") { eagle != "Off" }
-    private val adjustedSneakSpeed by boolean("AdjustedSneakSpeed", true) { eagle == "Silent" }
-    private val eagleSpeed by float("EagleSpeed", 0.3f, 0.3f..1.0f) { eagle != "Off" }
-    val eagleSprint by boolean("EagleSprint", false) { eagle == "Normal" }
-    private val blocksToEagle by int("BlocksToEagle", 0, 0..10) { eagle != "Off" }
-    private val edgeDistance by float("EagleEdgeDistance", 0f, 0f..0.5f) { eagle != "Off" }
-    private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" }
+    private val eagleMode by choices("EagleMode", arrayOf("Both", "OnGround", "InAir"), "Both")
+    { eagle != "Off" && scaffoldMode != "GodBridge" }
+    private val adjustedSneakSpeed by boolean("AdjustedSneakSpeed", true)
+    { eagle == "Silent" && scaffoldMode != "GodBridge" }
+    private val eagleSpeed by float("EagleSpeed", 0.3f, 0.3f..1.0f) { eagle != "Off" && scaffoldMode != "GodBridge" }
+    val eagleSprint by boolean("EagleSprint", false) { eagle == "Normal" && scaffoldMode != "GodBridge" }
+    private val blocksToEagle by int("BlocksToEagle", 0, 0..10) { eagle != "Off" && scaffoldMode != "GodBridge" }
+    private val edgeDistance by float("EagleEdgeDistance", 0f, 0f..0.5f)
+    { eagle != "Off" && scaffoldMode != "GodBridge" }
+    private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" && scaffoldMode != "GodBridge" }
     private val maxSneakTicks by int("MaxSneakTicks", 3, 0..10) { useMaxSneakTime }
-    private val blockSneakingAgainUntilOnGround by boolean(
-        "BlockSneakingAgainUntilOnGround", true
-    ) { useMaxSneakTime && eagleMode != "OnGround" }
+    private val blockSneakingAgainUntilOnGround by boolean("BlockSneakingAgainUntilOnGround", true)
+    { useMaxSneakTime && eagleMode != "OnGround" }
 
     // Rotation Options
     private val modeList =
