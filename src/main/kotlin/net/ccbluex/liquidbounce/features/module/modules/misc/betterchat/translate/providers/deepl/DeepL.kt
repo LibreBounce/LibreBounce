@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.Provider
 import java.net.HttpURLConnection
 import java.net.URI
-import java.util.stream.Stream
 
 object DeepL : Provider("DeepL") {
     private val apiKey by text("API Key", "").doNotIncludeAlways()
