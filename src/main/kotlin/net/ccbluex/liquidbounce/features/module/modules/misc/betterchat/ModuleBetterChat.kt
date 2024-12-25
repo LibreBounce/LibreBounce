@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.Translate
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.DeathScreen
 
@@ -67,6 +68,7 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = ar
 
     init {
         tree(AntiSpam)
+        tree(Translate)
     }
 
     var antiChatClearPaused = false
