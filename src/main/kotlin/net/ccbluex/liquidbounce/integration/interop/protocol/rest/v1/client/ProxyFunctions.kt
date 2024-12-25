@@ -32,10 +32,7 @@ import net.ccbluex.netty.http.util.httpBadRequest
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk
 import org.lwjgl.glfw.GLFW
-// needed for showing a file dialog, a dummy Frame is created that is invisible
-// so that we can use it to open the dialog, instead of adding JAWT so we can convert it to a java.awt.Frame.
-import java.awt.FileDialog
-import java.awt.Frame
+import org.lwjgl.util.tinyfd.TinyFileDialogs
 
 /**
  * Proxy endpoints
@@ -179,26 +176,17 @@ fun postImportClipboardProxy(requestObject: RequestObject): FullHttpResponse {
 fun postImportFileProxy(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
         runCatching {
-            // https://github.com/JetBrains/compose-multiplatform/issues/176 (the initial file dialog idea)
-            // (initially to convert a GLFW window handle into a Frame,
-            // but I ended up creating a dummy frame because I didn't want an extra dependency)
-            // https://chatgpt.com/share/67400ff3-dcd8-8005-ae2f-41c8efe04b16
+            val path = TinyFileDialogs.tinyfd_openFileDialog(
+                "Select a proxy list", null,
+                null, null, true
+            )
+            if (path == null || path.isEmpty()) {
+                logger.debug("No file selected, skip.")
+                return@runCatching httpBadRequest("No file selected")
+            }
 
-            // Create a dummy AWT Frame
-            var dummyFrame = Frame()
-            // Remove borders and title bar
-            dummyFrame.isUndecorated = true
-            // Make it invisible
-            dummyFrame.setSize(0, 0)
-            // Center the dummy frame (optional)
-            dummyFrame.setLocationRelativeTo(null)
-            // Required for the dialog to work
-            dummyFrame.isVisible = true
+            logger.debug("File selected: $path")
 
-            // Open a File Dialog
-            // TODO: could `null as Frame?` work? will test later
-            var fileDialog = FileDialog(dummyFrame, "Choose a file", FileDialog.LOAD)
-            fileDialog.isVisible = true
         }
     }
 
