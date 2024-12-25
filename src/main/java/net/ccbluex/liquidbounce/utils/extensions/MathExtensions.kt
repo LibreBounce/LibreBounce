@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.*
 import javax.vecmath.Vector2f
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -116,6 +117,9 @@ fun Double.toRadiansF() = toRadians().toFloat()
 fun Double.toDegrees() = this * 57.295779513
 fun Double.toDegreesF() = toDegrees().toFloat()
 fun Double.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngleDelta().toDouble()
+
+val Vector2f.abs
+    get() = Vector2f(abs(x), abs(y))
 
 /**
  * Provides: (step is 0.1 by default)

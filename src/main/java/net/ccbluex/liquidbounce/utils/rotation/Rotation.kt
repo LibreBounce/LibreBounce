@@ -6,13 +6,13 @@
 package net.ccbluex.liquidbounce.utils.rotation
 
 import net.ccbluex.liquidbounce.event.StrafeEvent
+import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifferences
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedSensitivityAngle
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.utils.block.PlaceInfo
-import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
@@ -23,6 +23,9 @@ import kotlin.math.*
  * Rotations
  */
 data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance {
+
+    val abs
+        get() = Rotation(abs(yaw), abs(pitch))
 
     operator fun minus(other: Rotation): Rotation {
         return Rotation(yaw - other.yaw, pitch - other.pitch)

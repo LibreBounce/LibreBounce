@@ -12,7 +12,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
@@ -40,8 +39,7 @@ object NoRotateSet : Module("NoRotateSet", Category.MISC, gameDetecting = false,
 
         currentRotation = player.rotation
 
-        // This connects with the SimulateShortStop code, [performAngleChange] function.
-        WaitTickUtils.schedule(ticksUntilStart.random, RotationUtils)
+        WaitTickUtils.schedule(ticksUntilStart.random, this)
 
         setTargetRotation(savedRotation, options = options)
     }
