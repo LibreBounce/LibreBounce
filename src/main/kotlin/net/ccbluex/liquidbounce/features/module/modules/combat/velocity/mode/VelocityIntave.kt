@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
@@ -72,26 +73,21 @@ object VelocityIntave : Choice("Intave") {
         private var delayCounter = 0
 
         @Suppress("unused")
-        private val repeatable = tickHandler {
+        private val tickJumpHandler = handler<MovementInputEvent> {
+            val shouldJump = Math.random() * 100 < chance && player.hurtTime > 5
+            val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
+            val shouldFinallyJump = shouldJump && canJump
+
             if (randomiseDelay.enabled) {
                 delayCounter++
 
                 if (delayCounter >= currentDelay) {
-                    jump()
+                    if (shouldFinallyJump) it.jumping = true
                     delayCounter = 0
                     currentDelay = randomiseDelay.delayTicks.random()
                 }
             } else {
-                jump()
-            }
-        }
-
-        private fun jump() {
-            val shouldJump = Math.random() * 100 < chance && player.hurtTime > 5
-            val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
-
-            if (shouldJump && canJump) {
-                player.jump()
+                if (shouldFinallyJump) it.jumping = true
             }
         }
     }
