@@ -31,9 +31,9 @@ object DeepL : Provider("DeepL") {
         outputStream.close()
         connection.connect()
         val inputStream = connection.inputStream
-        val response = inputStream.bufferedReader().use { it.readText() }
+        val reader = inputStream.bufferedReader()
         val gson = GsonBuilder().create()
-        val responseObj = gson.fromJson(response, ResponseData::class.java)
+        val responseObj = gson.fromJson(reader, ResponseData::class.java)
         return responseObj.translations.map { it.text }.filter { t -> t.isNotEmpty() }.joinToString(" ")
     }
 }
