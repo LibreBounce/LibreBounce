@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import kotlinx.coroutines.NonCancellable.isCancelled
 import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.config.int
@@ -49,9 +50,11 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
     private fun logPacket(event: PacketEvent) {
         val packet = event.packet
 
+        val packetEvent = if (event.isCancelled) "§7(§cCancelled§7)" else ""
+
         val packetInfo = buildString {
             append("\n")
-            append("§aPacket: §b${packet.javaClass.simpleName}\n")
+            append("§aPacket: §b${packet.javaClass.simpleName} $packetEvent\n")
             append("§aEventType: §b${event.eventType}\n")
             packet.javaClass.declaredFields.forEach { field ->
                 field.isAccessible = true
