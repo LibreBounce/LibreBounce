@@ -7,7 +7,9 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.features.special.BungeeCordSpoof;
 import net.ccbluex.liquidbounce.file.FileManager;
+import net.ccbluex.liquidbounce.lang.LanguageKt;
 import net.ccbluex.liquidbounce.ui.client.GuiClientFixes;
+import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.client.tools.GuiTools;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMultiplayer;
@@ -39,12 +41,16 @@ public abstract class MixinGuiMultiplayer extends MixinGuiScreen {
 
         buttonList.add(new GuiButton(997, 5 + increase, yPosition, 45, 20, "Fixes"));
         buttonList.add(bungeeCordSpoofButton = new GuiButton(998, 55 + increase, yPosition, 98, 20, "BungeeCord Spoof: " + (BungeeCordSpoof.INSTANCE.getEnabled() ? "On" : "Off")));
-        buttonList.add(new GuiButton(999, width - 104, yPosition, 98, 20, "Tools"));
+        buttonList.add(new GuiButton(996, width - 120, yPosition, 62, 20, LanguageKt.translationMenu("altManager")));
+        buttonList.add(new GuiButton(999, width - 52, yPosition, 46, 20, "Tools"));
     }
 
     @Inject(method = "actionPerformed", at = @At("HEAD"))
     private void actionPerformed(GuiButton button, CallbackInfo callbackInfo) throws IOException {
         switch (button.id) {
+            case 996:
+                mc.displayGuiScreen(new GuiAltManager((GuiScreen) (Object) this));
+                break;
             case 997:
                 mc.displayGuiScreen(new GuiClientFixes((GuiScreen) (Object) this));
                 break;
