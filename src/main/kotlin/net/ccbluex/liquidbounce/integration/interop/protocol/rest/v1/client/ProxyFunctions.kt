@@ -174,7 +174,7 @@ fun postImportClipboardProxy(requestObject: RequestObject): FullHttpResponse {
     return httpOk(JsonObject())
 }
 
-// POST /api/v1/client/proxies/import/clipboard
+// POST /api/v1/client/proxies/import/file
 @Suppress("UNUSED_PARAMETER")
 fun postImportFileProxy(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
