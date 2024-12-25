@@ -24,7 +24,7 @@ class XRayConfig(file: File) : FileConfig(file) {
      */
     @Throws(IOException::class)
     override fun loadConfig() {
-        val json = file.readJson().takeIf { it.isJsonArray } as? JsonArray ?: return
+        val json = file.readJson() as? JsonArray ?: return
 
         XRay.xrayBlocks.clear()
 

@@ -5,9 +5,7 @@
  */
 package net.ccbluex.liquidbounce.file.configs
 
-import com.google.gson.JsonNull
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.LiquidBounce.clientRichPresence
 import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
@@ -36,6 +34,7 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetDead
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*
 
 class ValuesConfig(file: File) : FileConfig(file) {
@@ -47,22 +46,25 @@ class ValuesConfig(file: File) : FileConfig(file) {
      */
     @Throws(IOException::class)
     override fun loadConfig() {
-        val jsonElement = JsonParser().parse(file.bufferedReader())
-        if (jsonElement is JsonNull) return
+        val json = file.readJson() as? JsonObject ?: return
 
-        val jsonObject = jsonElement as JsonObject
-        for ((key, value) in jsonObject.entrySet()) {
+        for ((key, value) in json.entrySet()) {
             when {
                 key.equals("commandprefix", true) ->
                     commandManager.prefix = value.asCharacter
 
                 key.equals("discordRPC", true) -> {
                     val jsonValue = value as JsonObject
-                    if (jsonValue.has("ShowRichPresence")) clientRichPresence.showRPCValue = jsonValue["ShowRichPresence"].asBoolean
-                    if (jsonValue.has("ShowRichPresenceServerIP")) clientRichPresence.showRPCServerIP = jsonValue["ShowRichPresenceServerIP"].asBoolean
-                    if (jsonValue.has("RichPresenceCustomText")) clientRichPresence.customRPCText = jsonValue["RichPresenceCustomText"].asString
-                    if (jsonValue.has("ShowRichPresenceModulesCount")) clientRichPresence.showRPCModulesCount = jsonValue["ShowRichPresenceModulesCount"].asBoolean
+                    if (jsonValue.has("ShowRichPresence")) clientRichPresence.showRPCValue =
+                        jsonValue["ShowRichPresence"].asBoolean
+                    if (jsonValue.has("ShowRichPresenceServerIP")) clientRichPresence.showRPCServerIP =
+                        jsonValue["ShowRichPresenceServerIP"].asBoolean
+                    if (jsonValue.has("RichPresenceCustomText")) clientRichPresence.customRPCText =
+                        jsonValue["RichPresenceCustomText"].asString
+                    if (jsonValue.has("ShowRichPresenceModulesCount")) clientRichPresence.showRPCModulesCount =
+                        jsonValue["ShowRichPresenceModulesCount"].asBoolean
                 }
+
                 key.equals("targets", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("TargetPlayer")) targetPlayer = jsonValue["TargetPlayer"].asBoolean
@@ -71,46 +73,57 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     if (jsonValue.has("TargetInvisible")) targetInvisible = jsonValue["TargetInvisible"].asBoolean
                     if (jsonValue.has("TargetDead")) targetDead = jsonValue["TargetDead"].asBoolean
                 }
+
                 key.equals("features", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("AntiForge")) fmlFixesEnabled = jsonValue["AntiForge"].asBoolean
                     if (jsonValue.has("AntiForgeFML")) blockFML = jsonValue["AntiForgeFML"].asBoolean
                     if (jsonValue.has("AntiForgeProxy")) blockProxyPacket = jsonValue["AntiForgeProxy"].asBoolean
-                    if (jsonValue.has("AntiForgePayloads")) blockPayloadPackets = jsonValue["AntiForgePayloads"].asBoolean
-                    if (jsonValue.has("FixResourcePackExploit")) blockResourcePackExploit = jsonValue["FixResourcePackExploit"].asBoolean
+                    if (jsonValue.has("AntiForgePayloads")) blockPayloadPackets =
+                        jsonValue["AntiForgePayloads"].asBoolean
+                    if (jsonValue.has("FixResourcePackExploit")) blockResourcePackExploit =
+                        jsonValue["FixResourcePackExploit"].asBoolean
                     if (jsonValue.has("ClientBrand")) clientBrand = jsonValue["ClientBrand"].asString
                     if (jsonValue.has("BungeeSpoof")) BungeeCordSpoof.enabled = jsonValue["BungeeSpoof"].asBoolean
                     if (jsonValue.has("AutoReconnectDelay")) delay = jsonValue["AutoReconnectDelay"].asInt
                 }
+
                 key.equals("thealtening", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("API-Key")) apiKey = jsonValue["API-Key"].asString
                 }
+
                 key.equals("liquidchat", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("token")) jwtToken = jsonValue["token"].asString
                 }
+
                 key.equals("DonatorCape", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("TransferCode")) {
                         CapeService.knownToken = jsonValue["TransferCode"].asString
                     }
                 }
+
                 key.equals("clientConfiguration", true) -> {
                     val jsonValue = value as JsonObject
-                    if (jsonValue.has("EnabledClientTitle")) enabledClientTitle = jsonValue["EnabledClientTitle"].asBoolean
-                    if (jsonValue.has("EnabledBackground")) enabledCustomBackground = jsonValue["EnabledBackground"].asBoolean
+                    if (jsonValue.has("EnabledClientTitle")) enabledClientTitle =
+                        jsonValue["EnabledClientTitle"].asBoolean
+                    if (jsonValue.has("EnabledBackground")) enabledCustomBackground =
+                        jsonValue["EnabledBackground"].asBoolean
                     if (jsonValue.has("Particles")) particles = jsonValue["Particles"].asBoolean
                     if (jsonValue.has("StylisedAlts")) stylisedAlts = jsonValue["StylisedAlts"].asBoolean
                     if (jsonValue.has("AltsLength")) altsLength = jsonValue["AltsLength"].asInt
                     if (jsonValue.has("CleanAlts")) unformattedAlts = jsonValue["CleanAlts"].asBoolean
                     if (jsonValue.has("OverrideLanguage")) overrideLanguage = jsonValue["OverrideLanguage"].asString
                 }
+
                 key.equals("background", true) -> { // Compatibility with old versions
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("Enabled")) enabledCustomBackground = jsonValue["Enabled"].asBoolean
                     if (jsonValue.has("Particles")) particles = jsonValue["Particles"].asBoolean
                 }
+
                 else -> {
                     val module = moduleManager[key] ?: continue
 

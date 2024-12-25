@@ -7,12 +7,12 @@ package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
+import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.File
 import java.io.IOException
 
@@ -24,12 +24,9 @@ class ShortcutsConfig(file: File) : FileConfig(file) {
      * @throws IOException
      */
     override fun loadConfig() {
-        val jsonElement = JsonParser().parse(file.readText())
+        val json = file.readJson() as? JsonArray ?: return
 
-        if (jsonElement !is JsonArray)
-            return
-
-        for (shortcutJson in jsonElement) {
+        for (shortcutJson in json) {
             if (shortcutJson !is JsonObject)
                 continue
 
