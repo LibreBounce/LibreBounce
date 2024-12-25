@@ -1,4 +1,5 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.translate.providers.deepl
+import com.google.gson.annotations.SerializedName
 
 import com.google.gson.annotations.SerializedName
 
