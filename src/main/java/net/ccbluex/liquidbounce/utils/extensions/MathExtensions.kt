@@ -78,6 +78,9 @@ fun BlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos(
 fun BlockPos.MutableBlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos.MutableBlockPos(x, y, z)
 fun Vec3.copy(x: Double = this.xCoord, y: Double = this.yCoord, z: Double = this.zCoord) = Vec3(x, y, z)
 
+fun BlockPos.immutableCopy() = BlockPos(x, y, z)
+fun BlockPos.mutableCopy() = BlockPos.MutableBlockPos(x, y, z)
+
 fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
     val vec3i = direction.directionVec
 
@@ -89,7 +92,7 @@ fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
 }
 
 fun Vec3.withY(value: Double, useCurrentY: Boolean = false): Vec3 {
-    return Vec3(xCoord, (yCoord.takeIf { useCurrentY } ?: 0.0) + value, zCoord)
+    return Vec3(xCoord, (if (useCurrentY) yCoord else 0.0) + value, zCoord)
 }
 
 val Vec3_ZERO: Vec3

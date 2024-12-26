@@ -19,6 +19,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRAD
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.BEDWARS_BLOCKS
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockTexture
+import net.ccbluex.liquidbounce.utils.block.getAllInBoxMutable
+import net.ccbluex.liquidbounce.utils.extensions.immutableCopy
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
@@ -29,7 +31,6 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.block.Block
 import net.minecraft.block.BlockBed
-import net.minecraft.block.state.IBlockState
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.init.Blocks
@@ -100,17 +101,10 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         val bedSet = mutableSetOf<BlockPos>()
 
         val radius = maxRenderDistance
-        val mutable = BlockPos.MutableBlockPos(0, 0, 0)
-        for (i in -radius..radius) {
-            for (j in -radius..radius) {
-                for (k in -radius..radius) {
-                    mutable.set(player.posX.toInt() + j, player.posY.toInt() + i, player.posZ.toInt() + k)
-                    val blockState: IBlockState = world.getBlockState(mutable)
-
-                    if (blockState.block == Blocks.bed && blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.FOOT) {
-                        bedBlocks(mutable.immutable, blockList, bedBlockLists, bedSet)
-                    }
-                }
+        player.position.getAllInBoxMutable(radius).forEach {
+            val blockState = world.getBlockState(it)
+            if (blockState.block == Blocks.bed && blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.FOOT) {
+                bedBlocks(it.immutableCopy(), blockList, bedBlockLists, bedSet)
             }
         }
 
