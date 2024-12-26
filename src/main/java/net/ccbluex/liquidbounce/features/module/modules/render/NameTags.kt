@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
+import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
@@ -95,8 +96,12 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
     private val inventoryBackground = ResourceLocation("textures/gui/container/inventory.png")
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
 
+    private val entities by EntityLookup<EntityLivingBase>()
+        .filter { bot || !isBot(it) }
+        .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
+        .filter { thruBlocks || isEntityHeightVisible(it) }
 
-    val onRender3D = handler<Render3DEvent> { event ->
+    val onRender3D = handler<Render3DEvent> {
         if (mc.theWorld == null || mc.thePlayer == null) return@handler
 
         glPushAttrib(GL_ENABLE_BIT)
@@ -112,20 +117,13 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        for (entity in mc.theWorld.loadedEntityList) {
-            if (entity !is EntityLivingBase) continue
-
+        for (entity in entities) {
             val isRenderingSelf =
                 entity is EntityPlayerSP && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
 
             if (!isRenderingSelf || !renderSelf) {
                 if (!isSelected(entity, false)) continue
             }
-
-            if (isBot(entity) && !bot) continue
-            if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble())) continue
-
-            if (!thruBlocks && !isEntityHeightVisible(entity)) continue
 
             val name = entity.displayName.unformattedText ?: continue
 
