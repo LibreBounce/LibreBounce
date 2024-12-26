@@ -33,6 +33,7 @@ import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpOk
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.util.tinyfd.TinyFileDialogs
+import java.io.File
 
 /**
  * Proxy endpoints
@@ -176,17 +177,24 @@ fun postImportClipboardProxy(requestObject: RequestObject): FullHttpResponse {
 fun postImportFileProxy(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
         runCatching {
-            val path = TinyFileDialogs.tinyfd_openFileDialog(
+            val result = TinyFileDialogs.tinyfd_openFileDialog(
                 "Select a proxy list", null,
                 null, null, true
             )
-            if (path == null || path.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 logger.debug("No file selected, skip.")
                 return@runCatching httpBadRequest("No file selected")
             }
 
-            logger.debug("File selected: $path")
-
+            val paths = when (result.contains("|")) {
+                true -> result.split("|")
+                false -> listOf(result)
+            }.map { File(it) }
+            for ((index, file) in paths.withIndex()) {
+                logger.debug("Importing proxies from ${file.name} (#${index + 1})")
+                importProxies(file.readText())
+            }
+//            val fileContent = File(result).readText()
         }
     }
 
