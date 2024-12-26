@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.colorFromDisplayName
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
@@ -159,15 +160,10 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
                 }
 
                 colorMode == "Rainbow" -> ColorUtils.rainbow()
-                else -> Color(colors.color().red, colors.color().green, colors.color().blue, alpha)
+                else -> colors.color(a = alpha)
             }
 
-            glColor4f(
-                arrowsColor.red / 255f,
-                arrowsColor.green / 255f,
-                arrowsColor.blue / 255f,
-                arrowsColor.alpha / 255f
-            )
+            glColor(arrowsColor)
 
             glRotatef(arrowAngle, 0f, 0f, 1f)
 
