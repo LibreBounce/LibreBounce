@@ -54,8 +54,16 @@ import kotlin.jvm.optionals.getOrNull
 /**
  * This is a generic Minecraft server that is used to check if a proxy is working. The server also
  * responds to query requests with the client's IP address.
+ * Some of these are taken from https://topminecraftservers.org/
  */
-private const val PING_SERVER = "ping.liquidproxy.net"
+private val FALLBACK_PING_SERVERS = listOf(
+    "mc.hypixel.net",
+    "crescentkingdom.com",
+    "gratopia.gg",
+    "terranova.mc.gg",
+    "play.arcanecloud.net",
+    "ping.liquidproxy.net"
+)
 private const val PING_TIMEOUT = 5
 
 class ClientConnectionTicker(private val clientConnection: ClientConnection) : EventListener {
@@ -70,69 +78,75 @@ class ClientConnectionTicker(private val clientConnection: ClientConnection) : E
  * as well as update the ip information of the proxy.
  */
 fun Proxy.check(success: (Proxy) -> Unit, failure: (Throwable) -> Unit) = runCatching {
-    logger.info("Request ping server via proxy... [$host:$port]")
+    for (fallbackPingServer in FALLBACK_PING_SERVERS) {
+        logger.info("Request ping server via proxy... [$host:$port]")
 
-    val serverAddress = ServerAddress.parse(PING_SERVER)
-    val socketAddress: InetSocketAddress = AllowedAddressResolver.DEFAULT.resolve(serverAddress)
-        .map(Address::getInetSocketAddress)
-        .getOrNull()
-        ?: error("Failed to resolve $PING_SERVER")
-    logger.info("Resolved ping server [$PING_SERVER]: $socketAddress")
+        val serverAddress = ServerAddress.parse(fallbackPingServer)
+        val socketAddress: InetSocketAddress = AllowedAddressResolver.DEFAULT.resolve(serverAddress)
+            .map(Address::getInetSocketAddress)
+            .getOrNull()
+            ?: error("Failed to resolve $fallbackPingServer")
+        logger.info("Resolved server [$fallbackPingServer]: $socketAddress")
 
-    val clientConnection = ClientConnection(NetworkSide.CLIENTBOUND)
-    val channelFuture = connect(socketAddress, false, clientConnection)
-    channelFuture.syncUninterruptibly()
+        val clientConnection = ClientConnection(NetworkSide.CLIENTBOUND)
+        val channelFuture = connect(socketAddress, false, clientConnection)
+        channelFuture.syncUninterruptibly()
 
-    val ticker = ClientConnectionTicker(clientConnection)
+        val ticker = ClientConnectionTicker(clientConnection)
 
-    val clientQueryPacketListener = object : ClientQueryPacketListener {
+        val clientQueryPacketListener = object : ClientQueryPacketListener {
 
-        private var serverMetadata: ServerMetadata? = null
-        private var startTime = 0L
+            private var serverMetadata: ServerMetadata? = null
+            private var startTime = 0L
 
-        override fun onResponse(packet: QueryResponseS2CPacket) {
-            if (serverMetadata != null) {
-                failure(IllegalStateException("Received multiple responses from server"))
-                return
+            override fun onResponse(packet: QueryResponseS2CPacket) {
+                if (serverMetadata != null) {
+                    if (fallbackPingServer == FALLBACK_PING_SERVERS[FALLBACK_PING_SERVERS.lastIndex]) {
+                        failure(IllegalStateException("Received multiple responses from server"))
+                    }
+                    return
+                }
+
+                val metadata = packet.metadata()
+                serverMetadata = metadata
+                startTime = Util.getMeasuringTimeMs()
+                clientConnection.send(QueryPingC2SPacket(startTime))
+                logger.info("Proxy Metadata [$host:$port]: ${metadata.description.convertToString()}")
             }
 
-            val metadata = packet.metadata()
-            serverMetadata = metadata
-            startTime = Util.getMeasuringTimeMs()
-            clientConnection.send(QueryPingC2SPacket(startTime))
-            logger.info("Proxy Metadata [$host:$port]: ${metadata.description.convertToString()}")
-        }
+            override fun onPingResult(packet: PingResultS2CPacket) {
+                val serverMetadata = this.serverMetadata ?: error("Received ping result without metadata")
+                val ping = Util.getMeasuringTimeMs() - startTime
+                logger.info("Proxy Ping [$host:$port]: $ping ms")
 
-        override fun onPingResult(packet: PingResultS2CPacket) {
-            val serverMetadata = this.serverMetadata ?: error("Received ping result without metadata")
-            val ping = Util.getMeasuringTimeMs() - startTime
-            logger.info("Proxy Ping [$host:$port]: $ping ms")
+                runCatching {
+                    val ipInfo = IpInfoApi.someoneElse(serverMetadata.description.convertToString())
+                    this@check.ipInfo = ipInfo
+                    logger.info("Proxy Info [$host:$port]: ${ipInfo.ip} [${ipInfo.country}, ${ipInfo.org}]")
+                }.onFailure { throwable ->
+                    logger.error("Failed to update IP info for proxy [$host:$port]", throwable)
+                }
 
-            runCatching {
-                val ipInfo = IpInfoApi.someoneElse(serverMetadata.description.convertToString())
-                this@check.ipInfo = ipInfo
-                logger.info("Proxy Info [$host:$port]: ${ipInfo.ip} [${ipInfo.country}, ${ipInfo.org}]")
-            }.onFailure { throwable ->
-                logger.error("Failed to update IP info for proxy [$host:$port]", throwable)
+                success(this@check)
             }
 
-            success(this@check)
-        }
+            override fun onDisconnected(info: DisconnectionInfo) {
+                EventManager.unregisterEventHandler(ticker)
 
-        override fun onDisconnected(info: DisconnectionInfo) {
-            EventManager.unregisterEventHandler(ticker)
-
-            if (this.serverMetadata == null) {
-                failure(IllegalStateException("Disconnected before receiving metadata"))
+                if (this.serverMetadata == null) {
+                    if (fallbackPingServer == FALLBACK_PING_SERVERS[FALLBACK_PING_SERVERS.lastIndex]) {
+                        failure(IllegalStateException("Disconnected before receiving metadata"))
+                    }
+                }
             }
+
+            override fun isConnectionOpen() = clientConnection.isOpen
         }
 
-        override fun isConnectionOpen() = clientConnection.isOpen
+        clientConnection.connect(serverAddress.address, serverAddress.port, clientQueryPacketListener)
+        clientConnection.send(QueryRequestC2SPacket.INSTANCE)
+        logger.info("Sent query request via proxy [$host:$port]")
     }
-
-    clientConnection.connect(serverAddress.address, serverAddress.port, clientQueryPacketListener)
-    clientConnection.send(QueryRequestC2SPacket.INSTANCE)
-    logger.info("Sent query request via proxy [$host:$port]")
 }.onFailure { throwable -> failure(throwable) }
 
 private fun Proxy.connect(
