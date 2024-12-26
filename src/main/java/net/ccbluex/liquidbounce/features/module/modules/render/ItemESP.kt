@@ -8,13 +8,13 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
-import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
@@ -67,65 +67,67 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
     val color
         get() = if (colorRainbow) rainbow() else Color(colorRed, colorGreen, colorBlue)
 
-    // TODO: Removed highlighting of EntityArrow to not complicate things even further
+    private var itemEntities: Iterable<EntityItem> = emptyList()
 
-    val onRender3D = handler<Render3DEvent> {
-        if (mc.theWorld == null || mc.thePlayer == null || mode == "Glow")
+    override fun onDisable() {
+        itemEntities = emptyList()
+    }
+
+    // Entity lookup
+    val onUpdate = handler<UpdateEvent> {
+        if (mc.theWorld == null || mc.thePlayer == null)
             return@handler
 
-        runCatching {
-            mc.theWorld.loadedEntityList.asSequence()
-                .filterIsInstance<EntityItem>()
-                .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
-                .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
-                .filter { thruBlocks || isEntityHeightVisible(it) }
-                .forEach { entityItem ->
-                    val isUseful =
-                        InventoryCleaner.handleEvents() && InventoryCleaner.highlightUseful && InventoryCleaner.isStackUseful(
-                            entityItem.entityItem,
-                            mc.thePlayer.openContainer.inventory,
-                            mc.theWorld.loadedEntityList.filterIsInstance<EntityItem>().associateBy { it.entityItem }
-                        )
+        itemEntities = mc.theWorld.loadedEntityList.asSequence()
+            .filterIsInstance<EntityItem>()
+            .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+            .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
+            .filter { thruBlocks || isEntityHeightVisible(it) }
+            .toList()
+    }
 
-                    if (itemText) {
-                        renderEntityText(entityItem, if (isUseful) Color.green else color)
-                    }
+    val onRender3D = handler<Render3DEvent> {
+        if (mc.theWorld == null || mc.thePlayer == null)
+            return@handler
 
-                    // Only render green boxes on useful items, if ItemESP is enabled, render boxes of ItemESP.color on useless items as well
-                    drawEntityBox(entityItem, if (isUseful) Color.green else color, mode == "Box")
-                }
-        }.onFailure {
-            LOGGER.error("An error occurred while rendering ItemESP!", it)
+        for (entityItem in itemEntities) {
+            val isUseful =
+                InventoryCleaner.handleEvents() && InventoryCleaner.highlightUseful && InventoryCleaner.isStackUseful(
+                    entityItem.entityItem,
+                    mc.thePlayer.openContainer.inventory,
+                    mapOf(entityItem.entityItem to entityItem)
+                )
+
+            if (itemText) {
+                renderEntityText(entityItem, if (isUseful) Color.green else color)
+            }
+
+            if (mode == "Glow")
+                continue
+
+            // Only render green boxes on useful items, if ItemESP is enabled, render boxes of ItemESP.color on useless items as well
+            drawEntityBox(entityItem, if (isUseful) Color.green else color, mode == "Box")
         }
     }
 
     val onRender2D = handler<Render2DEvent> { event ->
-        if (mc.theWorld == null || mc.thePlayer == null || mode != "Glow")
+        if (mode != "Glow")
             return@handler
 
-        try {
-            mc.theWorld.loadedEntityList.asSequence()
-                .filterIsInstance<EntityItem>()
-                .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
-                .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
-                .filter { thruBlocks || isEntityHeightVisible(it) }
-                .forEach { entityItem ->
-                    val isUseful =
-                        InventoryCleaner.handleEvents() && InventoryCleaner.highlightUseful && InventoryCleaner.isStackUseful(
-                            entityItem.entityItem,
-                            mc.thePlayer.openContainer.inventory,
-                            mapOf(entityItem.entityItem to entityItem)
-                        )
+        for (entityItem in itemEntities) {
+            val isUseful =
+                InventoryCleaner.handleEvents() && InventoryCleaner.highlightUseful && InventoryCleaner.isStackUseful(
+                    entityItem.entityItem,
+                    mc.thePlayer.openContainer.inventory,
+                    mapOf(entityItem.entityItem to entityItem)
+                )
 
-                    GlowShader.startDraw(event.partialTicks, glowRenderScale)
+            GlowShader.startDraw(event.partialTicks, glowRenderScale)
 
-                    mc.renderManager.renderEntityStatic(entityItem, event.partialTicks, true)
+            mc.renderManager.renderEntityStatic(entityItem, event.partialTicks, true)
 
-                    // Only render green boxes on useful items, if ItemESP is enabled, render boxes of ItemESP.color on useless items as well
-                    GlowShader.stopDraw(if (isUseful) Color.green else color, glowRadius, glowFade, glowTargetAlpha)
-                }
-        } catch (e: Throwable) {
-            LOGGER.error("An error occurred while rendering ItemESP!", e)
+            // Only render green boxes on useful items, if ItemESP is enabled, render boxes of ItemESP.color on useless items as well
+            GlowShader.stopDraw(if (isUseful) Color.green else color, glowRadius, glowFade, glowTargetAlpha)
         }
     }
 

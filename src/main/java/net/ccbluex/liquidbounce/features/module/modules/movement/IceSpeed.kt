@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
-import net.ccbluex.liquidbounce.utils.block.material
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
@@ -38,37 +37,35 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
 
         val thePlayer = mc.thePlayer ?: return@handler
 
-        if (thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isSneaking && thePlayer.isSprinting && thePlayer.isMoving) {
-            when (mode) {
-                "AAC" -> {
-                    thePlayer.position.down().material.let {
-                        if (it == Blocks.ice || it == Blocks.packed_ice) {
-                            thePlayer.motionX *= 1.342
-                            thePlayer.motionZ *= 1.342
-                            Blocks.ice.slipperiness = 0.6f
-                            Blocks.packed_ice.slipperiness = 0.6f
-                        }
-                    }
+        if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isSneaking || !thePlayer.isSprinting || !thePlayer.isMoving) {
+            return@handler
+        }
+
+        if (thePlayer.position.down().block.let { it != Blocks.ice && it != Blocks.packed_ice }) {
+            return@handler
+        }
+
+        when (mode) {
+            "AAC" -> {
+                thePlayer.motionX *= 1.342
+                thePlayer.motionZ *= 1.342
+                Blocks.ice.slipperiness = 0.6f
+                Blocks.packed_ice.slipperiness = 0.6f
+            }
+
+            "Spartan" -> {
+                val upBlock = BlockPos(thePlayer).up(2).block
+
+                if (upBlock != Blocks.air) {
+                    thePlayer.motionX *= 1.342
+                    thePlayer.motionZ *= 1.342
+                } else {
+                    thePlayer.motionX *= 1.18
+                    thePlayer.motionZ *= 1.18
                 }
 
-                "Spartan" -> {
-                    thePlayer.position.down().material.let {
-                        if (it == Blocks.ice || it == Blocks.packed_ice) {
-                            val upBlock = BlockPos(thePlayer).up(2).block
-
-                            if (upBlock != Blocks.air) {
-                                thePlayer.motionX *= 1.342
-                                thePlayer.motionZ *= 1.342
-                            } else {
-                                thePlayer.motionX *= 1.18
-                                thePlayer.motionZ *= 1.18
-                            }
-
-                            Blocks.ice.slipperiness = 0.6f
-                            Blocks.packed_ice.slipperiness = 0.6f
-                        }
-                    }
-                }
+                Blocks.ice.slipperiness = 0.6f
+                Blocks.packed_ice.slipperiness = 0.6f
             }
         }
     }

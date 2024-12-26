@@ -120,95 +120,95 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
             if (entity !is EntityLivingBase || !bot && isBot(entity)) continue
             if (!team && Teams.isInYourTeam(entity)) continue
 
-            if (EntityUtils.isSelected(entity, false)) {
-                val interpolatedPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * ticks
-                val interpolatedPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * ticks
-                val pos1 = (interpolatedPosX - playerPosX) * 0.2
-                val pos2 = (interpolatedPosZ - playerPosZ) * 0.2
+            if (!EntityUtils.isSelected(entity, false)) continue
 
-                val cos = cos(player.rotationYaw * (PI / 180))
-                val sin = sin(player.rotationYaw * (PI / 180))
-                val rotY = -(pos2 * cos - pos1 * sin)
-                val rotX = -(pos1 * cos + pos2 * sin)
-                val arrowAngle = (atan2(rotY, rotX) * 180 / PI).toFloat() + 90f
+            val interpolatedPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * ticks
+            val interpolatedPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * ticks
+            val pos1 = (interpolatedPosX - playerPosX) * 0.2
+            val pos2 = (interpolatedPosZ - playerPosZ) * 0.2
 
-                if (player.getDistanceSqToEntity(entity) > maxRenderDistanceSq) continue
+            val cos = cos(player.rotationYaw * (PI / 180))
+            val sin = sin(player.rotationYaw * (PI / 180))
+            val rotY = -(pos2 * cos - pos1 * sin)
+            val rotX = -(pos1 * cos + pos2 * sin)
+            val arrowAngle = (atan2(rotY, rotX) * 180 / PI).toFloat() + 90f
 
-                val alpha = if (distanceAlpha) {
-                    (alpha - (sqrt((playerPosX - interpolatedPosX).pow(2) + (playerPosZ - interpolatedPosZ).pow(2)) / maxRenderDistance)
-                        .coerceAtMost(1.0) * (alpha - alphaMin)).toInt()
-                } else alpha
+            if (player.getDistanceSqToEntity(entity) > maxRenderDistanceSq) continue
 
-                val targetHealth = getHealth(entity, healthFromScoreboard, absorption)
-                val arrowsColor = when {
-                    targetHealth <= 0 -> Color(255, 0, 0, alpha)
+            val alpha = if (distanceAlpha) {
+                (alpha - (sqrt((playerPosX - interpolatedPosX).pow(2) + (playerPosZ - interpolatedPosZ).pow(2)) / maxRenderDistance)
+                    .coerceAtMost(1.0) * (alpha - alphaMin)).toInt()
+            } else alpha
 
-                    colorTeam -> entity.colorFromDisplayName() ?: continue
+            val targetHealth = getHealth(entity, healthFromScoreboard, absorption)
+            val arrowsColor = when {
+                targetHealth <= 0 -> Color(255, 0, 0, alpha)
 
-                    healthMode == "Custom" -> {
-                        ColorUtils.interpolateHealthColor(
-                            entity,
-                            healthColors.color().red,
-                            healthColors.color().green,
-                            healthColors.color().blue,
-                            alpha,
-                            healthFromScoreboard,
-                            absorption
-                        )
-                    }
+                colorTeam -> entity.colorFromDisplayName() ?: continue
 
-                    colorMode == "Rainbow" -> ColorUtils.rainbow()
-                    else -> Color(colors.color().red, colors.color().green, colors.color().blue, alpha)
+                healthMode == "Custom" -> {
+                    ColorUtils.interpolateHealthColor(
+                        entity,
+                        healthColors.color().red,
+                        healthColors.color().green,
+                        healthColors.color().blue,
+                        alpha,
+                        healthFromScoreboard,
+                        absorption
+                    )
                 }
 
-                glColor4f(
-                    arrowsColor.red / 255f,
-                    arrowsColor.green / 255f,
-                    arrowsColor.blue / 255f,
-                    arrowsColor.alpha / 255f
-                )
-
-                glRotatef(arrowAngle, 0f, 0f, 1f)
-
-                when (mode.lowercase()) {
-                    "solid" -> {
-                        glBegin(GL_TRIANGLES)
-                        glVertex2f(0f, arrowRadius)
-                        glVertex2d(
-                            sin(-halfAngle * PI / 180) * arrowSize,
-                            arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
-                        )
-                        glVertex2d(
-                            sin(halfAngle * PI / 180) * arrowSize,
-                            arrowRadius + cos(halfAngle * PI / 180) * arrowSize
-                        )
-                        glEnd()
-                    }
-
-                    "line", "loopline" -> {
-                        glLineWidth(thickness)
-                        glBegin(GL_LINE_STRIP)
-                        glVertex2d(
-                            sin(-halfAngle * PI / 180) * arrowSize,
-                            arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
-                        )
-                        glVertex2f(0f, arrowRadius)
-                        glVertex2d(
-                            sin(halfAngle * PI / 180) * arrowSize,
-                            arrowRadius + cos(halfAngle * PI / 180) * arrowSize
-                        )
-                        if (mode == "LoopLine") {
-                            glVertex2d(
-                                sin(-halfAngle * PI / 180) * arrowSize,
-                                arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
-                            )
-                        }
-                        glEnd()
-                    }
-                }
-
-                glRotatef(-arrowAngle, 0f, 0f, 1f)
+                colorMode == "Rainbow" -> ColorUtils.rainbow()
+                else -> Color(colors.color().red, colors.color().green, colors.color().blue, alpha)
             }
+
+            glColor4f(
+                arrowsColor.red / 255f,
+                arrowsColor.green / 255f,
+                arrowsColor.blue / 255f,
+                arrowsColor.alpha / 255f
+            )
+
+            glRotatef(arrowAngle, 0f, 0f, 1f)
+
+            when (mode.lowercase()) {
+                "solid" -> {
+                    glBegin(GL_TRIANGLES)
+                    glVertex2f(0f, arrowRadius)
+                    glVertex2d(
+                        sin(-halfAngle * PI / 180) * arrowSize,
+                        arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
+                    )
+                    glVertex2d(
+                        sin(halfAngle * PI / 180) * arrowSize,
+                        arrowRadius + cos(halfAngle * PI / 180) * arrowSize
+                    )
+                    glEnd()
+                }
+
+                "line", "loopline" -> {
+                    glLineWidth(thickness)
+                    glBegin(GL_LINE_STRIP)
+                    glVertex2d(
+                        sin(-halfAngle * PI / 180) * arrowSize,
+                        arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
+                    )
+                    glVertex2f(0f, arrowRadius)
+                    glVertex2d(
+                        sin(halfAngle * PI / 180) * arrowSize,
+                        arrowRadius + cos(halfAngle * PI / 180) * arrowSize
+                    )
+                    if (mode == "LoopLine") {
+                        glVertex2d(
+                            sin(-halfAngle * PI / 180) * arrowSize,
+                            arrowRadius + cos(-halfAngle * PI / 180) * arrowSize
+                        )
+                    }
+                    glEnd()
+                }
+            }
+
+            glRotatef(-arrowAngle, 0f, 0f, 1f)
         }
 
         glEnable(GL_TEXTURE_2D)

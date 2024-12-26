@@ -32,11 +32,10 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
         if (!thePlayer.isMoving || Speed.handleEvents())
             return@handler
 
-
-        if (thePlayer.fallDistance > 0 && !walkingDown)
-            walkingDown = true
-        else if (thePlayer.posY > thePlayer.prevChasingPosY)
-            walkingDown = false
+        when {
+            thePlayer.fallDistance > 0 && !walkingDown -> walkingDown = true
+            thePlayer.posY > thePlayer.prevChasingPosY -> walkingDown = false
+        }
 
         val mode = mode
 

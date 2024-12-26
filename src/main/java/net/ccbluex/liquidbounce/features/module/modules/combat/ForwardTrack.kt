@@ -68,17 +68,16 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
         val renderManager = mc.renderManager
 
-        world.loadedEntityList.asSequence()
-            .filter { isSelected(it, true) }
+        world.loadedEntityList
+            .filter { it != null && isSelected(it, true) }
             .forEach { target ->
-            target?.run {
-                val vec = usePosition(this)
+                val vec = usePosition(target)
 
                 val (x, y, z) = vec - renderManager.renderPos
 
                 when (espMode.lowercase()) {
                     "box" -> {
-                        val axisAlignedBB = entityBoundingBox.offset(-currPos + Vec3(x, y, z))
+                        val axisAlignedBB = target.entityBoundingBox.offset(Vec3(x, y, z) - target.currPos)
 
                         drawBacktrackBox(axisAlignedBB, color)
                     }
@@ -89,9 +88,9 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
                         color(0.6f, 0.6f, 0.6f, 1f)
                         renderManager.doRenderEntity(
-                            this,
+                            target,
                             x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
+                            (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
                             event.partialTicks,
                             true
                         )
@@ -119,17 +118,17 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
                         glColor(color)
                         renderManager.doRenderEntity(
-                            this,
+                            target,
                             x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
+                            (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
                             event.partialTicks,
                             true
                         )
                         glColor(color)
                         renderManager.doRenderEntity(
-                            this,
+                            target,
                             x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
+                            (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
                             event.partialTicks,
                             true
                         )
@@ -137,7 +136,6 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                         glPopAttrib()
                         glPopMatrix()
                     }
-                }
             }
         }
     }

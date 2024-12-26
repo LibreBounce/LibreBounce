@@ -163,7 +163,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                 return@handler
             }
 
-            if (ice && (blockPos.down().block == Blocks.ice || blockPos.down().block == Blocks.packed_ice)) {
+            if (ice && blockPos.down().block.let { it == Blocks.ice || it == Blocks.packed_ice }) {
                 boost(iceBoost)
                 return@handler
             }
@@ -250,11 +250,13 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
         get() {
             val thePlayer = mc.thePlayer
             val theWorld = mc.theWorld
-            val blocks = mutableListOf<BlockPos>()
-            blocks += BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ - 0.7)
-            blocks += BlockPos(thePlayer.posX + 0.7, thePlayer.posY + 1, thePlayer.posZ)
-            blocks += BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ + 0.7)
-            blocks += BlockPos(thePlayer.posX - 0.7, thePlayer.posY + 1, thePlayer.posZ)
+            val blocks = arrayOf(
+                BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ - 0.7),
+                BlockPos(thePlayer.posX + 0.7, thePlayer.posY + 1, thePlayer.posZ),
+                BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ + 0.7),
+                BlockPos(thePlayer.posX - 0.7, thePlayer.posY + 1, thePlayer.posZ)
+            )
+
             for (blockPos in blocks) {
                 val blockState = theWorld.getBlockState(blockPos)
 

@@ -73,6 +73,11 @@ operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number,
 operator fun Vec3.div(number: Double) = times(1 / number)
 operator fun Vec3.unaryMinus(): Vec3 = this.times(-1.0)
 
+fun Vec3i.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = Vec3i(x, y, z)
+fun BlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos(x, y, z)
+fun BlockPos.MutableBlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos.MutableBlockPos(x, y, z)
+fun Vec3.copy(x: Double = this.xCoord, y: Double = this.yCoord, z: Double = this.zCoord) = Vec3(x, y, z)
+
 fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
     val vec3i = direction.directionVec
 
