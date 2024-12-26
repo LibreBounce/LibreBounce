@@ -42,6 +42,7 @@ class EntityLookup<T : Entity>(
     }
 
     override val parent: Listenable = owner
+
     override fun handleEvents(): Boolean {
         return owner.handleEvents().also {
             if (!it) clear()
