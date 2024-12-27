@@ -270,7 +270,7 @@ internal fun BufferedImage.toNativeImage(): NativeImage {
     // Fuck Minecraft native image
     for (x in 0 until this.width) {
         for (y in 0 until this.height) {
-            nativeImage.setColor(x, y, this.getRGB(x, y))
+            nativeImage.setColorArgb(x, y, this.getRGB(x, y))
         }
     }
 

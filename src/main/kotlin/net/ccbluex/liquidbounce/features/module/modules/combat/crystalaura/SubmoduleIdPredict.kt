@@ -76,7 +76,8 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 player.z,
                 rotation.yaw,
                 rotation.pitch,
-                player.isOnGround
+                player.isOnGround,
+                player.horizontalCollision
             ))
         }
 
@@ -91,7 +92,8 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 player.z,
                 oldRotation!!.yaw,
                 oldRotation!!.pitch,
-                player.isOnGround
+                player.isOnGround,
+                player.horizontalCollision
             ))
         }
 
