@@ -81,7 +81,8 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Cli
             if (send) {
                 val fixedRotation = rotation.normalize()
                 network.connection!!.send(
-                    PlayerMoveC2SPacket.LookAndOnGround(fixedRotation.yaw, fixedRotation.pitch, player.isOnGround),
+                    PlayerMoveC2SPacket.LookAndOnGround(fixedRotation.yaw, fixedRotation.pitch, player.isOnGround,
+                        player.horizontalCollision),
                     null
                 )
             }

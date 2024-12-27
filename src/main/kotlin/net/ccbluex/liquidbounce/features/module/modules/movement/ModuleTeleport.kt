@@ -92,11 +92,12 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
             }
 
             sendPacketSilently(MovePacketType.FULL.generatePacket().apply {
-                this.x = it.packet.x
-                this.y = it.packet.y
-                this.z = it.packet.z
-                this.yaw = it.packet.yaw
-                this.pitch = it.packet.pitch
+                val change = it.packet.change
+                this.x = change.position.x
+                this.y = change.position.y
+                this.z = change.position.z
+                this.yaw = change.yaw
+                this.pitch = change.pitch
                 this.onGround = false
             })
 

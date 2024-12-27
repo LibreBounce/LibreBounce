@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.integration.browser.supports.tab
 
+import net.minecraft.util.Identifier
+
 interface ITab {
 
     var position: TabPosition
@@ -32,7 +34,7 @@ interface ITab {
     fun loadUrl(url: String)
     fun getUrl(): String
     fun closeTab()
-    fun getTexture(): Int
+    fun getTexture(): Identifier
     fun resize(width: Int, height: Int)
 
     fun preferOnTop(): ITab {

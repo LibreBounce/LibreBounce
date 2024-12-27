@@ -42,7 +42,7 @@ object ModuleParkour : ClientModule("Parkour", Category.MOVEMENT) {
         val movementInput = event.movementEvent
 
         if (shouldJump) {
-            movementInput.jumping = true
+            movementInput.jump = true
         }
     }
 
