@@ -68,6 +68,10 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
     }
 
     fun onPacket(origin: TransferOrigin, packet: Packet<*>, canceled: Boolean = false) {
+        if (!running) {
+            return
+        }
+
         if (origin == TransferOrigin.RECEIVE && !clientbound || origin == TransferOrigin.SEND && !serverbound) {
             return
         }
