@@ -16,22 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.render.shader.shaders
+package net.ccbluex.liquidbounce.utils.item
 
-import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.render.engine.MinecraftFramebufferShader
+import net.ccbluex.liquidbounce.interfaces.ArmorItemAdditions
+import net.ccbluex.liquidbounce.interfaces.MiningToolItemAddition
+import net.minecraft.item.ArmorItem
+import net.minecraft.item.MiningToolItem
+import net.minecraft.item.ToolMaterial
+import net.minecraft.item.equipment.ArmorMaterial
+import net.minecraft.item.equipment.EquipmentType
 
-object BlurUIShader : MinecraftFramebufferShader("blur_ui") {
+fun ArmorItem.material(): ArmorMaterial = (this as ArmorItemAdditions).`liquid_bounce$getMaterial`()
 
-    fun begin(shaderTexture: Int) {
-        this.beginInternal()
+fun MiningToolItem.material(): ToolMaterial = (this as MiningToolItemAddition).`liquid_bounce$getMaterial`()
 
-        RenderSystem.setShaderTexture(1, shaderTexture)
-    }
-
-    fun setColor(color: Color4b) {
-        this.vertexConsumerProvider?.setColor(color.r, color.g, color.b, color.a)
-    }
-
-}
+fun ArmorItem.type(): EquipmentType = (this as ArmorItemAdditions).`liquid_bounce$getType`()

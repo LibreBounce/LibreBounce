@@ -26,7 +26,7 @@ internal object NoFallHoplite : Choice("Hoplite") {
             // Goes up a tiny bit to stop fall damage on 1.17+ servers.
             // Abuses Grim 1.17 extra packets to not flag timer.
             network.sendPacket(PlayerMoveC2SPacket.Full(player.x, player.y + 1.0E-9, player.z,
-                player.yaw, player.pitch, player.isOnGround))
+                player.yaw, player.pitch, player.isOnGround, player.horizontalCollision))
 
             player.onLanding()
         }

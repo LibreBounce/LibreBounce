@@ -23,8 +23,6 @@ mutable field net/minecraft/network/packet/c2s/common/KeepAliveC2SPacket id J
 accessible field net/minecraft/network/packet/c2s/common/KeepAliveC2SPacket id J
 accessible field net/minecraft/network/packet/c2s/play/ChatMessageC2SPacket chatMessage Ljava/lang/String;
 
-accessible field net/minecraft/server/network/ServerPlayerEntity joinInvulnerabilityTicks I
-
 accessible field net/minecraft/client/network/ClientPlayerEntity lastX D
 accessible field net/minecraft/client/network/ClientPlayerEntity lastBaseY D
 accessible field net/minecraft/client/network/ClientPlayerEntity lastZ D
@@ -71,7 +69,7 @@ accessible field net/minecraft/client/option/KeyBinding boundKey Lnet/minecraft/
 accessible field net/minecraft/entity/LivingEntity lastAttackedTicks I
 accessible field net/minecraft/entity/LivingEntity jumping Z
 accessible field net/minecraft/entity/LivingEntity jumpingCooldown I
-accessible field net/minecraft/entity/projectile/PersistentProjectileEntity inGround Z
+accessible method net/minecraft/entity/Entity isAlwaysInvulnerableTo (Lnet/minecraft/entity/damage/DamageSource;)Z
 
 accessible field net/minecraft/client/option/GameOptions enabledPlayerModelParts Ljava/util/Set;
 
@@ -89,22 +87,11 @@ mutable field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacke
 mutable field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityY I
 mutable field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityZ I
 
-accessible field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerVelocityX F
-accessible field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerVelocityY F
-accessible field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerVelocityZ F
-
-mutable field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerVelocityX F
-mutable field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerVelocityY F
-mutable field net/minecraft/network/packet/s2c/play/ExplosionS2CPacket playerVelocityZ F
-
 accessible field net/minecraft/client/world/ClientChunkManager chunks Lnet/minecraft/client/world/ClientChunkManager$ClientChunkMap;
 accessible field net/minecraft/world/chunk/WorldChunk loadedToWorld Z
 accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;
 
-accessible field net/minecraft/client/render/WorldRenderer entityOutlinesFramebuffer Lnet/minecraft/client/gl/Framebuffer;
 accessible field net/minecraft/client/render/WorldRenderer blockBreakingProgressions Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
-
-accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/world/GameRules$Key;)Lnet/minecraft/world/explosion/Explosion$DestructionType;
 
 accessible field net/minecraft/entity/projectile/ProjectileEntity ownerUuid Ljava/util/UUID;
 
@@ -115,8 +102,6 @@ accessible field net/minecraft/entity/mob/CreeperEntity explosionRadius I
 
 accessible method net/minecraft/client/render/Camera setPos (DDD)V
 accessible method net/minecraft/client/render/Camera setPos (Lnet/minecraft/util/math/Vec3d;)V
-
-accessible method net/minecraft/client/render/GameRenderer loadPostProcessor (Lnet/minecraft/util/Identifier;)V
 
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
 
@@ -150,9 +135,6 @@ accessible field net/minecraft/client/gui/hud/PlayerListHud footer Lnet/minecraf
 accessible class net/minecraft/client/render/OutlineVertexConsumerProvider$OutlineVertexConsumer
 accessible method net/minecraft/client/render/OutlineVertexConsumerProvider$OutlineVertexConsumer <init> (Lnet/minecraft/client/render/VertexConsumer;IIII)V
 
-accessible field net/minecraft/client/texture/PlayerSkinTexture url Ljava/lang/String;
-accessible field net/minecraft/client/texture/PlayerSkinTexture cacheFile Ljava/io/File;
-
 accessible field net/minecraft/network/packet/s2c/common/CommonPingS2CPacket parameter I
 mutable field net/minecraft/network/packet/s2c/common/CommonPingS2CPacket parameter I
 
@@ -179,11 +161,19 @@ accessible field net/minecraft/util/math/Direction HORIZONTAL [Lnet/minecraft/ut
 
 accessible field net/minecraft/client/util/InputUtil$Type map Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
 
-accessible field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
-mutable field net/minecraft/network/packet/c2s/play/PlayerInputC2SPacket sneaking Z
-
 accessible method net/minecraft/client/network/ClientPlayerInteractionManager syncSelectedSlot ()V
 
 accessible method net/minecraft/block/EntityShapeContext <init> (ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V
 
 accessible method net/minecraft/entity/Entity unsetRemoved ()V
+
+accessible field net/minecraft/client/render/WorldRenderer framebufferSet Lnet/minecraft/client/render/DefaultFramebufferSet;
+
+accessible method net/minecraft/entity/projectile/PersistentProjectileEntity isInGround ()Z
+
+accessible method net/minecraft/block/AbstractBlock getPickStack (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/item/ItemStack;
+
+accessible method net/minecraft/client/texture/NativeImage write (Ljava/nio/channels/WritableByteChannel;)Z
+
+accessible field net/minecraft/client/render/LightmapTextureManager lightmapFramebuffer Lnet/minecraft/client/gl/SimpleFramebuffer;
+accessible field net/minecraft/client/render/WorldRenderer entityOutlineFramebuffer Lnet/minecraft/client/gl/Framebuffer;

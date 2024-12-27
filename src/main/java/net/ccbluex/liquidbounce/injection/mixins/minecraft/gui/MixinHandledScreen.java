@@ -20,4 +20,5 @@ public abstract class MixinHandledScreen extends MixinScreen {
             ci.cancel();
         }
     }
+
 }

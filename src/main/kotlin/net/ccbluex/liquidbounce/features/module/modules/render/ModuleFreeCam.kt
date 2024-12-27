@@ -92,8 +92,8 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
     val inputHandler = handler<MovementInputEvent> { event ->
         val speed = this.speed.toDouble()
         val yAxisMovement = when {
-            event.jumping -> 1.0f
-            event.sneaking -> -1.0f
+            event.jump -> 1.0f
+            event.sneak -> -1.0f
             else -> 0.0f
         }
         val directionYaw = getMovementDirectionOfInput(player.yaw, event.directionalInput)
@@ -104,8 +104,8 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         updatePosition(velocity)
 
         event.directionalInput = DirectionalInput.NONE
-        event.jumping = false
-        event.sneaking = false
+        event.jump = false
+        event.sneak = false
     }
 
     fun applyCameraPosition(entity: Entity, tickDelta: Float) {

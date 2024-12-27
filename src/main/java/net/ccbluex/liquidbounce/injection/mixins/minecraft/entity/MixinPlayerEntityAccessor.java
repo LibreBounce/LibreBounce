@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PlayerEntity.class)
 public interface MixinPlayerEntityAccessor {
+
     /*
         * Used to get the TrackedData of the arm
      */
@@ -33,4 +34,5 @@ public interface MixinPlayerEntityAccessor {
     static TrackedData<Byte> getTrackedMainArm() {
         throw new AssertionError();
     }
+
 }

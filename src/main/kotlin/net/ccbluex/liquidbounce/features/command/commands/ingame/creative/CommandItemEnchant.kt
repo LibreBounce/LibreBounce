@@ -194,7 +194,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
 
     private fun enchantmentByName(enchantmentName: String, command: Command): RegistryEntry<Enchantment> {
         val identifier = Identifier.tryParse(enchantmentName)
-        val registry = world.registryManager.get(RegistryKeys.ENCHANTMENT)
+        val registry = world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT)
         val enchantment = registry.getEntry(identifier).orElseThrow {
             throw CommandException(command.resultWithTree("enchantmentNotExists", enchantmentName))
         }
@@ -216,7 +216,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
     }
 
     private fun enchantAll(item: ItemStack, onlyAcceptable: Boolean, level: Int?) {
-        world.registryManager.get(RegistryKeys.ENCHANTMENT).indexedEntries.forEach { enchantment ->
+        world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).indexedEntries.forEach { enchantment ->
             if(!enchantment.value().isAcceptableItem(item) && onlyAcceptable) {
                 return@forEach
             }
