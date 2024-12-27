@@ -63,11 +63,11 @@ object VelocityIntave : Choice("Intave") {
 
         private val chance by float("Chance", 50f, 0f..100f, "%")
 
-        private inner class RandomiseDelay : ToggleableConfigurable(this, "RandomiseDelay", false) {
+        private inner class Randomise : ToggleableConfigurable(this, "Randomise", false) {
             val delayTicks by intRange("DelayTicks", 0..5, 0..10)
         }
 
-        private val randomiseDelay = tree(RandomiseDelay())
+        private val randomise = tree(Randomise())
 
         private var currentDelay = 0
         private var delayCounter = 0
@@ -78,13 +78,13 @@ object VelocityIntave : Choice("Intave") {
             val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
             val shouldFinallyJump = shouldJump && canJump
 
-            if (randomiseDelay.enabled) {
+            if (randomise.enabled) {
                 delayCounter++
 
                 if (delayCounter >= currentDelay) {
                     if (shouldFinallyJump) it.jumping = true
                     delayCounter = 0
-                    currentDelay = randomiseDelay.delayTicks.random()
+                    currentDelay = randomise.delayTicks.random()
                 }
             } else {
                 if (shouldFinallyJump) it.jumping = true
