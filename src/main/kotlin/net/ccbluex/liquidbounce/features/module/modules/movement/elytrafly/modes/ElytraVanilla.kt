@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.Modul
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instant
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instantStop
 import net.ccbluex.liquidbounce.utils.entity.moving
+import net.ccbluex.liquidbounce.utils.entity.set
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.Items
@@ -55,12 +56,12 @@ internal object ElytraVanilla : Choice("Vanilla") {
         }
 
         if (mc.options.sneakKey.isPressed && instantStop) {
-            player.stopFallFlying()
+            player.stopGliding()
             return@tickHandler
         }
 
         // If player is flying
-        if (player.isFallFlying) {
+        if (player.isGliding) {
             if (ModuleElytraFly.Speed.enabled) {
                 if (player.moving) {
                     player.strafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
@@ -72,11 +73,12 @@ internal object ElytraVanilla : Choice("Vanilla") {
                 }
             }
             // If the player has an elytra and wants to fly instead
-        } else if (chestSlot.item == Items.ELYTRA && player.input.jumping) {
+        } else if (chestSlot.item == Items.ELYTRA && player.input.playerInput.jump) {
             if (instant) {
                 // Jump must be off due to abnormal speed boosts
-                player.input.jumping = true
-                player.input.jumping = false
+                player.input.set(
+                    jump = false
+                )
             }
         }
     }

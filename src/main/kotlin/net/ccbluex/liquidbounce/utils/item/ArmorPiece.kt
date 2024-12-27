@@ -25,7 +25,7 @@ import net.minecraft.item.ArmorItem
 
 class ArmorPiece(val itemSlot: ItemSlot) {
     val slotType: EquipmentSlot
-        get() = (itemSlot.itemStack.item as ArmorItem).slotType
+        get() = (itemSlot.itemStack.item as ArmorItem).type().equipmentSlot
     val entitySlotId: Int
         get() = this.slotType.entitySlotId
     val inventorySlot: Int
@@ -36,11 +36,11 @@ class ArmorPiece(val itemSlot: ItemSlot) {
         get() = itemSlot.slotType == ItemSlotType.HOTBAR
 
     val toughness: Float
-        get() = (itemSlot.itemStack.item as ArmorItem).toughness
+        get() = (itemSlot.itemStack.item as ArmorItem).material().toughness
     val defensePoints: Float
         get() {
             val item = itemSlot.itemStack.item as ArmorItem
 
-            return item.material.value().getProtection(item.type).toFloat()
+            return item.material().defense.getOrDefault(item.type(), 0).toFloat()
         }
 }

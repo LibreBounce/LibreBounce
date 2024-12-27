@@ -56,7 +56,7 @@ open class SpeedBHopBase(name: String, override val parent: ChoiceConfigurable<*
             return@handler
         }
 
-        event.jumping = true
+        event.jump = true
     }
 
 }

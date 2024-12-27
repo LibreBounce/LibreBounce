@@ -40,7 +40,7 @@ object ModuleTwerk : ClientModule("Twerk", Category.FUN) {
      */
     val movementInputHandler = handler<MovementInputEvent>(priority = 10) {
         val sneaking = player.age % (delay * 2) < delay
-        it.sneaking = sneaking
+        it.sneak = sneaking
     }
 
 }

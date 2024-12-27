@@ -18,19 +18,18 @@
  */
 package net.ccbluex.liquidbounce.interfaces;
 
-import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.FakePlayer;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.equipment.ArmorMaterial;
+import net.minecraft.item.equipment.EquipmentType;
 
 /**
- * Additions to {@link net.minecraft.client.network.OtherClientPlayerEntity}.
+ * Additions to {@link net.minecraft.item.ArmorItem}
  */
-public interface OtherClientPlayerEntityAddition {
+public interface ArmorItemAdditions {
 
-    /**
-     * Allows the entity to receive damage.
-     * Used in {@link FakePlayer}.
-     */
     @SuppressWarnings("unused")
-    boolean liquid_bounce$actuallyDamage(DamageSource source, float amount);
+    ArmorMaterial liquid_bounce$getMaterial();
+
+    @SuppressWarnings("unused")
+    EquipmentType liquid_bounce$getType();
 
 }

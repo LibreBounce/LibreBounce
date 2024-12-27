@@ -64,7 +64,7 @@ internal object FlyVulcan286 : Choice("Vulcan286-113") {
         network.sendPacket(
             PlayerMoveC2SPacket.Full(
                 player.x, player.y - 0.1, player.z,
-                player.yaw, player.pitch, player.isOnGround
+                player.yaw, player.pitch, player.isOnGround, player.horizontalCollision
             )
         )
     }

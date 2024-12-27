@@ -86,7 +86,7 @@ object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
             when (Random.nextInt(0, 6)) {
                 0 -> {
                     EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                        it.jumping = true
+                        it.jump = true
                     }
                 }
 
@@ -170,7 +170,7 @@ object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
 
             if (jump && player.isOnGround) {
                 EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                    it.jumping = true
+                    it.jump = true
                 }
             }
 

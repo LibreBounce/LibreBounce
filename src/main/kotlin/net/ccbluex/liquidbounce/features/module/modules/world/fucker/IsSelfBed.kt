@@ -60,7 +60,8 @@ class IsSelfBedSpawnLocationChoice(parent: ChoiceConfigurable<*>) : IsSelfBedCho
         val packet = it.packet
 
         if (packet is PlayerPositionLookS2CPacket) {
-            val packetPos = Vec3d(packet.x, packet.y, packet.z)
+            val pos = packet.change.position
+            val packetPos = Vec3d(pos.x, pos.y, pos.z)
             val dist = player.pos.distanceTo(packetPos)
 
             if (dist > 16.0) {

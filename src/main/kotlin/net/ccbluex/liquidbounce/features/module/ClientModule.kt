@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.SequenceManager.cancelAllSequences
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
@@ -92,6 +93,8 @@ open class ClientModule(
             if (new) {
                 enable()
             } else {
+                // Cancel all sequences when module is disabled, maybe disable first and then cancel?
+                cancelAllSequences(this)
                 disable()
             }
         }.onSuccess {

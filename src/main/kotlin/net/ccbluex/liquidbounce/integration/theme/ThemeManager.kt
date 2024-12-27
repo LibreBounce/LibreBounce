@@ -44,9 +44,11 @@ import net.ccbluex.liquidbounce.utils.io.resourceToString
 import net.ccbluex.liquidbounce.utils.render.refreshRate
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
+import java.io.Closeable
 import java.io.File
 
 object ThemeManager : Configurable("theme") {
@@ -71,6 +73,10 @@ object ThemeManager : Configurable("theme") {
             if (!value.exists) {
                 logger.warn("Unable to set theme to ${value.name}, theme does not exist")
                 return
+            }
+
+            if (field != defaultTheme) {
+                activeTheme.close()
             }
 
             field = value
@@ -154,7 +160,18 @@ object ThemeManager : Configurable("theme") {
 
         val image = activeTheme.loadedBackgroundImage ?: defaultTheme.loadedBackgroundImage
         if (image != null) {
-            context.drawTexture(image, 0, 0, 0f, 0f, width, height, width, height)
+            context.drawTexture(
+                RenderLayer::getGuiTextured,
+                image,
+                0,
+                0,
+                0f,
+                0f,
+                width,
+                height,
+                width,
+                height
+            )
             return true
         }
 
@@ -163,8 +180,6 @@ object ThemeManager : Configurable("theme") {
 
     fun chooseTheme(name: String) {
         activeTheme = Theme(name)
-
-
     }
 
     fun themes() = themesFolder.listFiles()?.filter { it.isDirectory }?.mapNotNull { it.name } ?: emptyList()
@@ -173,7 +188,7 @@ object ThemeManager : Configurable("theme") {
 
 }
 
-class Theme(val name: String) {
+class Theme(val name: String) : Closeable {
 
     private val folder = File(ThemeManager.themesFolder, name)
 
@@ -231,7 +246,8 @@ class Theme(val name: String) {
         }
 
         val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = mc.textureManager.registerDynamicTexture("liquidbounce-theme-bg-$name", image)
+        loadedBackgroundImage = Identifier.of("liquidbounce-theme-bg-$name")
+        mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true
     }
@@ -278,6 +294,10 @@ class Theme(val name: String) {
         }
 
         return componentList
+    }
+
+    override fun close() {
+        mc.textureManager.destroyTexture(loadedBackgroundImage)
     }
 
     companion object {
