@@ -89,6 +89,8 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         RenderSystem.disableDepthTest()
         enableBlend()
 
+        buffer.bind()
+
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         shaders.forEachIndexed { i, shader ->
             val inputFramebuffer = framebuffers.getOrNull(i) ?: framebuffers.first()
@@ -101,18 +103,11 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
             GlStateManager._bindTexture(inputFramebuffer.colorAttachment)
 
             shader.use()
-
-            buffer.bind()
             buffer.draw()
-            VertexBuffer.unbind()
-
             shader.stop()
         }
 
-        shaders.indices.forEach {
-            GlStateManager._activeTexture(GL13.GL_TEXTURE0 + it)
-            GlStateManager._bindTexture(0)
-        }
+        VertexBuffer.unbind()
 
         endBlend()
         RenderSystem.enableDepthTest()

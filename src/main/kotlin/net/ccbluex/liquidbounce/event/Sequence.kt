@@ -52,6 +52,21 @@ object SequenceManager : EventListener {
         }
     }
 
+    /**
+     * Cancels all sequences associated with an event listener.
+     * This is called when a module is disabled to ensure no sequences continue running.
+     */
+    fun cancelAllSequences(owner: EventListener) {
+        sequences.removeAll { sequence ->
+            if (sequence.owner == owner) {
+                sequence.cancel()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
 }
 
 open class Sequence<T : Event>(val owner: EventListener, val handler: SuspendableHandler<T>, protected val event: T) {
