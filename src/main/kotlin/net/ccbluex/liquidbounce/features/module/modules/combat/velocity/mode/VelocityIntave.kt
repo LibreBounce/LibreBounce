@@ -82,12 +82,12 @@ object VelocityIntave : Choice("Intave") {
                 delayCounter++
 
                 if (delayCounter >= currentDelay) {
-                    if (shouldFinallyJump) it.jumping = true
+                    if (shouldFinallyJump) it.jump = true
                     delayCounter = 0
                     currentDelay = randomise.delayTicks.random()
                 }
             } else {
-                if (shouldFinallyJump) it.jumping = true
+                if (shouldFinallyJump) it.jump = true
             }
         }
     }
