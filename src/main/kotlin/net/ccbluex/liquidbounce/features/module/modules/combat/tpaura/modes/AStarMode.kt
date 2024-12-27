@@ -26,7 +26,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.PositionAndOnGr
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3i
-import java.util.TreeSet
+import java.util.*
 import kotlin.math.roundToInt
 
 private class Node(val position: Vec3i, var parent: Node? = null) {
@@ -124,7 +124,8 @@ object AStarMode : TpAuraChoice("AStar") {
             packet.z = position.z
             packet.changePosition = true
         } else if (packet is PlayerPositionLookS2CPacket) {
-            chat(markAsError("Server setback detected - teleport failed at ${packet.x} ${packet.y} ${packet.z}!"))
+            val change = packet.change.position
+            chat(markAsError("Server setback detected - teleport failed at ${change.x} ${change.y} ${change.z}!"))
             stuckChronometer.reset()
             pathCache = null
             desyncPlayerPosition = null
@@ -147,7 +148,7 @@ object AStarMode : TpAuraChoice("AStar") {
                 for (position in chunk) {
                     network.sendPacket(
                         PositionAndOnGround(
-                            position.x + 0.5, position.y.toDouble(), position.z + 0.5, false
+                            position.x + 0.5, position.y.toDouble(), position.z + 0.5, false, false
                         )
                     )
                     desyncPlayerPosition = position.toVec3d()
@@ -155,7 +156,7 @@ object AStarMode : TpAuraChoice("AStar") {
                 continue
             } else {
                 // If the path is clear, we can teleport to the last position of the chunk.
-                network.sendPacket(PositionAndOnGround(end.x, end.y, end.z, false))
+                network.sendPacket(PositionAndOnGround(end.x, end.y, end.z, false, false))
                 desyncPlayerPosition = end
             }
         }

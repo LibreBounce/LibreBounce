@@ -130,15 +130,6 @@ fun openVfpProtocolSelection() {
     VfpCompatibility.INSTANCE.unsafeOpenVfpProtocolSelection()
 }
 
-fun disableConflictingVfpOptions() {
-    // Check if the ViaFabricPlus mod is loaded
-    if (!usesViaFabricPlus || !hasVisualSettings) {
-        return
-    }
-
-    VfpCompatibility.INSTANCE.unsafeDisableConflictingVfpOptions()
-}
-
 fun sendSignUpdate(blockPos: BlockPos, lines: Array<String>) {
     require(hasProtocolTranslator) { "ProtocolTranslator is missing" }
     require(isEqual1_8) { "Not 1.8 protocol" }

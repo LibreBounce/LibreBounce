@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.interfaces;
 
 /**
- * Additions to {@link net.minecraft.client.gui.hud.ChatHudLine}.
+ * Additions to {@link net.minecraft.client.render.LightmapTextureManager}.
  */
 public interface LightmapTextureManagerAddition {
 

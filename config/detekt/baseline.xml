@@ -18,8 +18,6 @@
     <ID>BracesOnIfStatements:FlyGrim2859V.kt$FlyGrim2859V$if</ID>
     <ID>BracesOnIfStatements:ItemImageAtlas.kt$ItemImageAtlas$if</ID>
     <ID>BracesOnIfStatements:ModuleAntiExploit.kt$ModuleAntiExploit$if</ID>
-    <ID>BracesOnIfStatements:ModuleAutoBow.kt$ModuleAutoBow$else</ID>
-    <ID>BracesOnIfStatements:ModuleAutoBow.kt$ModuleAutoBow$if</ID>
     <ID>BracesOnIfStatements:ModuleAutoFarm.kt$ModuleAutoFarm$if</ID>
     <ID>BracesOnIfStatements:ModuleBlockESP.kt$ModuleBlockESP.Glow$if</ID>
     <ID>BracesOnIfStatements:ModuleBlockESP.kt$ModuleBlockESP.Outline$if</ID>
@@ -87,7 +85,6 @@
     <ID>LongMethod:CommandScript.kt$CommandScript$override fun createCommand(): Command</ID>
     <ID>LongMethod:CommandXRay.kt$CommandXRay$override fun createCommand(): Command</ID>
     <ID>LongMethod:InteropFunctionRegistry.kt$internal fun registerInteropFunctions(node: Node)</ID>
-    <ID>LongMethod:LiquidBounce.kt$LiquidBounce.ClientResourceReloader$override fun reload(manager: ResourceManager)</ID>
     <ID>LongMethod:ModuleManager.kt$ModuleManager$fun registerInbuilt()</ID>
     <ID>LongMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>LongMethod:Value.kt$Value$open fun setByString(string: String)</ID>
@@ -98,7 +95,6 @@
     <ID>LongParameterList:Region.kt$Region$(minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int)</ID>
     <ID>LongParameterList:RotationsUtil.kt$RotationManager$( rotation: Rotation, considerInventory: Boolean = true, configurable: RotationsConfigurable, priority: Priority, provider: ClientModule, whenReached: RestrictedSingleUseAction? = null )</ID>
     <ID>LongParameterList:RotationsUtil.kt$RotationManager$( vecRotation: VecRotation, entity: Entity? = null, considerInventory: Boolean = true, configurable: RotationsConfigurable, priority: Priority, provider: ClientModule )</ID>
-    <ID>LongParameterList:ScriptNetworkUtil.kt$ScriptNetworkUtil$(x: Double, y: Double, z: Double, yaw: Float, pitch: Float, onGround: Boolean)</ID>
     <ID>LongParameterList:TargetFinding.kt$BlockPlacementTargetFindingOptions$( val offsetsToInvestigate: List&lt;Vec3i>, val stackToPlaceWith: ItemStack, val facePositionFactory: FaceTargetPositionFactory, val offsetPriorityGetter: (Vec3i) -> Double, val playerPositionOnPlacement: Vec3d, val playerPoseOnPlacement: EntityPose = EntityPose.STANDING, val allowPointingAway: Boolean = false )</ID>
     <ID>LongParameterList:ThemeManager.kt$ThemeManager$(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float)</ID>
     <ID>LoopWithTooManyJumpStatements:BlockPlacer.kt$BlockPlacer$while</ID>
@@ -121,7 +117,6 @@
     <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
     <ID>ReturnCount:IntegrationListener.kt$IntegrationListener$private fun handleScreenSituation(screen: Screen?): Boolean</ID>
     <ID>ReturnCount:SpeedAntiCornerBump.kt$SpeedAntiCornerBump$fun getSuggestedJumpDelay( simulatedPlayer: SimulatedPlayer, n: Int = 2, ): Int?</ID>
-    <ID>SpreadOperator:ModuleVomit.kt$ModuleVomit$( *emptySlots.map { slot -> CreativeInventoryAction.performFillSlot(randomStack, slot) } .toTypedArray(), *emptySlots.map { slot -> ClickInventoryAction.performThrow(null, slot) } .toTypedArray() )</ID>
     <ID>StringLiteralDuplication:AutoQueueGommeDuels.kt$AutoQueueGommeDuels$"AutoPlay"</ID>
     <ID>StringLiteralDuplication:ScriptSetting.kt$ScriptSetting$"default"</ID>
     <ID>SwallowedException:ClientInteropServer.kt$ClientInteropServer$e: Exception</ID>
@@ -152,7 +147,6 @@
     <ID>UnusedParameter:ClientApi.kt$ClientApi$settings: String</ID>
     <ID>UnusedParameter:CommandConfig.kt$CommandConfig$validator: (ClientModule) -> Boolean = { true }</ID>
     <ID>UnusedParameter:CommandLocalConfig.kt$CommandLocalConfig$validator: (ClientModule) -> Boolean = { true }</ID>
-    <ID>UnusedParameter:FaceTargetPositionFactory.kt$StabilizedRotationTargetPositionFactory$face: Face</ID>
     <ID>UnusedParameter:ModuleManager.kt$ModuleManager$args: List&lt;String></ID>
     <ID>UnusedPrivateProperty:NoFallBlink.kt$NoFallBlink$i</ID>
   </CurrentIssues>

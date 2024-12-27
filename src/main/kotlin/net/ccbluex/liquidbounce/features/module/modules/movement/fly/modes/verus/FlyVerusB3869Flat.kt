@@ -87,7 +87,7 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
         network.sendPacket(
             PlayerMoveC2SPacket.PositionAndOnGround(
                 player.x, player.y - 0.5, player.z,
-                false
+                false, player.horizontalCollision
             )
         )
     }

@@ -53,10 +53,11 @@ public abstract class MixinPlayerListEntry {
             return;
         }
 
-        fetchCapeTexture();
+        liquid_bounce$fetchCapeTexture();
     }
 
-    private void fetchCapeTexture() {
+    @Unique
+    private void liquid_bounce$fetchCapeTexture() {
         if (capeTextureLoading)
             return;
 

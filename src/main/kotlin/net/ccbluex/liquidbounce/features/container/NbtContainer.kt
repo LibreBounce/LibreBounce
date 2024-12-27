@@ -86,7 +86,7 @@ fun SimpleInventory.inventoryAsCompound(title: Text): List<NbtCompound> {
         val itemList = NbtList()
 
         stacks.forEachIndexed { index, itemStack ->
-            val itemCompound = itemStack.encode(DynamicRegistryManager.EMPTY) as NbtCompound
+            val itemCompound = itemStack.toNbt(DynamicRegistryManager.EMPTY) as NbtCompound
 
             itemCompound.putByte("Slot", index.toByte())
             itemList.add(itemCompound)

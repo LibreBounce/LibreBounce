@@ -150,10 +150,10 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
             }
 
             // Determine the direction to strafe
-            if (!(player.input.pressingLeft && player.input.pressingRight) && controlDirection) {
+            if (!(player.input.playerInput.left && player.input.playerInput.right) && controlDirection) {
                 when {
-                    player.input.pressingLeft -> direction = -1
-                    player.input.pressingRight -> direction = 1
+                    player.input.playerInput.left -> direction = -1
+                    player.input.playerInput.right -> direction = 1
                 }
             }
 

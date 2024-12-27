@@ -405,7 +405,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         val enchantmentLevel = stack.getEnchantment(Enchantments.EFFICIENCY)
         if (speed > 1f && enchantmentLevel != 0) {
             /**
-             * See: [EntityAttributes.PLAYER_MINING_EFFICIENCY]
+             * See: [EntityAttributes.MINING_EFFICIENCY]
              */
             val enchantmentAddition = enchantmentLevel.sq() + 1f
             speed += enchantmentAddition.coerceIn(0f..1024f)
@@ -427,9 +427,9 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
             speed *= miningFatigueMultiplier
         }
 
-        speed *= player.getAttributeValue(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED).toFloat()
+        speed *= player.getAttributeValue(EntityAttributes.BLOCK_BREAK_SPEED).toFloat()
         if (player.isSubmergedIn(FluidTags.WATER)) {
-            speed *= player.getAttributeInstance(EntityAttributes.PLAYER_SUBMERGED_MINING_SPEED)!!.value.toFloat()
+            speed *= player.getAttributeInstance(EntityAttributes.SUBMERGED_MINING_SPEED)!!.value.toFloat()
         }
 
         if (!player.isOnGround) {

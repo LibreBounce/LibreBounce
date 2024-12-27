@@ -1,11 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font.dynamic
 
-import net.ccbluex.liquidbounce.render.engine.font.AtlasSliceHandle
-import net.ccbluex.liquidbounce.render.engine.font.DynamicAtlasAllocator
-import net.ccbluex.liquidbounce.render.engine.font.FontGlyph
-import net.ccbluex.liquidbounce.render.engine.font.GlyphPage
-import net.ccbluex.liquidbounce.render.engine.font.GlyphRenderInfo
-import net.ccbluex.liquidbounce.render.engine.font.toNativeImage
+import net.ccbluex.liquidbounce.render.engine.font.*
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import java.awt.Dimension
@@ -115,7 +110,7 @@ class DynamicGlyphPage(val atlasSize: Dimension, fontHeight: Int) : GlyphPage() 
             for (j in 0 until patchSize.height) {
                 val color = fromImage.getRGB(fromLocation.x + i, fromLocation.y + j)
 
-                toImage.setColor(toLocation.x + i, toLocation.y + j, color)
+                toImage.setColorArgb(toLocation.x + i, toLocation.y + j, color)
             }
         }
     }

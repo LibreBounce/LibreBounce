@@ -355,8 +355,10 @@ object RotationManager : EventListener {
     val tickHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
         val input = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(event.directionalInput)
 
-        input.sneaking = event.sneaking
-        input.jumping = event.jumping
+        input.set(
+            sneak = event.sneak,
+            jump = event.jump
+        )
 
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(input)
         simulatedPlayer.tick()
@@ -398,7 +400,7 @@ object RotationManager : EventListener {
                 // We trust that we have sent a normalized rotation, if not, ... why?
                 Rotation(packet.yaw, packet.pitch, isNormalized = true)
             }
-            is PlayerPositionLookS2CPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
+            is PlayerPositionLookS2CPacket -> Rotation(packet.change.yaw, packet.change.pitch, isNormalized = true)
             is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
             else -> return@handler
         }

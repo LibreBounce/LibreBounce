@@ -60,7 +60,7 @@ internal object FlySentinel10thMar : Choice("Sentinel10thMar") {
     }
 
     val moveHandler = handler<MovementInputEvent> {
-        it.jumping = false
+        it.jump = false
     }
 
     val packetHandler = handler<PacketEvent> { event ->

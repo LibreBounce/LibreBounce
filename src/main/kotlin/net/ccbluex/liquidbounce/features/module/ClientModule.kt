@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.SequenceManager.cancelAllSequences
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
@@ -92,6 +93,8 @@ open class ClientModule(
             if (new) {
                 enable()
             } else {
+                // Cancel all sequences when module is disabled, maybe disable first and then cancel?
+                cancelAllSequences(this)
                 disable()
             }
         }.onSuccess {
@@ -132,17 +135,25 @@ open class ClientModule(
      * If the module is running and in game. Can be overridden to add additional checks.
      */
     override val running: Boolean
-        get() = super.running && inGame && enabled
+        get() = (super.running && inGame && enabled) || disableActivation
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
-        .independentDescription()
+        .independentDescription().apply {
+            if (disableActivation) {
+                notAnOption()
+            }
+        }
     var hidden by boolean("Hidden", hide)
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
         .independentDescription()
         .onChange {
             EventManager.callEvent(RefreshArrayListEvent())
             it
+        }.apply {
+            if (disableActivation) {
+                notAnOption()
+            }
         }
 
     /**

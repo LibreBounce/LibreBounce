@@ -57,7 +57,7 @@ internal object VelocityJumpReset : Choice("JumpReset") {
             return@handler
         }
 
-        it.jumping = true
+        it.jump = true
         limitUntilJump = 0
     }
 
