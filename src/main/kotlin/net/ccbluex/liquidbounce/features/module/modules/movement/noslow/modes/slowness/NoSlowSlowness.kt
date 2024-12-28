@@ -34,7 +34,7 @@ internal object NoSlowSlowness : ToggleableConfigurable(ModuleNoSlow, "Slowness"
 
     private fun setSlownessMultiplier(multiplier: Float) {
         val slowness = player.activeStatusEffects[StatusEffects.SLOWNESS]?.amplifier ?: return
-        player.attributes.getCustomInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)?.updateModifier(
+        player.attributes.getCustomInstance(EntityAttributes.MOVEMENT_SPEED)?.updateModifier(
             EntityAttributeModifier(
                 Identifier.of("effect.slowness"),
                 -multiplier * (slowness + 1.0),
