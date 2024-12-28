@@ -120,10 +120,11 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         val searchCenter = mc.thePlayer?.position ?: return@loopHandler
 
         val radius = maxRenderDistance
+        val radiusSq = radius * radius
 
         // Invalidate blocks
         bedStates.keys.removeIf {
-            it.block != Blocks.bed || searchCenter.distanceSq(it) > radius * radius
+            it.block != Blocks.bed || searchCenter.distanceSq(it) > radiusSq
         }
 
         val maxLayers = maxLayers
@@ -132,6 +133,9 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         val to = BlockPos.MutableBlockPos()
 
         searchCenter.getAllInBoxMutable(radius).forEach {
+            if (searchCenter.distanceSq(it) > radiusSq)
+                return@forEach
+
             val blockState = world.getBlockState(it)
             if (blockState.block != Blocks.bed || blockState.getValue(BlockBed.PART) != BlockBed.EnumPartType.FOOT)
                 return@forEach
