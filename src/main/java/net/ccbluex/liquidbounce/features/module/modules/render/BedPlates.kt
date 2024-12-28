@@ -222,7 +222,7 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
         glScalef(-scale.toFloat(), -scale.toFloat(), scale.toFloat())
 
         // TODO: replace with layer blocks
-        val blocks = bedState.surrounding.mapTo(hashSetOf()) { it.block }
+        val blocks = bedState.surrounding.mapTo(linkedSetOf()) { it.block }
         val text = "Bed (${distance.roundToInt()}m)"
 
         var offset = (blocks.size * -13) / 2
