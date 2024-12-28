@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.item.ItemStack
 import java.util.*
@@ -210,3 +211,8 @@ object OffHandSlot : HotbarItemSlot(-1) {
         return this.javaClass.hashCode()
     }
 }
+
+fun ItemSlot.performSwap(
+    screen: GenericContainerScreen? = null,
+    to: HotbarItemSlot
+) = ClickInventoryAction.performSwap(screen, this, to)
