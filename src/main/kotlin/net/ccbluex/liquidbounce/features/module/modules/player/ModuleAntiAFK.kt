@@ -23,17 +23,16 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.once
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.angle
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.ignoreOpenInventory
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.rotationsConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
@@ -85,8 +84,8 @@ object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
         val repeatable = tickHandler {
             when (Random.nextInt(0, 6)) {
                 0 -> {
-                    EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                        it.jump = true
+                    once<MovementInputEvent> { event ->
+                        event.jump = true
                     }
                 }
 
@@ -169,8 +168,8 @@ object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
             }
 
             if (jump && player.isOnGround) {
-                EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                    it.jump = true
+                once<MovementInputEvent> { event ->
+                    event.jump = true
                 }
             }
 

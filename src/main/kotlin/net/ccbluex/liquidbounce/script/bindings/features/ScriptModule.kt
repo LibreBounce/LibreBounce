@@ -124,8 +124,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
                 this,
                 {
                     callEvent(eventName, it)
-                },
-                false
+                }
             )
         )
     }

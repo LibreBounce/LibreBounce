@@ -193,7 +193,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
     }
 
     @Suppress("unused")
-    private val sessionHandler = handler<SessionEvent>(ignoreNotRunning = true) { event ->
+    private val sessionHandler = handler<SessionEvent> { event ->
         val session = event.session
 
         // Check if the account is valid

@@ -41,10 +41,7 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
  *
  * https://github.com/GrimAnticheat/Grim/issues/1133
  */
-internal object VelocityExemptGrim117 : Choice("ExemptGrim117") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityExemptGrim117 : VelocityMode("ExemptGrim117") {
 
     private var alternativeBypass by boolean("AlternativeBypass", true)
 

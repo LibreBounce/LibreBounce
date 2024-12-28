@@ -28,9 +28,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.minecraft.client.gui.screen.ingame.InventoryScreen
 
-object VelocityIntave : Choice("Intave") {
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+object VelocityIntave : VelocityMode("Intave") {
 
     private class ReduceOnAttack(parent: EventListener?) : ToggleableConfigurable(
         parent, "ReduceOnAttack",

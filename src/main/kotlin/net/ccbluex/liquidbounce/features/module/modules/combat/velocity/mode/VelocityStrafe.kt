@@ -34,10 +34,7 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 /**
  * Strafe velocity
  */
-internal object VelocityStrafe : Choice("Strafe") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityStrafe : VelocityMode("Strafe") {
 
     private val delay by int("Delay", 2, 0..10, "ticks")
     private val strength by float("Strength", 1f, 0.1f..2f)
