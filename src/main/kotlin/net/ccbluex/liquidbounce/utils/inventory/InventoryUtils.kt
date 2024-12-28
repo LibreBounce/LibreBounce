@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Blocks
@@ -40,6 +41,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.ItemTags
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import kotlin.math.abs
 
@@ -90,7 +92,7 @@ class PlayerInventoryConstraints : InventoryConstraints() {
     override fun passesRequirements(action: InventoryAction) =
         super.passesRequirements(action) &&
             (!action.requiresPlayerInventoryOpen() || !requiresOpenInvenotory ||
-                InventoryManager.isInventoryOpenServerSide)
+                InventoryManager.isInventoryOpen)
 
 }
 

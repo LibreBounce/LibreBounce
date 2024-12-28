@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.utils.io.HttpClient.get
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
-import kotlin.concurrent.thread
 
 /**
  * Config Command
@@ -75,9 +74,9 @@ object CommandConfig : CommandFactory {
                         val modules = ModuleManager.parseModulesFromParameter(moduleNames)
 
                         // Load the config in a separate thread to prevent the client from freezing
-                        thread(name = "config-loader") {
+                        AutoConfig.startLoaderTask {
                             runCatching {
-                                if(name.startsWith("http")) {
+                                if (name.startsWith("http")) {
                                     // Load the config from the specified URL
                                     get(name).reader()
                                 } else {
@@ -85,27 +84,27 @@ object CommandConfig : CommandFactory {
                                     ClientApi.requestSettingsScript(name).reader()
                                 }
                             }.onSuccess { sourceReader ->
-                                AutoConfig.loadingNow = true
-                                runCatching {
-                                    sourceReader.apply {
-                                        if(modules.isEmpty()) {
-                                            ConfigSystem.deserializeConfigurable(
-                                                ModuleManager.modulesConfigurable, this,
-                                                publicGson
-                                            )
-                                        } else {
-                                            ConfigSystem.deserializeModuleConfigurable(
-                                                modules, this,
-                                                publicGson
-                                            )
+                                AutoConfig.withLoading {
+                                    runCatching {
+                                        sourceReader.apply {
+                                            if (modules.isEmpty()) {
+                                                ConfigSystem.deserializeConfigurable(
+                                                    ModuleManager.modulesConfigurable, this,
+                                                    publicGson
+                                                )
+                                            } else {
+                                                ConfigSystem.deserializeModuleConfigurable(
+                                                    modules, this,
+                                                    publicGson
+                                                )
+                                            }
                                         }
+                                    }.onFailure {
+                                        chat(markAsError(command.result("failedToLoad", variable(name))))
+                                    }.onSuccess {
+                                        chat(regular(command.result("loaded", variable(name))))
                                     }
-                                }.onFailure {
-                                    chat(markAsError(command.result("failedToLoad", variable(name))))
-                                }.onSuccess {
-                                    chat(regular(command.result("loaded", variable(name))))
                                 }
-                                AutoConfig.loadingNow = false
                             }.onFailure {
                                 chat(markAsError(command.result("failedToLoad", variable(name))))
                             }
@@ -123,7 +122,7 @@ object CommandConfig : CommandFactory {
                             val width = configs.maxOf { mc.textRenderer.getWidth(it.settingId) }
 
                             // In case of the chat, we want to show the newest config at the bottom for visibility
-                            configs.sortedBy { it.javaDate.time }.forEach {
+                            configs.sortedBy { it.javaDate }.forEach {
                                 val settingName = it.settingId // there is also .name, but we use it for GUI instead
 
                                 // Append spaces to the setting name to align the date and status

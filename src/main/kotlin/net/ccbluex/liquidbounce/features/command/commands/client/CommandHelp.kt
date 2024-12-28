@@ -49,7 +49,7 @@ object CommandHelp : CommandFactory {
                     .build()
             )
             .handler { command, args ->
-                val page = if (args.size > 1) {
+                val page = if (args.size > 0) {
                     args[0] as Int
                 } else {
                     1

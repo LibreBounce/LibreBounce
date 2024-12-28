@@ -230,9 +230,13 @@ object RotationManager : EventListener {
     }
 
     fun makeRotation(vec: Vec3d, eyes: Vec3d): Rotation {
-        val diffX = vec.x - eyes.x
-        val diffY = vec.y - eyes.y
-        val diffZ = vec.z - eyes.z
+        return makeRotation(vec.subtract(eyes))
+    }
+
+    fun makeRotation(lookVec: Vec3d): Rotation {
+        val diffX = lookVec.x
+        val diffY = lookVec.y
+        val diffZ = lookVec.z
 
         return Rotation(
             MathHelper.wrapDegrees(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
@@ -266,7 +270,7 @@ object RotationManager : EventListener {
         }
 
         // Prevents any rotation changes when inventory is opened
-        val allowedRotation = ((!InventoryManager.isInventoryOpenServerSide &&
+        val allowedRotation = ((!InventoryManager.isInventoryOpen &&
             mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
@@ -351,8 +355,10 @@ object RotationManager : EventListener {
     val tickHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
         val input = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(event.directionalInput)
 
-        input.sneaking = event.sneaking
-        input.jumping = event.jumping
+        input.set(
+            sneak = event.sneak,
+            jump = event.jump
+        )
 
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(input)
         simulatedPlayer.tick()
@@ -394,7 +400,7 @@ object RotationManager : EventListener {
                 // We trust that we have sent a normalized rotation, if not, ... why?
                 Rotation(packet.yaw, packet.pitch, isNormalized = true)
             }
-            is PlayerPositionLookS2CPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
+            is PlayerPositionLookS2CPacket -> Rotation(packet.change.yaw, packet.change.pitch, isNormalized = true)
             is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
             else -> return@handler
         }

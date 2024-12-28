@@ -18,25 +18,30 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
-import net.ccbluex.liquidbounce.event.events.ScreenEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.NORMAL
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.SAFE
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.formatAsTime
 import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
+import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
+import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
+import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.ItemGroups
 import net.minecraft.network.packet.c2s.play.*
+import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
 /**
  * InventoryMove module
@@ -46,8 +51,23 @@ import net.minecraft.network.packet.c2s.play.*
 
 object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
-    private val undetectable by boolean("Undetectable", false)
+    private val behavior by enumChoice("Behavior", NORMAL)
+
+    enum class Behaviour(override val choiceName: String) : NamedChoice {
+        NORMAL("Normal"),
+        SAFE("Safe"), // disable clicks while moving
+        UNDETECTABLE("Undetectable"), // stop in inventory
+    }
+
     private val passthroughSneak by boolean("PassthroughSneak", false)
+
+    // states of movement keys, using mc.options.<key>.isPressed doesn't work for some reason
+    private val movementKeys = mc.options.run {
+        arrayOf(forwardKey, leftKey, backKey, rightKey, jumpKey, sneakKey).associateWith { false }.toMutableMap()
+    }
+
+    val cancelClicks
+        get() = behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
 
     object Blink : ToggleableConfigurable(this,"Blink", false) {
 
@@ -99,7 +119,9 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     }
 
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {
-        if (!running || mc.currentScreen is ChatScreen || isInCreativeSearchField()) {
+        val screen = mc.currentScreen ?: return true
+
+        if (!running || screen is ChatScreen || isInCreativeSearchField()) {
             return false
         }
 
@@ -108,7 +130,19 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         }
 
         // If we are in a handled screen, we should handle the inputs only if the undetectable option is not enabled
-        return !undetectable || mc.currentScreen !is HandledScreen<*>
+        return behavior == NORMAL || screen !is HandledScreen<*>
+            || behavior == SAFE && screen is InventoryScreen
+    }
+
+    @Suppress("unused")
+    val keyHandler = handler<KeyboardKeyEvent> { event ->
+        val key = movementKeys.keys.find { it.matchesKey(event.keyCode, event.scanCode) } ?: return@handler
+        val pressed = shouldHandleInputs(key) && event.action != GLFW_RELEASE
+        movementKeys[key] = pressed
+
+        if (behavior == SAFE && isInInventoryScreen && isInventoryOpenServerSide && pressed) {
+            closeInventorySilently()
+        }
     }
 
     /**

@@ -39,7 +39,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
     // Makes the player move to farmland blocks where there is a need for crop replacement
     private val toPlace by boolean("ToPlace", true)
 
-    private val ToItems = object : ToggleableConfigurable(this, "ToItems", true) {
+    private val toItems = object : ToggleableConfigurable(this, "ToItems", true) {
         private val range by float("Range", 20f, 8f..64f).onChanged {
             rangeSquared = it.sq()
         }
@@ -50,7 +50,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
     private val autoJump by boolean("AutoJump", false)
 
     init {
-        tree(ToItems)
+        tree(toItems)
     }
 
     private var invHadSpace = true
@@ -58,19 +58,19 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
     var walkTarget: Vec3d? = null
 
     private fun findWalkToItem() = world.entities.filter {
-        it is ItemEntity && it.squaredDistanceTo(player) < ToItems.rangeSquared
+        it is ItemEntity && it.squaredDistanceTo(player) < toItems.rangeSquared
     }.minByOrNull { it.squaredDistanceTo(player) }?.pos
 
     fun updateWalkTarget(): Boolean {
         if (!enabled) return false
 
         val invHasSpace = hasInventorySpace()
-        if (!invHasSpace && invHadSpace && ToItems.enabled) {
+        if (!invHasSpace && invHadSpace && toItems.enabled) {
             notification("Inventory is Full", "autoFarm wont walk to items", NotificationEvent.Severity.ERROR)
         }
         invHadSpace = invHasSpace
 
-        walkTarget = if (ToItems.enabled && invHasSpace) {
+        walkTarget = if (toItems.enabled && invHasSpace) {
             arrayOf(findWalkToBlock(), findWalkToItem()).minByOrNull {
                 it?.squaredDistanceTo(player.pos) ?: Double.MAX_VALUE
             }
@@ -92,7 +92,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
     private fun findWalkToBlock(): Vec3d? {
         if (AutoFarmBlockTracker.trackedBlockMap.isEmpty()) return null
 
-        val allowedItems = arrayOf(true, false, false)
+        val allowedItems = booleanArrayOf(true, false, false)
         // 1. true: we should always walk to blocks we want to destroy because we can do so even without any items
         // 2. false: we should only walk to farmland blocks if we got the needed items
         // 3. false: same as 2. only go if we got the needed items for soulsand (netherwarts)
@@ -105,7 +105,9 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
             }
         }
 
-        val closestBlock = AutoFarmBlockTracker.trackedBlockMap.filter { allowedItems[it.value.ordinal] }.keys.map {
+        val closestBlock = AutoFarmBlockTracker.trackedBlockMap.filter {
+            allowedItems[it.value.ordinal]
+        }.keys.map {
             it.toCenterPos()
         }.minByOrNull { it.squaredDistanceTo(player.pos) }
 
@@ -131,12 +133,12 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
 
         // We want to swim up in water, so we don't drown and can move onwards
         if (player.isTouchingWater) {
-            event.jumping = true
+            event.jump = true
         }
 
         // Auto jump
         if (autoJump && player.horizontalCollision && walkTarget!!.y > player.y) {
-            event.jumping = true
+            event.jump = true
         }
     }
 }

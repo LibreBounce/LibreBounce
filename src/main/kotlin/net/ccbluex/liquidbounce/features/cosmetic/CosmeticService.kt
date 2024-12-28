@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -76,7 +77,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
         if (task == null) {
             // Check if the required time in milliseconds has passed of the REFRESH_DELAY
             if (lastUpdate.hasElapsed(REFRESH_DELAY) || force) {
-                task = Util.getDownloadWorkerExecutor().submit {
+                task = Util.getDownloadWorkerExecutor().service.submit {
                     runCatching {
                         carriers = decode<Set<String>>(HttpClient.get(CARRIERS_URL))
                         task = null
@@ -192,7 +193,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
     }
 
     @Suppress("unused")
-    private val sessionHandler = handler<SessionEvent>(ignoreNotRunning = true) { event ->
+    private val sessionHandler = handler<SessionEvent> { event ->
         val session = event.session
 
         // Check if the account is valid
@@ -202,6 +203,11 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
         val uuid = session.uuidOrNull ?: return@handler
 
         transferTemporaryOwnership(uuid)
+    }
+
+    @Suppress("unused")
+    private val disconnectHandler = handler<DisconnectEvent> {
+        carriersCosmetics.clear()
     }
 
 }

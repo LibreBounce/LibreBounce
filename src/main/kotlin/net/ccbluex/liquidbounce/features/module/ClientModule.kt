@@ -24,16 +24,13 @@ import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.SequenceManager.cancelAllSequences
 import net.ccbluex.liquidbounce.event.events.*
-import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.minecraft.client.util.InputUtil
 
@@ -92,6 +89,8 @@ open class ClientModule(
             if (new) {
                 enable()
             } else {
+                // Cancel all sequences when module is disabled, maybe disable first and then cancel?
+                cancelAllSequences(this)
                 disable()
             }
         }.onSuccess {
@@ -132,17 +131,25 @@ open class ClientModule(
      * If the module is running and in game. Can be overridden to add additional checks.
      */
     override val running: Boolean
-        get() = super.running && inGame && enabled
+        get() = super.running && inGame && (enabled || disableActivation)
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
-        .independentDescription()
+        .independentDescription().apply {
+            if (disableActivation) {
+                notAnOption()
+            }
+        }
     var hidden by boolean("Hidden", hide)
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
         .independentDescription()
         .onChange {
             EventManager.callEvent(RefreshArrayListEvent())
             it
+        }.apply {
+            if (disableActivation) {
+                notAnOption()
+            }
         }
 
     /**
@@ -165,7 +172,7 @@ open class ClientModule(
     @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
 
-    private var calledSinceStartup = false
+    internal var calledSinceStartup = false
 
     /**
      * Called when module is turned on
@@ -181,24 +188,6 @@ open class ClientModule(
      * Called when the module is added to the module manager
      */
     open fun init() {}
-
-    /**
-     * Handles disconnect and if [disableOnQuit] is true disables module
-     */
-    @Suppress("unused")
-    val onDisconnect = handler<DisconnectEvent>(ignoreNotRunning = true) {
-        if (enabled && disableOnQuit) {
-            enabled = false
-        }
-    }
-
-    @Suppress("unused")
-    val onWorldChange = handler<WorldChangeEvent>(ignoreNotRunning = true) {
-        if (enabled && !calledSinceStartup && it.world != null) {
-            calledSinceStartup = true
-            enable()
-        }
-    }
 
     /**
      * If we want a module to have the requires bypass option, we specifically call it

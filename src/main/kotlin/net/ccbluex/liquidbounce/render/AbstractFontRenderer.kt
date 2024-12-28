@@ -20,7 +20,6 @@ package net.ccbluex.liquidbounce.render
 
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.font.FontRendererBuffers
-import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextProcessor
 import net.ccbluex.liquidbounce.render.engine.font.processor.TextProcessor
 import net.minecraft.text.Text
 import kotlin.random.Random

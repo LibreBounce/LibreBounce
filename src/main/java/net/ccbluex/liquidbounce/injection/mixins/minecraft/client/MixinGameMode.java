@@ -39,4 +39,5 @@ public class MixinGameMode {
     private static GameMode setDefaultAsNull(GameMode gameMode) {
         return null;
     }
+
 }

@@ -18,7 +18,6 @@
  *
  *
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;

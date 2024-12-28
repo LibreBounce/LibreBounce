@@ -86,9 +86,9 @@ class BlockPlacer(
 
     val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
-    val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
+    val rotationMode = choices(this, "RotationMode", 0) {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
-    })
+    }
 
     val support = SupportFeature(this)
 
@@ -145,7 +145,7 @@ class BlockPlacer(
 
         if (sneakTimes > 0) {
             sneakTimes--
-            it.movementEvent.sneaking = true
+            it.movementEvent.sneak = true
         }
 
         if (blocks.isEmpty()) {
@@ -175,10 +175,10 @@ class BlockPlacer(
         var supportPath: Set<BlockPos>? = null
 
         // remove all positions of the current support path
-        blocks.iterator().apply {
+        blocks.object2BooleanEntrySet().iterator().apply {
             while (hasNext()) {
                 val entry = next()
-                if (entry.value) {
+                if (entry.booleanValue) {
                     currentPlaceCandidates.add(entry.key)
                     remove()
                 }
@@ -223,7 +223,7 @@ class BlockPlacer(
     private fun scheduleCurrentPlacements(itemStack: ItemStack, it: SimulatedTickEvent): Boolean {
         var hasPlaced = false
 
-        val iterator = blocks.iterator()
+        val iterator = blocks.object2BooleanEntrySet().iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val pos = entry.key
@@ -237,7 +237,7 @@ class BlockPlacer(
             }
 
             val searchOptions = BlockPlacementTargetFindingOptions(
-                listOf(Vec3i(0, 0, 0)),
+                listOf(Vec3i.ZERO),
                 itemStack,
                 CenterTargetPositionFactory,
                 BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
@@ -266,10 +266,10 @@ class BlockPlacer(
                 )
             ) {
                 sneakTimes = sneak - 1
-                it.movementEvent.sneaking = true
+                it.movementEvent.sneak = true
             }
 
-            if (rotationMode.activeChoice(entry.value, pos, placementTarget)) {
+            if (rotationMode.activeChoice(entry.booleanValue, pos, placementTarget)) {
                 return true
             }
 

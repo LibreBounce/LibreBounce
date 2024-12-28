@@ -219,32 +219,26 @@ object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = 
 
     enum class ChestType {
         CHEST {
-            override val color: Color4b
-                get() = chestColor
+            override val color get() = chestColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
         },
         ENDER_CHEST {
-            override val color: Color4b
-                get() = enderChestColor
+            override val color get() = enderChestColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
         },
         FURNACE {
-            override val color: Color4b
-                get() = furnaceColor
+            override val color get() = furnaceColor
         },
         DISPENSER {
-            override val color: Color4b
-                get() = dispenserColor
+            override val color get() = dispenserColor
         },
         HOPPER {
-            override val color: Color4b
-                get() = hopperColor
+            override val color get() = hopperColor
         },
         SHULKER_BOX {
-            override val color: Color4b
-                get() = shulkerColor
+            override val color get() = shulkerColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
         };

@@ -20,7 +20,7 @@ import java.util.*
 import kotlin.math.absoluteValue
 
 object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMode {
-    override val parent: ChoiceConfigurable<Choice>
+    override val parent
         get() = ModuleMurderMystery.modes
 
     private var lastMap: MapIdComponent? = null
@@ -74,6 +74,8 @@ object MurderMysteryAssassinationMode : Choice("Assassination"), MurderMysteryMo
         val item = equippedItem?.item
 
         if (item !is FilledMapItem) {
+            // reset lastMap when map was removed (no longer in game)
+            lastMap = null
             return
         }
 

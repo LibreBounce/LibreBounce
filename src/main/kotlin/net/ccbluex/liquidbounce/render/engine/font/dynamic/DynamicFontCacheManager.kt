@@ -86,7 +86,7 @@ class DynamicFontCacheManager(
                             bb.xMin.toInt(), bb.yMin.toInt(),
                             0, 0,
                             width, height,
-                            false, false
+                            false
                         )
                     }
 
@@ -246,14 +246,14 @@ private data class GlyphIdentifier(val codepoint: Char, val font: Int)
 
 private const val MAX_CACHE_TIME_MS = 30 * 1000
 
-private const val UNCACHED = 0;
-private const val CACHED = 1;
-private const val BLOCKED = 2;
+private const val UNCACHED = 0
+private const val CACHED = 1
+private const val BLOCKED = 2
 
 private class CharCacheData(
     /**
      * Possible values: [UNCACHED], [CACHED] and [BLOCKED]
      */
     var cacheState: AtomicInteger = AtomicInteger(UNCACHED),
-    val lastUsage: AtomicLong = AtomicLong(0L),
+    val lastUsage: AtomicLong = AtomicLong(0L)
 )

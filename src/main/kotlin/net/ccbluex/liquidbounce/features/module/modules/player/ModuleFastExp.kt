@@ -67,7 +67,7 @@ object ModuleFastExp : ClientModule(
     @Suppress("unused")
     private val repeatable = tickHandler {
         val slot = getSlot()
-        if (slot == null || player.isDead || InventoryManager.isInventoryOpenServerSide || isRepaired(slot)) {
+        if (slot == null || player.isDead || InventoryManager.isInventoryOpen || isRepaired(slot)) {
             return@tickHandler
         }
 

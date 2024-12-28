@@ -68,6 +68,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
+import net.ccbluex.liquidbounce.utils.math.copy
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.toVec3d
@@ -125,14 +126,12 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         /**
          * Places blocks at the same Y level as the player
          */
-        ON("On", { blockPos -> BlockPos(blockPos.x, placementY, blockPos.z) }),
+        ON("On", { blockPos -> blockPos.copy(y = placementY) }),
 
         /**
          * Places blocks at the same Y level as the player, but only if the player is not falling
          */
-        FALLING("Falling", { blockPos ->
-            BlockPos(blockPos.x, placementY, blockPos.z).takeIf { player.velocity.y < 0.2 }
-        }),
+        FALLING("Falling", { blockPos -> blockPos.copy(y = placementY).takeIf { player.velocity.y < 0.2 } }),
 
         /**
          * Similar to FALLING, but only when a certain velocity is triggered and after
@@ -142,9 +141,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             if (ModuleScaffold.player.velocity.y == -0.15233518685055708 && jumps >= 2) {
                 jumps = 0
 
-                BlockPos(blockPos.x, startY, blockPos.z)
+                blockPos.copy(y = startY)
             } else {
-                BlockPos(blockPos.x, startY - 1, blockPos.z)
+                blockPos.copy(y = startY - 1)
             }
         })
 
@@ -156,7 +155,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     val isTowering: Boolean
-        get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && player.input.jumping
+        get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && player.input.playerInput.jump
 
     // SafeWalk feature - uses the SafeWalk module as a base
     @Suppress("unused")
@@ -328,7 +327,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         // Debug stuff
         if (optimalLine != null && target != null) {
-            val b = target.placedBlock.toVec3d().add(0.5, 1.0, 0.5)
+            val b = target.placedBlock.toVec3d(0.5, 1.0, 0.5)
             val a = optimalLine.getNearestPointTo(b)
 
             // Debug the line a-b
@@ -358,11 +357,11 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
                 )
 
                 if (requiresJump) {
-                    it.movementEvent.jumping = true
+                    it.movementEvent.jump = true
                 }
 
                 if (requiresSneak > 0) {
-                    it.movementEvent.sneaking = true
+                    it.movementEvent.sneak = true
                     forceSneak = requiresSneak
                 }
             }
@@ -395,7 +394,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.SAFETY_FEATURE) {
         if (forceSneak > 0) {
-            it.sneaking = true
+            it.sneak = true
             forceSneak--
         }
     }
@@ -482,7 +481,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
                         player.x, player.y, player.z,
                         currentRotation.yaw,
                         currentRotation.pitch,
-                        player.isOnGround
+                        player.isOnGround,
+                        player.horizontalCollision
                     )
                 )
             }
@@ -513,7 +513,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         if (rotationTiming == ON_TICK && RotationManager.serverRotation != player.rotation) {
             network.sendPacket(
                 Full(
-                    player.x, player.y, player.z, player.withFixedYaw(currentRotation), player.pitch, player.isOnGround
+                    player.x, player.y, player.z, player.withFixedYaw(currentRotation), player.pitch, player.isOnGround,
+                    player.horizontalCollision
                 )
             )
         }
@@ -527,7 +528,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         }
     }
 
-    private fun findPlaceableSlots() = buildList<IntObjectPair<ItemStack>> {
+    private fun findPlaceableSlots() = buildList<IntObjectPair<ItemStack>>(9) {
         for (i in 0..8) {
             val stack = player.inventory.getStack(i)
 

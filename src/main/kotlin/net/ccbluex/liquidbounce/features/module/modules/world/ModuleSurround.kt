@@ -361,7 +361,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         }
 
         val searchOptions = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             ItemStack(Items.SANDSTONE),
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
@@ -387,7 +387,8 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         if (rotationMode.send) {
             val rotation = placementTarget.rotation.normalize()
             network.connection!!.send(
-                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround),
+                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
+                    player.horizontalCollision),
                 null
             )
         }

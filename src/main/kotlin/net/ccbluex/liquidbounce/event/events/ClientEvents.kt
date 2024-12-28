@@ -63,6 +63,10 @@ class ClientStartEvent : Event()
 @Nameable("clientShutdown")
 class ClientShutdownEvent : Event()
 
+@Nameable("clientLanguageChanged")
+@WebSocketEvent
+class ClientLanguageChangedEvent : Event()
+
 @Nameable("valueChanged")
 @WebSocketEvent
 class ValueChangedEvent(val value: Value<*>) : Event()

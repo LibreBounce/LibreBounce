@@ -23,6 +23,8 @@ package net.ccbluex.liquidbounce.utils.kotlin
 import it.unimi.dsi.fastutil.doubles.DoubleIterable
 import it.unimi.dsi.fastutil.doubles.DoubleIterator
 import it.unimi.dsi.fastutil.doubles.DoubleIterators
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntList
 
 inline infix operator fun IntRange.contains(range: IntRange): Boolean {
     return this.first <= range.first && this.last >= range.last
@@ -48,28 +50,25 @@ fun ClosedFloatingPointRange<Float>.proportionOfValue(value: Float): Float {
 infix fun ClosedRange<Double>.step(step: Double): DoubleIterable {
     require(start.isFinite())
     require(endInclusive.isFinite())
+    require(step > 0.0)
 
     return DoubleIterable {
-        if (step == 0.0) {
-            DoubleIterators.singleton(this.start)
-        } else {
-            object : DoubleIterator {
-                private var current = start
-                private var hasNextValue = current <= endInclusive
+        object : DoubleIterator {
+            private var current = start
+            private var hasNextValue = current <= endInclusive
 
-                override fun hasNext(): Boolean = hasNextValue
+            override fun hasNext(): Boolean = hasNextValue
 
-                override fun nextDouble(): Double {
-                    if (!hasNextValue) throw NoSuchElementException()
-                    val nextValue = current
-                    current += step
-                    if (current > endInclusive) hasNextValue = false
-                    return nextValue
-                }
+            override fun nextDouble(): Double {
+                if (!hasNextValue) throw NoSuchElementException()
+                val nextValue = current
+                current += step
+                if (current > endInclusive) hasNextValue = false
+                return nextValue
+            }
 
-                override fun remove() {
-                    throw UnsupportedOperationException("This iterator is read-only")
-                }
+            override fun remove() {
+                throw UnsupportedOperationException("This iterator is read-only")
             }
         }
     }
@@ -145,6 +144,14 @@ inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> 
     Array(size) {
         transform(next())
     }
+}
+
+inline fun <T> Collection<T>.mapInt(transform: (T) -> Int): IntList {
+    val result = IntArrayList(this.size)
+    for (element in this) {
+        result.add(transform(element))
+    }
+    return result
 }
 
 /**

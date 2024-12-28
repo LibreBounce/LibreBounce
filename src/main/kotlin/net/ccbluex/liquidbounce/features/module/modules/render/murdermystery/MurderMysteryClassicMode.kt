@@ -7,7 +7,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.util.Identifier
 
 object MurderMysteryClassicMode : MurderMysteryGenericMode("Classic") {
-    override val parent: ChoiceConfigurable<Choice>
+    override val parent
         get() = ModuleMurderMystery.modes
 
     override fun handleHasSword(

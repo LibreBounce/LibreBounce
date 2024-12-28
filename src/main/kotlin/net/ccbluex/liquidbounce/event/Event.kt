@@ -50,7 +50,7 @@ open class CancellableEvent : Event() {
 }
 
 /**
- * State of event. Might be PRE or POST.
+ * MixinEntityRenderState of event. Might be PRE or POST.
  */
 enum class EventState(val stateName: String) {
     PRE("PRE"), POST("POST")

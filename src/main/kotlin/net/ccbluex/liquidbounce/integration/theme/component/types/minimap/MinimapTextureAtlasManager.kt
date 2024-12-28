@@ -27,7 +27,6 @@ import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.math.ChunkPos
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.Semaphore
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -73,7 +72,7 @@ class MinimapTextureAtlasManager {
             for (y in 0..15) {
                 val color = if ((x and 1) xor (y and 1) == 0) Color4b.BLACK.toARGB() else Color4b.WHITE.toARGB()
 
-                this.texture.image!!.setColor(x, y, color)
+                this.texture.image!!.setColorArgb(x, y, color)
             }
         }
 
@@ -83,7 +82,9 @@ class MinimapTextureAtlasManager {
     private fun allocate(chunkPos: ChunkPos): AtlasPosition {
         val atlasPosition = availableAtlasPositions.take() ?: error("No more space in the texture atlas!")
 
-        chunkPosAtlasPosMap[chunkPos] = atlasPosition
+        lock.write {
+            chunkPosAtlasPosMap[chunkPos] = atlasPosition
+        }
 
         return atlasPosition
     }
@@ -118,8 +119,10 @@ class MinimapTextureAtlasManager {
         chunkPos: ChunkPos,
         editor: (NativeImageBackedTexture, AtlasPosition) -> Unit,
     ) {
-        val atlasPosition = lock.write {
-            getOrAllocate(chunkPos).apply(dirtyAtlasPositions::add)
+        val atlasPosition = getOrAllocate(chunkPos)
+
+        lock.write {
+            dirtyAtlasPositions.add(atlasPosition)
         }
 
         editor(texture, atlasPosition)
@@ -131,7 +134,7 @@ class MinimapTextureAtlasManager {
      * @return the GLid of the texture
      */
     fun prepareRendering(): Int {
-        lock.write {
+        lock.read {
             if (this.dirtyAtlasPositions.isEmpty()) {
                 return this.texture.glId
             }
@@ -144,11 +147,13 @@ class MinimapTextureAtlasManager {
                 !this.allocated || dirtyChunks >= FULL_UPLOAD_THRESHOLD -> uploadFullTexture()
                 else -> uploadOnlyDirtyPositions()
             }
-
-            this.dirtyAtlasPositions.clear()
-
-            return this.texture.glId
         }
+
+        lock.write {
+            this.dirtyAtlasPositions.clear()
+        }
+
+        return this.texture.glId
     }
 
     private fun uploadFullTexture() {
@@ -177,7 +182,7 @@ class MinimapTextureAtlasManager {
                     dirtyAtlasPosition.baseXOnAtlas, dirtyAtlasPosition.baseYOnAtlas,
                     0, 0,
                     16, 16,
-                    false, false
+                    false
                 )
             }
         }
