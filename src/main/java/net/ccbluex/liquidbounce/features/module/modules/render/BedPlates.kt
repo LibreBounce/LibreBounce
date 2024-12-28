@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockTexture
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.block.center
 import net.ccbluex.liquidbounce.utils.block.getAllInBoxMutable
+import net.ccbluex.liquidbounce.utils.block.set
 import net.ccbluex.liquidbounce.utils.extensions.immutableCopy
 import net.ccbluex.liquidbounce.utils.extensions.manhattanDistance
 import net.ccbluex.liquidbounce.utils.extensions.offset
@@ -125,6 +126,11 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
             it.block != Blocks.bed || searchCenter.distanceSq(it) > radius * radius
         }
 
+        val maxLayers = maxLayers
+
+        val from = BlockPos.MutableBlockPos()
+        val to = BlockPos.MutableBlockPos()
+
         searchCenter.getAllInBoxMutable(radius).forEach {
             val blockState = world.getBlockState(it)
             if (blockState.block != Blocks.bed || blockState.getValue(BlockBed.PART) != BlockBed.EnumPartType.FOOT)
@@ -140,7 +146,10 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
 
             val layers = Array(maxLayers) { IdentityHashMap<Block, Int>() }
 
-            for (pos in it.getAllInBoxMutable(maxLayers + 1)) {
+            from.set(it, -maxLayers - 1, 0, -maxLayers - 1)
+            to.set(it, maxLayers + 1, maxLayers + 1, maxLayers + 1)
+
+            for (pos in BlockPos.getAllInBoxMutable(from, to)) {
                 val layer = minOf(pos.manhattanDistance(it), pos.manhattanDistance(headPos))
                 if (layer > maxLayers) continue
 
