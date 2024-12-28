@@ -28,7 +28,6 @@ import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL13
 import java.io.Closeable
 
@@ -81,11 +80,8 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         }
 
         val active = GlStateManager._getActiveTexture()
-        val alphaTest = GL11.glIsEnabled(GL11.GL_ALPHA_TEST)
 
-        GL11.glDisable(GL11.GL_ALPHA_TEST)
         GlStateManager._bindTexture(0)
-
         RenderSystem.disableDepthTest()
         enableBlend()
 
@@ -112,9 +108,6 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         endBlend()
         RenderSystem.enableDepthTest()
         GlStateManager._activeTexture(active)
-        if (alphaTest) {
-            GL11.glEnable(GL11.GL_ALPHA_TEST)
-        }
     }
 
     protected open fun enableBlend() {
