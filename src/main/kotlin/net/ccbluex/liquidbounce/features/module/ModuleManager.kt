@@ -173,7 +173,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         for (module in modules) {
             if (module.disableOnQuit) {
                 try {
-                    module.disable()
+                    module.enabled = false
                 } catch (e: Exception) {
                     logger.error("Failed to disable module ${module.name}", e)
                 }
