@@ -27,6 +27,7 @@ import kotlin.math.*
 object RenderUtils : MinecraftInstance {
     // ARGB 0xff006fff
     const val CLIENT_COLOR = -16748545
+
     // ARGB 0x7f006fff
     const val CLIENT_COLOR_HALF_ALPHA = 2130735103
 
@@ -183,14 +184,8 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawCircle(
-        entity: EntityLivingBase,
-        speed: Float,
-        height: ClosedFloatingPointRange<Float>,
-        size: Float,
-        filled: Boolean,
-        withHeight: Boolean,
-        circleY: ClosedFloatingPointRange<Float>? = null,
-        color: Color
+        entity: EntityLivingBase, speed: Float, height: ClosedFloatingPointRange<Float>, size: Float, filled: Boolean,
+        withHeight: Boolean, circleY: ClosedFloatingPointRange<Float>? = null, color: Color
     ) {
         val manager = mc.renderManager
 
@@ -352,12 +347,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     private fun calculateDomeVertex(
-        entityX: Double,
-        entityY: Double,
-        entityZ: Double,
-        theta: Double,
-        phi: Double,
-        horizontalRadius: Double,
+        entityX: Double, entityY: Double, entityZ: Double, theta: Double, phi: Double, horizontalRadius: Double,
         verticalRadius: Double
     ): DoubleArray {
         return doubleArrayOf(
@@ -627,10 +617,10 @@ object RenderUtils : MinecraftInstance {
         val radiusD = radius.toDouble()
 
         val corners = arrayOf(
-            Triple(newX2 - radiusD, newY2 - radiusD, 0.0),
-            Triple(newX2 - radiusD, newY1 + radiusD, 90.0),
-            Triple(newX1 + radiusD, newY1 + radiusD, 180.0),
-            Triple(newX1 + radiusD, newY2 - radiusD, 270.0)
+            doubleArrayOf(newX2 - radiusD, newY2 - radiusD, 0.0),
+            doubleArrayOf(newX2 - radiusD, newY1 + radiusD, 90.0),
+            doubleArrayOf(newX1 + radiusD, newY1 + radiusD, 180.0),
+            doubleArrayOf(newX1 + radiusD, newY2 - radiusD, 270.0)
         )
 
         for ((cx, cy, startAngle) in corners) {
@@ -770,7 +760,6 @@ object RenderUtils : MinecraftInstance {
         drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius)
     }
 
-
     fun drawRoundedRectInt(x1: Int, y1: Int, x2: Int, y2: Int, color: Int, radius: Float) {
         val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
@@ -787,7 +776,6 @@ object RenderUtils : MinecraftInstance {
         glPushMatrix()
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
-        glDisable(GL_DEPTH_TEST)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_LINE_SMOOTH)
 
@@ -798,10 +786,10 @@ object RenderUtils : MinecraftInstance {
 
         // Draw corners
         val corners = arrayOf(
-            Triple(newX2 - radiusD, newY2 - radiusD, 0.0),
-            Triple(newX2 - radiusD, newY1 + radiusD, 90.0),
-            Triple(newX1 + radiusD, newY1 + radiusD, 180.0),
-            Triple(newX1 + radiusD, newY2 - radiusD, 270.0)
+            doubleArrayOf(newX2 - radiusD, newY2 - radiusD, 0.0),
+            doubleArrayOf(newX2 - radiusD, newY1 + radiusD, 90.0),
+            doubleArrayOf(newX1 + radiusD, newY1 + radiusD, 180.0),
+            doubleArrayOf(newX1 + radiusD, newY2 - radiusD, 270.0)
         )
 
         for ((cx, cy, startAngle) in corners) {
@@ -820,7 +808,6 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)
         glDisable(GL_BLEND)
-        glEnable(GL_DEPTH_TEST)
         glPopMatrix()
     }
 
@@ -902,12 +889,13 @@ object RenderUtils : MinecraftInstance {
         val f = 1f / textureWidth
         val f1 = 1f / textureHeight
         begin(7, DefaultVertexFormats.POSITION_TEX)
-        pos(x.toDouble(), (y + height).toDouble(), 0.0)
-            .tex((u * f).toDouble(), ((v + height) * f1).toDouble()).endVertex()
-        pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
-            .tex(((u + width) * f).toDouble(), ((v + height) * f1).toDouble()).endVertex()
-        pos((x + width).toDouble(), y.toDouble(), 0.0)
-            .tex(((u + width) * f).toDouble(), (v * f1).toDouble()).endVertex()
+        pos(x.toDouble(), (y + height).toDouble(), 0.0).tex((u * f).toDouble(), ((v + height) * f1).toDouble())
+            .endVertex()
+        pos((x + width).toDouble(), (y + height).toDouble(), 0.0).tex(
+            ((u + width) * f).toDouble(), ((v + height) * f1).toDouble()
+        ).endVertex()
+        pos((x + width).toDouble(), y.toDouble(), 0.0).tex(((u + width) * f).toDouble(), (v * f1).toDouble())
+            .endVertex()
         pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
     }
 
@@ -920,15 +908,19 @@ object RenderUtils : MinecraftInstance {
         val f = 0.00390625f
         val f1 = 0.00390625f
         begin(7, DefaultVertexFormats.POSITION_TEX)
-        pos(x.toDouble(), (y + height).toDouble(), zLevel.toDouble())
-            .tex((textureX.toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble()).endVertex()
-        pos((x + width).toDouble(), (y + height).toDouble(), zLevel.toDouble())
-            .tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble())
+        pos(x.toDouble(), (y + height).toDouble(), zLevel.toDouble()).tex(
+            (textureX.toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble()
+        ).endVertex()
+        pos(
+            (x + width).toDouble(), (y + height).toDouble(), zLevel.toDouble()
+        ).tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble())
             .endVertex()
-        pos((x + width).toDouble(), y.toDouble(), zLevel.toDouble())
-            .tex(((textureX + width).toFloat() * f).toDouble(), (textureY.toFloat() * f1).toDouble()).endVertex()
-        pos(x.toDouble(), y.toDouble(), zLevel.toDouble())
-            .tex((textureX.toFloat() * f).toDouble(), (textureY.toFloat() * f1).toDouble()).endVertex()
+        pos((x + width).toDouble(), y.toDouble(), zLevel.toDouble()).tex(
+            ((textureX + width).toFloat() * f).toDouble(), (textureY.toFloat() * f1).toDouble()
+        ).endVertex()
+        pos(x.toDouble(), y.toDouble(), zLevel.toDouble()).tex(
+            (textureX.toFloat() * f).toDouble(), (textureY.toFloat() * f1).toDouble()
+        ).endVertex()
     }
 
     fun glColor(red: Int, green: Int, blue: Int, alpha: Int) =
@@ -1068,26 +1060,20 @@ object RenderUtils : MinecraftInstance {
     fun setGlState(cap: Int, state: Boolean) = if (state) glEnable(cap) else glDisable(cap)
 
     fun drawScaledCustomSizeModalRect(
-        x: Int,
-        y: Int,
-        u: Float,
-        v: Float,
-        uWidth: Int,
-        vHeight: Int,
-        width: Int,
-        height: Int,
-        tileWidth: Float,
+        x: Int, y: Int, u: Float, v: Float, uWidth: Int, vHeight: Int, width: Int, height: Int, tileWidth: Float,
         tileHeight: Float
     ) = drawWithTessellatorWorldRenderer {
         val f = 1f / tileWidth
         val f1 = 1f / tileHeight
         begin(7, DefaultVertexFormats.POSITION_TEX)
-        pos(x.toDouble(), (y + height).toDouble(), 0.0)
-            .tex((u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
-        pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
-            .tex(((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
-        pos((x + width).toDouble(), y.toDouble(), 0.0)
-            .tex(((u + uWidth.toFloat()) * f).toDouble(), (v * f1).toDouble()).endVertex()
+        pos(x.toDouble(), (y + height).toDouble(), 0.0).tex(
+            (u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()
+        ).endVertex()
+        pos((x + width).toDouble(), (y + height).toDouble(), 0.0).tex(
+            ((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()
+        ).endVertex()
+        pos((x + width).toDouble(), y.toDouble(), 0.0).tex(((u + uWidth.toFloat()) * f).toDouble(), (v * f1).toDouble())
+            .endVertex()
         pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
     }
 }
