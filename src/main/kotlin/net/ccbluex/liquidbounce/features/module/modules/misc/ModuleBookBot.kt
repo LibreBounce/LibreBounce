@@ -80,10 +80,12 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             return@handler
         }
 
-        event.schedule(inventoryConstraints, ClickInventoryAction.performSwap(
-            from = book,
-            to = HotbarItemSlot(player.inventory.selectedSlot),
-        ))
+        if (!isCandidate(player.mainHandStack)) {
+            event.schedule(inventoryConstraints, ClickInventoryAction.performSwap(
+                from = book,
+                to = HotbarItemSlot(player.inventory.selectedSlot),
+            ))
+        }
 
         if (chronometer.hasElapsed((delay * 1000L).toLong())) {
             writeBook()
