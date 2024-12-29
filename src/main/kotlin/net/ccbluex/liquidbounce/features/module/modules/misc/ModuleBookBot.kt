@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.performSwap
+import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.item.findInventorySlot
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.WrittenBookContentComponent
@@ -67,7 +67,10 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             return@tickHandler
         }
 
-        book.performSwap(to = HotbarItemSlot(player.inventory.selectedSlot)).performAction()
+        ClickInventoryAction.performSwap(
+            from = book,
+            to = HotbarItemSlot(player.inventory.selectedSlot)
+        ).performAction()
 
         waitTicks(delay)
 
@@ -164,7 +167,11 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         }
     }
 
-    private fun addPageToBook(page: StringBuilder, pages: MutableList<String>, filteredPages: MutableList<RawFilteredPair<Text>>) {
+    private fun addPageToBook(
+        page: StringBuilder,
+        pages: MutableList<String>,
+        filteredPages: MutableList<RawFilteredPair<Text>>
+    ) {
         filteredPages.add(RawFilteredPair.of(Text.of(page.toString())))
         pages.add(page.toString())
     }
