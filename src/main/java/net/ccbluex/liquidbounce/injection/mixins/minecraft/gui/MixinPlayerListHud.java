@@ -100,6 +100,33 @@ public abstract class MixinPlayerListHud {
                 original : null;
     }
 
+    @ModifyExpressionValue(method = "render", at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/gui/hud/PlayerListHud$ScoreDisplayEntry;name:Lnet/minecraft/text/Text;"
+    ))
+    private Text hookVisibilityName(Text original, @Local(ordinal = 0) PlayerListEntry entry) {
+        if (!ModuleBetterTab.INSTANCE.getRunning()) {
+            return original;
+        }
+
+        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ?
+                Text.of(entry.getProfile().getName()) : original;
+
+    }
+
+    @ModifyExpressionValue(method = "render", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"
+    ))
+    private Text hookWidthVisibilityName(Text original, @Local(ordinal = 0) PlayerListEntry entry) {
+        if (!ModuleBetterTab.INSTANCE.getRunning()) {
+            return original;
+        }
+
+        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ?
+                Text.of(entry.getProfile().getName()) : original;
+    }
+
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I", shift = At.Shift.BEFORE))
     private void hookTabColumnHeight(CallbackInfo ci, @Local(ordinal = 5) LocalIntRef o, @Local(ordinal = 6)LocalIntRef p) {
         if (!ModuleBetterTab.INSTANCE.getRunning()) {

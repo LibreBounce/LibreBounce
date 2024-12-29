@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.minecraft.client.network.PlayerListEntry
-
+import net.minecraft.text.Text
 
 /**
  * ModuleBetterTab
@@ -36,6 +36,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     object Visibility : Configurable("Visibility") {
         val header by boolean("Header", true)
         val footer by boolean("Footer", true)
+        val nameOnly by boolean("NameOnly", false)
     }
 
     object Highlight : ToggleableConfigurable(ModuleBetterTab, "Highlight", true) {
@@ -60,6 +61,7 @@ enum class Sorting(
     VANILLA("Vanilla", null),
     PING("Ping", Comparator.comparingInt { it.latency }),
     LENGTH("NameLength", Comparator.comparingInt { it.profile.name.length }),
+    SCORE_LENGTH("DisplayNameLength", Comparator.comparingInt { (it.displayName ?: Text.empty()).string.length }),
     ALPHABETICAL("Alphabetical", Comparator.comparing { it.profile.name }),
     REVERSE_ALPHABETICAL("ReverseAlphabetical", Comparator.comparing({ it.profile.name }, Comparator.reverseOrder())),
     NONE("None", { _, _ -> 0 })
