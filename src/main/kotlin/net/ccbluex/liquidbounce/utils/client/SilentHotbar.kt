@@ -57,7 +57,8 @@ object SilentHotbar : EventListener {
      */
     fun isSlotModifiedBy(requester: Any?) = hotbarState?.requester == requester
 
-    val tickHandler = handler<GameTickEvent>(priority = 1001) {
+    @Suppress("unused")
+    private val tickHandler = handler<GameTickEvent>(priority = 1001) {
         val hotbarState = hotbarState ?: return@handler
 
         if (ticksSinceLastUpdate >= hotbarState.ticksUntilReset) {

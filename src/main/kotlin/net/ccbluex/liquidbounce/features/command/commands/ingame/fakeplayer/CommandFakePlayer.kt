@@ -319,20 +319,24 @@ object CommandFakePlayer : CommandFactory, EventListener {
     }
 
     @Suppress("unused")
-    val attackHandler = handler<AttackEntityEvent> {
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        if (event.isCancelled) {
+            return@handler
+        }
+
         if (fakePlayers.isEmpty()) {
             return@handler
         }
 
         val contains = fakePlayers.none { player ->
-            player.id == it.entity.id
+            player.id == event.entity.id
         }
 
         if (!contains) {
             return@handler
         }
 
-        val fakePlayer = it.entity as LivingEntity
+        val fakePlayer = event.entity as LivingEntity
 
         val genericAttackDamage = if (player.isUsingRiptide) {
                 player.riptideAttackDamage

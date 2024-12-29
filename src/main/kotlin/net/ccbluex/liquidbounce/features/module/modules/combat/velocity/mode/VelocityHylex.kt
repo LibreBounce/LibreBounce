@@ -18,12 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.ccbluex.liquidbounce.utils.entity.moving
 
 /**
@@ -35,12 +32,8 @@ import net.ccbluex.liquidbounce.utils.entity.moving
 object VelocityHylex : VelocityMode("Hylex") {
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEntityEvent> {
-        if (!player.moving) {
-            return@handler
-        }
-
-        if (!player.isSprinting) {
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        if (event.isCancelled || !player.moving || !player.isSprinting) {
             return@handler
         }
 

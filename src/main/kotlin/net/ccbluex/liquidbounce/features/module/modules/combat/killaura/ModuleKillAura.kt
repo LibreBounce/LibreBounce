@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
@@ -171,6 +172,9 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Update current target tracker to make sure you attack the best enemy
         updateEnemySelection()
+
+        // Update Auto Weapon
+        ModuleAutoWeapon.prepare(targetTracker.lockedOnTarget)
     }
 
     @Suppress("unused")

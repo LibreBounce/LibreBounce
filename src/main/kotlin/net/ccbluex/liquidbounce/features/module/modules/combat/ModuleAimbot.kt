@@ -74,7 +74,8 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    val tickHandler = handler<SimulatedTickEvent> { _ ->
+    @Suppress("unused")
+    private val tickHandler = handler<SimulatedTickEvent> { _ ->
         this.targetTracker.validateLock { target -> target.boxedDistanceTo(player) <= range }
         this.playerRotation = player.rotation
 
@@ -97,6 +98,9 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 target
             )
         }
+
+        // Update Auto Weapon
+        ModuleAutoWeapon.prepare(targetTracker.lockedOnTarget)
     }
 
     override fun disable() {
