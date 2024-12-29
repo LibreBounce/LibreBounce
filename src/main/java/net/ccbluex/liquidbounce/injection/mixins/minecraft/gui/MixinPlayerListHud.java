@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -59,10 +60,44 @@ public abstract class MixinPlayerListHud {
 
     @WrapOperation(method = "collectPlayerEntries", at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;sorted(Ljava/util/Comparator;)Ljava/util/stream/Stream;"))
     private Stream<PlayerListEntry> hookSort(Stream<PlayerListEntry> instance, Comparator<PlayerListEntry> defaultComparator, Operation<Stream<PlayerListEntry>> original) {
-        var comparator = ModuleBetterTab.INSTANCE.getRunning() ?
-                ModuleBetterTab.INSTANCE.getSorting().getComparator() : defaultComparator;
+        var sorting = ModuleBetterTab.INSTANCE.getSorting();
+
+        boolean running = ModuleBetterTab.INSTANCE.getRunning();
+        var customComparator = sorting.getComparator();
+
+        var comparator = running
+                ? (customComparator != null ? customComparator : defaultComparator)
+                : defaultComparator;
 
         return original.call(instance, comparator);
+    }
+
+    @ModifyExpressionValue(method = "render", at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/gui/hud/PlayerListHud;header:Lnet/minecraft/text/Text;",
+            ordinal = 0
+    ))
+    private Text hookHeader(Text original) {
+        if (!ModuleBetterTab.INSTANCE.getRunning()) {
+            return original;
+        }
+
+        return ModuleBetterTab.Visibility.INSTANCE.getHeader() ?
+                original : null;
+    }
+
+    @ModifyExpressionValue(method = "render", at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/gui/hud/PlayerListHud;footer:Lnet/minecraft/text/Text;",
+            ordinal = 0
+    ))
+    private Text hookFooter(Text original) {
+        if (!ModuleBetterTab.INSTANCE.getRunning()) {
+            return original;
+        }
+
+        return ModuleBetterTab.Visibility.INSTANCE.getFooter() ?
+                original : null;
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I", shift = At.Shift.BEFORE))
@@ -124,11 +159,8 @@ public abstract class MixinPlayerListHud {
             }
 
             if (highlight.getFriends().getRunning()) {
-                for(var friend : FriendManager.INSTANCE.getFriends()) {
-                    if (Objects.equals(entry.getProfile().getName(), friend.getName())) {
-                        args.set(4, highlight.getFriends().getColor().toARGB());
-                        return;
-                    }
+                if (FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
+                    args.set(4, highlight.getFriends().getColor().toARGB());
                 }
             }
         }

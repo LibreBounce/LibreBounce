@@ -7,7 +7,6 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.minecraft.client.network.PlayerListEntry
-import java.awt.Color
 
 
 /**
@@ -21,20 +20,22 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     init {
         treeAll(
             Limits,
+            Visibility,
             Highlight,
-            AccurateLatency
+            AccurateLatency,
         )
     }
 
     val sorting by enumChoice("Sorting", Sorting.VANILLA)
 
-    object AccurateLatency : ToggleableConfigurable(ModuleBetterTab, "AccurateLatency", true) {
-        val suffix by boolean("AppendMSSuffix", true)
-    }
-
     object Limits : Configurable("Limits") {
         val tabSize by int("TabSize", 80, 1..1000)
         val height by int("ColumnHeight", 20, 1..100)
+    }
+
+    object Visibility : Configurable("Visibility") {
+        val header by boolean("Header", true)
+        val footer by boolean("Footer", true)
     }
 
     object Highlight : ToggleableConfigurable(ModuleBetterTab, "Highlight", true) {
@@ -42,16 +43,21 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             val color by color("Color", color)
         }
 
-        val self = tree(HighlightColored("Self", Color4b(Color(50, 193, 50, 80))))
-        val friends = tree(HighlightColored("Friends", Color4b(Color(16, 89, 203, 80))))
+        val self = tree(HighlightColored("Self", Color4b(50, 193, 50, 80)))
+        val friends = tree(HighlightColored("Friends", Color4b(16, 89, 203, 80)))
+    }
+
+    object AccurateLatency : ToggleableConfigurable(ModuleBetterTab, "AccurateLatency", true) {
+        val suffix by boolean("AppendMSSuffix", true)
     }
 }
 
+@Suppress("unused")
 enum class Sorting(
     override val choiceName: String,
-    val comparator: Comparator<PlayerListEntry>
+    val comparator: Comparator<PlayerListEntry>?
 ) : NamedChoice {
-    VANILLA("Vanilla", Comparator.comparingInt { -it.listOrder }),
+    VANILLA("Vanilla", null),
     PING("Ping", Comparator.comparingInt { it.latency }),
     LENGTH("NameLength", Comparator.comparingInt { it.profile.name.length }),
     ALPHABETICAL("Alphabetical", Comparator.comparing { it.profile.name }),
