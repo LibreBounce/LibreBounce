@@ -18,13 +18,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
-import net.ccbluex.liquidbounce.utils.item.isNothing
+import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
+import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 
-data class NametagInfo(
+@Suppress("DataClassPrivateConstructor")
+data class Nametag private constructor(
+    val entity: Entity,
     /**
      * The text to render as nametag
      */
@@ -32,15 +36,21 @@ data class NametagInfo(
     /**
      * The items that should be rendered above the name tag
      */
-    val items: List<ItemStack?>,
+    val items: List<ItemStack?>
 ) {
-    companion object {
-        fun createForEntity(entity: Entity): NametagInfo {
-            val text = NametagTextFormatter(entity).format()
-            val items = createItemList(entity)
 
-            return NametagInfo(text, items)
-        }
+    var position: Vec3? = null
+
+    constructor(entity: Entity) : this(entity, NametagTextFormatter(entity).format(), createItemList(entity))
+
+    fun calculatePosition(tickDelta: Float) {
+        val nametagPos = entity.interpolateCurrentPosition(tickDelta)
+            .add(0.0, entity.getEyeHeight(entity.pose) + 0.55, 0.0)
+
+        position = WorldToScreen.calculateScreenPos(nametagPos)
+    }
+
+    companion object {
 
         /**
          * Creates a list of items that should be rendered above the name tag. Currently, it is the item in main hand,
@@ -56,16 +66,12 @@ data class NametagInfo(
             val firstHandItem = itemIterator.next()
             val secondHandItem = itemIterator.next()
 
-            val armorItems = entity.armorItems
+            val armorItems = entity.armorItems.reversed()
 
-            val heldItems =
-                if (secondHandItem.isNothing()) {
-                    listOf(firstHandItem)
-                } else {
-                    listOf(firstHandItem, secondHandItem)
-                }
-
-            return heldItems + armorItems
+            return listOf(firstHandItem) + armorItems + secondHandItem
         }
+
     }
+
 }
+
