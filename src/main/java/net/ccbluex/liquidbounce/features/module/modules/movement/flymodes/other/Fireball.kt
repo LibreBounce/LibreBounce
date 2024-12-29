@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C0APacketAnimation
@@ -87,7 +88,7 @@ object Fireball : FlyMode("Fireball") {
         }
 
         if (player.isMoving) {
-            TickedActions.TickScheduler(Fly) += {
+            Fly.nextTick {
                 if (Fly.swing) player.swingItem() else sendPacket(C0APacketAnimation())
 
                 // NOTE: You may increase max try to `2` if fireball doesn't work. (Ex: BlocksMC)
