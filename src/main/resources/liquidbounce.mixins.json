@@ -8,6 +8,7 @@
   "client": [
     "authlib.MixinMinecraftClient",
     "blaze3d.MixinRenderSystem",
+    "lithium.MixinChunkAwareBlockCollisionSweeper",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockCollisionSpliterator",
     "minecraft.block.MixinBlockView",

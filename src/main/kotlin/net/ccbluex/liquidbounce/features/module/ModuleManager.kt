@@ -250,6 +250,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
 
             // Misc
             ModuleAntiBot,
+            ModuleBetterTab,
             ModuleBetterChat,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,

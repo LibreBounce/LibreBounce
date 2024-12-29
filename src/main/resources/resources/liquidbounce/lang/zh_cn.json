@@ -617,5 +617,6 @@
   "liquidbounce.module.surround.description": "自动在周围建造安全方块，保护你免受爆炸伤害。",
   "liquidbounce.module.packetMine.description": "使你能通过单次点击破坏方块。",
   "liquidbounce.module.fastExp.description": "自动用经验瓶修复你的装备。",
+  "liquidbounce.module.betterTab.description": "对标签列表进行了多项改进。",
   "liquidbounce.module.autoPearl.description": "瞄准并向敌方珍珠的轨迹投掷一颗珍珠。"
 }

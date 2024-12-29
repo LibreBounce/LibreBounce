@@ -618,5 +618,6 @@
   "liquidbounce.module.packetMine.description": "Allows you to mine blocks by clicking them once.",
   "liquidbounce.module.fastExp.description": "Automatically repairs your armor.",
   "liquidbounce.module.itemChams.description": "Applies visual effects to your held items.",
+  "liquidbounce.module.betterTab.description": "Multiple improvements to the tab list.",
   "liquidbounce.module.autoPearl.description": "Aims and throws a pearl at an enemies pearl trajectory."
 }
