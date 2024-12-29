@@ -66,7 +66,16 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = ar
     private val forceUnicodeChat by boolean("ForceUnicodeChat", false)
 
     init {
-        tree(AntiSpam)
+        treeAll(
+            AntiSpam,
+            Copy
+        )
+    }
+
+
+    object Copy : ToggleableConfigurable(this, "Copy", true) {
+        val notification by boolean("Notificate", true)
+        val highlight by boolean("Highlight", true)
     }
 
     var antiChatClearPaused = false

@@ -104,7 +104,7 @@ public abstract class MixinClientConnection {
 
     @Inject(method = "handleDisconnection", at = @At("HEAD"))
     private void handleDisconnection(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new DisconnectEvent());
+        EventManager.INSTANCE.callEvent(DisconnectEvent.INSTANCE);
     }
 
 }

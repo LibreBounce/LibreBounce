@@ -63,10 +63,10 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
     private val delay by intRange("Delay", 0..0, 0..40, "ticks")
     private val pauseOnFlag by int("PauseOnFlag", 0, 0..20, "ticks")
 
-    private var pause = 0
+    internal var pause = 0
 
     @Suppress("unused")
-    private val countHandler = handler<GameTickEvent>(ignoreNotRunning = true) {
+    private val pauseHandler = handler<GameTickEvent> {
         if (pause > 0) {
             pause--
         }
@@ -76,7 +76,7 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
     private val packetHandler = sequenceHandler<PacketEvent>(priority = 1) { event ->
         val packet = event.packet
 
-        if (!event.original) {
+        if (!event.original || pause > 0) {
             return@sequenceHandler
         }
 
@@ -104,8 +104,5 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
             pause = pauseOnFlag
         }
     }
-
-    override val running: Boolean
-        get() = super.running && pause == 0
 
 }

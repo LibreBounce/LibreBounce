@@ -620,6 +620,7 @@
   "liquidbounce.module.holeFiller.description": "Füllt automatisch sichere Orte mit Blöcken für Crystal PvP.",
   "liquidbounce.module.itemChams.description": "Wendet visuelle Effekte auf Gegenstände in deiner Hand an.",
   "liquidbounce.module.bookBot.description": "Schreibt automatisch in Bücher.",
+  "liquidbounce.module.betterTab.description": "Verschiedene Verbesserungen an der Tab-Liste.",
   "liquidbounce.module.itemTags.description": "Zeigt Bilder und Mengenangaben fallengelassener Gegenstände an.",
   "liquidbounce.module.baritone.description": "Einstellungen für Baritone."
 }

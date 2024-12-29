@@ -177,7 +177,7 @@ val ItemStack.sharpnessLevel: Int
 fun ItemStack.getSharpnessDamage(level: Int = sharpnessLevel) = if (level == 0) 0.0 else 0.5 * level + 0.5
 
 val ItemStack.attackSpeed: Float
-    get() = item.getAttributeValue(EntityAttributes.ATTACK_DAMAGE)
+    get() = item.getAttributeValue(EntityAttributes.ATTACK_SPEED)
 
 private fun Item.getAttributeValue(attribute: RegistryEntry<EntityAttribute>): Float {
     val attribInstance = EntityAttributeInstance(attribute) {}

@@ -501,5 +501,6 @@
     "liquidbounce.module.bookBot.description": "自動で本に書き込みます。",
 	"liquidbounce.module.zoot.description": "すべての悪い効果/火を取り除きます。",
 	"modmenu.descriptionTranslation.liquidbounce": "無料でオープンソースのハッククライアント",
-  "liquidbounce.module.autoPearl.description": "敵の真珠の軌道に向けて真珠を狙い投げる."
+    "liquidbounce.module.betterTab.description": "タブリストに複数の改良を加えました。",
+    "liquidbounce.module.autoPearl.description": "敵の真珠の軌道に向けて真珠を狙い投げる."
 }

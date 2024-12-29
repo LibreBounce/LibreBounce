@@ -18,16 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 
-internal object VelocityDexland : Choice("Dexland") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityDexland : VelocityMode("Dexland") {
 
     private val hReduce by float("HReduce", 0.3f, 0f..1f)
     private val times by int("AttacksToWork", 4, 1..10)

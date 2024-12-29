@@ -502,5 +502,6 @@
   "liquidbounce.module.autoFish.value.reelDelay.description": "Atraso de recolhimento.",
   "liquidbounce.module.autoFish.value.recastDelay.description": "Atraso de novo lançamento.",
   "liquidbounce.module.bookBot.description": "Escreve automaticamente em livros.",
+  "liquidbounce.module.betterTab.description": "Diversas melhorias na lista de abas.",
   "liquidbounce.module.autoPearl.description": "Mira e lança uma pérola na trajetória da pérola inimiga."
 }

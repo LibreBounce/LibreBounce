@@ -148,7 +148,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
     }
 
     @Suppress("unused")
-    val worldChangeHandler = handler<WorldChangeEvent>(ignoreNotRunning = true) {
+    private val worldChangeHandler = handler<WorldChangeEvent> {
         clear()
     }
 

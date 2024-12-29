@@ -51,8 +51,7 @@ class SocketEventListener : EventListener {
 
         val eventHook = EventHook<Event>(
             this,
-            { writeToSockets(it) },
-            false
+            { writeToSockets(it) }
         )
 
         registeredEvents[eventClass] = eventHook

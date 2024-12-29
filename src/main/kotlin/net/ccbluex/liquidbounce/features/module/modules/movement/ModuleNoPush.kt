@@ -18,12 +18,44 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 
 /**
  * NoPush module
  *
- * Disables pushing from other players.
+ * Disables pushing from other players and some other situations where someone/something can push.
  */
-object ModuleNoPush : ClientModule("NoPush", Category.MOVEMENT)
+object ModuleNoPush : ClientModule("NoPush", Category.MOVEMENT) {
+    private val entities by boolean("Entities", true)
+    private val blocks by boolean("Blocks", true)
+    private val fishingRoads by boolean("FishingRoads", false)
+    private val liquids by boolean("Liquids", false)
+    private val sinking by boolean("Sinking", false)
+
+    fun isLiquids() = running && liquids
+
+    fun isEntities() = running && entities
+
+    fun isBlocks() = running && blocks
+
+    fun isFishingRoads() = running && fishingRoads
+
+    @Suppress("unused")
+    private val tickHandler =
+        handler<GameTickEvent> {
+            if (!sinking) {
+                return@handler
+            }
+
+            if (mc.options.jumpKey.isPressed || mc.options.sneakKey.isPressed) {
+                return@handler
+            }
+
+            if ((player.isTouchingWater || player.isInLava) && player.velocity.y < 0) {
+                player.velocity.y = 0.0
+            }
+        }
+}

@@ -97,7 +97,7 @@ object ModuleAutoAccount : ClientModule("AutoAccount", Category.MISC, aliases = 
             waitTicks(delay.random())
 
             action(it)
-        }, DummyEvent())
+        }, DummyEvent)
     }
 
 }

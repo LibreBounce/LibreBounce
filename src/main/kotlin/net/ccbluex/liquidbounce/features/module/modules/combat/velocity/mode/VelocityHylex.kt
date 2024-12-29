@@ -32,9 +32,7 @@ import net.ccbluex.liquidbounce.utils.entity.moving
  * Works because of a silly exemption from Hylex
  * @author @liquidsquid1
  */
-object VelocityHylex : Choice("Hylex") {
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+object VelocityHylex : VelocityMode("Hylex") {
 
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> {

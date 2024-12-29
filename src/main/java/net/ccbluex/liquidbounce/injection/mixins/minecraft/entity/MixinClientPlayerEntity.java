@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleAntiHunger;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePortalMenu;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEntityControl;
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep;
@@ -102,7 +103,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             shift = At.Shift.AFTER,
             ordinal = 0))
     private void hookPostTickEvent(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new PlayerPostTickEvent());
+        EventManager.INSTANCE.callEvent(PlayerPostTickEvent.INSTANCE);
 
         // Call player statistics change event when statistics change
         var statistics = PlayerData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
@@ -117,7 +118,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void hookMovementTickEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerMovementTickEvent());
+        EventManager.INSTANCE.callEvent(PlayerMovementTickEvent.INSTANCE);
     }
 
     /**
@@ -164,6 +165,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "pushOutOfBlocks", at = @At("HEAD"), cancellable = true)
     private void hookPushOut(double x, double z, CallbackInfo ci) {
+        if (ModuleNoPush.INSTANCE.isBlocks()) {
+            ci.cancel();
+            return;
+        }
+
         final PlayerPushOutEvent pushOutEvent = new PlayerPushOutEvent();
         EventManager.INSTANCE.callEvent(pushOutEvent);
         if (pushOutEvent.isCancelled()) {
@@ -318,6 +324,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isWalking()Z"))
     private boolean hookOmnidirectionalSprintC(boolean original) {
         return liquid_bounce$isOmniWalking();
+    }
+
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/client/network/ClientPlayerEntity;horizontalCollision:Z"))
+    private boolean hookSprintIgnoreCollision(boolean original) {
+        return !ModuleSprint.INSTANCE.shouldIgnoreCollision() && original;
     }
 
     @Unique
