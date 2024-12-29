@@ -78,7 +78,7 @@ object VelocityIntave : Choice("Intave") {
             val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
             val shouldFinallyJump = shouldJump && canJump
 
-            if (randomise.enabled) {
+            if (randomize.enabled) {
                 delayCounter++
 
                 if (delayCounter >= currentDelay) {
