@@ -23,6 +23,26 @@ import net.minecraft.text.Text
 import java.util.*
 
 /**
+ * Maximum number of lines that can fit on a single page in the Minecraft book.
+ *
+ * This constant is used to eliminate "magic numbers" in the code and improve readability and maintainability.
+ * It defines the limit for the number of lines displayed on a single page, ensuring consistent formatting.
+ *
+ * **Note:** This value is fixed and should not be changed to maintain the intended functionality.
+ */
+private const val MAX_LINES_PER_PAGE: Int = 14
+
+/**
+ * Maximum width of a single line of text in the Minecraft book, measured in float units.
+ *
+ * This constant is used to eliminate "magic numbers" in the code and improve readability and maintainability.
+ * It defines the maximum length of a single line, ensuring that the text does not overflow or break formatting.
+ *
+ * **Note:** This value is fixed and should not be changed to maintain the intended functionality.
+ */
+private const val MAX_LINE_WIDTH: Float = 114f
+
+/**
  * ModuleBookBot
  *
  * This module simplifies the process of filling and creating books using various principles,
@@ -104,7 +124,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
      *
      * The method performs the following steps:
      * - Generates characters using the active choice from the generation mode.
-     * - Breaks lines based on a width limit (114f) and ensures that a line fits within this constraint.
+     * - Breaks lines based on a width limit and ensures that a line fits within this constraint.
      * - Adds new lines when a line exceeds the width limit or encounters a line break character (`\r` or `\n`).
      * - If a page is full, it is added to the `pages` and `filteredPages` lists, and the process continues.
      * - Stops once the desired number of pages is generated.
@@ -142,7 +162,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             } else {
                 val charWidth = widthRetriever.getWidth(char.code, Style.EMPTY)
 
-                if (lineWidth + charWidth > 114f) {
+                if (lineWidth + charWidth > MAX_LINE_WIDTH) {
                     lineIndex++
                     lineWidth = charWidth
                     appendLineBreak(page, lineIndex)
@@ -154,7 +174,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                 }
             }
 
-            if (lineIndex == 14) {
+            if (lineIndex == MAX_LINES_PER_PAGE) {
                 addPageToBook(page, pages, filteredPages)
                 page.setLength(0)
                 pageIndex++
@@ -182,7 +202,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
 
     private fun appendLineBreak(page: StringBuilder, lineIndex: Int) {
         page.append('\n')
-        if (lineIndex != 14) {
+        if (lineIndex != MAX_LINES_PER_PAGE) {
             page.appendCodePoint(' '.code)
         }
     }
