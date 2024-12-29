@@ -20,7 +20,6 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import io.netty.channel.ChannelPipeline;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.DisconnectEvent;
 import net.ccbluex.liquidbounce.event.events.PacketEvent;
 import net.ccbluex.liquidbounce.event.events.PipelineEvent;
 import net.ccbluex.liquidbounce.event.events.TransferOrigin;
@@ -100,11 +99,6 @@ public abstract class MixinClientConnection {
             final PipelineEvent event = new PipelineEvent(pipeline, local);
             EventManager.INSTANCE.callEvent(event);
         }
-    }
-
-    @Inject(method = "handleDisconnection", at = @At("HEAD"))
-    private void handleDisconnection(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(DisconnectEvent.INSTANCE);
     }
 
 }

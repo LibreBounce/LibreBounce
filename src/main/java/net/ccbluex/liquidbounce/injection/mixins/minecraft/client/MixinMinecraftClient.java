@@ -369,4 +369,9 @@ public abstract class MixinMinecraftClient {
         }
     }
 
+    @Inject(method = "onDisconnected", at = @At("HEAD"))
+    private void handleDisconnection(CallbackInfo ci) {
+        EventManager.INSTANCE.callEvent(DisconnectEvent.INSTANCE);
+    }
+
 }
