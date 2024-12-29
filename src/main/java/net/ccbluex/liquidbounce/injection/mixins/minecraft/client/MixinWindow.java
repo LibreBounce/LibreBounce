@@ -61,8 +61,8 @@ public class MixinWindow {
         LiquidBounce.INSTANCE.getLogger().debug("Loading client icons");
 
         // Find client icons
-        final InputStream stream16 = LiquidBounce.class.getResourceAsStream("/assets/liquidbounce/icon_16x16.png");
-        final InputStream stream32 = LiquidBounce.class.getResourceAsStream("/assets/liquidbounce/icon_32x32.png");
+        final InputStream stream16 = LiquidBounce.class.getResourceAsStream("/resources/liquidbounce/icon_16x16.png");
+        final InputStream stream32 = LiquidBounce.class.getResourceAsStream("/resources/liquidbounce/icon_32x32.png");
 
         // In case one of the icons was not found
         if (stream16 == null || stream32 == null) {

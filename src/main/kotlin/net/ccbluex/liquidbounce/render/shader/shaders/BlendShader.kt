@@ -29,8 +29,8 @@ object BlendShaderData {
 }
 
 object BlendShader : BlitShader(
-    resourceToString("/assets/liquidbounce/shaders/position_tex.vert"),
-    resourceToString("/assets/liquidbounce/shaders/blend.frag"),
+    resourceToString("/resources/liquidbounce/shaders/position_tex.vert"),
+    resourceToString("/resources/liquidbounce/shaders/blend.frag"),
     arrayOf(
         UniformProvider("texture0") { pointer -> GL20.glUniform1i(pointer, 0) },
         UniformProvider("mixColor") { pointer -> BlendShaderData.color.putToUniform(pointer) }

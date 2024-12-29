@@ -106,7 +106,7 @@ fun postBrowse(requestObject: RequestObject): FullHttpResponse {
 private val POSSIBLE_URL_TARGETS: Map<String, URI> = run {
     val properties = Properties()
 
-    properties.load(LiquidBounce::class.java.getResourceAsStream("/assets/liquidbounce/client_urls.properties"))
+    properties.load(LiquidBounce::class.java.getResourceAsStream("/resources/liquidbounce/client_urls.properties"))
 
     properties.stringPropertyNames().associateWith { URI(properties.getProperty(it)) }
 }
