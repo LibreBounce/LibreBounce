@@ -107,12 +107,12 @@ object EnvironmentRemapper {
         var current = clazz
 
         while (current.name != "java.lang.Object") {
-            current.interfaces.forEach {
-                clazzNames.add(it.name.toSlashNotation())
+            current.interfaces.forEach { interfaceClazz ->
+                clazzNames.addAll(getClassHierarchyNames(interfaceClazz))
             }
 
             current = current.superclass ?: break
-            clazzNames.add(current.name.toSlashNotation())
+            clazzNames.addAll(getClassHierarchyNames(current))
         }
 
         return clazzNames
