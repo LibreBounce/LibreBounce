@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChart
 import org.knowm.xchart.XYSeries
@@ -64,7 +65,7 @@ object ClickRecorder : Module("ClickRecorder", Category.MISC) {
         } catch (e: Exception) {
             e.printStackTrace()
             chat("Failed to start recording clicks, disabling module")
-            TickScheduler += {
+            nextTick {
                 failed = true
                 state = false
             }

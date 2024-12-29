@@ -52,6 +52,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.enchantment.EnchantmentHelper
@@ -686,7 +687,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                          * Since we want to simulate proper clicking behavior, we schedule the block break progress stop
                          * in the next tick, since that is a doable action by the average player.
                          */
-                        TickScheduler += {
+                        nextTick {
                             mc.sendClickBlockToController(false)
 
                             // Swings are sent a tick after stopping the block break progress.

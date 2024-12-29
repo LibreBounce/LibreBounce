@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemPotion
 import net.minecraft.potion.Potion
@@ -90,7 +91,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
                 setTargetRotation(Rotation(player.rotationYaw, nextFloat(80F, 90F)).fixedSensitivity(), options)
             }
 
-            TickScheduler += {
+            nextTick {
                 SilentHotbar.selectSlotSilently(
                     this,
                     potion - 36,
@@ -117,7 +118,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
             if (openInventory && mc.currentScreen !is GuiInventory)
                 return@handler
 
-            TickScheduler += {
+            nextTick {
                 if (simulateInventory)
                     serverOpenInventory = true
 
