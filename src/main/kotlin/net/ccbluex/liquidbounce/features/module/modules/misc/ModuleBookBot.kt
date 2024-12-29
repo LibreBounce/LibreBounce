@@ -74,19 +74,40 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         writeBook()
     }
 
+    /**
+     * Generates a book with content based on the active choice of the generation mode.
+     * The book content is generated character by character, and the text is split into pages,
+     * ensuring that each page contains lines that fit within the given width constraints.
+     *
+     * This method processes each character from the generator, managing line breaks and page formatting,
+     * and stores the generated text in the `pages` and `filteredPages` lists. Once a page is full, it is
+     * added to the collection, and the process continues until the specified number of pages is reached.
+     *
+     * The method performs the following steps:
+     * - Generates characters using the active choice from the generation mode.
+     * - Breaks lines based on a width limit (114f) and ensures that a line fits within this constraint.
+     * - Adds new lines when a line exceeds the width limit or encounters a line break character (`\r` or `\n`).
+     * - If a page is full, it is added to the `pages` and `filteredPages` lists, and the process continues.
+     * - Stops once the desired number of pages is generated.
+     *
+     * The generated pages are used to create a book with the specified name, which is then saved.
+     *
+     *
+     * @see PrimitiveIterator.OfInt
+     * @see GenerationMode.generate
+     */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     private fun writeBook() {
         val chars = generationMode.activeChoice.generate()
+        val widthRetriever = mc.textRenderer.textHandler.widthRetriever
+
         val pages = ArrayList<String>()
         val filteredPages = ArrayList<RawFilteredPair<Text>>()
-        val widthRetriever = mc.textRenderer.textHandler.widthRetriever
 
         var pageIndex = 0
         var lineIndex = 0
-
-        val page = StringBuilder()
-
         var lineWidth = 0.0f
+        val page = StringBuilder()
 
         while (chars.hasNext()) {
             val char = chars.nextInt().toChar()
@@ -99,11 +120,9 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                 val charWidth = widthRetriever.getWidth(char.code, Style.EMPTY)
 
                 if (lineWidth + charWidth > 114f) {
-                    page.append('\n')
-                    lineWidth = charWidth
+                    appendLineBreak(page, lineIndex)
                     lineIndex++
-
-                    if (lineIndex != 14) page.appendCodePoint(char.code)
+                    lineWidth = charWidth
                 } else if (lineWidth == 0f && char == ' ') {
                     continue
                 } else {
@@ -113,8 +132,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             }
 
             if (lineIndex == 14) {
-                filteredPages.add(RawFilteredPair.of(Text.of(page.toString())))
-                pages.add(page.toString())
+                addPageToBook(page, pages, filteredPages)
                 page.setLength(0)
                 pageIndex++
                 lineIndex = 0
@@ -130,14 +148,25 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         }
 
         if (page.isNotEmpty() && pageIndex != generationMode.activeChoice.pages) {
-            filteredPages.add(RawFilteredPair.of(Text.of(page.toString())))
-            pages.add(page.toString())
+            addPageToBook(page, pages, filteredPages)
         }
 
         writeBook(Sign.bookName.replace("%count%", bookCount.toString()),
             filteredPages, pages)
 
         bookCount++
+    }
+
+    private fun appendLineBreak(page: StringBuilder, lineIndex: Int) {
+        page.append('\n')
+        if (lineIndex != 14) {
+            page.appendCodePoint(' '.code)
+        }
+    }
+
+    private fun addPageToBook(page: StringBuilder, pages: MutableList<String>, filteredPages: MutableList<RawFilteredPair<Text>>) {
+        filteredPages.add(RawFilteredPair.of(Text.of(page.toString())))
+        pages.add(page.toString())
     }
 
     private fun writeBook(
