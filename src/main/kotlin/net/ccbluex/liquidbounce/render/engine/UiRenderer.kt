@@ -1,3 +1,21 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2024 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.render.engine
 
 import com.mojang.blaze3d.platform.GlStateManager
@@ -7,27 +25,39 @@ import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud.isBlurable
+import net.ccbluex.liquidbounce.render.shader.BlitShader
+import net.ccbluex.liquidbounce.render.shader.UniformProvider
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.io.resourceToString
 import net.minecraft.client.gl.SimpleFramebuffer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
-import net.minecraft.client.render.DefaultFramebufferSet
 import net.minecraft.client.render.RenderPhase
-import net.minecraft.client.util.Pool
-import net.minecraft.util.Identifier
 import org.lwjgl.opengl.GL13
+import org.lwjgl.opengl.GL20
 import kotlin.math.sin
 
 object UiRenderer : MinecraftShortcuts {
 
-    /**
-     * UI Blur Post-Effect Processor
-     *
-     * @author superblaubeere27
-     */
-    private val BLUR = Identifier.of("liquidbounce", "ui_blur")
-    private val pool = Pool(3)
+    private object UiBlurShader : BlitShader(
+        resourceToString("/resources/liquidbounce/shaders/sobel.vert"),
+        resourceToString("/resources/liquidbounce/shaders/blur/ui_blur.frag"),
+        arrayOf(
+            UniformProvider("texture0") { pointer ->
+                GlStateManager._activeTexture(GL13.GL_TEXTURE0)
+                GlStateManager._bindTexture(net.ccbluex.liquidbounce.utils.client.mc.framebuffer.colorAttachment)
+                GL20.glUniform1i(pointer, 0)
+            },
+            UniformProvider("overlay") { pointer ->
+                val active = GlStateManager._getActiveTexture()
+                GlStateManager._activeTexture(GL13.GL_TEXTURE9)
+                GlStateManager._bindTexture(overlayFramebuffer.colorAttachment)
+                GL20.glUniform1i(pointer, 9)
+                GlStateManager._activeTexture(active)
+            },
+            UniformProvider("radius") { pointer -> GL20.glUniform1f(pointer, getBlurRadius()) }
+        ))
 
     private var isDrawingHudFramebuffer = false
 
@@ -105,7 +135,13 @@ object UiRenderer : MinecraftShortcuts {
         val projectionMatrix = RenderSystem.getProjectionMatrix()
         val vertexSorting = RenderSystem.getProjectionType()
 
-        blur()
+        RenderSystem.disableBlend()
+//        RenderSystem.disableDepthTest()
+//        RenderSystem.resetTextureMatrix()
+
+        mc.framebuffer.beginWrite(true)
+
+        UiBlurShader.blit()
 
         RenderSystem.enableBlend()
         RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
@@ -114,28 +150,6 @@ object UiRenderer : MinecraftShortcuts {
 
         RenderSystem.setProjectionMatrix(projectionMatrix, vertexSorting)
         RenderSystem.defaultBlendFunc()
-    }
-
-    fun blur() {
-        RenderSystem.disableBlend()
-//        RenderSystem.disableDepthTest()
-//        RenderSystem.resetTextureMatrix()
-
-        val overlayFramebuffer = overlayFramebuffer
-
-        val postEffectProcessor = mc.shaderLoader.loadPostEffect(BLUR, DefaultFramebufferSet.MAIN_ONLY)!!
-
-        val active = GlStateManager._getActiveTexture()
-        GlStateManager._activeTexture(GL13.GL_TEXTURE9)
-        GlStateManager._bindTexture(overlayFramebuffer.colorAttachment)
-        postEffectProcessor.passes.first().program.getUniform("Overlay")!!.set(9)
-        GlStateManager._activeTexture(active)
-
-        postEffectProcessor.passes.first().program.getUniform("Radius")!!.set(getBlurRadius())
-
-        postEffectProcessor.render(mc.framebuffer, pool)
-
-        mc.framebuffer.beginWrite(true)
     }
 
     fun setupDimensions(width: Int, height: Int) {
