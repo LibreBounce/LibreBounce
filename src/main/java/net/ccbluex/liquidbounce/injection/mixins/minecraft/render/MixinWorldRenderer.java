@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
@@ -289,19 +288,11 @@ public abstract class MixinWorldRenderer {
         return ModuleFreeCam.INSTANCE.getRunning() || spectator;
     }
 
-
-    @ModifyArgs(method = "drawBlockOutline",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/VertexRendering;drawOutline(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDI)V"
-            )
-    )
-    private void modifyBlockOutlineArgs(Args args) {
-        if (!ModuleBlockOutline.INSTANCE.getRunning()) {
-            return;
+    @Inject(method = "renderTargetBlockOutline", at = @At("HEAD"), cancellable = true)
+    private void cancelBlockOutline(Camera camera, VertexConsumerProvider.Immediate vertexConsumers, MatrixStack matrices, boolean translucent, CallbackInfo ci) {
+        if (ModuleBlockOutline.INSTANCE.getRunning()) {
+            ci.cancel();
         }
-
-        args.set(6, ModuleBlockOutline.INSTANCE.getOutlineColor().toARGB());
     }
 
 }
