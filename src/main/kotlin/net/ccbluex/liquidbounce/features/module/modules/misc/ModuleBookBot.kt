@@ -88,8 +88,8 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         }
 
         if (chronometer.hasElapsed((delay * 1000L).toLong())) {
-            writeBook()
             chronometer.reset()
+            writeBook()
         }
     }
 
@@ -143,9 +143,9 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                 val charWidth = widthRetriever.getWidth(char.code, Style.EMPTY)
 
                 if (lineWidth + charWidth > 114f) {
-                    appendLineBreak(page, lineIndex)
                     lineIndex++
                     lineWidth = charWidth
+                    appendLineBreak(page, lineIndex)
                 } else if (lineWidth == 0f && char == ' ') {
                     continue
                 } else {
