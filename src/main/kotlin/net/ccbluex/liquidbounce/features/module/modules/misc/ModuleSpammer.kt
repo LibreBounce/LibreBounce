@@ -58,12 +58,16 @@ object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = tr
                 SpammerPattern.LINEAR -> message[linear++ % message.size]
             }
 
-            val text = messageConverterMode.convert(if (customFormatter) {
+            val text = if (chosenMessage.startsWith('/')) {
                 format(chosenMessage)
-            } else {
-                "[${RandomStringUtils.randomAlphabetic(Random.nextInt(1, 5))}] " +
-                    MessageConverterMode.RANDOM_CASE_CONVERTER.convert(chosenMessage)
-            })
+            }else {
+                messageConverterMode.convert(if (customFormatter) {
+                    format(chosenMessage)
+                } else {
+                    "[${RandomStringUtils.randomAlphabetic(1, 5)}] " +
+                        MessageConverterMode.RANDOM_CASE_CONVERTER.convert(chosenMessage)
+                })
+            }
 
             if (text.length > 256) {
                 chat("Spammer message is too long! (Max 256 characters)")
@@ -87,7 +91,7 @@ object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = tr
         }.replace("%i") {
             Random.nextInt(10000)
         }.replace("%s") {
-            RandomStringUtils.randomAlphabetic(Random.nextInt(4, 7))
+            RandomStringUtils.randomAlphabetic(4, 7)
         }
 
         if (formattedText.contains("@a")) {
