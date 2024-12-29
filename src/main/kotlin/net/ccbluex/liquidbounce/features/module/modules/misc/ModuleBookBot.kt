@@ -191,12 +191,3 @@ object RandomGenerationMode : GenerationMode("Random") {
             .iterator()
     }
 }
-
-object FileGenerationMode : GenerationMode("File") {
-    override val pages: Int
-        get() = 100
-
-    override fun generate(): PrimitiveIterator.OfInt {
-        TODO("Not yet implemented")
-    }
-}
