@@ -175,7 +175,8 @@ object CommandManager : Iterable<Command> by commands {
             CommandCoordinates,
             CommandVClip,
             CommandTeleport,
-            CommandPlayerTeleport
+            CommandPlayerTeleport,
+            CommandTps
         )
 
         commands.forEach {

@@ -39,8 +39,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.*
 
 /**
@@ -131,9 +129,9 @@ object CommandFakePlayer : CommandFactory, EventListener {
                         regular(
                             command.result(
                                 "fakePlayerRemoved",
-                                roundToDecimalPlaces(fakePlayer.x),
-                                roundToDecimalPlaces(fakePlayer.y),
-                                roundToDecimalPlaces(fakePlayer.z)
+                                fakePlayer.x.roundToDecimalPlaces(),
+                                fakePlayer.y.roundToDecimalPlaces(),
+                                fakePlayer.z.roundToDecimalPlaces()
                             )
                         ),
                         metadata = MessageMetadata(id = "CFakePlayer#info")
@@ -263,9 +261,9 @@ object CommandFakePlayer : CommandFactory, EventListener {
             regular(
                 translation(
                     "liquidbounce.command.fakeplayer.fakePlayerSpawned",
-                    roundToDecimalPlaces(fakePlayer.x),
-                    roundToDecimalPlaces(fakePlayer.y),
-                    roundToDecimalPlaces(fakePlayer.z)
+                    fakePlayer.x.roundToDecimalPlaces(),
+                    fakePlayer.y.roundToDecimalPlaces(),
+                    fakePlayer.z.roundToDecimalPlaces()
                 )
             ),
             metadata = MessageMetadata(id = "CFakePlayer#info")
@@ -394,17 +392,6 @@ object CommandFakePlayer : CommandFactory, EventListener {
             translation("liquidbounce.command.fakeplayer.stoppedRecording"),
             NotificationEvent.Severity.INFO
         )
-    }
-
-    /**
-     * Rounds the given number to the specified decimal place (the first by default).
-     * For additional info see [RoundingMode#HALF_UP].
-     *
-     * For example ```roundToNDecimalPlaces(1234.567,decimalPlaces=1)``` will
-     * return ```1234.6```.
-     */
-    private fun roundToDecimalPlaces(number: Double, decimalPlaces: Int = 1): Double {
-        return BigDecimal(number).setScale(decimalPlaces, RoundingMode.HALF_UP).toDouble()
     }
 
 }
