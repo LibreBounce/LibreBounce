@@ -617,6 +617,7 @@
   "liquidbounce.module.surround.description": "Builds holes that protect you from explosion damage.",
   "liquidbounce.module.packetMine.description": "Allows you to mine blocks by clicking them once.",
   "liquidbounce.module.fastExp.description": "Automatically repairs your armor.",
+  "liquidbounce.module.bookBot.description": "Automatically writes in books.",
   "liquidbounce.module.itemChams.description": "Applies visual effects to your held items.",
   "liquidbounce.module.autoPearl.description": "Aims and throws a pearl at an enemies pearl trajectory."
 }

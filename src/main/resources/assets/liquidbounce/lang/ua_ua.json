@@ -505,5 +505,6 @@
   "liquidbounce.module.autoShop.description": "Опис автоматичного магазину",
   "liquidbounce.module.autoShop.messages.reloadSuccess": "Перезавантаження успішне",
   "liquidbounce.module.autoShop.messages.loadError": "Помилка завантаження",
+  "liquidbounce.module.bookBot.description": "Автоматично пише в книгах.",
   "liquidbounce.module.autoPearl.description": "Прицілюється та кидає перлину по траєкторії ворожої перлини."
 }
