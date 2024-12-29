@@ -89,6 +89,6 @@ enum class ShopConfigPreset(override val choiceName: String, val localFileName: 
     FUNNYMC("FunnyMC", "funnymc"),
     DEXLAND("Dexland", "dexland");
 
-    val internalPath = "/assets/liquidbounce/data/shops/${localFileName}.json"
+    val internalPath = "/resources/liquidbounce/data/shops/${localFileName}.json"
 
 }

@@ -43,7 +43,7 @@ object CriticalsPacket : Choice("Packet") {
 
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> { event ->
-        if (event.entity !is LivingEntity) {
+        if (event.isCancelled || event.entity !is LivingEntity) {
             return@handler
         }
 

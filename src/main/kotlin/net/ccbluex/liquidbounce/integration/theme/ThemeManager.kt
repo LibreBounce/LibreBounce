@@ -228,7 +228,7 @@ class Theme(val name: String) : Closeable {
         }
 
         readShaderBackground()?.let { shaderBackground ->
-            compiledShaderBackground = CanvasShader(resourceToString("/assets/liquidbounce/shaders/vertex.vert"),
+            compiledShaderBackground = CanvasShader(resourceToString("/resources/liquidbounce/shaders/vertex.vert"),
                 shaderBackground)
             logger.info("Compiled background shader for theme $name")
             return true
@@ -304,7 +304,7 @@ class Theme(val name: String) : Closeable {
 
         fun defaults() = runCatching {
             val folder = ThemeManager.themesFolder.resolve("default")
-            val stream = resource("/assets/liquidbounce/default_theme.zip")
+            val stream = resource("/resources/liquidbounce/default_theme.zip")
 
             if (folder.exists()) {
                 folder.deleteRecursively()

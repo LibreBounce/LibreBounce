@@ -30,7 +30,11 @@ internal object VelocityDexland : VelocityMode("Dexland") {
     var count = 0
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEntityEvent> {
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        if (event.isCancelled) {
+            return@handler
+        }
+
         if (player.hurtTime > 0 && ++count % times == 0 && System.currentTimeMillis() - lastAttackTime <= 8000) {
             player.velocity.x *= hReduce
             player.velocity.z *= hReduce

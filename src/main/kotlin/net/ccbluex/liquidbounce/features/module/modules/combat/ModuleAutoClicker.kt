@@ -149,8 +149,12 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
 
             val crosshairTarget = mc.crosshairTarget
 
-            if (crosshairTarget is EntityHitResult && ModuleCriticals.shouldWaitForCrit(crosshairTarget.entity)) {
-                return@run
+            if (crosshairTarget is EntityHitResult) {
+                ModuleAutoWeapon.prepare(crosshairTarget.entity)
+
+                if (ModuleCriticals.shouldWaitForCrit(crosshairTarget.entity)) {
+                    return@run
+                }
             }
 
             if (player.usingItem) {
@@ -175,7 +179,9 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
                 return@run
             }
 
-            if (onlyBlock && player.mainHandStack.item !is BlockItem) return@run
+            if (onlyBlock && player.mainHandStack.item !is BlockItem) {
+                return@run
+            }
 
             if (delayStart && needToWait) {
                 needToWait = false

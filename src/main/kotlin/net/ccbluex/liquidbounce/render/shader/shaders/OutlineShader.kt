@@ -30,8 +30,8 @@ import net.minecraft.client.util.Handle
 import org.lwjgl.opengl.GL20
 
 object OutlineShader : FramebufferShader(Shader(
-    resourceToString("/assets/liquidbounce/shaders/sobel.vert"),
-    resourceToString("/assets/liquidbounce/shaders/outline/entity_outline.frag"),
+    resourceToString("/resources/liquidbounce/shaders/sobel.vert"),
+    resourceToString("/resources/liquidbounce/shaders/outline/entity_outline.frag"),
     arrayOf(
         UniformProvider("texture0") { pointer -> GL20.glUniform1i(pointer, 0) }
     )

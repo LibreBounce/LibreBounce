@@ -82,6 +82,10 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         val attackHandler = handler<AttackEntityEvent> { event ->
+            if (event.isCancelled) {
+                return@handler
+            }
+
             val enemy = event.entity
 
             if (!shouldOperate(enemy)) {
@@ -114,7 +118,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         val attackHandler = handler<AttackEntityEvent> { event ->
-            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -142,7 +146,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         val attackHandler = handler<AttackEntityEvent> { event ->
-            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
