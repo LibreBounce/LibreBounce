@@ -46,7 +46,7 @@ object UiRenderer : MinecraftShortcuts {
         arrayOf(
             UniformProvider("texture0") { pointer ->
                 GlStateManager._activeTexture(GL13.GL_TEXTURE0)
-                GlStateManager._bindTexture(net.ccbluex.liquidbounce.utils.client.mc.framebuffer.colorAttachment)
+                GlStateManager._bindTexture(mc.framebuffer.colorAttachment)
                 GL20.glUniform1i(pointer, 0)
             },
             UniformProvider("overlay") { pointer ->
