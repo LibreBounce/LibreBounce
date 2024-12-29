@@ -107,6 +107,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
 
+    private val activationSlot by boolean("ActivationSlot", false)
+    private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
+
     private val clickOnly by boolean("ClickOnly", false)
 
     // Range
@@ -1195,6 +1198,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         !onScaffold && (Scaffold.handleEvents() && (Scaffold.placeRotation != null || currentRotation != null) || Tower.handleEvents() && Tower.isTowering) -> true
 
         !onDestroyBlock && (Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null || Nuker.handleEvents()) -> true
+
+        activationSlot && SilentHotbar.currentSlot != preferredSlot - 1 -> true
+
         else -> false
     }
 
