@@ -191,7 +191,9 @@ object RenderUtils : MinecraftInstance {
 
         val positions = mutableListOf<DoubleArray>()
 
-        val (renderX, renderY, renderZ) = Triple(manager.viewerPosX, manager.viewerPosY, manager.viewerPosZ)
+        val renderX = manager.viewerPosX
+        val renderY = manager.viewerPosY
+        val renderZ = manager.viewerPosZ
 
         glPushAttrib(GL_ALL_ATTRIB_BITS)
         glPushMatrix()
@@ -273,7 +275,9 @@ object RenderUtils : MinecraftInstance {
 
         val manager = mc.renderManager ?: return
 
-        val (renderX, renderY, renderZ) = Triple(manager.viewerPosX, manager.viewerPosY, manager.viewerPosZ)
+        val renderX = manager.viewerPosX
+        val renderY = manager.viewerPosY
+        val renderZ = manager.viewerPosZ
         val (posX, posY, posZ) = pos
 
         val vStep = Math.PI / (CIRCLE_STEPS / 2)

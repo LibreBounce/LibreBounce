@@ -42,8 +42,8 @@ object TickedActions : Listenable {
         // Prevent new scheduled ids from getting marked as duplicates even if they are going to be called next tick
         actions.toCollection(calledThisTick)
 
-        for (triple in calledThisTick) {
-            triple.action.invoke()
+        for ((_, _, action) in calledThisTick) {
+            action.invoke()
             if (actions.isNotEmpty()) {
                 actions.remove()
             }
