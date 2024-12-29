@@ -3,14 +3,18 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
+import net.ccbluex.liquidbounce.utils.inventory.PlayerInventoryConstraints
 import net.ccbluex.liquidbounce.utils.item.findInventorySlot
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.WrittenBookContentComponent
+import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.BookUpdateC2SPacket
 import net.minecraft.text.RawFilteredPair
@@ -28,6 +32,8 @@ import java.util.*
  * @since 12/28/2024
  **/
 object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = true) {
+    private val inventoryConstraints = tree(PlayerInventoryConstraints())
+
     val generationMode =
         choices(
             "Mode",
@@ -45,7 +51,9 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         treeAll(Sign)
     }
 
-    private val delay by int("Delay", 20, 0..200)
+    private val delay by float("Delay", .5f, 0f..20f, suffix = "s")
+
+    private val chronometer = Chronometer()
 
     private var bookCount = 0
 
@@ -55,26 +63,32 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
     override fun enable() {
         bookCount = 0
         random = Random()
+        chronometer.reset()
     }
 
+    private val isCandidate: (ItemStack) -> Boolean = {
+        val component = it.get(DataComponentTypes.WRITABLE_BOOK_CONTENT)
+        it.item == Items.WRITABLE_BOOK && component?.pages?.isEmpty() == true
+    }
+
+    private val randomBook get() = findInventorySlot(isCandidate)
+
     @Suppress("unused")
-    private val gameTickHandler = tickHandler {
-        val book = findInventorySlot {
-            val component = it.get(DataComponentTypes.WRITABLE_BOOK_CONTENT) ?: return@findInventorySlot false
-            return@findInventorySlot it.item == Items.WRITABLE_BOOK && component.pages.isEmpty()
-        } ?: run {
+    private val scheduleInventoryAction = handler<ScheduleInventoryActionEvent> { event ->
+        val book = randomBook ?: run {
             enabled = false
-            return@tickHandler
+            return@handler
         }
 
-        ClickInventoryAction.performSwap(
+        event.schedule(inventoryConstraints, ClickInventoryAction.performSwap(
             from = book,
-            to = HotbarItemSlot(player.inventory.selectedSlot)
-        ).performAction()
+            to = HotbarItemSlot(player.inventory.selectedSlot),
+        ))
 
-        waitTicks(delay)
-
-        writeBook()
+        if (chronometer.hasElapsed((delay * 1000L).toLong())) {
+            writeBook()
+            chronometer.reset()
+        }
     }
 
     /**
@@ -101,6 +115,10 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     private fun writeBook() {
+        if (!isCandidate(player.mainHandStack)) {
+            return
+        }
+
         val chars = generationMode.activeChoice.generate()
         val widthRetriever = mc.textRenderer.textHandler.widthRetriever
 
