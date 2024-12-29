@@ -22,11 +22,8 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.config.types.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.PacketEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
-import net.ccbluex.liquidbounce.event.events.TransferOrigin;
-import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.FakePlayer;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
@@ -34,24 +31,20 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -69,7 +62,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     public abstract float getJumpVelocity();
 
     @Shadow
-    protected abstract void jump();
+    public abstract void jump();
 
     @Shadow
     public abstract boolean hasStatusEffect(RegistryEntry<StatusEffect> effect);
@@ -82,27 +75,53 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Shadow
     public abstract void setHealth(float health);
 
-    @Shadow
-    public abstract boolean addStatusEffect(StatusEffectInstance effect);
 
     @Shadow
-    public abstract boolean isFallFlying();
-
+    public abstract boolean isGliding();
 
     /**
-     * Hook anti levitation module
+     * Disable [StatusEffects.LEVITATION] effect when [ModuleAntiLevitation] is enabled
      */
-    @Redirect(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z"))
-    public boolean hookTravelStatusEffect(LivingEntity instance, RegistryEntry<StatusEffect> effect) {
-        if ((effect == StatusEffects.LEVITATION || effect == StatusEffects.SLOW_FALLING) && ModuleAntiLevitation.INSTANCE.getRunning()) {
-            if (instance.hasStatusEffect(effect)) {
-                instance.fallDistance = 0f;
-            }
+    @ModifyExpressionValue(
+            method = "travelMidAir",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/LivingEntity;getStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Lnet/minecraft/entity/effect/StatusEffectInstance;",
+                    ordinal = 0
+            ),
+            require = 1,
+            allow = 1
+    )
+    public StatusEffectInstance hookTravelStatusEffect(StatusEffectInstance original) {
+        // If we get anyting other than levitation, the injection went wrong
+        assert original != StatusEffects.LEVITATION;
 
+        if (ModuleAntiLevitation.INSTANCE.getRunning()) {
+            return null;
+        }
+
+        return original;
+    }
+
+    /**
+     * Disable [StatusEffects.SLOW_FALLING] effect when [ModuleAntiLevitation] is enabled
+     */
+    @ModifyExpressionValue(
+            method = "getEffectiveGravity",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z",
+                    ordinal = 0
+            ),
+            require = 1,
+            allow = 1
+    )
+    public boolean hookTravelStatusEffect(boolean original) {
+        if (ModuleAntiLevitation.INSTANCE.getRunning()) {
             return false;
         }
 
-        return instance.hasStatusEffect(effect);
+        return original;
     }
 
     @Inject(method = "hasStatusEffect", at = @At("HEAD"), cancellable = true)
@@ -110,6 +129,19 @@ public abstract class MixinLivingEntity extends MixinEntity {
         if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
             cir.setReturnValue(false);
             cir.cancel();
+        }
+    }
+
+    @Inject(method = "jump", at = @At("HEAD"), cancellable = true)
+    private void hookJumpEvent(CallbackInfo ci) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
+        }
+
+        final PlayerJumpEvent jumpEvent = new PlayerJumpEvent(getJumpVelocity());
+        EventManager.INSTANCE.callEvent(jumpEvent);
+        if (jumpEvent.isCancelled()) {
+            ci.cancel();
         }
     }
 
@@ -158,7 +190,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "pushAwayFrom", at = @At("HEAD"), cancellable = true)
     private void hookNoPush(CallbackInfo callbackInfo) {
-        if (ModuleNoPush.INSTANCE.getRunning()) {
+        if (ModuleNoPush.INSTANCE.isEntities()) {
             callbackInfo.cancel();
         }
     }
@@ -189,15 +221,15 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Unique
     private boolean previousElytra = false;
 
-    @Inject(method = "tickFallFlying", at = @At("TAIL"))
+    @Inject(method = "tickGliding", at = @At("TAIL"))
     public void recastIfLanded(CallbackInfo callbackInfo) {
         if ((Object) this != MinecraftClient.getInstance().player) {
             return;
         }
 
-        var elytra = isFallFlying();
+        var elytra = isGliding();
         if (ModuleElytraRecast.INSTANCE.getRunning() && previousElytra && !elytra) {
-            MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.getId(),
+            MinecraftClient.getInstance().getSoundManager().stopSounds(SoundEvents.ITEM_ELYTRA_FLYING.id(),
                     SoundCategory.PLAYERS);
             ModuleElytraRecast.INSTANCE.recastElytra();
             jumpingCooldown = 0;
@@ -236,9 +268,9 @@ public abstract class MixinLivingEntity extends MixinEntity {
     }
 
     /**
-     * Fall flying using modified-rotation
+     * Gliding using modified-rotation
      */
-    @ModifyExpressionValue(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getPitch()F"))
+    @ModifyExpressionValue(method = "calcGlidingVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getPitch()F"))
     private float hookModifyFallFlyingPitch(float original) {
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
@@ -256,9 +288,9 @@ public abstract class MixinLivingEntity extends MixinEntity {
     }
 
     /**
-     * Fall flying using modified-rotation
+     * Gliding using modified-rotation
      */
-    @ModifyExpressionValue(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getRotationVector()Lnet/minecraft/util/math/Vec3d;"))
+    @ModifyExpressionValue(method = "calcGlidingVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getRotationVector()Lnet/minecraft/util/math/Vec3d;"))
     private Vec3d hookModifyFallFlyingRotationVector(Vec3d original) {
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
@@ -273,40 +305,6 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
 
         return rotation.getRotationVec();
-    }
-
-    /**
-     * Allows instances of {@link FakePlayer} to pop infinite totems and
-     * bypass {@link net.minecraft.registry.tag.DamageTypeTags.BYPASSES_INVULNERABILITY}
-     * damage sources.
-     */
-    @SuppressWarnings({"JavadocReference", "UnreachableCode"})
-    @Inject(method = "tryUseTotem", at = @At(value = "HEAD"), cancellable = true)
-    private void hookTryUseTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        if (LivingEntity.class.cast(this) instanceof FakePlayer) {
-            addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 900, 1));
-            addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 100, 1));
-            addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 800, 0));
-            setHealth(1.0F);
-
-            EntityStatusS2CPacket packet = new EntityStatusS2CPacket(LivingEntity.class.cast(this), (byte) 35);
-            PacketEvent event = new PacketEvent(TransferOrigin.RECEIVE, packet, true);
-            EventManager.INSTANCE.callEvent(event);
-            if (!event.isCancelled()) {
-                packet.apply(MinecraftClient.getInstance().getNetworkHandler());
-            }
-
-            cir.setReturnValue(true);
-        }
-    }
-
-    /**
-     * Allows instances of {@link FakePlayer} to get attacked.
-     */
-    @SuppressWarnings("ConstantValue")
-    @Redirect(method = "damage", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 0))
-    private boolean hookDamage(World world) {
-        return !(LivingEntity.class.cast(this) instanceof FakePlayer) && world.isClient;
     }
 
 }

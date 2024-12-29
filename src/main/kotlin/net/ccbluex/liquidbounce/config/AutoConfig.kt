@@ -33,10 +33,10 @@ import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.util.Formatting
+import net.minecraft.util.Util
 import java.io.Writer
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.concurrent.thread
 
 data class IncludeConfiguration(
     val includeBinds: Boolean = false,
@@ -50,6 +50,7 @@ data class IncludeConfiguration(
 
 object AutoConfig {
 
+    @Volatile
     var loadingNow = false
         set(value) {
             field = value
@@ -59,6 +60,7 @@ object AutoConfig {
                 ModuleClickGui.reloadView()
             }
         }
+
     var includeConfiguration = IncludeConfiguration.DEFAULT
 
     var configsCache: Array<AutoSettings>? = null
@@ -67,21 +69,31 @@ object AutoConfig {
             configsCache = this
         }
 
-    fun loadAutoConfig(autoConfig: AutoSettings) = thread(name = "config-loader") {
-        loadingNow = true
-        runCatching {
-            ClientApi.requestSettingsScript(autoConfig.settingId).apply {
-                ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
-            }
+    fun startLoaderTask(task: Runnable) = Util.getDownloadWorkerExecutor().execute(task)
 
-        }.onFailure {
-            notification("Auto Config", "Failed to load config ${autoConfig.name}.",
-                NotificationEvent.Severity.ERROR)
-        }.onSuccess {
-            notification("Auto Config", "Successfully loaded config ${autoConfig.name}.",
-                NotificationEvent.Severity.SUCCESS)
+    inline fun withLoading(block: () -> Unit) {
+        loadingNow = true
+        try {
+            block()
+        } finally {
+            loadingNow = false
         }
-        loadingNow = false
+    }
+
+    fun loadAutoConfig(autoConfig: AutoSettings) = startLoaderTask {
+        withLoading {
+            runCatching {
+                ClientApi.requestSettingsScript(autoConfig.settingId).apply {
+                    ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
+                }
+            }.onFailure {
+                notification("Auto Config", "Failed to load config ${autoConfig.name}.",
+                    NotificationEvent.Severity.ERROR)
+            }.onSuccess {
+                notification("Auto Config", "Successfully loaded config ${autoConfig.name}.",
+                    NotificationEvent.Severity.SUCCESS)
+            }
+        }
     }
 
     /**

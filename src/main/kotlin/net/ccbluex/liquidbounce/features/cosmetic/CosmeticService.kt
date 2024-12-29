@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.api.oauth.OAuthClient
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -36,7 +37,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.toMD5
 import net.minecraft.client.session.Session
 import net.minecraft.util.Util
 import java.util.*
-import kotlin.concurrent.thread
+import java.util.concurrent.Future
 
 /**
  * A more reliable, safer and stress reduced cosmetics service
@@ -64,7 +65,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
     internal var carriersCosmetics = hashMapOf<UUID, Set<Cosmetic>>()
 
     private val lastUpdate = Chronometer()
-    private var task: Thread? = null
+    private var task: Future<*>? = null
 
     /**
      * Refresh cosmetic carriers if needed from the API in a MD5-hashed UUID set
@@ -76,7 +77,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
         if (task == null) {
             // Check if the required time in milliseconds has passed of the REFRESH_DELAY
             if (lastUpdate.hasElapsed(REFRESH_DELAY) || force) {
-                task = thread(name = "UpdateCarriersTask") {
+                task = Util.getDownloadWorkerExecutor().service.submit {
                     runCatching {
                         carriers = decode<Set<String>>(HttpClient.get(CARRIERS_URL))
                         task = null
@@ -85,9 +86,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
                         lastUpdate.reset()
 
                         // Call out done
-                        mc.execute {
-                            done()
-                        }
+                        mc.execute(done)
                     }.onFailure {
                         logger.error("Failed to refresh cape carriers due to error.", it)
                     }
@@ -194,7 +193,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
     }
 
     @Suppress("unused")
-    private val sessionHandler = handler<SessionEvent>(ignoreNotRunning = true) { event ->
+    private val sessionHandler = handler<SessionEvent> { event ->
         val session = event.session
 
         // Check if the account is valid
@@ -204,6 +203,11 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
         val uuid = session.uuidOrNull ?: return@handler
 
         transferTemporaryOwnership(uuid)
+    }
+
+    @Suppress("unused")
+    private val disconnectHandler = handler<DisconnectEvent> {
+        carriersCosmetics.clear()
     }
 
 }

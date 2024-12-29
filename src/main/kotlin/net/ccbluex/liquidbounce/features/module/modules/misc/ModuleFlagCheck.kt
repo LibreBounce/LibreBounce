@@ -124,7 +124,9 @@ object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arra
                 flagCount++
                 alert(AlertReason.LAGBACK)
                 Render.reset()
-                Render.wireframePlayer.setPosRot(packet.x, packet.y, packet.z, packet.yaw, packet.pitch)
+                val change = packet.change
+                val position = change.position
+                Render.wireframePlayer.setPosRot(position.x, position.y, position.z, change.yaw, change.pitch)
             }
 
             is DisconnectS2CPacket -> {

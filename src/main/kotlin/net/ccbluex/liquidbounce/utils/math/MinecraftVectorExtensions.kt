@@ -59,9 +59,21 @@ inline operator fun Vec3d.times(scalar: Double): Vec3d {
     return this.multiply(scalar)
 }
 
+inline fun Vec3d.copy(x: Double = this.x, y: Double = this.y, z: Double = this.z) = Vec3d(x, y, z)
+
 inline operator fun Vec3d.component1(): Double = this.x
 inline operator fun Vec3d.component2(): Double = this.y
 inline operator fun Vec3d.component3(): Double = this.z
+
+fun Collection<Vec3d>.average(): Vec3d {
+    val result = doubleArrayOf(0.0, 0.0, 0.0)
+    for (vec in this) {
+        result[0] += vec.x
+        result[1] += vec.y
+        result[2] += vec.z
+    }
+    return Vec3d(result[0] / size, result[1] / size, result[2] / size)
+}
 
 @JvmInline
 value class Double3Region private constructor(val init: Array<DoubleArray>) {

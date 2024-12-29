@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.script.bindings.api
 
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 
 @Suppress("SpreadOperator", "unused")
@@ -33,20 +34,20 @@ object ScriptReflectionUtil {
 
     @JvmName("newInstance")
     fun newInstance(clazz: Class<*>, vararg args: Any?): Any? =
-        clazz.getDeclaredConstructor(*args.map { it!!::class.java }.toTypedArray()).apply {
+        clazz.getDeclaredConstructor(*args.mapArray { it!!::class.java }).apply {
             isAccessible = true
         }.newInstance(*args)
 
     @JvmName("newInstanceByName")
     fun newInstanceByName(name: String, vararg args: Any?): Any? =
         Class.forName(EnvironmentRemapper.remapClassName(name).replace('/', '.'))
-            .getDeclaredConstructor(*args.map { it!!::class.java }.toTypedArray()).apply {
+            .getDeclaredConstructor(*args.mapArray { it!!::class.java }).apply {
                 isAccessible = true
             }.newInstance(*args)
 
     @JvmName("newInstanceByObject")
     fun newInstanceByObject(obj: Any, vararg args: Any?): Any? =
-        obj::class.java.getDeclaredConstructor(*args.map { it!!::class.java }.toTypedArray()).apply {
+        obj::class.java.getDeclaredConstructor(*args.mapArray { it!!::class.java }).apply {
             isAccessible = true
         }.newInstance(*args)
 
@@ -70,7 +71,7 @@ object ScriptReflectionUtil {
     fun invokeMethod(obj: Any, name: String, vararg args: Any?): Any? =
         obj::class.java.methods.find { method ->
             method.name == EnvironmentRemapper.remapMethod(obj::class.java, name) &&
-                method.parameterTypes.contentEquals(args.map { it!!::class.java }.toTypedArray())
+                method.parameterTypes.contentEquals(args.mapArray { it!!::class.java })
         }?.apply {
             isAccessible = true
         }?.invoke(obj, *args)
@@ -79,7 +80,7 @@ object ScriptReflectionUtil {
     fun invokeDeclaredMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? =
         clazz.declaredMethods.find { method ->
             method.name == EnvironmentRemapper.remapMethod(clazz, name) &&
-                method.parameterTypes.contentEquals(args.map { it!!::class.java }.toTypedArray())
+                method.parameterTypes.contentEquals(args.mapArray { it!!::class.java })
         }?.apply {
             isAccessible = true
         }?.invoke(null, *args)

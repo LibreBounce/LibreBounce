@@ -28,10 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVe
  * Velocity for AAC4.4.2, pretty sure, it works on other versions
  */
 
-internal object VelocityAAC442 : Choice("AAC4.4.2") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityAAC442 : VelocityMode("AAC4.4.2") {
 
     private val reduce by float("Reduce", 0.62f, 0f..1f)
 

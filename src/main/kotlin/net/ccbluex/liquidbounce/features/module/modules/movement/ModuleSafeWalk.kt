@@ -60,7 +60,7 @@ object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
                         event.directionalInput,
-                        event.jumping,
+                        event.jump,
                         player.isSprinting,
                         true
                     )
@@ -68,7 +68,7 @@ object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
                 simulatedPlayer.tick()
 
                 if (simulatedPlayer.clipLedged) {
-                    event.sneaking = true
+                    event.sneak = true
                 }
             }
         }
@@ -93,7 +93,7 @@ object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
                         event.directionalInput,
-                        event.jumping,
+                        event.jump,
                         player.isSprinting,
                         true
                     )

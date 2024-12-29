@@ -82,7 +82,7 @@ object ChunkRenderer {
                 textureAtlasManager.editChunk(ChunkPos(posToUpdate)) { texture, atlasPosition ->
                     val (x, y) = atlasPosition.getPosOnAtlas(posToUpdate.x and 15, posToUpdate.z and 15)
 
-                    texture.image!!.setColor(x, y, color)
+                    texture.image!!.setColorArgb(x, y, color)
                 }
             }
         }
@@ -98,8 +98,10 @@ object ChunkRenderer {
             Vec2i(1, -1),
         )
 
+        private val AIR_COLOR = Color(255, 207, 179).rgb
+
         private fun getColor(x: Int, z: Int): Int {
-            val world = mc.world!!
+            val chunk = mc.world?.getChunk(x shr 4, z shr 4) ?: return AIR_COLOR
 
             val height = heightmapManager.getHeight(x, z)
 
@@ -107,7 +109,7 @@ object ChunkRenderer {
                 heightmapManager.getHeight(x + offset.x, z + offset.y) > height
             }
 
-            val higherOffsetVec = higherOffsets.fold(Vec2i(0, 0)) { acc, vec -> acc.add(vec) }
+            val higherOffsetVec = higherOffsets.fold(Vec2i.ZERO) { acc, vec -> acc.add(vec) }
 
             val brightness =
                 if (higherOffsets.size < 2) {
@@ -123,13 +125,13 @@ object ChunkRenderer {
                 }
 
             val surfaceBlockPos = BlockPos(x, height, z)
-            val surfaceBlockState = world.getBlockState(surfaceBlockPos)
+            val surfaceBlockState = chunk.getBlockState(surfaceBlockPos)
 
             if (surfaceBlockState.isAir) {
-                return Color(255, 207, 179).rgb
+                return AIR_COLOR
             }
 
-            val baseColor = surfaceBlockState.getMapColor(world, surfaceBlockPos).getRenderColor(Brightness.HIGH)
+            val baseColor = surfaceBlockState.getMapColor(chunk, surfaceBlockPos).getRenderColor(Brightness.HIGH)
 
             val color = Color(baseColor)
 
@@ -163,7 +165,7 @@ object ChunkRenderer {
 
                         val color = getColor(offX or (x shl 4), offZ or (z shl 4))
 
-                        texture.image!!.setColor(texX, texY, color)
+                        texture.image!!.setColorArgb(texX, texY, color)
                     }
                 }
             }
@@ -176,7 +178,7 @@ object ChunkRenderer {
 
                             val color = getColor(offX or otherPos.startX, offZ or otherPos.startZ)
 
-                            texture.image!!.setColor(texX, texY, color)
+                            texture.image!!.setColorArgb(texX, texY, color)
                         }
                     }
                 }

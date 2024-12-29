@@ -30,7 +30,7 @@ object ScaffoldDownFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "Do
 
     val handleMoveInput = handler<MovementInputEvent>(priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING) {
         if (shouldFallOffBlock()) {
-            it.sneaking = false
+            it.sneak = false
         }
     }
 

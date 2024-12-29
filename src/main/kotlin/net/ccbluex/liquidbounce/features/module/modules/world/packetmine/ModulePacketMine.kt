@@ -253,7 +253,13 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     ) {
         progress += switchMode.getBlockBreakingDelta(blockPos, state, slot?.second())
         switch(slot, blockPos)
-        val f = progress.toDouble().coerceIn(0.0..1.0) / 2
+        val f = if (breakDamage > 0f) {
+            val breakDamageD = breakDamage.toDouble()
+            progress.toDouble().coerceIn(0.0..breakDamageD) / breakDamageD / 2.0
+        } else {
+            0.5
+        }
+
         val box = blockPos.outlineBox
         val lengthX = box.lengthX
         val lengthY = box.lengthY
@@ -331,13 +337,13 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
         when (val packet = it.packet) {
             is BlockUpdateS2CPacket -> {
-                mc.renderTaskQueue.add(Runnable { updatePosOnChange(packet.pos, packet.state) })
+                mc.renderTaskQueue.add { updatePosOnChange(packet.pos, packet.state) }
             }
 
             is ChunkDeltaUpdateS2CPacket -> {
-                mc.renderTaskQueue.add(Runnable {
+                mc.renderTaskQueue.add {
                     packet.visitUpdates { pos, state -> updatePosOnChange(pos, state) }
-                })
+                }
             }
         }
     }
@@ -399,7 +405,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         val enchantmentLevel = stack.getEnchantment(Enchantments.EFFICIENCY)
         if (speed > 1f && enchantmentLevel != 0) {
             /**
-             * See: [EntityAttributes.PLAYER_MINING_EFFICIENCY]
+             * See: [EntityAttributes.MINING_EFFICIENCY]
              */
             val enchantmentAddition = enchantmentLevel.sq() + 1f
             speed += enchantmentAddition.coerceIn(0f..1024f)
@@ -421,9 +427,9 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
             speed *= miningFatigueMultiplier
         }
 
-        speed *= player.getAttributeValue(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED).toFloat()
+        speed *= player.getAttributeValue(EntityAttributes.BLOCK_BREAK_SPEED).toFloat()
         if (player.isSubmergedIn(FluidTags.WATER)) {
-            speed *= player.getAttributeInstance(EntityAttributes.PLAYER_SUBMERGED_MINING_SPEED)!!.value.toFloat()
+            speed *= player.getAttributeInstance(EntityAttributes.SUBMERGED_MINING_SPEED)!!.value.toFloat()
         }
 
         if (!player.isOnGround) {

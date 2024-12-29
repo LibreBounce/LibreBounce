@@ -142,7 +142,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
         val bucket = Hotbar.findClosestItem(Items.BUCKET) ?: return null
 
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             bucket.itemStack,
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,

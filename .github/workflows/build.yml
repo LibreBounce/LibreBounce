@@ -92,3 +92,11 @@ jobs:
           CI: true
         with:
           arguments: genSources build
+
+      # Make sure we always run this upload task,
+      # because the previous step may fail if there are findings.
+      - name: Upload SARIF to GitHub using the upload-sarif action
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
+        with:
+          sarif_file: build/reports/detekt/detekt.sarif

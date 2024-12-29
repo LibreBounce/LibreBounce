@@ -615,5 +615,10 @@
   "liquidbounce.module.packetLogger.description": "Zeigt alle Pakete und deren Felder.",
   "liquidbounce.module.packetLogger.messages.send": "Sendet",
   "liquidbounce.module.packetLogger.messages.receive": "Empfängt",
-  "liquidbounce.module.packetLogger.messages.canceled": "ab­ge­bro­chen"
+  "liquidbounce.module.packetLogger.messages.canceled": "ab­ge­bro­chen",
+  "liquidbounce.module.autoPearl.description": "Zielt und wirft automatisch eine Enderperle auf die Flugbahn der feindlichen Enderperle.",
+  "liquidbounce.module.holeFiller.description": "Füllt automatisch sichere Orte mit Blöcken für Crystal PvP.",
+  "liquidbounce.module.itemChams.description": "Wendet visuelle Effekte auf Gegenstände in deiner Hand an.",
+  "liquidbounce.module.itemTags.description": "Zeigt Bilder und Mengenangaben fallengelassener Gegenstände an.",
+  "liquidbounce.module.baritone.description": "Einstellungen für Baritone."
 }

@@ -26,6 +26,7 @@ import net.minecraft.world.chunk.Chunk
 import kotlin.math.max
 import kotlin.math.min
 
+@Suppress("detekt:TooManyFunctions")
 class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<BlockPos> by BlockPos.iterate(from, to) {
 
     override val endInclusive: BlockPos
@@ -50,14 +51,14 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
             val pos = chunk.pos
             return Region(
                 BlockPos(pos.x shl 4, chunk.bottomY, pos.z shl 4),
-                BlockPos(pos.x shl 4 or 15, chunk.topY, pos.z shl 4 or 15)
+                BlockPos(pos.x shl 4 or 15, chunk.topYInclusive, pos.z shl 4 or 15)
             )
         }
 
         fun fromChunkPos(x: Int, z: Int): Region {
             return Region(
                 BlockPos(x shl 4, mc.world!!.bottomY, z shl 4),
-                BlockPos(x shl 4 or 15, mc.world!!.height, z shl 4 or 15)
+                BlockPos(x shl 4 or 15, mc.world!!.topYInclusive, z shl 4 or 15)
             )
         }
 
@@ -153,6 +154,21 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
                 min(this.to.x, currentRegion.to.x),
                 min(this.to.y, currentRegion.to.y),
                 min(this.to.z, currentRegion.to.z)
+            )
+        )
+    }
+
+    fun union(currentRegion: Region): Region {
+        return Region(
+            BlockPos(
+                min(this.from.x, currentRegion.from.x),
+                min(this.from.y, currentRegion.from.y),
+                min(this.from.z, currentRegion.from.z)
+            ),
+            BlockPos(
+                max(this.to.x, currentRegion.to.x),
+                max(this.to.y, currentRegion.to.y),
+                max(this.to.z, currentRegion.to.z)
             )
         )
     }

@@ -20,6 +20,7 @@
 package net.ccbluex.liquidbounce.utils.input
 
 import net.minecraft.client.util.InputUtil
+import net.minecraft.util.ActionResult
 
 /**
  * Translates a key name to an InputUtil.Key using GLFW key codes.
@@ -38,15 +39,16 @@ fun inputByName(name: String): InputUtil.Key {
     }
 
     val formattedName = name.replace('_', '.')
-    val translationKey = when {
-        formattedName.startsWith("key.mouse.", ignoreCase = true) ||
-            formattedName.startsWith("key.keyboard.", ignoreCase = true) -> formattedName.lowercase()
+    val translationKey =
+        when {
+            formattedName.startsWith("key.mouse.", ignoreCase = true) ||
+                formattedName.startsWith("key.keyboard.", ignoreCase = true) -> formattedName.lowercase()
 
-        formattedName.startsWith("mouse.", ignoreCase = true) ||
-            formattedName.startsWith("keyboard.", ignoreCase = true) -> "key.$formattedName"
+            formattedName.startsWith("mouse.", ignoreCase = true) ||
+                formattedName.startsWith("keyboard.", ignoreCase = true) -> "key.$formattedName"
 
-        else -> "key.keyboard.${formattedName.lowercase()}"
-    }
+            else -> "key.keyboard.${formattedName.lowercase()}"
+        }
     return InputUtil.fromTranslationKey(translationKey)
 }
 
@@ -57,11 +59,10 @@ fun inputByName(name: String): InputUtil.Key {
  * @param translationKey The full key name as a string.
  * @return The reduced key name as a string.
  */
-fun reduceInputName(translationKey: String): String {
-    return translationKey
+fun reduceInputName(translationKey: String): String =
+    translationKey
         .removePrefix("key.")
         .removePrefix("keyboard.")
-}
 
 /**
  * Retrieves a set of reduced mouse input names available in InputUtil.
@@ -69,9 +70,10 @@ fun reduceInputName(translationKey: String): String {
  * @return A set of simplified mouse input names.
  */
 val mouseList: Set<String>
-    get() = InputUtil.Type.MOUSE.map.values
-        .map { key -> reduceInputName(key.translationKey) }
-        .toSet()
+    get() =
+        InputUtil.Type.MOUSE.map.values
+            .map { key -> reduceInputName(key.translationKey) }
+            .toSet()
 
 /**
  * Retrieves a set of reduced keyboard input names available in InputUtil.
@@ -79,6 +81,9 @@ val mouseList: Set<String>
  * @return A set of simplified keyboard input names.
  */
 val keyList: Set<String>
-    get() = InputUtil.Type.KEYSYM.map.values
-        .map { key -> reduceInputName(key.translationKey) }
-        .toSet()
+    get() =
+        InputUtil.Type.KEYSYM.map.values
+            .map { key -> reduceInputName(key.translationKey) }
+            .toSet()
+
+fun ActionResult.shouldSwingHand() = this is ActionResult.Success && this.swingSource == ActionResult.SwingSource.CLIENT

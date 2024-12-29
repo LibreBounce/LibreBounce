@@ -49,7 +49,7 @@ style:
   ForbiddenComment:
     active: false
   UnusedPrivateProperty:
-    allowedNames: '_|ignored|expected|serialVersionUID|.+Handler'
+    allowedNames: '_|ignored|expected|serialVersionUID|.+Handler\d*|repeatable'
   ForbiddenMethodCall:
     active: true
     methods: [ 'kotlin.io.print', 'kotlin.io.println' ]

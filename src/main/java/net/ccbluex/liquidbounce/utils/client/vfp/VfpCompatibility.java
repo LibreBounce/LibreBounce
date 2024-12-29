@@ -25,7 +25,6 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.protocol.version.VersionType;
 import de.florianmichael.viafabricplus.protocoltranslator.ProtocolTranslator;
 import de.florianmichael.viafabricplus.screen.base.ProtocolSelectionScreen;
-import de.florianmichael.viafabricplus.settings.impl.VisualSettings;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.utils.client.ClientProtocolVersion;
 import net.minecraft.client.MinecraftClient;
@@ -40,17 +39,6 @@ import org.apache.commons.lang3.ArrayUtils;
 public enum VfpCompatibility {
 
     INSTANCE;
-
-    public void unsafeDisableConflictingVfpOptions() {
-        try {
-            VisualSettings visualSettings = VisualSettings.global();
-
-            // 1 == off, 0 == on
-            visualSettings.enableSwordBlocking.setValue(1);
-        } catch (Throwable throwable) {
-            LiquidBounce.INSTANCE.getLogger().error("Failed to disable conflicting options", throwable);
-        }
-    }
 
     public ClientProtocolVersion unsafeGetProtocolVersion() {
         try {

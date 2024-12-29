@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.render.GenericColorMode
 import net.ccbluex.liquidbounce.render.GenericRainbowColorMode
 import net.ccbluex.liquidbounce.render.GenericStaticColorMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextSanitizer
 import net.ccbluex.liquidbounce.utils.client.bypassesNameProtection
 import net.ccbluex.liquidbounce.utils.client.toText
 import net.ccbluex.liquidbounce.utils.kotlin.mapString
@@ -233,10 +234,17 @@ object ModuleNameProtect : ClientModule("NameProtect", Category.MISC) {
     }
 }
 
-fun Text.sanitizeWithNameProtect(): Text {
+/**
+ * Sanitizes texts which are sent to the client.
+ * 1. degenerates legacy formatting into new formatting [LegacyTextSanitizer]
+ * 2. applies [ModuleNameProtect] - if needed
+ */
+fun Text.sanitizeForeignInput(): Text {
+    val degeneratedText = LegacyTextSanitizer.SanitizedLegacyText(this)
+
     if (!ModuleNameProtect.running) {
-        return this
+        return degeneratedText.toText()
     }
 
-    return ModuleNameProtect.NameProtectOrderedText(this.asOrderedText()).toText()
+    return ModuleNameProtect.NameProtectOrderedText(degeneratedText).toText()
 }

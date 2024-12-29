@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -43,8 +42,7 @@ public class MixinWorld {
         }
 
         // IMPORTANT: BlockPos might be a BlockPos.Mutable, so we need to create a new BlockPos instance to issues
-        var blockPos = new BlockPos(pos);
-        EventManager.INSTANCE.callEvent(new BlockChangeEvent(blockPos, state));
+        EventManager.INSTANCE.callEvent(new BlockChangeEvent(pos.toImmutable(), state));
     }
 
     @ModifyReturnValue(method = "getTimeOfDay", at = @At("RETURN"))

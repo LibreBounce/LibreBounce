@@ -33,10 +33,7 @@ import kotlin.random.Random
 /**
  * Basic velocity which should bypass the most server with regular anti-cheats like NCP.
  */
-internal object VelocityModify : Choice("Modify") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityModify : VelocityMode("Modify") {
 
     private val horizontal by float("Horizontal", 0f, -1f..1f)
     private val vertical by float("Vertical", 0f, -1f..1f)
@@ -91,11 +88,13 @@ internal object VelocityModify : Choice("Modify") {
             // note: explosion packets are being used by hypixel to trick poorly made cheats.
 
             //  Modify packet according to the specified values
-            packet.playerVelocityX *= horizontal
-            packet.playerVelocityY *= vertical
-            packet.playerVelocityZ *= horizontal
+            packet.playerKnockback.ifPresent { knockback ->
+                knockback.x *= horizontal
+                knockback.y *= vertical
+                knockback.z *= horizontal
 
-            NoFallBlink.waitUntilGround = true
+                NoFallBlink.waitUntilGround = true
+            }
         }
     }
 

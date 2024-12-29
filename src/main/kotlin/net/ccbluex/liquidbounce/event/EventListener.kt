@@ -26,7 +26,6 @@ typealias Handler<T> = (T) -> Unit
 class EventHook<T : Event>(
     val handlerClass: EventListener,
     val handler: Handler<T>,
-    val ignoreNotRunning: Boolean,
     val priority: Short = 0
 )
 
@@ -69,24 +68,34 @@ interface EventListener {
 }
 
 inline fun <reified T : Event> EventListener.handler(
-    ignoreNotRunning: Boolean = false,
     priority: Short = 0,
     noinline handler: Handler<T>
 ): EventHook<T> {
     return EventManager.registerEventHook(T::class.java,
-        EventHook(this, handler, ignoreNotRunning, priority)
+        EventHook(this, handler, priority)
     )
+}
+
+inline fun <reified T : Event> EventListener.once(
+    priority: Short = 0,
+    noinline handler: Handler<T>
+): EventHook<T> {
+    lateinit var eventHook: EventHook<T>
+    eventHook = EventHook(this, {
+        handler(it)
+        EventManager.unregisterEventHook(T::class.java, eventHook)
+    }, priority)
+    return EventManager.registerEventHook(T::class.java, eventHook)
 }
 
 /**
  * Registers an event hook for events of type [T] and launches a sequence
  */
 inline fun <reified T : Event> EventListener.sequenceHandler(
-    ignoreNotRunning: Boolean = false,
     priority: Short = 0,
     noinline eventHandler: SuspendableHandler<T>
 ) {
-    handler<T>(ignoreNotRunning, priority) { event -> Sequence(this, eventHandler, event) }
+    handler<T>(priority) { event -> Sequence(this, eventHandler, event) }
 }
 
 /**
@@ -98,8 +107,7 @@ fun EventListener.tickHandler(eventHandler: SuspendableHandler<DummyEvent>) {
     // and can be used in the event handler function. This is a very useful pattern to use in Kotlin.
     var sequence: TickSequence? = TickSequence(this, eventHandler)
 
-    // Ignore condition makes sense because we do not want our sequence to run after we do not handle events anymore
-    handler<GameTickEvent>(ignoreNotRunning = true) {
+    SequenceManager.handler<GameTickEvent> {
         // Check if we should start or stop the sequence
         if (this.running) {
             // Check if the sequence is already running
