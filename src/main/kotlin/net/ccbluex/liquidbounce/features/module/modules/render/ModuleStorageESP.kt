@@ -63,6 +63,7 @@ object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = 
     private val dispenserColor by color("Dispenser", Color4b(Color.LIGHT_GRAY))
     private val hopperColor by color("Hopper", Color4b(Color.GRAY))
     private val shulkerColor by color("ShulkerBox", Color4b(Color(0x6e, 0x4d, 0x6e).brighter()))
+    private val potColor by color("Pot", Color4b(209, 134, 0))
 
     private val requiresChestStealer by boolean("RequiresChestStealer", false)
 
@@ -213,6 +214,7 @@ object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = 
             is HopperBlockEntity -> ChestType.HOPPER
             is ShulkerBoxBlockEntity -> ChestType.SHULKER_BOX
             is BarrelBlockEntity -> ChestType.CHEST
+            is DecoratedPotBlockEntity -> ChestType.POT
             else -> null
         }
     }
@@ -241,6 +243,9 @@ object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = 
             override val color get() = shulkerColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
+        },
+        POT {
+            override val color get() = potColor
         };
 
         abstract val color: Color4b
