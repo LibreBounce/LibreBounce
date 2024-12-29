@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
@@ -35,12 +36,13 @@ object VelocityIntave : VelocityMode("Intave") {
         true
     ) {
         private val reduceFactor by float("Factor", 0.6f, 0.6f..1f)
-        private val hurtTime by int("HurtTime", 9, 1..10)
+        private val hurtTime by intRange("HurtTime", 5..7, 1..10)
+        private val lastAttackTimeToReduce by int("LastAttackTimeToReduce", 2000, 1..10000)
         var lastAttackTime = 0L
 
         @Suppress("unused")
         private val attackHandler = handler<AttackEntityEvent> {
-            if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
+            if (player.hurtTime in hurtTime && System.currentTimeMillis() - lastAttackTime <= lastAttackTimeToReduce) {
                 player.velocity.x *= reduceFactor
                 player.velocity.z *= reduceFactor
             }
@@ -59,13 +61,31 @@ object VelocityIntave : VelocityMode("Intave") {
 
         private val chance by float("Chance", 50f, 0f..100f, "%")
 
+        private inner class Randomize : ToggleableConfigurable(this, "Randomize", false) {
+            val delayTicks by intRange("DelayTicks", 0..5, 0..10)
+        }
+
+        private val randomize = tree(Randomize())
+
+        private var currentDelay = 0
+        private var delayCounter = 0
+
         @Suppress("unused")
-        private val repeatable = tickHandler {
+        private val tickJumpHandler = handler<MovementInputEvent> {
             val shouldJump = Math.random() * 100 < chance && player.hurtTime > 5
             val canJump = player.isOnGround && mc.currentScreen !is InventoryScreen
+            val shouldFinallyJump = shouldJump && canJump
 
-            if (shouldJump && canJump) {
-                player.jump()
+            if (randomize.enabled) {
+                delayCounter++
+
+                if (delayCounter >= currentDelay) {
+                    if (shouldFinallyJump) it.jump = true
+                    delayCounter = 0
+                    currentDelay = randomize.delayTicks.random()
+                }
+            } else {
+                if (shouldFinallyJump) it.jump = true
             }
         }
     }
