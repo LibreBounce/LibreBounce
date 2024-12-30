@@ -23,6 +23,7 @@ import net.minecraft.util.math.Vec3i
 import org.lwjgl.opengl.GL20
 import java.awt.Color
 import java.nio.ByteBuffer
+import kotlin.Throws
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -140,6 +141,8 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
 
     constructor(hex: Int, hasAlpha: Boolean = false) : this(Color(hex, hasAlpha))
     constructor(r: Int, g: Int, b: Int) : this(r, g, b, 255)
+    constructor(r: Float, g: Float, b: Float, a: Float) :
+        this((r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt(), (a * 255).toInt())
 
     fun writeToBuffer(idx: Int, buffer: ByteBuffer) {
         buffer.put(idx, r.toByte())

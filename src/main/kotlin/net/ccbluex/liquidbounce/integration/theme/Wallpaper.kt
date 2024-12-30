@@ -2,11 +2,12 @@ package net.ccbluex.liquidbounce.integration.theme
 
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
 import net.ccbluex.liquidbounce.integration.theme.type.native.NativeTheme
-import net.ccbluex.liquidbounce.render.shader.Shader
+import net.ccbluex.liquidbounce.render.shader.CanvasShader
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.io.resourceToString
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
@@ -59,7 +60,18 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float
         ): Boolean {
             val imageId = imageId ?: return false
-//            context.drawTexture(imageId, 0, 0, 0f, 0f, width, height, width, height)
+            context.drawTexture(
+                RenderLayer::getGuiTextured,
+                imageId,
+                0,
+                0,
+                0f,
+                0f,
+                width,
+                height,
+                width,
+                height
+            )
             return true
         }
 
@@ -67,7 +79,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
 
     class ShaderWallpaper(theme: Theme, name: String, val file: File) : Wallpaper(theme, name) {
 
-        private var shader: Shader? = null
+        private var shader: CanvasShader? = null
 
         override fun load(): Boolean {
             if (shader != null || !file.exists()) {
@@ -75,7 +87,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             }
 
             val shaderSource = file.readText()
-            shader = Shader(resourceToString("/resources/liquidbounce/shaders/vertex.vert"), shaderSource)
+            shader = CanvasShader(resourceToString("/resources/liquidbounce/shaders/vertex.vert"), shaderSource)
             logger.info("Compiled background shader for theme $name")
             return true
         }
@@ -84,7 +96,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float
         ): Boolean {
             val shader = shader ?: return false
-//            shader.draw(mouseX, mouseY, delta)
+            shader.draw(mouseX, mouseY, delta)
             return true
         }
 

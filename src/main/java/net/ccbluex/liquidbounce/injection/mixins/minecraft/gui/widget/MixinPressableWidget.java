@@ -23,11 +23,13 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager;
+import net.ccbluex.liquidbounce.render.engine.Color4b;
 import net.ccbluex.liquidbounce.utils.math.Easing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.PressableWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -85,22 +87,18 @@ public abstract class MixinPressableWidget extends MixinClickableWidget {
             } else {
                 texture = GUI_BUTTON_DISABLED_TEXTURE.getValue();
             }
-//
-//            context.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-//            context.drawTexture(texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
-//                    this.getWidth(), this.getHeight());
+
+            context.drawTexture(RenderLayer::getGuiTextured, texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
+                    this.getWidth(), this.getHeight(), new Color4b(1f, 1f, 1f, this.alpha).toARGB());
         }
 
         if (factor > 0) {
             var a = Easing.QUAD_IN_OUT.transform(factor);
-//
-//            context.setShaderColor(1.0F, 1.0F, 1.0F, a);
-//            context.drawTexture(GUI_BUTTON_HOVER_TEXTURE.getValue(), this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
-//                    this.getWidth(), this.getHeight());
+            context.drawTexture(RenderLayer::getGuiTextured, GUI_BUTTON_HOVER_TEXTURE.getValue(), this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
+                    this.getWidth(), this.getHeight(), new Color4b(1f, 1f, 1f, a * this.alpha).toARGB());
         }
 
         // Draw the message
-//        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         var i = this.active ? 16777215 : 10526880;
         var color = i | MathHelper.ceil(this.alpha * 255.0F) << 24;
 
