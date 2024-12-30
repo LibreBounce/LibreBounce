@@ -38,8 +38,10 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At("HEAD"))
     private <T extends EntityLivingBase> void injectChamsPre(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
+        final ESP esp = ESP.INSTANCE;
+        boolean shouldRender = chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false) || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
 
-        if (chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false)) {
+        if (shouldRender) {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1f, -1000000F);
         }
@@ -48,8 +50,10 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At("RETURN"))
     private <T extends EntityLivingBase> void injectChamsPost(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
+        final ESP esp = ESP.INSTANCE;
+        boolean shouldRender = chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false) || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
 
-        if (chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false)) {
+        if (shouldRender) {
             glPolygonOffset(1f, 1000000F);
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
@@ -72,8 +76,16 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         boolean semiVisible = !visible && (!p_renderModel_1_.isInvisibleToPlayer(mc.thePlayer) || (trueSight.handleEvents() && trueSight.getEntities()));
 
         if (visible || semiVisible) {
-            if (!bindEntityTexture(p_renderModel_1_)) {
-                return;
+            final ESP esp = ESP.INSTANCE;
+            boolean shouldRenderGaussianESP = esp.handleEvents() && esp.shouldRender(p_renderModel_1_) && esp.getMode().equals("Gaussian");
+
+            if (!shouldRenderGaussianESP) {
+                if (!bindEntityTexture(p_renderModel_1_)) {
+                    return;
+                }
+            } else {
+                bindTexture(0);
+                RenderUtils.INSTANCE.glColor(esp.getColor(p_renderModel_1_));
             }
 
             if (semiVisible) {
@@ -85,8 +97,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                 alphaFunc(516, 0.003921569F);
             }
 
-            final ESP esp = ESP.INSTANCE;
-            if (esp.handleEvents() && esp.shouldRender(p_renderModel_1_) && EntityUtils.INSTANCE.isSelected(p_renderModel_1_, false)) {
+            if (esp.handleEvents() && esp.shouldRender(p_renderModel_1_)) {
                 boolean fancyGraphics = mc.gameSettings.fancyGraphics;
                 mc.gameSettings.fancyGraphics = false;
 
@@ -136,6 +147,10 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             }
 
             mainModel.render(p_renderModel_1_, p_renderModel_2_, p_renderModel_3_, p_renderModel_4_, p_renderModel_5_, p_renderModel_6_, p_renderModel_7_);
+
+            if (shouldRenderGaussianESP) {
+                resetColor();
+            }
 
             if (semiVisible) {
                 disableBlend();
