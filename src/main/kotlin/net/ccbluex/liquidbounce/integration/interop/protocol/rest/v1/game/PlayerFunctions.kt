@@ -24,7 +24,7 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.hideShieldSlot
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.shouldHideOffhand
-import net.ccbluex.liquidbounce.features.module.modules.misc.sanitizeWithNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -44,6 +44,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
+import kotlin.math.min
 
 // GET /api/v1/client/player
 @Suppress("UNUSED_PARAMETER")
@@ -93,7 +94,7 @@ data class PlayerData(
             player.maxHealth.fixNaN(),
             player.absorptionAmount.fixNaN(),
             player.armor,
-            player.hungerManager.foodLevel,
+            min(player.hungerManager.foodLevel, 20),
             player.air,
             player.maxAir,
             player.experienceLevel,
@@ -147,11 +148,11 @@ data class ScoreboardData(val header: Text, val entries: Array<SidebarEntry?>) {
                     val entryWithDecoration: Text = Team.decorateName(team, entryName)
                     val entryValue: Text = scoreboardEntry.formatted(numberFormat)
 
-                    SidebarEntry(entryWithDecoration.sanitizeWithNameProtect(), entryValue.sanitizeWithNameProtect())
+                    SidebarEntry(entryWithDecoration.sanitizeForeignInput(), entryValue.sanitizeForeignInput())
                 }
                 .toArray { arrayOfNulls<SidebarEntry>(it) }
 
-            return ScoreboardData(objective.displayName.sanitizeWithNameProtect(), sidebarEntries)
+            return ScoreboardData(objective.displayName.sanitizeForeignInput(), sidebarEntries)
         }
     }
 

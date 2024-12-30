@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseScrollInHotbarEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.client.MixinMouse
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.input.InputBind
@@ -38,7 +38,7 @@ import kotlin.math.round
  *
  * The mouse is slowed down with the help of mixins in [MixinMouse].
  */
-object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = InputBind.BindAction.HOLD) {
+object ModuleZoom : ClientModule("Zoom", Category.RENDER, bindAction = InputBind.BindAction.HOLD) {
 
     val zoom by int("Zoom", 30, 10..150)
 
@@ -98,7 +98,7 @@ object ModuleZoom : Module("Zoom", Category.RENDER, bindAction = InputBind.BindA
 
     private fun getDefaultFov(): Int {
         val fov = mc.options.fov.value
-        return if (ModuleNoFov.enabled) ModuleNoFov.getFov(fov) else fov
+        return if (ModuleNoFov.running) ModuleNoFov.getFov(fov) else fov
     }
 
     private fun reset() {

@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
@@ -34,7 +34,6 @@ import net.ccbluex.liquidbounce.integration.theme.ThemeManager.route
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
-import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import org.lwjgl.glfw.GLFW
 
@@ -45,7 +44,9 @@ import org.lwjgl.glfw.GLFW
  */
 
 object ModuleClickGui :
-    Module("ClickGUI", Category.RENDER, bind = GLFW.GLFW_KEY_RIGHT_SHIFT, disableActivation = true) {
+    ClientModule("ClickGUI", Category.RENDER, bind = GLFW.GLFW_KEY_RIGHT_SHIFT, disableActivation = true) {
+
+    override val running = true
 
     @Suppress("UnusedPrivateProperty")
     private val scale by float("Scale", 1f, 0.5f..2f).onChanged {
@@ -151,7 +152,6 @@ object ModuleClickGui :
     @Suppress("unused")
     private val gameRenderHandler = handler<GameRenderEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
-        ignoreCondition = true
     ) {
         // A hack to prevent the clickgui from being drawn
         if (mc.currentScreen !is ClickScreen) {
@@ -160,16 +160,13 @@ object ModuleClickGui :
     }
 
     @Suppress("unused")
-    private val browserReadyHandler = handler<BrowserReadyEvent>(
-        ignoreCondition = true
-    ) {
+    private val browserReadyHandler = handler<BrowserReadyEvent> {
         createView()
     }
 
     @Suppress("unused")
     private val worldChangeHandler = sequenceHandler<WorldChangeEvent>(
         priority = EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING,
-        ignoreCondition = true
     ) { event ->
         if (event.world == null) {
             return@sequenceHandler
@@ -181,12 +178,21 @@ object ModuleClickGui :
         }
     }
 
+    @Suppress("unused")
+    private val clientLanguageChangedHandler = handler<ClientLanguageChangedEvent> {
+        if (mc.currentScreen !is ClickScreen) {
+            reloadView()
+        }
+    }
+
     /**
      * An empty screen that acts as hint when to draw the clickgui
      */
     class ClickScreen : Screen("ClickGUI".asText()) {
-        override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
-            super.render(context, mouseX, mouseY, delta)
+
+        override fun close() {
+            mc.mouse.lockCursor()
+            super.close()
         }
 
         override fun shouldPause(): Boolean {

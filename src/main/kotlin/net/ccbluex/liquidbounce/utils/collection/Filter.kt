@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.item.getBlock
 import net.minecraft.block.Block
 
-@Suppress("unused")
 enum class Filter(override val choiceName: String) : NamedChoice {
     WHITELIST("Whitelist") {
         override fun <T> invoke(item: T, collection: Collection<T>): Boolean = item in collection

@@ -21,8 +21,8 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoBow;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoClicker;
+import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow;
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
@@ -33,20 +33,31 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameMode;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerInteractionManager.class)
-public class MixinClientPlayerInteractionManager {
+public abstract class MixinClientPlayerInteractionManager {
+
+    @Shadow
+    public abstract void attackEntity(PlayerEntity player, Entity target);
 
     /**
      * Hook attacking entity
      */
-    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;syncSelectedSlot()V", shift = At.Shift.AFTER))
+    @Inject(method = "attackEntity", at = @At("HEAD"), cancellable = true)
     private void hookAttack(PlayerEntity player, Entity target, CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new AttackEvent(target));
+        var attackEvent = EventManager.INSTANCE.callEvent(new AttackEntityEvent(target, () -> {
+            attackEntity(player, target);
+            return null;
+        }));
+
+        if (attackEvent.isCancelled()) {
+            callbackInfo.cancel();
+        }
     }
 
     /**
@@ -71,6 +82,15 @@ public class MixinClientPlayerInteractionManager {
         }
     }
 
+    @Inject(method = "attackBlock", at = @At("HEAD"), cancellable = true)
+    private void hookAttackBlock(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
+        var attackEvent = new BlockAttackEvent(pos);
+        EventManager.INSTANCE.callEvent(attackEvent);
+        if (attackEvent.isCancelled()) {
+            cir.setReturnValue(false);
+        }
+    }
+
     /**
      * @author superblaubeere27
      */
@@ -81,7 +101,7 @@ public class MixinClientPlayerInteractionManager {
 
     @Inject(method = "hasLimitedAttackSpeed", at = @At("HEAD"), cancellable = true)
     private void injectAutoClicker(CallbackInfoReturnable<Boolean> cir) {
-        if (ModuleAutoClicker.INSTANCE.getEnabled() && ModuleAutoClicker.Left.INSTANCE.getEnabled()) {
+        if (ModuleAutoClicker.Left.INSTANCE.getRunning()) {
             cir.setReturnValue(false);
         }
     }

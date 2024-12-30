@@ -66,7 +66,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as *;
 
   $GRID_SIZE: 10px;
 

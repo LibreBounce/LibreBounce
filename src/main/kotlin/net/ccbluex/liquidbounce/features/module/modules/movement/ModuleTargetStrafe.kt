@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog.SpeedHypixelLowHop
@@ -26,7 +26,7 @@ import kotlin.math.*
  *
  * TODO: Implement visuals
  */
-object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
+object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
 
     // Configuration options
     private val modes = choices<Choice>("Mode", MotionMode, arrayOf(MotionMode)).apply { tagBy(this) }
@@ -132,7 +132,7 @@ object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
             }
 
             // If speed isn't enabled and requiresSpeed is, we exit early
-            if (requiresSpeed && !ModuleSpeed.enabled) {
+            if (requiresSpeed && !ModuleSpeed.running) {
                 return@handler
             }
 
@@ -150,10 +150,10 @@ object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
             }
 
             // Determine the direction to strafe
-            if (!(player.input.pressingLeft && player.input.pressingRight) && controlDirection) {
+            if (!(player.input.playerInput.left && player.input.playerInput.right) && controlDirection) {
                 when {
-                    player.input.pressingLeft -> direction = -1
-                    player.input.pressingRight -> direction = 1
+                    player.input.playerInput.left -> direction = -1
+                    player.input.playerInput.right -> direction = 1
                 }
             }
 
@@ -182,7 +182,7 @@ object ModuleTargetStrafe : Module("TargetStrafe", Category.MOVEMENT) {
             }
 
             // Perform the strafing movement
-            if (hypixel && ModuleSpeed.enabled) {
+            if (hypixel && ModuleSpeed.running) {
                 val minSpeed = if (player.isOnGround) {
                     0.48
                 } else {

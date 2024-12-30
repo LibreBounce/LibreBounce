@@ -38,10 +38,12 @@ import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
 import java.util.*
+import java.util.function.Supplier
 import kotlin.reflect.KProperty
 
 typealias ValueListener<T> = (T) -> T
@@ -112,14 +114,11 @@ open class Value<T : Any>(
     @Exclude
     @ProtocolExclude
     var descriptionKey: String? = null
-        set(value) {
-            field = value
-
-            this.description = value?.let { key -> translation(key).convertToString() }
-        }
 
     @Exclude
-    open var description: String? = null
+    open var description = Supplier {
+        descriptionKey?.let { key -> translation(key).convertToString() }
+    }
 
     /**
      * Support for delegated properties
@@ -470,7 +469,7 @@ class ChooseListValue<T : NamedChoice>(
 
     @ScriptApiRequired
     fun getChoicesStrings(): Array<String> {
-        return this.choices.map { it.choiceName }.toTypedArray()
+        return this.choices.mapArray { it.choiceName }
     }
 
 }

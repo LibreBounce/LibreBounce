@@ -24,8 +24,8 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.downwards
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -38,7 +38,9 @@ import kotlin.math.abs
  * Tested on both anticheat-test.com and loyisa.cn
  */
 class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Vulcan288", parent) {
-    val afterJumpEvent = sequenceHandler<PlayerAfterJumpEvent> {
+
+    @Suppress("unused")
+    private val afterJumpHandler = sequenceHandler<PlayerAfterJumpEvent> {
         val hasSpeed = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) != 0
 
         player.strafe(speed = if (hasSpeed) 0.771 else 0.5)
@@ -53,7 +55,9 @@ class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
         waitTicks(1)
         player.strafe(speed = if (hasSpeed) 0.595 else 0.28)
     }
-    val repeatable = repeatable {
+
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         val hasSpeed = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) != 0
         if (!player.isOnGround) {
             if (abs(player.fallDistance) > 0 && hasSpeed) {
@@ -62,10 +66,13 @@ class SpeedVulcan288(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
             }
         }
     }
-    val packetHandler = handler<PacketEvent> { event ->
+
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
         if (packet is PlayerMoveC2SPacket && player.velocity.y < 0) {
             packet.onGround = true
         }
     }
+
 }

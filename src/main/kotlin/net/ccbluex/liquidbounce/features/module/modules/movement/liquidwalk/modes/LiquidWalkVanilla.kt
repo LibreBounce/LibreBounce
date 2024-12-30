@@ -39,17 +39,17 @@ internal object LiquidWalkVanilla : Choice("Vanilla") {
 
     @Suppress("unused")
     val inputHandler = handler<MovementInputEvent> { event ->
-        if (event.sneaking || !player.box.isBlockAtPosition { it is FluidBlock }) {
+        if (event.sneak || !player.box.isBlockAtPosition { it is FluidBlock }) {
             return@handler
         }
 
         // Swims up
-        event.jumping = true
+        event.jump = true
     }
 
     @Suppress("unused")
     val shapeHandler = handler<BlockShapeEvent> { event ->
-        if (player.input.sneaking || player.fallDistance > 3.0f || player.isOnFire) {
+        if (player.input.playerInput.sneak || player.fallDistance > 3.0f || player.isOnFire) {
             return@handler
         }
 

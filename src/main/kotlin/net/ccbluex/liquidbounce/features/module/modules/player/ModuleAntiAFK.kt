@@ -23,17 +23,16 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.once
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.angle
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.ignoreOpenInventory
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.rotationsConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
@@ -46,7 +45,7 @@ import kotlin.random.Random
  * Prevents you from being kicked for AFK.
  */
 
-object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
+object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
 
     private val modes = choices(
         "Mode", RandomMode, arrayOf(
@@ -60,7 +59,7 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
             get() = modes
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             waitTicks(10)
             player.yaw += 180f
         }
@@ -82,11 +81,11 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
         var randomDirection = DirectionalInput.NONE
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             when (Random.nextInt(0, 6)) {
                 0 -> {
-                    EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                        it.jumping = true
+                    once<MovementInputEvent> { event ->
+                        event.jump = true
                     }
                 }
 
@@ -155,7 +154,7 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
         val move by boolean("Move", true)
 
         @Suppress("unused")
-        val swingRepeatable = repeatable {
+        val swingRepeatable = tickHandler {
             if (Swing.enabled && !player.handSwinging) {
                 waitTicks(Swing.delay)
                 player.swingHand(Hand.MAIN_HAND)
@@ -163,14 +162,14 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
         }
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (move) {
                 mc.options.forwardKey.isPressed = true
             }
 
             if (jump && player.isOnGround) {
-                EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                    it.jumping = true
+                once<MovementInputEvent> { event ->
+                    event.jump = true
                 }
             }
 

@@ -28,9 +28,11 @@ plugins {
     id "org.jetbrains.dokka" version "1.9.10"
 }
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+base {
+    archivesBaseName = project.archives_base_name
+    version = project.mod_version
+    group = project.maven_group
+}
 
 configurations {
     includeDependency
@@ -88,7 +90,8 @@ dependencies {
     // Recommended mods (on IDE)
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
-    modCompileOnly "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
+    modImplementation "maven.modrinth:lithium:${project.lithium_version}"
+    modImplementation "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
@@ -101,9 +104,10 @@ dependencies {
     }
 
     // JCEF Support
-    includeModDependency "com.github.CCBlueX:mcef:1.2.1-1.21.1"
+    includeModDependency "com.github.CCBlueX:mcef:${project.mcef_version}"
     includeDependency "org.apache.commons:commons-exec:1.3"
-    includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.0") {
+    includeDependency "org.apache.commons:commons-compress:1.27.1"
+    includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
     }
 
@@ -120,15 +124,19 @@ dependencies {
 //    includeDependency "org.graalvm.polyglot:ruby-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
 
-    // SOCKS5 Proxy Support (to stay compatible with ViaFabricPlus)
-    includeDependency ("io.netty:netty-handler-proxy:4.1.114.Final") {
+    // SOCKS5 Proxy Support
+    includeDependency ("io.netty:netty-handler-proxy:4.1.97.Final") {
         exclude group: "io.netty", module: "netty-common"
         exclude group: "io.netty", module: "netty-buffer"
         exclude group: "io.netty", module: "netty-transport"
+        exclude group: "io.netty", module: "netty-codec"
     }
 
     // Update Checker
     includeDependency "com.vdurmont:semver4j:3.1.0"
+
+    // Name Protect
+    includeDependency "org.ahocorasick:ahocorasick:0.6.3"
 
     // Test libraries
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.3"

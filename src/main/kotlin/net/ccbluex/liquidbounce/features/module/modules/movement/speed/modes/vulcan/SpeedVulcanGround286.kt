@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -39,8 +39,9 @@ import net.minecraft.util.shape.VoxelShapes
  */
 class SpeedVulcanGround286(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("VulcanGround286", parent) {
 
-    val repeatable = repeatable {
-        if (player.moving && collidesBottomVertical()) {
+    @Suppress("unused")
+    private val afterJumpHandler = tickHandler {
+        if (player.moving && collidesBottomVertical() && !mc.options.jumpKey.isPressed) {
             val speedEffect = player.getStatusEffect(StatusEffects.SPEED)
             val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0
             val isMovingSideways = player.input.movementSideways != 0f
@@ -56,8 +57,9 @@ class SpeedVulcanGround286(override val parent: ChoiceConfigurable<*>) : SpeedBH
         }
     }
 
-    val packetHandler = handler<PacketEvent> { event ->
-        if (event.packet is PlayerMoveC2SPacket && collidesBottomVertical()) {
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
+        if (event.packet is PlayerMoveC2SPacket && collidesBottomVertical() && !mc.options.jumpKey.isPressed) {
             event.packet.y += 0.005
         }
     }
@@ -67,8 +69,12 @@ class SpeedVulcanGround286(override val parent: ChoiceConfigurable<*>) : SpeedBH
             shape != VoxelShapes.empty()
         }
 
-    val jumpEvent = handler<PlayerJumpEvent> { event ->
-        event.cancelEvent()
+    @Suppress("unused")
+    private val jumpEvent = handler<PlayerJumpEvent> { event ->
+        if (!mc.options.jumpKey.isPressed) {
+            event.cancelEvent()
+        }
     }
+
 }
 

@@ -42,8 +42,9 @@ internal object NoSlowSneaking : ToggleableConfigurable(ModuleNoSlow, "Sneaking"
 
     @Suppress("unused")
     val multiplierHandler = handler<PlayerSneakMultiplier> { event ->
-        event.multiplier = max(event.multiplier, minMultiplier)
+        event.multiplier = max(event.multiplier, minMultiplier.toDouble())
     }
 
-    override fun handleEvents() = super.handleEvents() && inGame && player.isSneaking
+    override val running: Boolean
+        get() = super.running && inGame && player.isSneaking
 }

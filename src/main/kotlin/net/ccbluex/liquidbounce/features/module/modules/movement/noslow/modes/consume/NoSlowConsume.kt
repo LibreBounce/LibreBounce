@@ -20,20 +20,16 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.c
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
-import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.NoSlowUseActionHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowNoBlockInteract
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2360
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedGrim2364MC18
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.shared.NoSlowSharedInvalidHand
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.item.isConsumable
-import net.minecraft.util.UseAction
+import net.minecraft.item.consume.UseAction
 
-object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
-
-    val forwardMultiplier by float("Forward", 1f, 0.2f..1f)
-    val sidewaysMultiplier by float("Sideways", 1f, 0.2f..1f)
+object NoSlowConsume : NoSlowUseActionHandler("Consume") {
 
     @Suppress("unused")
     private val noBlockInteract = tree(NoSlowNoBlockInteract(this) { action ->
@@ -41,7 +37,7 @@ object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
     })
 
     @Suppress("unused")
-    private val modes = choices<Choice>(this, "Mode", { it.choices[0] }) {
+    private val modes = choices<Choice>(this, "Mode", 0) {
         arrayOf(
             NoneChoice(it),
             NoSlowSharedGrim2360(it),
@@ -52,13 +48,14 @@ object NoSlowConsume : ToggleableConfigurable(ModuleNoSlow, "Consume", true) {
         )
     }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents() || !inGame) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (!super.running || !inGame) {
+                return false
+            }
 
-        // Check if we are using a consume item
-        return player.isUsingItem && player.activeItem.isConsumable
-    }
+            // Check if we are using a consume item
+            return player.isUsingItem && player.activeItem.isConsumable
+        }
 
 }

@@ -74,7 +74,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
         addDrawableChild(disconnectButton);
     }
 
-    @Inject(method = "initTabNavigation", at = @At("HEAD"))
+    @Inject(method = "refreshWidgetPositions", at = @At("HEAD"))
     private void moveButtons(final CallbackInfo callback) {
         if (disconnectButton != null) {
             // fixes button position

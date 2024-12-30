@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -52,7 +52,7 @@ internal object FlySentinel10thMar : Choice("Sentinel10thMar") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         player.velocity.y = jumpHeight.toDouble()
         player.strafe(speed = jumpSpeed.toDouble())
         spoofOnGround = true
@@ -60,7 +60,7 @@ internal object FlySentinel10thMar : Choice("Sentinel10thMar") {
     }
 
     val moveHandler = handler<MovementInputEvent> {
-        it.jumping = false
+        it.jump = false
     }
 
     val packetHandler = handler<PacketEvent> { event ->

@@ -58,22 +58,30 @@ class ClickGuiValueChangeEvent(val configurable: Configurable) : Event()
 class SpaceSeperatedNamesChangeEvent(val value: Boolean) : Event()
 
 @Nameable("clientStart")
-class ClientStartEvent : Event()
+object ClientStartEvent : Event()
 
 @Nameable("clientShutdown")
-class ClientShutdownEvent : Event()
+object ClientShutdownEvent : Event()
+
+@Nameable("clientLanguageChanged")
+@WebSocketEvent
+class ClientLanguageChangedEvent : Event()
 
 @Nameable("valueChanged")
 @WebSocketEvent
 class ValueChangedEvent(val value: Value<*>) : Event()
 
-@Nameable("toggleModule")
+@Nameable("moduleActivation")
 @WebSocketEvent
-class ToggleModuleEvent(val moduleName: String, val hidden: Boolean, val enabled: Boolean) : Event()
+class ModuleActivationEvent(val moduleName: String) : Event()
+
+@Nameable("moduleToggle")
+@WebSocketEvent
+class ModuleToggleEvent(val moduleName: String, val hidden: Boolean, val enabled: Boolean) : Event()
 
 @Nameable("refreshArrayList")
 @WebSocketEvent
-class RefreshArrayListEvent : Event()
+object RefreshArrayListEvent : Event()
 
 @Nameable("notification")
 @WebSocketEvent
@@ -198,7 +206,7 @@ class ComponentsUpdate(val components: List<Component>) : Event()
 class SimulatedTickEvent(val movementEvent: MovementInputEvent, val simulatedPlayer: SimulatedPlayer) : Event()
 
 @Nameable("resourceReload")
-class ResourceReloadEvent : Event()
+object ResourceReloadEvent : Event()
 
 @Nameable("scaleFactorChange")
 @WebSocketEvent

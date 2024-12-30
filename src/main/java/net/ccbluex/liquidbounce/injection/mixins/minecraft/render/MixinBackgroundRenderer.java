@@ -19,24 +19,28 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCustomAmbience;
 import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.BackgroundRenderer.FogType;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Fog;
 import net.minecraft.entity.effect.StatusEffects;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 @Mixin(BackgroundRenderer.class)
 public abstract class MixinBackgroundRenderer {
+
+    @Shadow
+    private static boolean fogEnabled;
 
     @Redirect(method = "getFogModifier", at = @At(value = "INVOKE", target = "Ljava/util/List;stream()Ljava/util/stream/Stream;"))
     private static Stream<BackgroundRenderer.StatusEffectFogModifier> injectAntiBlind(List<BackgroundRenderer.StatusEffectFogModifier> list) {
@@ -45,7 +49,7 @@ public abstract class MixinBackgroundRenderer {
 
             final var module = ModuleAntiBlind.INSTANCE;
 
-            if (!module.getEnabled()) {
+            if (!module.getRunning()) {
                 return true;
             }
 
@@ -54,46 +58,33 @@ public abstract class MixinBackgroundRenderer {
         });
     }
 
-    @Inject(method = "applyFog", at = @At(value = "INVOKE", shift = At.Shift.AFTER, ordinal = 0, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
-    private static void injectLiquidsFog(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo callback) {
-        ModuleAntiBlind module = ModuleAntiBlind.INSTANCE;
-        if (!module.getEnabled()) {
-            return;
+    @ModifyReturnValue(method = "applyFog", at = @At("RETURN"))
+    private static Fog injectFog(Fog original, @Local(argsOnly = true) Camera camera, @Local(argsOnly = true, ordinal = 0) float viewDistance) {
+        var antiBlind = ModuleAntiBlind.INSTANCE;
+        var customAmbienceFog = ModuleCustomAmbience.FogConfigurable.INSTANCE;
+        if (!antiBlind.getRunning() || customAmbienceFog.getRunning() || !fogEnabled) {
+            return ModuleCustomAmbience.FogConfigurable.INSTANCE.modifyFog(camera, viewDistance, original);
         }
 
         CameraSubmersionType type = camera.getSubmersionType();
-        if (module.getPowderSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
-            RenderSystem.setShaderFogStart(-8.0F);
-            return;
+        if (antiBlind.getPowderSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
+            return new Fog(-8f, viewDistance * 0.5f, original.shape(), original.red(), original.green(), original.blue(), original.alpha());
         }
 
-        if (module.getLiquidsFog()) {
+        if (antiBlind.getLiquidsFog()) {
             // Renders fog same as spectator.
             switch (type) {
-                case LAVA, WATER -> RenderSystem.setShaderFogStart(-8.0F);
+                case LAVA -> {
+                    return new Fog(-8f, viewDistance * 0.5f, original.shape(), original.red(), original.green(), original.blue(), original.alpha());
+                }
+
+                case WATER -> {
+                    return new Fog(-8f, viewDistance, original.shape(), original.red(), original.green(), original.blue(), original.alpha());
+                }
             }
         }
+
+        return original;
     }
 
-    @Inject(method = "applyFog", at = @At(value = "INVOKE", shift = At.Shift.AFTER, ordinal = 0, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
-    private static void injectLiquidsFogEnd(Camera camera, FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info) {
-        ModuleAntiBlind module = ModuleAntiBlind.INSTANCE;
-        if (!module.getEnabled()) {
-            return;
-        }
-
-        CameraSubmersionType type = camera.getSubmersionType();
-        if (module.getPowderSnowFog() && type == CameraSubmersionType.POWDER_SNOW) {
-            RenderSystem.setShaderFogEnd(viewDistance * 0.5F);
-            return;
-        }
-
-        if (module.getLiquidsFog()) {
-            // Renders fog same as spectator.
-            switch (type) {
-                case LAVA -> RenderSystem.setShaderFogEnd(viewDistance * 0.5F);
-                case WATER -> RenderSystem.setShaderFogEnd(viewDistance);
-            }
-        }
-    }
 }

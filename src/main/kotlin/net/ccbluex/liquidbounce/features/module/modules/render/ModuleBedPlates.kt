@@ -23,8 +23,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.*
@@ -46,7 +46,7 @@ import kotlin.math.sqrt
 private const val ITEM_SIZE: Int = 16
 private const val BACKGROUND_PADDING: Int = 2
 
-object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
+object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
     private val ROMAN_NUMERALS = arrayOf("", "I", "II", "III", "IV", "V")
 
     private val maxLayers by int("MaxLayers", 5, 1..5)
@@ -57,7 +57,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
     private val highlightUnbreakable by boolean("HighlightUnbreakable", true)
 
     private val fontRenderer
-        get() = ThemeManager.fontRenderer
+        get() = FontManager.FONT_RENDERER
 
     private val WHITELIST_NON_SOLID = setOf(
         Blocks.LADDER,
@@ -231,9 +231,9 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
 
                 val block = state.block
                 if (state.isSolidBlock(world, pos) || block in WHITELIST_NON_SOLID) {
-                    // Count blocks
+                    // Count blocks (getInt default = 0)
                     with(layers[layer - 1]) {
-                        put(block, if (containsKey(block)) getInt(block) + 1 else 1)
+                        put(block, getInt(block) + 1)
                     }
                 }
             }
@@ -280,6 +280,7 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
         private val searchStart by ThreadLocal.withInitial(BlockPos::Mutable)
         private val searchEnd by ThreadLocal.withInitial(BlockPos::Mutable)
 
+        @Suppress("detekt:CognitiveComplexMethod")
         override fun getStateFor(pos: BlockPos, state: BlockState): BedState? {
             return if (state.isBed) {
                 val part = BedBlock.getBedPart(state)
@@ -291,25 +292,34 @@ object ModuleBedPlates : Module("BedPlates", Category.RENDER) {
                 }
             } else {
                 // A non-bed block was updated, we need to update the bed blocks around it
-                // Get a sub map of the sorted map
-                trackedBlockMap.subMap(
-                    searchStart.set(pos, -maxLayers, -maxLayers, -maxLayers), true,
-                    // Don't check beds above
-                    searchEnd.set(pos, maxLayers, 0, maxLayers), true,
-                ).keys.forEach {
+                val distance = maxLayers
+
+                // Get a sub map of the sorted map when there are many beds
+                val lookUpMap = if (trackedBlockMap.size > 32) {
+                    trackedBlockMap.subMap(
+                        searchStart.set(pos, -distance, -distance, -distance), true,
+                        // Don't check beds above
+                        searchEnd.set(pos, distance, 0, distance), true,
+                    )
+                } else {
+                    trackedBlockMap
+                }
+
+                lookUpMap.keys.forEach {
                     // Update if the block is close to a bed
-                    if (it.getManhattanDistance(pos) > maxLayers) {
+                    if (it.getManhattanDistance(pos) > distance) {
                         return@forEach
                     }
 
                     val trackedState = it.getState() ?: return@forEach
                     if (!trackedState.isBed) {
                         // The tracked block is not a bed anymore, remove it
-                        trackedBlockMap.remove(it)
+                        lookUpMap.remove(it)
                     } else {
-                        trackedBlockMap[it] = it.getBedPlates(trackedState)
+                        lookUpMap[it] = it.getBedPlates(trackedState)
                     }
                 }
+
                 null
             }
         }

@@ -85,8 +85,7 @@ class ScriptChoice(choiceObject: Map<String, Any>, override val parent: ChoiceCo
                 this,
                 {
                     callEvent(eventName, it)
-                },
-                false
+                }
             )
         )
     }

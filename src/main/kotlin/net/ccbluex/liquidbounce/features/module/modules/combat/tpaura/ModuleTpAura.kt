@@ -22,9 +22,9 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.AStarMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.ImmediateMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -38,7 +38,7 @@ import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.util.math.Vec3d
 
-object ModuleTpAura : Module("TpAura", Category.COMBAT, disableOnQuit = true) {
+object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = true) {
 
     private val attackRange by float("AttackRange", 4.2f, 3f..5f)
 
@@ -50,7 +50,7 @@ object ModuleTpAura : Module("TpAura", Category.COMBAT, disableOnQuit = true) {
     var desyncPlayerPosition: Vec3d? = null
 
     @Suppress("unused")
-    private val attackRepeatable = repeatable {
+    private val attackRepeatable = tickHandler {
         val position = desyncPlayerPosition ?: player.pos
 
         clickScheduler.clicks {

@@ -18,13 +18,16 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
+import it.unimi.dsi.fastutil.objects.ObjectDoublePair
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.AttackEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleCriticals
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.toDouble
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
@@ -169,17 +172,17 @@ fun Entity.shouldBeAttacked(enemyConf: TargetConfigurable = combatTargetsConfigu
 fun ClientWorld.findEnemy(
     range: ClosedFloatingPointRange<Float>,
     enemyConf: TargetConfigurable = combatTargetsConfigurable
-) = findEnemies(range, enemyConf).minByOrNull { (_, distance) -> distance }?.first
+) = findEnemies(range, enemyConf).minByOrNull { (_, distance) -> distance }?.key()
 
 fun ClientWorld.findEnemies(
     range: ClosedFloatingPointRange<Float>,
     enemyConf: TargetConfigurable = combatTargetsConfigurable
-): List<Pair<Entity, Double>> {
+): List<ObjectDoublePair<Entity>> {
     val squaredRange = (range.start * range.start..range.endInclusive * range.endInclusive).toDouble()
 
     return getEntitiesInCuboid(player.eyePos, squaredRange.endInclusive)
         .filter { it.shouldBeAttacked(enemyConf) }
-        .map { Pair(it, it.squaredBoxedDistanceTo(player)) }
+        .map { ObjectDoublePair.of(it, it.squaredBoxedDistanceTo(player)) }
         .filter { (_, distance) -> distance in squaredRange }
 }
 
@@ -203,9 +206,13 @@ inline fun ClientWorld.getEntitiesBoxInRange(
 }
 
 fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
-    EventManager.callEvent(AttackEvent(this))
+    if (EventManager.callEvent(AttackEntityEvent(this) {
+        attack(swing, keepSprint)
+    }).isCancelled) {
+        return
+    }
 
-    with (player) {
+    with(player) {
         // Swing before attacking (on 1.8)
         if (swing && isOlderThanOrEqual1_8) {
             swingHand(Hand.MAIN_HAND)
@@ -218,7 +225,7 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
                 if (this.isUsingRiptide) {
                     this.riptideAttackDamage
                 } else {
-                    getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE).toFloat()
+                    getAttributeValue(EntityAttributes.ATTACK_DAMAGE).toFloat()
                 }
             val damageSource = this.damageSources.playerAttack(this)
             var enchantAttackDamage = this.getDamageAgainst(this@attack, genericAttackDamage,
@@ -233,7 +240,7 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
                     this.addEnchantedHitParticles(this@attack)
                 }
 
-                if (ModuleCriticals.wouldCrit(true)) {
+                if (ModuleCriticals.wouldDoCriticalHit(true)) {
                     world.playSound(
                         null, x, y, z, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT,
                         soundCategory, 1.0f, 1.0f

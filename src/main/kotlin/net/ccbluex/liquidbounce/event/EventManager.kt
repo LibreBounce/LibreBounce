@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.event
 
 import net.ccbluex.liquidbounce.event.events.*
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import java.util.concurrent.CopyOnWriteArrayList
@@ -30,6 +30,7 @@ import kotlin.reflect.KClass
  */
 val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     GameTickEvent::class,
+    GameRenderTaskQueueEvent::class,
     BlockChangeEvent::class,
     ChunkLoadEvent::class,
     ChunkDeltaUpdateEvent::class,
@@ -51,7 +52,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     KeyEvent::class,
     MouseRotationEvent::class,
     KeybindChangeEvent::class,
-    AttackEvent::class,
+    KeybindIsPressedEvent::class,
+    AttackEntityEvent::class,
     SessionEvent::class,
     ScreenEvent::class,
     ChatSendEvent::class,
@@ -86,8 +88,10 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PacketEvent::class,
     ClientStartEvent::class,
     ClientShutdownEvent::class,
+    ClientLanguageChangedEvent::class,
     ValueChangedEvent::class,
-    ToggleModuleEvent::class,
+    ModuleActivationEvent::class,
+    ModuleToggleEvent::class,
     NotificationEvent::class,
     ClientChatStateChange::class,
     ClientChatMessageEvent::class,
@@ -129,7 +133,9 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PerspectiveEvent::class,
     ItemLoreQueryEvent::class,
     PlayerEquipmentChangeEvent::class,
-    ClickGuiValueChangeEvent::class
+    ClickGuiValueChangeEvent::class,
+    BlockAttackEvent::class,
+    QueuePacketEvent::class
 )
 
 /**
@@ -147,7 +153,7 @@ object EventManager {
     /**
      * Used by handler methods
      */
-    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>) {
+    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>): EventHook<T> {
         val handlers = registry[eventClass]
             ?: error("The event '${eventClass.name}' is not registered in Events.kt::ALL_EVENT_CLASSES.")
 
@@ -158,6 +164,8 @@ object EventManager {
             // `handlers` is sorted descending by EventHook.priority
             handlers.sortedInsert(hook) { -it.priority }
         }
+
+        return eventHook
     }
 
     /**
@@ -167,16 +175,9 @@ object EventManager {
         registry[eventClass]?.remove(eventHook as EventHook<in Event>)
     }
 
-    /**
-     * Unregisters event handlers.
-     */
-    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: Collection<EventHook<in Event>>) {
-        registry[eventClass]?.removeAll(hooks.toHashSet())
-    }
-
-    fun unregisterEventHandler(eventHandler: Listenable) {
+    fun unregisterEventHandler(eventListener: EventListener) {
         registry.values.forEach {
-            it.removeIf { it.handlerClass == eventHandler }
+            it.removeIf { it.handlerClass == eventListener }
         }
     }
 
@@ -192,12 +193,14 @@ object EventManager {
      * @param event to call
      */
     fun <T : Event> callEvent(event: T): T {
+        if (isDestructed) {
+            return event
+        }
+
         val target = registry[event.javaClass] ?: return event
 
         for (eventHook in target) {
-            EventScheduler.process(event)
-
-            if (!eventHook.ignoresCondition && !eventHook.handlerClass.handleEvents()) {
+            if (!eventHook.handlerClass.running) {
                 continue
             }
 

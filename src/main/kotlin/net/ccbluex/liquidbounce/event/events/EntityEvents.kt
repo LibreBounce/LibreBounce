@@ -20,6 +20,7 @@
 
 package net.ccbluex.liquidbounce.event.events
 
+import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.Nameable
@@ -30,7 +31,10 @@ import net.ccbluex.liquidbounce.utils.kotlin.PriorityField
 import net.minecraft.entity.Entity
 
 @Nameable("attack")
-class AttackEvent(val enemy: Entity) : Event()
+class AttackEntityEvent(
+    val entity: Entity,
+    val caller: () -> Unit
+) : CancellableEvent()
 
 @Nameable("entityMargin")
 class EntityMarginEvent(val entity: Entity, var margin: Float) : Event()

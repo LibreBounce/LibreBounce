@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.ModuleChestStealer
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features.FeatureChestAura
 import net.ccbluex.liquidbounce.render.*
@@ -53,7 +53,7 @@ import java.awt.Color
  * Allows you to see chests, dispensers, etc. through walls.
  */
 
-object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayOf("ChestESP")) {
+object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = arrayOf("ChestESP")) {
 
     private val modes = choices("Mode", Glow, arrayOf(BoxMode, Glow))
 
@@ -63,6 +63,7 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
     private val dispenserColor by color("Dispenser", Color4b(Color.LIGHT_GRAY))
     private val hopperColor by color("Hopper", Color4b(Color.GRAY))
     private val shulkerColor by color("ShulkerBox", Color4b(Color(0x6e, 0x4d, 0x6e).brighter()))
+    private val potColor by color("Pot", Color4b(209, 134, 0))
 
     private val requiresChestStealer by boolean("RequiresChestStealer", false)
 
@@ -213,40 +214,38 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
             is HopperBlockEntity -> ChestType.HOPPER
             is ShulkerBoxBlockEntity -> ChestType.SHULKER_BOX
             is BarrelBlockEntity -> ChestType.CHEST
+            is DecoratedPotBlockEntity -> ChestType.POT
             else -> null
         }
     }
 
     enum class ChestType {
         CHEST {
-            override val color: Color4b
-                get() = chestColor
+            override val color get() = chestColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
         },
         ENDER_CHEST {
-            override val color: Color4b
-                get() = enderChestColor
+            override val color get() = enderChestColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
         },
         FURNACE {
-            override val color: Color4b
-                get() = furnaceColor
+            override val color get() = furnaceColor
         },
         DISPENSER {
-            override val color: Color4b
-                get() = dispenserColor
+            override val color get() = dispenserColor
         },
         HOPPER {
-            override val color: Color4b
-                get() = hopperColor
+            override val color get() = hopperColor
         },
         SHULKER_BOX {
-            override val color: Color4b
-                get() = shulkerColor
+            override val color get() = shulkerColor
 
             override fun shouldRender(pos: BlockPos) = pos !in FeatureChestAura.interactedBlocksSet
+        },
+        POT {
+            override val color get() = potColor
         };
 
         abstract val color: Color4b
@@ -261,12 +260,13 @@ object ModuleStorageESP : Module("StorageESP", Category.RENDER, aliases = arrayO
         }
     }
 
-    override fun handleEvents(): Boolean {
-        if (requiresChestStealer && !ModuleChestStealer.enabled) {
-            return false
-        }
+    override val running: Boolean
+        get() {
+            if (requiresChestStealer && !ModuleChestStealer.running) {
+                return false
+            }
 
-        return super.handleEvents()
-    }
+            return super.running
+        }
 
 }

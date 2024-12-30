@@ -19,8 +19,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.features.command.commands.module.CommandXRay
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks.*
@@ -31,9 +32,10 @@ import net.minecraft.util.math.Direction
  * XRay module
  *
  * Allows you to see ores through walls.
+ *
+ * Command: [CommandXRay]
  */
-
-object ModuleXRay : Module("XRay", Category.RENDER) {
+object ModuleXRay : ClientModule("XRay", Category.RENDER) {
 
     // Lighting of blocks through walls
     val fullBright by boolean("FullBright", true)
@@ -188,6 +190,14 @@ object ModuleXRay : Module("XRay", Category.RENDER) {
         exposedOnly -> Direction.entries.any {
             blockPos.add(it.vector)?.let { pos -> pos.getState()?.isSolidBlock(world, pos) } == false
         }
+
+        else -> true
+    }
+
+    fun shouldRender(state: BlockState, otherState: BlockState, side: Direction) = when {
+        state.block !in blocks -> false
+
+        exposedOnly -> !state.isSideInvisible(otherState, side)
 
         else -> true
     }

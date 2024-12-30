@@ -22,10 +22,10 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter
-import net.ccbluex.liquidbounce.features.command.commands.client.CommandCenter.CenterHandlerState
+import net.ccbluex.liquidbounce.features.command.commands.ingame.CommandCenter
+import net.ccbluex.liquidbounce.features.command.commands.ingame.CommandCenter.CenterHandlerState
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.CrystalDestroyFeature
@@ -60,7 +60,7 @@ import kotlin.math.ceil
  *
  * Builds safe holes.
  */
-object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true) {
+object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit = true) {
 
     /**
      * The blocks the surround normal utilizes.
@@ -361,7 +361,7 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         }
 
         val searchOptions = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
+            listOf(Vec3i.ZERO),
             ItemStack(Items.SANDSTONE),
             CenterTargetPositionFactory,
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
@@ -387,7 +387,8 @@ object ModuleSurround : Module("Surround", Category.WORLD, disableOnQuit = true)
         if (rotationMode.send) {
             val rotation = placementTarget.rotation.normalize()
             network.connection!!.send(
-                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround),
+                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
+                    player.horizontalCollision),
                 null
             )
         }

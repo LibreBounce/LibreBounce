@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 
 /**
@@ -28,15 +28,12 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVe
  * Velocity for AAC4.4.2, pretty sure, it works on other versions
  */
 
-internal object VelocityAAC442 : Choice("AAC4.4.2") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityAAC442 : VelocityMode("AAC4.4.2") {
 
     private val reduce by float("Reduce", 0.62f, 0f..1f)
 
     @Suppress("unused")
-    private val repeatable = repeatable {
+    private val repeatable = tickHandler {
         if (player.hurtTime > 0 && !player.isOnGround) {
             player.velocity.x *= reduce
             player.velocity.z *= reduce

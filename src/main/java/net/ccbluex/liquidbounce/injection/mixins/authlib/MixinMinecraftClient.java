@@ -31,7 +31,7 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 
 @Mixin(value = MinecraftClient.class, remap = false)
-public class MixinMinecraftClient {
+public abstract class MixinMinecraftClient {
 
     @ModifyExpressionValue(method = "createUrlConnection", at = @At(
             value = "FIELD",

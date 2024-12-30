@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
@@ -38,10 +39,10 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
 
     object CrystalTracker : CrystalPostAttackTracker() {
 
-        val entities: MutableMap<Int, EndCrystalEntity> = Int2ObjectMaps.synchronize(Int2ObjectOpenHashMap())
+        val entities: Int2ObjectMap<EndCrystalEntity> = Int2ObjectMaps.synchronize(Int2ObjectOpenHashMap())
 
         override fun attacked(id: Int) {
-            if (!handleEvents()) {
+            if (!running) {
                 return
             }
 
@@ -49,6 +50,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
             if (entity is EndCrystalEntity) {
                 super.attacked(id)
                 world.removeEntity(id, Entity.RemovalReason.DISCARDED)
+                entities.put(id, entity)
             }
         }
 
@@ -57,7 +59,9 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
         }
 
         override fun timedOut(id: Int) {
-            world.addEntity(entities.remove(id) ?: return)
+            val entity = entities.remove(id) ?: return
+            entity.unsetRemoved()
+            world.addEntity(entity)
         }
 
         override fun cleared() {

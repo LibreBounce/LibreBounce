@@ -23,7 +23,7 @@ import it.unimi.dsi.fastutil.floats.FloatFloatMutablePair
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.ModuleDerp
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.drawSolidBox
@@ -42,7 +42,7 @@ import net.minecraft.util.math.Box
  * Allows you to see server-sided rotations.
  */
 
-object ModuleRotations : Module("Rotations", Category.RENDER) {
+object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
 
     /**
      * Body part to modify the rotation of.
@@ -125,9 +125,9 @@ object ModuleRotations : Module("Rotations", Category.RENDER) {
      * Should we even send a rotation if we use freeCam?
      */
     fun shouldSendCustomRotation(): Boolean {
-        val special = arrayOf(ModuleDerp).any { it.enabled }
+        val special = arrayOf(ModuleDerp).any { it.running }
 
-        return enabled && (RotationManager.currentRotation != null || special)
+        return running && (RotationManager.currentRotation != null || special)
     }
 
     /**

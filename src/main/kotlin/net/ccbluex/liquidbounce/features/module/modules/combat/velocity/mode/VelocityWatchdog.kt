@@ -18,18 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 
-internal object VelocityWatchdog : Choice("Watchdog") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityWatchdog : VelocityMode("Watchdog") {
 
     private var absorbedVelocity = false
 
@@ -52,7 +46,7 @@ internal object VelocityWatchdog : Choice("Watchdog") {
     }
 
     @Suppress("unused")
-    private val gameHandler = repeatable {
+    private val gameHandler = tickHandler {
         if (player.isOnGround) {
             absorbedVelocity = false
         }

@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.sodium;
 
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
@@ -50,7 +49,7 @@ public class MixinSodiumLightDataAccessMixin {
     @ModifyVariable(method = "compute", at = @At(value = "TAIL"), name = "bl")
     private int modifyLightLevel(int original) {
         var xray = ModuleXRay.INSTANCE;
-        if (xray.getEnabled() && xray.getFullBright()) {
+        if (xray.getRunning() && xray.getFullBright()) {
             var blockState = level.getBlockState(pos);
 
             if (xray.shouldRender(blockState, pos)) {

@@ -19,10 +19,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.kotlin.mapString
 import org.apache.commons.lang3.RandomStringUtils
 import kotlin.random.Random
 
@@ -31,7 +32,7 @@ import kotlin.random.Random
  *
  * Spams the chat with a given message.
  */
-object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
+object ModuleSpammer : ClientModule("Spammer", Category.MISC, disableOnQuit = true) {
 
     private val delay by intRange("Delay", 2..4, 0..300, "secs")
     private val mps by intRange("MPS", 1..1, 1..500, "messages")
@@ -50,29 +51,31 @@ object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
 
     private var linear = 0
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         repeat(mps.random()) {
             val chosenMessage = when (pattern) {
                 SpammerPattern.RANDOM -> message.random()
                 SpammerPattern.LINEAR -> message[linear++ % message.size]
             }
 
-            val text = messageConverterMode.convert(if (customFormatter) {
+            val text = if (chosenMessage.startsWith('/')) {
                 format(chosenMessage)
-            } else {
-                "[${RandomStringUtils.randomAlphabetic(Random.nextInt(4) + 1)}] " +
-                    chosenMessage.toCharArray().joinToString("") {
-                        if (Random.nextBoolean()) it.uppercase() else it.lowercase()
-                    }
-            })
+            }else {
+                messageConverterMode.convert(if (customFormatter) {
+                    format(chosenMessage)
+                } else {
+                    "[${RandomStringUtils.randomAlphabetic(1, 5)}] " +
+                        MessageConverterMode.RANDOM_CASE_CONVERTER.convert(chosenMessage)
+                })
+            }
 
             if (text.length > 256) {
                 chat("Spammer message is too long! (Max 256 characters)")
-                return@repeatable
+                return@tickHandler
             }
 
             // Check if message text is command
-            if (text.startsWith("/")) {
+            if (text.startsWith('/')) {
                 network.sendCommand(text.substring(1))
             } else {
                 network.sendChatMessage(text)
@@ -83,34 +86,40 @@ object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
     }
 
     private fun format(text: String): String {
-        var formattedText = text
-
-        while (formattedText.contains("%f"))
-            formattedText = formattedText.insert("%f", Random.nextFloat())
-        while (formattedText.contains("%i"))
-            formattedText = formattedText.insert("%i", Random.nextInt(10000))
-        while (formattedText.contains("%s"))
-            formattedText = formattedText.insert("%s", RandomStringUtils.randomAlphabetic((4..6).random()))
+        var formattedText = text.replace("%f") {
+            Random.nextFloat()
+        }.replace("%i") {
+            Random.nextInt(10000)
+        }.replace("%s") {
+            RandomStringUtils.randomAlphabetic(4, 7)
+        }
 
         if (formattedText.contains("@a")) {
-            val playerList = mc.networkHandler?.playerList?.filter {
-                it?.profile?.name != player.gameProfile?.name
-            }
-
-            if (!playerList.isNullOrEmpty()) {
-                while (formattedText.contains("@a")) {
-                    formattedText = formattedText.insert("@a",
-                        playerList.randomOrNull()?.profile?.name ?: break)
-                }
+            mc.networkHandler?.playerList?.mapNotNull {
+                it?.profile?.name.takeIf { n -> n != player.gameProfile?.name }
+            }?.takeIf { it.isNotEmpty() }?.let { playerNameList ->
+                formattedText = formattedText.replace("@a") { playerNameList.random() }
             }
         }
 
         return formattedText
     }
 
-    private fun String.insert(prefix: String, insert: Any): String {
-        return substring(0, indexOf(prefix)) +
-            insert.toString() + substring(indexOf(prefix) + prefix.length)
+    private inline fun String.replace(oldValue: String, newValueProvider: () -> Any): String {
+        var index = 0
+        val newString = StringBuilder(this)
+        while (true) {
+            index = newString.indexOf(oldValue, startIndex = index)
+            if (index == -1) {
+                break
+            }
+
+            val newValue = newValueProvider().toString()
+            newString.replace(index, index + oldValue.length, newValue)
+
+            index += newValue.length
+        }
+        return newString.toString()
     }
 
     enum class MessageConverterMode(override val choiceName: String, val convert: (String) -> String) : NamedChoice {
@@ -118,7 +127,7 @@ object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
             text
         }),
         LEET_CONVERTER("Leet", { text ->
-            text.map { char ->
+            text.mapString { char ->
                 when (char) {
                     'o' -> '0'
                     'l' -> '1'
@@ -128,18 +137,23 @@ object ModuleSpammer : Module("Spammer", Category.MISC, disableOnQuit = true) {
                     's' -> 'Z'
                     else -> char
                 }
-            }.joinToString("")
+            }
         }),
         RANDOM_CASE_CONVERTER("Random Case", { text ->
             // Random case the whole string
-            text.map { char ->
-                if (Random.nextBoolean()) char.uppercase() else char.lowercase()
-            }.joinToString("")
+            text.mapString { char ->
+                if (Random.nextBoolean()) char.uppercaseChar() else char.lowercaseChar()
+            }
         }),
         RANDOM_SPACE_CONVERTER("Random Space", { text ->
-            text.map { char ->
-                if (Random.nextBoolean()) "$char " else char.toString()
-            }.joinToString("")
+            buildString(text.length * 2) {
+                for (char in text) {
+                    append(char)
+                    if (Random.nextBoolean()) {
+                        append(' ')
+                    }
+                }
+            }
         }),
     }
 

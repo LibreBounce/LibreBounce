@@ -19,12 +19,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap
+import it.unimi.dsi.fastutil.ints.Int2LongMap
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket
 import net.minecraft.sound.SoundEvents
@@ -32,19 +33,19 @@ import net.minecraft.sound.SoundEvents
 /**
  * Can be implemented to handle actions after crystals got attacked.
  */
-abstract class CrystalPostAttackTracker : Listenable {
+abstract class CrystalPostAttackTracker : EventListener {
 
-    protected val attackedIds: MutableMap<Int, Long> = Int2LongMaps.synchronize(Int2LongLinkedOpenHashMap())
+    protected val attackedIds: Int2LongMap = Int2LongMaps.synchronize(Int2LongLinkedOpenHashMap())
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val currentTime = System.currentTimeMillis()
         val attackTime = currentTime - timeOutAfter()
-        attackedIds.entries.iterator().apply {
+        attackedIds.int2LongEntrySet().iterator().apply {
             while (hasNext()) {
                 val entry = next()
-                if (entry.value < attackTime) {
+                if (entry.longValue < attackTime) {
                     remove()
-                    timedOut(entry.key)
+                    timedOut(entry.intKey)
                 }
             }
         }
@@ -65,14 +66,15 @@ abstract class CrystalPostAttackTracker : Listenable {
                 }
 
                 val id = packet.entityId
-                attackedIds.remove(id)?.let {
+                // Default (non-existing) value = 0
+                if (attackedIds.remove(id) != 0L) {
                     confirmed(id)
                 }
             }
 
             is EntitiesDestroyS2CPacket -> {
                 packet.entityIds.forEach { id ->
-                    attackedIds.remove(id)?.let {
+                    if (attackedIds.remove(id) != 0L) {
                         confirmed(id)
                     }
                 }
@@ -110,11 +112,11 @@ abstract class CrystalPostAttackTracker : Listenable {
      * @param id The id of the attacked entity.
      */
     open fun attacked(id: Int) {
-        if (!handleEvents()) {
+        if (!running) {
             return
         }
 
-        attackedIds[id] = System.currentTimeMillis()
+        attackedIds.put(id, System.currentTimeMillis())
     }
 
     /**

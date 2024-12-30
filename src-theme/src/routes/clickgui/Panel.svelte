@@ -3,7 +3,7 @@
     import type {Module as TModule} from "../../integration/types";
     import {listen} from "../../integration/ws";
     import Module from "./Module.svelte";
-    import type {ToggleModuleEvent} from "../../integration/events";
+    import type {ModuleToggleEvent} from "../../integration/events";
     import {fly} from "svelte/transition";
     import {quintOut} from "svelte/easing";
     import {gridSize, highlightModuleName, maxPanelZIndex, showGrid, snappingEnabled} from "./clickgui_store";
@@ -142,9 +142,9 @@
         }, 500)
     }
 
-    highlightModuleName.subscribe(() => {
+    highlightModuleName.subscribe((m) => {
         const highlightModule = modules.find(
-            (m) => m.name === $highlightModuleName,
+            (m) => m.name === m.name,
         );
         if (highlightModule) {
             panelConfig.zIndex = ++$maxPanelZIndex;
@@ -154,7 +154,7 @@
         }
     });
 
-    listen("toggleModule", (e: ToggleModuleEvent) => {
+    listen("moduleToggle", (e: ModuleToggleEvent) => {
         const moduleName = e.moduleName;
         const moduleEnabled = e.enabled;
 
@@ -222,6 +222,7 @@
         />
         <span class="category">{category}</span>
 
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button class="expand-toggle" on:click={toggleExpanded}>
             <div class="icon" class:expanded={panelConfig.expanded}></div>
         </button>
@@ -235,7 +236,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as *;
 
   .panel {
     border-radius: 5px;

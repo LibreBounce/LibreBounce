@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.utils.item
 
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.ccbluex.liquidbounce.utils.sorting.compareByCondition
+import net.minecraft.component.DataComponentTypes
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.EquipmentSlot
@@ -108,7 +109,7 @@ class ArmorComparator(
         compareByDescending { round(getThresholdedDamageReduction(it.itemSlot.itemStack).toDouble(), 3) },
         compareBy { round(getEnchantmentThreshold(it.itemSlot.itemStack).toDouble(), 3) },
         compareBy { it.itemSlot.itemStack.getEnchantmentCount() },
-        compareBy { (it.itemSlot.itemStack.item as ArmorItem).enchantability },
+        compareBy { it.itemSlot.itemStack.get(DataComponentTypes.ENCHANTABLE)?.value ?: 0 },
         compareByCondition(ArmorPiece::isAlreadyEquipped),
         compareByCondition(ArmorPiece::isReachableByHand)
     )
@@ -119,12 +120,14 @@ class ArmorComparator(
 
     private fun getThresholdedDamageReduction(itemStack: ItemStack): Float {
         val item = itemStack.item as ArmorItem
-        val parameters = this.armorKitParametersForSlot.getParametersForSlot(item.slotType)
+        val parameters = this.armorKitParametersForSlot.getParametersForSlot(
+            itemStack.get(DataComponentTypes.EQUIPPABLE)!!.slot
+        )
 
         return getDamageFactor(
             damage = expectedDamage,
-            defensePoints = parameters.defensePoints + item.material.value().getProtection(item.type),
-            toughness = parameters.toughness + item.material.value().toughness
+            defensePoints = parameters.defensePoints + item.material().defense.getOrDefault(item.type(), 0),
+            toughness = parameters.toughness + item.material().toughness
         ) * (1 - getThresholdedEnchantmentDamageReduction(itemStack))
     }
 

@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.entity.directionYaw
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -49,14 +49,14 @@ internal object FlySentinel27thJan : Choice("Sentinel27thJan") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (player.isOnGround) {
-            return@repeatable
+            return@tickHandler
         }
 
         player.velocity.y = when {
             player.isSneaking -> -0.4
-            player.input.jumping -> 0.42
+            player.input.playerInput.jump -> 0.42
             else -> 0.2
         }
         player.strafe(speed = horizontalSpeed.random())

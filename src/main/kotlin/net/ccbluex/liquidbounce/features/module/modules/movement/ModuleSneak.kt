@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
@@ -34,7 +34,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  *
  * Automatically sneaks all the time.
  */
-object ModuleSneak : Module("Sneak", Category.MOVEMENT) {
+object ModuleSneak : ClientModule("Sneak", Category.MOVEMENT) {
 
     var modes = choices("Mode", Vanilla, arrayOf(Legit, Vanilla, Switch)).apply { tagBy(this) }
     var notDuringMove by boolean("NotDuringMove", false)
@@ -51,7 +51,7 @@ object ModuleSneak : Module("Sneak", Category.MOVEMENT) {
             }
 
             // Temporarily override sneaking
-            it.sneaking = true
+            it.sneak = true
         }
 
     }

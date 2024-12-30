@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.FULL_BOX
@@ -57,11 +57,11 @@ import kotlin.math.max
 
 class BlockPlacer(
     name: String,
-    val module: Module,
+    val module: ClientModule,
     val priority: Priority,
     val slotFinder: (BlockPos?) -> HotbarItemSlot?,
     allowSupportPlacements: Boolean = true
-) : Configurable(name), Listenable {
+) : Configurable(name), EventListener {
 
     val range by float("Range", 4.5f, 1f..6f)
     val wallRange by float("WallRange", 4.5f, 0f..6f)
@@ -86,9 +86,9 @@ class BlockPlacer(
 
     val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
-    val rotationMode = choices<BlockPlacerRotationMode>(this, "RotationMode", { it.choices[0] }, {
+    val rotationMode = choices(this, "RotationMode", 0) {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
-    })
+    }
 
     val support = SupportFeature(this)
 
@@ -145,7 +145,7 @@ class BlockPlacer(
 
         if (sneakTimes > 0) {
             sneakTimes--
-            it.movementEvent.sneaking = true
+            it.movementEvent.sneak = true
         }
 
         if (blocks.isEmpty()) {
@@ -175,10 +175,10 @@ class BlockPlacer(
         var supportPath: Set<BlockPos>? = null
 
         // remove all positions of the current support path
-        blocks.iterator().apply {
+        blocks.object2BooleanEntrySet().iterator().apply {
             while (hasNext()) {
                 val entry = next()
-                if (entry.value) {
+                if (entry.booleanValue) {
                     currentPlaceCandidates.add(entry.key)
                     remove()
                 }
@@ -223,7 +223,7 @@ class BlockPlacer(
     private fun scheduleCurrentPlacements(itemStack: ItemStack, it: SimulatedTickEvent): Boolean {
         var hasPlaced = false
 
-        val iterator = blocks.iterator()
+        val iterator = blocks.object2BooleanEntrySet().iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val pos = entry.key
@@ -237,7 +237,7 @@ class BlockPlacer(
             }
 
             val searchOptions = BlockPlacementTargetFindingOptions(
-                listOf(Vec3i(0, 0, 0)),
+                listOf(Vec3i.ZERO),
                 itemStack,
                 CenterTargetPositionFactory,
                 BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
@@ -266,10 +266,10 @@ class BlockPlacer(
                 )
             ) {
                 sneakTimes = sneak - 1
-                it.movementEvent.sneaking = true
+                it.movementEvent.sneak = true
             }
 
-            if (rotationMode.activeChoice(entry.value, pos, placementTarget)) {
+            if (rotationMode.activeChoice(entry.booleanValue, pos, placementTarget)) {
                 return true
             }
 
@@ -442,6 +442,6 @@ class BlockPlacer(
         inaccessible.clear()
     }
 
-    override fun parent(): Listenable = module
+    override fun parent(): EventListener = module
 
 }

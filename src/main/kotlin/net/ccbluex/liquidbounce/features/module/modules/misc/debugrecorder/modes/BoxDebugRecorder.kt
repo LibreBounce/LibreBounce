@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.box
@@ -32,11 +32,11 @@ import net.minecraft.util.hit.HitResult
 
 object BoxDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Box") {
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         val crosshairTarget = mc.crosshairTarget
 
         if (crosshairTarget?.type != HitResult.Type.ENTITY || crosshairTarget !is EntityHitResult) {
-            return@repeatable
+            return@tickHandler
         }
 
         recordPacket(JsonObject().apply {

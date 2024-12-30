@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isHidingNow
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -40,7 +41,10 @@ import net.minecraft.client.gui.screen.DisconnectedScreen
  * The client in-game dashboard.
  */
 
-object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
+object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = true) {
+
+    override val running
+        get() = this.enabled && !isDestructed
 
     override val baseKey: String
         get() = "liquidbounce.module.hud"
@@ -62,7 +66,7 @@ object ModuleHud : Module("HUD", Category.RENDER, state = true, hide = true) {
         }
     }
 
-    val screenHandler = handler<ScreenEvent>(ignoreCondition = true) { event ->
+    val screenHandler = handler<ScreenEvent> { event ->
         if (!enabled || !inGame || event.screen is DisconnectedScreen || isHidingNow) {
             ComponentOverlay.clear()
         } else {

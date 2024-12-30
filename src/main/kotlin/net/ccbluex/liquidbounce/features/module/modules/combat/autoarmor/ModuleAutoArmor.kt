@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ArmorItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
@@ -36,7 +36,7 @@ import net.minecraft.item.Items
  *
  * Automatically put on the best armor.
  */
-object ModuleAutoArmor : Module("AutoArmor", Category.COMBAT) {
+object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
@@ -101,7 +101,7 @@ object ModuleAutoArmor : Module("AutoArmor", Category.COMBAT) {
         slot: ItemSlot,
         isInArmorSlot: Boolean
     ): InventoryAction {
-        val canTryHotbarMove = !isInArmorSlot && useHotbar && !InventoryManager.isInventoryOpenServerSide
+        val canTryHotbarMove = !isInArmorSlot && useHotbar && !InventoryManager.isInventoryOpen
         if (slot is HotbarItemSlot && canTryHotbarMove) {
             return UseInventoryAction(slot)
         }

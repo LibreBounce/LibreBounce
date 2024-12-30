@@ -19,9 +19,8 @@
 
 package net.ccbluex.liquidbounce.features.command.builder
 
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.world
 import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryKeys
@@ -58,7 +57,7 @@ fun enchantmentParameter(name: String = "enchantment"): ParameterBuilder<String>
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
         .autocompletedWith { _ ->
-            world.registryManager.get(RegistryKeys.ENCHANTMENT).indexedEntries.map {
+            world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).indexedEntries.map {
                 it.idAsString
             }
         }
@@ -70,7 +69,7 @@ fun pageParameter(name: String = "page"): ParameterBuilder<Int> {
         .verifiedBy(ParameterBuilder.POSITIVE_INTEGER_VALIDATOR)
 }
 
-fun moduleParameter(name: String = "module", validator: (Module) -> Boolean = { true }): ParameterBuilder<String> {
+fun moduleParameter(name: String = "module", validator: (ClientModule) -> Boolean = { true }): ParameterBuilder<String> {
     return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)

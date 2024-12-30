@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleNoPitchLimit;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiBounce;
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -74,7 +75,7 @@ public abstract class MixinEntity {
 
     @ModifyExpressionValue(method = "bypassesLandingEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isSneaking()Z"))
     private boolean hookAntiBounce(boolean original) {
-        return ModuleAntiBounce.INSTANCE.getEnabled() || original;
+        return ModuleAntiBounce.INSTANCE.getRunning() || original;
     }
 
     /**
@@ -87,12 +88,22 @@ public abstract class MixinEntity {
         callback.setReturnValue(marginEvent.getMargin());
     }
 
+    @ModifyExpressionValue(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;getVelocity(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/Vec3d;"))
+    private Vec3d hookNoPushInLiquids(Vec3d original) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return original;
+        }
+
+        return ModuleNoPush.INSTANCE.isLiquids()
+                ? Vec3d.ZERO : original;
+    }
+
     /**
      * Hook no pitch limit exploit
      */
     @Redirect(method = "changeLookDirection", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp(FFF)F"))
     public float hookNoPitchLimit(float value, float min, float max) {
-        boolean noLimit = ModuleNoPitchLimit.INSTANCE.getEnabled();
+        boolean noLimit = ModuleNoPitchLimit.INSTANCE.getRunning();
 
         if (noLimit) return value;
         return MathHelper.clamp(value, min, max);

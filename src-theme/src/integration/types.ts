@@ -431,6 +431,15 @@ export interface EntityHitResult extends HitResult {
     entityPos: Vec3;
 }
 
+export interface GeneratorResult {
+    name: string;
+}
+
+export interface Screen {
+    class: string,
+    title: string,
+}
+
 export interface Wallpaper {
     active: ThemeWallpaper;
     available: ThemeWallpaper[];

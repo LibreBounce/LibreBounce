@@ -24,6 +24,7 @@ import io.netty.channel.ChannelPipeline
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.utils.client.Nameable
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.minecraft.network.packet.Packet
 
 @Nameable("pipeline")
@@ -31,6 +32,13 @@ class PipelineEvent(val channelPipeline: ChannelPipeline, val local: Boolean) : 
 
 @Nameable("packet")
 class PacketEvent(val origin: TransferOrigin, val packet: Packet<*>, val original: Boolean = true) : CancellableEvent()
+
+@Nameable("queuePacket")
+class QueuePacketEvent(
+    val packet: Packet<*>?,
+    val origin: TransferOrigin,
+    var action: PacketQueueManager.Action = PacketQueueManager.Action.FLUSH
+) : Event()
 
 enum class TransferOrigin {
     SEND, RECEIVE

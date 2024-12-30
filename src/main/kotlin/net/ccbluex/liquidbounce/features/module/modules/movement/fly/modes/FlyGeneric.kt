@@ -29,8 +29,8 @@ import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
 import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -40,6 +40,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.util.shape.VoxelShapes
+import kotlin.jvm.optionals.getOrNull
 
 internal object FlyVanilla : Choice("Vanilla") {
 
@@ -66,7 +67,7 @@ internal object FlyVanilla : Choice("Vanilla") {
         get() = ModuleFly.modes
 
     @Suppress("unused")
-    private val tickHandler = repeatable {
+    private val tickHandler = tickHandler {
         val useSprintSpeed = mc.options.sprintKey.isPressed && SprintSpeed.enabled
         val hSpeed =
             if (useSprintSpeed) SprintSpeed.horizontalSpeed else BaseSpeed.horizontalSpeed
@@ -75,8 +76,8 @@ internal object FlyVanilla : Choice("Vanilla") {
 
         player.strafe(speed = hSpeed.toDouble())
         player.velocity.y = when {
-            player.input.jumping -> vSpeed.toDouble()
-            player.input.sneaking -> (-vSpeed).toDouble()
+            player.input.playerInput.jump -> vSpeed.toDouble()
+            player.input.playerInput.sneak -> (-vSpeed).toDouble()
             else -> glide.toDouble()
         }
 
@@ -127,7 +128,7 @@ internal object FlyCreative : Choice("Creative") {
         return true
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         player.abilities.flySpeed =
             if (mc.options.sprintKey.isPressed && SprintSpeed.enabled) SprintSpeed.speed else speed
 
@@ -203,7 +204,7 @@ internal object FlyExplosion : Choice("Explosion") {
         super.enable()
     }
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (strafeSince > 0) {
             if (!player.isOnGround) {
                 player.strafe(speed = strafeSince.toDouble())
@@ -227,12 +228,14 @@ internal object FlyExplosion : Choice("Explosion") {
             waitTicks(1)
             strafeSince = startStrafe
         } else if (packet is ExplosionS2CPacket) { // Check if explosion affects velocity
-            packet.playerVelocityX = 0f
-            packet.playerVelocityY *= vertical
-            packet.playerVelocityZ = 0f
+            packet.playerKnockback.getOrNull()?.let { knockback ->
+                knockback.x = 0.0
+                knockback.y *= vertical
+                knockback.z = 0.0
 
-            waitTicks(1)
-            strafeSince = startStrafe
+                waitTicks(1)
+                strafeSince = startStrafe
+            }
         }
     }
 
@@ -243,8 +246,8 @@ internal object FlyJetpack : Choice("Jetpack") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    val repeatable = repeatable {
-        if (player.input.jumping) {
+    val repeatable = tickHandler {
+        if (player.input.playerInput.jump) {
             player.velocity.x *= 1.1
             player.velocity.y += 0.15
             player.velocity.z *= 1.1

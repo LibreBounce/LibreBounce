@@ -44,12 +44,14 @@ import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.round
 import kotlin.math.sin
+import kotlin.random.Random
 
 object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedgeExtension {
 
     private enum class Mode(override val choiceName: String) : NamedChoice {
         JUMP("Jump"),
-        SNEAK("Sneak")
+        SNEAK("Sneak"),
+        RANDOM("Random")
     }
 
     private var mode by enumChoice("Mode", Mode.JUMP)
@@ -62,7 +64,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         target: BlockPlacementTarget?,
         rotation: Rotation
     ): LedgeState {
-        if (!isActive) {
+        if (!isSelected) {
             return LedgeState.NO_LEDGE
         }
 
@@ -84,6 +86,11 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
                     }
                     mode == Mode.JUMP -> LedgeState(requiresJump = true, requiresSneak = 0)
                     mode == Mode.SNEAK -> LedgeState(requiresJump = false, requiresSneak = sneakTime)
+                    mode == Mode.RANDOM -> if (Random.nextBoolean()) {
+                        LedgeState(requiresJump = true, requiresSneak = 0)
+                    } else {
+                        LedgeState(requiresJump = false, requiresSneak = sneakTime)
+                    }
                     else -> LedgeState.NO_LEDGE
                 }
             }
@@ -140,7 +147,8 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
             isOnRightSide = floor(player.x + cos(movingYaw.toRadians()) * 0.5) != floor(player.x) ||
                 floor(player.z + sin(movingYaw.toRadians()) * 0.5) != floor(player.z)
 
-            val posInDirection = player.pos.offset(Direction.fromRotation(movingYaw.toDouble()), 0.6).toBlockPos()
+            val posInDirection = player.pos.offset(Direction.fromHorizontalDegrees(movingYaw.toDouble()), 0.6)
+                .toBlockPos()
 
             val isLeaningOffBlock = player.blockPos.down().getState()?.isAir == true
             val nextBlockIsAir = posInDirection.down().getState()?.isAir == true

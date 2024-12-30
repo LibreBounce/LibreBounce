@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.integration.theme.ThemeManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
@@ -37,6 +38,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.Function;
 import java.util.function.IntSupplier;
 
 /**
@@ -66,7 +68,7 @@ public class MixinSplashOverlay {
     private void hookInit(CallbackInfo ci) {
         if (!HideAppearance.INSTANCE.isHidingNow()) {
             EventManager.INSTANCE.callEvent(new SplashOverlayEvent(true));
-            BRAND_ARGB = () -> ColorHelper.Argb.getArgb(255, 24, 26, 27);
+            BRAND_ARGB = () -> ColorHelper.getArgb(255, 24, 26, 27);
         } else {
             BRAND_ARGB = () -> MinecraftClient.getInstance().options.getMonochromeLogo().getValue() ? MONOCHROME_BLACK : MOJANG_RED;
         }
@@ -111,13 +113,10 @@ public class MixinSplashOverlay {
         EventManager.INSTANCE.callEvent(new ScreenRenderEvent(context, delta));
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIFFIIII)V"))
-    private boolean drawTexture(DrawContext instance, Identifier texture, int x, int y, int width, int height,
-                                float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V"))
+    private boolean drawTexture(DrawContext instance, Function<Identifier, RenderLayer> renderLayers, Identifier sprite, int x, int y, float u, float v, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
         // do not draw texture - only when hiding
         return HideAppearance.INSTANCE.isHidingNow() || !ThemeManager.INSTANCE.getActiveTheme().canSplash();
     }
-
-
 
 }

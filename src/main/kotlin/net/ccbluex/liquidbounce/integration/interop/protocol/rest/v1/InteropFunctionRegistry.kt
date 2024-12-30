@@ -97,6 +97,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     post("/account/restore", ::postRestoreInitial)
     put("/account/favorite", ::putFavoriteAccount)
     delete("/account/favorite", ::deleteFavoriteAccount)
+    post("/account/random-name", ::generateName)
 
     // Proxy Functions
     get("/proxy", ::getProxyInfo)

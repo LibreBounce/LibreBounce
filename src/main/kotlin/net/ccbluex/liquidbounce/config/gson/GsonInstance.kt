@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.adapter.*
 import net.ccbluex.liquidbounce.config.gson.adapter.lookup.WallpaperLookupAdapter
 import net.ccbluex.liquidbounce.config.gson.serializer.*
+import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.*
 import net.ccbluex.liquidbounce.config.gson.stategies.ExcludeStrategy
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
@@ -38,6 +39,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.render.Alignment
 import net.minecraft.block.Block
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.network.ServerInfo
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
@@ -49,6 +51,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import net.minecraft.world.GameMode
+import java.util.function.Supplier
 
 /**
  * An enumeration of all GSON instances used in LiquidBounce. Each instance has its own configuration,
@@ -151,9 +154,11 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
         .registerTypeHierarchyAdapter(Alignment::class.javaObjectType, AlignmentAdapter)
         .registerTypeHierarchyAdapter(Wallpaper::class.javaObjectType, WallpaperLookupAdapter)
         .registerTypeHierarchyAdapter(Text::class.javaObjectType, TextSerializer)
+        .registerTypeHierarchyAdapter(Screen::class.javaObjectType, ScreenSerializer)
         .registerTypeAdapter(Session::class.javaObjectType, SessionSerializer)
         .registerTypeAdapter(ServerInfo::class.javaObjectType, ServerInfoSerializer)
         .registerTypeAdapter(GameMode::class.javaObjectType, GameModeSerializer)
         .registerTypeAdapter(ItemStack::class.javaObjectType, ItemStackSerializer)
         .registerTypeAdapter(Identifier::class.javaObjectType, IdentifierSerializer)
         .registerTypeAdapter(StatusEffectInstance::class.javaObjectType, StatusEffectInstanceSerializer)
+        .registerTypeHierarchyAdapter(Supplier::class.javaObjectType, SupplierSerializer)

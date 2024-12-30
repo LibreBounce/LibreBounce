@@ -25,6 +25,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
 import net.ccbluex.liquidbounce.integration.theme.type.native.components.NativeComponent
+import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -33,10 +34,8 @@ import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentRotation
 import net.ccbluex.liquidbounce.utils.math.Vec2i
-import net.ccbluex.liquidbounce.utils.render.Alignment
-import net.minecraft.client.gui.DrawContext
+import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
@@ -108,7 +107,7 @@ class MinimapComponent(theme: Theme) : NativeComponent(theme, "Minimap", true, A
             drawCustomMesh(
                 VertexFormat.DrawMode.QUADS,
                 VertexFormats.POSITION_TEXTURE_COLOR,
-                GameRenderer.getPositionTexColorProgram()!!,
+                ShaderProgramKeys.POSITION_TEX_COLOR,
             ) { matrix ->
                 buildMinimapMesh(this, matrix, Vec2i(baseX, baseZ), chunksToRenderAround, viewDistance)
             }
@@ -116,7 +115,7 @@ class MinimapComponent(theme: Theme) : NativeComponent(theme, "Minimap", true, A
             drawCustomMesh(
                 VertexFormat.DrawMode.TRIANGLES,
                 VertexFormats.POSITION_COLOR,
-                GameRenderer.getPositionColorProgram()!!,
+                ShaderProgramKeys.POSITION_COLOR,
             ) { matrix ->
                 for (renderedEntity in ModuleESP.findRenderedEntities()) {
                     drawEntityOnMinimap(

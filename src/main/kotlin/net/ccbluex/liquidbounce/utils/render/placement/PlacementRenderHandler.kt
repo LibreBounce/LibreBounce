@@ -18,13 +18,14 @@
  */
 package net.ccbluex.liquidbounce.utils.render.placement
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
+import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
 
 // TODO check whether the Boxes actually touch
 /**
@@ -33,9 +34,21 @@ import net.minecraft.util.math.Vec3d
  */
 class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, val id: Int = 0) {
 
-    private val inList = linkedMapOf<BlockPos, Triple<Long, Long, Box>>()
-    private val currentList = linkedMapOf<BlockPos, Pair<Long, Box>>()
-    private val outList = linkedMapOf<BlockPos, Triple<Long, Long, Box>>()
+    private val inList = Long2ObjectLinkedOpenHashMap<InOutBlockData>()
+    private val currentList = Long2ObjectLinkedOpenHashMap<CurrentBlockData>()
+    private val outList = Long2ObjectLinkedOpenHashMap<InOutBlockData>()
+
+    @JvmRecord
+    private data class InOutBlockData(val startTime: Long, val cullData: Long, val box: Box) {
+        fun toCurrent() = CurrentBlockData(cullData, box)
+    }
+
+    @JvmRecord
+    private data class CurrentBlockData(val cullData: Long, val box: Box) {
+        fun toInOut(startTime: Long) = InOutBlockData(startTime, cullData, box)
+    }
+
+    private val blockPosCache = BlockPos.Mutable()
 
     fun render(event: WorldRenderEvent, time: Long) {
         val matrixStack = event.matrixStack
@@ -47,8 +60,7 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
             renderEnvironmentForWorld(matrixStack) {
                 BoxRenderer.drawWith(this) {
                     fun drawEntryBox(blockPos: BlockPos, cullData: Long, box: Box, colorFactor: Float) {
-                        val vec3d = Vec3d(blockPos.x.toDouble(), blockPos.y.toDouble(), blockPos.z.toDouble())
-                        withPositionRelativeToCamera(vec3d) {
+                        withPositionRelativeToCamera(blockPos.toVec3d()) {
                             drawBox(
                                 box,
                                 color.fade(colorFactor),
@@ -59,44 +71,53 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
                         }
                     }
 
-                    inList.iterator().apply {
+                    inList.long2ObjectEntrySet().iterator().apply {
                         while (hasNext()) {
+                            // Do not use destructuring declaration which returns boxed [Long] values
                             val entry = next()
+                            val pos = entry.longKey
+                            val value = entry.value
 
-                            val sizeFactor = startSizeCurve.getFactor(entry.value.first, time, inTime.toFloat())
+                            val sizeFactor = startSizeCurve.getFactor(value.startTime, time, inTime.toFloat())
                             val expand = MathHelper.lerp(sizeFactor, startSize, 1f)
-                            val box = getBox(if (expand < 1f) 1f - expand else expand, entry.value.third)
-                            val colorFactor = fadeInCurve.getFactor(entry.value.first, time, inTime.toFloat())
+                            val box = getBox(if (expand < 1f) 1f - expand else expand, value.box)
+                            val colorFactor = fadeInCurve.getFactor(value.startTime, time, inTime.toFloat())
 
-                            drawEntryBox(entry.key, entry.value.second, box, colorFactor)
+                            drawEntryBox(blockPosCache.set(pos), value.cullData, box, colorFactor)
 
-                            if (time - entry.value.first >= outTime) {
+                            if (time - value.startTime >= outTime) {
                                 if (keep) {
-                                    currentList[entry.key] = entry.value.second to entry.value.third
+                                    currentList[pos] = value.toCurrent()
                                 } else {
-                                    outList[entry.key] = Triple(time, entry.value.second, entry.value.third)
+                                    outList[pos] = value.copy(startTime = time)
                                 }
                                 remove()
                             }
                         }
                     }
 
-                    currentList.forEach { drawEntryBox(it.key, it.value.first, it.value.second, 1f) }
+                    currentList.long2ObjectEntrySet().forEach { entry ->
+                        val pos = entry.longKey
+                        val value = entry.value
+                        drawEntryBox(blockPosCache.set(pos), value.cullData, value.box, 1f)
+                    }
 
-                    outList.iterator().apply {
+                    outList.long2ObjectEntrySet().iterator().apply {
                         while (hasNext()) {
                             val entry = next()
+                            val pos = entry.longKey
+                            val value = entry.value
 
-                            val sizeFactor = endSizeCurve.getFactor(entry.value.first, time, outTime.toFloat())
+                            val sizeFactor = endSizeCurve.getFactor(value.startTime, time, outTime.toFloat())
                             val expand = 1f - MathHelper.lerp(sizeFactor, 1f, endSize)
-                            val box = getBox(expand, entry.value.third)
-                            val colorFactor = 1f - fadeOutCurve.getFactor(entry.value.first, time, outTime.toFloat())
+                            val box = getBox(expand, value.box)
+                            val colorFactor = 1f - fadeOutCurve.getFactor(value.startTime, time, outTime.toFloat())
 
-                            drawEntryBox(entry.key, entry.value.second, box, colorFactor)
+                            drawEntryBox(blockPosCache.set(pos), value.cullData, box, colorFactor)
 
-                            if (time - entry.value.first >= outTime) {
+                            if (time - value.startTime >= outTime) {
                                 remove()
-                                updateNeighbors(entry.key)
+                                updateNeighbors(blockPosCache.set(pos))
                             }
                         }
                     }
@@ -128,14 +149,17 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
 
         // TODO in theory a one block radius should be enough
         pos.searchBlocksInCuboid(2).forEach {
-            val blockPos = it.toImmutable()
-            inList.computeIfPresent(blockPos) { _, value ->
-                Triple(value.first, getCullData(blockPos), value.third)
-            }?.let { return@forEach }
+            val longValue = it.asLong()
 
-            currentList.computeIfPresent(blockPos) { _, value ->
-                getCullData(blockPos) to value.second
-            }?.let { return@forEach }
+            if (inList.containsKey(longValue)) {
+                inList.put(longValue, inList.get(longValue).copy(cullData = getCullData(it)))
+                return@forEach
+            }
+
+            if (currentList.containsKey(longValue)) {
+                currentList.put(longValue, currentList.get(longValue).copy(cullData = getCullData(it)))
+                return@forEach
+            }
         }
     }
 
@@ -189,7 +213,10 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
     /**
      * Checks whether the position is rendered.
      */
-    private fun contains(pos: BlockPos) = inList.contains(pos) || currentList.contains(pos) || outList.contains(pos)
+    private fun contains(pos: BlockPos): Boolean {
+        val longValue = pos.asLong()
+        return inList.containsKey(longValue) || currentList.containsKey(longValue) || outList.containsKey(longValue)
+    }
 
     /**
      * Applies a mask to the current data if either [direction1Present] and [direction2Present] are `false` or
@@ -235,33 +262,36 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
      * it will continue to get rendered until it's removed or the world changes.
      */
     fun addBlock(pos: BlockPos, update: Boolean = true, box: Box = FULL_BOX) {
-        if (!currentList.contains(pos) && !inList.contains(pos)) {
-            inList[pos] = Triple(System.currentTimeMillis(), 0L, box)
+        val longValue = pos.asLong()
+        if (!currentList.containsKey(longValue) && !inList.containsKey(longValue)) {
+            inList.put(longValue, InOutBlockData(System.currentTimeMillis(), 0L, box))
             if (update) {
                 updateNeighbors(pos)
             }
         }
 
-        outList.remove(pos)
+        outList.remove(longValue)
     }
 
     /**
      * Removes a block from the rendering, it will get an out animation tho.
      */
     fun removeBlock(pos: BlockPos) {
+        val longValue = pos.asLong()
         var cullData = 0L
         var box: Box? = null
-        currentList.remove(pos)?.let {
-            cullData = it.first
-            box = it.second
+
+        currentList.remove(longValue)?.let {
+            cullData = it.cullData
+            box = it.box
         } ?: run {
-            inList.remove(pos)?.let {
-                cullData = it.second
-                box = it.third
+            inList.remove(longValue)?.let {
+                cullData = it.cullData
+                box = it.box
             } ?: return
         }
 
-        outList[pos] = Triple(System.currentTimeMillis(), cullData, box!!)
+        outList.put(longValue, InOutBlockData(System.currentTimeMillis(), cullData, box!!))
     }
 
     /**
@@ -271,11 +301,40 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
      * so that positions don't get updated multiple times.
      */
     fun updateAll() {
-        for (entry in inList) {
-            inList[entry.key] = Triple(entry.value.first, getCullData(entry.key), entry.value.third)
+        inList.long2ObjectEntrySet().forEach { entry ->
+            val key = entry.longKey
+            val value = entry.value
+            inList.put(key, value.copy(cullData = getCullData(blockPosCache.set(key))))
         }
-        for (entry in currentList) {
-            currentList[entry.key] = getCullData(entry.key) to entry.value.second
+
+        currentList.long2ObjectEntrySet().forEach { entry ->
+            val key = entry.longKey
+            val value = entry.value
+            currentList.put(key, value.copy(cullData = getCullData(blockPosCache.set(key))))
+        }
+    }
+
+    /**
+     * Updates the box of [pos] to [box].
+     *
+     * This method won't affect positions that are in the state of fading out.
+     */
+    fun updateBox(pos: BlockPos, box: Box) {
+        val longValue = pos.asLong()
+        var needUpdate = false
+
+        if (inList.containsKey(longValue)) {
+            needUpdate = true
+            inList.put(longValue, inList.get(longValue).copy(box = box))
+        }
+
+        if (currentList.containsKey(longValue)) {
+            needUpdate = true
+            currentList.put(longValue, currentList.get(longValue).copy(box = box))
+        }
+
+        if (needUpdate) {
+            updateNeighbors(pos)
         }
     }
 
@@ -284,18 +343,22 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
      * all animations have been finished even though the module might be already disabled.
      */
     fun clearSilently() {
-        inList.iterator().apply {
+        inList.long2ObjectEntrySet().iterator().apply {
             while (hasNext()) {
                 val entry = next()
-                outList[entry.key] = Triple(System.currentTimeMillis(), entry.value.second, entry.value.third)
+                val pos = entry.longKey
+                val value = entry.value
+                outList.put(pos, value.copy(startTime = System.currentTimeMillis()))
                 remove()
             }
         }
 
-        currentList.iterator().apply {
+        currentList.long2ObjectEntrySet().iterator().apply {
             while (hasNext()) {
                 val entry = next()
-                outList[entry.key] = Triple(System.currentTimeMillis(), entry.value.first, entry.value.second)
+                val pos = entry.longKey
+                val value = entry.value
+                outList.put(pos, value.toInOut(startTime = System.currentTimeMillis()))
                 remove()
             }
         }
