@@ -5,17 +5,14 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
-import com.google.gson.JsonParser
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.launch
-import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.injection.implementations.IMixinGuiSlot
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.requestStream
+import net.ccbluex.liquidbounce.utils.io.HttpUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.CustomTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
@@ -25,6 +22,7 @@ import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiSlot
 import net.minecraft.client.renderer.GlStateManager.*
+import okhttp3.Request
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -32,10 +30,12 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.collections.ArrayList
 import kotlin.math.sin
 
+private val DECIMAL_FORMAT = NumberFormat.getInstance(Locale.US) as DecimalFormat
+
 class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
-    private val DECIMAL_FORMAT = NumberFormat.getInstance(Locale.US) as DecimalFormat
     private lateinit var list: GuiList
 
     private var credits = emptyList<Credit>()
@@ -174,31 +174,24 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private fun loadCredits() {
         try {
-            val jsonParser = JsonParser()
-
-            val gitHubContributors = PRETTY_GSON.fromJson(
-                get("https://api.github.com/repos/CCBlueX/LiquidBounce/stats/contributors").first,
-                Array<GitHubContributor>::class.java
-            )
-
-            if (gitHubContributors == null) {
+            val gitHubContributors = HttpUtils.getJson<Array<GitHubContributor>>(
+                "https://api.github.com/repos/CCBlueX/LiquidBounce/stats/contributors"
+            ) ?: run {
                 failed = true
                 return
             }
 
-            val additionalInformation =
-                jsonParser.parse(get("https://raw.githubusercontent.com/CCBlueX/LiquidCloud/master/LiquidBounce/contributors.json").first).asJsonObject
+            // Note: this API is not available in China
+            val additionalInformation = HttpUtils.getJson<Map<String, ContributorInformation>>(
+                "https://raw.githubusercontent.com/CCBlueX/LiquidCloud/master/LiquidBounce/contributors.json"
+            ) ?: emptyMap()
 
-            val credits = mutableListOf<Credit>()
+            val credits = ArrayList<Credit>(gitHubContributors.size)
 
             for (gitHubContributor in gitHubContributors) {
-                var contributorInformation: ContributorInformation? = null
                 val author = gitHubContributor.author ?: continue // Skip invalid contributors
-                val jsonElement = additionalInformation[author.id.toString()]
 
-                if (jsonElement != null) {
-                    contributorInformation = PRETTY_GSON.fromJson(jsonElement, ContributorInformation::class.java)
-                }
+                val contributorInformation = additionalInformation[author.id.toString()]
 
                 var additions = 0
                 var deletions = 0
@@ -211,7 +204,7 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
                 }
 
                 credits += Credit(
-                    author.name, author.avatarUrl, null,
+                    author.name, author.avatarUrl,
                     additions, deletions, commits,
                     contributorInformation?.teamMember ?: false,
                     contributorInformation?.contributions ?: emptyList()
@@ -231,50 +224,11 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             this.credits = credits
-
-            for (credit in credits) {
-                try {
-                    requestStream(
-                        "${credit.avatarUrl}?s=${fontRendererObj.FONT_HEIGHT * 4}",
-                        "GET"
-                    ).let { (stream, _) ->
-                        stream.use {
-                            credit.avatar = CustomTexture(ImageIO.read(it))
-                        }
-                    }
-                } catch (_: Exception) {
-                }
-            }
         } catch (e: Exception) {
             LOGGER.error("Failed to load credits.", e)
             failed = true
         }
     }
-
-    internal inner class ContributorInformation(
-        val name: String, val teamMember: Boolean,
-        val contributions: List<String>,
-    )
-
-    internal inner class GitHubContributor(
-        @SerializedName("total") val totalContributions: Int,
-        val weeks: List<GitHubWeek>, val author: GitHubAuthor?,
-    )
-
-    internal inner class GitHubWeek(
-        @SerializedName("w") val timestamp: Long, @SerializedName("a") val additions: Int,
-        @SerializedName("d") val deletions: Int, @SerializedName("c") val commits: Int,
-    )
-
-    internal inner class GitHubAuthor(
-        @SerializedName("login") val name: String, val id: Int,
-        @SerializedName("avatar_url") val avatarUrl: String,
-    )
-
-    internal inner class Credit(
-        val name: String, val avatarUrl: String, var avatar: CustomTexture?, val additions: Int,
-        val deletions: Int, val commits: Int, val isTeamMember: Boolean, val contributions: List<String>,
-    )
 
     private inner class GuiList(gui: GuiScreen) : GuiSlot(mc, gui.width / 4, gui.height, 40, gui.height - 40, 15) {
 
@@ -308,5 +262,40 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
         }
 
         override fun drawBackground() {}
+    }
+}
+
+private class ContributorInformation(
+    val name: String, val teamMember: Boolean,
+    val contributions: List<String>,
+)
+
+private class GitHubContributor(
+    @SerializedName("total") val totalContributions: Int,
+    val weeks: List<GitHubWeek>, val author: GitHubAuthor?,
+)
+
+private class GitHubWeek(
+    @SerializedName("w") val timestamp: Long, @SerializedName("a") val additions: Int,
+    @SerializedName("d") val deletions: Int, @SerializedName("c") val commits: Int,
+)
+
+private class GitHubAuthor(
+    @SerializedName("login") val name: String, val id: Int,
+    @SerializedName("avatar_url") val avatarUrl: String,
+)
+
+private class Credit(
+    val name: String, val avatarUrl: String, val additions: Int,
+    val deletions: Int, val commits: Int, val isTeamMember: Boolean, val contributions: List<String>,
+) {
+    val avatar by lazy {
+        runCatching {
+            HttpUtils.httpClient.newCall(Request.Builder().url(avatarUrl).build()).execute().use { response ->
+                response.body!!.byteStream().use(ImageIO::read).let(::CustomTexture)
+            }
+        }.onFailure {
+            LOGGER.error("Failed to load avatar.", it)
+        }.getOrNull()
     }
 }

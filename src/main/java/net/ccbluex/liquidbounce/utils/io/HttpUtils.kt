@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.io
 
+import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -111,6 +112,16 @@ object HttpUtils {
 
     fun get(url: String, agent: String = DEFAULT_AGENT, headers: Array<Pair<String, String>> = emptyArray()): Pair<String, Int> {
         return request(url, "GET", agent, headers)
+    }
+
+    inline fun <reified T> getJson(url: String): T? {
+        return runCatching {
+            httpClient.newCall(Request.Builder().url(url).build()).execute().use {
+                it.body?.charStream()?.decodeJson<T>()
+            }
+        }.onFailure {
+            ClientUtils.LOGGER.error("[HTTP] Get JSON failed", it)
+        }.getOrNull()
     }
 
     fun post(
