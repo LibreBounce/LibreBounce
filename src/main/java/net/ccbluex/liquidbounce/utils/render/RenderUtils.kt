@@ -37,7 +37,7 @@ object RenderUtils : MinecraftInstance {
     }
     var deltaTime = 0
 
-    fun deltaTimeNormalized(ticks: Int = 50) = (deltaTime / ticks.toDouble()).coerceAtMost(1.0)
+    fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime / (ticks.toDouble() * 50)).coerceAtMost(1.0)
 
     private const val CIRCLE_STEPS = 40
 
