@@ -91,20 +91,16 @@ object ModuleBlockOutline : ClientModule("BlockOutline", Category.RENDER, aliase
         }
 
         val renderPosition = if (previousPosition != null && Slide.running) {
-            val factor = Slide.easing.getFactor(
-                lastChange,
-                System.currentTimeMillis(),
-                Slide.time.toFloat()
-            ).toDouble()
+            val factor = Slide.easing.getFactor(lastChange, System.currentTimeMillis(), Slide.time.toFloat()).toDouble()
 
-            val previousPosition1 = previousPosition!!
+            val previousPosition = previousPosition!!
             Box(
-                MathHelper.lerp(factor, previousPosition1.minX, finalPosition.minX),
-                MathHelper.lerp(factor, previousPosition1.minY, finalPosition.minY),
-                MathHelper.lerp(factor, previousPosition1.minZ, finalPosition.minZ),
-                MathHelper.lerp(factor, previousPosition1.maxX, finalPosition.maxX),
-                MathHelper.lerp(factor, previousPosition1.maxY, finalPosition.maxY),
-                MathHelper.lerp(factor, previousPosition1.maxZ, finalPosition.maxZ)
+                MathHelper.lerp(factor, previousPosition.minX, finalPosition.minX),
+                MathHelper.lerp(factor, previousPosition.minY, finalPosition.minY),
+                MathHelper.lerp(factor, previousPosition.minZ, finalPosition.minZ),
+                MathHelper.lerp(factor, previousPosition.maxX, finalPosition.maxX),
+                MathHelper.lerp(factor, previousPosition.maxY, finalPosition.maxY),
+                MathHelper.lerp(factor, previousPosition.maxZ, finalPosition.maxZ)
             )
         } else {
             finalPosition
@@ -123,55 +119,40 @@ object ModuleBlockOutline : ClientModule("BlockOutline", Category.RENDER, aliase
     }
 
     private fun flatBox(shape: VoxelShape, side: Direction) = when (side) {
-        Direction.UP -> Box(
-            shape.getMin(Direction.Axis.X),
-            shape.getMax(Direction.Axis.Y),
-            shape.getMin(Direction.Axis.Z),
-            shape.getMax(Direction.Axis.X),
-            shape.getMax(Direction.Axis.Y),
-            shape.getMax(Direction.Axis.Z)
-        )
-        Direction.DOWN -> Box(
-            shape.getMin(Direction.Axis.X),
-            shape.getMin(Direction.Axis.Y),
-            shape.getMin(Direction.Axis.Z),
-            shape.getMax(Direction.Axis.X),
-            shape.getMin(Direction.Axis.Y),
-            shape.getMax(Direction.Axis.Z)
-        )
-        Direction.NORTH -> Box(
-            shape.getMin(Direction.Axis.X),
-            shape.getMin(Direction.Axis.Y),
-            shape.getMin(Direction.Axis.Z),
-            shape.getMax(Direction.Axis.X),
-            shape.getMax(Direction.Axis.Y),
-            shape.getMin(Direction.Axis.Z)
-        )
-        Direction.SOUTH -> Box(
-            shape.getMin(Direction.Axis.X),
-            shape.getMin(Direction.Axis.Y),
-            shape.getMax(Direction.Axis.Z),
-            shape.getMax(Direction.Axis.X),
-            shape.getMax(Direction.Axis.Y),
-            shape.getMax(Direction.Axis.Z)
-        )
-        Direction.WEST -> Box(
-            shape.getMin(Direction.Axis.X),
-            shape.getMin(Direction.Axis.Y),
-            shape.getMin(Direction.Axis.Z),
-            shape.getMin(Direction.Axis.X),
-            shape.getMax(Direction.Axis.Y),
-            shape.getMax(Direction.Axis.Z)
-        )
-        Direction.EAST -> Box(
-            shape.getMax(Direction.Axis.X),
-            shape.getMin(Direction.Axis.Y),
-            shape.getMin(Direction.Axis.Z),
-            shape.getMax(Direction.Axis.X),
-            shape.getMax(Direction.Axis.Y),
-            shape.getMax(Direction.Axis.Z)
-        )
+        Direction.UP -> shape.boxWithBoundsY(shape.getMax(Direction.Axis.Y))
+        Direction.DOWN -> shape.boxWithBoundsY(shape.getMin(Direction.Axis.Y))
+        Direction.NORTH -> shape.boxWithBoundsZ(shape.getMin(Direction.Axis.Z))
+        Direction.SOUTH -> shape.boxWithBoundsZ(shape.getMax(Direction.Axis.Z))
+        Direction.WEST -> shape.boxWithBoundsX(shape.getMin(Direction.Axis.X))
+        Direction.EAST -> shape.boxWithBoundsX(shape.getMax(Direction.Axis.X))
     }
+
+    private fun VoxelShape.boxWithBoundsX(x: Double) = Box(
+        x,
+        getMin(Direction.Axis.Y),
+        getMin(Direction.Axis.Z),
+        x,
+        getMax(Direction.Axis.Y),
+        getMax(Direction.Axis.Z)
+    )
+
+    private fun VoxelShape.boxWithBoundsY(y: Double) = Box(
+        getMin(Direction.Axis.X),
+        y,
+        getMin(Direction.Axis.Z),
+        getMax(Direction.Axis.X),
+        y,
+        getMax(Direction.Axis.Z)
+    )
+
+    private fun VoxelShape.boxWithBoundsZ(z: Double) = Box(
+        getMin(Direction.Axis.X),
+        getMin(Direction.Axis.Y),
+        z,
+        getMax(Direction.Axis.X),
+        getMax(Direction.Axis.Y),
+        z
+    )
 
     @Suppress("unused")
     private val worldChangeHandler = handler<WorldChangeEvent> {
