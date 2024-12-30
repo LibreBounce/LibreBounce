@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.cape
 
+import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
@@ -19,9 +20,7 @@ import net.ccbluex.liquidbounce.utils.io.decodeJson
 import net.ccbluex.liquidbounce.utils.io.parseJson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -139,23 +138,19 @@ object CapeService : Listenable, MinecraftInstance {
             .addHeader("Authorization", token)
             .build()
 
-        try {
-            client.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    val json = response.body?.charStream()?.decodeJson<JSONObject>()
-                        ?: throw RuntimeException("Failed to decode JSON of self cape. Response: ${response.body?.string()}")
-                    val capeName = json.getString("cape")
-                    val enabled = json.getBoolean("enabled")
-                    val uuid = json.getString("uuid")
+        client.newCall(request).execute().use { response ->
+            if (response.isSuccessful) {
+                val json = response.body?.charStream()?.decodeJson<JsonObject>()
+                    ?: throw RuntimeException("Failed to decode JSON of self cape. Response: ${response.body?.string()}")
+                val capeName = json["cape"].asString
+                val enabled = json["enabled"].asBoolean
+                val uuid = json["uuid"].asString
 
-                    clientCapeUser = CapeSelfUser(token, enabled, uuid, capeName)
-                    LOGGER.info("Logged in successfully. Cape: $capeName")
-                } else {
-                    throw RuntimeException("Failed to get self cape. Status code: ${response.code}")
-                }
+                clientCapeUser = CapeSelfUser(token, enabled, uuid, capeName)
+                LOGGER.info("Logged in successfully. Cape: $capeName")
+            } else {
+                throw RuntimeException("Failed to get self cape. Status code: ${response.code}")
             }
-        } catch (e: Throwable) {
-            LOGGER.error("Failed to login due to error.", e)
         }
     }
 
