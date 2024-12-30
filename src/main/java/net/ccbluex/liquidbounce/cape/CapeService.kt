@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.cape
 
-import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
@@ -22,7 +21,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 /**
