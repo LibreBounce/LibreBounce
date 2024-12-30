@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -81,7 +82,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
 
         // Reset player rotation
         if (!allowRotationChange) {
-            val rotation = ModuleRotations.displayRotations()
+            val rotation = RotationManager.currentRotation ?: RotationManager.serverRotation
 
             player.yaw = rotation.yaw
             player.pitch = rotation.pitch

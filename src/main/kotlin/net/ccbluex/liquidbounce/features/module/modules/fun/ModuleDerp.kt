@@ -36,9 +36,9 @@ import net.ccbluex.liquidbounce.utils.kotlin.random
  */
 object ModuleDerp : ClientModule("Derp", Category.FUN) {
 
-    private val yawMode = choices("Yaw", YawSpin,
+    private val yawMode = choices("Yaw", YawRandom,
         arrayOf(YawStatic, YawOffset, YawRandom, YawJitter, YawSpin))
-    private val pitchMode = choices("Pitch", PitchStatic,
+    private val pitchMode = choices("Pitch", PitchRandom,
         arrayOf(PitchStatic, PitchOffset, PitchRandom))
     private val safePitch by boolean("SafePitch", true)
     private val notDuringSprint by boolean("NotDuringSprint", true)

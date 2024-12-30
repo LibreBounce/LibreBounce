@@ -26,7 +26,6 @@ import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
@@ -45,7 +44,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -236,35 +234,6 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
 
         previousElytra = elytra;
-    }
-
-    /**
-     * Body rotation yaw injection hook
-     */
-    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getYaw()F"), slice = @Slice(to = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getYaw()F", ordinal = 1)))
-    private float hookBodyRotationsA(float original) {
-        if ((Object) this != MinecraftClient.getInstance().player) {
-            return original;
-        }
-
-        var rotations = ModuleRotations.INSTANCE;
-        var rotation = rotations.displayRotations();
-        return rotations.shouldDisplayRotations() && rotations.getBodyParts().getBody() ? rotation.getYaw() : original;
-    }
-
-    /**
-     * Body rotation yaw injection hook
-     */
-    @ModifyExpressionValue(method = "turnHead", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getYaw()F"))
-    private float hookBodyRotationsB(float original) {
-        if ((Object) this != MinecraftClient.getInstance().player) {
-            return original;
-        }
-
-        var rotations = ModuleRotations.INSTANCE;
-        var rotation = rotations.displayRotations();
-
-        return rotations.shouldDisplayRotations() && rotations.getBodyParts().getBody() ? rotation.getYaw() : original;
     }
 
     /**
