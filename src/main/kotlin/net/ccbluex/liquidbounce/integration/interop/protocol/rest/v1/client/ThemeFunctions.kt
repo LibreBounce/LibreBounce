@@ -37,27 +37,6 @@ fun getThemeInfo(requestObject: RequestObject): FullHttpResponse = httpOk(JsonOb
 // GET /api/v1/client/fonts
 @Suppress("UNUSED_PARAMETER")
 fun getFonts(requestObject: RequestObject): FullHttpResponse = httpOk(JsonArray().apply {
-    FontManager.fontFaces
-        .filter { fontFace -> fontFace.isLoaded }
-        .forEach { (name, _) ->
-            add(name)
-        }
-})
-
-// GET /api/v1/client/fonts/:name
-@Suppress("UNUSED_PARAMETER")
-fun getFont(requestObject: RequestObject): FullHttpResponse {
-    val name = requestObject.params["name"] ?: return httpBadRequest("Missing font name")
-    val font = FontManager.fontFace(name) ?: return httpNotFound(name, "Font not found")
-    val file = font.file ?: return httpNoContent()
-
-    return httpFile(file)
-}
-
-
-// GET /api/v1/client/fonts
-@Suppress("UNUSED_PARAMETER")
-fun getFonts(requestObject: RequestObject): FullHttpResponse = httpOk(JsonArray().apply {
     FontManager.fontFaces.forEach { (name, _) ->
         add(name)
     }

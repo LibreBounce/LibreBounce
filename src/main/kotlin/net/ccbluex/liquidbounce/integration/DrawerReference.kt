@@ -26,7 +26,7 @@ sealed class DrawerReference : AutoCloseable {
             get() = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
 
         private val takesInputOnEditor: () -> Boolean
-            get() = { IntegrationHandler.route.type == VirtualScreenType.EDITOR }
+            get() = { IntegrationListener.route.type == VirtualScreenType.EDITOR }
 
         fun newComponentRef(route: RouteType, stage: DrawingStage = DrawingStage.OVERLAY) = when (route) {
             is RouteType.Web -> Web(

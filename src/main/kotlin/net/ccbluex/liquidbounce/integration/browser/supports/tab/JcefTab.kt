@@ -19,7 +19,6 @@
 package net.ccbluex.liquidbounce.integration.browser.supports.tab
 
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
-import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.integration.DrawingStage
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.mcef.MCEF
@@ -68,7 +67,7 @@ class JcefTab(
             override fun getGlId() = mcefBrowser.renderer.textureID
         })
     }
-    
+
 
     override fun forceReload() {
         mcefBrowser.reloadIgnoreCache()

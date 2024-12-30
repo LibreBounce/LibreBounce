@@ -1,7 +1,5 @@
 package net.ccbluex.liquidbounce.integration.theme
 
-import net.ccbluex.liquidbounce.integration.theme.Wallpaper.ImageWallpaper
-import net.ccbluex.liquidbounce.integration.theme.Wallpaper.ShaderWallpaper
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
 import net.ccbluex.liquidbounce.integration.theme.type.native.NativeTheme
 import net.ccbluex.liquidbounce.render.shader.Shader
@@ -51,7 +49,8 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             }
 
             val image = NativeImageBackedTexture(NativeImage.read(file.inputStream()))
-            imageId = mc.textureManager.registerDynamicTexture("liquidbounce-bg-${name.lowercase()}", image)
+            imageId = Identifier.of("liquidbounce", "bg-${name.lowercase()}")
+            mc.textureManager.registerTexture(imageId, image)
             logger.info("Loaded background image for theme $name")
             return true
         }
@@ -60,7 +59,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float
         ): Boolean {
             val imageId = imageId ?: return false
-            context.drawTexture(imageId, 0, 0, 0f, 0f, width, height, width, height)
+//            context.drawTexture(imageId, 0, 0, 0f, 0f, width, height, width, height)
             return true
         }
 
@@ -76,7 +75,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             }
 
             val shaderSource = file.readText()
-            shader = Shader(resourceToString("/assets/liquidbounce/shaders/vertex.vert"), shaderSource)
+            shader = Shader(resourceToString("/resources/liquidbounce/shaders/vertex.vert"), shaderSource)
             logger.info("Compiled background shader for theme $name")
             return true
         }
@@ -85,7 +84,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
             context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float
         ): Boolean {
             val shader = shader ?: return false
-            shader.draw(mouseX, mouseY, delta)
+//            shader.draw(mouseX, mouseY, delta)
             return true
         }
 

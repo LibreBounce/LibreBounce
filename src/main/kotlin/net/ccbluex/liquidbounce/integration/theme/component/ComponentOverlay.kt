@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.integration.theme.ThemeManager.activeComponents
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
 import net.ccbluex.liquidbounce.utils.client.logger
 
-object ComponentOverlay : Listenable {
+object ComponentOverlay : EventListener {
 
     private val drawerReferenceMap = mutableMapOf<Theme, DrawerReference>()
 
@@ -81,12 +81,12 @@ object ComponentOverlay : Listenable {
     }
 
     @JvmStatic
-    fun isTweakEnabled(tweak: ComponentTweak) = handleEvents() && !HideAppearance.isHidingNow &&
+    fun isTweakEnabled(tweak: ComponentTweak) = this.running && !HideAppearance.isHidingNow &&
         activeComponents.any { it.enabled && it.tweaks.contains(tweak) }
 
     @JvmStatic
     fun getComponentsWithTweak(tweak: ComponentTweak): List<Component> {
-        if (!handleEvents() || HideAppearance.isHidingNow) {
+        if (!this.running || HideAppearance.isHidingNow) {
             return emptyList()
         }
 

@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.ModuleManager.iterator
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.inGame
@@ -56,9 +57,9 @@ object HideAppearance : EventListener {
 
     private fun updateClient() {
         if (isHidingNow) {
-            IntegrationHandler.restoreOriginal()
+            IntegrationListener.restoreOriginal()
         } else {
-            IntegrationHandler.sync()
+            IntegrationListener.sync()
         }
 
         mc.updateWindowTitle()

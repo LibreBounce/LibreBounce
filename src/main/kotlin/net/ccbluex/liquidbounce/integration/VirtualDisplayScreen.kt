@@ -19,11 +19,7 @@
  */
 package net.ccbluex.liquidbounce.integration
 
-import net.ccbluex.liquidbounce.utils.client.asText
-import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.integration.theme.Theme
-import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.minecraft.client.gui.DrawContext
+import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.screen.Screen
@@ -31,10 +27,10 @@ import net.minecraft.client.gui.screen.Screen
 class VirtualDisplayScreen(
     val route: RouteType,
     val original: Screen? = null
-) : Screen("VS-${$route.routeName.uppercase()}".asText()) {
+) : Screen("VS-${route.type?.routeName?.uppercase()}".asText()) {
 
     override fun init() {
-        IntegrationListener.virtualOpen(theme, screenType)
+        IntegrationListener.virtualOpen(route)
     }
 
     override fun close() {

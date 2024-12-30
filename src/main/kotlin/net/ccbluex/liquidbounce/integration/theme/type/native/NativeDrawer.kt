@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.integration.theme.type.native
 
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.integration.DrawingStage
@@ -13,7 +13,7 @@ class NativeDrawer(
     var route: NativeDrawableRoute?,
     val stage: DrawingStage = DrawingStage.OVERLAY,
     val takesInput: () -> Boolean = { false }
-) : Listenable, AutoCloseable {
+) : EventListener, AutoCloseable {
 
     private var drawn = false
 

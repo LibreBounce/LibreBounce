@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.integration.theme.type.native.routes
 
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager.activeComponents
 import net.ccbluex.liquidbounce.integration.theme.type.native.NativeDrawableRoute
@@ -20,7 +20,7 @@ class HudDrawableRoute : NativeDrawableRoute() {
     private var startY = 0.0
 
     override fun render(context: DrawContext, delta: Float) {
-        val editorIsOpen = IntegrationHandler.route.type == VirtualScreenType.EDITOR
+        val editorIsOpen = IntegrationListener.route.type == VirtualScreenType.EDITOR
 
         // Reset dragging component if editor is closed
         if (!editorIsOpen && draggingComponent != null) {

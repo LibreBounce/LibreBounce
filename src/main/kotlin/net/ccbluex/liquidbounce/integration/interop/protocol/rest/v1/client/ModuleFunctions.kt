@@ -29,11 +29,12 @@ import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.ModuleManager.iterator
 import net.ccbluex.liquidbounce.features.module.ModuleManager.modulesConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.netty.http.model.RequestObject
@@ -45,7 +46,7 @@ import java.io.StringReader
 @Suppress("UNUSED_PARAMETER")
 fun getModules(requestObject: RequestObject): FullHttpResponse {
     // Editor mode
-    if (IntegrationHandler.route.type == VirtualScreenType.EDITOR) {
+    if (IntegrationListener.route.type == VirtualScreenType.EDITOR) {
         val mods = JsonArray()
         for (module in arrayOf(ModuleKillAura, ModuleESP, ModuleReach)) {
             mods.add(JsonObject().apply {
@@ -53,7 +54,7 @@ fun getModules(requestObject: RequestObject): FullHttpResponse {
                 addProperty("category", module.category.readableName)
                 add("keyBind", interopGson.toJsonTree(module.bind))
                 addProperty("enabled", true)
-                addProperty("description", module.description)
+                addProperty("description", module.description.get())
                 addProperty("tag", module.tag)
                 addProperty("hidden", module.hidden)
                 add("aliases", interopGson.toJsonTree(module.aliases))

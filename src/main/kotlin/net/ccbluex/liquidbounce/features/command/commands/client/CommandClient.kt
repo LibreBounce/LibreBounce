@@ -37,7 +37,7 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.destructClient
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.wipeClient
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
+import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.browser.BrowserScreen
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
@@ -199,7 +199,7 @@ object CommandClient : CommandFactory {
         .subcommand(CommandBuilder.begin("reset")
             .handler { command, args ->
                 chat(regular("Resetting client JCEF browser..."))
-                IntegrationHandler.sync()
+                IntegrationListener.sync()
             }.build()
         )
         .build()

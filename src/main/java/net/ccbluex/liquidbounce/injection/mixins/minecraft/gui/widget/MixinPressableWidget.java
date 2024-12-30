@@ -85,22 +85,22 @@ public abstract class MixinPressableWidget extends MixinClickableWidget {
             } else {
                 texture = GUI_BUTTON_DISABLED_TEXTURE.getValue();
             }
-
-            context.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-            context.drawTexture(texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
-                    this.getWidth(), this.getHeight());
+//
+//            context.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+//            context.drawTexture(texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
+//                    this.getWidth(), this.getHeight());
         }
 
         if (factor > 0) {
             var a = Easing.QUAD_IN_OUT.transform(factor);
-
-            context.setShaderColor(1.0F, 1.0F, 1.0F, a);
-            context.drawTexture(GUI_BUTTON_HOVER_TEXTURE.getValue(), this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
-                    this.getWidth(), this.getHeight());
+//
+//            context.setShaderColor(1.0F, 1.0F, 1.0F, a);
+//            context.drawTexture(GUI_BUTTON_HOVER_TEXTURE.getValue(), this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(),
+//                    this.getWidth(), this.getHeight());
         }
 
         // Draw the message
-        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+//        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         var i = this.active ? 16777215 : 10526880;
         var color = i | MathHelper.ceil(this.alpha * 255.0F) << 24;
 

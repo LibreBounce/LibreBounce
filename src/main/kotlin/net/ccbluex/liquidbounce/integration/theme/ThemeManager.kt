@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.config.types.ValueType
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager.extractDefault
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
@@ -69,7 +70,7 @@ object ThemeManager : Configurable("style") {
             value.defaultWallpaper?.let { wallpaper -> activeWallpaper = wallpaper }
 
             // Update integration browser
-            IntegrationHandler.sync()
+            IntegrationListener.sync()
         }
 
     /**
@@ -116,7 +117,7 @@ object ThemeManager : Configurable("style") {
      * @return The default font renderer of the active theme or the system font renderer.
      */
     val fontRenderer: FontRenderer
-        get() = activeTheme.fontRenderer ?: FontManager.ARIAL_FONT.getRenderer()
+        get() = activeTheme.fontRenderer ?: FontManager.FONT_RENDERER
 
     @Suppress("unused", "UNCHECKED_CAST")
     private val components =
@@ -163,7 +164,7 @@ object ThemeManager : Configurable("style") {
      * Get font. If name is blank, the default font renderer is returned.
      */
     fun getFontRenderer(name: String): FontRenderer =
-        if (name.isBlank()) fontRenderer else FontManager.fontFace(name)?.getRenderer() ?: fontRenderer
+        if (name.isBlank()) fontRenderer else FontManager.fontFace(name)?.renderer ?: fontRenderer
 
     /**
      * Extract the default theme from the resources.
@@ -177,7 +178,7 @@ object ThemeManager : Configurable("style") {
 
             // Extract default theme
             val folder = themesFolder.resolve("liquidbounce")
-            val stream = resource("/assets/liquidbounce/default_theme.zip")
+            val stream = resource("/resources/liquidbounce/default_theme.zip")
 
             if (folder.exists()) {
                 folder.deleteRecursively()

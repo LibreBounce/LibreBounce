@@ -77,16 +77,20 @@ class WebTheme(val folder: File) : Theme {
         get() = wallpapers.firstOrNull { it.name == metadata.wallpaper }
 
     override val fontRenderer: FontRenderer?
-        get() = metadata.font?.let { FontManager.fontFace(it)?.getRenderer() }
+        get() = metadata.font?.let { FontManager.fontFace(it)?.renderer }
 
     override val textures: Map<String, Lazy<Identifier>> = folder.resolve("textures").listFiles { _, name ->
         name.endsWith(".png")
     }?.associateBy { it.nameWithoutExtension }?.mapValues { (name, file) ->
             lazy {
-                mc.textureManager.registerDynamicTexture(
-                    "liquidbounce-theme-${this.name.lowercase()}-texture-${name.lowercase()}",
+                val identifier = Identifier.of("liquidbounce", "theme-${this.name.lowercase()}-texture-${name.lowercase()}")
+
+                mc.textureManager.registerTexture(
+                    identifier,
                     NativeImageBackedTexture(NativeImage.read(file.inputStream()))
                 )
+
+                identifier
             }
     } ?: hashMapOf()
 
