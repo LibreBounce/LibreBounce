@@ -68,7 +68,8 @@ object CapeService : Listenable, MinecraftInstance {
      * We start with an empty list, which will be updated by the refreshCapeCarriers function frequently based on the REFRESH_DELAY.
      * A CapeCarrier is a pair of (uuid, cape_name)
      */
-    private val capeCarriers = ConcurrentHashMap<UUID, String>()
+    @Volatile
+    private var capeCarriers = emptyMap<UUID, String>()
     private val lastUpdate = AtomicLong(0L)
     private var refreshJob: Job? = null
 
@@ -90,14 +91,14 @@ object CapeService : Listenable, MinecraftInstance {
 
                         // Should be a JSON Array. It will fail if not.
                         // Format: [["8f617b6a-bea0-4af5-8e4b-d026d8fa9de8", "marco"], ...]
-                        json.parseJson().asJsonArray.forEach { objInArray ->
+                        capeCarriers = json.parseJson().asJsonArray.associate { objInArray ->
                             // Should be a JSON Array. It will fail if not.
                             val arrayInArray = objInArray.asJsonArray
                             // 1. is UUID 2. is name of cape
                             val uuid = arrayInArray[0].asString
                             val name = arrayInArray[1].asString
 
-                            capeCarriers[UUID.fromString(uuid)] = name
+                            UUID.fromString(uuid) to name
                         }
 
                         lastUpdate.set(currentTime)
