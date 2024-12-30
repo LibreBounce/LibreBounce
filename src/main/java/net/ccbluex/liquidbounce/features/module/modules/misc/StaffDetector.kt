@@ -37,7 +37,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             "AgeraPvP", "HypeMC", "Hypixel",
             "SuperCraft", "PikaNetwork", "GommeHD",
             "CoralMC", "LibreCraft", "Originera",
-            "OC-TC"
+            "OC-TC", "AssPixel"
         ), "BlocksMC"
     ) {
         override fun onUpdate(value: String) {
@@ -104,7 +104,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         "coralmc" to "coralmc.it",
         "librecraft" to "librecraft.com",
         "originera" to "mc.orea.asia",
-        "oc-tc" to "oc.tc"
+        "oc-tc" to "oc.tc",
+        "asspixel" to "asspixel.net"
     )
 
     private fun loadStaffData() {
