@@ -140,14 +140,13 @@ object CapeService : Listenable, MinecraftInstance {
 
         client.newCall(request).execute().use { response ->
             if (response.isSuccessful) {
-                val json = response.body?.charStream()?.decodeJson<JsonObject>()
-                    ?: throw RuntimeException("Failed to decode JSON of self cape. Response: ${response.body?.string()}")
-                val capeName = json["cape"].asString
-                val enabled = json["enabled"].asBoolean
-                val uuid = json["uuid"].asString
+                class LoginResponse(val cape: String, val enabled: Boolean, val uuid: String)
 
-                clientCapeUser = CapeSelfUser(token, enabled, uuid, capeName)
-                LOGGER.info("Logged in successfully. Cape: $capeName")
+                val json = response.body?.charStream()?.decodeJson<LoginResponse>()
+                    ?: throw RuntimeException("Failed to decode JSON of self cape. Response: ${response.body?.string()}")
+
+                clientCapeUser = CapeSelfUser(token, json.enabled, json.uuid, json.cape)
+                LOGGER.info("Logged in successfully. Cape: ${json.cape}")
             } else {
                 throw RuntimeException("Failed to get self cape. Status code: ${response.code}")
             }
