@@ -418,11 +418,11 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
     private fun loadStaffList(url: String): Map<String, Set<String>> {
         return try {
-            val (response, code) = HttpUtils.get(url)
+            val (response, code) = HttpUtils.requestStream(url)
 
             when (code) {
                 200 -> {
-                    val staffList = response.lineSequence()
+                    val staffList = response.bufferedReader().lineSequence()
                         .filter { it.isNotBlank() }
                         .map { it.trim() }
                         .toSet()

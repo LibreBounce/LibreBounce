@@ -81,7 +81,7 @@ object HttpUtils {
 
     fun requestStream(
         url: String,
-        method: String,
+        method: String = "GET",
         agent: String = DEFAULT_AGENT,
         headers: Array<Pair<String, String>> = emptyArray(),
         body: RequestBody? = null
@@ -93,10 +93,10 @@ object HttpUtils {
             throw IOException("Unexpected code ${response.code}")
         }
 
-        return response.body?.byteStream()!! to response.code
+        return response.body!!.byteStream() to response.code
     }
 
-    fun request(
+    private fun request(
         url: String,
         method: String,
         agent: String = DEFAULT_AGENT,
