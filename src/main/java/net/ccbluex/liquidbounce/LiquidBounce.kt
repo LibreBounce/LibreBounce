@@ -46,10 +46,10 @@ import net.ccbluex.liquidbounce.utils.client.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
-import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.movement.BPSUtils
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.movement.TimerBalanceUtils
@@ -87,7 +87,7 @@ object LiquidBounce {
      * Defines if the client is in development mode.
      * This will enable update checking on commit time instead of regular legacy versioning.
      */
-    const val IN_DEV = true
+    const val IN_DEV = false
 
     val clientTitle = CLIENT_NAME + " " + clientVersionText + " " + clientCommit + "  | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
 
