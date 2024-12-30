@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.special
 
-import com.google.gson.JsonObject
 import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.IPCListener
 import com.jagrosh.discordipc.entities.RichPresence
@@ -24,9 +23,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
+import net.ccbluex.liquidbounce.utils.io.HttpUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
-import net.ccbluex.liquidbounce.utils.io.parseJson
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -159,20 +157,14 @@ object ClientRichPresence : MinecraftInstance, Listenable {
      * @throws IOException If reading failed
      */
     private fun loadConfiguration() {
-        val (response, _) = get("$CLIENT_CLOUD/discord.json")
-
-        // Read from web and convert to json object
-        val json = response.parseJson()
-
-        if (json !is JsonObject)
-            return
+        val discordConf = HttpUtils.getJson<DiscordConfiguration>("$CLIENT_CLOUD/discord.json") ?: return
 
         // Check has app id
-        if (json.has("appID"))
-            appID = json["appID"].asLong
+        discordConf.appID?.let { appID = it }
 
         // Import all asset names
-        for ((key, value) in json["assets"].asJsonObject.entrySet())
-            assets[key] = value.asString
+        assets += discordConf.assets
     }
 }
+
+private class DiscordConfiguration(val appID: Long?, val assets: Map<String, String>)
