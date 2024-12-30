@@ -202,7 +202,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
 
     private fun appendLineBreak(page: StringBuilder, lineIndex: Int) {
         page.append('\n')
-        if (lineIndex != MAX_LINES_PER_PAGE) {
+        if (lineIndex == MAX_LINES_PER_PAGE) {
             page.appendCodePoint(' '.code)
         }
     }
