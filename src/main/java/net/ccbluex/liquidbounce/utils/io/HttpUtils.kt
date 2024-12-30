@@ -120,7 +120,7 @@ object HttpUtils {
                 it.body?.charStream()?.decodeJson<T>()
             }
         }.onFailure {
-            ClientUtils.LOGGER.error("[HTTP] Get JSON failed", it)
+            ClientUtils.LOGGER.error("[HTTP] Failed to GET JSON from $url", it)
         }.getOrNull()
     }
 
