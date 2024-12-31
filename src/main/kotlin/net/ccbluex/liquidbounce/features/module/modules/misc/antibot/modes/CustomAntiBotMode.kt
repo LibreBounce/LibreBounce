@@ -109,14 +109,18 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         }
 
         private val values = arrayOf(
-            ArmorConfigurable("Helmet", EquipmentType.HELMET),
-            ArmorConfigurable("Chestplate", EquipmentType.CHESTPLATE),
-            ArmorConfigurable("Leggings", EquipmentType.LEGGINGS),
             ArmorConfigurable("Boots", EquipmentType.BOOTS),
-        ).onEach(::tree)
+            ArmorConfigurable("Leggings", EquipmentType.LEGGINGS),
+            ArmorConfigurable("Chestplate", EquipmentType.CHESTPLATE),
+            ArmorConfigurable("Helmet", EquipmentType.HELMET),
+        )
+
+        init {
+            values.reversedArray().onEach(::tree)
+        }
 
         fun isValid(entity: PlayerEntity): Boolean {
-            return entity.armorItems.reversed().withIndex().all { (index, armor) ->
+            return entity.armorItems.withIndex().all { (index, armor) ->
                 values[index].let { !it.enabled || it.isValid(armor.item) }
             }
         }
