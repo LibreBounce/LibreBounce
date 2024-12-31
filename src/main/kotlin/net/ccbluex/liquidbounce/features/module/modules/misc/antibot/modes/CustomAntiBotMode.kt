@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.utils.item.material
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ArmorItem
-import net.minecraft.item.ItemStack
+import net.minecraft.item.Item
 import net.minecraft.item.equipment.ArmorMaterial
 import net.minecraft.item.equipment.ArmorMaterials
 import net.minecraft.item.equipment.EquipmentType
@@ -76,6 +76,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
     private object Armor : ToggleableConfigurable(ModuleAntiBot, "Armor", false) {
 
+        @Suppress("unused")
         private enum class ArmorMaterialChoice(
             override val choiceName: String,
             val material: ArmorMaterial,
@@ -97,25 +98,26 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             // TODO: replace with multiple choice
             val materialChoice by enumChoice("Material", ArmorMaterialChoice.LEATHER)
 
-            fun isValid(itemStack: ItemStack): Boolean {
-                val materialEquals = (itemStack.item as? ArmorItem)?.material() == materialChoice.material
-                return when (mode) {
-                    Filter.WHITELIST -> materialEquals
-                    Filter.BLACKLIST -> !materialEquals
+            fun isValid(item: Item): Boolean {
+                with((item as? ArmorItem)?.material() == materialChoice.material) {
+                    return when (mode) {
+                        Filter.WHITELIST -> this
+                        Filter.BLACKLIST -> !this
+                    }
                 }
             }
         }
 
         private val values = arrayOf(
-            ArmorConfigurable("Boots", EquipmentType.BOOTS),
-            ArmorConfigurable("Leggings", EquipmentType.LEGGINGS),
-            ArmorConfigurable("Chestplate", EquipmentType.CHESTPLATE),
             ArmorConfigurable("Helmet", EquipmentType.HELMET),
+            ArmorConfigurable("Chestplate", EquipmentType.CHESTPLATE),
+            ArmorConfigurable("Leggings", EquipmentType.LEGGINGS),
+            ArmorConfigurable("Boots", EquipmentType.BOOTS),
         ).onEach(::tree)
 
         fun isValid(entity: PlayerEntity): Boolean {
             return entity.armorItems.withIndex().all { (index, armor) ->
-                values[index].let { !it.enabled || it.isValid(armor) }
+                values[index].let { !it.enabled || it.isValid(armor.item) }
             }
         }
     }
