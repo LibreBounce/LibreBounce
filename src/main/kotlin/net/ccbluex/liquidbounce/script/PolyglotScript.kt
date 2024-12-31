@@ -28,11 +28,7 @@ import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptCommandBuilder
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptModule
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
-import net.minecraft.text.ClickEvent
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.HoverEvent
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
@@ -40,6 +36,8 @@ import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.io.IOAccess
 import java.io.File
+import java.net.BindException
+import java.net.ServerSocket
 import java.util.function.Function
 
 class PolyglotScript(
@@ -63,25 +61,28 @@ class PolyglotScript(
                 val protocolString = debugOptions.protocol.toString().lowercase()
                 option("${protocolString}.Suspend", debugOptions.suspendOnStart.toString())
                 option("${protocolString}.Internal", debugOptions.inspectInternals.toString())
+                option(protocolString, "${debugOptions.port}")
 
                 when (debugOptions.protocol) {
                     DebugProtocol.INSPECT -> {
-                        option("inspect", "4242")
                         option("inspect.Path", file.name)
 
-                        val devtoolURL = "devtools://devtools/bundled/js_app.html?ws=127.0.0.1:4242/${file.name}"
+                        val devtoolURL =
+                            "devtools://devtools/bundled/js_app.html?ws=127.0.0.1:${debugOptions.port}/${file.name}"
 
                         chat(
                             regular("Script $file is configured to launch with debugger support on: ")
                                 .append(variable(devtoolURL).styled {
                                     it.withUnderline(true)
-                                        .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, devtoolURL))
+                                        .withClickEvent(RunnableClickEvent {
+                                            browseUrl(devtoolURL)
+                                        })
                                         .withHoverEvent(
                                             HoverEvent(
                                                 HoverEvent.Action.SHOW_TEXT,
                                                 regular(
-                                                    "Click to open the debugger URL in your " +
-                                                        "chromium(unfortunately) based browser."
+                                                    "Click to open the debugger URL in your browser " +
+                                                        "(unfortunately only chromium based browser will work)"
                                                 )
                                             )
                                         )
@@ -90,11 +91,17 @@ class PolyglotScript(
                     }
 
                     DebugProtocol.DAP -> {
-                        option("dap", "4711")
+                        try {
+                            // this happens when trying to build the options before the port is bound.
+                            ServerSocket(debugOptions.port).close()
+                        } catch (e: BindException) {
+                            throw IllegalStateException("Debug port ${debugOptions.port} already in use", e)
+                        }
+
                         chat(
                             regular(
                                 "Script $file is configured to launch with debugger support " +
-                                    "with DAP on port 4711"
+                                    "with DAP on port ${debugOptions.port}"
                             )
                         )
                     }

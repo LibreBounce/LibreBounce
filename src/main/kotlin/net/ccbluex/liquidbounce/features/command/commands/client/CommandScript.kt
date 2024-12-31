@@ -80,30 +80,31 @@ object CommandScript : CommandFactory {
 
                 }.build()
             )
-            .subcommand(CommandBuilder.begin("unload").parameter(
-                ParameterBuilder.begin<String>("name").verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
-                    .autocompletedWith { prefix ->
-                        ScriptManager.scripts.filter { it.scriptName.startsWith(prefix) }.map { it.scriptName }
+            .subcommand(
+                CommandBuilder.begin("unload").parameter(
+                    ParameterBuilder.begin<String>("name").verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
+                        .autocompletedWith { prefix ->
+                            ScriptManager.scripts.filter { it.scriptName.startsWith(prefix) }.map { it.scriptName }
+                        }
+                        .build()
+                ).handler { command, args ->
+                    val name = args[0] as String
+
+                    val script = ScriptManager.scripts.find { it.scriptName.equals(name, true) }
+
+                    if (script == null) {
+                        chat(regular(command.result("notFound", variable(name))))
+                        return@handler
                     }
-                    .build()
-            ).handler { command, args ->
-                val name = args[0] as String
 
-                val script = ScriptManager.scripts.find { it.scriptName.equals(name, true) }
-
-                if (script == null) {
-                    chat(regular(command.result("notFound", variable(name))))
-                    return@handler
-                }
-
-                runCatching {
-                    ScriptManager.unloadScript(script)
-                }.onSuccess {
-                    chat(regular(command.result("unloaded", variable(name))))
-                }.onFailure {
-                    chat(regular(command.result("failedToUnload", variable(it.message ?: "unknown"))))
-                }
-            }.build()
+                    runCatching {
+                        ScriptManager.unloadScript(script)
+                    }.onSuccess {
+                        chat(regular(command.result("unloaded", variable(name))))
+                    }.onFailure {
+                        chat(regular(command.result("failedToUnload", variable(it.message ?: "unknown"))))
+                    }
+                }.build()
             )
             .subcommand(
                 CommandBuilder.begin("debug")
@@ -140,6 +141,12 @@ object CommandScript : CommandFactory {
                             .optional()
                             .build()
                     )
+                    .parameter(
+                        ParameterBuilder.begin<Int>("port")
+                            .verifiedBy(ParameterBuilder.INTEGER_VALIDATOR)
+                            .optional()
+                            .build()
+                    )
                     .handler { command, args ->
                         val name = args[0] as String
                         val scriptFile = ScriptManager.root.resolve("$name.js")
@@ -162,15 +169,19 @@ object CommandScript : CommandFactory {
                             }
                         }
 
+                        val protocol = DebugProtocol.valueOf(
+                            (args.getOrNull(1) ?: DebugProtocol.INSPECT.name).toString()
+                        )
+
                         runCatching {
                             ScriptManager.loadScript(
                                 scriptFile, debugOptions = ScriptDebugOptions(
                                     enabled = true,
-                                    protocol = DebugProtocol.valueOf(
-                                        (args.getOrNull(1) ?: DebugProtocol.INSPECT.name).toString()
-                                    ),
+                                    protocol = protocol,
                                     suspendOnStart = args.getOrNull(2) as Boolean? == true,
-                                    inspectInternals = args.getOrNull(3) as Boolean? == true
+                                    inspectInternals = args.getOrNull(3) as Boolean? == true,
+                                    port = args.getOrNull(4) as Int?
+                                        ?: if (protocol == DebugProtocol.INSPECT) 4242 else 4711,
                                 )
                             ).enable()
                         }.onSuccess {
