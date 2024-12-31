@@ -69,25 +69,25 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             }
         }
 
-        fun isHided(entry: PlayerListEntry) = filters.any { regex ->
-            !filterType.matches(entry, regex)
+        fun isHided(entry: PlayerListEntry) = !filters.any { regex ->
+            filterType.matches(entry, regex)
         }
 
         @Suppress("unused")
         private enum class Filter(
             override val choiceName: String,
-            val matches: (PlayerListEntry, Regex) -> Boolean
+            val matches: PlayerListEntry.(Regex) -> Boolean
         ) : NamedChoice {
-            BOTH("Both", { entry, regex ->
-                DISPLAY_NAME.matches(entry, regex) || PLAYER_NAME.matches(entry, regex)
+            BOTH("Both", { regex ->
+                DISPLAY_NAME.matches(this, regex) || PLAYER_NAME.matches(this, regex)
             }),
 
-            DISPLAY_NAME("DisplayName", { entry, regex ->
-                entry.displayName?.string?.let { regex.matches(it) } ?: false
+            DISPLAY_NAME("DisplayName", { regex ->
+                this.displayName?.string?.let { regex.matches(it) } ?: false
             }),
 
-            PLAYER_NAME("PlayerName", { entry, regex ->
-                regex.matches(entry.profile.name)
+            PLAYER_NAME("PlayerName", { regex ->
+                regex.matches(this.profile.name)
             })
         }
     }
