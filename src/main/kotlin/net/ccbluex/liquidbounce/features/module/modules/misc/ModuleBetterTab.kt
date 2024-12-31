@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -24,10 +23,9 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             Visibility,
             Highlight,
             AccurateLatency,
+            PlayerHider
         )
     }
-
-    val playerHider = tree(PlayerFilter(ModuleBetterTab, "PlayerHider", false))
 
     val sorting by enumChoice("Sorting", Sorting.VANILLA)
 
@@ -43,12 +41,15 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     }
 
     object Highlight : ToggleableConfigurable(ModuleBetterTab, "Highlight", true) {
-        class HighlightColored(name: String, color: Color4b) : ToggleableConfigurable(this, name, true) {
+        open class HighlightColored(
+            name: String,
+            color: Color4b
+        ) : ToggleableConfigurable(this, name, true) {
             val color by color("Color", color)
         }
 
-        class Others(color: Color4b) : PlayerFilter(this, "Others", false) {
-            val color by color("Color", color)
+        class Others(color: Color4b) : HighlightColored("Others", color) {
+            val filter = tree(PlayerFilter())
         }
 
         val self = tree(HighlightColored("Self", Color4b(50, 193, 50, 80)))
@@ -59,13 +60,13 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     object AccurateLatency : ToggleableConfigurable(ModuleBetterTab, "AccurateLatency", true) {
         val suffix by boolean("AppendMSSuffix", true)
     }
+
+    object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "PlayerHider", false) {
+        val filter = tree(PlayerFilter())
+    }
 }
 
-open class PlayerFilter(
-    parent: EventListener,
-    name: String,
-    enabled: Boolean
-) : ToggleableConfigurable(parent, name, enabled) {
+class PlayerFilter: Configurable("Filter") {
     private var filters = setOf<Regex>()
 
     private val filterType by enumChoice("FilterBy", Filter.BOTH)

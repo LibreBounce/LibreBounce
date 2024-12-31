@@ -70,9 +70,9 @@ public abstract class MixinPlayerListHud {
                 ? (customComparator != null ? customComparator : defaultComparator)
                 : defaultComparator;
 
-        var playerHider = betterTab.getPlayerHider();
+        var playerHider = ModuleBetterTab.PlayerHider.INSTANCE;
         var hided = running && playerHider.getRunning()
-                ? instance.filter(player -> !playerHider.isInFilter(player)) : instance;
+                ? instance.filter(player -> !playerHider.getFilter().isInFilter(player)) : instance;
 
         return original.call(hided, comparator);
     }
@@ -199,7 +199,7 @@ public abstract class MixinPlayerListHud {
 
             var others = highlight.getOthers();
             if (others.getRunning()) {
-                if (others.isInFilter(entry)) {
+                if (others.getFilter().isInFilter(entry)) {
                     args.set(4, others.getColor().toARGB());
                 }
             }
