@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.RotationSetEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -14,6 +15,8 @@ import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 
 object FreeLook : Module("FreeLook", Category.RENDER) {
+
+    private val autoF5 by boolean("AutoF5", true, subjective = true)
 
     // The module's rotations
     private var currRotation = Rotation.ZERO
@@ -27,9 +30,17 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
 
     override fun onEnable() {
         mc.thePlayer?.run {
+            if (autoF5 && mc.gameSettings.thirdPersonView != 1) {
+                mc.gameSettings.thirdPersonView = 1
+            }
+
             currRotation = rotation
             prevRotation = prevRotation
         }
+    }
+
+    override fun onDisable() {
+        if (autoF5) mc.gameSettings.thirdPersonView = 0
     }
 
     val onRotationSet = handler<RotationSetEvent> { event ->
