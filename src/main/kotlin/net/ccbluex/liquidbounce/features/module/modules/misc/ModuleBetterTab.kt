@@ -83,7 +83,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             }),
 
             DISPLAY_NAME("DisplayName", { entry, regex ->
-                regex.matches(entry.displayName?.string ?: "")
+                entry.displayName?.string?.let { regex.matches(it) } ?: false
             }),
 
             PLAYER_NAME("PlayerName", { entry, regex ->
