@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptCommandBuilder
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptModule
 import net.ccbluex.liquidbounce.utils.client.*
+import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
@@ -74,14 +75,12 @@ class PolyglotScript(
                             regular("Script $file is configured to launch with debugger support on: ")
                                 .append(variable(devtoolURL).styled {
                                     it.withUnderline(true)
-                                        .withClickEvent(RunnableClickEvent {
-                                            browseUrl(devtoolURL)
-                                        })
+                                        .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, devtoolURL))
                                         .withHoverEvent(
                                             HoverEvent(
                                                 HoverEvent.Action.SHOW_TEXT,
                                                 regular(
-                                                    "Click to open the debugger URL in your browser " +
+                                                    "Click to copy the debugger URL and then paste in your browser " +
                                                         "(unfortunately only chromium based browser will work)"
                                                 )
                                             )
