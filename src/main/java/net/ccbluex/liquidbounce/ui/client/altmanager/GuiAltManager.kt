@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.io.FileFilters
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
+import net.ccbluex.liquidbounce.utils.io.HttpUtils
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
@@ -423,16 +423,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         fun loadActiveGenerators() {
             try {
                 // Read versions json from cloud
-                val (response, _) = get("$CLIENT_CLOUD/generators.json")
-                val jsonElement = JsonParser().parse(response)
-
-                // Check json is valid object
-                if (jsonElement.isJsonObject) {
-                    // Get json object of element
-                    jsonElement.asJsonObject.entrySet().forEach { (key, value) ->
-                        activeGenerators[key] = value.asBoolean
-                    }
-                }
+                activeGenerators += HttpUtils.getJson<Map<String, Boolean>>("$CLIENT_CLOUD/generators.json")!!
             } catch (throwable: Throwable) {
                 // Print throwable to console
                 LOGGER.error("Failed to load enabled generators.", throwable)
