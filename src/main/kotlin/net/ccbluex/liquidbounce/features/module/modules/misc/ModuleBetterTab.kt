@@ -53,7 +53,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
         val suffix by boolean("AppendMSSuffix", true)
     }
 
-    object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "NicknameHider", false) {
+    object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "PlayerHider", false) {
         private var filters = setOf<Regex>()
 
         @Suppress("unused")
