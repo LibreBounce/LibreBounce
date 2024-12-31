@@ -62,16 +62,17 @@ public abstract class MixinPlayerListHud {
     private Stream<PlayerListEntry> hookSort(Stream<PlayerListEntry> instance, Comparator<PlayerListEntry> defaultComparator, Operation<Stream<PlayerListEntry>> original) {
         var sorting = ModuleBetterTab.INSTANCE.getSorting();
 
-        boolean running = ModuleBetterTab.INSTANCE.getRunning();
+        var betterTab = ModuleBetterTab.INSTANCE;
+        var running = betterTab.getRunning();
         var customComparator = sorting.getComparator();
 
         var comparator = running
                 ? (customComparator != null ? customComparator : defaultComparator)
                 : defaultComparator;
 
-        var playerHider = ModuleBetterTab.PlayerHider.INSTANCE;
+        var playerHider = betterTab.getPlayerHider();
         var hided = running && playerHider.getRunning()
-                ? instance.filter(playerHider::isHided) : instance;
+                ? instance.filter(player -> !playerHider.isInFilter(player)) : instance;
 
         return original.call(hided, comparator);
     }
@@ -192,6 +193,14 @@ public abstract class MixinPlayerListHud {
             if (highlight.getFriends().getRunning()) {
                 if (FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
                     args.set(4, highlight.getFriends().getColor().toARGB());
+                    return;
+                }
+            }
+
+            var others = highlight.getOthers();
+            if (others.getRunning()) {
+                if (others.isInFilter(entry)) {
+                    args.set(4, others.getColor().toARGB());
                 }
             }
         }

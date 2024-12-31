@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -23,9 +24,10 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             Visibility,
             Highlight,
             AccurateLatency,
-            PlayerHider,
         )
     }
+
+    val playerHider = tree(PlayerFilter(ModuleBetterTab, "PlayerHider", false))
 
     val sorting by enumChoice("Sorting", Sorting.VANILLA)
 
@@ -45,51 +47,60 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             val color by color("Color", color)
         }
 
+        class Others(color: Color4b) : PlayerFilter(this, "Others", false) {
+            val color by color("Color", color)
+        }
+
         val self = tree(HighlightColored("Self", Color4b(50, 193, 50, 80)))
         val friends = tree(HighlightColored("Friends", Color4b(16, 89, 203, 80)))
+        val others = tree(Others(Color4b(35, 35, 35, 80)))
     }
 
     object AccurateLatency : ToggleableConfigurable(ModuleBetterTab, "AccurateLatency", true) {
         val suffix by boolean("AppendMSSuffix", true)
     }
+}
 
-    object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "PlayerHider", false) {
-        private var filters = setOf<Regex>()
+open class PlayerFilter(
+    parent: EventListener,
+    name: String,
+    enabled: Boolean
+) : ToggleableConfigurable(parent, name, enabled) {
+    private var filters = setOf<Regex>()
 
-        private val filterType by enumChoice("FilterType", Filter.BOTH)
+    private val filterType by enumChoice("FilterBy", Filter.BOTH)
 
-        @Suppress("unused")
-        private val names by textArray("Names", mutableListOf()).onChanged { newValue ->
-            filters = newValue.mapTo(HashSet(newValue.size, 1.0F)) {
-                val regexPattern = it
-                    .replace("*", ".*")
-                    .replace("?", ".")
+    @Suppress("unused")
+    private val names by textArray("Names", mutableListOf()).onChanged { newValue ->
+        filters = newValue.mapTo(HashSet(newValue.size, 1.0F)) {
+            val regexPattern = it
+                .replace("*", ".*")
+                .replace("?", ".")
 
-                Regex("^$regexPattern\$")
-            }
+            Regex("^$regexPattern\$")
         }
+    }
 
-        fun isHided(entry: PlayerListEntry) = !filters.any { regex ->
-            filterType.matches(entry, regex)
-        }
+    fun isInFilter(entry: PlayerListEntry) = filters.any { regex ->
+        filterType.matches(entry, regex)
+    }
 
-        @Suppress("unused")
-        private enum class Filter(
-            override val choiceName: String,
-            val matches: PlayerListEntry.(Regex) -> Boolean
-        ) : NamedChoice {
-            BOTH("Both", { regex ->
-                DISPLAY_NAME.matches(this, regex) || PLAYER_NAME.matches(this, regex)
-            }),
+    @Suppress("unused")
+    private enum class Filter(
+        override val choiceName: String,
+        val matches: PlayerListEntry.(Regex) -> Boolean
+    ) : NamedChoice {
+        BOTH("Both", { regex ->
+            DISPLAY_NAME.matches(this, regex) || PLAYER_NAME.matches(this, regex)
+        }),
 
-            DISPLAY_NAME("DisplayName", { regex ->
-                this.displayName?.string?.let { regex.matches(it) } ?: false
-            }),
+        DISPLAY_NAME("DisplayName", { regex ->
+            this.displayName?.string?.let { regex.matches(it) } ?: false
+        }),
 
-            PLAYER_NAME("PlayerName", { regex ->
-                regex.matches(this.profile.name)
-            })
-        }
+        PLAYER_NAME("PlayerName", { regex ->
+            regex.matches(this.profile.name)
+        })
     }
 }
 
