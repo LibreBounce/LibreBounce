@@ -71,7 +71,7 @@ public abstract class MixinPlayerListHud {
 
         var playerHider = ModuleBetterTab.PlayerHider.INSTANCE;
         var hided = running && playerHider.getRunning()
-                ? instance.filter(entry -> !playerHider.match(entry)) : instance;
+                ? instance.filter(playerHider::isHided) : instance;
 
         return original.call(hided, comparator);
     }

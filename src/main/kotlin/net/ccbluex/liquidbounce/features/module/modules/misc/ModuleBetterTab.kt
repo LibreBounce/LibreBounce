@@ -56,6 +56,8 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "PlayerHider", false) {
         private var filters = setOf<Regex>()
 
+        private val filterType by enumChoice("FilterType", Filter.BOTH)
+
         @Suppress("unused")
         private val names by textArray("Names", mutableListOf()).onChanged { newValue ->
             filters = newValue.mapTo(HashSet(newValue.size, 1.0F)) {
@@ -67,8 +69,26 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             }
         }
 
-        fun match(entry: PlayerListEntry) = filters.any { regex ->
-            regex.matches(entry.displayName?.string ?: "")
+        fun isHided(entry: PlayerListEntry) = filters.any { regex ->
+            !filterType.matches(entry, regex)
+        }
+
+        @Suppress("unused")
+        private enum class Filter(
+            override val choiceName: String,
+            val matches: (PlayerListEntry, Regex) -> Boolean
+        ) : NamedChoice {
+            BOTH("Both", { entry, regex ->
+                DISPLAY_NAME.matches(entry, regex) || PLAYER_NAME.matches(entry, regex)
+            }),
+
+            DISPLAY_NAME("DisplayName", { entry, regex ->
+                regex.matches(entry.displayName?.string ?: "")
+            }),
+
+            PLAYER_NAME("PlayerName", { entry, regex ->
+                regex.matches(entry.profile.name)
+            })
         }
     }
 }
