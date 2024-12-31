@@ -116,7 +116,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         ).onEach(::tree)
 
         fun isValid(entity: PlayerEntity): Boolean {
-            return entity.armorItems.withIndex().all { (index, armor) ->
+            return entity.armorItems.reversed().withIndex().all { (index, armor) ->
                 values[index].let { !it.enabled || it.isValid(armor.item) }
             }
         }
