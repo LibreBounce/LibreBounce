@@ -52,7 +52,7 @@ object CapeService : Listenable, MinecraftInstance {
 
     /**
      * The API URL to get all cape carriers.
-     * Format: [["8f617b6abea04af58e4bd026d8fa9de8", "marco"], ...]
+     * Format: [["8f617b6a-bea0-4af5-8e4b-d026d8fa9de8", "marco"], ...]
      */
     private const val CAPE_CARRIERS_URL = "$CAPE_API/carriers"
 
