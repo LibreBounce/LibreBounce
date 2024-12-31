@@ -69,7 +69,11 @@ public abstract class MixinPlayerListHud {
                 ? (customComparator != null ? customComparator : defaultComparator)
                 : defaultComparator;
 
-        return original.call(instance, comparator);
+        var playerHider = ModuleBetterTab.PlayerHider.INSTANCE;
+        var hided = running && playerHider.getRunning()
+                ? instance.filter(entry -> !playerHider.match(entry)) : instance;
+
+        return original.call(hided, comparator);
     }
 
     @ModifyExpressionValue(method = "render", at = @At(

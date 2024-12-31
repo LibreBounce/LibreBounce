@@ -23,6 +23,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             Visibility,
             Highlight,
             AccurateLatency,
+            PlayerHider,
         )
     }
 
@@ -50,6 +51,25 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
 
     object AccurateLatency : ToggleableConfigurable(ModuleBetterTab, "AccurateLatency", true) {
         val suffix by boolean("AppendMSSuffix", true)
+    }
+
+    object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "NicknameHider", false) {
+        private var filters = setOf<Regex>()
+
+        @Suppress("unused")
+        private val names by textArray("Names", mutableListOf()).onChanged { newValue ->
+            filters = newValue.mapTo(HashSet(newValue.size, 1.0F)) {
+                val regexPattern = it
+                    .replace("*", ".*")
+                    .replace("?", ".")
+
+                Regex("^$regexPattern\$")
+            }
+        }
+
+        fun match(entry: PlayerListEntry) = filters.any { regex ->
+            regex.matches(entry.displayName?.string ?: "")
+        }
     }
 }
 
