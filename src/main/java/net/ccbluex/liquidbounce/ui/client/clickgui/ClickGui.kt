@@ -5,7 +5,9 @@
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.api.ClientApi
@@ -62,6 +64,8 @@ object ClickGui : GuiScreen() {
         set(value) {
             field = value.coerceAtLeast(0)
         }
+
+    private var autoScrollY: Int? = null
 
     // Used when closing ClickGui using its key bind, prevents it from getting closed instantly after getting opened.
     // Caused by keyTyped being called along with onKey that opens the ClickGui.
@@ -194,7 +198,8 @@ object ClickGui : GuiScreen() {
             }
 
             if (Mouse.hasWheel()) {
-                val wheel = Mouse.getDWheel()
+                val wheel = autoScrollY?.let { it - y } ?: Mouse.getDWheel()
+
                 if (wheel != 0) {
                     var handledScroll = false
 
@@ -238,6 +243,10 @@ object ClickGui : GuiScreen() {
             return
         }
 
+        if (mouseButton == 2) {
+            autoScrollY = y
+        }
+
         mouseX = (x / scale).roundToInt()
         mouseY = (y / scale).roundToInt()
 
@@ -260,11 +269,15 @@ object ClickGui : GuiScreen() {
         }
     }
 
-    public override fun mouseReleased(x: Int, y: Int, state: Int) {
+    public override fun mouseReleased(x: Int, y: Int, button: Int) {
         mouseX = (x / scale).roundToInt()
         mouseY = (y / scale).roundToInt()
 
-        for (panel in panels) panel.mouseReleased(mouseX, mouseY, state)
+        if (button == 2) {
+            autoScrollY = null
+        }
+
+        for (panel in panels) panel.mouseReleased(mouseX, mouseY, button)
     }
 
     override fun updateScreen() {
@@ -294,6 +307,7 @@ object ClickGui : GuiScreen() {
     }
 
     override fun onGuiClosed() {
+        autoScrollY = null
         saveConfig(clickGuiConfig)
         for (panel in panels) panel.fade = 0
     }
