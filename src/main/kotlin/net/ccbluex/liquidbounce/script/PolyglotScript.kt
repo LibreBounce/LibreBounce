@@ -79,7 +79,10 @@ class PolyglotScript(
                                         .withHoverEvent(
                                             HoverEvent(
                                                 HoverEvent.Action.SHOW_TEXT,
-                                                regular("Click to open the debugger URL in your chromium(unfortunately) based browser.")
+                                                regular(
+                                                    "Click to open the debugger URL in your " +
+                                                        "chromium(unfortunately) based browser."
+                                                )
                                             )
                                         )
                                 })
@@ -88,7 +91,12 @@ class PolyglotScript(
 
                     DebugProtocol.DAP -> {
                         option("dap", "4711")
-                        chat(regular("Script $file is configured to launch with debugger support with DAP on port 4711"))
+                        chat(
+                            regular(
+                                "Script $file is configured to launch with debugger support " +
+                                    "with DAP on port 4711"
+                            )
+                        )
                     }
                 }
             }
@@ -184,7 +192,7 @@ class PolyglotScript(
     /**
      * Registers a new script command
      *
-     * @param command From the command builder.
+     * @param commandObject From the command builder.
      */
     @Suppress("unused")
     fun registerCommand(commandObject: Value) {
