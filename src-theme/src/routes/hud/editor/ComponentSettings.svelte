@@ -22,8 +22,6 @@
 
         const bounding = element.getBoundingClientRect();
 
-
-
         if (bounding.left + bounding.width > window.innerWidth) {
             marginLeft = -(bounding.left + bounding.width - window.innerWidth);
         } else if (bounding.left < 0) {
@@ -31,8 +29,6 @@
         } else {
             marginLeft = 0;
         }
-
-        console.log(bounding.left + bounding.width, window.innerWidth)
     })();
 
     async function handleSettingChange() {
