@@ -51,36 +51,146 @@ object ScriptReflectionUtil {
             isAccessible = true
         }.newInstance(*args)
 
+    /**
+     * Get the value of a declared field from an object
+     *
+     * @return - the value stored in field
+     * @param obj - object from which to extract
+     * @param name - method name in yarn mapping
+     */
+
     @JvmName("getField")
     fun getField(obj: Any, name: String): Any? = obj::class.java.fields
         .find { field ->
-            field.name == EnvironmentRemapper.remapField(obj::class.java, name)
+            name == EnvironmentRemapper.remapField(obj::class.java, field.name)
         }?.apply {
             isAccessible = true
         }?.get(obj)
 
+    /**
+     * Get the value of a declared field from class
+     *
+     * @return - the value stored in field
+     * @param clazz - class for which to search
+     * @param name - method name in yarn mapping
+     */
+
     @JvmName("getDeclaredField")
     fun getDeclaredField(clazz: Class<*>, name: String): Any? = clazz.declaredFields
         .find { field ->
-            field.name == EnvironmentRemapper.remapField(clazz, name)
+            name == EnvironmentRemapper.remapField(clazz, field.name)
         }?.apply {
             isAccessible = true
         }?.get(null)
 
+    /**
+     * Invoke method(**PUBLIC ONLY**) based on method name on an object,
+     * match overloaded methods based on number and type of arguments,
+     * does **NOT** handle null arguments
+     *
+     * @return - result of invoking method
+     * @param obj - object to be invoked
+     * @param name - method name in yarn mapping
+     * @param args - arguments of method
+     *
+     * @exception - throw IllegalArgumentException when an argument is null
+     *
+     * Example when used in js:
+     * ```javascript
+     *   mod.on("overlayRender", (event) => {
+     *     if (!mc.player || !mc.world)
+     *       return;
+     *
+     *     ReflectionUtil.invokeMethod(event.context, "fill", 100, 100, 200, 200, -1);
+     *   })
+     * ```
+     */
+
     @JvmName("invokeMethod")
     fun invokeMethod(obj: Any, name: String, vararg args: Any?): Any? =
         obj::class.java.methods.find { method ->
-            method.name == EnvironmentRemapper.remapMethod(obj::class.java, name) &&
-                method.parameterTypes.contentEquals(args.mapArray { it!!::class.java })
+            // check if parameters size match, probably faster than string checking
+            method.parameterTypes.size == args.size &&
+                EnvironmentRemapper.remapMethod(obj::class.java, method.name) == name &&
+                method.parameterTypes.zip(args).all { (paramType, arg) ->
+
+                    if (arg == null) {
+                        throw IllegalArgumentException(
+                            "Null argument is not support by this api, please use " +
+                                "reflection api with EnvironmentRemapper manually"
+                        )
+                    }
+
+                    when {
+                        // Null can match any non-primitive type if wish to go that way,
+                        // but yeah idk maybe just assert null is better
+                        // arg == null -> !paramType.isPrimitive
+
+                        // Handle primitive type boxing
+                        paramType.isPrimitive -> when (paramType) {
+                            Int::class.javaPrimitiveType -> arg is Int
+                            Long::class.javaPrimitiveType -> arg is Long
+                            Double::class.javaPrimitiveType -> arg is Double
+                            Float::class.javaPrimitiveType -> arg is Float
+                            Boolean::class.javaPrimitiveType -> arg is Boolean
+                            Byte::class.javaPrimitiveType -> arg is Byte
+                            Short::class.javaPrimitiveType -> arg is Short
+                            Char::class.javaPrimitiveType -> arg is Char
+                            else -> paramType.isInstance(arg)
+                        }
+                        // Regular type check
+                        else -> paramType.isInstance(arg)
+                    }
+                }
         }?.apply {
             isAccessible = true
         }?.invoke(obj, *args)
 
+
+    /**
+     * Invoke method(**ONLY OF THIS CLASS WITHOUT INHERITED METHODS**) with no access restrictions based on method name,
+     * match overloaded methods based on number and type of arguments
+     * does **NOT** handle null arguments
+     *
+     * @return - result of invoking method
+     * @param clazz - class with declared methods
+     * @param name - method name in yarn mapping
+     * @param args - arguments of method
+     *
+     */
+
     @JvmName("invokeDeclaredMethod")
     fun invokeDeclaredMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? =
         clazz.declaredMethods.find { method ->
-            method.name == EnvironmentRemapper.remapMethod(clazz, name) &&
-                method.parameterTypes.contentEquals(args.mapArray { it!!::class.java })
+            // check if parameters size match, probably faster than string checking
+            method.parameterTypes.size == args.size &&
+                EnvironmentRemapper.remapMethod(clazz, method.name) == name &&
+                method.parameterTypes.zip(args).all { (paramType, arg) ->
+
+                    if (arg == null) {
+                        throw IllegalArgumentException(
+                            "Null argument is not support by this api, please use " +
+                                "reflection api with EnvironmentRemapper manually"
+                        )
+                    }
+
+                    when {
+                        // Handle primitive type boxing
+                        paramType.isPrimitive -> when (paramType) {
+                            Int::class.javaPrimitiveType -> arg is Int
+                            Long::class.javaPrimitiveType -> arg is Long
+                            Double::class.javaPrimitiveType -> arg is Double
+                            Float::class.javaPrimitiveType -> arg is Float
+                            Boolean::class.javaPrimitiveType -> arg is Boolean
+                            Byte::class.javaPrimitiveType -> arg is Byte
+                            Short::class.javaPrimitiveType -> arg is Short
+                            Char::class.javaPrimitiveType -> arg is Char
+                            else -> paramType.isInstance(arg)
+                        }
+                        // Regular type check
+                        else -> paramType.isInstance(arg)
+                    }
+                }
         }?.apply {
             isAccessible = true
         }?.invoke(null, *args)
