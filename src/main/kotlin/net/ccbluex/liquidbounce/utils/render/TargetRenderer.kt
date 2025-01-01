@@ -134,18 +134,18 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
             with(env) {
                 drawParticle(
-                    { sin, cos -> Triple(sin, cos, -cos) },
-                    { sin, cos -> Triple(-sin, -cos, cos) }
+                    { sin, cos -> Vec3d(sin, cos, -cos) },
+                    { sin, cos -> Vec3d(-sin, -cos, cos) }
                 )
 
                 drawParticle(
-                    { sin, cos -> Triple(-sin, sin, -cos) },
-                    { sin, cos -> Triple(sin, -sin, cos) }
+                    { sin, cos -> Vec3d(-sin, sin, -cos) },
+                    { sin, cos -> Vec3d(sin, -sin, cos) }
                 )
 
                 drawParticle(
-                    { sin, cos -> Triple(-sin, -sin, cos) },
-                    { sin, cos -> Triple(sin, sin, -cos) }
+                    { sin, cos -> Vec3d(-sin, -sin, cos) },
+                    { sin, cos -> Vec3d(sin, sin, -cos) }
                 )
             }
 
@@ -157,8 +157,8 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
         }
 
         private inline fun WorldRenderEnvironment.drawParticle(
-            translationsBefore: MatrixStack.(Double, Double)->Triple<Double, Double, Double>,
-            translateAfter: MatrixStack.(Double, Double)->Triple<Double, Double, Double>
+            translationsBefore: MatrixStack.(Double, Double) -> Vec3d,
+            translateAfter: MatrixStack.(Double, Double) -> Vec3d
         ) {
             val radius = 0.67
             val distance = 10.0 + (length * 0.2)
@@ -171,7 +171,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
                 with(matrixStack) {
                     with(translationsBefore(sin, cos)) {
-                        translate(first, second, third)
+                        translate(x, y, z)
                     }
 
                     translate(-size / 2.0, -size / 2.0, 0.0)
@@ -212,7 +212,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                     translate(size / 2.0, size / 2.0, 0.0)
 
                     with(translateAfter(sin, cos)) {
-                        translate(first, second, third)
+                        translate(x, y, z)
                     }
                 }
             }
