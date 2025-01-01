@@ -64,6 +64,8 @@
             newHorizontal = offsetX - e.clientX * (2 / $scaleFactor);
         }
 
+        newHorizontal = snapToGrid(newHorizontal);
+
         switch (alignment.horizontal) {
             case HorizontalAlignment.CENTER_TRANSLATED:
                 newHorizontal = clamp(
@@ -91,6 +93,8 @@
             newVertical = offsetY - (e.clientY * (2 / $scaleFactor));
         }
 
+        newVertical = snapToGrid(newVertical);
+
         switch (alignment.vertical) {
             case VerticalAlignment.CENTER_TRANSLATED:
                 newVertical = clamp(
@@ -112,8 +116,8 @@
                 break;
         }
 
-        alignment.horizontalOffset = snapToGrid(newHorizontal);
-        alignment.verticalOffset = snapToGrid(newVertical);
+        alignment.horizontalOffset = newHorizontal;
+        alignment.verticalOffset = newVertical;
 
         updateSettingsBottom();
     }
