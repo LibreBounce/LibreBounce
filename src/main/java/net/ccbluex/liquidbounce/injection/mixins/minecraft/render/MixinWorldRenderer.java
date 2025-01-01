@@ -57,13 +57,7 @@ import static org.lwjgl.opengl.GL11.*;
 public abstract class MixinWorldRenderer {
 
     @Shadow
-    public abstract @Nullable Framebuffer getEntityOutlinesFramebuffer();
-
-    @Shadow
     protected abstract boolean canDrawEntityOutlines();
-
-    @Shadow
-    protected abstract void renderTargetBlockOutline(Camera camera, VertexConsumerProvider.Immediate vertexConsumers, MatrixStack matrices, boolean translucent);
 
     @Shadow
     @Final
@@ -79,6 +73,9 @@ public abstract class MixinWorldRenderer {
     @Nullable
     public Framebuffer entityOutlineFramebuffer;
 
+    @Shadow
+    public abstract @Nullable Framebuffer getEntityOutlinesFramebuffer();
+
     @Inject(method = "loadEntityOutlinePostProcessor", at = @At("RETURN"))
     private void onLoadEntityOutlineShader(CallbackInfo info) {
         // load the shader class to compile the shaders
@@ -90,7 +87,7 @@ public abstract class MixinWorldRenderer {
     private void onRender(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
         try {
             OutlineShader outlineShader = OutlineShader.INSTANCE;
-            OutlineShader.INSTANCE.update();
+            outlineShader.update();
             outlineShader.getHandle().get().beginWrite(false);
 
             var event = new DrawOutlinesEvent(new MatrixStack(), camera, tickCounter.getTickDelta(false), DrawOutlinesEvent.OutlineType.INBUILT_OUTLINE);
@@ -189,12 +186,12 @@ public abstract class MixinWorldRenderer {
 
     @ModifyExpressionValue(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
     private boolean injectHasOutline(boolean original, @Local Entity entity) {
-        return shouldRenderOutline(entity) || original;
+        return original || shouldRenderOutline(entity);
     }
 
     @ModifyExpressionValue(method = "getEntitiesToRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
     private boolean injectHasOutline2(boolean original, @Local Entity entity) {
-        return shouldRenderOutline(entity) || original;
+        return original || shouldRenderOutline(entity);
     }
 
     @Unique
@@ -217,23 +214,18 @@ public abstract class MixinWorldRenderer {
      */
     @ModifyExpressionValue(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
     private int injectTeamColor(int original, @Local Entity entity) {
-        if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
-            return ModuleItemESP.INSTANCE.getColor().toARGB();
-        }
-
-        if (entity instanceof TntEntity tntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
-            return ModuleTNTTimer.INSTANCE.getTntColor(tntEntity.getFuse()).toARGB();
-        }
-
         if (entity instanceof LivingEntity livingEntity && ModuleESP.GlowMode.INSTANCE.getRunning()) {
-            final Color4b color = ModuleESP.INSTANCE.getColor(livingEntity);
-            return color.toARGB();
+            return ModuleESP.INSTANCE.getColor(livingEntity).toARGB();
+        } else if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
+            return ModuleItemESP.INSTANCE.getColor().toARGB();
+        } else if (entity instanceof TntEntity tntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
+            return ModuleTNTTimer.INSTANCE.getTntColor(tntEntity.getFuse()).toARGB();
+        } else {
+            return original;
         }
-
-        return original;
     }
 
-    @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE))
+    @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.AFTER))
     private void onRenderOutline(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, Handle handle3, Handle handle4, boolean bl, Frustum frustum, Handle handle5, CallbackInfo ci) {
         if (!this.canDrawEntityOutlines()) {
             return;
