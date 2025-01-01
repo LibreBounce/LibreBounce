@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {ModuleSetting, TextArraySetting} from "../../../integration/types";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../../theme/theme_config";
     import {createEventDispatcher} from "svelte";
 
     export let setting: ModuleSetting;
@@ -27,7 +27,7 @@
 </script>
 
 <div class="setting">
-    <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
+    <div class="name">{processPascalCaseName(cSetting.name)}</div>
     <button class="button-add" on:click={addValueIndex}>Add value</button>
     {#if cSetting.value.length > 0}
         <div class="inputs">

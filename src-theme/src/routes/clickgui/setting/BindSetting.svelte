@@ -4,7 +4,7 @@
     import {listen} from "../../../integration/ws";
     import {getPrintableKeyName} from "../../../integration/rest";
     import type {KeyboardKeyEvent} from "../../../integration/events";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../../theme/theme_config";
     import Dropdown from "./common/Dropdown.svelte";
 
     export let setting: ModuleSetting;
@@ -71,7 +71,7 @@
 <div class="setting" class:has-value={cSetting.value.boundKey !== UNKNOWN_KEY}>
     <button class="change-bind" on:click={toggleBinding}>
         {#if !binding}
-            <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}:</div>
+            <div class="name">{processPascalCaseName(cSetting.name)}:</div>
 
             {#if cSetting.value.boundKey === UNKNOWN_KEY}
                 <span class="none">None</span>

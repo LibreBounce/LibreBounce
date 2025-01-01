@@ -91,7 +91,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     )
 
     /**
-     * So far I have never seen an anti-cheat which detects high turning speed for actions such as
+     * So far, I have never seen an anti-cheat which detects high turning speed for actions such as
      * shooting.
      */
     private val rotationConfigurable = tree(RotationsConfigurable(this))

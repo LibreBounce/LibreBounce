@@ -230,7 +230,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
     inner class Legacy : WorldTargetRenderAppearance("Legacy") {
 
-        override val parent: ChoiceConfigurable<TargetRenderAppearance<WorldRenderEnvironment>>
+        override val parent: ChoiceConfigurable<*>
             get() = appearance
 
         private val size by float("Size", 0.5f, 0.1f..2f)
@@ -262,7 +262,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     }
 
     inner class Circle(module: ClientModule) : WorldTargetRenderAppearance("Circle") {
-        override val parent: ChoiceConfigurable<TargetRenderAppearance<WorldRenderEnvironment>>
+        override val parent: ChoiceConfigurable<*>
             get() = appearance
 
         private val radius by float("Radius", 0.85f, 0.1f..2f)
@@ -297,7 +297,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     }
 
     inner class GlowingCircle(module: ClientModule) : WorldTargetRenderAppearance("GlowingCircle") {
-        override val parent: ChoiceConfigurable<TargetRenderAppearance<WorldRenderEnvironment>>
+        override val parent: ChoiceConfigurable<*>
             get() = appearance
 
         private val radius by float("Radius", 0.85f, 0.1f..2f)

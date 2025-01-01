@@ -17,7 +17,7 @@ open class RotationsConfigurable(
     combatSpecific: Boolean = false
 ) : Configurable("Rotations") {
 
-    private var angleSmooth = choices(owner, "AngleSmooth") {
+    private val angleSmooth = choices(owner, "AngleSmooth", 0) {
         arrayOf(
             LinearAngleSmoothMode(it),
             BezierAngleSmoothMode(it),

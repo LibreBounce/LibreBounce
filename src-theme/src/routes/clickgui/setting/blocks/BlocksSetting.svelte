@@ -4,7 +4,7 @@
     import {getRegistries} from "../../../../integration/rest";
     import Block from "./Block.svelte";
     import VirtualList from "./VirtualList.svelte";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../../../theme/theme_config";
 
     export let setting: ModuleSetting;
 
@@ -49,7 +49,7 @@
 </script>
 
 <div class="setting">
-    <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
+    <div class="name">{processPascalCaseName(cSetting.name)}</div>
     <input type="text" placeholder="Search" class="search-input" bind:value={searchQuery} spellcheck="false">
     <div class="results">
         <VirtualList items={renderedBlocks} let:item>
