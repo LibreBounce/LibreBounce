@@ -33,7 +33,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.crash.CrashReport;
@@ -55,7 +54,6 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.ByteBuffer;
-import java.time.LocalDateTime;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -293,8 +291,7 @@ public abstract class MixinMinecraft {
     private boolean injectMultiActions(EntityPlayerSP instance) {
         ItemStack itemStack = instance.itemInUse;
 
-        if (MultiActions.INSTANCE.handleEvents())
-            itemStack = null;
+        if (MultiActions.INSTANCE.handleEvents()) itemStack = null;
 
         return itemStack != null;
     }
