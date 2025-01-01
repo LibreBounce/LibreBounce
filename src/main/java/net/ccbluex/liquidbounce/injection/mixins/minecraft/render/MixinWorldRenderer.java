@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.OutlineFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
@@ -44,9 +45,11 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -184,47 +187,27 @@ public abstract class MixinWorldRenderer {
         return ModuleFreeCam.INSTANCE.renderPlayerFromAllPerspectives(instance);
     }
 
-    /**
-     * Enables an outline glow when ESP is enabled and glow mode is active
-     *
-     * @author 1zuna
-     */
-    @Redirect(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
-    private boolean injectHasOutline(MinecraftClient instance, Entity entity) {
-        if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
-            return true;
-        }
-        if (ModuleESP.GlowMode.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeShown(entity)) {
-            return true;
-        }
-        if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
-            return true;
-        }
-
-        if (ModuleStorageESP.Glow.INSTANCE.getRunning() && ModuleStorageESP.categorize(entity) != null) {
-            return true;
-        }
-
-        return instance.hasOutline(entity);
+    @ModifyExpressionValue(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
+    private boolean injectHasOutline(boolean original, @Local Entity entity) {
+        return shouldRenderOutline(entity) || original;
     }
 
-    @Redirect(method = "getEntitiesToRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
-    private boolean injectHasOutline2(MinecraftClient instance, Entity entity) {
+    @ModifyExpressionValue(method = "getEntitiesToRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"))
+    private boolean injectHasOutline2(boolean original, @Local Entity entity) {
+        return shouldRenderOutline(entity) || original;
+    }
+
+    @Unique
+    private boolean shouldRenderOutline(Entity entity) {
         if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             return true;
-        }
-        if (ModuleESP.GlowMode.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeShown(entity)) {
+        } else if (ModuleESP.GlowMode.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeShown(entity)) {
             return true;
-        }
-        if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
+        } else if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
             return true;
+        } else {
+            return false;
         }
-
-        if (ModuleStorageESP.Glow.INSTANCE.getRunning() && ModuleStorageESP.categorize(entity) != null) {
-            return true;
-        }
-
-        return instance.hasOutline(entity);
     }
 
     /**
@@ -232,29 +215,22 @@ public abstract class MixinWorldRenderer {
      *
      * @author 1zuna
      */
-    @Redirect(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
-    private int injectTeamColor(Entity instance) {
-        if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(instance)) {
+    @ModifyExpressionValue(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
+    private int injectTeamColor(int original, @Local Entity entity) {
+        if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
         }
 
-        if (instance instanceof TntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
-            return ModuleTNTTimer.INSTANCE.getTntColor(((TntEntity) instance).getFuse()).toARGB();
+        if (entity instanceof TntEntity tntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
+            return ModuleTNTTimer.INSTANCE.getTntColor(tntEntity.getFuse()).toARGB();
         }
 
-        if (ModuleStorageESP.Glow.INSTANCE.getRunning()) {
-            var categorizedEntity = ModuleStorageESP.categorize(instance);
-            if (categorizedEntity != null) {
-                return categorizedEntity.getColor().toARGB();
-            }
-        }
-
-        if (instance instanceof LivingEntity && ModuleESP.GlowMode.INSTANCE.getRunning()) {
-            final Color4b color = ModuleESP.INSTANCE.getColor((LivingEntity) instance);
+        if (entity instanceof LivingEntity livingEntity && ModuleESP.GlowMode.INSTANCE.getRunning()) {
+            final Color4b color = ModuleESP.INSTANCE.getColor(livingEntity);
             return color.toARGB();
         }
 
-        return instance.getTeamColorValue();
+        return original;
     }
 
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE))
@@ -265,22 +241,10 @@ public abstract class MixinWorldRenderer {
 
         //noinspection DataFlowIssue
         this.getEntityOutlinesFramebuffer().beginWrite(false);
-
         var event = new DrawOutlinesEvent(new MatrixStack(), camera, renderTickCounter.getTickDelta(false), DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW);
-
         EventManager.INSTANCE.callEvent(event);
-
         OutlineFlag.drawOutline |= event.getDirtyFlag();
-
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
-    }
-
-    @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getOutlineVertexConsumers()Lnet/minecraft/client/render/OutlineVertexConsumerProvider;", shift = At.Shift.AFTER))
-    private void hookOutlineFlag(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, Handle handle3, Handle handle4, boolean bl, Frustum frustum, Handle handle5, CallbackInfo ci, @Local(ordinal = 0) VertexConsumerProvider.Immediate immediate, @Local(ordinal = 0) MatrixStack matrixStack) {
-        if (OutlineFlag.drawOutline && !bl) {
-            OutlineFlag.drawOutline = false;
-            renderTargetBlockOutline(camera, immediate, matrixStack, false);
-        }
+        client.getFramebuffer().beginWrite(false);
     }
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"), index = 3)
