@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 
-import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
@@ -44,9 +43,9 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
      */
     val additionalRange by float("AdditionalRange", 2f, 0f..10f)
     val clickScheduler = tree(ClickScheduler(this, false))
-    val mode = choices<Choice>(this, "NotifyWhenFail", { Box }, {
+    val mode = choices(this, "NotifyWhenFail", 1) {
         arrayOf(NoneChoice(it), Box, Sound)
-    }).apply {
+    }.apply {
         doNotIncludeAlways()
     }
 

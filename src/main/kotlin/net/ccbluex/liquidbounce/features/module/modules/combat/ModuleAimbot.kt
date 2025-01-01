@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -62,14 +61,11 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
-    private var angleSmooth = choices<AngleSmoothMode>(this, "AngleSmooth", { it.choices[0] }, {
-        arrayOf(
-            LinearAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it)
-        )
-    })
+    private val angleSmooth = choices("AngleSmooth", 0) {
+        arrayOf(LinearAngleSmoothMode(it), SigmoidAngleSmoothMode(it))
+    }
 
-    private var slowStart = tree(SlowStart(this))
+    private val slowStart = tree(SlowStart(this))
 
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
