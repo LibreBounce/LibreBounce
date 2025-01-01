@@ -21,7 +21,9 @@ package net.ccbluex.liquidbounce.integration
 
 import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.utils.client.asText
+import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 
 class VirtualDisplayScreen(
@@ -37,6 +39,16 @@ class VirtualDisplayScreen(
         IntegrationListener.virtualClose()
         mc.mouse.lockCursor()
         super.close()
+    }
+
+    override fun renderBackground(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
+        // prevent blur
+        // TODO: REMOVE LATER WHEN FIXED
+        if (inGame) {
+            return
+        }
+
+        super.renderBackground(context, mouseX, mouseY, delta)
     }
 
     override fun shouldPause(): Boolean {
