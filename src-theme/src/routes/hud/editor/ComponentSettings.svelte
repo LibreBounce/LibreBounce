@@ -10,8 +10,30 @@
     export let name: string;
     export let id: string;
     export let bottom: boolean;
+    export let horizontalOffset: number;
 
+    let element: HTMLElement | undefined;
     let configurable: ConfigurableSetting | undefined;
+
+    let marginLeft = 0;
+
+    $: horizontalOffset, (() => {
+        if (!element) return;
+
+        const bounding = element.getBoundingClientRect();
+
+
+
+        if (bounding.left + bounding.width > window.innerWidth) {
+            marginLeft = -(bounding.left + bounding.width - window.innerWidth);
+        } else if (bounding.left < 0) {
+            marginLeft = -bounding.left;
+        } else {
+            marginLeft = 0;
+        }
+
+        console.log(bounding.left + bounding.width, window.innerWidth)
+    })();
 
     async function handleSettingChange() {
         await setComponentSettings(id, configurable!!);
@@ -23,25 +45,30 @@
     });
 </script>
 
-<div class="settings" class:bottom={bottom}>
-    {#if configurable !== undefined}
-        <GenericSetting path={name} bind:setting={configurable} on:change={handleSettingChange}/>
-    {/if}
+<div class="settings-wrapper" class:bottom={bottom} bind:this={element}>
+    <div class="settings" style="transform: translateX({marginLeft}px)">
+        {#if configurable !== undefined}
+            <GenericSetting path={name} bind:setting={configurable} on:change={handleSettingChange}/>
+        {/if}
+    </div>
 </div>
 
 <style lang="scss">
   @import "../../../colors";
 
-  .settings {
-    background-color: $hud-editor-descriptor-background-color;
-    padding: 5px 10px;
-    border-radius: 5px;
+  .settings-wrapper {
     position: absolute;
     top: -15px;
     left: 50%;
     transform: translateY(-100%) translateX(-50%);
-    width: 200px;
-    box-shadow: $hud-editor-descriptor-shadow;
+
+    .settings {
+      background-color: $hud-editor-descriptor-background-color;
+      padding: 5px 10px;
+      border-radius: 5px;
+      width: 200px;
+      box-shadow: $hud-editor-descriptor-shadow;
+    }
 
     &::after {
       content: "";

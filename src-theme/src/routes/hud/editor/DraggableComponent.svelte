@@ -198,7 +198,7 @@
         <slot/>
     </div>
     {#if editorMode}
-        <ComponentSettings {name} {id} bottom={settingsBottom}/>
+        <ComponentSettings horizontalOffset={alignment.horizontalOffset} {name} {id} bottom={settingsBottom}/>
     {/if}
 </div>
 
