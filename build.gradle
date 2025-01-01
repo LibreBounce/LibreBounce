@@ -42,7 +42,9 @@ def getContributors(repoOwner, repoName) {
                 .reversed()
 
     } else {
-        throw new RuntimeException("Failed to collect contributors, github api responsed invalid status code: ${connection.responseCode}")
+        def error = connection.errorStream?.text ?: "No response details"
+        logger.log(LogLevel.ERROR, "Failed to collect contributors, github api responsed invalid status code: ${connection.responseCode}\n${error}")
+        return []
     }
 }
 
