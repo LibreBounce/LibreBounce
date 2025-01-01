@@ -241,7 +241,11 @@ public abstract class MixinWorldRenderer {
             target = "Lnet/minecraft/client/gl/ShaderLoader;loadPostEffect(Lnet/minecraft/util/Identifier;Ljava/util/Set;)Lnet/minecraft/client/gl/PostEffectProcessor;"
     ), name = "bl3", ordinal = 3)
     private boolean modifyDrawOutline(boolean original) {
-        return original || OutlineFlag.drawOutline;
+        var flag = OutlineFlag.drawOutline;
+        if (flag) {
+            OutlineFlag.drawOutline = false;
+        }
+        return original || flag;
     }
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"), index = 3)
