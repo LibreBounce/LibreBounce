@@ -9,10 +9,7 @@ import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
-import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
-import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -278,7 +275,7 @@ object RotationManager : EventListener {
             } else {
                 val vec3d = (if (d > 1.0) movementInput.normalize() else movementInput).multiply(speed.toDouble())
 
-                vec3d.rotateY(yaw)
+                vec3d.rotateY(-yaw.toRadians())
             }
         }
 

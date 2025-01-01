@@ -24,10 +24,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique.NORMAL_INVESTIGATION_OFFSETS
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
@@ -37,6 +34,7 @@ import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -57,12 +55,13 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
         bestStack: ItemStack
     ): BlockPlacementTarget? {
         val searchOptions = BlockPlacementTargetFindingOptions(
-            NORMAL_INVESTIGATION_OFFSETS,
-            bestStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            predictedPos,
-            predictedPose
+            BlockOffsetOptions(
+                NORMAL_INVESTIGATION_OFFSETS,
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = bestStack,
+            PlayerLocationOnPlacement(position = predictedPos, pose = predictedPose),
         )
 
         return findBestBlockPlacementTarget(getTargetedPosition(predictedPos.toBlockPos()), searchOptions)
@@ -124,26 +123,7 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
     }
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
-        val dirInput = DirectionalInput(player.input)
-
-        if (dirInput == DirectionalInput.NONE) {
-            target ?: return null
-
-            return getRotationForNoInput(target)
-        }
-
-        val direction = getMovementDirectionOfInput(player.yaw, dirInput) + 180
-
-        // Round to 45°-steps (NORTH, NORTH_EAST, etc.)
-        val movingYaw = round(direction / 45) * 45
-        val isMovingStraight = movingYaw % 90 == 0f
-
-        return if (isMovingStraight) {
-            getRotationForStraightInput(movingYaw)
-        } else {
-            getRotationForDiagonalInput(movingYaw)
-        }
-
+        return ScaffoldGodBridgeTechnique.getRotations(target)
     }
 
     private fun getRotationForStraightInput(movingYaw: Float) = Rotation(movingYaw, 80f)

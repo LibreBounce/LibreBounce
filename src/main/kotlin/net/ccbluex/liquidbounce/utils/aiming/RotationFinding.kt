@@ -157,19 +157,13 @@ class BlockVisibilityPredicate(private val expectedTarget: BlockPos) : Visibilit
     }
 }
 
-class BoxVisibilityPredicate(private val expectedTarget: Box) : VisibilityPredicate {
+class BoxVisibilityPredicate() : VisibilityPredicate {
     override fun isVisible(
         eyesPos: Vec3d,
         targetSpot: Vec3d,
     ): Boolean {
         return canSeePointFrom(eyesPos, targetSpot)
     }
-}
-
-fun ClosedRange<Double>.shrinkBy(value: Double): ClosedFloatingPointRange<Double> {
-    val dif = endInclusive - start
-    if (dif < value) return (dif / 2)..(dif / 2)
-    return (start + value)..(endInclusive - value)
 }
 
 fun pointOnBlockSide(
@@ -205,7 +199,7 @@ fun raytraceBlockSide(
         }
         for (boxShape in sortedShapes) {
             val box = boxShape.offset(pos)
-            val visibilityPredicate = BoxVisibilityPredicate(box)
+            val visibilityPredicate = BoxVisibilityPredicate()
 
             val bestRotationTracker = BestRotationTracker(LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION)
 
@@ -254,42 +248,6 @@ fun raytraceBlockSide(
     return null
 }
 
-val sidesToCheck = arrayOf(
-    Direction.DOWN, // first down because it is the most likely that you can place a block on top a the one below
-    Direction.NORTH, // then the sides
-    Direction.SOUTH,
-    Direction.WEST,
-    Direction.EAST,
-    Direction.UP // last and least UP because it is the most unlikely place to be able to place a block on
-)
-
-fun raytracePlaceBlock(
-    eyes: Vec3d,
-    pos: BlockPos,
-    range: Double,
-    wallsRange: Double,
-): VecRotation? {
-    val rangeSquared = range * range
-    val wallsRangeSquared = wallsRange * wallsRange
-    val shapeContext = ShapeContext.of(player)
-    val eyeOffsetFromBlock = pos.toCenterPos() - eyes
-    for (side in sidesToCheck) {
-        // The difference between the eyes and the center of the face.
-        // Using 0.45 instead of 0.5 to avoid too narrow angles
-        val eyeOffsetFromFace = eyeOffsetFromBlock.offset(side, 0.45)
-        val dotProduct = eyeOffsetFromFace.dotProduct(side.vector.toVec3d())
-        if (dotProduct <= 0) continue // We are behind the face
-
-        val newPos = pos.offset(side)
-
-        raytraceBlockSide(side.opposite, newPos, eyes, rangeSquared, wallsRangeSquared, shapeContext)?.let {
-            return it
-        }
-    }
-
-    return null
-}
-
 /**
  * Find the best spot of a box to aim at.
  */
@@ -299,7 +257,7 @@ fun raytraceBox(
     box: Box,
     range: Double,
     wallsRange: Double,
-    visibilityPredicate: VisibilityPredicate = BoxVisibilityPredicate(box),
+    visibilityPredicate: VisibilityPredicate = BoxVisibilityPredicate(),
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
 ): VecRotation? {
     val rangeSquared = range * range
@@ -311,7 +269,7 @@ fun raytraceBox(
     if (preferredSpotOnBox != null) {
         val preferredSpotDistance = eyes.squaredDistanceTo(preferredSpotOnBox)
 
-        // If pattern-generated spot is visible or its distance is within wall range, then return right here.
+        // If a pattern-generated spot is visible or its distance is within wall range, then return right here.
         // No need to enter the loop when we already have a result.
         val validCauseBelowWallsRange = preferredSpotDistance < wallsRangeSquared
 
@@ -403,7 +361,7 @@ fun canSeeBox(
             return@scanBoxPoints
         }
 
-        // check if target is visible to eyes
+        // check if the target is visible to eyes
         val visible =
             if (expectedTarget != null) {
                 facingBlock(eyes, posInBox, expectedTarget)
@@ -431,16 +389,16 @@ private inline fun scanBoxPoints(
 
     // We cannot project points on something if we are inside the hitbox
     if (!isOutsideBox) {
-        scanBoxPoints3D(0.1, box, fn)
+        scanBoxPoints3D(box, fn, 0.1)
     }
 }
 
 private inline fun scanBoxPoints3D(
-    step: Double,
     box: Box,
-    fn: (Vec3d) -> Unit
+    fn: (Vec3d) -> Unit,
+    step: Double
 ) {
-    for ((x, y, z) in Vec3d(0.1, 0.1, 0.1)..Vec3d(0.9, 0.9, 0.9) step step) {
+    forEach3D(Vec3d(0.1, 0.1, 0.1), Vec3d(0.9, 0.9, 0.9), step) { x, y, z ->
         val vec3 = Vec3d(
             box.minX + (box.maxX - box.minX) * x,
             box.minY + (box.maxY - box.minY) * y,
@@ -450,6 +408,7 @@ private inline fun scanBoxPoints3D(
         fn(vec3)
     }
 }
+
 
 /**
  * Find the best spot of the upper block side
@@ -493,15 +452,6 @@ fun raytraceUpperBlockSide(
 
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
-
-val sides = arrayOf(
-    Direction.UP,
-    Direction.NORTH,
-    Direction.SOUTH,
-    Direction.WEST,
-    Direction.EAST,
-    Direction.DOWN
-)
 
 @Suppress("NestedBlockDepth", "CognitiveComplexMethod")
 fun findClosestPointOnBlock(

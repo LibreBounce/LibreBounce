@@ -45,7 +45,7 @@ object CommandValue : CommandFactory {
                 ParameterBuilder
                     .begin<ClientModule>("moduleName")
                     .verifiedBy(ParameterBuilder.MODULE_VALIDATOR)
-                    .autocompletedWith(ModuleManager::autoComplete)
+                    .autocompletedWith { begin, _ -> ModuleManager.autoComplete(begin) }
                     .required()
                     .build()
             )

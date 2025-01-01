@@ -72,7 +72,7 @@ class CommandBuilder private constructor(val name: String) {
     /**
      * If a command is marked as a hub command, it is impossible to execute it.
      *
-     * For example: <code>.friend</code>
+     * For example, <code>.friend</code>
      *
      * The command _friend_ would not be executable since it just acts as a
      * hub for its subcommands

@@ -20,11 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniqu
 
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.getTargetedPosition
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
@@ -55,16 +51,13 @@ object ScaffoldExpandTechnique : ScaffoldTechnique("Expand") {
             val position = getTargetedPosition(expandPos(predictedPos, i))
 
             val searchOptions = BlockPlacementTargetFindingOptions(
-                listOf(Vec3i.ZERO),
-                bestStack,
-                CenterTargetPositionFactory,
-                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-                // THIS IS A HACK!! - we should use the player's position instead of the
-                // block position, but we cannot aim at something that we don't see
-                // from our position
-                position.toVec3d(),
-                // we don't need to predict the pose, as we throw away this data on [getRotations] anyway
-                // predictedPose
+                BlockOffsetOptions(
+                    listOf(Vec3i.ZERO),
+                    BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+                ),
+                FaceHandlingOptions(CenterTargetPositionFactory),
+                stackToPlaceWith = bestStack,
+                PlayerLocationOnPlacement(position = position.toVec3d(), pose = predictedPose),
             )
 
             return findBestBlockPlacementTarget(position, searchOptions) ?: continue

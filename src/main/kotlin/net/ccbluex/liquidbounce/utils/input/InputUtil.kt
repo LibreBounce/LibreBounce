@@ -69,7 +69,7 @@ fun reduceInputName(translationKey: String): String {
  *
  * @return A set of simplified mouse input names.
  */
-val mouseList: Set<String>
+val availableKeyboardKeys: Set<String>
     get() = InputUtil.Type.MOUSE.map.values
         .map { key -> reduceInputName(key.translationKey) }
         .toSet()
@@ -79,9 +79,11 @@ val mouseList: Set<String>
  *
  * @return A set of simplified keyboard input names.
  */
-val keyList: Set<String>
+val availableMouseKeys: Set<String>
     get() = InputUtil.Type.KEYSYM.map.values
         .map { key -> reduceInputName(key.translationKey) }
         .toSet()
+
+val availableInputKeys: Set<String> = availableKeyboardKeys + availableMouseKeys
 
 fun ActionResult.shouldSwingHand() = this is ActionResult.Success && this.swingSource == ActionResult.SwingSource.CLIENT

@@ -51,7 +51,7 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
     private val levelParameter = ParameterBuilder
         .begin<String>("level")
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { begin ->
+        .autocompletedWith { begin, _ ->
             mutableListOf("max", "1", "2", "3", "4", "5").filter { it.startsWith(begin) }
         }
         .required()

@@ -24,11 +24,9 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.toRadians
-import net.ccbluex.liquidbounce.utils.kotlin.step
 import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.NormalizedPlane
-import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
@@ -53,10 +51,6 @@ abstract class FaceTargetPositionFactory {
      * @param face is relative to origin.
      */
     abstract fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d
-
-    protected fun getFaceRelativeToTargetPosition(face: AlignedFace, targetPos: BlockPos): AlignedFace {
-        return face.offset(Vec3d.of(targetPos).negate())
-    }
 
     /**
      * Trims a face to be only as wide as the config allows it to be
@@ -92,11 +86,6 @@ abstract class FaceTargetPositionFactory {
         )
 
         return trimmedFace
-    }
-
-    protected fun getPositionsOnFace(face: AlignedFace, step: Double): List<Vec3d> {
-        // Collects all possible rotations
-        return (face.from..face.to step step).map { Vec3d(it[0], it[1], it[2]) }.toList()
     }
 
 }

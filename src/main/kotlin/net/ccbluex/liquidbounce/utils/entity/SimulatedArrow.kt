@@ -127,5 +127,6 @@ class SimulatedArrow(
         return null
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     private fun isTouchingWater(): Boolean = false
 }

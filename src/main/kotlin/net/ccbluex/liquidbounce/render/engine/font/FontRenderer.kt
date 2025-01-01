@@ -226,9 +226,10 @@ class FontRenderer(
         }
     }
 
+    @Suppress("LongParameterList")
     private fun drawLine(
         x0: Float,
-        x: Float,
+        x1: Float,
         y: Float,
         z: Float,
         color: Color4b,
@@ -238,7 +239,7 @@ class FontRenderer(
             this.cache.lines.add(
                 RenderedLine(
                     Vec3(x0, y - this.height + this.ascent, z),
-                    Vec3(x, y - this.height + this.ascent, z),
+                    Vec3(x1, y - this.height + this.ascent, z),
                     color
                 )
             )
@@ -246,7 +247,7 @@ class FontRenderer(
             this.cache.lines.add(
                 RenderedLine(
                     Vec3(x0, y + 1.0f, z),
-                    Vec3(x, y + 1.0f, z),
+                    Vec3(x1, y + 1.0f, z),
                     color
                 )
             )

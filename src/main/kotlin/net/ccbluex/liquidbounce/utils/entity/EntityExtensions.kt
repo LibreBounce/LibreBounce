@@ -56,7 +56,6 @@ import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.Difficulty
 import net.minecraft.world.RaycastContext
-import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.world.explosion.ExplosionImpl
 import kotlin.math.cos
@@ -553,20 +552,37 @@ fun LivingEntity.getExposureToExplosion(
     return hits.toFloat() / totalRays.toFloat()
 }
 
+/**
+ * Sometimes the server does not publish the actual entity health with its metadata.
+ * This function incorporates other sources to get the actual value.
+ *
+ * Currently, uses the following sources:
+ * 1. Scoreboard
+ */
 fun LivingEntity.getActualHealth(fromScoreboard: Boolean = true): Float {
     if (fromScoreboard) {
-        world.scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BELOW_NAME)?.let { objective ->
-            objective.scoreboard.getScore(this, objective)?.let { scoreboard ->
-                val displayName = objective.displayName
+        val health = getHealthFromScoreboard()
 
-                if (displayName != null && scoreboard.score > 0 && displayName.string.contains("❤")) {
-                    return scoreboard.score.toFloat()
-                }
-            }
+        if (health != null) {
+            return health
         }
     }
 
+
     return health
+}
+
+private fun LivingEntity.getHealthFromScoreboard(): Float? {
+    val objective = world.scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BELOW_NAME) ?: return null
+    val score = objective.scoreboard.getScore(this, objective) ?: return null
+
+    val displayName = objective.displayName
+
+    if (score.score <= 0 || displayName?.string?.contains("❤") != true) {
+        return null
+    }
+
+    return score.score.toFloat()
 }
 
 /**

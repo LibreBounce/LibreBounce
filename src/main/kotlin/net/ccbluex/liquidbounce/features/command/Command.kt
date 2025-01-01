@@ -27,6 +27,7 @@ import java.util.*
 
 typealias CommandHandler = (Command, Array<Any>) -> Unit
 
+@Suppress("LongParameterList")
 class Command(
     val name: String,
     val aliases: Array<out String>,

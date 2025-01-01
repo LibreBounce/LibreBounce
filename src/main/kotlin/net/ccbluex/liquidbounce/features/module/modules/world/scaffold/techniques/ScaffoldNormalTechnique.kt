@@ -73,8 +73,8 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
         bestStack: ItemStack
     ): BlockPlacementTarget? {
         // Prioritize the block that is closest to the line, if there was no line found, prioritize the nearest block
-        val priorityGetter: (Vec3i) -> Double = if (optimalLine != null) {
-            { vec -> -optimalLine.squaredDistanceTo(Vec3d.of(vec).add(0.5, 0.5, 0.5)) }
+        val priorityComparator: Comparator<Vec3i> = if (optimalLine != null) {
+            compareByDescending { vec -> optimalLine.squaredDistanceTo(Vec3d.of(vec).add(0.5, 0.5, 0.5)) }
         } else {
             BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE
         }
@@ -83,12 +83,13 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
         val facePositionFactory = getFacePositionFactoryForConfig(predictedPos, predictedPose, optimalLine)
 
         val searchOptions = BlockPlacementTargetFindingOptions(
-            if (ScaffoldDownFeature.shouldGoDown) INVESTIGATE_DOWN_OFFSETS else NORMAL_INVESTIGATION_OFFSETS,
-            bestStack,
-            facePositionFactory,
-            priorityGetter,
-            predictedPos,
-            predictedPose
+            BlockOffsetOptions(
+                if (ScaffoldDownFeature.shouldGoDown) INVESTIGATE_DOWN_OFFSETS else NORMAL_INVESTIGATION_OFFSETS,
+                priorityComparator,
+            ),
+            FaceHandlingOptions(facePositionFactory),
+            stackToPlaceWith = bestStack,
+            PlayerLocationOnPlacement(position = predictedPos, pose = predictedPose),
         )
 
         return findBestBlockPlacementTarget(getTargetedPosition(predictedPos.toBlockPos()), searchOptions)

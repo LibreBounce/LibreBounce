@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ChatSendEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.commands.client.*
+import net.ccbluex.liquidbounce.features.command.commands.client.client.CommandClient
 import net.ccbluex.liquidbounce.features.command.commands.ingame.*
 import net.ccbluex.liquidbounce.features.command.commands.ingame.creative.*
 import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.CommandFakePlayer
@@ -351,12 +352,15 @@ object CommandManager : Iterable<Command> by commands {
      * The routine that handles the parsing of a single parameter
      */
     private fun parseParameter(command: Command, argument: String, parameter: Parameter<*>): Any {
-        return if (parameter.verifier == null) {
-            argument
-        } else {
-            val validationResult = parameter.verifier.invoke(argument)
+        if (parameter.verifier == null) {
+            return argument
+        }
 
-            if (validationResult.errorMessage != null) {
+        when (val validationResult = parameter.verifier.verifyAndParse(argument)) {
+            is ParameterValidationResult.Ok -> {
+                return validationResult.mappedResult!!
+            }
+            is ParameterValidationResult.Error -> {
                 throw CommandException(
                     translation(
                         "liquidbounce.commandManager.invalidParameterValue",
@@ -367,10 +371,6 @@ object CommandManager : Iterable<Command> by commands {
                     usageInfo = command.usage()
                 )
             }
-
-            val mappedResult = validationResult.mappedResult
-
-            mappedResult!!
         }
     }
 

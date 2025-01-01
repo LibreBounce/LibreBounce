@@ -11,10 +11,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.PlacementPlan
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -126,11 +123,13 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
         val playerPos = frameOnGround.pos.toBlockPos()
 
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
-            waterBucketSlot.itemStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            frameOnGround.pos
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = waterBucketSlot.itemStack,
+            PlayerLocationOnPlacement(position = frameOnGround.pos),
         )
 
         val bestPlacementPlan = findBestBlockPlacementTarget(playerPos, options) ?: return null
@@ -142,11 +141,13 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
         val bucket = Hotbar.findClosestItem(Items.BUCKET) ?: return null
 
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i.ZERO),
-            bucket.itemStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            player.pos
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = bucket.itemStack,
+            PlayerLocationOnPlacement(position = player.pos),
         )
 
         val bestPlacementPlan = findBestBlockPlacementTarget(blockPos, options) ?: return null

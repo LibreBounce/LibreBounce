@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.contains
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.Vec3i
 import net.minecraft.world.chunk.Chunk
 import kotlin.math.max
 import kotlin.math.min
@@ -114,13 +115,16 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
     }
 
     fun intersects(other: Region): Boolean {
-        return this.intersects(other.from.x, other.from.y, other.from.z, other.to.x, other.to.y, other.to.z)
+        return this.intersects(
+            min = Vec3i(other.from.x, other.from.y, other.from.z),
+            max = Vec3i(other.to.x, other.to.y, other.to.z)
+        )
     }
 
-    private fun intersects(minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int): Boolean {
-        return !(this.to.x <= minX || this.from.x >= maxX ||
-            this.to.y <= minY || this.from.y >= maxY ||
-            this.to.z <= minZ || this.from.z >= maxZ)
+    private fun intersects(min: Vec3i, max: Vec3i): Boolean {
+        return !(this.to.x <= min.x || this.from.x >= max.x ||
+            this.to.y <= min.y || this.from.y >= max.y ||
+            this.to.z <= min.z || this.from.z >= max.z)
     }
 
     override fun equals(other: Any?): Boolean {

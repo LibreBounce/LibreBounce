@@ -71,10 +71,11 @@ object ModuleSkinDerp : ClientModule("SkinDerp", Category.FUN) {
         )
         for ((part, isEnabled) in partsMap) {
             if (isEnabled) {
-                if (sync)
+                if (sync) {
                     mc.options.setPlayerModelPart(part, !mc.options.isPlayerModelPartEnabled(part))
-                else
+                } else {
                     mc.options.setPlayerModelPart(part, Random.nextBoolean())
+                }
             }
         }
     }

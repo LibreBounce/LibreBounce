@@ -169,7 +169,7 @@ object IntegrationListener : EventListener {
         // Set to default GLFW cursor
         GLFW.glfwSetCursor(mc.window.handle, standardCursor)
 
-        if (handleScreenSituation(event.screen)) {
+        if (handleCurrentScreen(event.screen)) {
             event.cancelEvent()
         }
     }
@@ -177,7 +177,7 @@ object IntegrationListener : EventListener {
     @Suppress("unused")
     val screenRefresher = handler<GameTickEvent> {
         if (browserIsReady && mc.currentScreen !is MCEFProgressMenu) {
-            handleScreenSituation(mc.currentScreen)
+            handleCurrentScreen(mc.currentScreen)
         }
     }
 
@@ -190,37 +190,47 @@ object IntegrationListener : EventListener {
         updateIntegrationBrowser()
     }
 
-    private fun handleScreenSituation(screen: Screen?): Boolean {
-        if (screen !is VrScreen && HideAppearance.isHidingNow) {
-            virtualClose()
-            return false
-        }
+    private fun handleCurrentScreen(screen: Screen?): Boolean {
+        return when {
+            screen !is VrScreen && HideAppearance.isHidingNow -> {
+                virtualClose()
 
-        if (!browserIsReady) {
-            if (screen !is MCEFProgressMenu) {
-                RenderSystem.recordRenderCall {
-                    mc.setScreen(MCEFProgressMenu(LiquidBounce.CLIENT_NAME))
-                }
-                return true
+                false
             }
+            !browserIsReady -> {
+                return if (screen !is MCEFProgressMenu) {
+                    RenderSystem.recordRenderCall {
+                        mc.setScreen(MCEFProgressMenu(LiquidBounce.CLIENT_NAME))
+                    }
 
-            return false
+                    true
+                } else {
+                    false
+                }
+            }
+            screen is VrScreen -> false
+            else -> {
+                // Are we currently playing the game?
+                if (mc.world != null && screen == null) {
+                    virtualClose()
+
+                    return false
+                }
+
+                handleCurrentMinecraftScreen(screen ?: TitleScreen())
+            }
         }
+    }
 
-        if (screen is VrScreen) {
-            return false
-        }
+    /**
+     * @return should cancel the minecraft screen
+     */
+    private fun handleCurrentMinecraftScreen(virtScreen: Screen): Boolean {
+        val virtualScreenType = VirtualScreenType.recognize(virtScreen)
 
-        val screen = screen ?: if (mc.world != null) {
-            virtualClose()
-            return false
-        } else {
-            TitleScreen()
-        }
-
-        val virtualScreenType = VirtualScreenType.recognize(screen)
         if (virtualScreenType == null) {
             virtualClose()
+
             return false
         }
 
@@ -236,17 +246,23 @@ object IntegrationListener : EventListener {
 
         val theme = route.theme
 
-        if (theme.doesSupport(name)) {
-            val vrScreen = VrScreen(virtualScreenType, theme, originalScreen = screen)
-            mc.setScreen(vrScreen)
-            return true
-        } else if (theme.doesOverlay(name)) {
-            virtualOpen(theme, virtualScreenType)
-        } else {
-            virtualClose()
-        }
+        return when {
+            theme.doesSupport(name) -> {
+                mc.setScreen(VrScreen(virtualScreenType, theme, originalScreen = virtScreen))
 
-        return false
+                true
+            }
+            theme.doesOverlay(name) -> {
+                virtualOpen(theme, virtualScreenType)
+
+                false
+            }
+            else -> {
+                virtualClose()
+
+                false
+            }
+        }
     }
 
 }
