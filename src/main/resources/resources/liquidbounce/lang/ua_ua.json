@@ -410,6 +410,9 @@
   "liquidbounce.command.localconfig.subcommand.create.result.created": "Файл конфігурації з іменем %s був створений.",
   "liquidbounce.command.localconfig.subcommand.create.result.alreadyExists": "Файл конфігурації з іменем %s вже існує.",
   "liquidbounce.command.script.description": "Дозволяє керувати скриптами.",
+  "liquidbounce.scripts.debug.support": "Скрипт %s налаштований на запуск із підтримкою налагоджувача на: ",
+  "liquidbounce.scripts.debug.inspect.url": "Натисніть, щоб скопіювати URL налагоджувача та вставте його у свій браузер (на жаль, працюють лише браузери на основі Chromium).",
+  "liquidbounce.scripts.debug.dap": "з DAP на порту %s",
   "liquidbounce.command.script.subcommand.load.description": "Завантажує скрипт.",
   "liquidbounce.command.script.subcommand.load.parameter.name.description": "Ім'я скрипта.",
   "liquidbounce.command.script.subcommand.load.result.notFound": "Скрипт з іменем %s не існує.",
@@ -505,5 +508,7 @@
   "liquidbounce.module.autoShop.description": "Опис автоматичного магазину",
   "liquidbounce.module.autoShop.messages.reloadSuccess": "Перезавантаження успішне",
   "liquidbounce.module.autoShop.messages.loadError": "Помилка завантаження",
+  "liquidbounce.module.bookBot.description": "Автоматично пише в книгах.",
+  "liquidbounce.module.betterTab.description": "Різноманітні покращення списку вкладок.",
   "liquidbounce.module.autoPearl.description": "Прицілюється та кидає перлину по траєкторії ворожої перлини."
 }

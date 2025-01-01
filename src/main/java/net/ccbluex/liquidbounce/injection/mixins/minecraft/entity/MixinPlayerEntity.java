@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleAntiReduce
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoClip;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach;
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallNoGround;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleNoSlowBreak;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
@@ -163,26 +162,6 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         }
 
         return original;
-    }
-
-    /**
-     * Head rotations injection hook
-     */
-    @ModifyExpressionValue(method = "tickNewAi", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;getYaw()F"))
-    private float hookHeadRotations(float original) {
-        if ((Object) this != MinecraftClient.getInstance().player) {
-            return original;
-        }
-
-        ModuleRotations rotations = ModuleRotations.INSTANCE;
-        final var pitch = rotations.getRotationPitch();
-        Rotation rotation = rotations.displayRotations();
-
-        // Update pitch here
-        pitch.key(pitch.valueFloat());
-        pitch.value(rotation.getPitch());
-
-        return rotations.shouldDisplayRotations() && rotations.getBodyParts().getHead() ? rotation.getYaw() : original;
     }
 
     @SuppressWarnings({"UnreachableCode", "ConstantValue"})

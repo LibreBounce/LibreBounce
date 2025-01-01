@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,12 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isHidingNow
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -47,6 +49,9 @@ import net.minecraft.client.gui.screen.DisconnectedScreen
 
 object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = true) {
 
+    override val running
+        get() = this.enabled && !isDestructed
+
     private var browserTab: ITab? = null
 
     override val baseKey: String
@@ -68,7 +73,8 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         tree(Configurable("Custom", customComponents as MutableList<Value<*>>))
     }
 
-    val screenHandler = handler<ScreenEvent>(ignoreNotRunning = true) {
+    @Suppress("unused")
+    private val screenHandler = handler<ScreenEvent> {
         if (!running || !inGame || it.screen is DisconnectedScreen || isHidingNow) {
             browserTab?.closeTab()
             browserTab = null

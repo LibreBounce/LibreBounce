@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,12 +64,18 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
-        val origin = event.origin
-        if (origin == TransferOrigin.RECEIVE && !clientbound || origin == TransferOrigin.SEND && !serverbound) {
-            return@handler
+        onPacket(event.origin, event.packet, event.isCancelled)
+    }
+
+    fun onPacket(origin: TransferOrigin, packet: Packet<*>, canceled: Boolean = false) {
+        if (!running) {
+            return
         }
 
-        val packet = event.packet
+        if (origin == TransferOrigin.RECEIVE && !clientbound || origin == TransferOrigin.SEND && !serverbound) {
+            return
+        }
+
         val text = Text.empty().styled { it.withFormatting(Formatting.WHITE) }
         if (origin == TransferOrigin.RECEIVE) {
             text.append(message("receive"))
@@ -82,12 +88,12 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
         text.append(" ")
         val packetName = getPacketName(clazz)
         if (!filter(packetName, packets)) {
-            return@handler
+            return
         }
 
         text.append(packetName)
 
-        if (event.isCancelled) {
+        if (canceled) {
             text.append(" (".asText().styled { it.withFormatting(Formatting.RED) })
             text.append(message("canceled").styled { it.withFormatting(Formatting.RED) })
             text.append(")".asText().styled { it.withFormatting(Formatting.RED) })

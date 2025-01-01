@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,11 +52,7 @@ object LegitNukerMode : Choice("Legit") {
 
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
-        if (it > range) {
-            range
-        } else {
-            it
-        }
+        minOf(it, range)
     }
 
     private val forceImmediateBreak by boolean("ForceImmediateBreak", false)
@@ -127,7 +123,7 @@ object LegitNukerMode : Choice("Legit") {
         currentTarget?.let { pos ->
             val blockState = pos.getState() ?: return@let
 
-            if (blockState.isNotBreakable(pos)) {
+            if (blockState.isNotBreakable(pos) || !ModuleNuker.isValid(blockState)) {
                 return@let
             }
 

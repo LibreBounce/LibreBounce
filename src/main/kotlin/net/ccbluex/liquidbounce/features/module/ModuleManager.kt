@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -82,6 +83,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModuleP
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -140,9 +142,43 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         }
     }
 
+    /**
+     * Handles world change and enables modules that are not enabled yet
+     */
     @Suppress("unused")
-    val worldHandler = handler<WorldChangeEvent> {
+    private val handleWorldChange = handler<WorldChangeEvent> { event ->
+        // Delayed start handling
+        if (event.world != null) {
+            for (module in modules) {
+                if (!module.enabled || module.calledSinceStartup) continue
+
+                try {
+                    module.calledSinceStartup = true
+                    module.enable()
+                } catch (e: Exception) {
+                    logger.error("Failed to enable module ${module.name}", e)
+                }
+            }
+        }
+
+        // Store modules configuration after world change, happens on disconnect as well
         ConfigSystem.storeConfigurable(modulesConfigurable)
+    }
+
+    /**
+     * Handles disconnect and if [Module.disableOnQuit] is true disables module
+     */
+    @Suppress("unused")
+    private val handleDisconnect = handler<DisconnectEvent> {
+        for (module in modules) {
+            if (module.disableOnQuit) {
+                try {
+                    module.enabled = false
+                } catch (e: Exception) {
+                    logger.error("Failed to disable module ${module.name}", e)
+                }
+            }
+        }
     }
 
     /**
@@ -213,7 +249,9 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleVomit,
 
             // Misc
+            ModuleBookBot,
             ModuleAntiBot,
+            ModuleBetterTab,
             ModuleBetterChat,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,

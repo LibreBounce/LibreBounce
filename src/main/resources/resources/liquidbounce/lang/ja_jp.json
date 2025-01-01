@@ -200,6 +200,9 @@
 	"liquidbounce.command.rename.result.mustHoldItem": "アイテムを持っていません! ",
 	"liquidbounce.command.rename.result.renamedItem": "アイテムの名前を「%s」から「%s」に変更しました。",
 	"liquidbounce.command.script.description": "スクリプトの管理ができます。",
+    "liquidbounce.scripts.debug.support": "スクリプト %s はデバッガーサポートを有効にして起動するように設定されています: ",
+    "liquidbounce.scripts.debug.inspect.url": "クリックしてデバッガーURLをコピーし、ブラウザに貼り付けてください（残念ながらChromiumベースのブラウザのみ動作します）。",
+    "liquidbounce.scripts.debug.dap": "ポート %s のDAPで",
 	"liquidbounce.command.script.subcommand.browse.description": "スクリプトが保存されているディレクトリを開きます。",
 	"liquidbounce.command.script.subcommand.browse.result.browse": "パス: %s",
 	"liquidbounce.command.script.subcommand.directory.description": "スクリプトのディレクトリを開きます。",
@@ -498,7 +501,9 @@
 	"liquidbounce.module.vehicleOneHit.description": "1回の攻撃であらゆるビークルを破壊できます。",
 	"liquidbounce.module.velocity.description": "ノックバックの量を変更します。",
 	"liquidbounce.module.xRay.description": "選択したブロックのみをレンダリングします。",
+    "liquidbounce.module.bookBot.description": "自動で本に書き込みます。",
 	"liquidbounce.module.zoot.description": "すべての悪い効果/火を取り除きます。",
 	"modmenu.descriptionTranslation.liquidbounce": "無料でオープンソースのハッククライアント",
-  "liquidbounce.module.autoPearl.description": "敵の真珠の軌道に向けて真珠を狙い投げる."
+    "liquidbounce.module.betterTab.description": "タブリストに複数の改良を加えました。",
+    "liquidbounce.module.autoPearl.description": "敵の真珠の軌道に向けて真珠を狙い投げる."
 }

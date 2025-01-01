@@ -23,7 +23,7 @@ private val LEET_MAP = mapOf(
 )
 
 private fun loadLines(name: String): List<String> {
-    val resourceName = "/assets/liquidbounce/data/usernames/$name"
+    val resourceName = "/resources/liquidbounce/data/usernames/$name"
     val inputStream =
         LiquidBounce.javaClass.getResourceAsStream(resourceName)
             ?: error("Failed to load resource $resourceName")

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         EventManager.INSTANCE.callEvent(new HealthUpdateEvent(packet.getHealth(), packet.getFood(), packet.getSaturation(), player.getHealth()));
 
         if (packet.getHealth() == 0) {
-            EventManager.INSTANCE.callEvent(new DeathEvent());
+            EventManager.INSTANCE.callEvent(DeathEvent.INSTANCE);
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 
+import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker.wasTarget
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
@@ -37,7 +38,7 @@ object SphereNukerArea : NukerArea("Sphere") {
         val eyesPos = player.eyes
 
         val positions = eyesPos.searchBlocksInCuboid(radius) { pos, state ->
-            if (state.isNotBreakable(pos)) {
+            if (state.isNotBreakable(pos) || !ModuleNuker.isValid(state)) {
                 return@searchBlocksInCuboid false
             }
 

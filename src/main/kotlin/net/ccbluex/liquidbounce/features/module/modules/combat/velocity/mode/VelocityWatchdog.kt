@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 
-internal object VelocityWatchdog : Choice("Watchdog") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityWatchdog : VelocityMode("Watchdog") {
 
     private var absorbedVelocity = false
 

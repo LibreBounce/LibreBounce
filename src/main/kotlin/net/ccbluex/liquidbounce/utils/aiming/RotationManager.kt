@@ -1,3 +1,21 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.event.EventListener
@@ -22,6 +40,87 @@ import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Vec3d
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.hypot
+import kotlin.math.sqrt
+
+/**
+ * Configurable to configure the dynamic rotation engine
+ */
+open class RotationsConfigurable(
+    owner: EventListener,
+    fixVelocity: Boolean = true,
+    changeLook: Boolean = false,
+    combatSpecific: Boolean = false
+) : Configurable("Rotations") {
+
+    val angleSmooth = choices(owner, "AngleSmooth", 0) {
+        arrayOf(
+            LinearAngleSmoothMode(it),
+            BezierAngleSmoothMode(it),
+            SigmoidAngleSmoothMode(it),
+            ConditionalLinearAngleSmoothMode(it),
+            AccelerationSmoothMode(it)
+        )
+    }
+
+    private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
+
+    var fixVelocity by boolean("FixVelocity", fixVelocity)
+    val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
+    val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
+    private val changeLook by boolean("ChangeLook", changeLook)
+
+    fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
+                  considerInventory: Boolean = false, whenReached: RestrictedSingleUseAction? = null) = AimPlan(
+        rotation,
+        vec,
+        entity,
+        angleSmooth.activeChoice,
+        slowStart,
+        failFocus,
+        shortStop,
+        ticksUntilReset,
+        resetThreshold,
+        considerInventory,
+        fixVelocity,
+        changeLook,
+        whenReached
+    )
+
+    fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
+                  considerInventory: Boolean = false, changeLook: Boolean) =
+        AimPlan(
+            rotation,
+            vec,
+            entity,
+            angleSmooth.activeChoice,
+            slowStart,
+            failFocus,
+            shortStop,
+            ticksUntilReset,
+            resetThreshold,
+            considerInventory,
+            fixVelocity,
+            changeLook
+        )
+
+    /**
+     * How long it takes to rotate to a rotation in ticks
+     *
+     * Calculates the difference from the server rotation to the target rotation and divides it by the
+     * minimum turn speed (to make sure we are always there in time)
+     *
+     * @param rotation The rotation to rotate to
+     * @return The amount of ticks it takes to rotate to the rotation
+     */
+    fun howLongToReach(rotation: Rotation) = angleSmooth.activeChoice
+        .howLongToReach(RotationManager.actualServerRotation, rotation)
+
+}
 
 /**
  * A rotation manager

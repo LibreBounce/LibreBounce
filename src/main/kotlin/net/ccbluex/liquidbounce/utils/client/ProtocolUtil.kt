@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,6 @@ val usesViaFabricPlus = runCatching {
 
 val hasProtocolTranslator = runCatching {
     Class.forName("de.florianmichael.viafabricplus.protocoltranslator.ProtocolTranslator")
-    true
-}.getOrDefault(false)
-
-val hasVisualSettings = runCatching {
-    Class.forName("de.florianmichael.viafabricplus.settings.impl.VisualSettings")
     true
 }.getOrDefault(false)
 

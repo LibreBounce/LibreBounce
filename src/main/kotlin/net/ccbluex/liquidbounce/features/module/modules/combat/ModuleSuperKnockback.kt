@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,10 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         val attackHandler = handler<AttackEntityEvent> { event ->
+            if (event.isCancelled) {
+                return@handler
+            }
+
             val enemy = event.entity
 
             if (!shouldOperate(enemy)) {
@@ -114,7 +118,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         val attackHandler = handler<AttackEntityEvent> { event ->
-            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -142,7 +146,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         val attackHandler = handler<AttackEntityEvent> { event ->
-            if (!shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
                 return@handler
             }
 
@@ -208,7 +212,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
     private fun runWithDummyEvent(action: suspend (Sequence<DummyEvent>) -> Unit) {
         sequence = Sequence(this, {
             action(this)
-        }, DummyEvent())
+        }, DummyEvent)
 
         sequence = null
     }

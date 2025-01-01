@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -233,7 +233,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
             val startX = chunk.pos.startX
             val startZ = chunk.pos.startZ
 
-            (chunk.bottomY..chunk.topYInclusive + 1).map { y ->
+            (chunk.bottomY..chunk.topYInclusive).map { y ->
                 scope.launch {
                     /**
                      * @see WorldChunk.getBlockState

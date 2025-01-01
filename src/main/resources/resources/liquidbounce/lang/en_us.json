@@ -211,6 +211,9 @@
   "liquidbounce.command.panic.result.nonRender": "non-render",
   "liquidbounce.command.ping.description": "Checks your ping.",
   "liquidbounce.command.ping.result.pingCheck": "Your ping is %sms.",
+  "liquidbounce.command.tps.description": "Approximates the server's TPS.",
+  "liquidbounce.command.tps.result.tpsCheck": "The server's TPS are %s.",
+  "liquidbounce.command.tps.result.nan": "not yet calculated",
   "liquidbounce.command.client.subcommand.prefix.description": "Changes the command prefix.",
   "liquidbounce.command.client.subcommand.prefix.parameter.prefix.description": "New command prefix.",
   "liquidbounce.command.client.subcommand.prefix.result.prefixChanged": "Successfully changed command prefix to \"%s\".",
@@ -227,6 +230,9 @@
   "liquidbounce.command.rename.result.mustHoldItem": "You are not holding an item!",
   "liquidbounce.command.rename.result.renamedItem": "Renamed item from \"%s\" to \"%s\".",
   "liquidbounce.command.script.description": "Allows you to manage scripts.",
+  "liquidbounce.scripts.debug.support": "Script %s is configured to launch with debugger support on: ",
+  "liquidbounce.scripts.debug.inspect.url": "Click to copy the debugger URL and then paste in your browser (unfortunately only chromium based browser will work)",
+  "liquidbounce.scripts.debug.dap": "with DAP on port %s",
   "liquidbounce.command.script.subcommand.browse.description": "Opens the scripts directory.",
   "liquidbounce.command.script.subcommand.browse.result.browse": "Location: %s",
   "liquidbounce.command.script.subcommand.edit.description": "Opens a script in the editor.",
@@ -617,6 +623,8 @@
   "liquidbounce.module.surround.description": "Builds holes that protect you from explosion damage.",
   "liquidbounce.module.packetMine.description": "Allows you to mine blocks by clicking them once.",
   "liquidbounce.module.fastExp.description": "Automatically repairs your armor.",
+  "liquidbounce.module.bookBot.description": "Automatically writes in books.",
   "liquidbounce.module.itemChams.description": "Applies visual effects to your held items.",
+  "liquidbounce.module.betterTab.description": "Multiple improvements to the tab list.",
   "liquidbounce.module.autoPearl.description": "Aims and throws a pearl at an enemies pearl trajectory."
 }

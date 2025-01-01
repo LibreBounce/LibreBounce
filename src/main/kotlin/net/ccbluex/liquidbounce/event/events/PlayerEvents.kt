@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,16 +39,16 @@ class HealthUpdateEvent(val health: Float, val food: Int, val saturation: Float,
 
 @Nameable("death")
 @WebSocketEvent
-class DeathEvent : Event()
+object DeathEvent : Event()
 
 @Nameable("playerTick")
 class PlayerTickEvent : CancellableEvent()
 
 @Nameable("playerPostTick")
-class PlayerPostTickEvent : Event()
+object PlayerPostTickEvent : Event()
 
 @Nameable("playerMovementTick")
-class PlayerMovementTickEvent : Event()
+object PlayerMovementTickEvent : Event()
 
 @Nameable("playerNetworkMovementTick")
 class PlayerNetworkMovementTickEvent(val state: EventState,
@@ -71,7 +71,7 @@ class RotatedMovementInputEvent(var forward: Float, var sideways: Float) : Event
 class PlayerJumpEvent(var motion: Float) : CancellableEvent()
 
 @Nameable("playerAfterJump")
-class PlayerAfterJumpEvent : Event()
+object PlayerAfterJumpEvent : Event()
 
 @Nameable("playerUseMultiplier")
 class PlayerUseMultiplier(var forward: Float, var sideways: Float) : Event()

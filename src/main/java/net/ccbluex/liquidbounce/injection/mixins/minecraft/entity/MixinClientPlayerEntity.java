@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,13 +30,13 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleAntiHunger;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePortalMenu;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEntityControl;
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
@@ -102,7 +102,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             shift = At.Shift.AFTER,
             ordinal = 0))
     private void hookPostTickEvent(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new PlayerPostTickEvent());
+        EventManager.INSTANCE.callEvent(PlayerPostTickEvent.INSTANCE);
 
         // Call player statistics change event when statistics change
         var statistics = PlayerData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
@@ -117,7 +117,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void hookMovementTickEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerMovementTickEvent());
+        EventManager.INSTANCE.callEvent(PlayerMovementTickEvent.INSTANCE);
     }
 
     /**
@@ -164,6 +164,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
      */
     @Inject(method = "pushOutOfBlocks", at = @At("HEAD"), cancellable = true)
     private void hookPushOut(double x, double z, CallbackInfo ci) {
+        if (ModuleNoPush.INSTANCE.isBlocks()) {
+            ci.cancel();
+            return;
+        }
+
         final PlayerPushOutEvent pushOutEvent = new PlayerPushOutEvent();
         EventManager.INSTANCE.callEvent(pushOutEvent);
         if (pushOutEvent.isCancelled()) {
@@ -291,7 +296,9 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyVariable(method = "sendMovementPackets", at = @At("STORE"), ordinal = 1)
     private boolean hookFreeCamPreventRotations(boolean bl4) {
-        return (!ModuleFreeCam.INSTANCE.shouldDisableRotations() ||  ModuleRotations.INSTANCE.shouldSendCustomRotation())  && bl4;
+        // Prevent rotation changes when free cam is active, unless a rotation is being set via the rotation manager
+        return (!ModuleFreeCam.INSTANCE.shouldDisableRotations() ||
+                RotationManager.INSTANCE.getCurrentRotation() != null) && bl4;
     }
 
     @ModifyConstant(method = "canSprint", constant = @Constant(floatValue = 6.0F), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/HungerManager;getFoodLevel()I", ordinal = 0)))
@@ -318,6 +325,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isWalking()Z"))
     private boolean hookOmnidirectionalSprintC(boolean original) {
         return liquid_bounce$isOmniWalking();
+    }
+
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/client/network/ClientPlayerEntity;horizontalCollision:Z"))
+    private boolean hookSprintIgnoreCollision(boolean original) {
+        return !ModuleSprint.INSTANCE.shouldIgnoreCollision() && original;
     }
 
     @Unique

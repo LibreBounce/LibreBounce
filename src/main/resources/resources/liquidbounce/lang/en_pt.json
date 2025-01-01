@@ -408,6 +408,9 @@
   "liquidbounce.command.localconfig.subcommand.create.result.created": "Configuration file named %s has been created.",
   "liquidbounce.command.localconfig.subcommand.create.result.alreadyExists": "Configuration file named %s already exists.",
   "liquidbounce.command.script.description": "Allows you to manage scripts.",
+  "liquidbounce.scripts.debug.support": "Script %s is configured to launch with debugger support on: ",
+  "liquidbounce.scripts.debug.inspect.url": "Click to copy the debugger URL and then paste in your browser (unfortunately only chromium based browser will work).",
+  "liquidbounce.scripts.debug.dap": "with DAP on port %s",
   "liquidbounce.command.script.subcommand.load.description": "Loads a script.",
   "liquidbounce.command.script.subcommand.load.parameter.name.description": "Name of the script.",
   "liquidbounce.command.script.subcommand.load.result.notFound": "Script named %s does not exist.",
@@ -432,7 +435,9 @@
   "liquidbounce.command.script.subcommand.edit.parameter.name.description": "Name of the script.",
   "liquidbounce.command.script.subcommand.edit.result.notFound": "Script named %s does not exist.",
   "liquidbounce.command.script.subcommand.edit.result.opened": "Opened script named %s.",
+  "liquidbounce.module.bookBot.description": "Escreve automaticamente em livros.",
   "liquidbounce.liquidchat.authenticationFailed": "Authentication failed! LiquidChat requires Minecraft premium account.",
   "liquidbounce.module.autoBalls.description": "Automatically throws snowballs at your enemies.",
+  "liquidbounce.module.betterTab.description": "Multiple enhancements to the tab list.",
   "liquidbounce.module.autoPearl.description": "Mira e lança uma pérola na trajetória da pérola inimiga."
 }
