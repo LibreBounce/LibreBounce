@@ -45,10 +45,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -225,7 +222,7 @@ public abstract class MixinWorldRenderer {
         }
     }
 
-    @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.AFTER))
+    @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE))
     private void onRenderOutline(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, Handle handle3, Handle handle4, boolean bl, Frustum frustum, Handle handle5, CallbackInfo ci) {
         if (!this.canDrawEntityOutlines()) {
             return;
@@ -237,6 +234,14 @@ public abstract class MixinWorldRenderer {
         EventManager.INSTANCE.callEvent(event);
         OutlineFlag.drawOutline |= event.getDirtyFlag();
         client.getFramebuffer().beginWrite(false);
+    }
+
+    @ModifyVariable(method = "render", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gl/ShaderLoader;loadPostEffect(Lnet/minecraft/util/Identifier;Ljava/util/Set;)Lnet/minecraft/client/gl/PostEffectProcessor;"
+    ), name = "bl3", ordinal = 3)
+    private boolean modifyDrawOutline(boolean original) {
+        return original || OutlineFlag.drawOutline;
     }
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"), index = 3)
