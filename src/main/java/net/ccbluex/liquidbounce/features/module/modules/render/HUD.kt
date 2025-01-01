@@ -55,8 +55,6 @@ object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetectin
     private val blur by boolean("Blur", false)
     private val fontChat by boolean("FontChat", false)
 
-    var fontFlag = false
-
     val onRender2D = handler<Render2DEvent> {
         if (mc.currentScreen is GuiHudDesigner)
             return@handler
