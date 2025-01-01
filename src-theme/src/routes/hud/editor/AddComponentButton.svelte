@@ -4,7 +4,7 @@
     import {THEME_NAME} from "../../../integration/host";
 
     async function handleClick() {
-        await createComponent(THEME_NAME, "Text");
+        await createComponent(THEME_NAME, "Effects");
     }
 </script>
 
