@@ -76,7 +76,7 @@
                 newHorizontal = clamp(
                     newHorizontal,
                     -window.innerWidth / 2,
-                    window.innerWidth / 2
+                    window.innerWidth / 2 - (element?.offsetWidth ?? 0)
                 );
                 break;
             case HorizontalAlignment.LEFT:
@@ -103,7 +103,7 @@
                 newVertical = clamp(
                     newVertical,
                     -window.innerHeight / 2,
-                    window.innerHeight / 2
+                    window.innerHeight / 2 - (element?.offsetHeight ?? 0)
                 );
                 break;
             case VerticalAlignment.TOP:
