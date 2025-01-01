@@ -45,13 +45,13 @@ object ModuleSneak : ClientModule("Sneak", Category.MOVEMENT) {
             get() = modes
 
         @Suppress("unused")
-        val inputHandler = handler<MovementInputEvent> {
+        private val inputHandler = handler<MovementInputEvent> { event ->
             if (player.moving && notDuringMove) {
                 return@handler
             }
 
             // Temporarily override sneaking
-            it.sneak = true
+            event.sneak = true
         }
 
     }
