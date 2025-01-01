@@ -31,7 +31,6 @@ def getContributors(repoOwner, repoName) {
     connection.readTimeout = 5000
 
     connection.setRequestProperty("User-Agent", "LiquiudBounce-App")
-    connection.setRequestProperty("Authorization", "token ${github_apikey_for_bypass_ratelimit_only}")
 
     if (200 <= connection.responseCode && connection.responseCode <= 299) {
         def response = connection.inputStream.text
