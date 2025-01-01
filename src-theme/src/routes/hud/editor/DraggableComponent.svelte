@@ -1,14 +1,17 @@
 <script lang="ts">
     import {type Alignment, HorizontalAlignment, VerticalAlignment} from "../../../integration/types.js";
-    import {scaleFactor} from "../../clickgui/clickgui_store";
-    import {moveComponent} from "../../../integration/rest";
+    import {getGameWindow, moveComponent} from "../../../integration/rest";
     import {onMount} from "svelte";
     import ComponentSettings from "./ComponentSettings.svelte";
+    import {listen} from "../../../integration/ws";
+    import type {ScaleFactorChangeEvent} from "../../../integration/events";
 
     export let alignment: Alignment;
     export let id: string;
     export let name: string;
     export let editorMode: boolean;
+
+    let scaleFactor = 2;
 
     // TODO: make configurable
     let gridSize = 10;
@@ -38,15 +41,15 @@
 
         moving = true;
         if (alignment.horizontal !== HorizontalAlignment.RIGHT) {
-            offsetX = e.clientX * (2 / $scaleFactor) - alignment.horizontalOffset;
+            offsetX = e.clientX * (2 / scaleFactor) - alignment.horizontalOffset;
         } else {
-            offsetX = e.clientX * (2 / $scaleFactor) + alignment.horizontalOffset;
+            offsetX = e.clientX * (2 / scaleFactor) + alignment.horizontalOffset;
         }
 
         if (alignment.vertical !== VerticalAlignment.BOTTOM) {
-            offsetY = e.clientY * (2 / $scaleFactor) - alignment.verticalOffset;
+            offsetY = e.clientY * (2 / scaleFactor) - alignment.verticalOffset;
         } else {
-            offsetY = e.clientY * (2 / $scaleFactor) + alignment.verticalOffset;
+            offsetY = e.clientY * (2 / scaleFactor) + alignment.verticalOffset;
         }
     }
 
@@ -59,9 +62,9 @@
         let newVertical = 0;
 
         if (alignment.horizontal !== HorizontalAlignment.RIGHT) {
-            newHorizontal = e.clientX * (2 / $scaleFactor) - offsetX;
+            newHorizontal = e.clientX * (2 / scaleFactor) - offsetX;
         } else {
-            newHorizontal = offsetX - e.clientX * (2 / $scaleFactor);
+            newHorizontal = offsetX - e.clientX * (2 / scaleFactor);
         }
 
         newHorizontal = snapToGrid(newHorizontal);
@@ -88,9 +91,9 @@
         }
 
         if (alignment.vertical !== VerticalAlignment.BOTTOM) {
-            newVertical = (e.clientY * (2 / $scaleFactor) - offsetY);
+            newVertical = (e.clientY * (2 / scaleFactor) - offsetY);
         } else {
-            newVertical = offsetY - (e.clientY * (2 / $scaleFactor));
+            newVertical = offsetY - (e.clientY * (2 / scaleFactor));
         }
 
         newVertical = snapToGrid(newVertical);
@@ -189,8 +192,15 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
+        const gameWindow = await getGameWindow();
+        scaleFactor = gameWindow.scaleFactor;
+
         updateSettingsBottom();
+    });
+
+    listen("scaleFactorChange", (e: ScaleFactorChangeEvent) => {
+        scaleFactor = e.scaleFactor;
     });
 </script>
 
