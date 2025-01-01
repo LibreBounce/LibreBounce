@@ -24,11 +24,15 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptCommandBuilder
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptModule
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.variable
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import org.graalvm.polyglot.Context
@@ -72,17 +76,14 @@ class PolyglotScript(
                             "devtools://devtools/bundled/js_app.html?ws=127.0.0.1:${debugOptions.port}/${file.name}"
 
                         chat(
-                            regular("Script $file is configured to launch with debugger support on: ")
+                            regular(translation("liquidbounce.scripts.debug.support", variable(file.toString())))
                                 .append(variable(devtoolURL).styled {
                                     it.withUnderline(true)
                                         .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, devtoolURL))
                                         .withHoverEvent(
                                             HoverEvent(
                                                 HoverEvent.Action.SHOW_TEXT,
-                                                regular(
-                                                    "Click to copy the debugger URL and then paste in your browser " +
-                                                        "(unfortunately only chromium based browser will work)"
-                                                )
+                                                regular(translation("liquidbounce.scripts.debug.inspect.url"))
                                             )
                                         )
                                 })
@@ -98,11 +99,10 @@ class PolyglotScript(
                         }
 
                         chat(
-                            regular(
-                                "Script $file is configured to launch with debugger support " +
-                                    "with DAP on port ${debugOptions.port}"
+                            regular(translation("liquidbounce.scripts.debug.support", variable(file.toString())).append(
+                                translation("liquidbounce.scripts.debug.dap", variable(debugOptions.port.toString()))
                             )
-                        )
+                        ))
                     }
                 }
             }
