@@ -30,10 +30,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.dropPort
-import net.ccbluex.liquidbounce.utils.client.inGame
-import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.client.rootDomain
+import net.ccbluex.liquidbounce.utils.client.*
 
 object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {
 
@@ -60,7 +57,15 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
             return
         }
 
-        loadServerConfig(currentServerEntry.address.dropPort().rootDomain())
+        try {
+            loadServerConfig(currentServerEntry.address.dropPort().rootDomain())
+        } catch (exception: Exception) {
+            notification(
+                "AutoConfig", "Failed to load config for ${currentServerEntry.address}.",
+                NotificationEvent.Severity.ERROR
+            )
+            logger.error("Failed to load config for ${currentServerEntry.address}.", exception)
+        }
         super.enable()
     }
 
@@ -71,8 +76,8 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
 
     val repeatable = tickHandler {
         if (requiresConfigLoad && inGame && mc.currentScreen == null) {
-            enable()
             requiresConfigLoad = false
+            enable()
         }
     }
 
@@ -97,9 +102,9 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         // There can be multiple configs for the same server, but with different names
         // and the global config is likely named e.g "hypixel", while the more specific ones are named
         // "hypixel-csgo", "hypixel-legit", etc.
-        val autoConfig = configs.filter {
-            it.serverAddress?.rootDomain().equals(address, true) ||
-                    it.serverAddress.equals(address, true)
+        val autoConfig = configs.filter { config ->
+            config.serverAddress?.rootDomain().equals(address, true) ||
+                    config.serverAddress.equals(address, true)
         }.minByOrNull { it.name.length }
 
         if (autoConfig == null) {
