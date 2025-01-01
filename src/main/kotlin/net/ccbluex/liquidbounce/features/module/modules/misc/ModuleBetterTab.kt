@@ -23,6 +23,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             Visibility,
             Highlight,
             AccurateLatency,
+            PlayerHider
         )
     }
 
@@ -40,16 +41,67 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     }
 
     object Highlight : ToggleableConfigurable(ModuleBetterTab, "Highlight", true) {
-        class HighlightColored(name: String, color: Color4b) : ToggleableConfigurable(this, name, true) {
+        open class HighlightColored(
+            name: String,
+            color: Color4b
+        ) : ToggleableConfigurable(this, name, true) {
             val color by color("Color", color)
+        }
+
+        class Others(color: Color4b) : HighlightColored("Others", color) {
+            val filter = tree(PlayerFilter())
         }
 
         val self = tree(HighlightColored("Self", Color4b(50, 193, 50, 80)))
         val friends = tree(HighlightColored("Friends", Color4b(16, 89, 203, 80)))
+        val others = tree(Others(Color4b(35, 35, 35, 80)))
     }
 
     object AccurateLatency : ToggleableConfigurable(ModuleBetterTab, "AccurateLatency", true) {
         val suffix by boolean("AppendMSSuffix", true)
+    }
+
+    object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "PlayerHider", false) {
+        val filter = tree(PlayerFilter())
+    }
+}
+
+class PlayerFilter: Configurable("Filter") {
+    private var filters = setOf<Regex>()
+
+    private val filterType by enumChoice("FilterBy", Filter.BOTH)
+
+    @Suppress("unused")
+    private val names by textArray("Names", mutableListOf()).onChanged { newValue ->
+        filters = newValue.mapTo(HashSet(newValue.size, 1.0F)) {
+            val regexPattern = it
+                .replace("*", ".*")
+                .replace("?", ".")
+
+            Regex("^$regexPattern\$")
+        }
+    }
+
+    fun isInFilter(entry: PlayerListEntry) = filters.any { regex ->
+        filterType.matches(entry, regex)
+    }
+
+    @Suppress("unused")
+    private enum class Filter(
+        override val choiceName: String,
+        val matches: PlayerListEntry.(Regex) -> Boolean
+    ) : NamedChoice {
+        BOTH("Both", { regex ->
+            DISPLAY_NAME.matches(this, regex) || PLAYER_NAME.matches(this, regex)
+        }),
+
+        DISPLAY_NAME("DisplayName", { regex ->
+            this.displayName?.string?.let { regex.matches(it) } ?: false
+        }),
+
+        PLAYER_NAME("PlayerName", { regex ->
+            regex.matches(this.profile.name)
+        })
     }
 }
 

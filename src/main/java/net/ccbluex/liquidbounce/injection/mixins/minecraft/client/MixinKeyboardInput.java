@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent;
 import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent;
@@ -42,7 +44,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardInput.class)
@@ -55,10 +56,11 @@ public class MixinKeyboardInput extends MixinInput {
     /**
      * Hook inventory move module
      */
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
-    private boolean hookInventoryMove(KeyBinding keyBinding) {
-        return ModuleInventoryMove.INSTANCE.shouldHandleInputs(keyBinding)
-                ? InputTracker.INSTANCE.isPressedOnAny(keyBinding) : keyBinding.isPressed();
+    @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
+    private boolean hookInventoryMove(KeyBinding instance, Operation<Boolean> original) {
+        return original.call(instance) ||
+                ModuleInventoryMove.INSTANCE.shouldHandleInputs(instance)
+                        && InputTracker.INSTANCE.isPressedOnAny(instance);
     }
 
     /**
