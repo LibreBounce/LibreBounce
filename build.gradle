@@ -17,7 +17,35 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+def getContributors(repoOwner, repoName) {
+    def url = "https://api.github.com/repos/${repoOwner}/${repoName}/stats/contributors"
+    def connection = (HttpURLConnection) new URI(url).toURL().openConnection()
+
+    connection.requestMethod = "GET"
+    connection.connectTimeout = 5000
+    connection.readTimeout = 5000
+
+    connection.setRequestProperty("User-Agent", "LiquiudBounce-App")
+    connection.setRequestProperty("Authorization", "token ${github_apikey_for_bypass_ratelimit_only}")
+
+    if (200 <= connection.responseCode && connection.responseCode <= 299) {
+        def response = connection.inputStream.text
+        def json = new JsonSlurper().parseText(response)
+        return json
+                .collect { it['author']['login'] }
+                .findAll { !(it as String).contains("dependabot") }
+                .reversed()
+
+    } else {
+        throw new RuntimeException("Failed to collect contributors, github api responsed invalid status code: ${connection.responseCode}")
+    }
+}
+
 
 plugins {
     id "fabric-loom"
@@ -152,6 +180,8 @@ dependencies {
 }
 
 processResources {
+    String contributors = JsonOutput.prettyPrint(JsonOutput.toJson(getContributors("CCBlueX", "LiquidBounce")))
+
     inputs.property "version", project.version
 
     inputs.property "minecraft_version", minecraft_version
@@ -160,6 +190,7 @@ processResources {
     inputs.property "min_loader_version", min_loader_version
     inputs.property "fabric_kotlin_version", fabric_kotlin_version
     inputs.property "viafabricplus_version", viafabricplus_version
+    inputs.property "contributors", contributors
 
     filesMatching("fabric.mod.json") {
         expand([
@@ -168,6 +199,7 @@ processResources {
                 fabric_version       : fabric_version,
                 loader_version       : loader_version,
                 min_loader_version   : min_loader_version,
+                contributors         : contributors,
                 fabric_kotlin_version: fabric_kotlin_version,
                 viafabricplus_version: viafabricplus_version
         ])
