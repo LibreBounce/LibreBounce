@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -193,7 +193,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
     }
 
     @Suppress("unused")
-    private val sessionHandler = handler<SessionEvent>(ignoreNotRunning = true) { event ->
+    private val sessionHandler = handler<SessionEvent> { event ->
         val session = event.session
 
         // Check if the account is valid

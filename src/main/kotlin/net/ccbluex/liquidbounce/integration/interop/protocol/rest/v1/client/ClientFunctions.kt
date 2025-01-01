@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ fun postBrowse(requestObject: RequestObject): FullHttpResponse {
 private val POSSIBLE_URL_TARGETS: Map<String, URI> = run {
     val properties = Properties()
 
-    properties.load(LiquidBounce::class.java.getResourceAsStream("/assets/liquidbounce/client_urls.properties"))
+    properties.load(LiquidBounce::class.java.getResourceAsStream("/resources/liquidbounce/client_urls.properties"))
 
     properties.stringPropertyNames().associateWith { URI(properties.getProperty(it)) }
 }

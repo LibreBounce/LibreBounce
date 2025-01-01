@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,9 +63,9 @@ object ModuleCrystalAura : ClientModule(
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
-    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+    val rotationMode = choices("RotationMode", 0) {
         arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
-    })
+    }
 
     var currentTarget: LivingEntity? = null
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -177,7 +177,7 @@ val ItemStack.sharpnessLevel: Int
 fun ItemStack.getSharpnessDamage(level: Int = sharpnessLevel) = if (level == 0) 0.0 else 0.5 * level + 0.5
 
 val ItemStack.attackSpeed: Float
-    get() = item.getAttributeValue(EntityAttributes.ATTACK_DAMAGE)
+    get() = item.getAttributeValue(EntityAttributes.ATTACK_SPEED)
 
 private fun Item.getAttributeValue(attribute: RegistryEntry<EntityAttribute>): Float {
     val attribInstance = EntityAttributeInstance(attribute) {}

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2024 CCBlueX
+ * Copyright (c) 2016 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,8 +131,7 @@ object AutoConfig {
             // Give user notification about the protocol of the config and his current protocol,
             // if they are not identical, make the message red and bold to make it more visible
             // also, if the protocol is identical, make the message green to make it more visible
-
-            val matchesVersion = protocolName == pName && protocolVersion == pVersion
+            val matchesVersion = protocolVersion == pVersion
 
             chat(
                 regular("for protocol "),

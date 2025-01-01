@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber {
 
         // Only check positions in this chunk (pos is BlockPos.Mutable)
         forEach { pos ->
-            if (chunk != null && (pos.y <= chunk.bottomY || pos.y - 1 >= chunk.topYInclusive + 1)) {
+            if (chunk != null && (pos.y <= chunk.bottomY || pos.y - 1 >= chunk.topYInclusive)) {
                 return@forEach
             }
 

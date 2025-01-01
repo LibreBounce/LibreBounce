@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,20 +24,31 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptCommandBuilder
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptModule
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.variable
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.io.IOAccess
 import java.io.File
+import java.net.BindException
+import java.net.ServerSocket
 import java.util.function.Function
 
-class PolyglotScript(val language: String, val file: File) {
+class PolyglotScript(
+    val language: String, val file: File,
+    val debugOptions: ScriptDebugOptions = ScriptDebugOptions()
+) {
 
     private val context: Context = Context.newBuilder(language)
         .allowHostAccess(HostAccess.ALL) // Allow access to all Java classes
@@ -50,6 +61,52 @@ class PolyglotScript(val language: String, val file: File) {
         .allowExperimentalOptions(true) // Allow experimental options
         .option("js.nashorn-compat", "true") // Enable Nashorn compatibility
         .option("js.ecmascript-version", "2023") // Enable ECMAScript 2023
+        .apply {
+            if (debugOptions.enabled) {
+                val protocolString = debugOptions.protocol.toString().lowercase()
+                option("${protocolString}.Suspend", debugOptions.suspendOnStart.toString())
+                option("${protocolString}.Internal", debugOptions.inspectInternals.toString())
+                option(protocolString, "${debugOptions.port}")
+
+                when (debugOptions.protocol) {
+                    DebugProtocol.INSPECT -> {
+                        option("inspect.Path", file.name)
+
+                        val devtoolURL =
+                            "devtools://devtools/bundled/js_app.html?ws=127.0.0.1:${debugOptions.port}/${file.name}"
+
+                        chat(
+                            regular(translation("liquidbounce.scripts.debug.support", variable(file.toString())))
+                                .append(variable(devtoolURL).styled {
+                                    it.withUnderline(true)
+                                        .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, devtoolURL))
+                                        .withHoverEvent(
+                                            HoverEvent(
+                                                HoverEvent.Action.SHOW_TEXT,
+                                                regular(translation("liquidbounce.scripts.debug.inspect.url"))
+                                            )
+                                        )
+                                })
+                        )
+                    }
+
+                    DebugProtocol.DAP -> {
+                        try {
+                            // this happens when trying to build the options before the port is bound.
+                            ServerSocket(debugOptions.port).close()
+                        } catch (e: BindException) {
+                            throw IllegalStateException("Debug port ${debugOptions.port} already in use", e)
+                        }
+
+                        chat(
+                            regular(translation("liquidbounce.scripts.debug.support", variable(file.toString())).append(
+                                translation("liquidbounce.scripts.debug.dap", variable(debugOptions.port.toString()))
+                            )
+                        ))
+                    }
+                }
+            }
+        }
         .build().apply {
             // Global instances
             val bindings = getBindings(language)
@@ -141,7 +198,7 @@ class PolyglotScript(val language: String, val file: File) {
     /**
      * Registers a new script command
      *
-     * @param command From the command builder.
+     * @param commandObject From the command builder.
      */
     @Suppress("unused")
     fun registerCommand(commandObject: Value) {
@@ -216,6 +273,14 @@ class PolyglotScript(val language: String, val file: File) {
     }
 
     /**
+     * Called when the client unloads the script.
+     */
+
+    fun close() {
+        context.close(true)
+    }
+
+    /**
      * Calls the handler of a registered event.
      * @param eventName Name of the event to be called.
      */
@@ -223,8 +288,10 @@ class PolyglotScript(val language: String, val file: File) {
         try {
             globalEvents[eventName]?.invoke()
         } catch (throwable: Throwable) {
-            logger.error("${file.name}::$scriptName -> Event Function $eventName threw an error",
-                throwable)
+            logger.error(
+                "${file.name}::$scriptName -> Event Function $eventName threw an error",
+                throwable
+            )
         }
     }
 }

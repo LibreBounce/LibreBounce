@@ -15,7 +15,7 @@ object MurderMysteryFontDetection {
         val gson = Gson()
 
         val stream =
-            ModuleMurderMystery.javaClass.getResourceAsStream("/assets/liquidbounce/data/hypixel_mm_letters.json")
+            ModuleMurderMystery.javaClass.getResourceAsStream("/resources/liquidbounce/data/hypixel_mm_letters.json")
 
         check(stream != null) { "Unable to find hypixel_mm_letters.json!" }
 

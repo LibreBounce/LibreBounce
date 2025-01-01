@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -407,44 +407,7 @@ fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolea
     // Draw the vertices of the box
     with(buffer) {
         // Draw the vertices of the box
-        val vertices = when (side) {
-            Direction.DOWN -> listOf(
-                Vec3(box.minX, box.minY, box.maxZ),
-                Vec3(box.minX, box.minY, box.minZ),
-                Vec3(box.maxX, box.minY, box.minZ),
-                Vec3(box.maxX, box.minY, box.maxZ)
-            )
-            Direction.UP -> listOf(
-                Vec3(box.minX, box.maxY, box.minZ),
-                Vec3(box.minX, box.maxY, box.maxZ),
-                Vec3(box.maxX, box.maxY, box.maxZ),
-                Vec3(box.maxX, box.maxY, box.minZ)
-            )
-            Direction.NORTH -> listOf(
-                Vec3(box.maxX, box.maxY, box.minZ),
-                Vec3(box.maxX, box.minY, box.minZ),
-                Vec3(box.minX, box.minY, box.minZ),
-                Vec3(box.minX, box.maxY, box.minZ)
-            )
-            Direction.SOUTH -> listOf(
-                Vec3(box.minX, box.maxY, box.maxZ),
-                Vec3(box.minX, box.minY, box.maxZ),
-                Vec3(box.maxX, box.minY, box.maxZ),
-                Vec3(box.maxX, box.maxY, box.maxZ)
-            )
-            Direction.WEST -> listOf(
-                Vec3(box.minX, box.maxY, box.minZ),
-                Vec3(box.minX, box.minY, box.minZ),
-                Vec3(box.minX, box.minY, box.maxZ),
-                Vec3(box.minX, box.maxY, box.maxZ)
-            )
-            Direction.EAST -> listOf(
-                Vec3(box.maxX, box.maxY, box.maxZ),
-                Vec3(box.maxX, box.minY, box.maxZ),
-                Vec3(box.maxX, box.minY, box.minZ),
-                Vec3(box.maxX, box.maxY, box.minZ)
-            )
-        }
+        val vertices = getVerticesForSide(box, side)
 
         vertices.forEach { (x, y, z) ->
             vertex(matrix, x, y, z)
@@ -457,6 +420,94 @@ fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolea
         // Draw the outlined box
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
     }
+}
+
+fun RenderEnvironment.drawBoxSide(box: Box, side: Direction, face: Color4b, outline: Color4b){
+    val matrix = matrixStack.peek().positionMatrix
+    val tessellator = RenderSystem.renderThreadTesselator()
+
+    // Set the shader to the position program
+    RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR)
+
+    val vertices = getVerticesForSide(box, side)
+
+    var buffer = tessellator.begin(
+        DrawMode.QUADS,
+        VertexFormats.POSITION_COLOR
+    )
+
+    // Draw the vertices of the box
+    with(buffer) {
+        vertices.forEach { (x, y, z) ->
+            vertex(matrix, x, y, z).color(face.r, face.g, face.b, face.a)
+        }
+
+        // Draw the outlined box
+        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+    }
+
+    if (outline.a == 0) {
+        return
+    }
+
+    buffer = tessellator.begin(
+        DrawMode.DEBUG_LINE_STRIP,
+        VertexFormats.POSITION_COLOR
+    )
+
+    // Draw the vertices of the box
+    with(buffer) {
+        vertices.forEach { (x, y, z) ->
+            vertex(matrix, x, y, z).color(outline.r, outline.g, outline.b, outline.a)
+        }
+
+        // Draw the outlined box
+        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+    }
+}
+
+private fun getVerticesForSide(box: Box, side: Direction) = when (side) {
+    Direction.DOWN -> arrayOf(
+        Vec3(box.minX, box.minY, box.maxZ),
+        Vec3(box.minX, box.minY, box.minZ),
+        Vec3(box.maxX, box.minY, box.minZ),
+        Vec3(box.maxX, box.minY, box.maxZ)
+    )
+
+    Direction.UP -> arrayOf(
+        Vec3(box.minX, box.maxY, box.minZ),
+        Vec3(box.minX, box.maxY, box.maxZ),
+        Vec3(box.maxX, box.maxY, box.maxZ),
+        Vec3(box.maxX, box.maxY, box.minZ)
+    )
+
+    Direction.NORTH -> arrayOf(
+        Vec3(box.maxX, box.maxY, box.minZ),
+        Vec3(box.maxX, box.minY, box.minZ),
+        Vec3(box.minX, box.minY, box.minZ),
+        Vec3(box.minX, box.maxY, box.minZ)
+    )
+
+    Direction.SOUTH -> arrayOf(
+        Vec3(box.minX, box.maxY, box.maxZ),
+        Vec3(box.minX, box.minY, box.maxZ),
+        Vec3(box.maxX, box.minY, box.maxZ),
+        Vec3(box.maxX, box.maxY, box.maxZ)
+    )
+
+    Direction.WEST -> arrayOf(
+        Vec3(box.minX, box.maxY, box.minZ),
+        Vec3(box.minX, box.minY, box.minZ),
+        Vec3(box.minX, box.minY, box.maxZ),
+        Vec3(box.minX, box.maxY, box.maxZ)
+    )
+
+    Direction.EAST -> arrayOf(
+        Vec3(box.maxX, box.maxY, box.maxZ),
+        Vec3(box.maxX, box.minY, box.maxZ),
+        Vec3(box.maxX, box.minY, box.minZ),
+        Vec3(box.maxX, box.maxY, box.minZ)
+    )
 }
 
 /**

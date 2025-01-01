@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,26 +20,31 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
+import net.ccbluex.liquidbounce.interfaces.ChatHudAddition;
 import net.ccbluex.liquidbounce.interfaces.ChatMessageAddition;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.text.OrderedText;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.List;
 
 @Mixin(ChatHud.class)
-public abstract class MixinChatHud {
+public abstract class MixinChatHud implements ChatHudAddition {
 
     @Shadow
     @Final
-    private List<ChatHudLine.Visible> visibleMessages;
+    public List<ChatHudLine.Visible> visibleMessages;
 
     @Shadow
     public abstract boolean isChatFocused();
@@ -56,6 +61,12 @@ public abstract class MixinChatHud {
     @Shadow
     @Final
     public List<ChatHudLine> messages;
+
+    @Shadow
+    public abstract int getWidth();
+
+    @Unique
+    private int chatY = -1;
 
     /**
      * Spoofs the message size to be empty to avoid deletion.
@@ -85,7 +96,6 @@ public abstract class MixinChatHud {
      * Modifies {@link ChatHud#addVisibleMessage(ChatHudLine)} so, that the id is
      * forwarded and if {@link ModuleBetterChat} is enabled, older lines won't be removed.
      */
-    @SuppressWarnings("JavadocReference")
     @Inject(method = "addVisibleMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;isChatFocused()Z", shift = At.Shift.BEFORE), cancellable = true)
     public void hookAddVisibleMessage(ChatHudLine message, CallbackInfo ci, @Local List<OrderedText> list) {
         var focused = isChatFocused();
@@ -117,4 +127,32 @@ public abstract class MixinChatHud {
         ci.cancel();
     }
 
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;getLineHeight()I", ordinal = 0))
+    public void hookStoreChatY(DrawContext context, int currentTick, int mouseX, int mouseY, boolean focused, CallbackInfo ci, @Local(ordinal = 7) int m) {
+        this.chatY = m;
+    }
+
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V", ordinal = 0))
+    private void modifyArgs(
+            Args args,
+            @Local(ordinal = 1, argsOnly = true) int mouseX,
+            @Local(ordinal = 2, argsOnly = true) int mouseY
+    ) {
+        if(!(ModuleBetterChat.INSTANCE.getRunning() && ModuleBetterChat.Copy.INSTANCE.getRunning() && ModuleBetterChat.Copy.INSTANCE.getHighlight())) {
+            return;
+        }
+
+        var hovering = mouseX >= 0 && mouseX <= ((int) args.get(2)) -4 &&
+                mouseY >= ((int)args.get(1)+1) && mouseY <= ((int)args.get(3));
+
+        if (hovering) {
+            args.set(4, 140 << 24);
+        }
+    }
+
+    @Override
+    public int liquidbounce_getChatY() {
+        return chatY;
+    }
 }
+

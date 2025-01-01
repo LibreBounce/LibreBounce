@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +29,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVe
 /**
  * Jump Reset mode. A technique most players use to minimize the amount of knockback they get.
  */
-internal object VelocityJumpReset : Choice("JumpReset") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+internal object VelocityJumpReset : VelocityMode("JumpReset") {
 
     object JumpByReceivedHits : ToggleableConfigurable(ModuleVelocity, "JumpByReceivedHits", false) {
         val hitsUntilJump by int("HitsUntilJump", 2, 0..10)

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,9 +53,9 @@ abstract class PredictFeature(name: String) : ToggleableConfigurable(ModuleCryst
     /**
      * How the predicted data will be used. For damage prediction only.
      */
-    val calculationMode = choices<CalculationMode>(this, "CalculationMode", { it.choices[0] }, {
+    val calculationMode = choices(this, "CalculationMode", 0) {
         arrayOf(Both(it), PredictOnly(it))
-    })
+    }
 
     /**
      * Check if the target will block the placement.

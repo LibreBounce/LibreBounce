@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import net.minecraft.block.EntityShapeContext
 import net.minecraft.block.ShapeContext
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.TntEntity
 import net.minecraft.entity.damage.DamageSource
@@ -48,12 +49,12 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
 import net.minecraft.stat.Stats
+import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.Difficulty
 import net.minecraft.world.RaycastContext
-import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.world.explosion.ExplosionImpl
 import kotlin.math.cos
@@ -136,6 +137,12 @@ val ClientPlayerEntity.isBlockAction: Boolean
     get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
 
 fun Entity.lastRenderPos() = Vec3d(this.lastRenderX, this.lastRenderY, this.lastRenderZ)
+
+val Hand.equipmentSlot: EquipmentSlot
+    get() = when (this) {
+        Hand.MAIN_HAND -> EquipmentSlot.MAINHAND
+        Hand.OFF_HAND -> EquipmentSlot.OFFHAND
+    }
 
 /**
  * Check if the player can step up by [height] blocks.

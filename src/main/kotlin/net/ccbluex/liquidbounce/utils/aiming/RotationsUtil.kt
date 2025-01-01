@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ open class RotationsConfigurable(
     combatSpecific: Boolean = false
 ) : Configurable("Rotations") {
 
-    var angleSmooth = choices<AngleSmoothMode>(owner, "AngleSmooth", { it.choices[0] }, {
+    val angleSmooth = choices(owner, "AngleSmooth", 0) {
         arrayOf(
             LinearAngleSmoothMode(it),
             BezierAngleSmoothMode(it),
@@ -71,7 +71,7 @@ open class RotationsConfigurable(
             ConditionalLinearAngleSmoothMode(it),
             AccelerationSmoothMode(it)
         )
-    })
+    }
 
     private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
     private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }

@@ -106,9 +106,13 @@ object EnvironmentRemapper {
         val clazzNames = mutableSetOf(clazz.name.toSlashNotation())
         var current = clazz
 
+        current.interfaces.forEach { interfaceClazz ->
+            clazzNames.addAll(getClassHierarchyNames(interfaceClazz))
+        }
+
         while (current.name != "java.lang.Object") {
             current = current.superclass ?: break
-            clazzNames.add(current.name.toSlashNotation())
+            clazzNames.addAll(getClassHierarchyNames(current))
         }
 
         return clazzNames

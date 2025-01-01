@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,21 @@ object SequenceManager : EventListener {
             }
 
             sequence.tick()
+        }
+    }
+
+    /**
+     * Cancels all sequences associated with an event listener.
+     * This is called when a module is disabled to ensure no sequences continue running.
+     */
+    fun cancelAllSequences(owner: EventListener) {
+        sequences.removeAll { sequence ->
+            if (sequence.owner == owner) {
+                sequence.cancel()
+                true
+            } else {
+                false
+            }
         }
     }
 
@@ -176,10 +191,10 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
 
 }
 
-class DummyEvent : Event()
+object DummyEvent : Event()
 
 class TickSequence(owner: EventListener, handler: SuspendableHandler<DummyEvent>)
-    : Sequence<DummyEvent>(owner, handler, DummyEvent()) {
+    : Sequence<DummyEvent>(owner, handler, DummyEvent) {
 
     private var continueLoop = true
 

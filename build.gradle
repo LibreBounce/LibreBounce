@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,36 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+def getContributors(repoOwner, repoName) {
+    def url = "https://api.github.com/repos/${repoOwner}/${repoName}/stats/contributors"
+    def connection = (HttpURLConnection) new URI(url).toURL().openConnection()
+
+    connection.requestMethod = "GET"
+    connection.connectTimeout = 5000
+    connection.readTimeout = 5000
+
+    connection.setRequestProperty("User-Agent", "LiquiudBounce-App")
+
+    if (200 <= connection.responseCode && connection.responseCode <= 299) {
+        def response = connection.inputStream.text
+        def json = new JsonSlurper().parseText(response)
+        return json
+                .collect { it['author']['login'] }
+                .findAll { !(it as String).contains("dependabot") }
+                .reversed()
+
+    } else {
+        def error = connection.errorStream?.text ?: "No response details"
+        logger.log(LogLevel.ERROR, "Failed to collect contributors, github api responsed invalid status code: ${connection.responseCode}\n${error}")
+        return []
+    }
+}
+
 
 plugins {
     id "fabric-loom"
@@ -90,7 +119,8 @@ dependencies {
     // Recommended mods (on IDE)
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
-    modCompileOnly "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
+    modImplementation "maven.modrinth:lithium:${project.lithium_version}"
+    modImplementation "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
@@ -105,6 +135,7 @@ dependencies {
     // JCEF Support
     includeModDependency "com.github.CCBlueX:mcef:${project.mcef_version}"
     includeDependency "org.apache.commons:commons-exec:1.3"
+    includeDependency "org.apache.commons:commons-compress:1.27.1"
     includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
     }
@@ -116,6 +147,7 @@ dependencies {
     includeDependency "net.fabricmc:tiny-mappings-parser:0.3.0+build.17"
     includeDependency "org.graalvm.polyglot:polyglot:24.0.2"
     includeDependency "org.graalvm.polyglot:js-community:24.0.2"
+    includeDependency "org.graalvm.polyglot:tools-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:python-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:wasm-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:java-community:24.0.2"
@@ -150,6 +182,8 @@ dependencies {
 }
 
 processResources {
+    String contributors = JsonOutput.prettyPrint(JsonOutput.toJson(getContributors("CCBlueX", "LiquidBounce")))
+
     inputs.property "version", project.version
 
     inputs.property "minecraft_version", minecraft_version
@@ -158,6 +192,7 @@ processResources {
     inputs.property "min_loader_version", min_loader_version
     inputs.property "fabric_kotlin_version", fabric_kotlin_version
     inputs.property "viafabricplus_version", viafabricplus_version
+    inputs.property "contributors", contributors
 
     filesMatching("fabric.mod.json") {
         expand([
@@ -166,6 +201,7 @@ processResources {
                 fabric_version       : fabric_version,
                 loader_version       : loader_version,
                 min_loader_version   : min_loader_version,
+                contributors         : contributors,
                 fabric_kotlin_version: fabric_kotlin_version,
                 viafabricplus_version: viafabricplus_version
         ])

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ import kotlin.concurrent.thread
  */
 object HideAppearance : EventListener {
 
-    val shiftChronometer = Chronometer()
+    private val shiftChronometer = Chronometer()
 
     var isHidingNow = false
         set(value) {
@@ -68,7 +68,7 @@ object HideAppearance : EventListener {
     }
 
     @Suppress("unused")
-    val keyHandler = handler<KeyboardKeyEvent>(ignoreNotRunning = true) {
+    private val keyHandler = handler<KeyboardKeyEvent> {
         val keyCode = it.keyCode
         val modifier = it.mods
 
@@ -92,7 +92,7 @@ object HideAppearance : EventListener {
         isHidingNow = true
         isDestructed = true
 
-        callEvent(ClientShutdownEvent())
+        callEvent(ClientShutdownEvent)
         EventManager.unregisterAll()
 
         // Disable all modules

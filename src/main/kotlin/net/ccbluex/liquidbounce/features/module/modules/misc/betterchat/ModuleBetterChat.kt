@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,16 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = ar
     private val forceUnicodeChat by boolean("ForceUnicodeChat", false)
 
     init {
-        tree(AntiSpam)
+        treeAll(
+            AntiSpam,
+            Copy
+        )
+    }
+
+
+    object Copy : ToggleableConfigurable(this, "Copy", true) {
+        val notification by boolean("Notificate", true)
+        val highlight by boolean("Highlight", true)
     }
 
     var antiChatClearPaused = false
