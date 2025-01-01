@@ -233,7 +233,7 @@ open class ClientModule(
         name: String,
         activeIndex: Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
+    ) = choices(this, name, activeIndex, choicesCallback)
 
     fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
 

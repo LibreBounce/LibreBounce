@@ -37,9 +37,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen;
-import net.ccbluex.liquidbounce.integration.browser.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
@@ -297,7 +295,9 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyVariable(method = "sendMovementPackets", at = @At("STORE"), ordinal = 1)
     private boolean hookFreeCamPreventRotations(boolean bl4) {
-        return (!ModuleFreeCam.INSTANCE.shouldDisableRotations() ||  ModuleRotations.INSTANCE.shouldSendCustomRotation())  && bl4;
+        // Prevent rotation changes when free cam is active, unless a rotation is being set via the rotation manager
+        return (!ModuleFreeCam.INSTANCE.shouldDisableRotations() ||
+                RotationManager.INSTANCE.getCurrentRotation() != null) && bl4;
     }
 
     @ModifyConstant(method = "canSprint", constant = @Constant(floatValue = 6.0F), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/HungerManager;getFoodLevel()I", ordinal = 0)))
@@ -354,7 +354,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @WrapWithCondition(method = "closeScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
     private boolean preventCloseScreen(MinecraftClient instance, Screen screen) {
         // Prevent closing screen if the current screen is a client screen
-        return !(instance.currentScreen instanceof BrowserScreen || instance.currentScreen instanceof VirtualDisplayScreen ||
+        return !(instance.currentScreen instanceof net.ccbluex.liquidbounce.integration.browser.BrowserScreen || instance.currentScreen instanceof VirtualDisplayScreen ||
                 instance.currentScreen instanceof ModuleClickGui.ClickScreen);
     }
 

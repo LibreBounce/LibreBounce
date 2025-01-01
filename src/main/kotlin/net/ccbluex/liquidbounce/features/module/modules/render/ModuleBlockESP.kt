@@ -151,9 +151,11 @@ object ModuleBlockESP : ClientModule("BlockESP", Category.RENDER) {
 
             val dirty = Box.drawBoxMode(event.matrixStack, drawOutline = false, fullAlpha = true)
 
-            if (dirty)
+            if (dirty) {
                 event.markDirty()
+            }
         }
+
     }
 
     private object Outline : Choice("Outline") {

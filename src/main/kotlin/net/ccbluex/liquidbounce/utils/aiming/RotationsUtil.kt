@@ -63,7 +63,7 @@ open class RotationsConfigurable(
     combatSpecific: Boolean = false
 ) : Configurable("Rotations") {
 
-    var angleSmooth = choices<AngleSmoothMode>(owner, "AngleSmooth", { it.choices[0] }, {
+    val angleSmooth = choices(owner, "AngleSmooth", 0) {
         arrayOf(
             LinearAngleSmoothMode(it),
             BezierAngleSmoothMode(it),
@@ -71,7 +71,7 @@ open class RotationsConfigurable(
             ConditionalLinearAngleSmoothMode(it),
             AccelerationSmoothMode(it)
         )
-    })
+    }
 
     private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
     private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
