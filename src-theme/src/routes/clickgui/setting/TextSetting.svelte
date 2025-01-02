@@ -1,7 +1,7 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
     import type {ModuleSetting, TextSetting,} from "../../../integration/types";
-    import {processPascalCaseName, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {processPascalCaseName} from "../../../theme/theme_config";
 
     export let setting: ModuleSetting;
 
@@ -16,7 +16,7 @@
 </script>
 
 <div class="setting">
-    <div class="name">{processPascalCaseName}</div>
+    <div class="name">{processPascalCaseName(cSetting.name)}</div>
     <input type="text" class="value" spellcheck="false"
            placeholder={processPascalCaseName(setting.name)}
            bind:value={cSetting.value} on:input={handleChange}>
