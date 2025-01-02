@@ -138,8 +138,8 @@ object OAuthClient {
     }
 
     private inline fun buildAuthUrl(codeChallenge: String, state: String, redirectUri: String): String {
-        return "$AUTH_AUTHORIZE_URL?client_id=$AUTH_CLIENT_ID&redirect_uri=$redirectUri&response_type=code&state=$state" +
-            "&code_challenge=$codeChallenge&code_challenge_method=S256"
+        return "$AUTH_AUTHORIZE_URL?client_id=$AUTH_CLIENT_ID&redirect_uri=$redirectUri&" +
+            "response_type=code&state=$state&code_challenge=$codeChallenge&code_challenge_method=S256"
     }
 
     private suspend fun waitForAuthCode(): String = suspendCoroutine { cont ->

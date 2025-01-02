@@ -34,7 +34,8 @@ object AuthenticationApi : BaseApi(AUTH_BASE_URL) {
         redirectUri: String
     ) = post<TokenResponse>(
         "/token/",
-        "client_id=$clientId&code=$code&code_verifier=$codeVerifier&grant_type=authorization_code&redirect_uri=$redirectUri".asForm()
+        ("client_id=$clientId&code=$code&code_verifier=$codeVerifier&" +
+            "grant_type=authorization_code&redirect_uri=$redirectUri").asForm()
     )
 
     suspend fun refreshToken(
