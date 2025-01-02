@@ -22,7 +22,7 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.ClientUpdate
+import net.ccbluex.liquidbounce.api.services.client.ClientUpdate
 import net.ccbluex.liquidbounce.utils.client.hasProtocolTranslator
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.mc

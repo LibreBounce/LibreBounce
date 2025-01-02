@@ -16,21 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api
+package net.ccbluex.liquidbounce.api.core
 
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 import okhttp3.Headers
 import okhttp3.RequestBody
 import org.apache.commons.lang3.RandomStringUtils
 import java.util.*
-
-const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
-const val API_V3_ENDPOINT = "https://api.liquidbounce.net/api/v3"
-
-private const val AVATAR_UUID_URL = "https://avatar.liquidbounce.net/avatar/%s/100"
-private const val AVATAR_USERNAME_URL = "https://avatar.liquidbounce.net/avatar/%s"
 
 fun formatAvatarUrl(uuid: UUID?, username: String): String {
     return if (uuid != null) {
@@ -40,11 +31,6 @@ fun formatAvatarUrl(uuid: UUID?, username: String): String {
     }
 }
 
-/**
- * This makes sense because we want forks to be able to use this API and not only the official client.
- * It also allows us to use API endpoints for legacy on other branches.
- */
-internal const val HARD_CODED_BRANCH = "nextgen"
 
 val SESSION_TOKEN: String = RandomStringUtils.randomAlphanumeric(16)
 
@@ -95,4 +81,5 @@ abstract class BaseApi(protected val baseUrl: String) {
         endpoint: String,
         noinline headers: Headers.Builder.() -> Unit = {}
     ): T = request(endpoint, HttpMethod.DELETE, headers)
+
 }

@@ -32,6 +32,9 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
 import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
@@ -45,9 +48,6 @@ import net.ccbluex.liquidbounce.utils.client.hideSensitiveAddress
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 
 data class IpcConfiguration(
     val appID: Long,

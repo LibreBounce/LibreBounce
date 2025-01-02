@@ -28,6 +28,10 @@ import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.asForm
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.publicGson
@@ -40,10 +44,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.asForm
-import net.ccbluex.liquidbounce.utils.io.parse
 import net.minecraft.SharedConstants
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text

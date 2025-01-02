@@ -19,29 +19,23 @@
 package net.ccbluex.liquidbounce.features.cosmetic
 
 import com.mojang.authlib.GameProfile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.API_V1_ENDPOINT
+import net.ccbluex.liquidbounce.api.models.cosmetics.Cosmetic
+import net.ccbluex.liquidbounce.api.models.cosmetics.CosmeticCategory
+import net.ccbluex.liquidbounce.api.services.cosmetics.CapeApi
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.minecraft.client.texture.NativeImage
-import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
-import java.io.InputStream
-import java.net.URI
 
 /**
  * A cape cosmetic manager
  */
 object CapeCosmeticsManager : EventListener {
-
-    /**
-     * Uses https://api.liquidbounce.net/api/v1/cape/name/:name to get a PNG-texture
-     * of the cape.
-     */
-    private const val CAPE_NAME_DL_BASE_URL = "$API_V1_ENDPOINT/cape/name/%s"
 
     /**
      * Cached capes
@@ -75,7 +69,7 @@ object CapeCosmeticsManager : EventListener {
 
                 CosmeticService.fetchCosmetic(uuid, CosmeticCategory.CAPE) { cosmetic ->
                     // Get url of cape from cape service
-                    val (name, url) = getCapeDownload(cosmetic) ?: return@fetchCosmetic
+                    val name = getCapeName(cosmetic) ?: return@fetchCosmetic
 
                     // Check if the cape is cached
                     if (cachedCapes.containsKey(name)) {
@@ -85,8 +79,11 @@ object CapeCosmeticsManager : EventListener {
                     }
 
                     // Request cape texture
-                    val nativeImageBackedTexture = requestCape(url)
-                        ?: return@fetchCosmetic
+                    val nativeImageBackedTexture = runCatching {
+                        runBlocking(Dispatchers.IO) {
+                            CapeApi.getCape(name)
+                        }
+                    }.getOrNull() ?: return@fetchCosmetic
 
                     LiquidBounce.logger.info("Successfully loaded cape for ${player.name}")
 
@@ -105,39 +102,10 @@ object CapeCosmeticsManager : EventListener {
         }
     }
 
-    /**
-     * Requests a cape from a [url]
-     */
-    private fun requestCape(url: String) = runCatching {
-        val capeURL = URI(url).toURL()
-
-        // Request cape from URL which should be our API. (https://api.liquidbounce.net/api/v1/cape/name/%s)
-        val connection = capeURL.openConnection()
-        connection.addRequestProperty(
-            "User-Agent",
-            "${LiquidBounce.CLIENT_NAME}_${LiquidBounce.clientVersion}_${mc.gameVersion}"
-        )
-        connection.readTimeout = 5000
-        connection.connectTimeout = 2500
-        connection.connect()
-
-        readCapeFromStream(connection.getInputStream())
-    }.getOrNull()
-
-    /**
-     * Reads a cape from an [InputStream]
-     */
-    private fun readCapeFromStream(stream: InputStream) = stream.runCatching {
-        NativeImageBackedTexture(NativeImage.read(stream))
-    }.getOrNull()
-
-    private fun getCapeDownload(cosmetic: Cosmetic): Pair<String, String>? {
+    private fun getCapeName(cosmetic: Cosmetic): String? {
         // Check if cosmetic is a cape
         if (cosmetic.category != CosmeticCategory.CAPE) return null
-
-        // Extra should not be null if the cape is present
-        val name = cosmetic.extra ?: return null
-        return name to String.format(CAPE_NAME_DL_BASE_URL, name)
+        return cosmetic.extra
     }
 
     @Suppress("unused")

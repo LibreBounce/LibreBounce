@@ -20,7 +20,10 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import net.ccbluex.liquidbounce.api.ClientApiV1
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
+import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
@@ -33,9 +36,6 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
@@ -157,7 +157,7 @@ object CommandConfig : CommandFactory {
                             HttpClient.request(name, HttpMethod.GET).parse<String>().reader()
                         } else {
                             // Get online config from API
-                            ClientApiV1.requestSettingsScript(name).reader()
+                            ClientApi.requestSettingsScript(name).reader()
                         }
                     }
                 }.onSuccess { sourceReader ->

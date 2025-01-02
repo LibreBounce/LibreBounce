@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api.oauth
+package net.ccbluex.liquidbounce.api.services.user
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.api.API_V3_ENDPOINT
-import net.ccbluex.liquidbounce.api.BaseApi
-import net.ccbluex.liquidbounce.features.cosmetic.Cosmetic
-import net.ccbluex.liquidbounce.utils.io.asJson
-import okhttp3.Headers
+import net.ccbluex.liquidbounce.api.core.API_V3_ENDPOINT
+import net.ccbluex.liquidbounce.api.core.BaseApi
+import net.ccbluex.liquidbounce.api.core.asJson
+import net.ccbluex.liquidbounce.api.models.auth.OAuthSession
+import net.ccbluex.liquidbounce.api.models.auth.addAuth
+import net.ccbluex.liquidbounce.api.models.cosmetics.Cosmetic
+import net.ccbluex.liquidbounce.api.models.user.UserInformation
 import java.util.*
 
 /**
  * API for user-related endpoints that require authentication
  */
-object OAuthUserApi : BaseApi(API_V3_ENDPOINT) {
-    private fun Headers.Builder.addAuth(session: OAuthSession) = add("Authorization", "Bearer ${session.accessToken}")
+object UserApi : BaseApi(API_V3_ENDPOINT) {
 
     suspend fun getUserInformation(session: OAuthSession) = get<UserInformation>(
         "/oauth/user",

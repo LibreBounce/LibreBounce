@@ -1,11 +1,11 @@
 package net.ccbluex.liquidbounce.features.command.commands.client.client
 
-import net.ccbluex.liquidbounce.api.oauth.ClientAccount.Companion.EMPTY_ACCOUNT
-import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
-import net.ccbluex.liquidbounce.api.oauth.OAuthClient
-import net.ccbluex.liquidbounce.api.oauth.OAuthClient.startAuth
+import net.ccbluex.liquidbounce.api.models.auth.ClientAccount.Companion.EMPTY_ACCOUNT
+import net.ccbluex.liquidbounce.api.services.auth.OAuthClient
+import net.ccbluex.liquidbounce.api.services.auth.OAuthClient.startAuth
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
+import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.client.regular

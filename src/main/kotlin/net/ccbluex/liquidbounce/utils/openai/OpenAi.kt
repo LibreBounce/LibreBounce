@@ -23,8 +23,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.core.*
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.io.*
 
 const val OPENAI_BASE_URL = "https://api.openai.com/v1"
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api.oauth
+package net.ccbluex.liquidbounce.api.services.cosmetics
 
-/**
- * Contains the access token and the refresh token.
- */
-data class OAuthSession(
-    var accessToken: ExpiryValue<String>,
-    val refreshToken: String,
-)
+import net.ccbluex.liquidbounce.api.core.API_V3_ENDPOINT
+import net.ccbluex.liquidbounce.api.core.BaseApi
+import net.ccbluex.liquidbounce.api.models.cosmetics.Cosmetic
+import java.util.*
+
+object CosmeticApi : BaseApi(API_V3_ENDPOINT) {
+
+    suspend fun getCarriers() =
+        get<Set<String>>("/cosmetics/carriers")
+
+    suspend fun getCarrierCosmetics(uuid: UUID) =
+        get<Set<Cosmetic>>("/cosmetics/carrier/$uuid")
+
+}

@@ -3,6 +3,10 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpException
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -12,10 +16,6 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpException
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket

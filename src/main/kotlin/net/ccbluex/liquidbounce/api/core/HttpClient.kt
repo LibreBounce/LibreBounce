@@ -16,15 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.io
+package net.ccbluex.liquidbounce.api.core
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.minecraft.client.texture.NativeImage
+import net.minecraft.client.texture.NativeImageBackedTexture
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.BufferedSource
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -96,7 +100,7 @@ object HttpClient {
             }
 
             file.outputStream().use { output ->
-                response.body.byteStream().use { input ->
+                response.parse<InputStream>().use { input ->
                     input.copyTo(output)
                 }
             }
@@ -113,6 +117,11 @@ suspend inline fun <reified T> Response.parse(): T {
         when (T::class) {
             String::class -> body.string() as T
             Unit::class -> Unit as T
+            InputStream::class -> body.byteStream() as T
+            BufferedSource::class -> body.source() as T
+            NativeImageBackedTexture::class -> body.byteStream().use { stream ->
+                NativeImageBackedTexture(NativeImage.read(stream)) as T
+            }
             else -> decode<T>(body.string())
         }
     }

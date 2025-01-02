@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.HorseEntity
 import net.minecraft.entity.passive.TameableEntity

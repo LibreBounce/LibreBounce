@@ -6,7 +6,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
-import net.ccbluex.liquidbounce.api.formatAvatarUrl
+import net.ccbluex.liquidbounce.api.core.formatAvatarUrl
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.AccountManagerMessageEvent

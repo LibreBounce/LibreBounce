@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.api
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 
 /**
  * An implementation for the ipinfo.io API including

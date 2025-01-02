@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api.oauth
+package net.ccbluex.liquidbounce.api.services.auth
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.*
@@ -28,6 +28,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import net.ccbluex.liquidbounce.api.core.AUTH_AUTHORIZE_URL
+import net.ccbluex.liquidbounce.api.core.AUTH_CLIENT_ID
+import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
+import net.ccbluex.liquidbounce.api.models.auth.OAuthSession
 import java.net.InetSocketAddress
 import java.util.*
 import kotlin.coroutines.Continuation
@@ -35,16 +39,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-private const val AUTH_BASE_URL = "https://auth.liquidbounce.net/application/o"
-
 /**
  * OAuth client for handling the authentication flow
  */
 object OAuthClient {
-    private const val CLIENT_ID = "J2hzqzCxch8hfOPRFNINOZV5Ma4X4BFdZpMjAVEW"
-    private const val AUTHORIZE_URL = "$AUTH_BASE_URL/authorize/"
 
-    private val authApi = OAuthAuthenticationApi(AUTH_BASE_URL)
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var serverPort: Int? = null
@@ -74,7 +73,7 @@ object OAuthClient {
 
         onUrl(authUrl)
         val code = waitForAuthCode()
-        val tokenResponse = authApi.exchangeToken(CLIENT_ID, code, codeVerifier, redirectUri)
+        val tokenResponse = AuthenticationApi.exchangeToken(AUTH_CLIENT_ID, code, codeVerifier, redirectUri)
 
         serverPort = null
 
@@ -85,7 +84,7 @@ object OAuthClient {
      * Renew an expired session using its refresh token
      */
     suspend fun renewToken(session: OAuthSession): OAuthSession {
-        val tokenResponse = authApi.refreshToken(CLIENT_ID, session.refreshToken)
+        val tokenResponse = AuthenticationApi.refreshToken(AUTH_CLIENT_ID, session.refreshToken)
         return tokenResponse.toAuthSession()
     }
 
@@ -148,7 +147,7 @@ object OAuthClient {
     }
 
     private inline fun buildAuthUrl(codeChallenge: String, state: String, redirectUri: String): String {
-        return "$AUTHORIZE_URL?client_id=$CLIENT_ID&redirect_uri=$redirectUri&response_type=code&state=$state" +
+        return "$AUTH_AUTHORIZE_URL?client_id=$AUTH_CLIENT_ID&redirect_uri=$redirectUri&response_type=code&state=$state" +
             "&code_challenge=$codeChallenge&code_challenge_method=S256"
     }
 

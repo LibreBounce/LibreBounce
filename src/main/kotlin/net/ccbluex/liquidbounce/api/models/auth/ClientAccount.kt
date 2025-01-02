@@ -16,19 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api.oauth
+package net.ccbluex.liquidbounce.api.models.auth
 
-import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ccbluex.liquidbounce.api.models.cosmetics.Cosmetic
+import net.ccbluex.liquidbounce.api.models.user.UserInformation
+import net.ccbluex.liquidbounce.api.services.auth.OAuthClient
+import net.ccbluex.liquidbounce.api.services.user.UserApi
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
-import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.features.cosmetic.Cosmetic
 import java.util.*
 
-object ClientAccountManager : Configurable("account") {
-    var clientAccount by value("account", ClientAccount.EMPTY_ACCOUNT)
-}
 
 /**
  * Represents a client account that is used to authenticate with the LiquidBounce API.
@@ -47,15 +45,15 @@ data class ClientAccount(
     }
 
     suspend fun updateInfo(): Unit = withContext(Dispatchers.IO) {
-        userInformation = OAuthUserApi.getUserInformation(takeSession())
+        userInformation = UserApi.getUserInformation(takeSession())
     }
 
     suspend fun updateCosmetics(): Unit = withContext(Dispatchers.IO) {
-        cosmetics = OAuthUserApi.getCosmetics(takeSession())
+        cosmetics = UserApi.getCosmetics(takeSession())
     }
 
     suspend fun transferTemporaryOwnership(uuid: UUID): Unit = withContext(Dispatchers.IO) {
-        OAuthUserApi.transferTemporaryOwnership(takeSession(), uuid)
+        UserApi.transferTemporaryOwnership(takeSession(), uuid)
     }
 
     suspend fun renew() = withContext(Dispatchers.IO) {
@@ -66,8 +64,3 @@ data class ClientAccount(
         val EMPTY_ACCOUNT = ClientAccount(null, null, null)
     }
 }
-
-data class UserInformation(
-    @SerializedName("user_id") val userId: String,
-    val premium: Boolean
-)

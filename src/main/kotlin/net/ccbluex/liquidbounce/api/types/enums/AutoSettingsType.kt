@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api.oauth
+package net.ccbluex.liquidbounce.api.types.enums
 
-import java.security.MessageDigest
-import java.util.*
+import com.google.gson.annotations.SerializedName
 
-object PKCEUtils {
-    fun generatePKCE(): Pair<String, String> {
-        val codeVerifier = UUID.randomUUID().toString().replace("-", "")
-        val codeChallenge = Base64.getEncoder().encodeToString(
-            MessageDigest.getInstance("SHA-256").digest(codeVerifier.toByteArray())
-        ).replace("=", "").replace("+", "-").replace("/", "_")
-        return codeVerifier to codeChallenge
-    }
+enum class AutoSettingsType(val displayName: String) {
+    @SerializedName("Rage")
+    RAGE("Rage"),
+
+    @SerializedName("Legit")
+    LEGIT("Legit")
 }

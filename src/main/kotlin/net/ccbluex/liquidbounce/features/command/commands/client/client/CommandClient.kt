@@ -20,41 +20,9 @@
 
 package net.ccbluex.liquidbounce.features.command.commands.client.client
 
-import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.oauth.ClientAccount.Companion.EMPTY_ACCOUNT
-import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
-import net.ccbluex.liquidbounce.api.oauth.OAuthClient
-import net.ccbluex.liquidbounce.api.oauth.OAuthClient.startAuth
-import net.ccbluex.liquidbounce.config.AutoConfig
-import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
-import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
-import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder.Companion.BOOLEAN_VALIDATOR
-import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
-import net.ccbluex.liquidbounce.features.misc.HideAppearance
-import net.ccbluex.liquidbounce.features.misc.HideAppearance.destructClient
-import net.ccbluex.liquidbounce.features.misc.HideAppearance.wipeClient
-import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
-import net.ccbluex.liquidbounce.integration.BrowserScreen
-import net.ccbluex.liquidbounce.integration.IntegrationListener
-import net.ccbluex.liquidbounce.integration.IntegrationListener.clientJcef
-import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.integration.theme.component.components
-import net.ccbluex.liquidbounce.integration.theme.component.customComponents
-import net.ccbluex.liquidbounce.integration.theme.component.types.ImageComponent
-import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
-import net.ccbluex.liquidbounce.lang.LanguageManager
-import net.ccbluex.liquidbounce.utils.client.*
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.util.Util
 
 /**
  * Client Command

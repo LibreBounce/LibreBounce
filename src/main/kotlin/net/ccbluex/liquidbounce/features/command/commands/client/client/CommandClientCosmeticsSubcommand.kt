@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.command.commands.client.client
 
-import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
+import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.utils.client.browseUrl
 import net.ccbluex.liquidbounce.utils.client.chat

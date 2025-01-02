@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api.oauth
+package net.ccbluex.liquidbounce.api.services.auth
 
-import com.google.gson.annotations.SerializedName
-import net.ccbluex.liquidbounce.api.BaseApi
-import net.ccbluex.liquidbounce.utils.io.asForm
+import net.ccbluex.liquidbounce.api.core.AUTH_BASE_URL
+import net.ccbluex.liquidbounce.api.core.BaseApi
+import net.ccbluex.liquidbounce.api.core.asForm
+import net.ccbluex.liquidbounce.api.models.auth.TokenResponse
 
 /**
  * API for OAuth authentication
  */
-class OAuthAuthenticationApi(baseUrl: String) : BaseApi(baseUrl) {
+object AuthenticationApi : BaseApi(AUTH_BASE_URL) {
     suspend fun exchangeToken(
         clientId: String,
         code: String,
@@ -43,19 +44,4 @@ class OAuthAuthenticationApi(baseUrl: String) : BaseApi(baseUrl) {
         "/token/",
         "client_id=$clientId&refresh_token=$refreshToken&grant_type=refresh_token".asForm()
     )
-}
-
-data class TokenResponse(
-    @SerializedName("access_token") val accessToken: String,
-    // In seconds
-    @SerializedName("expires_in") val expiresIn: Long,
-    @SerializedName("refresh_token") val refreshToken: String?
-) {
-    fun toAuthSession(): OAuthSession {
-        val expiresAt = System.currentTimeMillis() + (expiresIn * 1000)
-        return OAuthSession(
-            accessToken = ExpiryValue(accessToken, expiresAt),
-            refreshToken = refreshToken ?: throw NullPointerException("Refresh token is null")
-        )
-    }
 }

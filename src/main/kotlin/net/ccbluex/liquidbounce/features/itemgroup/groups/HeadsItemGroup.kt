@@ -20,11 +20,11 @@ package net.ccbluex.liquidbounce.features.itemgroup.groups
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroup
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.io.HttpMethod
-import net.ccbluex.liquidbounce.utils.io.parse
 import net.ccbluex.liquidbounce.utils.item.createItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items

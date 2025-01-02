@@ -19,12 +19,11 @@
  */
 package net.ccbluex.liquidbounce
 
-import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
-import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.IpInfoApi
-import net.ccbluex.liquidbounce.api.oauth.ClientAccount
-import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
-import net.ccbluex.liquidbounce.api.oauth.OAuthClient
+import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
+import net.ccbluex.liquidbounce.api.services.auth.OAuthClient
+import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
+import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
@@ -34,6 +33,7 @@ import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.Reconnect
 import net.ccbluex.liquidbounce.features.command.CommandManager
+import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
 import net.ccbluex.liquidbounce.features.itemgroup.groups.headsCollection

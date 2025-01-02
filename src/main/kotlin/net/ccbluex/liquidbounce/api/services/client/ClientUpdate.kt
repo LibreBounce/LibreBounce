@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,28 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.api
+package net.ccbluex.liquidbounce.api.services.client
 
 import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.LiquidBounce.IN_DEVELOPMENT
-import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.api.ClientApiV1.requestNewestBuildEndpoint
 import net.ccbluex.liquidbounce.utils.client.logger
 import java.text.SimpleDateFormat
 import java.util.*
 
 object ClientUpdate {
 
-    val gitInfo = Properties().also {
+    val gitInfo = Properties().also { properties ->
         val inputStream = LiquidBounce::class.java.classLoader.getResourceAsStream("git.properties")
 
         if (inputStream != null) {
-            it.load(inputStream)
+            properties.load(inputStream)
         } else {
-            it["git.build.version"] = "unofficial"
+            properties["git.build.version"] = "unofficial"
         }
     }
 
@@ -45,7 +42,10 @@ object ClientUpdate {
         runBlocking(Dispatchers.IO) {
             // https://api.liquidbounce.net/api/v1/version/builds/nextgen
             try {
-                requestNewestBuildEndpoint(branch = LiquidBounce.clientBranch, release = !IN_DEVELOPMENT)
+                ClientApi.requestNewestBuildEndpoint(
+                    branch = LiquidBounce.clientBranch,
+                    release = !LiquidBounce.IN_DEVELOPMENT
+                )
             } catch (e: Exception) {
                 logger.error("Unable to receive update information", e)
                 null
@@ -58,7 +58,7 @@ object ClientUpdate {
             val newestVersion = newestVersion ?: return false
             val newestSemVersion = Semver(newestVersion.lbVersion, Semver.SemverType.LOOSE)
 
-            return if (IN_DEVELOPMENT) { // check if new build is newer than current build
+            return if (LiquidBounce.IN_DEVELOPMENT) { // check if new build is newer than current build
                 val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
                 val currentVersionDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
@@ -66,7 +66,7 @@ object ClientUpdate {
                 newestVersionDate.after(currentVersionDate)
             } else {
                 // check if version number is higher than current version number (on release builds only!)
-                val clientSemVersion = Semver(clientVersion, Semver.SemverType.LOOSE)
+                val clientSemVersion = Semver(LiquidBounce.clientVersion, Semver.SemverType.LOOSE)
 
                 newestVersion.release && newestSemVersion.isGreaterThan(clientSemVersion)
             }

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render.entity.featur
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.ccbluex.liquidbounce.features.cosmetic.CosmeticCategory;
+import net.ccbluex.liquidbounce.api.models.cosmetics.CosmeticCategory;
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService;
 import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition;
 import net.minecraft.client.render.entity.feature.Deadmau5FeatureRenderer;
