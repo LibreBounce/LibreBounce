@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.Hotbar
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.OffHandSlot
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.hasProtocolTranslator
 import net.ccbluex.liquidbounce.utils.client.isNewerThanOrEquals1_16
+import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.item.findInventorySlot
 import net.minecraft.component.DataComponentTypes
@@ -93,7 +93,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         tree(Gapple)
         tree(Strength)
 
-        if (!hasProtocolTranslator) {
+        if (!usesViaFabricPlus) {
             switchMode = enumChoice("SwitchMode", SwitchMode.SWITCH)
         }
     }
