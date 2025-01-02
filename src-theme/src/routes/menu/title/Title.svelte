@@ -23,7 +23,7 @@
         setTimeout(async () => {
             const clientUpdate = await getClientUpdate();
 
-            if (clientUpdate.update !== undefined) {
+            if (clientUpdate.update) {
                 notification.set({
                     title: `LiquidBounce ${clientUpdate.update.clientVersion} has been released!`,
                     message: `Download it from liquidbounce.net!`,
