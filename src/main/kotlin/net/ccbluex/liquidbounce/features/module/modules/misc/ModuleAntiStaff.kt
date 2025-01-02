@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.Dispatchers
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.api.core.*
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
@@ -116,7 +115,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
         suspend fun loadStaffList(address: String) {
             try {
-                val staffs = HttpClient.request("$CLIENT_CLOUD/staffs/$address", HttpMethod.GET).parse<String>()
+                val staffs = HttpClient.request("$CLIENT_CDN/staffs/$address", HttpMethod.GET).parse<String>()
                     .lines()
                     .toTypedArray()
 

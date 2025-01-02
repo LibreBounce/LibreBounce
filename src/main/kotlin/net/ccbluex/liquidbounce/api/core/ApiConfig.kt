@@ -21,6 +21,8 @@ package net.ccbluex.liquidbounce.api.core
 const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
 const val API_V3_ENDPOINT = "https://api.liquidbounce.net/api/v3"
 
+const val CLIENT_CDN = "https://cloud.liquidbounce.net/LiquidBounce"
+
 const val AUTH_BASE_URL = "https://auth.liquidbounce.net/application/o"
 const val AUTH_AUTHORIZE_URL = "$AUTH_BASE_URL/authorize/"
 const val AUTH_CLIENT_ID = "J2hzqzCxch8hfOPRFNINOZV5Ma4X4BFdZpMjAVEW"

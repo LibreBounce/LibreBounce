@@ -19,7 +19,10 @@
  */
 package net.ccbluex.liquidbounce
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
@@ -90,7 +93,6 @@ object LiquidBounce : EventListener {
      */
     const val CLIENT_NAME = "LiquidBounce"
     const val CLIENT_AUTHOR = "CCBlueX"
-    const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
 
     val clientVersion = gitInfo["git.build.version"]?.toString() ?: "unknown"
     val clientCommit = gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown"
@@ -111,7 +113,7 @@ object LiquidBounce : EventListener {
      */
     val logger = LogManager.getLogger(CLIENT_NAME)!!
 
-    var tasks: List<Deferred<*>> = emptyList()
+    var tasks: List<Deferred<*>>? = null
 
     /**
      * Should be executed to start the client.
@@ -120,7 +122,6 @@ object LiquidBounce : EventListener {
     private val startHandler = handler<ClientStartEvent> {
         runCatching {
             logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
-            logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
 
             // Load mappings
             EnvironmentRemapper
@@ -185,14 +186,14 @@ object LiquidBounce : EventListener {
 
             // Start IO tasks
             withScope {
-                tasks += listOf(
-                    async(Dispatchers.IO) {
+                tasks = listOf(
+                    async {
                         val update = update ?: return@async
                         logger.info("[Update] Update available: $clientVersion -> ${update.lbVersion}")
                     },
-                    async(Dispatchers.IO) { ipcConfiguration },
-                    async(Dispatchers.IO) { IpInfoApi.original },
-                    async(Dispatchers.IO) {
+                    async { ipcConfiguration },
+                    async { IpInfoApi.original },
+                    async {
                         if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
                             runCatching {
                                 ClientAccountManager.clientAccount.renew()
@@ -205,13 +206,13 @@ object LiquidBounce : EventListener {
                             }
                         }
                     },
-                    async(Dispatchers.IO) {
+                    async {
                         CosmeticService.refreshCarriers(force = true) {
                             logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
                         }
                     },
-                    async(Dispatchers.IO) { heads },
-                    async(Dispatchers.IO) { configs }
+                    async { heads },
+                    async { configs }
                 )
             }
 
@@ -272,8 +273,9 @@ object LiquidBounce : EventListener {
                 logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
             }.onFailure(ErrorHandler::fatal)
 
-            runBlocking(Dispatchers.IO) {
-                tasks.awaitAll()
+            runBlocking {
+                tasks?.awaitAll()
+                tasks = null
             }
         }
     }
