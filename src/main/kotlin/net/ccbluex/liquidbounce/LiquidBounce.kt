@@ -273,7 +273,7 @@ object LiquidBounce : EventListener {
             }.onFailure(ErrorHandler::fatal)
 
             runBlocking(Dispatchers.IO) {
-                awaitAll(*tasks.toTypedArray())
+                tasks.awaitAll()
             }
         }
     }
