@@ -41,7 +41,7 @@ object ClientUpdate {
         runCatching {
             val newestBuild = runCatching {
                 ClientApi.requestNewestBuildEndpoint(
-                    branch = "nextgen",
+                    branch = LiquidBounce.clientBranch,
                     release = !LiquidBounce.IN_DEVELOPMENT
                 )
             }.onFailure { exception ->
