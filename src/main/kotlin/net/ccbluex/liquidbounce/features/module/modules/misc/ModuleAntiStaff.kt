@@ -1,7 +1,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.Dispatchers
-import net.ccbluex.liquidbounce.api.core.*
+import net.ccbluex.liquidbounce.api.core.HttpException
+import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.services.cdn.ClientCdn.requestStaffList
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -61,7 +63,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
         private val showInTabList by boolean("ShowInTabList", true)
 
-        private val serverStaffList = hashMapOf<String, Array<String>>()
+        private val serverStaffList = hashMapOf<String, Set<String>>()
 
         override fun enable() {
             val serverEntry = mc.currentServerEntry ?: return
@@ -70,7 +72,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             if (serverStaffList.containsKey(address)) {
                 return
             }
-            serverStaffList[address] = arrayOf()
+            serverStaffList[address] = emptySet<String>()
 
             withScope {
                 loadStaffList(address)
@@ -85,7 +87,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             if (serverStaffList.containsKey(address)) {
                 return@sequenceHandler
             }
-            serverStaffList[address] = arrayOf()
+            serverStaffList[address] = emptySet<String>()
 
             // Keeps us from loading the staff list multiple times
             waitUntil { inGame && mc.currentScreen != null }
@@ -115,12 +117,10 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
         suspend fun loadStaffList(address: String) {
             try {
-                val staffs = HttpClient.request("$CLIENT_CDN/staffs/$address", HttpMethod.GET).parse<String>()
-                    .lines()
-                    .toTypedArray()
-
+                val staffs = requestStaffList(address)
                 serverStaffList[address] = staffs
 
+                logger.info("[AntiStaff] Loaded ${staffs.size} staff member for $address")
                 notification("AntiStaff", message("staffsLoaded", staffs.size, address),
                     NotificationEvent.Severity.SUCCESS)
             } catch (httpException: HttpException) {

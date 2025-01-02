@@ -37,7 +37,7 @@ open class ClientItemGroup(
 ) {
 
     // Create item group and assign to minecraft groups
-    fun create(): ItemGroup {
+    fun setup(): ItemGroup {
         // Expand array
         val itemGroup = FabricItemGroup.builder()
             .displayName(plainName.asText())

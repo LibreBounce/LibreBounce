@@ -50,6 +50,8 @@ import net.ccbluex.liquidbounce.utils.client.protocolVersion
 val ipcConfiguration by AsyncLazy {
     runCatching {
         ClientCdn.requestDiscordConfiguration()
+    }.onSuccess {
+        LiquidBounce.logger.info("Successfully loaded Discord IPC configuration [${it.appID}].")
     }.onFailure {
         LiquidBounce.logger.error("Failed to load Discord IPC configuration.", it)
     }.getOrNull()

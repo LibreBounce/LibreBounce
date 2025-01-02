@@ -64,15 +64,13 @@ const val HEAD_DB_API = "https://headdb.org/api/category/all"
 
 val heads by AsyncLazy {
     runCatching {
-        logger.info("Loading heads...")
-        // Load heads from service
         val heads: HashMap<String, Head> = HttpClient.request(HEAD_DB_API, HttpMethod.GET).parse()
 
         heads.values.toTypedArray().also {
-            logger.info("Successfully loaded ${it.size} heads from the database")
+            logger.info("Successfully loaded ${it.size} heads from HeadDB")
         }
-    }.onFailure {
-        logger.error("Unable to load heads database", it)
+    }.onFailure { exception ->
+        logger.error("Unable to load heads", exception)
     }.getOrElse { emptyArray() }
 }
 
