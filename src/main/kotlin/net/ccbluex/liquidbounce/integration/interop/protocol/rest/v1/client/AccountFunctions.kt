@@ -6,7 +6,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
-import net.ccbluex.liquidbounce.api.ClientApi
+import net.ccbluex.liquidbounce.api.formatAvatarUrl
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.AccountManagerMessageEvent
@@ -29,7 +29,7 @@ fun getAccounts(requestObject: RequestObject): FullHttpResponse {
             addProperty("id", i)
             addProperty("username", profile.username)
             addProperty("uuid", profile.uuid.toString())
-            addProperty("avatar", ClientApi.formatAvatarUrl(profile.uuid, profile.username))
+            addProperty("avatar", formatAvatarUrl(profile.uuid, profile.username))
             add("bans", interopGson.toJsonTree(account.bans))
             addProperty("type", account.type)
             addProperty("favorite", account.favorite)
@@ -189,7 +189,7 @@ fun deleteAccount(requestObject: RequestObject): FullHttpResponse {
         val profile = account.profile ?: return@apply
         addProperty("username", profile.username)
         addProperty("uuid", profile.uuid.toString())
-        addProperty("avatar", ClientApi.formatAvatarUrl(profile.uuid, profile.username))
+        addProperty("avatar", formatAvatarUrl(profile.uuid, profile.username))
         addProperty("type", account.type)
     })
 }

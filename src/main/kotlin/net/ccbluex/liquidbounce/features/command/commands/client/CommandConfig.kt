@@ -18,7 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.api.ClientApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.ClientApiV1
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
@@ -31,7 +33,9 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.io.HttpClient.get
+import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.HttpMethod
+import net.ccbluex.liquidbounce.utils.io.parse
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
@@ -147,12 +151,14 @@ object CommandConfig : CommandFactory {
             // Load the config in a separate thread to prevent the client from freezing
             AutoConfig.startLoaderTask {
                 runCatching {
-                    if (name.startsWith("http")) {
-                        // Load the config from the specified URL
-                        get(name).reader()
-                    } else {
-                        // Get online config from API
-                        ClientApi.requestSettingsScript(name).reader()
+                    runBlocking(Dispatchers.IO) {
+                        if (name.startsWith("http")) {
+                            // Load the config from the specified URL
+                            HttpClient.request(name, HttpMethod.GET).parse<String>().reader()
+                        } else {
+                            // Get online config from API
+                            ClientApiV1.requestSettingsScript(name).reader()
+                        }
                     }
                 }.onSuccess { sourceReader ->
                     AutoConfig.withLoading {

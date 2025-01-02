@@ -18,11 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.cosmetic
 
-import net.ccbluex.liquidbounce.api.ClientApi.API_V3_ENDPOINT
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.API_V3_ENDPOINT
 import net.ccbluex.liquidbounce.api.oauth.ClientAccount
 import net.ccbluex.liquidbounce.api.oauth.ClientAccountManager
 import net.ccbluex.liquidbounce.api.oauth.OAuthClient
-import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
@@ -33,6 +34,8 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.HttpMethod
+import net.ccbluex.liquidbounce.utils.io.parse
 import net.ccbluex.liquidbounce.utils.kotlin.toMD5
 import net.minecraft.client.session.Session
 import net.minecraft.util.Util
@@ -79,7 +82,9 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
             if (lastUpdate.hasElapsed(REFRESH_DELAY) || force) {
                 task = Util.getDownloadWorkerExecutor().service.submit {
                     runCatching {
-                        carriers = decode<Set<String>>(HttpClient.get(CARRIERS_URL))
+                        carriers = runBlocking(Dispatchers.IO) {
+                            HttpClient.request(CARRIERS_URL, HttpMethod.GET).parse<Set<String>>()
+                        }
                         task = null
 
                         // Reset timer and start once again
@@ -138,7 +143,9 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
 
             Util.getDownloadWorkerExecutor().execute {
                 runCatching {
-                    val cosmetics = decode<Set<Cosmetic>>(HttpClient.get("$COSMETICS_API/carrier/$uuid"))
+                    val cosmetics = runBlocking(Dispatchers.IO) {
+                        HttpClient.request("$COSMETICS_API/carrier/$uuid", HttpMethod.GET).parse<Set<Cosmetic>>()
+                    }
                     carriersCosmetics[uuid] = cosmetics
 
                     done(cosmetics.find { cosmetic -> cosmetic.category == category } ?: return@runCatching)

@@ -22,7 +22,7 @@ package net.ccbluex.liquidbounce.config.gson.serializer.minecraft
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.ccbluex.liquidbounce.api.ClientApi.formatAvatarUrl
+import net.ccbluex.liquidbounce.api.formatAvatarUrl
 import net.ccbluex.liquidbounce.utils.client.isPremium
 import net.minecraft.client.session.Session
 import java.lang.reflect.Type

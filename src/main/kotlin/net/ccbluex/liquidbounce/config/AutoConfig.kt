@@ -19,11 +19,13 @@
 package net.ccbluex.liquidbounce.config
 
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.AutoSettings
 import net.ccbluex.liquidbounce.api.AutoSettingsStatusType
 import net.ccbluex.liquidbounce.api.AutoSettingsType
-import net.ccbluex.liquidbounce.api.ClientApi
+import net.ccbluex.liquidbounce.api.ClientApiV1
 import net.ccbluex.liquidbounce.authlib.utils.array
 import net.ccbluex.liquidbounce.authlib.utils.int
 import net.ccbluex.liquidbounce.authlib.utils.string
@@ -65,8 +67,10 @@ object AutoConfig {
 
     var configsCache: Array<AutoSettings>? = null
     val configs
-        get() = configsCache ?: ClientApi.requestSettingsList().apply {
-            configsCache = this
+        get() = configsCache ?: runBlocking(Dispatchers.IO) {
+            ClientApiV1.requestSettingsList().apply {
+                configsCache = this
+            }
         }
 
     fun startLoaderTask(task: Runnable) = Util.getDownloadWorkerExecutor().execute(task)
@@ -83,8 +87,10 @@ object AutoConfig {
     fun loadAutoConfig(autoConfig: AutoSettings) = startLoaderTask {
         withLoading {
             runCatching {
-                ClientApi.requestSettingsScript(autoConfig.settingId).apply {
-                    ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
+                runBlocking(Dispatchers.IO) {
+                    ClientApiV1.requestSettingsScript(autoConfig.settingId).apply {
+                        ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
+                    }
                 }
             }.onFailure {
                 notification("Auto Config", "Failed to load config ${autoConfig.name}.",

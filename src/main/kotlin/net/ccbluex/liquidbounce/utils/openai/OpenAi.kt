@@ -21,7 +21,10 @@ package net.ccbluex.liquidbounce.utils.openai
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.ccbluex.liquidbounce.utils.io.HttpClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.io.*
 
 const val OPENAI_BASE_URL = "https://api.openai.com/v1"
 
@@ -67,27 +70,24 @@ class OpenAi(
         body.addProperty("model", model)
         body.add("messages", messages)
 
-        val json = body.toString()
-
         // Send request
-        val (code, text) = HttpClient.requestWithCode("$baseUrl/chat/completions",
-            "POST",
-            headers = arrayOf(
-                "Content-Type" to "application/json",
-                "Authorization" to "Bearer $openAiKey"
-            ),
-            inputData = json.toByteArray()
-        )
+        try {
+            val response = runBlocking(Dispatchers.IO) {
+                HttpClient.request("$baseUrl/chat/completions",
+                    HttpMethod.POST,
+                    headers = {
+                        add("Authorization", "Bearer $openAiKey")
+                    },
+                    body = body.toString().asJson()
+                ).parse<JsonObject>()
+            }
 
-        val responseJson = JsonParser.parseString(text).asJsonObject
-
-        if (code == 200) {
-            return responseJson["choices"]
+            return response["choices"]
                 .asJsonArray[0]
                 .asJsonObject["message"]
                 .asJsonObject["content"]
                 .asString
-        } else {
+        } catch (e: HttpException) {
             /**
              * {
              *     "error": {
@@ -99,9 +99,14 @@ class OpenAi(
              *     }
              * }
              */
+            val responseJson = JsonParser.parseString(e.message).asJsonObject
             val errorJson = responseJson["error"].asJsonObject
 
             error("OpenAI returned an error: ${errorJson["message"].asString}")
+            logger.error("Failed to send request to OpenAI", e)
+        } catch (e: Exception) {
+            logger.error("Failed to send request to OpenAI", e)
+            throw e
         }
     }
 

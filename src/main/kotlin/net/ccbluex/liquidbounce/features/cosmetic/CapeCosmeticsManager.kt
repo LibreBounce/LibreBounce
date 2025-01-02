@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.cosmetic
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.ClientApi.API_V1_ENDPOINT
+import net.ccbluex.liquidbounce.api.API_V1_ENDPOINT
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.handler

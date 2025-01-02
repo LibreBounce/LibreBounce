@@ -18,10 +18,13 @@
  */
 package net.ccbluex.liquidbounce.api
 
-import net.ccbluex.liquidbounce.config.gson.util.decode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.HttpMethod
+import net.ccbluex.liquidbounce.utils.io.parse
 
 /**
  * An implementation for the ipinfo.io API including
@@ -46,12 +49,16 @@ object IpInfoApi {
      * which is unlikely to change, even when changing the IP address. This could happen when using a VPN,
      * but it's not that important to keep this updated all the time.
      */
-    private val original: IpData? = runCatching(this::own).onFailure {
-        logger.error("Failed to get own IP address", it)
-    }.getOrNull()
+    private val original: IpData? by lazy(LazyThreadSafetyMode.NONE) {
+        runBlocking(Dispatchers.IO) {
+            runCatching { own() }.onFailure {
+                logger.error("Failed to get own IP address", it)
+            }.getOrNull()
+        }
+    }
 
-    fun own() = decode<IpData>(HttpClient.get(API_URL))
-    fun someoneElse(ip: String) = decode<IpData>(HttpClient.get(API_URL_OTHER_IP.format(ip)))
+    suspend fun own() = HttpClient.request(API_URL, HttpMethod.GET).parse<IpData>()
+    suspend fun someoneElse(ip: String) = HttpClient.request(API_URL_OTHER_IP.format(ip), HttpMethod.GET).parse<IpData>()
 
     /**
      * Represents information about an IP address

@@ -7,6 +7,8 @@ import io.netty.channel.epoll.EpollSocketChannel
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.handler.timeout.ReadTimeoutHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.IpInfoApi
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
@@ -109,7 +111,9 @@ fun Proxy.check(success: (Proxy) -> Unit, failure: (Throwable) -> Unit) = runCat
             logger.info("Proxy Ping [$host:$port]: $ping ms")
 
             runCatching {
-                val ipInfo = IpInfoApi.someoneElse(serverMetadata.description.convertToString())
+                val ipInfo = runBlocking(Dispatchers.IO) {
+                    IpInfoApi.someoneElse(serverMetadata.description.convertToString())
+                }
                 this@check.ipInfo = ipInfo
                 logger.info("Proxy Info [$host:$port]: ${ipInfo.ip} [${ipInfo.country}, ${ipInfo.org}]")
             }.onFailure { throwable ->

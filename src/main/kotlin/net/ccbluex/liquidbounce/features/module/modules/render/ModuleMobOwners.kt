@@ -18,10 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.gson.util.decode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.HttpMethod
+import net.ccbluex.liquidbounce.utils.io.parse
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.HorseEntity
 import net.minecraft.entity.passive.TameableEntity
@@ -69,7 +72,9 @@ object ModuleMobOwners : ClientModule("MobOwners", Category.RENDER) {
                 try {
                     val uuidAsString = it.toString().replace("-", "")
                     val url = "https://api.mojang.com/user/profiles/$uuidAsString/names"
-                    val response = decode<Array<UsernameRecord>>(HttpClient.get(url))
+                    val response = runBlocking(Dispatchers.IO) {
+                        HttpClient.request(url, HttpMethod.GET).parse<Array<UsernameRecord>>()
+                    }
 
                     val entityName = response.first { it.changedToAt == null }.name
 

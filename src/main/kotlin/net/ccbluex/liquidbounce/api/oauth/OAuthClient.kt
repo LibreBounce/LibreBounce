@@ -1,18 +1,33 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2016 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.api.oauth
 
-import com.google.gson.JsonObject
-import com.google.gson.annotations.SerializedName
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.*
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.*
-import kotlinx.coroutines.*
-import net.ccbluex.liquidbounce.api.ClientApi.API_V3_ENDPOINT
-import net.ccbluex.liquidbounce.config.gson.util.decode
-import net.ccbluex.liquidbounce.features.cosmetic.Cosmetic
-import net.ccbluex.liquidbounce.utils.io.HttpClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.net.InetSocketAddress
 import java.util.*
 import kotlin.coroutines.Continuation
@@ -20,12 +35,16 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
+private const val AUTH_BASE_URL = "https://auth.liquidbounce.net/application/o"
+
+/**
+ * OAuth client for handling the authentication flow
+ */
 object OAuthClient {
-
     private const val CLIENT_ID = "J2hzqzCxch8hfOPRFNINOZV5Ma4X4BFdZpMjAVEW"
-    private const val AUTHORIZE_URL = "https://auth.liquidbounce.net/application/o/authorize/"
-    private const val TOKEN_URL = "https://auth.liquidbounce.net/application/o/token/"
+    private const val AUTHORIZE_URL = "$AUTH_BASE_URL/authorize/"
 
+    private val authApi = OAuthAuthenticationApi(AUTH_BASE_URL)
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var serverPort: Int? = null
@@ -36,6 +55,12 @@ object OAuthClient {
         scope.launch { block() }
     }
 
+    /**
+     * Start the OAuth authentication flow
+     *
+     * @param onUrl Callback for when the authorization URL is ready
+     * @return Client account with the authenticated session
+     */
     suspend fun startAuth(onUrl: (String) -> Unit): ClientAccount {
         val (codeVerifier, codeChallenge) = PKCEUtils.generatePKCE()
         val state = UUID.randomUUID().toString()
@@ -49,11 +74,19 @@ object OAuthClient {
 
         onUrl(authUrl)
         val code = waitForAuthCode()
-        val tokenResponse = exchangeCodeForTokens(code, codeVerifier, redirectUri)
+        val tokenResponse = authApi.exchangeToken(CLIENT_ID, code, codeVerifier, redirectUri)
 
         serverPort = null
 
         return ClientAccount(session = tokenResponse.toAuthSession())
+    }
+
+    /**
+     * Renew an expired session using its refresh token
+     */
+    suspend fun renewToken(session: OAuthSession): OAuthSession {
+        val tokenResponse = authApi.refreshToken(CLIENT_ID, session.refreshToken)
+        return tokenResponse.toAuthSession()
     }
 
     private suspend fun startNettyServer(): Int = suspendCoroutine { cont ->
@@ -123,67 +156,6 @@ object OAuthClient {
         authCodeContinuation = cont
     }
 
-    private suspend fun exchangeCodeForTokens(code: String, codeVerifier: String,
-                                              redirectUri: String): TokenResponse = withContext(Dispatchers.IO) {
-        val response = HttpClient.postForm(
-            TOKEN_URL,
-            "client_id=$CLIENT_ID&code=$code&code_verifier=$codeVerifier&grant_type=authorization_code" +
-                "&redirect_uri=$redirectUri"
-        )
-        return@withContext decode(response)
-    }
-
-    suspend fun renewToken(session: OAuthSession): OAuthSession = withContext(Dispatchers.IO) {
-        val response = HttpClient.postForm(
-            TOKEN_URL,
-            "client_id=$CLIENT_ID&refresh_token=${session.refreshToken}&grant_type=refresh_token"
-        )
-
-        val tokenResponse = decode<TokenResponse>(response)
-        return@withContext tokenResponse.toAuthSession()
-    }
-
-    suspend fun getUserInformation(session: OAuthSession): UserInformation = withContext(Dispatchers.IO) {
-        val response = HttpClient.request("$API_V3_ENDPOINT/oauth/user", "GET", headers =
-            arrayOf("Authorization" to "Bearer ${session.accessToken}")
-        )
-        return@withContext decode(response)
-    }
-
-    suspend fun getCosmetics(session: OAuthSession): Set<Cosmetic> = withContext(Dispatchers.IO) {
-        val response = HttpClient.request("$API_V3_ENDPOINT/cosmetics/self", "GET", headers =
-            arrayOf("Authorization" to "Bearer ${session.accessToken}")
-        )
-        return@withContext decode(response)
-    }
-
-    suspend fun transferTemporaryOwnership(session: OAuthSession, uuid: UUID) = withContext(Dispatchers.IO) {
-        HttpClient.request("$API_V3_ENDPOINT/cosmetics/self", "PUT", headers =
-            arrayOf(
-                "Authorization" to "Bearer ${session.accessToken}",
-                "Content-Type" to "application/json"
-            ),
-            inputData = JsonObject().apply {
-                addProperty("uuid", uuid.toString())
-            }.toString().toByteArray()
-        )
-    }
-
-    data class TokenResponse(
-        @SerializedName("access_token") val accessToken: String,
-        // In seconds
-        @SerializedName("expires_in") val expiresIn: Long,
-        @SerializedName("refresh_token") val refreshToken: String?
-    ) {
-        fun toAuthSession(): OAuthSession {
-            val expiresAt = System.currentTimeMillis() + (expiresIn * 1000)
-            return OAuthSession(
-                accessToken = ExpiryValue(accessToken, expiresAt),
-                refreshToken = refreshToken ?: throw NullPointerException("Refresh token is null")
-            )
-        }
-    }
-
     private const val SUCCESS_HTML = """
         <!DOCTYPE html>
         <html lang="en">
@@ -206,4 +178,3 @@ object OAuthClient {
         </html>
     """
 }
-

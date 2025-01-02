@@ -18,98 +18,107 @@
  */
 package net.ccbluex.liquidbounce.utils.io
 
+import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.config.gson.util.decode
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
-import java.io.FileOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 object HttpClient {
 
-    const val DEFAULT_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)" +
-        " Chrome/118.0.0.0 Safari/537.36"
+    val DEFAULT_AGENT = "${LiquidBounce.CLIENT_NAME}/${LiquidBounce.clientVersion}" +
+        " (${LiquidBounce.clientCommit}, ${LiquidBounce.clientBranch}, " +
+        "${if (LiquidBounce.IN_DEVELOPMENT) "dev" else "release"}, ${System.getProperty("os.name")})"
 
-    init {
-        HttpURLConnection.setFollowRedirects(true)
-    }
+    val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+    val FORM_MEDIA_TYPE = "application/x-www-form-urlencoded".toMediaType()
 
-    private fun make(
+    val client: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .build()
+
+    private fun createRequest(
         url: String,
-        method: String,
+        method: HttpMethod,
         agent: String = DEFAULT_AGENT,
-        headers: Array<Pair<String, String>> = emptyArray(),
-        inputData: ByteArray? = null
-    ): HttpURLConnection {
-        val httpConnection = URL(url).openConnection() as HttpURLConnection
+        headers: Headers = Headers.Builder().build(),
+        body: RequestBody? = null
+    ) = Request.Builder()
+        .url(url)
+        .method(method.name, body)
+        .header("User-Agent", agent)
+        .headers(headers)
+        .build()
 
-        httpConnection.requestMethod = method
-        httpConnection.connectTimeout = 2000 // 2 seconds until connect timeouts
-        httpConnection.readTimeout = 10000 // 10 seconds until read timeouts
-
-        httpConnection.setRequestProperty("User-Agent", agent)
-
-        for ((key, value) in headers) {
-            httpConnection.setRequestProperty(key, value)
-        }
-
-        httpConnection.instanceFollowRedirects = true
-        httpConnection.doOutput = true
-
-        if (inputData != null) {
-            httpConnection.outputStream.use { it.write(inputData) }
-        }
-
-        return httpConnection
-    }
-
-    fun requestWithCode(
+    suspend fun request(
         url: String,
-        method: String,
+        method: HttpMethod,
         agent: String = DEFAULT_AGENT,
-        headers: Array<Pair<String, String>> = emptyArray(),
-        inputData: ByteArray? = null
-    ): Pair<Int, String> {
-        val connection = make(url, method, agent, headers, inputData)
-        val responseCode = connection.responseCode
+        headers: Headers.Builder.() -> Unit = {},
+        body: RequestBody? = null
+    ): Response = suspendCoroutine { continuation ->
+        val request = createRequest(url, method, agent, Headers.Builder().apply(headers).build(), body)
 
-        // we want to read the error stream or the input stream
-        val stream = if (connection.responseCode < 400) connection.inputStream else connection.errorStream
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    continuation.resumeWithException(
+                        HttpException(response.code, response.body.string())
+                    )
+                    return
+                }
 
-        if (stream == null) {
-            error("Unable to receive response from server, response code: $responseCode")
-        }
+                continuation.resume(response)
+            }
 
-        val text = stream.bufferedReader().use { it.readText() }
-
-        return responseCode to text
+            override fun onFailure(call: Call, e: IOException) {
+                continuation.resumeWithException(e)
+            }
+        })
     }
 
-    fun request(
-        url: String,
-        method: String,
-        agent: String = DEFAULT_AGENT,
-        headers: Array<Pair<String, String>> = emptyArray(),
-        inputData: ByteArray? = null
-    ): String {
-        val (code, text) = requestWithCode(url, method, agent, headers, inputData)
+    suspend fun download(url: String, file: File, agent: String = DEFAULT_AGENT) {
+        val request = createRequest(url, HttpMethod.GET, agent)
 
-        // check if the response code is not in the 200 range
-        if (code < 200 || code >= 300) {
-            error(text)
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw HttpException(response.code, "Failed to download file")
+            }
+
+            file.outputStream().use { output ->
+                response.body.byteStream().use { input ->
+                    input.copyTo(output)
+                }
+            }
         }
-
-        return text
     }
-
-    fun get(url: String) = request(url, "GET")
-
-    fun postJson(url: String, json: String) =
-        request(url, "POST", headers = arrayOf("Content-Type" to "application/json"),
-            inputData = json.toByteArray())
-
-    fun postForm(url: String, form: String) =
-        request(url, "POST", headers = arrayOf("Content-Type" to "application/x-www-form-urlencoded"),
-            inputData = form.toByteArray())
-
-    fun download(url: String, file: File) = FileOutputStream(file).use { make(url, "GET").inputStream.copyTo(it) }
-
 }
+
+enum class HttpMethod {
+    GET, POST, PUT, DELETE, PATCH
+}
+
+suspend inline fun <reified T> Response.parse(): T {
+    return use {
+        when (T::class) {
+            String::class -> body.string() as T
+            Unit::class -> Unit as T
+            else -> decode<T>(body.string())
+        }
+    }
+}
+
+fun String.asJson() = toRequestBody(HttpClient.JSON_MEDIA_TYPE)
+fun String.asForm() = toRequestBody(HttpClient.FORM_MEDIA_TYPE)
+
+class HttpException(val code: Int, message: String) : Exception(message)

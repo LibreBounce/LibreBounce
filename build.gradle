@@ -154,6 +154,11 @@ dependencies {
 //    includeDependency "org.graalvm.polyglot:ruby-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
 
+    // HTTP library
+    includeDependency ("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
+
     // SOCKS5 Proxy Support
     includeDependency ("io.netty:netty-handler-proxy:4.1.97.Final") {
         exclude group: "io.netty", module: "netty-common"

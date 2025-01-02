@@ -25,13 +25,13 @@ import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
 import com.jagrosh.discordipc.exceptions.NoDiscordClientException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
 import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
@@ -46,15 +46,19 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.HttpMethod
+import net.ccbluex.liquidbounce.utils.io.parse
 
 data class IpcConfiguration(
     val appID: Long,
     val assets: Map<String, String>
 )
 
-val ipcConfiguration by lazy {
-    logger.info("Loading Discord IPC configuration...")
-    decode<IpcConfiguration>(HttpClient.get("$CLIENT_CLOUD/discord.json"))
+val ipcConfiguration by lazy(LazyThreadSafetyMode.NONE) {
+    runBlocking(Dispatchers.IO) {
+        logger.info("Loading Discord IPC configuration...")
+        HttpClient.request("$CLIENT_CLOUD/discord.json", HttpMethod.GET).parse<IpcConfiguration>()
+    }
 }
 
 object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state = true, hide = true,

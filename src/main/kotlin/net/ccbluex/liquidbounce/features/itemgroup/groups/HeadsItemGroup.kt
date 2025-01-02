@@ -18,11 +18,13 @@
  */
 package net.ccbluex.liquidbounce.features.itemgroup.groups
 
-import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.config.gson.util.decode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroup
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.HttpMethod
+import net.ccbluex.liquidbounce.utils.io.parse
 import net.ccbluex.liquidbounce.utils.item.createItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -55,25 +57,22 @@ data class Head(val name: String, val uuid: UUID, val value: String) {
 
 }
 
+/**
+ * The API endpoint to fetch heads from which is owned by CCBlueX
+ * and therefore can reliably depend on.
+ */
+const val HEAD_DB_API = "https://headdb.org/api/category/all"
+
 val headsCollection by lazy {
     runCatching {
-        class HeadsService(val enabled: Boolean, val url: String)
-
         logger.info("Loading heads...")
-        // Load head service from cloud
-        // Makes it possible to disable service or change domain in case of an emergency
-        val headService: HeadsService = decode(HttpClient.get("${LiquidBounce.CLIENT_CLOUD}/heads.json"))
+        // Load heads from service
+        val heads: HashMap<String, Head> = runBlocking(Dispatchers.IO) {
+            HttpClient.request(HEAD_DB_API, HttpMethod.GET).parse()
+        }
 
-        if (headService.enabled) {
-            // Load heads from service
-            //  Syntax based on HeadDB (headdb.org)
-            val heads: HashMap<String, Head> = decode(HttpClient.get(headService.url))
-
-            heads.values.toTypedArray().also {
-                logger.info("Successfully loaded ${it.size} heads from the database")
-            }
-        } else {
-            error("Head service has been disabled")
+        heads.values.toTypedArray().also {
+            logger.info("Successfully loaded ${it.size} heads from the database")
         }
     }.onFailure {
         logger.error("Unable to load heads database", it)
