@@ -22,6 +22,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.client.AutoSettings
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.api.types.enums.AutoSettingsStatusType
@@ -35,7 +36,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.util.Formatting
-import net.minecraft.util.Util
 import java.io.Writer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -73,8 +73,6 @@ object AutoConfig {
             }
         }
 
-    fun startLoaderTask(task: Runnable) = Util.getDownloadWorkerExecutor().execute(task)
-
     inline fun withLoading(block: () -> Unit) {
         loadingNow = true
         try {
@@ -84,13 +82,11 @@ object AutoConfig {
         }
     }
 
-    fun loadAutoConfig(autoConfig: AutoSettings) = startLoaderTask {
+    fun loadAutoConfig(autoConfig: AutoSettings) = withScope {
         withLoading {
             runCatching {
-                runBlocking(Dispatchers.IO) {
-                    ClientApi.requestSettingsScript(autoConfig.settingId).apply {
-                        ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
-                    }
+                ClientApi.requestSettingsScript(autoConfig.settingId).apply {
+                    ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
                 }
             }.onFailure {
                 notification("Auto Config", "Failed to load config ${autoConfig.name}.",

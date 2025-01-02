@@ -18,12 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.cosmetic
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Job
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.models.cosmetics.Cosmetic
 import net.ccbluex.liquidbounce.api.models.cosmetics.CosmeticCategory
-import net.ccbluex.liquidbounce.api.services.auth.OAuthClient
 import net.ccbluex.liquidbounce.api.services.cosmetics.CosmeticApi
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
@@ -36,9 +35,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.toMD5
 import net.minecraft.client.session.Session
-import net.minecraft.util.Util
 import java.util.*
-import java.util.concurrent.Future
 
 /**
  * A more reliable, safer and stress reduced cosmetics service
@@ -63,7 +60,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
     internal var carriersCosmetics = hashMapOf<UUID, Set<Cosmetic>>()
 
     private val lastUpdate = Chronometer()
-    private var task: Future<*>? = null
+    private var task: Job? = null
 
     /**
      * Refresh cosmetic carriers if needed from the API in a MD5-hashed UUID set
@@ -75,11 +72,9 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
         if (task == null) {
             // Check if the required time in milliseconds has passed of the REFRESH_DELAY
             if (lastUpdate.hasElapsed(REFRESH_DELAY) || force) {
-                task = Util.getDownloadWorkerExecutor().service.submit {
+                task = withScope {
                     runCatching {
-                        carriers = runBlocking(Dispatchers.IO) {
-                            CosmeticApi.getCarriers()
-                        }
+                        carriers = CosmeticApi.getCarriers()
                         task = null
 
                         // Reset timer and start once again
@@ -112,11 +107,11 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
             clientAccount.cosmetics = emptySet()
 
             // Update cosmetics
-            OAuthClient.runWithScope {
+            withScope {
                 clientAccount.updateCosmetics()
 
                 clientAccount.cosmetics?.let { cosmetics ->
-                    done(cosmetics.find { cosmetic -> cosmetic.category == category } ?: return@runWithScope)
+                    done(cosmetics.find { cosmetic -> cosmetic.category == category } ?: return@withScope)
                 }
             }
             return
@@ -136,11 +131,9 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
             // Pre-allocate a set to prevent multiple requests
             carriersCosmetics[uuid] = emptySet()
 
-            Util.getDownloadWorkerExecutor().execute {
+            withScope {
                 runCatching {
-                    val cosmetics = runBlocking(Dispatchers.IO) {
-                        CosmeticApi.getCarrierCosmetics(uuid)
-                    }
+                    val cosmetics = CosmeticApi.getCarrierCosmetics(uuid)
                     carriersCosmetics[uuid] = cosmetics
 
                     done(cosmetics.find { cosmetic -> cosmetic.category == category } ?: return@runCatching)
@@ -178,7 +171,7 @@ object CosmeticService : EventListener, Configurable("Cosmetics") {
             return
         }
 
-        OAuthClient.runWithScope {
+        withScope {
             runCatching {
                 clientAccount.transferTemporaryOwnership(uuid)
             }.onSuccess {

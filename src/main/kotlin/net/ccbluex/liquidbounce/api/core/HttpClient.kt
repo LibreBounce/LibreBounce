@@ -18,6 +18,10 @@
  */
 package net.ccbluex.liquidbounce.api.core
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.minecraft.client.texture.NativeImage
@@ -33,6 +37,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+
+private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+fun withScope(block: suspend CoroutineScope.() -> Unit) = scope.launch { block() }
 
 object HttpClient {
 
@@ -131,4 +139,4 @@ suspend inline fun <reified T> Response.parse(): T {
 fun String.asJson() = toRequestBody(HttpClient.JSON_MEDIA_TYPE)
 fun String.asForm() = toRequestBody(HttpClient.FORM_MEDIA_TYPE)
 
-class HttpException(val code: Int, message: String) : Exception(message)
+class HttpException(val code: Int, message: String) : Exception("HTTP $code: $message")

@@ -19,8 +19,8 @@
  */
 package net.ccbluex.liquidbounce
 
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
-import net.ccbluex.liquidbounce.api.services.auth.OAuthClient
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.api.thirdparty.IpInfoApi
@@ -261,7 +261,7 @@ object LiquidBounce : EventListener {
 
             // Check if client account is available
             if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
-                OAuthClient.runWithScope {
+                withScope {
                     runCatching {
                         ClientAccountManager.clientAccount.renew()
                     }.onFailure {

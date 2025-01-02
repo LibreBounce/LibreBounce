@@ -24,12 +24,9 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.api.core.AUTH_AUTHORIZE_URL
 import net.ccbluex.liquidbounce.api.core.AUTH_CLIENT_ID
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.models.auth.OAuthSession
 import java.net.InetSocketAddress
@@ -44,15 +41,9 @@ import kotlin.coroutines.suspendCoroutine
  */
 object OAuthClient {
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
     private var serverPort: Int? = null
     @Volatile
     private var authCodeContinuation: Continuation<String>? = null
-
-    fun runWithScope(block: suspend CoroutineScope.() -> Unit) {
-        scope.launch { block() }
-    }
 
     /**
      * Start the OAuth authentication flow
@@ -89,7 +80,7 @@ object OAuthClient {
     }
 
     private suspend fun startNettyServer(): Int = suspendCoroutine { cont ->
-        scope.launch {
+        withScope {
             runCatching {
                 val bossGroup = NioEventLoopGroup(1)
                 val workerGroup = NioEventLoopGroup()

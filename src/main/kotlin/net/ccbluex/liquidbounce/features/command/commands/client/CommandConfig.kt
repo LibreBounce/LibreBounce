@@ -18,11 +18,10 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.api.core.HttpClient
 import net.ccbluex.liquidbounce.api.core.HttpMethod
 import net.ccbluex.liquidbounce.api.core.parse
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
@@ -149,16 +148,14 @@ object CommandConfig : CommandFactory {
             val modules = ModuleManager.parseModulesFromParameter(moduleNames)
 
             // Load the config in a separate thread to prevent the client from freezing
-            AutoConfig.startLoaderTask {
+            withScope {
                 runCatching {
-                    runBlocking(Dispatchers.IO) {
-                        if (name.startsWith("http")) {
-                            // Load the config from the specified URL
-                            HttpClient.request(name, HttpMethod.GET).parse<String>().reader()
-                        } else {
-                            // Get online config from API
-                            ClientApi.requestSettingsScript(name).reader()
-                        }
+                    if (name.startsWith("http")) {
+                        // Load the config from the specified URL
+                        HttpClient.request(name, HttpMethod.GET).parse<String>().reader()
+                    } else {
+                        // Get online config from API
+                        ClientApi.requestSettingsScript(name).reader()
                     }
                 }.onSuccess { sourceReader ->
                     AutoConfig.withLoading {

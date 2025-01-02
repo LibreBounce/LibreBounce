@@ -63,7 +63,7 @@ data class Head(val name: String, val uuid: UUID, val value: String) {
  */
 const val HEAD_DB_API = "https://headdb.org/api/category/all"
 
-val headsCollection by lazy {
+val headsCollection by lazy(LazyThreadSafetyMode.NONE) {
     runCatching {
         logger.info("Loading heads...")
         // Load heads from service

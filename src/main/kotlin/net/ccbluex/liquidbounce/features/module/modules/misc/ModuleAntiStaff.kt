@@ -1,12 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
-import net.ccbluex.liquidbounce.api.core.HttpClient
-import net.ccbluex.liquidbounce.api.core.HttpException
-import net.ccbluex.liquidbounce.api.core.HttpMethod
-import net.ccbluex.liquidbounce.api.core.parse
+import net.ccbluex.liquidbounce.api.core.*
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -19,7 +15,6 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket
-import kotlin.concurrent.thread
 
 /**
  * Notifies you about staff actions.
@@ -78,7 +73,9 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             }
             serverStaffList[address] = arrayOf()
 
-            loadStaffList(address)
+            withScope {
+                loadStaffList(address)
+            }
             super.enable()
         }
 
@@ -93,7 +90,11 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
             // Keeps us from loading the staff list multiple times
             waitUntil { inGame && mc.currentScreen != null }
-            loadStaffList(address)
+
+            // Load the staff list
+            waitFor(Dispatchers.IO) {
+                loadStaffList(address)
+            }
         }
 
         val packetHandler = handler<PacketEvent> { event ->
@@ -113,30 +114,26 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             }
         }
 
-        fun loadStaffList(address: String) {
-            // Loads the server config
-            thread(name = "staff-loader") {
+        suspend fun loadStaffList(address: String) {
+            try {
+                val staffs = HttpClient.request("$CLIENT_CLOUD/staffs/$address", HttpMethod.GET).parse<String>()
+                    .lines()
+                    .toTypedArray()
 
-                try {
-                    val staffs = runBlocking(Dispatchers.IO) {
-                        HttpClient.request("$CLIENT_CLOUD/staffs/$address", HttpMethod.GET).parse<String>()
-                    }.lines().toTypedArray()
+                serverStaffList[address] = staffs
 
-                    serverStaffList[address] = staffs
-
-                    notification("AntiStaff", message("staffsLoaded", staffs.size, address),
-                        NotificationEvent.Severity.SUCCESS)
-                } catch (httpException: HttpException) {
-                    when (httpException.code) {
-                        404 -> notification("AntiStaff", message("noStaffs", address),
-                            NotificationEvent.Severity.ERROR)
-                        else -> notification("AntiStaff", message("staffsFailed", address, httpException.code),
-                            NotificationEvent.Severity.ERROR)
-                    }
-                } catch (exception: Exception) {
-                    notification("AntiStaff", message("staffsFailed", address, exception.javaClass.simpleName),
+                notification("AntiStaff", message("staffsLoaded", staffs.size, address),
+                    NotificationEvent.Severity.SUCCESS)
+            } catch (httpException: HttpException) {
+                when (httpException.code) {
+                    404 -> notification("AntiStaff", message("noStaffs", address),
+                        NotificationEvent.Severity.ERROR)
+                    else -> notification("AntiStaff", message("staffsFailed", address, httpException.code),
                         NotificationEvent.Severity.ERROR)
                 }
+            } catch (exception: Exception) {
+                notification("AntiStaff", message("staffsFailed", address, exception.javaClass.simpleName),
+                    NotificationEvent.Severity.ERROR)
             }
         }
 

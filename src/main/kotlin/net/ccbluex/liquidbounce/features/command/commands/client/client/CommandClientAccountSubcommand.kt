@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.command.commands.client.client
 
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount.Companion.EMPTY_ACCOUNT
-import net.ccbluex.liquidbounce.api.services.auth.OAuthClient
 import net.ccbluex.liquidbounce.api.services.auth.OAuthClient.startAuth
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
@@ -28,7 +28,7 @@ object CommandClientAccountSubcommand {
             }
 
             chat(regular("Getting user information..."))
-            OAuthClient.runWithScope {
+            withScope {
                 runCatching {
                     val account = ClientAccountManager.clientAccount
                     account.updateInfo()
@@ -53,7 +53,7 @@ object CommandClientAccountSubcommand {
             }
 
             chat(regular("Logging out..."))
-            OAuthClient.runWithScope {
+            withScope {
                 ClientAccountManager.clientAccount = EMPTY_ACCOUNT
                 ConfigSystem.storeConfigurable(ClientAccountManager)
                 chat(regular("Successfully logged out."))
@@ -68,7 +68,7 @@ object CommandClientAccountSubcommand {
             }
 
             chat(regular("Starting OAuth authorization process..."))
-            OAuthClient.runWithScope {
+            withScope {
                 val account = startAuth { Util.getOperatingSystem().open(it) }
                 ClientAccountManager.clientAccount = account
                 ConfigSystem.storeConfigurable(ClientAccountManager)

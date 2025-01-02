@@ -18,11 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import net.ccbluex.liquidbounce.api.core.HttpClient
-import net.ccbluex.liquidbounce.api.core.HttpMethod
-import net.ccbluex.liquidbounce.api.core.parse
+import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.thirdparty.MojangApi
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.entity.Entity
@@ -32,7 +29,6 @@ import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Style
 import net.minecraft.util.Formatting
-import net.minecraft.util.Util
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -67,31 +63,31 @@ object ModuleMobOwners : ClientModule("MobOwners", Category.RENDER) {
 
     @Suppress("SwallowedException")
     private fun getFromMojangApi(ownerId: UUID): OrderedText {
-        return uuidNameCache.computeIfAbsent(ownerId) {
-            Util.getDownloadWorkerExecutor().execute {
+        return uuidNameCache.computeIfAbsent(ownerId) { uuid ->
+            val loadingText = OrderedText.styledForwardsVisitedString("Loading", Style.EMPTY.withItalic(true))
+            uuidNameCache[uuid] = loadingText
+
+            withScope {
                 try {
-                    val uuidAsString = it.toString().replace("-", "")
-                    val url = "https://api.mojang.com/user/profiles/$uuidAsString/names"
-                    val response = runBlocking(Dispatchers.IO) {
-                        HttpClient.request(url, HttpMethod.GET).parse<Array<UsernameRecord>>()
-                    }
+                    val uuidAsString = uuid.toString().replace("-", "")
+                    val response = MojangApi.getNames(uuidAsString)
 
                     val entityName = response.first { it.changedToAt == null }.name
 
-                    uuidNameCache[it] = OrderedText.styledForwardsVisitedString(entityName, Style.EMPTY)
+                    uuidNameCache[uuid] = OrderedText.styledForwardsVisitedString(entityName, Style.EMPTY)
                 } catch (_: InterruptedException) {
                 } catch (e: Exception) {
-                    uuidNameCache[it] = OrderedText.styledForwardsVisitedString(
+                    uuidNameCache[uuid] = OrderedText.styledForwardsVisitedString(
                         "Failed to query Mojang API",
                         Style.EMPTY.withItalic(true).withColor(Formatting.RED)
                     )
                 }
             }
 
-            OrderedText.styledForwardsVisitedString("Loading", Style.EMPTY.withItalic(true))
+            loadingText
         }
     }
 
-    private data class UsernameRecord(val name: String, val changedToAt: Int?)
+
 
 }

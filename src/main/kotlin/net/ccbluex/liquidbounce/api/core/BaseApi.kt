@@ -47,7 +47,7 @@ abstract class BaseApi(protected val baseUrl: String) {
     protected suspend inline fun <reified T> request(
         endpoint: String,
         method: HttpMethod,
-        noinline headers: Headers.Builder.() -> Unit = {},
+        crossinline headers: Headers.Builder.() -> Unit = {},
         body: RequestBody? = null
     ): T = HttpClient.request("$baseUrl$endpoint", method, headers = {
         add("X-Session-Token", SESSION_TOKEN)
@@ -56,30 +56,30 @@ abstract class BaseApi(protected val baseUrl: String) {
 
     protected suspend inline fun <reified T> get(
         endpoint: String,
-        noinline headers: Headers.Builder.() -> Unit = {}
+        crossinline headers: Headers.Builder.() -> Unit = {}
     ): T = request(endpoint, HttpMethod.GET, headers)
 
     protected suspend inline fun <reified T> post(
         endpoint: String,
         body: RequestBody? = null,
-        noinline headers: Headers.Builder.() -> Unit = {}
+        crossinline headers: Headers.Builder.() -> Unit = {}
     ): T = request(endpoint, HttpMethod.POST, headers, body)
 
     protected suspend inline fun <reified T> put(
         endpoint: String,
         body: RequestBody? = null,
-        noinline headers: Headers.Builder.() -> Unit = {}
+        crossinline headers: Headers.Builder.() -> Unit = {}
     ): T = request(endpoint, HttpMethod.PUT, headers, body)
 
     protected suspend inline fun <reified T> patch(
         endpoint: String,
         body: RequestBody? = null,
-        noinline headers: Headers.Builder.() -> Unit = {}
+        crossinline headers: Headers.Builder.() -> Unit = {}
     ): T = request(endpoint, HttpMethod.PATCH, headers, body)
 
     protected suspend inline fun <reified T> delete(
         endpoint: String,
-        noinline headers: Headers.Builder.() -> Unit = {}
+        crossinline headers: Headers.Builder.() -> Unit = {}
     ): T = request(endpoint, HttpMethod.DELETE, headers)
 
 }
