@@ -120,7 +120,7 @@ dependencies {
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modImplementation "maven.modrinth:lithium:${project.lithium_version}"
-    modImplementation "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
+    modImplementation "com.viaversion:viafabricplus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
