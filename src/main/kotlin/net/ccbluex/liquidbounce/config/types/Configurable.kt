@@ -28,7 +28,6 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
-import java.util.*
 
 @Suppress("TooManyFunctions")
 open class Configurable(
@@ -205,7 +204,7 @@ open class Configurable(
         InputBind(InputUtil.Type.KEYSYM, default, InputBind.BindAction.TOGGLE)
     )
 
-    fun bind(name: String, default: InputBind) = BindValue(name, default)
+    fun bind(name: String, default: InputBind) = BindValue(name, default).apply { this@Configurable.inner.add(this) }
 
     fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
 
