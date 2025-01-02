@@ -71,8 +71,6 @@ data class UV2f(val u: Float, val v: Float)
 
 /**
  * Directly use primitive int value for Color operations.
- *
- * @author MukjepScarlet
  */
 @Suppress("NOTHING_TO_INLINE", "detekt:TooManyFunctions")
 @JvmInline
