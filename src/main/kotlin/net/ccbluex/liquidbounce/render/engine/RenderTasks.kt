@@ -93,7 +93,6 @@ value class Color4b private constructor(val argb: Int) {
         val BLUE = Color4b(0xFF0000FF.toInt())
 
         @Throws(IllegalArgumentException::class)
-        @JvmStatic
         fun fromHex(hex: String): Color4b {
             val cleanHex = hex.removePrefix("#")
             val hasAlpha = cleanHex.length == 8
