@@ -11,7 +11,7 @@
     import {quintOut} from "svelte/easing";
     import {description as descriptionStore, highlightModuleName} from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../theme/theme_config";
     import {scaleFactor} from "./clickgui_store";
 
     export let name: string;
@@ -62,7 +62,7 @@
         const x = moduleNameElement?.getBoundingClientRect().right ?? 0;
         let moduleDescription = description;
         if (aliases.length > 0) {
-            moduleDescription += ` (aka ${aliases.map(a => $spaceSeperatedNames ? convertToSpacedString(a) : a).join(", ")})`;
+            moduleDescription += ` (aka ${aliases.map(processPascalCaseName).join(", ")})`;
         }
         descriptionStore.set({
             x: x * (2 / $scaleFactor),
@@ -96,11 +96,7 @@
             class:enabled
             class:highlight={name === $highlightModuleName}
     >
-        {#if $spaceSeperatedNames}
-            {convertToSpacedString(name)}
-        {:else}
-            {name}
-        {/if}
+        {processPascalCaseName(name)}
     </div>
 
     {#if expanded && configurable}

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Vec3d
+import org.joml.Vector3f
 
 private const val ITEM_SIZE: Int = 16
 private const val ITEM_SCALE: Float = 1.0F

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.technique
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
@@ -40,6 +37,7 @@ import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.round
@@ -108,12 +106,13 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         bestStack: ItemStack
     ): BlockPlacementTarget? {
         val searchOptions = BlockPlacementTargetFindingOptions(
-            NORMAL_INVESTIGATION_OFFSETS,
-            bestStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            predictedPos,
-            predictedPose
+            BlockOffsetOptions(
+                NORMAL_INVESTIGATION_OFFSETS,
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = bestStack,
+            PlayerLocationOnPlacement(position = predictedPos, pose = predictedPose),
         )
 
         return findBestBlockPlacementTarget(getTargetedPosition(predictedPos.toBlockPos()), searchOptions)

@@ -1,6 +1,6 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../../../theme/theme_config";
 
     export let name: string | null;
     export let options: string[];
@@ -29,7 +29,7 @@
 <div class="dropdown" class:expanded on:click={() => (expanded = !expanded)}>
     <div class="head" bind:this={dropdownHead}>
         {#if name !== null}
-            <span class="text">{name} &bull; {$spaceSeperatedNames ? convertToSpacedString(value) : value}</span>
+            <span class="text">{name} &bull; {processPascalCaseName(value)}</span>
         {:else}
             <span class="text">{value}</span>
         {/if}
@@ -43,7 +43,7 @@
                         class:active={o === value}
                         on:click={() => updateValue(o)}
                 >
-                    {$spaceSeperatedNames ? convertToSpacedString(o) : o}
+                    {processPascalCaseName(o)}
                 </div>
             {/each}
         </div>

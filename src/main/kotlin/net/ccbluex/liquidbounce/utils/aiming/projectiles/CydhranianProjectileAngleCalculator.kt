@@ -32,7 +32,7 @@ object CydhranianProjectileAngleCalculator: ProjectileAngleCalculator() {
     ): Rotation? {
         val calculatedLookVec = predictArrowDirection(projectileInfo, sourcePos, targetShape, targetPosFunction)
 
-        return calculatedLookVec?.let(RotationManager::makeRotation)
+        return calculatedLookVec?.let(Rotation::fromRotationVec)
     }
 
     private fun getDirectionByTime(
@@ -158,7 +158,7 @@ object CydhranianProjectileAngleCalculator: ProjectileAngleCalculator() {
             playerHeadPosition,
             directionOnImpact,
             entityPositionOnImpact,
-            targetEntityBox = targetDimensions.getBoxAt(entityPositionOnImpact)
+            targetEntityBox = targetDimensions.getBoxAt(entityPositionOnImpact).expand(trajectoryInfo.hitboxRadius)
         ) ?: return null
 
         return getDirectionByTime(trajectoryInfo, finalTargetPos, playerHeadPosition, round(ticksUntilImpact))

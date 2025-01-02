@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
@@ -46,117 +45,117 @@ object CommandLocalConfig : CommandFactory {
         return CommandBuilder
             .begin("localconfig")
             .hub()
-            .subcommand(
-                CommandBuilder
-                    .begin("load")
-                    .parameter(
-                        ParameterBuilder
-                            .begin<String>("name")
-                            .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                            .autocompletedWith(this::autoComplete)
-                            .required()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        val name = args[0] as String
-
-                        ConfigSystem.userConfigsFolder.resolve("$name.json").runCatching {
-                            if (!exists()) {
-                                chat(regular(command.result("notFound", variable(name))))
-                                return@handler
-                            }
-
-                            AutoConfig.withLoading {
-                                ConfigSystem.deserializeConfigurable(
-                                    ModuleManager.modulesConfigurable,
-                                    bufferedReader(),
-                                    publicGson
-                                )
-                            }
-                        }.onFailure {
-                            chat(markAsError(command.result("failedToLoad", variable(name))))
-                        }.onSuccess {
-                            chat(regular(command.result("loaded", variable(name))))
-                        }
-                    }
-                    .build()
-            )
-            .subcommand(
-                CommandBuilder
-                    .begin("list")
-                    .parameter(
-                        ParameterBuilder
-                            .begin<String>("online")
-                            .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                            .optional()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        chat("§cSettings:")
-                        for (files in ConfigSystem.userConfigsFolder.listFiles()!!) {
-                            chat(regular(files.name))
-                        }
-                    }
-                    .build()
-            )
-            .subcommand(CommandBuilder.begin("browse").handler { command, _ ->
-                Util.getOperatingSystem().open(ConfigSystem.userConfigsFolder)
-                chat(regular(command.result("browse", variable(ConfigSystem.userConfigsFolder.absolutePath))))
-            }.build())
-            .subcommand(
-                CommandBuilder
-                    .begin("save")
-                    .alias("create")
-                    .parameter(
-                        ParameterBuilder
-                            .begin<String>("name")
-                            .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                            .required()
-                            .build()
-                    )
-                    .parameter(
-                        ParameterBuilder
-                            .begin<String>("include")
-                            .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                            .autocompletedWith { s ->
-                                arrayOf(
-                                    "binds",
-                                    "hidden"
-                                ).filter { it.startsWith(s) }
-                            }
-                            .vararg()
-                            .optional()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        val name = args[0] as String
-                        @Suppress("UNCHECKED_CAST")
-                        val include = args.getOrNull(1) as Array<*>? ?: emptyArray<String>()
-
-                        val includeConfiguration = IncludeConfiguration(
-                            includeBinds = include.contains("binds"),
-                            includeHidden = include.contains("hidden")
-                        )
-
-                        ConfigSystem.userConfigsFolder.resolve("$name.json").runCatching {
-                            if (exists()) {
-                                delete()
-                            }
-
-                            createNewFile()
-                            serializeAutoConfig(bufferedWriter(), includeConfiguration)
-                        }.onFailure {
-                            chat(regular(command.result("failedToCreate", variable(name))))
-                        }.onSuccess {
-                            chat(regular(command.result("created", variable(name))))
-                        }
-                    }
-                    .build()
-            )
+            .subcommand(loadSubcommand())
+            .subcommand(listSubcommand())
+            .subcommand(browseSubcommand())
+            .subcommand(saveSubcommand())
             .build()
     }
 
-    private fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    private fun saveSubcommand() = CommandBuilder
+        .begin("save")
+        .alias("create")
+        .parameter(
+            ParameterBuilder
+                .begin<String>("name")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .required()
+                .build()
+        )
+        .parameter(
+            ParameterBuilder
+                .begin<String>("include")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .autocompletedWith { s, _ ->
+                    arrayOf("binds", "hidden").filter { it.startsWith(s) }
+                }
+                .vararg()
+                .optional()
+                .build()
+        )
+        .handler { command, args ->
+            val name = args[0] as String
+
+            @Suppress("UNCHECKED_CAST")
+            val include = args.getOrNull(1) as Array<*>? ?: emptyArray<String>()
+
+            val includeConfiguration = IncludeConfiguration(
+                includeBinds = include.contains("binds"),
+                includeHidden = include.contains("hidden")
+            )
+
+            ConfigSystem.userConfigsFolder.resolve("$name.json").runCatching {
+                if (exists()) {
+                    delete()
+                }
+
+                createNewFile()
+                serializeAutoConfig(bufferedWriter(), includeConfiguration)
+            }.onFailure {
+                chat(regular(command.result("failedToCreate", variable(name))))
+            }.onSuccess {
+                chat(regular(command.result("created", variable(name))))
+            }
+        }
+        .build()
+
+    private fun browseSubcommand() = CommandBuilder.begin("browse").handler { command, _ ->
+        Util.getOperatingSystem().open(ConfigSystem.userConfigsFolder)
+        chat(regular(command.result("browse", variable(ConfigSystem.userConfigsFolder.absolutePath))))
+    }.build()
+
+    private fun listSubcommand() = CommandBuilder
+        .begin("list")
+        .parameter(
+            ParameterBuilder
+                .begin<String>("online")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .optional()
+                .build()
+        )
+        .handler { command, args ->
+            chat("§cSettings:")
+            for (files in ConfigSystem.userConfigsFolder.listFiles()!!) {
+                chat(regular(files.name))
+            }
+        }
+        .build()
+
+    private fun loadSubcommand() = CommandBuilder
+        .begin("load")
+        .parameter(
+            ParameterBuilder
+                .begin<String>("name")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .autocompletedWith { begin, _ -> this.autoComplete(begin) }
+                .required()
+                .build()
+        )
+        .handler { command, args ->
+            val name = args[0] as String
+
+            ConfigSystem.userConfigsFolder.resolve("$name.json").runCatching {
+                if (!exists()) {
+                    chat(regular(command.result("notFound", variable(name))))
+                    return@handler
+                }
+
+                AutoConfig.withLoading {
+                    ConfigSystem.deserializeConfigurable(
+                        ModuleManager.modulesConfigurable,
+                        bufferedReader(),
+                        publicGson
+                    )
+                }
+            }.onFailure {
+                chat(markAsError(command.result("failedToLoad", variable(name))))
+            }.onSuccess {
+                chat(regular(command.result("loaded", variable(name))))
+            }
+        }
+        .build()
+
+    private fun autoComplete(begin: String): List<String> {
         return ConfigSystem.userConfigsFolder.listFiles()?.map { it.nameWithoutExtension }
             ?.filter { it.startsWith(begin) } ?: emptyList()
     }

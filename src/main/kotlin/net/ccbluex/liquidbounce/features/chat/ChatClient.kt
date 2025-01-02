@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  *
  *
  */
+
+@file:Suppress("TooManyFunctions")
 
 package net.ccbluex.liquidbounce.features.chat
 
@@ -266,26 +268,7 @@ class ChatClient {
                 ClientChatMessageEvent.ChatGroup.PRIVATE_CHAT))
             is ClientErrorPacket -> {
                 // TODO: Replace with translation
-                val message = when (packet.message) {
-                    "NotSupported" -> "This method is not supported!"
-                    "LoginFailed" -> "Login Failed!"
-                    "NotLoggedIn" -> "You must be logged in to use the chat!"
-                    "AlreadyLoggedIn" -> "You are already logged in!"
-                    "MojangRequestMissing" -> "Mojang request missing!"
-                    "NotPermitted" -> "You are missing the required permissions!"
-                    "NotBanned" -> "You are not banned!"
-                    "Banned" -> "You are banned!"
-                    "RateLimited" -> "You have been rate limited. Please try again later."
-                    "PrivateMessageNotAccepted" -> "Private message not accepted!"
-                    "EmptyMessage" -> "You are trying to send an empty message!"
-                    "MessageTooLong" -> "Message is too long!"
-                    "InvalidCharacter" -> "Message contains a non-ASCII character!"
-                    "InvalidId" -> "The given ID is invalid!"
-                    "Internal" -> "An internal server error occurred!"
-                    else -> packet.message
-                }
-
-                EventManager.callEvent(ClientChatErrorEvent(message))
+                EventManager.callEvent(ClientChatErrorEvent(translateErrorMessage(packet)))
             }
             is ClientSuccessPacket -> {
                 when (packet.reason) {
@@ -302,6 +285,29 @@ class ChatClient {
 
             is ClientNewJWTPacket -> EventManager.callEvent(ClientChatJwtTokenEvent(packet.token))
         }
+    }
+
+    private fun translateErrorMessage(packet: ClientErrorPacket): String {
+        val message = when (packet.message) {
+            "NotSupported" -> "This method is not supported!"
+            "LoginFailed" -> "Login Failed!"
+            "NotLoggedIn" -> "You must be logged in to use the chat!"
+            "AlreadyLoggedIn" -> "You are already logged in!"
+            "MojangRequestMissing" -> "Mojang request missing!"
+            "NotPermitted" -> "You are missing the required permissions!"
+            "NotBanned" -> "You are not banned!"
+            "Banned" -> "You are banned!"
+            "RateLimited" -> "You have been rate limited. Please try again later."
+            "PrivateMessageNotAccepted" -> "Private message not accepted!"
+            "EmptyMessage" -> "You are trying to send an empty message!"
+            "MessageTooLong" -> "Message is too long!"
+            "InvalidCharacter" -> "Message contains a non-ASCII character!"
+            "InvalidId" -> "The given ID is invalid!"
+            "Internal" -> "An internal server error occurred!"
+            else -> packet.message
+        }
+
+        return message
     }
 
 

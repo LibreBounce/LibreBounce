@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,45 +58,35 @@ class ConditionalLinearAngleSmoothMode(override val parent: ChoiceConfigurable<*
         val distance = vec3d?.distanceTo(player.pos) ?: 0.0
         val crosshair = entity?.let { facingEnemy(entity, max(3.0, distance), currentRotation) } ?: false
 
-        val yawDifference = RotationManager.angleDifference(targetRotation.yaw, currentRotation.yaw)
-        val pitchDifference = RotationManager.angleDifference(targetRotation.pitch, currentRotation.pitch)
+        val diff = currentRotation.rotationDeltaTo(targetRotation)
 
-        val rotationDifference = hypot(abs(yawDifference), abs(pitchDifference))
+        val rotationDifference = diff.length()
+
         val (factorH, factorV) = computeTurnSpeed(
             distance.toFloat(),
-            abs(yawDifference),
-            abs(pitchDifference),
+            abs(diff.deltaYaw),
+            abs(diff.deltaPitch),
             crosshair,
         )
 
-        val straightLineYaw = max(abs(yawDifference / rotationDifference) * (factorH * factorModifier),
+        val straightLineYaw = max(abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier),
             minimumTurnSpeedH)
-        val straightLinePitch = max(abs(pitchDifference / rotationDifference) * (factorV * factorModifier),
+        val straightLinePitch = max(abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier),
             minimumTurnSpeedV)
 
         return Rotation(
-            currentRotation.yaw + yawDifference.coerceIn(-straightLineYaw, straightLineYaw),
-            currentRotation.pitch + pitchDifference.coerceIn(-straightLinePitch, straightLinePitch)
+            currentRotation.yaw + diff.deltaYaw.coerceIn(-straightLineYaw, straightLineYaw),
+            currentRotation.pitch + diff.deltaPitch.coerceIn(-straightLinePitch, straightLinePitch)
         )
     }
 
     override fun howLongToReach(currentRotation: Rotation, targetRotation: Rotation): Int {
-        val yawDifference = RotationManager.angleDifference(targetRotation.yaw, currentRotation.yaw)
-        val pitchDifference = RotationManager.angleDifference(targetRotation.pitch, currentRotation.pitch)
+        val diff = currentRotation.rotationDeltaTo(targetRotation)
 
-        val (computedH, computedV) = computeTurnSpeed(0f, yawDifference, pitchDifference,
-            false)
+        val (computedH, computedV) = computeTurnSpeed(0f, diff.deltaYaw, diff.deltaPitch, false)
         val lowest = min(computedH, computedV)
 
-        if (lowest <= 0.0) {
-            return 0
-        }
-
-        if (yawDifference == 0f && pitchDifference == 0f) {
-            return 0
-        }
-
-        return (hypot(abs(yawDifference), abs(pitchDifference)) / lowest).roundToInt()
+        return (diff.length() / lowest).roundToInt()
     }
 
     private fun computeTurnSpeed(distance: Float, diffH: Float, diffV: Float, crosshair: Boolean): Pair<Float, Float> {

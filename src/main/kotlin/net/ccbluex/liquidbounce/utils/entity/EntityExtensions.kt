@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.common.ShapeFlag
@@ -557,20 +560,37 @@ fun LivingEntity.getExposureToExplosion(
     return hits.toFloat() / totalRays.toFloat()
 }
 
+/**
+ * Sometimes the server does not publish the actual entity health with its metadata.
+ * This function incorporates other sources to get the actual value.
+ *
+ * Currently, uses the following sources:
+ * 1. Scoreboard
+ */
 fun LivingEntity.getActualHealth(fromScoreboard: Boolean = true): Float {
     if (fromScoreboard) {
-        world.scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BELOW_NAME)?.let { objective ->
-            objective.scoreboard.getScore(this, objective)?.let { scoreboard ->
-                val displayName = objective.displayName
+        val health = getHealthFromScoreboard()
 
-                if (displayName != null && scoreboard.score > 0 && displayName.string.contains("❤")) {
-                    return scoreboard.score.toFloat()
-                }
-            }
+        if (health != null) {
+            return health
         }
     }
 
+
     return health
+}
+
+private fun LivingEntity.getHealthFromScoreboard(): Float? {
+    val objective = world.scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BELOW_NAME) ?: return null
+    val score = objective.scoreboard.getScore(this, objective) ?: return null
+
+    val displayName = objective.displayName
+
+    if (score.score <= 0 || displayName?.string?.contains("❤") != true) {
+        return null
+    }
+
+    return score.score.toFloat()
 }
 
 /**
@@ -611,10 +631,6 @@ fun Entity.wouldFallIntoVoid(pos: Vec3d, voidLevel: Double = -64.0, safetyExpand
         .all { shape -> shape == VoxelShapes.empty() }
 }
 
-
-fun Float.toValidYaw(): Float {
-    return ((this + 180) % 360) - 180
-}
 
 fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
     val vehicle = this.vehicle

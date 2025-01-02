@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -259,12 +259,14 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         val eyesPos = player.eyes
 
         // Can we find a breakable target?
-        if (updateTargetToBreakable(radius, radiusSquared, eyesPos))
+        if (updateTargetToBreakable(radius, radiusSquared, eyesPos)) {
             return
+        }
 
         // Can we find a placeable target?
-        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos))
+        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos)) {
             return
+        }
     }
 
     fun isTargeted(state: BlockState, pos: BlockPos): Boolean {

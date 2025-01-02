@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -418,28 +418,31 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      *  @return The best spot to attack the entity
      */
     private fun getSpot(entity: LivingEntity, range: Double, situation: PointTracker.AimSituation): VecRotation? {
-        val (eyes, nextPoint, box, cutOffBox) = pointTracker.gatherPoint(
+        val point = pointTracker.gatherPoint(
             entity,
             situation
         )
 
+        val eyes = point.fromPoint
+        val nextPoint = point.toPoint
+
         ModuleDebug.debugGeometry(this, "Box",
-            ModuleDebug.DebuggedBox(box, Color4b.RED.alpha(60)))
+            ModuleDebug.DebuggedBox(point.box, Color4b.RED.with(a = 60)))
         ModuleDebug.debugGeometry(this, "CutOffBox",
-            ModuleDebug.DebuggedBox(cutOffBox, Color4b.GREEN.alpha(90)))
+            ModuleDebug.DebuggedBox(point.cutOffBox, Color4b.GREEN.with(a = 90)))
         ModuleDebug.debugGeometry(this, "Point", ModuleDebug.DebuggedPoint(nextPoint, Color4b.WHITE))
 
         val rotationPreference = LeastDifferencePreference.leastDifferenceToLastPoint(eyes, nextPoint)
 
         // find best spot
         val spot = raytraceBox(
-            eyes, cutOffBox,
+            eyes, point.cutOffBox,
             // Since [range] is squared, we need to square root
             range = range,
             wallsRange = wallRange.toDouble(),
             rotationPreference = rotationPreference
         ) ?: raytraceBox(
-            eyes, box,
+            eyes, point.box,
             range = range,
             wallsRange = wallRange.toDouble(),
             rotationPreference = rotationPreference
@@ -447,13 +450,13 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         return if (spot == null && rotations.aimThroughWalls) {
             val throughSpot = raytraceBox(
-                eyes, cutOffBox,
+                eyes, point.cutOffBox,
                 // Since [range] is squared, we need to square root
                 range = range,
                 wallsRange = range,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                eyes, box,
+                eyes, point.box,
                 range = range,
                 wallsRange = range,
                 rotationPreference = rotationPreference
@@ -498,7 +501,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val wasBlocking = player.isBlockAction
 
         if (wasBlocking) {
-            if (!KillAuraAutoBlock.enabled && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
+            if (!KillAuraAutoBlock.enabled && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
                 return
             }
 
@@ -509,7 +512,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
+        } else if (player.isUsingItem && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 

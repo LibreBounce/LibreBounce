@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,10 +86,12 @@ object ModuleJumpEffect : ClientModule("JumpEffect", Category.RENDER) {
 
 
     private fun animateColor(baseColor: Color4b, progress: Float): Color4b {
-        val color = baseColor.alpha((baseColor.a * (1 - progress)).toInt())
+        val color = baseColor.fade(1.0F - progress)
+
         if (hueOffsetAnim == 0){
             return color
         }
+
         return shiftHue(color, (hueOffsetAnim * progress).toInt())
     }
 

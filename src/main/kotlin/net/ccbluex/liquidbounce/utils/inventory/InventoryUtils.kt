@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,9 @@
  *
  *
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.inventory
 
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1

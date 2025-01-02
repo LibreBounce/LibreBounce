@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,8 +139,11 @@ inline fun RenderEnvironment.withPosition(pos: Vec3, draw: RenderEnvironment.() 
     with(matrixStack) {
         push()
         translate(pos.x, pos.y, pos.z)
-        try { draw() }
-        finally { pop() }
+        try {
+            draw()
+        } finally {
+            pop()
+        }
     }
 }
 
@@ -154,8 +157,11 @@ inline fun RenderEnvironment.withPosition(pos: Vec3d, draw: RenderEnvironment.()
     with(matrixStack) {
         push()
         translate(pos.x, pos.y, pos.z)
-        try { draw() }
-        finally { pop() }
+        try {
+            draw()
+        } finally {
+            pop()
+        }
     }
 }
 
@@ -168,8 +174,11 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
     with(matrixStack) {
         push()
         translate(relativePos.x, relativePos.y, relativePos.z)
-        try { draw() }
-        finally { pop() }
+        try {
+            draw()
+        } finally {
+            pop()
+        }
     }
 }
 
@@ -181,8 +190,11 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
  */
 inline fun RenderEnvironment.withColor(color4b: Color4b, draw: RenderEnvironment.() -> Unit) {
     RenderSystem.setShaderColor(color4b.r / 255f, color4b.g / 255f, color4b.b / 255f, color4b.a / 255f)
-    try { draw() }
-    finally { RenderSystem.setShaderColor(1f, 1f, 1f, 1f) }
+    try {
+        draw()
+    } finally {
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
+    }
 }
 
 /**
@@ -193,8 +205,11 @@ inline fun RenderEnvironment.withColor(color4b: Color4b, draw: RenderEnvironment
  */
 inline fun RenderEnvironment.withDisabledCull(draw: RenderEnvironment.() -> Unit) {
     RenderSystem.disableCull()
-    try { draw() }
-    finally { RenderSystem.enableCull() }
+    try {
+        draw()
+    } finally {
+        RenderSystem.enableCull()
+    }
 }
 
 /**
@@ -283,6 +298,7 @@ fun RenderEnvironment.drawTextureQuad(pos1: Vec3d, pos2: Vec3d) {
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
     }
 }
+
 /**
  */
 inline fun RenderEnvironment.drawCustomMesh(
@@ -391,13 +407,18 @@ fun BufferBuilder.coloredTriangle(matrix: Matrix4f, p1: Vec3d, p2: Vec3d, p3: Ve
  * @param side The direction of the side.
  * @param onlyOutline Determines if the function only should draw the outline of the [side] or only fill it in
  */
-fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolean = false){
+@Suppress("LongMethod")
+fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolean = false) {
     val matrix = matrixStack.peek().positionMatrix
     val tessellator = RenderSystem.renderThreadTesselator()
+
     // Begin drawing lines or quads with position format
     val buffer = tessellator.begin(
-        if (onlyOutline) DrawMode.DEBUG_LINE_STRIP
-        else DrawMode.QUADS,
+        if (onlyOutline) {
+            DrawMode.DEBUG_LINE_STRIP
+        } else {
+            DrawMode.QUADS
+        },
         VertexFormats.POSITION
     )
 
@@ -538,6 +559,7 @@ fun RenderEnvironment.drawGradientQuad(vertices: List<Vec3>, colors: List<Color4
 }
 
 const val CIRCLE_RES = 40
+
 // using a val instead of a function for better performance
 val circlePoints =
     (0..CIRCLE_RES).map {
@@ -723,8 +745,9 @@ fun RenderEnvironment.drawGradientSides(
     topColor: Color4b,
     box: Box
 ) {
-    if (height == 0.0)
+    if (height == 0.0) {
         return
+    }
 
     val vertexColors =
         listOf(

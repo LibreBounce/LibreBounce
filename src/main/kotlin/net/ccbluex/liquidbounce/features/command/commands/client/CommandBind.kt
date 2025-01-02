@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,7 @@ import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.input.keyList
-import net.ccbluex.liquidbounce.utils.input.mouseList
+import net.ccbluex.liquidbounce.utils.input.availableInputKeys
 
 /**
  * Bind Command
@@ -48,7 +47,7 @@ object CommandBind : CommandFactory {
                 ParameterBuilder
                     .begin<String>("key")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                    .autocompletedWith { begin -> (keyList + mouseList).filter { it.startsWith(begin) } }
+                    .autocompletedWith { begin, _ -> availableInputKeys.filter { it.startsWith(begin) } }
                     .required()
                     .build()
             )

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +32,7 @@ import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isFallDamageBlocking
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.PlacementPlan
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
@@ -177,11 +174,13 @@ internal object NoFallMLG : Choice("MLG") {
 
     private fun findPlacementPlanAtPos(pos: BlockPos, item: HotbarItemSlot): PlacementPlan? {
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i.ZERO),
-            item.itemStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            player.pos
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = item.itemStack,
+            PlayerLocationOnPlacement(position = player.pos),
         )
 
         val bestPlacementPlan = findBestBlockPlacementTarget(pos, options) ?: return null

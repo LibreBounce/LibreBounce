@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ object AutoFarmVisualizer : ToggleableConfigurable(ModuleAutoFarm, "Visualize", 
                 val target = ModuleAutoFarm.currentTarget ?: return
                 with(renderEnvironment) {
                     withPosition(Vec3(target)) {
-                        withColor((if (colorRainbow) rainbow() else color).alpha(50)) {
+                        withColor((if (colorRainbow) rainbow() else color).with(a = 50)) {
                             drawSolidBox(FULL_BOX)
                         }
                     }
@@ -85,8 +85,8 @@ object AutoFarmVisualizer : ToggleableConfigurable(ModuleAutoFarm, "Visualize", 
             val matrixStack = event.matrixStack
             val baseColor = if (colorRainbow) rainbow() else readyColor
 
-            val fillColor = baseColor.alpha(50)
-            val outlineColor = baseColor.alpha(100)
+            val fillColor = baseColor.with(a = 50)
+            val outlineColor = baseColor.with(a = 100)
 
             val markedBlocks = AutoFarmBlockTracker.trackedBlockMap
 

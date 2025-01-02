@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,53 +75,45 @@ fun Collection<Vec3d>.average(): Vec3d {
     return Vec3d(result[0] / size, result[1] / size, result[2] / size)
 }
 
-@JvmInline
-value class Double3Region private constructor(val init: Array<DoubleArray>) {
-    init {
-        for (i in 0 until 3) {
-            if (init[0][i] > init[1][i]) {
-                val temp = init[0][i]
-                init[0][i] = init[1][i]
-                init[1][i] = temp
+inline fun forEach3D(v0: Vec3d, v1: Vec3d, step: Double, fn: (Double, Double, Double) -> Unit) {
+    val (startX, startY, startZ) = v0
+    val (endX, endY, endZ) = v1
+
+    var x = startX
+    while (x <= endX) {
+        var y = startY
+        while (y <= endY) {
+            var z = startZ
+            while (z <= endZ) {
+                fn(x, y, z)
+
+                z += step
             }
+            y += step
         }
-    }
-
-    constructor(from: Vec3d, to: Vec3d) : this(
-        arrayOf(
-            doubleArrayOf(from.x, from.y, from.z),
-            doubleArrayOf(to.x, to.y, to.z),
-        )
-    )
-
-    constructor(from: DoubleArray, to: DoubleArray) : this(arrayOf(from, to)) {
-        require(from.size == 3)
-        require(to.size == 3)
-    }
-
-    infix fun step(step: Double): Sequence<DoubleArray> = sequence {
-        val (start, end) = init
-
-        val (startX, startY, startZ) = start
-        val (endX, endY, endZ) = end
-
-        var x = startX
-        while (x <= endX) {
-            var y = startY
-            while (y <= endY) {
-                var z = startZ
-                while (z <= endZ) {
-                    yield(doubleArrayOf(x, y, z))
-                    z += step
-                }
-                y += step
-            }
-            x += step
-        }
+        x += step
     }
 }
 
-operator fun Vec3d.rangeTo(other: Vec3d) = Double3Region(this, other)
+inline fun forEach3D(v0: Vec3i, v1: Vec3i, step: Int = 1, fn: (Int, Int, Int) -> Unit) {
+    val (startX, startY, startZ) = v0
+    val (endX, endY, endZ) = v1
+
+    var x = startX
+    while (x <= endX) {
+        var y = startY
+        while (y <= endY) {
+            var z = startZ
+            while (z <= endZ) {
+                fn(x, y, z)
+
+                z += step
+            }
+            y += step
+        }
+        x += step
+    }
+}
 
 fun Vec3i.toVec3d(): Vec3d = Vec3d.of(this)
 fun Vec3i.toVec3d(
@@ -134,14 +126,6 @@ fun Vec3d.toVec3() = Vec3(this.x, this.y, this.z)
 fun Vec3d.toVec3i() = Vec3i(this.x.toInt(), this.y.toInt(), this.z.toInt())
 
 fun Vec3d.toBlockPos() = BlockPos.ofFloored(x, y, z)!!
-
-fun Vec3d.squaredXZDistanceTo(other: Vec3d): Double {
-    val d = this.x - other.x
-    val e = this.z - other.z
-    return d * d + e * e
-}
-
-infix fun Vec3d.angleWith(other: Vec3d): Double = this.dotProduct(other) / this.length() / other.length()
 
 val Box.size: Double
     get() = this.lengthX * this.lengthY * this.lengthZ

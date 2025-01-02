@@ -26,11 +26,16 @@ class SpeedGrimCollide(override val parent: ChoiceConfigurable<*>) : Choice("Gri
      */
     @Suppress("unused")
     private val tickHandler = handler<PlayerTickEvent> {
-        if (player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f) { return@handler }
+        if (player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f) {
+            return@handler
+        }
+
         var collisions = 0
         val box = player.boundingBox.expand(1.0)
+
         for (entity in world.entities) {
             val entityBox = entity.boundingBox
+
             if (canCauseSpeed(entity) && box.intersects(entityBox)) {
                 collisions++
             }

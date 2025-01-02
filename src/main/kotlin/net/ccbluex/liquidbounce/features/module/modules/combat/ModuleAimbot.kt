@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,8 +61,11 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
-    private val angleSmooth = choices("AngleSmooth", 0) {
-        arrayOf(LinearAngleSmoothMode(it), SigmoidAngleSmoothMode(it))
+    private var angleSmooth = choices(this, "AngleSmooth") {
+        arrayOf(
+            LinearAngleSmoothMode(it),
+            SigmoidAngleSmoothMode(it)
+        )
     }
 
     private val slowStart = tree(SlowStart(this))
@@ -70,7 +73,6 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    @Suppress("unused")
     private val tickHandler = handler<SimulatedTickEvent> { _ ->
         this.targetTracker.validateLock { target -> target.boxedDistanceTo(player) <= range }
         this.playerRotation = player.rotation
@@ -149,19 +151,19 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 continue
             }
 
-            val (fromPoint, toPoint, box, cutOffBox) = pointTracker.gatherPoint(target,
+            val pointOnHitbox = pointTracker.gatherPoint(target,
                 PointTracker.AimSituation.FOR_NOW)
 
-            val rotationPreference = LeastDifferencePreference(player.rotation, toPoint)
+            val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 
             val spot = raytraceBox(
-                fromPoint,
-                cutOffBox,
+                pointOnHitbox.fromPoint,
+                pointOnHitbox.cutOffBox,
                 range = range.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                fromPoint, box, range = range.toDouble(),
+                pointOnHitbox.fromPoint, pointOnHitbox.box, range = range.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: continue

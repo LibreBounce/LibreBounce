@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
      * without changing the player perspective.
      */
     val camera by boolean("Camera", false)
-    private val vectorLine by color("VectorLine", Color4b.WHITE.alpha(0)) // alpha 0 means OFF
+    private val vectorLine by color("VectorLine", Color4b.WHITE.with(a = 0)) // alpha 0 means OFF
     private val vectorDot by color("VectorDot", Color4b(0x00, 0x80, 0xFF, 0x00))
 
     /**

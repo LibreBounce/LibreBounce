@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 
 import com.google.gson.JsonArray

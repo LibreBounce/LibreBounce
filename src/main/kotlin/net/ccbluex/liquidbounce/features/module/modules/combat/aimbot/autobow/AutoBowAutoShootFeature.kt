@@ -79,9 +79,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
 
             val targetRotation = RotationManager.workingAimPlan ?: return@handler
 
-            val aimDifference = RotationManager.rotationDifference(
-                RotationManager.serverRotation, targetRotation.rotation
-            )
+            val aimDifference = RotationManager.serverRotation.angleTo(targetRotation.rotation)
 
             if (aimDifference > aimThreshold) {
                 return@handler
@@ -136,7 +134,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
         return null
     }
 
-    fun findAndBuildSimulatedPlayers(): List<Pair<AbstractClientPlayerEntity, SimulatedPlayerCache>> {
+    private fun findAndBuildSimulatedPlayers(): List<Pair<AbstractClientPlayerEntity, SimulatedPlayerCache>> {
         return world.players.filter {
             it != player &&
                 Line(player.pos, player.rotationVector).squaredDistanceTo(it.pos) < 10.0 * 10.0

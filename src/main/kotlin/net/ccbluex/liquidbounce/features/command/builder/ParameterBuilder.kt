@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,42 +19,41 @@
 
 package net.ccbluex.liquidbounce.features.command.builder
 
-import net.ccbluex.liquidbounce.features.command.AutoCompletionHandler
-import net.ccbluex.liquidbounce.features.command.Parameter
-import net.ccbluex.liquidbounce.features.command.ParameterValidationResult
-import net.ccbluex.liquidbounce.features.command.ParameterVerifier
+import net.ccbluex.liquidbounce.features.command.*
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.mc
 
-class ParameterBuilder<T> private constructor(val name: String) {
+class ParameterBuilder<T: Any> private constructor(val name: String) {
 
-    private var verifier: ParameterVerifier<T>? = null
+    private var verifier: ParameterVerificator<T>? = null
     private var required: Boolean? = null
     private var vararg: Boolean = false
-    private var autocompletionHandler: AutoCompletionHandler? = null
+    private var autocompletionHandler: AutoCompletionProvider? = null
 
     companion object {
-        val STRING_VALIDATOR: ParameterVerifier<String> = { ParameterValidationResult.ok(it) }
-        val MODULE_VALIDATOR: ParameterVerifier<ClientModule> = { name ->
-            val mod = ModuleManager.find { it.name.equals(name, true) }
+        val STRING_VALIDATOR: ParameterVerificator<String> = ParameterVerificator { sourceText ->
+            ParameterValidationResult.Ok(sourceText)
+        }
+        val MODULE_VALIDATOR: ParameterVerificator<ClientModule> = ParameterVerificator { sourceText ->
+            val mod = ModuleManager.find { it.name.equals(sourceText, true) }
 
             if (mod == null) {
-                ParameterValidationResult.error("Module '$name' not found")
+                ParameterValidationResult.error("Module '$sourceText' not found")
             } else {
                 ParameterValidationResult.ok(mod)
             }
         }
-        val INTEGER_VALIDATOR: ParameterVerifier<Int> = {
+        val INTEGER_VALIDATOR: ParameterVerificator<Int> = ParameterVerificator { sourceText ->
             try {
-                ParameterValidationResult.ok(it.toInt())
+                ParameterValidationResult.ok(sourceText.toInt())
             } catch (e: NumberFormatException) {
-                ParameterValidationResult.error("'$it' is not a valid integer")
+                ParameterValidationResult.error("'$sourceText' is not a valid integer")
             }
         }
-        val POSITIVE_INTEGER_VALIDATOR: ParameterVerifier<Int> = {
+        val POSITIVE_INTEGER_VALIDATOR: ParameterVerificator<Int> = ParameterVerificator { sourceText ->
             try {
-                val integer = it.toInt()
+                val integer = sourceText.toInt()
 
                 if (integer >= 0) {
                     ParameterValidationResult.ok(integer)
@@ -62,26 +61,25 @@ class ParameterBuilder<T> private constructor(val name: String) {
                     ParameterValidationResult.error("The integer must be positive")
                 }
             } catch (e: NumberFormatException) {
-                ParameterValidationResult.error("'$it' is not a valid integer")
+                ParameterValidationResult.error("'$sourceText' is not a valid integer")
             }
         }
-        val BOOLEAN_VALIDATOR: ParameterVerifier<Boolean> = {
-            when (it.lowercase()) {
+        val BOOLEAN_VALIDATOR: ParameterVerificator<Boolean> = ParameterVerificator { sourceText ->
+            when (sourceText.lowercase()) {
                 "yes" -> ParameterValidationResult.ok(true)
                 "no" -> ParameterValidationResult.ok(false)
                 "true" -> ParameterValidationResult.ok(true)
                 "false" -> ParameterValidationResult.ok(false)
                 "on" -> ParameterValidationResult.ok(true)
                 "off" -> ParameterValidationResult.ok(false)
-                else -> ParameterValidationResult.error("'$it' is not a valid boolean")
+                else -> ParameterValidationResult.error("'$sourceText' is not a valid boolean")
             }
         }
 
-        fun <T> begin(name: String): ParameterBuilder<T> = ParameterBuilder(name)
-
+        fun <T: Any> begin(name: String): ParameterBuilder<T> = ParameterBuilder(name)
     }
 
-    fun verifiedBy(verifier: ParameterVerifier<T>): ParameterBuilder<T> {
+    fun verifiedBy(verifier: ParameterVerificator<T>): ParameterBuilder<T> {
         this.verifier = verifier
 
         return this
@@ -112,20 +110,14 @@ class ParameterBuilder<T> private constructor(val name: String) {
         return this
     }
 
-    fun autocompletedWith(autocompletionHandler: AutoCompletionHandler): ParameterBuilder<T> {
+    fun autocompletedWith(autocompletionHandler: AutoCompletionProvider): ParameterBuilder<T> {
         this.autocompletionHandler = autocompletionHandler
 
         return this
     }
 
-    fun autocompletedWith(autocompletionHandler: (String) -> List<String>): ParameterBuilder<T> {
-        this.autocompletionHandler = { begin, _ -> autocompletionHandler(begin) }
-
-        return this
-    }
-
     fun useMinecraftAutoCompletion(): ParameterBuilder<T> {
-        autocompletionHandler = { begin, _ ->
+        autocompletionHandler = AutoCompletionProvider { begin, _ ->
             mc.networkHandler?.playerList?.map { it.profile.name }?.filter { it.startsWith(begin, true) } ?: emptyList()
         }
 

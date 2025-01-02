@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -245,7 +245,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     fun getArrayEntryColor(idx: Int, length: Int): Color4b {
         val hue = idx.toFloat() / length.toFloat()
-        return Color4b(Color.getHSBColor(hue, 1f, 1f)).alpha(32)
+        return Color4b(Color.getHSBColor(hue, 1f, 1f)).with(a = 32)
     }
 
     sealed class DebuggedGeometry(val color: Color4b) {

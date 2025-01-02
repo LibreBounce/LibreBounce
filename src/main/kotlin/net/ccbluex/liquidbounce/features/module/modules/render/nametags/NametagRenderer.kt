@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ class NametagRenderer {
             0,
             itemsToRender.size * ITEM_SIZE,
             ITEM_SIZE,
-            Color4b.BLACK.alpha(0).toARGB()
+            Color4b.BLACK.with(a = 0).toARGB()
         )
 
         dc.matrices.translate(0.0F, 0.0F, 100.0F)

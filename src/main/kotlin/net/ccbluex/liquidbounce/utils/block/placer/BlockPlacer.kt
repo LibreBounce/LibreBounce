@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,10 +33,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.*
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -55,6 +52,7 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3i
 import kotlin.math.max
 
+@Suppress("TooManyFunctions")
 class BlockPlacer(
     name: String,
     val module: ClientModule,
@@ -86,7 +84,7 @@ class BlockPlacer(
 
     val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
-    val rotationMode = choices(this, "RotationMode", 0) {
+    val rotationMode = choices(this, "RotationMode") {
         arrayOf(NormalRotationMode(it, this), NoRotationMode(it, this))
     }
 
@@ -237,13 +235,13 @@ class BlockPlacer(
             }
 
             val searchOptions = BlockPlacementTargetFindingOptions(
-                listOf(Vec3i.ZERO),
-                itemStack,
-                CenterTargetPositionFactory,
-                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-                player.pos,
-                player.pose,
-                wallRange > 0
+                BlockOffsetOptions(
+                    listOf(Vec3i.ZERO),
+                    BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+                ),
+                FaceHandlingOptions(CenterTargetPositionFactory, considerFacingAwayFaces = wallRange > 0),
+                stackToPlaceWith = itemStack,
+                PlayerLocationOnPlacement(position = player.pos),
             )
 
             // TODO prioritize faces where sneaking is not required
@@ -257,7 +255,7 @@ class BlockPlacer(
 
             ModuleDebug.debugGeometry(
                 this, "PlacementTarget",
-                ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.GREEN.alpha(100))
+                ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.GREEN.with(a = 100))
             )
 
             // sneak when placing on interactable block to not trigger their action

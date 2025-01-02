@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ fun blockParameter(name: String = "block"): ParameterBuilder<String> {
     return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { _ ->
+        .autocompletedWith { _, _ ->
             Registries.BLOCK.map {
                 it.translationKey
                     .removePrefix("block.")
@@ -42,7 +42,7 @@ fun itemParameter(name: String = "item"): ParameterBuilder<String> {
     return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { _ ->
+        .autocompletedWith { _, _ ->
             Registries.ITEM.map {
                 it.translationKey
                     .removePrefix("item.")
@@ -56,7 +56,7 @@ fun enchantmentParameter(name: String = "enchantment"): ParameterBuilder<String>
     return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { _ ->
+        .autocompletedWith { _, _ ->
             world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).indexedEntries.map {
                 it.idAsString
             }
@@ -69,13 +69,14 @@ fun pageParameter(name: String = "page"): ParameterBuilder<Int> {
         .verifiedBy(ParameterBuilder.POSITIVE_INTEGER_VALIDATOR)
 }
 
-fun moduleParameter(name: String = "module", validator: (ClientModule) -> Boolean = { true }): ParameterBuilder<String> {
+fun moduleParameter(
+    name: String = "module",
+    validator: (ClientModule) -> Boolean = { true }
+): ParameterBuilder<String> {
     return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { begin, args ->
-            ModuleManager.autoComplete(begin, args, validator = validator)
-        }
+        .autocompletedWith { begin, _ -> ModuleManager.autoComplete(begin, validator = validator) }
 }
 
 fun playerParameter(name: String = "playerName"): ParameterBuilder<String> {

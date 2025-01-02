@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,21 +69,21 @@ fun reduceInputName(translationKey: String): String =
  *
  * @return A set of simplified mouse input names.
  */
-val mouseList: Set<String>
-    get() =
-        InputUtil.Type.MOUSE.map.values
-            .map { key -> reduceInputName(key.translationKey) }
-            .toSet()
+val availableKeyboardKeys: Set<String>
+    get() = InputUtil.Type.MOUSE.map.values
+        .map { key -> reduceInputName(key.translationKey) }
+        .toSet()
 
 /**
  * Retrieves a set of reduced keyboard input names available in InputUtil.
  *
  * @return A set of simplified keyboard input names.
  */
-val keyList: Set<String>
-    get() =
-        InputUtil.Type.KEYSYM.map.values
-            .map { key -> reduceInputName(key.translationKey) }
-            .toSet()
+val availableMouseKeys: Set<String>
+    get() = InputUtil.Type.KEYSYM.map.values
+        .map { key -> reduceInputName(key.translationKey) }
+        .toSet()
+
+val availableInputKeys: Set<String> = availableKeyboardKeys + availableMouseKeys
 
 fun ActionResult.shouldSwingHand() = this is ActionResult.Success && this.swingSource == ActionResult.SwingSource.CLIENT

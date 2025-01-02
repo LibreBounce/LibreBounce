@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,25 +22,13 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import org.lwjgl.opengl.GL20
 import java.awt.Color
-import java.nio.ByteBuffer
 import kotlin.math.cos
 import kotlin.math.sin
-
-data class Vec4(val x: Float, val y: Float, val z: Float, val w: Float) {
-    constructor(vec: Vec3, w: Float) : this(vec.x, vec.y, vec.z, w)
-}
 
 data class Vec3(val x: Float, val y: Float, val z: Float) {
     constructor(x: Double, y: Double, z: Double) : this(x.toFloat(), y.toFloat(), z.toFloat())
     constructor(vec: Vec3d) : this(vec.x, vec.y, vec.z)
-    constructor(vec: Vec4) : this(vec.x, vec.y, vec.z)
     constructor(vec: Vec3i) : this(vec.x.toFloat(), vec.y.toFloat(), vec.z.toFloat())
-
-    fun writeToBuffer(idx: Int, buffer: ByteBuffer) {
-        buffer.putFloat(idx, x)
-        buffer.putFloat(idx + 4, y)
-        buffer.putFloat(idx + 8, z)
-    }
 
     fun add(other: Vec3): Vec3 {
         return Vec3(this.x + other.x, this.y + other.y, this.z + other.z)
@@ -79,26 +67,9 @@ data class Vec3(val x: Float, val y: Float, val z: Float) {
     fun toVec3d() = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 }
 
-/**
- * Contains a texture coordinate. The data gets normalized
- * `[0; 65535] -> [0.0f; 1.0f]`
- */
-data class UV2s(val u: Short, val v: Short) {
-    constructor(u: Float, v: Float) : this((u * 65535.0f).toInt().toShort(), (v * 65535.0f).toInt().toShort())
-
-    fun writeToBuffer(idx: Int, buffer: ByteBuffer) {
-        buffer.putShort(idx, u)
-        buffer.putShort(idx + 2, v)
-    }
-
-    fun toFloatArray(): FloatArray {
-        return floatArrayOf((u.toInt() and 0xFFFF) / 65535.0f, (v.toInt() and 0xFFFF) / 65535.0f)
-    }
-}
-
 data class UV2f(val u: Float, val v: Float)
 
-data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
+data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int = 255) {
 
     companion object {
 
@@ -137,37 +108,16 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     }
 
     constructor(color: Color) : this(color.red, color.green, color.blue, color.alpha)
-
     constructor(hex: Int, hasAlpha: Boolean = false) : this(Color(hex, hasAlpha))
-    constructor(r: Int, g: Int, b: Int) : this(r, g, b, 255)
 
-    fun writeToBuffer(idx: Int, buffer: ByteBuffer) {
-        buffer.put(idx, r.toByte())
-        buffer.put(idx + 1, g.toByte())
-        buffer.put(idx + 2, b.toByte())
-        buffer.put(idx + 3, a.toByte())
+    fun with(
+        r: Int = this.r,
+        g: Int = this.g,
+        b: Int = this.b,
+        a: Int = this.a
+    ): Color4b {
+        return Color4b(r, g, b, a)
     }
-
-    fun toHex(alpha: Boolean = false): String {
-        val hex = StringBuilder("#")
-
-        hex.append(componentToHex(r))
-        hex.append(componentToHex(g))
-        hex.append(componentToHex(b))
-        if (alpha) hex.append((componentToHex(a)))
-
-        return hex.toString().uppercase()
-    }
-
-    private fun componentToHex(c: Int): String {
-        return Integer.toHexString(c).padStart(2, '0')
-    }
-
-    fun red(red: Int) = Color4b(red, this.g, this.b, this.a)
-
-    fun green(green: Int) = Color4b(this.r, green, this.b, this.a)
-
-    fun blue(blue: Int) = Color4b(this.r, this.g, blue, this.a)
 
     fun alpha(alpha: Int) = Color4b(this.r, this.g, this.b, alpha)
 
@@ -176,10 +126,10 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     fun toABGR() = (a shl 24) or (b shl 16) or (g shl 8) or r
 
     fun fade(fade: Float): Color4b {
-        return if (fade == 1f) {
+        return if (fade >= 1.0f) {
             this
         } else {
-            alpha((a * fade).toInt())
+            with(a = (a * fade).toInt())
         }
     }
 

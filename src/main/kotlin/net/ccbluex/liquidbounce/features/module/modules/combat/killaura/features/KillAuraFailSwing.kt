@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,9 +41,9 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
     /**
      * Additional range for fail swing to work
      */
-    val additionalRange by float("AdditionalRange", 2f, 0f..10f)
+    private val additionalRange by float("AdditionalRange", 2f, 0f..10f)
     val clickScheduler = tree(ClickScheduler(this, false))
-    val mode = choices(this, "NotifyWhenFail", 1) {
+    val mode = choices(this, "NotifyWhenFail", activeIndex = 1) {
         arrayOf(NoneChoice(it), Box, Sound)
     }.apply {
         doNotIncludeAlways()

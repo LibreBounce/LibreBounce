@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,8 +50,10 @@ object ScriptManager {
     init {
         // Initialize the script engine and log its version and supported languages.
         val engine = Engine.create()
-        logger.info("[ScriptAPI] Engine Version: ${engine.version}, " +
-            "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]")
+        logger.info(
+            "[ScriptAPI] Engine Version: ${engine.version}, " +
+                "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
+        )
     }
 
     /**
@@ -59,13 +61,13 @@ object ScriptManager {
      * and directories containing a main script file. It then loads and enables all found scripts.
      */
     fun loadAll() {
-        root.listFiles {
-            file -> Source.findLanguage(file) != null || file.isDirectory
+        root.listFiles { file ->
+            Source.findLanguage(file) != null || file.isDirectory
         }?.forEach { file ->
             if (file.isDirectory) {
                 // If a directory is found, look for a main script file inside it.
-                val mainFile = file.listFiles {
-                        dirFile -> dirFile.nameWithoutExtension == "main" && Source.findLanguage(dirFile) != null
+                val mainFile = file.listFiles { dirFile ->
+                    dirFile.nameWithoutExtension == "main" && Source.findLanguage(dirFile) != null
                 }?.firstOrNull()
 
                 if (mainFile != null) {
@@ -88,6 +90,7 @@ object ScriptManager {
      */
     fun unloadAll() {
         scripts.forEach(PolyglotScript::disable)
+        scripts.forEach(PolyglotScript::close)
         scripts.clear()
     }
 
@@ -111,8 +114,12 @@ object ScriptManager {
      * @param language The language of the script. If not specified, it is inferred from the file.
      * @return The loaded script.
      */
-    fun loadScript(file: File, language: String = Source.findLanguage(file)): PolyglotScript {
-        val script = PolyglotScript(language, file)
+    fun loadScript(
+        file: File,
+        language: String = Source.findLanguage(file),
+        debugOptions: ScriptDebugOptions = ScriptDebugOptions()
+    ): PolyglotScript {
+        val script = PolyglotScript(language, file, debugOptions)
         script.initScript()
 
         scripts += script
@@ -126,6 +133,7 @@ object ScriptManager {
      */
     fun unloadScript(script: PolyglotScript) {
         script.disable()
+        script.close()
         scripts.remove(script)
     }
 

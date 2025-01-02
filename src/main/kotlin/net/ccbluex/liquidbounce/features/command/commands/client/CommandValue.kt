@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.utils.client.regular
  */
 object CommandValue : CommandFactory {
 
+    @Suppress("SwallowedException")
     override fun createCommand(): Command {
         return CommandBuilder
             .begin("value")
@@ -44,7 +45,7 @@ object CommandValue : CommandFactory {
                 ParameterBuilder
                     .begin<ClientModule>("moduleName")
                     .verifiedBy(ParameterBuilder.MODULE_VALIDATOR)
-                    .autocompletedWith(ModuleManager::autoComplete)
+                    .autocompletedWith { begin, _ -> ModuleManager.autoComplete(begin) }
                     .required()
                     .build()
             )

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,9 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.toRadians
-import net.ccbluex.liquidbounce.utils.kotlin.step
 import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.NormalizedPlane
-import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
@@ -53,10 +51,6 @@ abstract class FaceTargetPositionFactory {
      * @param face is relative to origin.
      */
     abstract fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d
-
-    protected fun getFaceRelativeToTargetPosition(face: AlignedFace, targetPos: BlockPos): AlignedFace {
-        return face.offset(Vec3d.of(targetPos).negate())
-    }
 
     /**
      * Trims a face to be only as wide as the config allows it to be
@@ -94,11 +88,6 @@ abstract class FaceTargetPositionFactory {
         return trimmedFace
     }
 
-    protected fun getPositionsOnFace(face: AlignedFace, step: Double): List<Vec3d> {
-        // Collects all possible rotations
-        return (face.from..face.to step step).map { Vec3d(it[0], it[1], it[2]) }.toList()
-    }
-
 }
 
 /**
@@ -115,8 +104,9 @@ class NearestRotationTargetPositionFactory(val config: PositionFactoryConfigurat
         targetPos: BlockPos,
         face: AlignedFace
     ): Vec3d {
-        if (MathHelper.approximatelyEquals(face.area, 0.0))
+        if (MathHelper.approximatelyEquals(face.area, 0.0)) {
             return face.from
+        }
 
         val currentRotation = RotationManager.serverRotation
 
@@ -199,8 +189,9 @@ class StabilizedRotationTargetPositionFactory(
         val clampedFace = trimmedFace.clamp(cropBox)
 
         // Not much left of the area? Then don't try to sample a point on the face
-        if (clampedFace.area < 0.0001)
+        if (clampedFace.area < 0.0001) {
             return null
+        }
 
         return clampedFace
     }
@@ -237,8 +228,9 @@ class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) 
         targetPos: BlockPos,
         face: AlignedFace
     ): Vec3d? {
-        if (MathHelper.approximatelyEquals(face.area, 0.0))
+        if (MathHelper.approximatelyEquals(face.area, 0.0)) {
             return face.from
+        }
 
         val plane = NormalizedPlane.fromParams(
             config.eyePos.subtract(Vec3d.of(targetPos)),

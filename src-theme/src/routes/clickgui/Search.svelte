@@ -5,7 +5,7 @@
     import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ModuleToggleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
     import {onMount} from "svelte";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../theme/theme_config";
 
     export let modules: Module[];
 
@@ -164,11 +164,11 @@
                             bind:this={resultElements[index]}
                     >
                         <div class="module-name">
-                            {$spaceSeperatedNames ? convertToSpacedString(name) : name}
+                            {processPascalCaseName(name)}
                         </div>
                         <div class="aliases">
                             {#if aliases.length > 0}
-                                (aka {aliases.map(a => $spaceSeperatedNames ? convertToSpacedString(a) : a).join(", ")})
+                                (aka {aliases.map(processPascalCaseName).join(", ")})
                             {/if}
                         </div>
                     </div>

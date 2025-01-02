@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,13 +39,14 @@ import net.minecraft.client.session.Session
 import java.net.Proxy
 import java.util.*
 
+@Suppress("TooManyFunctions")
 object AccountManager : Configurable("Accounts"), EventListener {
 
     val accounts by value(name, mutableListOf<MinecraftAccount>(), listType = ListValueType.Account)
 
-    var initialSession: SessionData? = null
+    private var initialSession: SessionData? = null
 
-    val sessionHandler = handler<SessionEvent> {
+    private val sessionHandler = handler<SessionEvent> {
         if (initialSession == null) {
             initialSession = SessionData(mc.session, mc.sessionService, mc.profileKeys)
         }

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import java.io.Writer
  *
  * @author kawaiinekololis (@team ccbluex)
  */
+@Suppress("TooManyFunctions")
 object ConfigSystem {
 
     /*    init {
@@ -255,7 +256,7 @@ object ConfigSystem {
      * Deserialize a value from a json object
      */
     internal fun deserializeValue(value: Value<*>, jsonObject: JsonObject) {
-        // In case of a configurable, we need to go deeper and deserialize the configurable itself
+        // In the case of a configurable, we need to go deeper and deserialize the configurable itself
         if (value is Configurable) {
             runCatching {
                 if (value is ChoiceConfigurable<*>) {
@@ -290,7 +291,7 @@ object ConfigSystem {
             return
         }
 
-        // Otherwise we simply deserialize the value
+        // Otherwise, we simply deserialize the value
         runCatching {
             value.deserializeFrom(fileGson, jsonObject["value"])
         }.onFailure {

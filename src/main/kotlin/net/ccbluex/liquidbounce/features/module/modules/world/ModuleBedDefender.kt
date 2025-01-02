@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,7 +152,9 @@ object ModuleBedDefender : ClientModule("BedDefender", category = Category.WORLD
 
         ModuleDebug.debugGeometry(this, "PlacementPosition") {
             ModuleDebug.DebugCollection(
-                updatePositions.map { (_, pos) -> ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.RED.alpha(100)) }
+                updatePositions.map { (_, pos) ->
+                    ModuleDebug.DebuggedPoint(pos.toCenterPos(), Color4b.RED.with(a = 100))
+                }
             )
         }
 

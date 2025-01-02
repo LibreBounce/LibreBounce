@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.io.extractZip
 import net.ccbluex.liquidbounce.utils.io.resource
 import net.ccbluex.liquidbounce.utils.io.resourceToString
+import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.ccbluex.liquidbounce.utils.render.refreshRate
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
@@ -148,12 +149,12 @@ object ThemeManager : Configurable("theme") {
         }
     }
 
-    fun drawBackground(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float): Boolean {
+    fun drawBackground(context: DrawContext, width: Int, height: Int, mousePos: Vec2i, delta: Float): Boolean {
         if (shaderEnabled) {
             val shader = activeTheme.compiledShaderBackground ?: defaultTheme.compiledShaderBackground
 
             if (shader != null) {
-                shader.draw(mouseX, mouseY, delta)
+                shader.draw(mousePos.x, mousePos.y, delta)
                 return true
             }
         }

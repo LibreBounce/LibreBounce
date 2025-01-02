@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class CrystalDestroyFeature(eventListener: EventListener, private val module: Cl
     private val delay by int("Delay", 0, 0..1000, "ms")
     private val swing by boolean("Swing", true)
 
-    val rotationMode = choices(this, "RotationMode", 0) {
+    private val rotationMode = choices(this, "RotationMode") {
         arrayOf(NormalRotationMode(it, module, Priority.IMPORTANT_FOR_USAGE_3), NoRotationMode(it, module))
     }
 

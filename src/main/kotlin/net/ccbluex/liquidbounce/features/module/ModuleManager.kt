@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,6 +184,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
     /**
      * Register inbuilt client modules
      */
+    @Suppress("LongMethod")
     fun registerInbuilt() {
         var builtin = arrayOf(
             // Combat
@@ -412,13 +413,13 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         }
     }
 
-    private fun addModule(module: ClientModule) {
+    fun addModule(module: ClientModule) {
         module.initConfigurable()
         module.init()
         modules.sortedInsert(module, ClientModule::name)
     }
 
-    private fun removeModule(module: ClientModule) {
+    fun removeModule(module: ClientModule) {
         if (module.running) {
             module.disable()
         }
@@ -426,30 +427,11 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules -= module
     }
 
-    /**
-     * Allow `ModuleManager += Module` syntax
-     */
-    operator fun plusAssign(module: ClientModule) {
-        addModule(module)
-    }
-
-    operator fun plusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::addModule)
-    }
-
-    operator fun minusAssign(module: ClientModule) {
-        removeModule(module)
-    }
-
-    operator fun minusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::removeModule)
-    }
-
     fun clear() {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, args: List<String>, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
         val resultPrefix = parts.dropLast(1).joinToString(",") + ","

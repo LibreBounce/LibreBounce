@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
 
         box -= (diff * ((targetDistance - 4.0).coerceAtLeast(1.0)))
 
-        val directRotation = RotationManager.makeRotation(box, player.eyePos)
+        val directRotation = Rotation.lookingAt(point = box, from = player.eyePos)
 
         if (directRotation != player.rotation) {
             val pitchDifference = abs(directRotation.pitch - player.rotation.pitch)

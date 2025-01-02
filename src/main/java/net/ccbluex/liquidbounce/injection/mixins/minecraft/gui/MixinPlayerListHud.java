@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,14 +62,19 @@ public abstract class MixinPlayerListHud {
     private Stream<PlayerListEntry> hookSort(Stream<PlayerListEntry> instance, Comparator<PlayerListEntry> defaultComparator, Operation<Stream<PlayerListEntry>> original) {
         var sorting = ModuleBetterTab.INSTANCE.getSorting();
 
-        boolean running = ModuleBetterTab.INSTANCE.getRunning();
+        var betterTab = ModuleBetterTab.INSTANCE;
+        var running = betterTab.getRunning();
         var customComparator = sorting.getComparator();
 
         var comparator = running
                 ? (customComparator != null ? customComparator : defaultComparator)
                 : defaultComparator;
 
-        return original.call(instance, comparator);
+        var playerHider = ModuleBetterTab.PlayerHider.INSTANCE;
+        var hided = running && playerHider.getRunning()
+                ? instance.filter(player -> !playerHider.getFilter().isInFilter(player)) : instance;
+
+        return original.call(hided, comparator);
     }
 
     @ModifyExpressionValue(method = "render", at = @At(
@@ -188,6 +193,14 @@ public abstract class MixinPlayerListHud {
             if (highlight.getFriends().getRunning()) {
                 if (FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
                     args.set(4, highlight.getFriends().getColor().toARGB());
+                    return;
+                }
+            }
+
+            var others = highlight.getOthers();
+            if (others.getRunning()) {
+                if (others.getFilter().isInFilter(entry)) {
+                    args.set(4, others.getColor().toARGB());
                 }
             }
         }

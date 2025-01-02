@@ -6,7 +6,7 @@
     import {getTextWidth} from "../../../integration/text_measurement";
     import {flip} from "svelte/animate";
     import {fly} from "svelte/transition";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {processPascalCaseName, spaceSeperatedNames} from "../../../theme/theme_config";
 
     let enabledModules: Module[] = [];
 
@@ -15,7 +15,7 @@
         const visibleModules = modules.filter(m => m.enabled && !m.hidden);
 
         const modulesWithWidths = visibleModules.map(module => {
-                let formattedName = $spaceSeperatedNames ? convertToSpacedString(module.name) : module.name;
+                let formattedName = processPascalCaseName(module.name);
                 let fullName = module.tag == null ? formattedName : formattedName + " " + module.tag;
 
                 return {
@@ -51,7 +51,7 @@
 <div class="arraylist">
     {#each enabledModules as {name, tag} (name)}
         <div class="module" animate:flip={{ duration: 200 }} transition:fly={{ x: 50, duration: 200 }}>
-            {$spaceSeperatedNames ? convertToSpacedString(name) : name}
+            {processPascalCaseName(name)}
             {#if tag}
                 <span class="tag"> {tag}</span>
             {/if}
