@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.cosmetic
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.ClientApi.API_V1_ENDPOINT
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -37,11 +38,10 @@ import java.net.URI
 object CapeCosmeticsManager : EventListener {
 
     /**
-     * I would prefer to use CLIENT_API but due to Cloudflare causing issues with SSL and their browser integrity check,
-     * we have a separate domain.
+     * Uses https://api.liquidbounce.net/api/v1/cape/name/:name to get a PNG-texture
+     * of the cape.
      */
-    private const val CAPES_API = "http://capes.liquidbounce.net/api/v1/cape"
-    private const val CAPE_NAME_DL_BASE_URL = "$CAPES_API/name/%s"
+    private const val CAPE_NAME_DL_BASE_URL = "$API_V1_ENDPOINT/cape/name/%s"
 
     /**
      * Cached capes
