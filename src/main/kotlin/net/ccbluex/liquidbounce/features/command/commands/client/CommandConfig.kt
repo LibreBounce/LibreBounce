@@ -182,7 +182,7 @@ object CommandConfig : CommandFactory {
                             chat(regular(command.result("loaded", variable(name))))
                         }
                     }
-                }.onFailure {
+                }.onFailure { exception ->
                     chat(markAsError(command.result("failedToLoad", variable(name))))
                 }
             }
