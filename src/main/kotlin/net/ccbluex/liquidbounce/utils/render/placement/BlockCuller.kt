@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.utils.render.placement
 
 import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.utils.kotlin.RawBlockPos
 import net.minecraft.util.math.BlockPos
 
 // TODO check whether the Boxes actually touch
@@ -11,7 +12,9 @@ class BlockCuller(
      * Returns a long that stores in the first 32 bits what vertices are to be rendered for the faces and
      * in the other half what vertices are to be rendered for the outline.
      */
-    fun getCullData(pos: BlockPos): Long {
+    fun getCullData(blockPos: BlockPos): Long {
+        val pos = RawBlockPos(blockPos)
+
         var faces = 1 shl 30
         var edges = 1 shl 30
 

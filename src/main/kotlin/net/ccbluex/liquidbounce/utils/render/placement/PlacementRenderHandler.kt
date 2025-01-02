@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
+import net.ccbluex.liquidbounce.utils.kotlin.RawBlockPos
 import net.ccbluex.liquidbounce.utils.math.toVec3d
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
@@ -166,15 +167,16 @@ class PlacementRenderHandler(private val placementRenderer: PlacementRenderer, v
     }
 
 
-
     /**
      * Checks whether the position is rendered.
      */
-    internal fun contains(pos: BlockPos): Boolean {
-        val longValue = pos.asLong()
-        return inList.containsKey(longValue) || currentList.containsKey(longValue) || outList.containsKey(longValue)
+    internal operator fun contains(pos: RawBlockPos): Boolean {
+        return contains(pos.longValue)
     }
 
+    private operator fun contains(pos: Long): Boolean {
+        return inList.containsKey(pos) || currentList.containsKey(pos) || outList.containsKey(pos)
+    }
 
     /**
      * Adds a block to be rendered. First it will make an appear-animation, then
