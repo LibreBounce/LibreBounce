@@ -26,6 +26,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.util.math.ColorHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -49,12 +50,13 @@ public class MixinBlockEntityRenderDispatcher {
             var type = ModuleStorageESP.categorize(blockEntity);
 
             if (type != null && type.shouldRender(blockEntity.getPos())) {
-                var color = type.getColor();
+                final int color = type.getColorArgb();
 
-                if (color.getA() > 0) {
+                if (ColorHelper.getAlpha(color) > 0) {
                     var outlineVertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders()
                             .getOutlineVertexConsumers();
-                    outlineVertexConsumerProvider.setColor(color.getR(), color.getG(), color.getB(), 255);
+                    outlineVertexConsumerProvider.setColor(
+                            ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), 255);
                     OutlineFlag.drawOutline = true;
                     return outlineVertexConsumerProvider;
                 }

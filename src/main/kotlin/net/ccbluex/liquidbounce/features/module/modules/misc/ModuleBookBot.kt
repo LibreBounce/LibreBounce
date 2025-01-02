@@ -263,7 +263,7 @@ object RandomGenerationMode : GenerationMode("Random") {
 
         return ModuleBookBot.random
             .ints(origin, bound)
-            .filter { !Character.isWhitespace(it) && it.toChar() != '\r' && it.toChar() != '\n' }
+            .filter { !Character.isWhitespace(it) }
             .iterator()
     }
 }

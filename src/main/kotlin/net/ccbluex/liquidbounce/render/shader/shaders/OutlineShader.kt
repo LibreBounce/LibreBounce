@@ -59,7 +59,11 @@ object OutlineShader : FramebufferShader(Shader(
         dirty = false
     }
 
-    fun setColor(color4b: Color4b) {
+    fun setColor(colorArgb: Int) {
+        setColor(Color4b(colorArgb))
+    }
+
+    private fun setColor(color4b: Color4b) {
         vertexConsumerProvider.setColor(color4b.r, color4b.g, color4b.b, color4b.a)
     }
 

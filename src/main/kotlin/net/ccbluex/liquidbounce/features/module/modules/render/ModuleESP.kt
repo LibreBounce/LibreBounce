@@ -130,6 +130,8 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
         return baseColor
     }
 
+    fun getColorArgb(entity: LivingEntity) = getColor(entity).argb
+
     fun requiresTrueSight(entity: LivingEntity) =
         modes.activeChoice.requiresTrueSight && entity.shouldBeShown()
 

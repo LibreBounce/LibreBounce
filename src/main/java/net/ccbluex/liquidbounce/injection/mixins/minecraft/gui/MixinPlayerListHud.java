@@ -182,17 +182,18 @@ public abstract class MixinPlayerListHud {
         }
 
         if (w < entries.size()) {
-            var entry = entries.get(w);
+            final var entry = entries.get(w);
+            final var entryName = entry.getProfile().getName();
             if (highlight.getSelf().getRunning()) {
-                if (Objects.equals(entry.getProfile().getName(), MinecraftClient.getInstance().player.getGameProfile().getName())) {
-                    args.set(4, highlight.getSelf().getColor().toARGB());
+                if (Objects.equals(entryName, MinecraftClient.getInstance().player.getGameProfile().getName())) {
+                    args.set(4, highlight.getSelf().getColorArgb());
                     return;
                 }
             }
 
             if (highlight.getFriends().getRunning()) {
-                if (FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
-                    args.set(4, highlight.getFriends().getColor().toARGB());
+                if (FriendManager.INSTANCE.isFriend(entryName)) {
+                    args.set(4, highlight.getFriends().getColorArgb());
                     return;
                 }
             }
@@ -200,7 +201,7 @@ public abstract class MixinPlayerListHud {
             var others = highlight.getOthers();
             if (others.getRunning()) {
                 if (others.getFilter().isInFilter(entry)) {
-                    args.set(4, others.getColor().toARGB());
+                    args.set(4, others.getColorArgb());
                 }
             }
         }

@@ -82,10 +82,12 @@ object ModuleTNTTimer : ClientModule("TNTTimer", Category.RENDER) {
     /**
      * Cycle light periodically according to the remaining time (`fuse`). The less time left, the faster the cycle.
      */
-    fun getTntColor(fuse: Int): Color4b {
+    private fun getTntColor(fuse: Int): Color4b {
         val red = MathHelper.floor(255.0 * (1.0 + 0.5 * sin(2400.0 / (12 + fuse)))).coerceIn(0, 255)
         return Color4b(red, 0, 0)
     }
+
+    fun getTntColorArgb(fuse: Int) = getTntColor(fuse).argb
 
     @Suppress("unused")
     val render2DHandler = handler<OverlayRenderEvent> {

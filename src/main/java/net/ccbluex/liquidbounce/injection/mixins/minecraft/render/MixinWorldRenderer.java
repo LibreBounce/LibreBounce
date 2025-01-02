@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.common.OutlineFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
-import net.ccbluex.liquidbounce.render.engine.Color4b;
 import net.ccbluex.liquidbounce.render.engine.RenderingFlags;
 import net.ccbluex.liquidbounce.render.shader.shaders.OutlineShader;
 import net.ccbluex.liquidbounce.utils.client.ClientUtilsKt;
@@ -107,12 +106,12 @@ public abstract class MixinWorldRenderer {
             return;
         }
 
-        Color4b color;
+        int color;
 
         if (ModuleESP.OutlineMode.INSTANCE.getRunning() && entity instanceof LivingEntity && CombatExtensionsKt.shouldBeShown(entity)) {
-            color = ModuleESP.INSTANCE.getColor((LivingEntity) entity);
+            color = ModuleESP.INSTANCE.getColorArgb((LivingEntity) entity);
         } else if (ModuleItemESP.OutlineMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
-            color = ModuleItemESP.INSTANCE.getColor();
+            color = ModuleItemESP.INSTANCE.getColorArgb();
         } else {
             return;
         }
@@ -212,11 +211,11 @@ public abstract class MixinWorldRenderer {
     @ModifyExpressionValue(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
     private int injectTeamColor(int original, @Local Entity entity) {
         if (entity instanceof LivingEntity livingEntity && ModuleESP.GlowMode.INSTANCE.getRunning()) {
-            return ModuleESP.INSTANCE.getColor(livingEntity).toARGB();
+            return ModuleESP.INSTANCE.getColorArgb(livingEntity);
         } else if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
-            return ModuleItemESP.INSTANCE.getColor().toARGB();
+            return ModuleItemESP.INSTANCE.getColorArgb();
         } else if (entity instanceof TntEntity tntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
-            return ModuleTNTTimer.INSTANCE.getTntColor(tntEntity.getFuse()).toARGB();
+            return ModuleTNTTimer.INSTANCE.getTntColorArgb(tntEntity.getFuse());
         } else {
             return original;
         }

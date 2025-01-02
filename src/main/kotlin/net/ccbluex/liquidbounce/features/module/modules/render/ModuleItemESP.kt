@@ -95,4 +95,6 @@ object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
     fun shouldRender(it: Entity?) = it is ItemEntity || it is ArrowEntity
 
     fun getColor() = this.colorMode.activeChoice.getColor(null)
+
+    fun getColorArgb() = getColor().argb
 }
