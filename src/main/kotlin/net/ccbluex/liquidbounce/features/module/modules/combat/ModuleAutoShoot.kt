@@ -279,7 +279,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     }
 
     private enum class ThrowableType(override val choiceName: String) : NamedChoice {
-        EGG_AND_SNOWBALL("Egg and Snowball"),
+        EGG_AND_SNOWBALL("EggAndSnowball"),
         ANYTHING("Anything"),
     }
 
