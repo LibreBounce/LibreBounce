@@ -205,7 +205,7 @@ open class Configurable(
         InputBind(InputUtil.Type.KEYSYM, default, InputBind.BindAction.TOGGLE)
     )
 
-    fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
+    fun bind(name: String, default: InputBind) = BindValue(name, default)
 
     fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
 

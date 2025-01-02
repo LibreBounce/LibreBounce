@@ -100,7 +100,7 @@ object AutoConfig {
      * Handles the data from a configurable, which might be an auto config and therefore has data which
      * should be displayed to the user.
      *
-     * @param jsonObject The json object of the configurable
+     * @param jsonObject The JSON object of the configurable
      * @see ConfigSystem.deserializeConfigurable
      */
     fun handlePossibleAutoConfig(jsonObject: JsonObject) {
@@ -109,7 +109,7 @@ object AutoConfig {
             return
         }
 
-        chat(prefix = false)
+        chat(metadata = MessageMetadata(prefix = false))
         chat(regular("Auto Config").styled { it.withFormatting(Formatting.LIGHT_PURPLE).withBold(true) })
 
         // Auto Config
@@ -125,35 +125,7 @@ object AutoConfig {
         val pVersion = jsonObject.int("protocolVersion")
 
         if (pName != null && pVersion != null) {
-            // Check if protocol is identical
-            val (protocolName, protocolVersion) = protocolVersion
-
-            // Give user notification about the protocol of the config and his current protocol,
-            // if they are not identical, make the message red and bold to make it more visible
-            // also, if the protocol is identical, make the message green to make it more visible
-            val matchesVersion = protocolVersion == pVersion
-
-            chat(
-                regular("for protocol "),
-                variable("$pName $pVersion")
-                    .styled {
-                        if (!matchesVersion) {
-                            it.withFormatting(Formatting.RED, Formatting.BOLD)
-                        } else {
-                            it.withFormatting(Formatting.GREEN)
-                        }
-                    },
-                regular(" and your current protocol is "),
-                variable("$protocolName $protocolVersion")
-            )
-
-            if (!matchesVersion) {
-                notification(
-                    "Auto Config",
-                    "The auto config was made for protocol $pName, " +
-                        "but your current protocol is $protocolName",
-                    NotificationEvent.Severity.ERROR)
-            }
+            formatAutoConfigProtocolInfo(pVersion, pName)
         }
 
         val date = jsonObject.string("date")
@@ -190,6 +162,39 @@ object AutoConfig {
             for (messages in chatMessages) {
                 chat(messages.asString)
             }
+        }
+    }
+
+    private fun formatAutoConfigProtocolInfo(pVersion: Int?, pName: String?) {
+        // Check if the protocol is identical
+        val (protocolName, protocolVersion) = protocolVersion
+
+        // Give user notification about the protocol of the config and his current protocol.
+        // If they are not identical, make the message red and bold to make it more visible.
+        // If the protocol is identical, make the message green to make it more visible
+        val matchesVersion = protocolVersion == pVersion
+
+        chat(
+            regular("for protocol "),
+            variable("$pName $pVersion")
+                .styled {
+                    if (!matchesVersion) {
+                        it.withFormatting(Formatting.RED, Formatting.BOLD)
+                    } else {
+                        it.withFormatting(Formatting.GREEN)
+                    }
+                },
+            regular(" and your current protocol is "),
+            variable("$protocolName $protocolVersion")
+        )
+
+        if (!matchesVersion) {
+            notification(
+                "Auto Config",
+                "The auto config was made for protocol $pName, " +
+                    "but your current protocol is $protocolName",
+                NotificationEvent.Severity.ERROR
+            )
         }
     }
 

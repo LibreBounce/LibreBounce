@@ -184,6 +184,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
     /**
      * Register inbuilt client modules
      */
+    @Suppress("LongMethod")
     fun registerInbuilt() {
         var builtin = arrayOf(
             // Combat

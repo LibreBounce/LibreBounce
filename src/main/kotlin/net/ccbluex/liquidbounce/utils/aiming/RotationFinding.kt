@@ -157,7 +157,7 @@ class BlockVisibilityPredicate(private val expectedTarget: BlockPos) : Visibilit
     }
 }
 
-class BoxVisibilityPredicate() : VisibilityPredicate {
+class BoxVisibilityPredicate : VisibilityPredicate {
     override fun isVisible(
         eyesPos: Vec3d,
         targetSpot: Vec3d,

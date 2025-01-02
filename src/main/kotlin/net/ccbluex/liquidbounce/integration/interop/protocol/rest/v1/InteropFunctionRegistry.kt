@@ -17,6 +17,9 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+@file:Suppress("LongMethod")
+
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1
 
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client.*

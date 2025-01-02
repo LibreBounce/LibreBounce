@@ -31,6 +31,8 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
 import net.minecraft.util.Util
+import java.io.File
+import java.util.*
 
 object CommandScript : CommandFactory {
 
@@ -137,42 +139,54 @@ object CommandScript : CommandFactory {
                 return@handler
             }
 
-            // Check if script is already loaded
-            ScriptManager.scripts.find { it.file == scriptFile }?.also { script ->
-                chat(regular(command.result("alreadyLoaded", variable(name))))
+            unloadIfLoaded(scriptFile, command, name)
+            loadScriptWithDebug(args, scriptFile, command, name)
+        }
+        .build()
 
-                runCatching {
-                    ScriptManager.unloadScript(script)
-                }.onSuccess {
-                    chat(regular(command.result("unloaded", variable(name))))
-                }.onFailure {
-                    chat(regular(command.result("failedToUnload", variable(it.message ?: "unknown"))))
-                }
-            }
+    private fun loadScriptWithDebug(
+        args: Array<Any>,
+        scriptFile: File,
+        command: Command,
+        name: String
+    ) {
+        val protocol = args.getOrNull(1) as DebugProtocol? ?: DebugProtocol.INSPECT
 
-            val protocol = DebugProtocol.valueOf(
-                (args.getOrNull(1) ?: DebugProtocol.INSPECT.name).toString()
-            )
+        runCatching {
+            ScriptManager.loadScript(
+                scriptFile, debugOptions = ScriptDebugOptions(
+                    enabled = true,
+                    protocol = protocol,
+                    suspendOnStart = args.getOrNull(2) as Boolean? == true,
+                    inspectInternals = args.getOrNull(3) as Boolean? == true,
+                    port = args.getOrNull(4) as Int?
+                        ?: if (protocol == DebugProtocol.INSPECT) 4242 else 4711,
+                )
+            ).enable()
+        }.onSuccess {
+            chat(regular(command.result("loaded", variable(name))))
+        }.onFailure {
+            chat(regular(command.result("failedToLoad", variable(it.message ?: "unknown"))))
+        }
+    }
+
+    private fun unloadIfLoaded(
+        scriptFile: File,
+        command: Command,
+        name: String
+    ) {
+        ScriptManager.scripts.find { it.file == scriptFile }?.also { script ->
+            chat(regular(command.result("alreadyLoaded", variable(name))))
 
             runCatching {
-                ScriptManager.loadScript(
-                    scriptFile, debugOptions = ScriptDebugOptions(
-                        enabled = true,
-                        protocol = protocol,
-                        suspendOnStart = args.getOrNull(2) as Boolean? == true,
-                        inspectInternals = args.getOrNull(3) as Boolean? == true,
-                        port = args.getOrNull(4) as Int?
-                            ?: if (protocol == DebugProtocol.INSPECT) 4242 else 4711,
-                    )
-                ).enable()
+                ScriptManager.unloadScript(script)
             }.onSuccess {
-                chat(regular(command.result("loaded", variable(name))))
+                chat(regular(command.result("unloaded", variable(name))))
             }.onFailure {
-                chat(regular(command.result("failedToLoad", variable(it.message ?: "unknown"))))
+                chat(regular(command.result("failedToUnload", variable(it.message ?: "unknown"))))
             }
         }
-
-        .build()
+    }
 
     private fun unloadSubcommand() = CommandBuilder.begin("unload").parameter(
         ParameterBuilder.begin<String>("name").verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()

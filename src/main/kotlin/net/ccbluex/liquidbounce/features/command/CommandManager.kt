@@ -249,7 +249,6 @@ object CommandManager : Iterable<Command> by commands {
      */
     @ScriptApiRequired
     @JvmName("execute")
-    @Suppress("ThrowsCount")
     fun execute(cmd: String) {
         val args = tokenizeCommand(cmd).first
 
