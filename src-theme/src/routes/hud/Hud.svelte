@@ -18,6 +18,7 @@
     import Text from "./elements/Text.svelte";
     import DraggableComponent from "./editor/DraggableComponent.svelte";
     import AddComponentButton from "./editor/AddComponentButton.svelte";
+    import EditorManager from "./editor/manager/EditorManager.svelte";
 
     let zoom = 100;
     let components: Component[] = [];
@@ -77,6 +78,7 @@
     {/each}
 
     {#if editorMode}
+        <EditorManager {components} />
         <AddComponentButton />
     {/if}
 </div>
