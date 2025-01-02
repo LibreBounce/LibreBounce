@@ -23,6 +23,8 @@ import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon.againstShield
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon.prepare
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategorization
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.WeaponItemFacet
@@ -58,7 +60,13 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
     ): NamedChoice {
         ANY("Any", { true }),
         SWORD("Sword", { it.itemStack.item is SwordItem }),
-        AXE("Axe", { it.itemStack.item is AxeItem })
+        AXE("Axe", { it.itemStack.item is AxeItem }),
+
+        /**
+         * Do not prefer any weapon type, this is useful to only
+         * use the [againstShield] weapon type.
+         */
+        NONE("None", { false })
     }
 
     private val prepare by boolean("Prepare", true)
