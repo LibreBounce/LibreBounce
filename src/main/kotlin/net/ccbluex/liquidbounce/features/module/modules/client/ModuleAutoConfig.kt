@@ -102,7 +102,7 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         // There can be multiple configs for the same server, but with different names
         // and the global config is likely named e.g "hypixel", while the more specific ones are named
         // "hypixel-csgo", "hypixel-legit", etc.
-        val autoConfig = configs.filter { config ->
+        val autoConfig = (configs ?: return).filter { config ->
             config.serverAddress?.rootDomain().equals(address, true) ||
                     config.serverAddress.equals(address, true)
         }.minByOrNull { it.name.length }

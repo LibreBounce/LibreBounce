@@ -19,9 +19,8 @@
 package net.ccbluex.liquidbounce.api.services.client
 
 import com.vdurmont.semver4j.Semver
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.AsyncLazy
 import net.ccbluex.liquidbounce.utils.client.logger
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,28 +37,21 @@ object ClientUpdate {
         }
     }
 
-    val newestVersion by lazy(LazyThreadSafetyMode.NONE) {
-        runBlocking(Dispatchers.IO) {
-            // https://api.liquidbounce.net/api/v1/version/builds/nextgen
-            try {
+    val update by AsyncLazy {
+        runCatching {
+            val newestBuild = runCatching {
                 ClientApi.requestNewestBuildEndpoint(
-                    branch = LiquidBounce.clientBranch,
+                    branch = "nextgen",
                     release = !LiquidBounce.IN_DEVELOPMENT
                 )
-            } catch (e: Exception) {
-                logger.error("Unable to receive update information", e)
-                null
-            }
-        }
-    }
+            }.onFailure { exception ->
+                logger.error("Unable to receive update information", exception)
+            }.getOrNull() ?: return@AsyncLazy null
 
-    fun hasUpdate(): Boolean {
-        try {
-            val newestVersion = newestVersion ?: return false
-            val newestSemVersion = Semver(newestVersion.lbVersion, Semver.SemverType.LOOSE)
+            val newestSemVersion = Semver(newestBuild.lbVersion, Semver.SemverType.LOOSE)
 
-            return if (LiquidBounce.IN_DEVELOPMENT) { // check if new build is newer than current build
-                val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
+            val isNewer = if (LiquidBounce.IN_DEVELOPMENT) { // check if new build is newer than current build
+                val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestBuild.date)
                 val currentVersionDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
 
@@ -68,12 +60,17 @@ object ClientUpdate {
                 // check if version number is higher than current version number (on release builds only!)
                 val clientSemVersion = Semver(LiquidBounce.clientVersion, Semver.SemverType.LOOSE)
 
-                newestVersion.release && newestSemVersion.isGreaterThan(clientSemVersion)
+                newestBuild.release && newestSemVersion.isGreaterThan(clientSemVersion)
             }
-        } catch (e: Exception) {
-            logger.error("Unable to check for update", e)
-            return false
-        }
+
+            if (isNewer) {
+                newestBuild
+            } else {
+                null
+            }
+        }.onFailure { exception ->
+            logger.error("Failed to check for update", exception)
+        }.getOrNull()
     }
 
 }

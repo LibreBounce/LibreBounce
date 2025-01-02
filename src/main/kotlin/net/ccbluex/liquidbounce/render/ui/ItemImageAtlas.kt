@@ -88,7 +88,7 @@ object ItemImageAtlas: EventListener {
     }
 
     @Suppress("unused")
-    val onReload = handler<ResourceReloadEvent> {
+    private val handleResourceReload = handler<ResourceReloadEvent> {
         this.atlas = null
     }
 

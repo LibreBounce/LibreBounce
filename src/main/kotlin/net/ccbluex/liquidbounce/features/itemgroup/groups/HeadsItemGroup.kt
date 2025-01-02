@@ -18,8 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.itemgroup.groups
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.core.AsyncLazy
 import net.ccbluex.liquidbounce.api.core.HttpClient
 import net.ccbluex.liquidbounce.api.core.HttpMethod
 import net.ccbluex.liquidbounce.api.core.parse
@@ -63,13 +62,11 @@ data class Head(val name: String, val uuid: UUID, val value: String) {
  */
 const val HEAD_DB_API = "https://headdb.org/api/category/all"
 
-val headsCollection by lazy(LazyThreadSafetyMode.NONE) {
+val heads by AsyncLazy {
     runCatching {
         logger.info("Loading heads...")
         // Load heads from service
-        val heads: HashMap<String, Head> = runBlocking(Dispatchers.IO) {
-            HttpClient.request(HEAD_DB_API, HttpMethod.GET).parse()
-        }
+        val heads: HashMap<String, Head> = HttpClient.request(HEAD_DB_API, HttpMethod.GET).parse()
 
         heads.values.toTypedArray().also {
             logger.info("Successfully loaded ${it.size} heads from the database")
@@ -84,7 +81,7 @@ class HeadsItemGroup : ClientItemGroup(
     icon = { ItemStack(Items.SKELETON_SKULL) },
     items = { items ->
         items.addAll(
-            headsCollection
+            heads
                 .distinctBy { it.name }
                 .map(Head::asItemStack)
         )

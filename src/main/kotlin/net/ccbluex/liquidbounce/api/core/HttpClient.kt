@@ -85,7 +85,7 @@ object HttpClient {
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
                     continuation.resumeWithException(
-                        HttpException(response.code, response.body.string())
+                        HttpException(method, url, response.code, response.body.string())
                     )
                     return
                 }
@@ -104,7 +104,7 @@ object HttpClient {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                throw HttpException(response.code, "Failed to download file")
+                throw HttpException(HttpMethod.GET, url, response.code, "Failed to download file")
             }
 
             file.outputStream().use { output ->
@@ -139,4 +139,5 @@ suspend inline fun <reified T> Response.parse(): T {
 fun String.asJson() = toRequestBody(HttpClient.JSON_MEDIA_TYPE)
 fun String.asForm() = toRequestBody(HttpClient.FORM_MEDIA_TYPE)
 
-class HttpException(val code: Int, message: String) : Exception("HTTP $code: $message")
+class HttpException(val method: HttpMethod, val url: String, val code: Int, message: String)
+    : Exception("${method.name} $url failed with code $code: $message")

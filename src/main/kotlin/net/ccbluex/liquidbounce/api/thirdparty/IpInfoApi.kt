@@ -18,8 +18,7 @@
  */
 package net.ccbluex.liquidbounce.api.thirdparty
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.api.core.AsyncLazy
 import net.ccbluex.liquidbounce.api.core.BaseApi
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -44,12 +43,10 @@ object IpInfoApi : BaseApi("https://ipinfo.io") {
      * which is unlikely to change, even when changing the IP address. This could happen when using a VPN,
      * but it's not that important to keep this updated all the time.
      */
-    private val original: IpData? by lazy(LazyThreadSafetyMode.NONE) {
-        runBlocking(Dispatchers.IO) {
-            runCatching { own() }.onFailure {
-                logger.error("Failed to get own IP address", it)
-            }.getOrNull()
-        }
+    val original: IpData? by AsyncLazy {
+        runCatching { own() }.onFailure {
+            logger.error("Failed to get own IP address", it)
+        }.getOrNull()
     }
 
     suspend fun own() = get<IpData>("/json")

@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
-import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
@@ -73,6 +72,10 @@ object CommandConfig : CommandFactory {
             runCatching {
                 chat(regular(command.result("loading")))
                 val widthOfSpace = mc.textRenderer.getWidth(" ")
+                val configs = configs ?: run {
+                    chat(regular("§cFailed to load settings list from API"))
+                    return@handler
+                }
                 val width = configs.maxOf { mc.textRenderer.getWidth(it.settingId) }
 
                 // In the case of the chat, we want to show the newest config at the bottom for visibility
@@ -187,7 +190,7 @@ object CommandConfig : CommandFactory {
         .build()
 
     private fun autocompleteConfigs(begin: String): List<String> {
-        return configsCache?.map { it.settingId }?.filter { it.startsWith(begin, true) } ?: emptyList()
+        return configs?.map { it.settingId }?.filter { it.startsWith(begin, true) } ?: emptyList()
     }
 
 

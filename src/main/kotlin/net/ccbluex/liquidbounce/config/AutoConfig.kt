@@ -19,9 +19,8 @@
 package net.ccbluex.liquidbounce.config
 
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.AsyncLazy
 import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.client.AutoSettings
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
@@ -65,13 +64,13 @@ object AutoConfig {
 
     var includeConfiguration = IncludeConfiguration.DEFAULT
 
-    var configsCache: Array<AutoSettings>? = null
-    val configs
-        get() = configsCache ?: runBlocking(Dispatchers.IO) {
-            ClientApi.requestSettingsList().apply {
-                configsCache = this
-            }
-        }
+    val configs by AsyncLazy {
+        runCatching {
+            ClientApi.requestSettingsList()
+        }.onFailure { exception ->
+            logger.error("Failed to load auto configs", exception)
+        }.getOrNull()
+    }
 
     inline fun withLoading(block: () -> Unit) {
         loadingNow = true

@@ -25,13 +25,14 @@ import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
 import com.jagrosh.discordipc.exceptions.NoDiscordClientException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
+import net.ccbluex.liquidbounce.api.core.AsyncLazy
 import net.ccbluex.liquidbounce.api.core.HttpClient
 import net.ccbluex.liquidbounce.api.core.HttpMethod
 import net.ccbluex.liquidbounce.api.core.parse
@@ -54,11 +55,12 @@ data class IpcConfiguration(
     val assets: Map<String, String>
 )
 
-val ipcConfiguration by lazy(LazyThreadSafetyMode.NONE) {
-    runBlocking(Dispatchers.IO) {
-        logger.info("Loading Discord IPC configuration...")
+val ipcConfiguration by AsyncLazy {
+    runCatching {
         HttpClient.request("$CLIENT_CLOUD/discord.json", HttpMethod.GET).parse<IpcConfiguration>()
-    }
+    }.onFailure {
+        LiquidBounce.logger.error("Failed to load Discord IPC configuration.", it)
+    }.getOrNull()
 }
 
 object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state = true, hide = true,
@@ -87,6 +89,8 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
     }
 
     private fun connectIpc() {
+        val ipcConfiguration = ipcConfiguration ?: return
+
         if (doNotTryToConnect || ipcClient?.status == PipeStatus.CONNECTED) {
             return
         }
@@ -151,6 +155,8 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
             if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
                 return@waitFor
             }
+
+            val ipcConfiguration = ipcConfiguration ?: return@waitFor
 
             ipcClient!!.sendRichPresence {
                 // Set playing time

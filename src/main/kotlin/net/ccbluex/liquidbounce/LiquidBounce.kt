@@ -19,12 +19,13 @@
  */
 package net.ccbluex.liquidbounce
 
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
-import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.hasUpdate
+import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.update
 import net.ccbluex.liquidbounce.api.thirdparty.IpInfoApi
-import net.ccbluex.liquidbounce.config.AutoConfig
+import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
@@ -36,7 +37,7 @@ import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
-import net.ccbluex.liquidbounce.features.itemgroup.groups.headsCollection
+import net.ccbluex.liquidbounce.features.itemgroup.groups.heads
 import net.ccbluex.liquidbounce.features.misc.AccountManager
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
@@ -110,16 +111,13 @@ object LiquidBounce : EventListener {
      */
     val logger = LogManager.getLogger(CLIENT_NAME)!!
 
-    /**
-     * Client update information
-     */
-    val updateAvailable by lazy { hasUpdate() }
+    var tasks: List<Deferred<*>> = emptyList()
 
     /**
      * Should be executed to start the client.
      */
     @Suppress("unused")
-    val startHandler = handler<ClientStartEvent> {
+    private val startHandler = handler<ClientStartEvent> {
         runCatching {
             logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
             logger.debug("Loading from cloud: '$CLIENT_CLOUD'")
@@ -185,6 +183,38 @@ object LiquidBounce : EventListener {
             IntegrationListener
             BrowserManager.initBrowser()
 
+            // Start IO tasks
+            withScope {
+                tasks += listOf(
+                    async(Dispatchers.IO) {
+                        val update = update ?: return@async
+                        logger.info("[Update] Update available: $clientVersion -> ${update.lbVersion}")
+                    },
+                    async(Dispatchers.IO) { ipcConfiguration },
+                    async(Dispatchers.IO) { IpInfoApi.original },
+                    async(Dispatchers.IO) {
+                        if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
+                            runCatching {
+                                ClientAccountManager.clientAccount.renew()
+                            }.onFailure {
+                                logger.error("Failed to renew client account token.", it)
+                                ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
+                            }.onSuccess {
+                                logger.info("Successfully renewed client account token.")
+                                ConfigSystem.storeConfigurable(ClientAccountManager)
+                            }
+                        }
+                    },
+                    async(Dispatchers.IO) {
+                        CosmeticService.refreshCarriers(force = true) {
+                            logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
+                        }
+                    },
+                    async(Dispatchers.IO) { heads },
+                    async(Dispatchers.IO) { configs }
+                )
+            }
+
             // Register resource reloader
             val resourceManager = mc.resourceManager
             val clientResourceReloader = ClientResourceReloader()
@@ -242,54 +272,8 @@ object LiquidBounce : EventListener {
                 logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
             }.onFailure(ErrorHandler::fatal)
 
-            // Check for newest version
-            if (updateAvailable) {
-                logger.info("Update available! Please download the latest version from https://liquidbounce.net/")
-            }
-
-            runCatching {
-                ipcConfiguration.let {
-                    logger.info("Loaded Discord IPC configuration.")
-                }
-            }.onFailure {
-                logger.error("Failed to load Discord IPC configuration.", it)
-            }
-
-            // Refresh local IP info
-            logger.info("Refreshing local IP info...")
-            IpInfoApi
-
-            // Check if client account is available
-            if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
-                withScope {
-                    runCatching {
-                        ClientAccountManager.clientAccount.renew()
-                    }.onFailure {
-                        logger.error("Failed to renew client account token.", it)
-                        ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
-                    }.onSuccess {
-                        logger.info("Successfully renewed client account token.")
-                        ConfigSystem.storeConfigurable(ClientAccountManager)
-                    }
-                }
-            }
-
-            // Refresh cosmetic service
-            CosmeticService.refreshCarriers(force = true) {
-                logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
-            }
-
-            // Load Head collection
-            headsCollection
-
-            // Load settings list from API
-            runCatching {
-                logger.info("Loading settings list from API...")
-                AutoConfig.configs
-            }.onSuccess {
-                logger.info("Loaded ${it.size} settings from API.")
-            }.onFailure {
-                logger.error("Failed to load settings list from API", it)
+            runBlocking(Dispatchers.IO) {
+                awaitAll(*tasks.toTypedArray())
             }
         }
     }
@@ -298,7 +282,7 @@ object LiquidBounce : EventListener {
      * Should be executed to stop the client.
      */
     @Suppress("unused")
-    val shutdownHandler = handler<ClientShutdownEvent> {
+    private val shutdownHandler = handler<ClientShutdownEvent> {
         logger.info("Shutting down client...")
 
         ConfigSystem.storeAll()
