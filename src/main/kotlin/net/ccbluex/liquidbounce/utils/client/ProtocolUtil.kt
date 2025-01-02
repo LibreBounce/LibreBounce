@@ -21,6 +21,7 @@
 package net.ccbluex.liquidbounce.utils.client
 
 import com.mojang.blaze3d.systems.RenderSystem
+import com.viaversion.viafabricplus.ViaFabricPlus
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility1_8
 import net.minecraft.SharedConstants
@@ -29,6 +30,15 @@ import net.minecraft.util.math.BlockPos
 // Only runs once
 val usesViaFabricPlus = runCatching {
     Class.forName("com.viaversion.viafabricplus.ViaFabricPlus")
+
+    // Register ViaFabricPlus protocol version change callback
+    ViaFabricPlus.getImpl().registerOnChangeProtocolVersionCallback { _, _ ->
+        // Update the window title
+        RenderSystem.recordRenderCall {
+            mc.updateWindowTitle()
+        }
+    }
+
     true
 }.getOrDefault(false)
 
@@ -100,11 +110,6 @@ fun selectProtocolVersion(protocolId: Int) {
     // Check if the ViaFabricPlus mod is loaded - prevents from causing too many exceptions
     if (usesViaFabricPlus) {
         VfpCompatibility.INSTANCE.unsafeSelectProtocolVersion(protocolId)
-
-        // Update the window title
-        RenderSystem.recordRenderCall {
-            mc.updateWindowTitle()
-        }
     } else {
         error("ViaFabricPlus is not loaded")
     }
