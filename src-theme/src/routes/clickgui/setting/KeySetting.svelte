@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {KeySetting, ModuleSetting} from "../../../integration/types";
-    import {processPascalCaseName, spaceSeperatedNames} from "../../../theme/theme_config";
+    import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
     import {getPrintableKeyName} from "../../../integration/rest";
     import {createEventDispatcher} from "svelte";
     import {listen} from "../../../integration/ws";
@@ -64,7 +64,7 @@
 <div class="setting">
     <button class="change-bind" on:click={toggleBinding}>
         {#if !binding}
-            <div class="name">{processPascalCaseName(cSetting.name)}:</div>
+            <div class="name">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}:</div>
 
             {#if cSetting.value === UNKNOWN_KEY}
                 <span class="none">None</span>
