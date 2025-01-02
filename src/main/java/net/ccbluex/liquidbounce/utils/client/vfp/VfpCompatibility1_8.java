@@ -21,6 +21,7 @@
 
 package net.ccbluex.liquidbounce.utils.client.vfp;
 
+import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
@@ -29,8 +30,6 @@ import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_
 import net.minecraft.util.math.BlockPos;
 
 import java.util.function.Consumer;
-
-import static de.florianmichael.viafabricplus.protocoltranslator.ProtocolTranslator.getPlayNetworkUserConnection;
 
 /**
  * Compatibility layer for ViaFabricPlus on protocol 1.8
@@ -61,7 +60,7 @@ public enum VfpCompatibility1_8 {
             throw new IllegalStateException("Not on 1.8 protocol");
         }
 
-        var packet = PacketWrapper.create(packetType, getPlayNetworkUserConnection());
+        var packet = PacketWrapper.create(packetType, ViaFabricPlus.getImpl().getPlayNetworkUserConnection());
         writer.accept(packet);
         packet.sendToServerRaw();
     }
