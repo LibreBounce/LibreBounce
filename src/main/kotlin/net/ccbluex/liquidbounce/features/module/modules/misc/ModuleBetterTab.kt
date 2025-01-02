@@ -45,7 +45,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
             color: Color4b
         ) : ToggleableConfigurable(this, name, true) {
             private val color by color("Color", color)
-            val colorArgb: Int get() = color.argb
+            val colorArgb get() = color.argb
         }
 
         class Others(color: Color4b) : HighlightColored("Others", color) {

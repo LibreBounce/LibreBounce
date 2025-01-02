@@ -249,7 +249,7 @@ object ModuleStorageESP : ClientModule("StorageESP", Category.RENDER, aliases = 
         };
 
         abstract val color: Color4b
-        val colorArgb: Int get() = color.argb
+        val colorArgb get() = color.argb
 
         open fun shouldRender(pos: BlockPos): Boolean = true
     }
