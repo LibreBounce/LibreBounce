@@ -184,4 +184,27 @@ public abstract class MixinEntity {
         }
     }
 
+    /**
+     * Restores client-side fall distance calculation that was disabled
+     * after Minecraft 1.21.4 (or 1.21.3, I don't know)
+     * <p>
+     * The vanilla game stopped calculating fall distance on the client side due to
+     * PlayerEntity always returning true for isControlledByPlayer(). This modification
+     * enables fall distance calculation by returning false when the entity is
+     * the client's player instance.
+     * <p>
+     * Because we don't know if this might also break something else, when we would overwrite
+     * the function to always return false, we only return false on fall distance calculation.
+     *
+     * @return false if the entity is the client's player, otherwise returns the original value
+     */
+    @ModifyExpressionValue(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isControlledByPlayer()Z"))
+    private boolean fixFallDistanceCalculation(boolean original) {
+        if ((Object) this == MinecraftClient.getInstance().player) {
+            return false;
+        }
+
+        return original;
+    }
+
 }
