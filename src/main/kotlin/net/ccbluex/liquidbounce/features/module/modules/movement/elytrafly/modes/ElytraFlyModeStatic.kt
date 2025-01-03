@@ -33,11 +33,11 @@ internal object ElytraFlyModeStatic : ElytraFlyMode("Static") {
         }
 
         val speed = ModuleElytraFly.Speed.enabled
-        if (player.moving && speed) {
+        if (speed && player.moving) {
             event.movement.strafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
         } else {
             event.movement.x = 0.0
-            event.movement.y = 0.0
+            event.movement.z = 0.0
         }
 
         event.movement.y = when {

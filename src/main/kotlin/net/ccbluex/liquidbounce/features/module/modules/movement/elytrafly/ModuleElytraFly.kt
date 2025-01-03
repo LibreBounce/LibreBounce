@@ -37,7 +37,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  */
 object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
 
-    private val instant by boolean("Instant", true)
+    private val instantStart by boolean("InstantStart", false)
     private val instantStop by boolean("InstantStop", true)
 
     object Speed : ToggleableConfigurable(this, "Speed", true) {
@@ -98,7 +98,7 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
                 network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
                 needsToRestart = true
             }
-        } else if (player.input.playerInput.jump && player.velocity.y != 0.0 && instant || needsToRestart) {
+        } else if (player.input.playerInput.jump && player.velocity.y != 0.0 && instantStart || needsToRestart) {
             // If the player has an elytra and wants to fly instead
 
             // Jump must be off due to abnormal speed boosts
