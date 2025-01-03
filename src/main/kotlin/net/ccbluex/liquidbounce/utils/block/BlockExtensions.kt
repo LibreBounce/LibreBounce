@@ -492,7 +492,7 @@ private inline fun handleActionsOnAccept(
     onPlacementSuccess: () -> Boolean,
     swingMode: SwingMode = SwingMode.DO_NOT_HIDE,
 ) {
-    if (interactionResult.shouldSwingHand()) {
+    if (!interactionResult.shouldSwingHand()) {
         return
     }
 
