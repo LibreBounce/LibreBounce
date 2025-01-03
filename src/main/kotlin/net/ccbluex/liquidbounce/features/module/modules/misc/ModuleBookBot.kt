@@ -54,14 +54,9 @@ private const val MAX_LINE_WIDTH: Float = 114f
 object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = true) {
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
-    val generationMode =
-        choices(
-            "Mode",
-            RandomGenerationMode,
-            arrayOf(
-                RandomGenerationMode,
-            ),
-        ).apply { tagBy(this) }
+    private val generationMode = choices("Mode", GenerationMode.Random, arrayOf(GenerationMode.Random)).apply {
+        tagBy(this)
+    }
 
     private object Sign : ToggleableConfigurable(ModuleBookBot, "Sign", true) {
         val bookName by text("Name", "Generated book #%count%")
@@ -86,12 +81,12 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         chronometer.reset()
     }
 
-    private val isCandidate: (ItemStack) -> Boolean = {
-        val component = it.get(DataComponentTypes.WRITABLE_BOOK_CONTENT)
-        it.item == Items.WRITABLE_BOOK && component?.pages?.isEmpty() == true
+    private fun isCandidate(itemStack: ItemStack): Boolean {
+        return itemStack.item == Items.WRITABLE_BOOK &&
+            itemStack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT)?.pages?.isEmpty() == true
     }
 
-    private val randomBook get() = findInventorySlot(isCandidate)
+    private val randomBook get() = findInventorySlot(::isCandidate)
 
     @Suppress("unused")
     private val scheduleInventoryAction = handler<ScheduleInventoryActionEvent> { event ->
@@ -135,7 +130,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
      * @see PrimitiveIterator.OfInt
      * @see GenerationMode.generate
      */
-    @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
+    @Suppress("CognitiveComplexMethod")
     private fun writeBook() {
         if (!isCandidate(player.mainHandStack)) {
             return
@@ -144,8 +139,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         val chars = generationMode.activeChoice.generate()
         val widthRetriever = mc.textRenderer.textHandler.widthRetriever
 
-        val pages = ArrayList<String>()
-        val filteredPages = ArrayList<RawFilteredPair<Text>>()
+        val bookBuilder = BookBuilder()
 
         var pageIndex = 0
         var lineIndex = 0
@@ -155,7 +149,9 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         while (chars.hasNext()) {
             val char = chars.nextInt().toChar()
 
-            if (char == '\r' || char == '\n') {
+            if (lineWidth == 0f && char == ' ') {
+                continue
+            } else if (char == '\r' || char == '\n') {
                 page.append('\n')
                 lineWidth = 0.0f
                 lineIndex++
@@ -165,9 +161,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                 if (lineWidth + charWidth > MAX_LINE_WIDTH) {
                     lineIndex++
                     lineWidth = charWidth
-                    appendLineBreak(page, lineIndex)
-                } else if (lineWidth == 0f && char == ' ') {
-                    continue
+                    page.appendLineBreak(lineIndex)
                 } else {
                     lineWidth += charWidth
                     page.appendCodePoint(char.code)
@@ -175,7 +169,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             }
 
             if (lineIndex == MAX_LINES_PER_PAGE) {
-                addPageToBook(page, pages, filteredPages)
+                bookBuilder.addPage(page.toString())
                 page.setLength(0)
                 pageIndex++
                 lineIndex = 0
@@ -185,85 +179,84 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                 }
 
                 if (char != '\r' && char != '\n') {
-                    page.appendCodePoint(char.code)
+                    page.append(char)
                 }
             }
         }
 
         if (page.isNotEmpty() && pageIndex != generationMode.activeChoice.pages) {
-            addPageToBook(page, pages, filteredPages)
+            bookBuilder.addPage(page.toString())
         }
 
-        writeBook(Sign.bookName.replace("%count%", bookCount.toString()),
-            filteredPages, pages)
+        bookBuilder.writeBook()
 
         bookCount++
     }
 
-    private fun appendLineBreak(page: StringBuilder, lineIndex: Int) {
-        page.append('\n')
-        if (lineIndex == MAX_LINES_PER_PAGE) {
-            page.appendCodePoint(' '.code)
+    private sealed class GenerationMode(
+        name: String,
+    ) : Choice(name) {
+        override val parent: ChoiceConfigurable<*> = ModuleBookBot.generationMode
+
+        val pages by int("Pages", 50, 0..100)
+
+        abstract fun generate(): PrimitiveIterator.OfInt
+
+        object Random : GenerationMode("Random") {
+            private val asciiOnly by boolean("AsciiOnly", false)
+
+            private val allowSpace by boolean("AllowSpace", true)
+
+            override fun generate(): PrimitiveIterator.OfInt {
+                val origin = if (asciiOnly) 0x21 else 0x0800
+                val bound = if (asciiOnly) 0x7E else 0x10FFFF
+
+                return random
+                    .ints(origin, bound)
+                    .filter { allowSpace || !Character.isWhitespace(it) }
+                    .iterator()
+            }
         }
     }
 
-    private fun addPageToBook(
-        page: StringBuilder,
-        pages: MutableList<String>,
-        filteredPages: MutableList<RawFilteredPair<Text>>
-    ) {
-        filteredPages.add(RawFilteredPair.of(Text.of(page.toString())))
-        pages.add(page.toString())
+    private fun StringBuilder.appendLineBreak(lineIndex: Int) {
+        append('\n')
+        if (lineIndex == MAX_LINES_PER_PAGE) {
+            append(' ')
+        }
     }
 
-    private fun writeBook(
-        title: String,
-        filteredPages: ArrayList<RawFilteredPair<Text>>,
-        pages: ArrayList<String>
-    ) {
-        player.mainHandStack.set(
-            DataComponentTypes.WRITTEN_BOOK_CONTENT,
-            WrittenBookContentComponent(
-                RawFilteredPair.of(title),
-                player.gameProfile.name,
-                0,
-                filteredPages,
-                true
+    private class BookBuilder {
+        private val title: String = Sign.bookName.replace("%count%", bookCount.toString())
+        private val pageAmount: Int = generationMode.activeChoice.pages
+
+        private val pages = ArrayList<String>(pageAmount)
+        private val filteredPages = ArrayList<RawFilteredPair<Text>>(pageAmount)
+
+        fun addPage(page: String) {
+            filteredPages.add(RawFilteredPair.of(Text.literal(page)))
+            pages.add(page)
+        }
+
+        fun writeBook() {
+            player.mainHandStack.set(
+                DataComponentTypes.WRITTEN_BOOK_CONTENT,
+                WrittenBookContentComponent(
+                    RawFilteredPair.of(title),
+                    player.gameProfile.name,
+                    0,
+                    filteredPages,
+                    true
+                )
             )
-        )
 
-        player.networkHandler.sendPacket(
-            BookUpdateC2SPacket(
-                player.inventory.selectedSlot,
-                pages,
-                if (Sign.enabled) Optional.of(title) else Optional.empty()
+            player.networkHandler.sendPacket(
+                BookUpdateC2SPacket(
+                    player.inventory.selectedSlot,
+                    pages,
+                    if (Sign.enabled) Optional.of(title) else Optional.empty()
+                )
             )
-        )
-    }
-}
-
-abstract class GenerationMode(
-    name: String,
-) : Choice(name) {
-    override val parent: ChoiceConfigurable<*> = ModuleBookBot.generationMode
-
-    abstract val pages: Int
-
-    abstract fun generate(): PrimitiveIterator.OfInt
-}
-
-object RandomGenerationMode : GenerationMode("Random") {
-    override val pages by int("Pages", 50, 0..100)
-
-    private val asciiOnly by boolean("AsciiOnly", false)
-
-    override fun generate(): PrimitiveIterator.OfInt {
-        val origin = if (asciiOnly) 0x21 else 0x0800
-        val bound = if (asciiOnly) 0x7E else 0x10FFFF
-
-        return ModuleBookBot.random
-            .ints(origin, bound)
-            .filter { !Character.isWhitespace(it) && it.toChar() != '\r' && it.toChar() != '\n' }
-            .iterator()
+        }
     }
 }
