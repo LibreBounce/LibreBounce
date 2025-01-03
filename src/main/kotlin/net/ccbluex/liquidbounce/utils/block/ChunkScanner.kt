@@ -20,10 +20,7 @@ package net.ccbluex.liquidbounce.utils.block
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.flow.MutableSharedFlow
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
@@ -31,13 +28,10 @@ import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
-import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.chunk.WorldChunk
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.coroutines.cancellation.CancellationException
 
 object ChunkScanner : EventListener, MinecraftShortcuts {
 
@@ -130,8 +124,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
          * When the first request comes in, the dispatcher and the scope will be initialized,
          * and its parallelism cannot be modified
          */
-        @OptIn(ExperimentalCoroutinesApi::class)
-        private val dispatcher = Util.getMainWorkerExecutor().asCoroutineDispatcher()
+        private val dispatcher = Dispatchers.Default
             .limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
 
         private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -141,36 +134,21 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
          */
         private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
 
-        private const val CHANNEL_CAPACITY = 800
-
-        private var chunkUpdateChannel = Channel<UpdateRequest>(capacity = CHANNEL_CAPACITY)
-
-        private val channelRestartMutex = Mutex()
+        private val eventFlow = MutableSharedFlow<UpdateRequest>()
 
         init {
-            // cyclic job, used to process tasks from channel
-            @Suppress("detekt:SwallowedException")
+            // cyclic job, used to process tasks concurrently
             scope.launch {
-                var retrying = 0
-                while (true) {
+                eventFlow.collect { chunkUpdate ->
                     try {
-                        val chunkUpdate = chunkUpdateChannel.receive()
-
+                        // stop current when world is null
                         if (mc.world == null) {
-                            // reset Channel (prevent sending)
-                            channelRestartMutex.withLock {
-                                chunkUpdateChannel.cancel()
-                                chunkUpdateChannel = Channel(capacity = CHANNEL_CAPACITY)
-                            }
-                            // max delay = 30s (1s, 2s, 4s, ...)
-                            delay((1000L shl retrying++).coerceAtMost(30000L))
-                            continue
+                            delay(1000L)
+                            return@collect
                         }
 
-                        retrying = 0
-
                         // process the update request
-                        launch {
+                        launch(dispatcher) {
                             when (chunkUpdate) {
                                 is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
 
@@ -183,12 +161,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
                                 }
                             }
                         }
-                    } catch (e: CancellationException) {
-                        break // end loop if job has been canceled
-                    } catch (e: ClosedReceiveChannelException) {
-                        break // the channel is closed from outside (stopThread)
                     } catch (e: Throwable) {
-                        retrying++
                         logger.warn("Chunk update error", e)
                     }
                 }
@@ -197,9 +170,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
 
         fun enqueueChunkUpdate(request: UpdateRequest) {
             scope.launch {
-                channelRestartMutex.withLock {
-                    chunkUpdateChannel.send(request)
-                }
+                eventFlow.emit(request)
             }
         }
 
@@ -256,7 +227,6 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
 
         fun stopThread() {
             scope.cancel()
-            chunkUpdateChannel.close()
             logger.info("Stopped Chunk Scanner Thread!")
         }
 
