@@ -116,11 +116,11 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
      * Prepare AutoWeapon for given [entity] if [prepare] is enabled
      */
     fun prepare(entity: Entity?) {
-        if (!running || !prepare) {
+        if (!running || !prepare || entity !is LivingEntity) {
             return
         }
 
-        determineWeaponSlot(entity as? LivingEntity)?.let { slot ->
+        determineWeaponSlot(entity)?.let { slot ->
             SilentHotbar.selectSlotSilently(
                 this,
                 slot,
