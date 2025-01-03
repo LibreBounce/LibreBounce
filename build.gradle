@@ -324,6 +324,47 @@ task detektProjectBaseline(type: io.gitlab.arturbosch.detekt.DetektCreateBaselin
     exclude("**/build/**")
 }
 
+tasks.register("verifyI18nJsonKeys") {
+    def baselineFileName = "en_us.json"
+
+    group = "verification"
+    description = "Compare i18n JSON files with ${baselineFileName} as the baseline and report missing keys."
+
+    def i18nDir = file("src/main/resources/resources/liquidbounce/lang")
+
+    doLast {
+        if (!i18nDir.exists() || !i18nDir.isDirectory()) {
+            throw new GradleException("The specified directory ${i18nDir} does not exist or is not a directory.")
+        }
+
+        def baselineFile = new File(i18nDir, baselineFileName)
+        if (!baselineFile.exists()) {
+            throw new GradleException("Baseline file ${baselineFileName} not found in ${i18nDir}.")
+        }
+
+        def baseline = new JsonSlurper().parse(baselineFile)
+
+        i18nDir.eachFile { file ->
+            if (file.name.endsWith(".json") && file.name != baselineFileName) {
+                def currentFile = new JsonSlurper().parse(file)
+
+                def missingKeys = baseline.keySet() - currentFile.keySet()
+
+                if (missingKeys.isEmpty()) {
+                    println "${file.name} is complete. No missing keys."
+                } else {
+                    def limitedMissingKeys = missingKeys.take(5)
+                    def output = limitedMissingKeys.join(', ')
+                    if (missingKeys.size() > 5) {
+                        output += ", ..."
+                    }
+                    println "${file.name} is missing the following keys (${missingKeys.size()}): ${output}"
+                }
+            }
+        }
+    }
+}
+
 java {
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
