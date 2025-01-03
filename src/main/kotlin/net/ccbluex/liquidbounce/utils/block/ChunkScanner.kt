@@ -125,7 +125,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
          * and its parallelism cannot be modified
          */
         private val dispatcher = Dispatchers.Default
-            .limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
+            //.limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
 
         private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
@@ -148,7 +148,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
                         }
 
                         // process the update request
-                        launch(dispatcher) {
+                        launch {
                             when (chunkUpdate) {
                                 is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
 
@@ -186,11 +186,9 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
 
             val currentSubscriber = request.singleSubscriber?.let { listOf(it) } ?: subscribers
 
-            currentSubscriber.map {
-                scope.launch {
-                    it.chunkUpdate(request.chunk.pos.x, request.chunk.pos.z)
-                }
-            }.joinAll()
+            currentSubscriber.forEach {
+                it.chunkUpdate(request.chunk.pos.x, request.chunk.pos.z)
+            }
 
             // Contains all subscriber that want recordBlock called on a chunk update
             val subscribersForRecordBlock = currentSubscriber.filter { it.shouldCallRecordBlockOnChunkUpdate }
@@ -204,19 +202,22 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
             val startX = chunk.pos.startX
             val startZ = chunk.pos.startZ
 
-            (chunk.bottomY..chunk.topYInclusive).map { y ->
+            /**
+             * @see WorldChunk.getBlockState
+             */
+            (0..chunk.highestNonEmptySection).map { sectionIndex ->
+                val section = chunk.getSection(sectionIndex)
+
                 scope.launch {
-                    /**
-                     * @see WorldChunk.getBlockState
-                     */
-                    val chunkSection = chunk.sectionArray.getOrNull((y shr 4) - (chunk.bottomY shr 4))
-
-                    for (x in 0..15) {
-                        for (z in 0..15) {
-                            val blockState = chunkSection?.getBlockState(x, y and 15, z) ?: DEFAULT_BLOCK_STATE
-
-                            val pos = mutable.set(startX or x, y, startZ or z)
-                            subscribersForRecordBlock.forEach { it.recordBlock(pos, blockState, cleared = true) }
+                    for (sectionY in 0..15) {
+                        // index == (y >> 4) - (bottomY >> 4)
+                        val y = (sectionIndex + (chunk.bottomY shr 4)) shl 4 or sectionY
+                        for (x in 0..15) {
+                            for (z in 0..15) {
+                                val blockState = section.getBlockState(x, sectionY, z)
+                                val pos = mutable.set(startX or x, y, startZ or z)
+                                subscribersForRecordBlock.forEach { it.recordBlock(pos, blockState, cleared = true) }
+                            }
                         }
                     }
                 }
