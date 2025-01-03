@@ -42,7 +42,7 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
 
     object Speed : ToggleableConfigurable(this, "Speed", true) {
         val vertical by float("Vertical", 0.5f, 0.1f..2f)
-        val horizontal by float("Horizontal", 1f, 0.1f..2f)
+        val horizontal by float("Horizontal", 1f, 0.1f..5f)
     }
 
     init {
