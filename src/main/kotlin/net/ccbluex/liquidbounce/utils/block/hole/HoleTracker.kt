@@ -88,13 +88,9 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber, MinecraftShortcuts {
         }
 
         // Only check positions in this chunk (pos is BlockPos.Mutable)
-        for (pos in this) {
-            if (pos.y >= topY) {
-                continue
-            }
-
-            if (holesInRegion.any { pos in it } || !buffer.checkSameXZ(pos)) {
-                continue
+        forEach { pos ->
+            if (pos.y >= topY || holesInRegion.any { pos in it } || !buffer.checkSameXZ(pos)) {
+                return@forEach
             }
 
             val surroundings = fullSurroundings.filterTo(ArrayList(4)) { direction ->
@@ -103,17 +99,14 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber, MinecraftShortcuts {
 
             when (surroundings.size) {
                 // 1*1
-                4 -> holes += Hole(
-                    Hole.Type.ONE_ONE,
-                    Region.from(pos),
-                )
+                4 -> holes += Hole(Hole.Type.ONE_ONE, Region.from(pos))
                 // 1*2
                 3 -> {
                     val airDirection = fullSurroundings.first { it !in surroundings }
                     val another = pos.offset(airDirection)
 
                     if (!buffer.checkSameXZ(another)) {
-                        continue
+                        return@forEach
                     }
 
                     val airOpposite = airDirection.opposite
@@ -124,10 +117,7 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber, MinecraftShortcuts {
                     }
 
                     if (buffer.checkSurroundings(another, checkDirections)) {
-                        holes += Hole(
-                            Hole.Type.ONE_TWO,
-                            Region(pos, another),
-                        )
+                        holes += Hole(Hole.Type.ONE_TWO, Region(pos, another))
                     }
                 }
                 // 2*2
@@ -135,21 +125,18 @@ object HoleTracker : ChunkScanner.BlockChangeSubscriber, MinecraftShortcuts {
                     val (direction1, direction2) = fullSurroundings.filterTo(ArrayList(2)) { it !in surroundings }
 
                     if (!buffer.checkState(mutableLocal.set(pos, direction1), direction1, direction2.opposite)) {
-                        continue
+                        return@forEach
                     }
 
                     if (!buffer.checkState(mutableLocal.set(pos, direction2), direction2, direction1.opposite)) {
-                        continue
+                        return@forEach
                     }
 
                     if (!buffer.checkState(mutableLocal.move(direction1), direction1, direction2)) {
-                        continue
+                        return@forEach
                     }
 
-                    holes += Hole(
-                        Hole.Type.TWO_TWO,
-                        Region(pos, mutableLocal),
-                    )
+                    holes += Hole(Hole.Type.TWO_TWO, Region(pos, mutableLocal))
                 }
             }
         }
