@@ -434,7 +434,7 @@ fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolea
             vertex(matrix, x, y, z)
         }
 
-        if(onlyOutline) {
+        if (onlyOutline) {
             vertex(matrix, vertices[0].x, vertices[0].y, vertices[0].z)
         }
 
@@ -481,6 +481,10 @@ fun RenderEnvironment.drawBoxSide(box: Box, side: Direction, face: Color4b, outl
         vertices.forEach { (x, y, z) ->
             vertex(matrix, x, y, z).color(outline.r, outline.g, outline.b, outline.a)
         }
+
+        // close the loop
+        val firstVertex = vertices[0]
+        vertex(matrix, firstVertex.x, firstVertex.y, firstVertex.z).color(outline.r, outline.g, outline.b, outline.a)
 
         // Draw the outlined box
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
