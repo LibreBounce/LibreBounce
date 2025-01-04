@@ -143,7 +143,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
                     try {
                         // stop current when world is null
                         if (mc.world == null) {
-                            delay(1000L)
+                            delay(50L)
                             return@collect
                         }
 
