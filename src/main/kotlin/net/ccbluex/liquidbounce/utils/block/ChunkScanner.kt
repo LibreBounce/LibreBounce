@@ -241,7 +241,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
         }
 
         fun stopThread() {
-            scope.cancel()
+            worldJob.cancel()
             collectorJob.cancel()
             logger.info("Stopped Chunk Scanner Thread!")
         }
