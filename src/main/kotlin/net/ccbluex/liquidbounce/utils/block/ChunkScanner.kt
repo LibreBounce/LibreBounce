@@ -206,9 +206,8 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
              * @see WorldChunk.getBlockState
              */
             (0..chunk.highestNonEmptySection).map { sectionIndex ->
-                val section = chunk.getSection(sectionIndex)
-
                 scope.launch {
+                    val section = chunk.getSection(sectionIndex)
                     for (sectionY in 0..15) {
                         // index == (y >> 4) - (bottomY >> 4)
                         val y = (sectionIndex + (chunk.bottomY shr 4)) shl 4 or sectionY
