@@ -108,17 +108,13 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
     private fun figureOutColor(entity: EntityLivingBase): Color {
         val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
-        val colorMode = colorMode.lowercase()
-
-        val alpha = colors.color().alpha
-
         return when {
             entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255)
             teams && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
-            colorMode == "custom" -> colors.color()
-            colorMode == "distancecolor" -> Color(255 - dist, dist, 0)
-            colorMode == "rainbow" -> ColorUtils.rainbow()
-            else -> Color(255, 255, 255)
-        }.withAlpha(alpha)
+            colorMode == "Custom" -> colors.color()
+            colorMode == "DistanceColor" -> Color(255 - dist, dist, 0)
+            colorMode == "Rainbow" -> ColorUtils.rainbow()
+            else -> Color.WHITE
+        }.withAlpha(colors.color().alpha)
     }
 }
