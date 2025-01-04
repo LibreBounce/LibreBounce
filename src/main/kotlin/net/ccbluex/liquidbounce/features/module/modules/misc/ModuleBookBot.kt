@@ -136,58 +136,10 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             return
         }
 
-        val chars = generationMode.activeChoice.generate()
-        val widthRetriever = mc.textRenderer.textHandler.widthRetriever
-
         val bookBuilder = BookBuilder()
-
-        var pageIndex = 0
-        var lineIndex = 0
-        var lineWidth = 0.0f
-        val page = StringBuilder()
-
-        while (chars.hasNext()) {
-            val char = chars.nextInt().toChar()
-
-            if (lineWidth == 0f && char == ' ') {
-                continue
-            } else if (char == '\r' || char == '\n') {
-                page.append('\n')
-                lineWidth = 0.0f
-                lineIndex++
-            } else {
-                val charWidth = widthRetriever.getWidth(char.code, Style.EMPTY)
-
-                if (lineWidth + charWidth > MAX_LINE_WIDTH) {
-                    lineIndex++
-                    lineWidth = charWidth
-                    page.appendLineBreak(lineIndex)
-                } else {
-                    lineWidth += charWidth
-                    page.appendCodePoint(char.code)
-                }
-            }
-
-            if (lineIndex == MAX_LINES_PER_PAGE) {
-                bookBuilder.addPage(page.toString())
-                page.setLength(0)
-                pageIndex++
-                lineIndex = 0
-
-                if (pageIndex == generationMode.activeChoice.pages) {
-                    break
-                }
-
-                if (char != '\r' && char != '\n') {
-                    page.append(char)
-                }
-            }
+        bookBuilder.buildBookContent(generationMode.activeChoice.generate()) {
+            mc.textRenderer.textHandler.widthRetriever.getWidth(it, Style.EMPTY)
         }
-
-        if (page.isNotEmpty() && pageIndex != generationMode.activeChoice.pages) {
-            bookBuilder.addPage(page.toString())
-        }
-
         bookBuilder.writeBook()
 
         bookCount++
@@ -257,6 +209,58 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                     if (Sign.enabled) Optional.of(title) else Optional.empty()
                 )
             )
+        }
+    }
+
+    private fun BookBuilder.buildBookContent(
+        charGenerator: PrimitiveIterator.OfInt,
+        charWidthProvider: (Int) -> Float
+    ) {
+        var pageIndex = 0
+        var lineIndex = 0
+        var lineWidth = 0.0f
+        val page = StringBuilder()
+
+        while (charGenerator.hasNext()) {
+            val char = charGenerator.nextInt().toChar()
+
+            if (lineWidth == 0f && char == ' ') {
+                continue
+            } else if (char == '\r' || char == '\n') {
+                page.append('\n')
+                lineWidth = 0.0f
+                lineIndex++
+            } else {
+                val charWidth = charWidthProvider(char.code)
+
+                if (lineWidth + charWidth > MAX_LINE_WIDTH) {
+                    lineIndex++
+                    lineWidth = charWidth
+                    page.appendLineBreak(lineIndex)
+                } else {
+                    lineWidth += charWidth
+                    page.appendCodePoint(char.code)
+                }
+            }
+
+            if (lineIndex == MAX_LINES_PER_PAGE) {
+                this.addPage(page.toString())
+                page.setLength(0)
+                pageIndex++
+                lineIndex = 0
+
+                if (pageIndex == generationMode.activeChoice.pages) {
+                    break
+                }
+
+                if (char != '\r' && char != '\n') {
+                    page.append(char)
+                }
+            }
+        }
+
+        if (page.isNotEmpty() && pageIndex != generationMode.activeChoice.pages) {
+            this.addPage(page.toString())
         }
     }
 }
