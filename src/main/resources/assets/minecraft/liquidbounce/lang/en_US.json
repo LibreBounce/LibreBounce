@@ -368,6 +368,8 @@
 
         "module.forwardTrack.description": "Reveals the actual position of an entity.",
 
-        "module.clickRecorder.description": "Records and saves your clicks."
+        "module.clickRecorder.description": "Records and saves your clicks.",
+
+        "module.chineseHat.description": "Renders a chinese-like hat on specific entities."
     }
 }

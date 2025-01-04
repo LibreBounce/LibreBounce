@@ -210,7 +210,8 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             ForwardTrack,
             FreeLook,
             SilentHotbarModule,
-            ClickRecorder
+            ClickRecorder,
+            ChineseHat
         )
 
         registerModules(modules = modules)
