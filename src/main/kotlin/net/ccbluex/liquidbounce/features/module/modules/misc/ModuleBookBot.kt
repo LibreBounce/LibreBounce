@@ -212,7 +212,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         }
     }
 
-    private fun BookBuilder.buildBookContent(
+    private inline fun BookBuilder.buildBookContent(
         charGenerator: PrimitiveIterator.OfInt,
         charWidthProvider: (Int) -> Float
     ) {
