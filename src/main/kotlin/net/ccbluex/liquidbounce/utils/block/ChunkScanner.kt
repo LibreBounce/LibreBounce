@@ -125,7 +125,7 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
          * and its parallelism cannot be modified
          */
         private val dispatcher = Dispatchers.Default
-            //.limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
+            .limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
 
         private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
