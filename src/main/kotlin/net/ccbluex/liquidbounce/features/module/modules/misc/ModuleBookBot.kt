@@ -130,7 +130,6 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
      * @see PrimitiveIterator.OfInt
      * @see GenerationMode.generate
      */
-    @Suppress("CognitiveComplexMethod")
     private fun writeBook() {
         if (!isCandidate(player.mainHandStack)) {
             return
@@ -185,6 +184,59 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
         private val pages = ArrayList<String>(pageAmount)
         private val filteredPages = ArrayList<RawFilteredPair<Text>>(pageAmount)
 
+        @Suppress("detekt:CognitiveComplexMethod")
+        inline fun buildBookContent(
+            charGenerator: PrimitiveIterator.OfInt,
+            charWidthProvider: (charCode: Int) -> Float
+        ) {
+            var pageIndex = 0
+            var lineIndex = 0
+            var lineWidth = 0.0f
+            val page = StringBuilder()
+
+            while (charGenerator.hasNext()) {
+                val char = charGenerator.nextInt().toChar()
+
+                if (lineWidth == 0f && char == ' ') {
+                    continue
+                } else if (char == '\r' || char == '\n') {
+                    page.append('\n')
+                    lineWidth = 0.0f
+                    lineIndex++
+                } else {
+                    val charWidth = charWidthProvider(char.code)
+
+                    if (lineWidth + charWidth > MAX_LINE_WIDTH) {
+                        lineIndex++
+                        lineWidth = charWidth
+                        page.appendLineBreak(lineIndex)
+                    } else {
+                        lineWidth += charWidth
+                        page.appendCodePoint(char.code)
+                    }
+                }
+
+                if (lineIndex == MAX_LINES_PER_PAGE) {
+                    this.addPage(page.toString())
+                    page.setLength(0)
+                    pageIndex++
+                    lineIndex = 0
+
+                    if (pageIndex >= pageAmount) {
+                        break
+                    }
+
+                    if (char != '\r' && char != '\n') {
+                        page.append(char)
+                    }
+                }
+            }
+
+            if (page.isNotEmpty() && pageIndex < pageAmount) {
+                this.addPage(page.toString())
+            }
+        }
+
         fun addPage(page: String) {
             filteredPages.add(RawFilteredPair.of(Text.literal(page)))
             pages.add(page)
@@ -209,58 +261,6 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
                     if (Sign.enabled) Optional.of(title) else Optional.empty()
                 )
             )
-        }
-    }
-
-    private inline fun BookBuilder.buildBookContent(
-        charGenerator: PrimitiveIterator.OfInt,
-        charWidthProvider: (Int) -> Float
-    ) {
-        var pageIndex = 0
-        var lineIndex = 0
-        var lineWidth = 0.0f
-        val page = StringBuilder()
-
-        while (charGenerator.hasNext()) {
-            val char = charGenerator.nextInt().toChar()
-
-            if (lineWidth == 0f && char == ' ') {
-                continue
-            } else if (char == '\r' || char == '\n') {
-                page.append('\n')
-                lineWidth = 0.0f
-                lineIndex++
-            } else {
-                val charWidth = charWidthProvider(char.code)
-
-                if (lineWidth + charWidth > MAX_LINE_WIDTH) {
-                    lineIndex++
-                    lineWidth = charWidth
-                    page.appendLineBreak(lineIndex)
-                } else {
-                    lineWidth += charWidth
-                    page.appendCodePoint(char.code)
-                }
-            }
-
-            if (lineIndex == MAX_LINES_PER_PAGE) {
-                this.addPage(page.toString())
-                page.setLength(0)
-                pageIndex++
-                lineIndex = 0
-
-                if (pageIndex == generationMode.activeChoice.pages) {
-                    break
-                }
-
-                if (char != '\r' && char != '\n') {
-                    page.append(char)
-                }
-            }
-        }
-
-        if (page.isNotEmpty() && pageIndex != generationMode.activeChoice.pages) {
-            this.addPage(page.toString())
         }
     }
 }
