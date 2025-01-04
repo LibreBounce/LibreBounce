@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.chunk.WorldChunk
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.system.measureNanoTime
 
 object ChunkScanner : EventListener, MinecraftShortcuts {
 
@@ -184,20 +185,26 @@ object ChunkScanner : EventListener, MinecraftShortcuts {
                 return
             }
 
+            val start = System.nanoTime()
+
             val currentSubscriber = request.singleSubscriber?.let { listOf(it) } ?: subscribers
 
-            currentSubscriber.forEach {
-                it.chunkUpdate(request.chunk.pos.x, request.chunk.pos.z)
+            if (currentSubscriber.size > 1) {
+                currentSubscriber.map {
+                    scope.launch { it.chunkUpdate(chunk.pos.x, chunk.pos.z) }
+                }.joinAll()
+            } else {
+                currentSubscriber.first().chunkUpdate(chunk.pos.x, chunk.pos.z)
             }
 
             // Contains all subscriber that want recordBlock called on a chunk update
-            val subscribersForRecordBlock = currentSubscriber.filter { it.shouldCallRecordBlockOnChunkUpdate }
+            val subscribersForRecordBlock = currentSubscriber.filter {
+                it.shouldCallRecordBlockOnChunkUpdate
+            }.toTypedArray()
 
             if (subscribersForRecordBlock.isEmpty()) {
                 return
             }
-
-            val start = System.nanoTime()
 
             val startX = chunk.pos.startX
             val startZ = chunk.pos.startZ
