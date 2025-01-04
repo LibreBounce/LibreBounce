@@ -33,7 +33,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 /**
  * ElytraFly module
  *
- * Allows you to control elytra flying more easily.
+ * Makes elytra flying easier to control.
  */
 object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
 
