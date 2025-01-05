@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 @Suppress("SpreadOperator", "unused")
 object ScriptReflectionUtil {
 
+
     @JvmName("classByName")
     fun classByName(name: String): Class<*> = Class.forName(
         EnvironmentRemapper.remapClassName(name).replace('/', '.')
@@ -83,6 +84,18 @@ object ScriptReflectionUtil {
             isAccessible = true
         }?.get(null)
 
+    private val primitiveTypeMap = mapOf(
+        java.lang.Integer::class.java to Int::class.javaPrimitiveType,
+        java.lang.Long::class.java to Long::class.javaPrimitiveType,
+        java.lang.Double::class.java to Double::class.javaPrimitiveType,
+        java.lang.Float::class.java to Float::class.javaPrimitiveType,
+        java.lang.Boolean::class.java to Boolean::class.javaPrimitiveType,
+        java.lang.Byte::class.java to Byte::class.javaPrimitiveType,
+        java.lang.Short::class.java to Short::class.javaPrimitiveType,
+        java.lang.Character::class.java to Char::class.javaPrimitiveType
+        // not removing the redundant qualifier name for consistency
+    )
+
     /**
      * Invoke method(**PUBLIC ONLY**) based on method name on an object,
      * match overloaded methods based on number and type of arguments,
@@ -107,44 +120,33 @@ object ScriptReflectionUtil {
      */
 
     @JvmName("invokeMethod")
-    fun invokeMethod(obj: Any, name: String, vararg args: Any?): Any? =
-        obj::class.java.methods.find { method ->
-            // check if parameters size match, probably faster than string checking
+    fun invokeMethod(obj: Any, name: String, vararg args: Any?): Any? {
+        if (args.any { it == null }) {
+            throw IllegalArgumentException(
+                "Null argument is not support by this api, please use " +
+                    "reflection api with EnvironmentRemapper manually"
+            )
+        }
+
+        // Pre-compute argument types, mapping boxed types to primitive types where applicable
+        val argTypes = args.map { arg ->
+            primitiveTypeMap[arg!!.javaClass] ?: arg.javaClass
+        }
+
+        val potentialMatches = obj::class.java.methods.filter { method ->
             method.parameterTypes.size == args.size &&
-                EnvironmentRemapper.remapMethod(obj::class.java, method.name) == name &&
-                method.parameterTypes.zip(args).all { (paramType, arg) ->
-
-                    if (arg == null) {
-                        throw IllegalArgumentException(
-                            "Null argument is not support by this api, please use " +
-                                "reflection api with EnvironmentRemapper manually"
-                        )
-                    }
-
-                    when {
-                        // Null can match any non-primitive type if wish to go that way,
-                        // but yeah idk maybe just assert null is better
-                        // arg == null -> !paramType.isPrimitive
-
-                        // Handle primitive type boxing
-                        paramType.isPrimitive -> when (paramType) {
-                            Int::class.javaPrimitiveType -> arg is Int
-                            Long::class.javaPrimitiveType -> arg is Long
-                            Double::class.javaPrimitiveType -> arg is Double
-                            Float::class.javaPrimitiveType -> arg is Float
-                            Boolean::class.javaPrimitiveType -> arg is Boolean
-                            Byte::class.javaPrimitiveType -> arg is Byte
-                            Short::class.javaPrimitiveType -> arg is Short
-                            Char::class.javaPrimitiveType -> arg is Char
-                            else -> paramType.isInstance(arg)
-                        }
-                        // Regular type check
-                        else -> paramType.isInstance(arg)
-                    }
+                method.parameterTypes.zip(argTypes).all { (paramType, argType) ->
+                    paramType == argType || (!paramType.isPrimitive && paramType.isAssignableFrom(argType))
                 }
+        }
+
+        // only check remapped names for potential matches (expensive operation)
+        return potentialMatches.find { method ->
+            EnvironmentRemapper.remapMethod(obj::class.java, method.name) == name
         }?.apply {
             isAccessible = true
         }?.invoke(obj, *args)
+    }
 
 
     /**
@@ -160,39 +162,31 @@ object ScriptReflectionUtil {
      */
 
     @JvmName("invokeDeclaredMethod")
-    fun invokeDeclaredMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? =
-        clazz.declaredMethods.find { method ->
-            // check if parameters size match, probably faster than string checking
+    fun invokeDeclaredMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? {
+        if (args.any { it == null }) {
+            throw IllegalArgumentException(
+                "Null argument is not support by this api, please use " +
+                    "reflection api with EnvironmentRemapper manually"
+            )
+        }
+
+        val argTypes = args.map { arg ->
+            primitiveTypeMap[arg!!.javaClass] ?: arg.javaClass
+        }
+
+        val potentialMatches = clazz.declaredMethods.filter { method ->
             method.parameterTypes.size == args.size &&
-                EnvironmentRemapper.remapMethod(clazz, method.name) == name &&
-                method.parameterTypes.zip(args).all { (paramType, arg) ->
-
-                    if (arg == null) {
-                        throw IllegalArgumentException(
-                            "Null argument is not support by this api, please use " +
-                                "reflection api with EnvironmentRemapper manually"
-                        )
-                    }
-
-                    when {
-                        // Handle primitive type boxing
-                        paramType.isPrimitive -> when (paramType) {
-                            Int::class.javaPrimitiveType -> arg is Int
-                            Long::class.javaPrimitiveType -> arg is Long
-                            Double::class.javaPrimitiveType -> arg is Double
-                            Float::class.javaPrimitiveType -> arg is Float
-                            Boolean::class.javaPrimitiveType -> arg is Boolean
-                            Byte::class.javaPrimitiveType -> arg is Byte
-                            Short::class.javaPrimitiveType -> arg is Short
-                            Char::class.javaPrimitiveType -> arg is Char
-                            else -> paramType.isInstance(arg)
-                        }
-                        // Regular type check
-                        else -> paramType.isInstance(arg)
-                    }
+                method.parameterTypes.zip(argTypes).all { (paramType, argType) ->
+                    paramType == argType || (!paramType.isPrimitive && paramType.isAssignableFrom(argType))
                 }
+        }
+
+        // only check remapped names for potential matches (expensive operation)
+        return potentialMatches.find { method ->
+            EnvironmentRemapper.remapMethod(clazz, method.name) == name
         }?.apply {
             isAccessible = true
         }?.invoke(null, *args)
+    }
 
 }
