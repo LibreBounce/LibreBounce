@@ -367,6 +367,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTracers,
             ModuleTrajectories,
             ModuleTrueSight,
+            ModuleVoidESP,
             ModuleXRay,
             ModuleDebug,
             ModuleZoom,

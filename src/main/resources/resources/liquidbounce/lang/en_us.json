@@ -596,6 +596,7 @@
   "liquidbounce.module.vehicleBoost.description": "Boost you when leaving a vehicle.",
   "liquidbounce.module.vehicleOneHit.description": "Allows you to break any vehicle with a single hit.",
   "liquidbounce.module.velocity.description": "Modifies the amount of velocity you take.",
+  "liquidbounce.module.voidEsp.description": "Highlight all surrounding positions that may be void.",
   "liquidbounce.module.xRay.description": "Only renders selected blocks.",
   "liquidbounce.module.zoom.description": "Allows you to make everything in your world appear smaller or bigger.",
   "liquidbounce.module.antiHunger.description": "Prevents you from getting hungry.",
