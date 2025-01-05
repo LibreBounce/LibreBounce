@@ -26,6 +26,8 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.AccountManager
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.toList
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.screen.TitleScreen
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen
@@ -40,6 +42,14 @@ object Reconnect : EventListener {
 
     val handleServerConnect = handler<ServerConnectEvent> {
         lastServer = ServerInfo(it.serverName, it.serverAddress, ServerInfo.ServerType.OTHER)
+            .apply {
+                val existingServer = ActiveServerList.serverList.toList().find { server ->
+                    server.address == it.serverAddress
+                }
+
+                resourcePackPolicy = existingServer?.resourcePackPolicy
+                    ?: ServerInfo.ResourcePackPolicy.PROMPT
+            }
     }
 
     /**
