@@ -53,7 +53,7 @@ object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetectin
 
     val inventoryParticle by boolean("InventoryParticle", false)
     private val blur by boolean("Blur", false)
-    val fontChat by boolean("FontChat", false)
+    private val fontChat by boolean("FontChat", false)
 
     val onRender2D = handler<Render2DEvent> {
         if (mc.currentScreen is GuiHudDesigner)
@@ -80,6 +80,8 @@ object HUD : Module("HUD", Category.RENDER, defaultInArray = false, gameDetectin
             "liquidbounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName
         ) mc.entityRenderer.stopUseShader()
     }
+
+    fun shouldModifyChatFont() = handleEvents() && fontChat
 
     init {
         state = true
