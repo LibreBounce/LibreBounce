@@ -46,8 +46,10 @@ object ModuleProphuntESP : ClientModule("ProphuntESP", Category.RENDER,
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        world.entities.filterIsInstance<FallingBlockEntity>().forEach {
-            renderer.addBlock(it.blockPos)
+        world.entities.forEach {
+            if (it is FallingBlockEntity) {
+                renderer.addBlock(it.blockPos)
+            }
         }
     }
 
@@ -58,7 +60,7 @@ object ModuleProphuntESP : ClientModule("ProphuntESP", Category.RENDER,
                 renderer.addBlock(packet.pos)
             }
             is ChunkDeltaUpdateS2CPacket -> mc.renderTaskQueue.add {
-                packet.visitUpdates { pos, _ -> renderer.addBlock(pos.toImmutable()) }
+                packet.visitUpdates { pos, _ -> renderer.addBlock(pos) }
             }
         }
     }
