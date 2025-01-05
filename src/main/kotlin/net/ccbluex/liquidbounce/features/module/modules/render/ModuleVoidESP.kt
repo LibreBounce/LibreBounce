@@ -79,7 +79,9 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         val startPos = mutable1.set(player.blockPos, Direction.DOWN)
         var chunk = world.getChunk(startPos)
         var flag = false
-        for (i in 0 until yThreshold) {
+
+        var i = 0
+        while (i++ < yThreshold) {
             if (chunk.canBlockStandOn(startPos)) {
                 flag = true
                 break
