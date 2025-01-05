@@ -2,7 +2,8 @@
     "locale": "zh_CN",
     "contributors": [
         "guosic",
-        "latiao_1337"
+        "latiao_1337",
+        "Xebook1"
     ],
     "translations": {
         "menu.altManager": "帐号管理器",
@@ -312,7 +313,7 @@
 
         "module.slimeJump.description": "允许你在粘液块上跳得更高。",
 
-        "module.silentHotbar.description": "UNTRANSLATED: Controls in which scenarios the silently selected item should be rendered.",
+        "module.silentHotbar.description": "在某些时候使选择物品保持静默。",
         
         "module.sneak.description": "自动保持潜行。",
         
@@ -364,6 +365,8 @@
 
         "module.forwardTrack.description": "显示实体的实际位置。",
 
-        "module.clickRecorder.description": "记录并保存您的点击。"
+        "module.clickRecorder.description": "记录并保存您的点击。",
+
+        "module.chineseHat.description": "中国草帽。"
     }
 }
