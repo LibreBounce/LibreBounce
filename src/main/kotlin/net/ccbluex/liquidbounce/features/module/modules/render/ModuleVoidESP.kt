@@ -36,8 +36,6 @@ import net.minecraft.world.chunk.Chunk
  * VoidESP module
  *
  * Highlight all surrounding positions that may be void.
- *
- * @author MukjepScarlet
  */
 
 object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
