@@ -22,7 +22,6 @@ package net.ccbluex.liquidbounce.features.chat.packet
 
 import com.google.gson.*
 import java.lang.reflect.Type
-import java.util.IdentityHashMap
 
 /**
  * Packet Serializer
@@ -31,7 +30,7 @@ import java.util.IdentityHashMap
  */
 class PacketSerializer : JsonSerializer<Packet> {
 
-    private val packetRegistry = IdentityHashMap<Class<out Packet>, String>()
+    private val packetRegistry = hashMapOf<Class<out Packet>, String>()
 
     /**
      * Register packet
