@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSet
+import it.unimi.dsi.fastutil.longs.LongSets
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -53,10 +54,10 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         )
     )
 
-    private var lastTickPositions: LongSet = LongSet.of()
+    private var lastTickPositions: LongSet = LongSets.EMPTY_SET
 
     override fun disable() {
-        lastTickPositions = LongSet.of()
+        lastTickPositions = LongSets.EMPTY_SET
         renderer.clearSilently()
     }
 
@@ -75,6 +76,7 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
 
         // Find the first place where the player can stand
         val startPos = mutable1.set(player.blockPos, Direction.DOWN)
+        val yThreshold = yThreshold
         var chunk = world.getChunk(startPos)
         var flag = false
 
@@ -88,7 +90,7 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         }
 
         if (!flag) {
-            return LongSet.of()
+            return LongSets.EMPTY_SET
         }
 
         val facing = player.horizontalFacing
@@ -108,13 +110,15 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
 
             mutable.set(it)
 
-            repeat(yThreshold) { _ ->
+            i = 0
+            while (i++ < yThreshold) {
                 mutable.y--
 
                 if (chunk.canBlockStandOn(mutable)) {
                     return@forEach
                 }
 
+                // Reach the bottom(void)
                 if (mutable.y <= chunk.bottomY) {
                     positions.add(it.asLong())
                     return@forEach
