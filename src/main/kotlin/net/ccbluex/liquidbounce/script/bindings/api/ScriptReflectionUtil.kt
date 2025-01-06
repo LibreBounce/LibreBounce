@@ -20,18 +20,33 @@ package net.ccbluex.liquidbounce.script.bindings.api
 
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("SpreadOperator", "unused")
-object ScriptReflectionUtil {
+class ScriptReflectionUtil {
+
+    // we assume that a single script will only
+    // call a finite (small) number of methods not likely shared by other scripts
+    // therefore we don't put a size limit on the cache
+    private val methodCache = ConcurrentHashMap<Triple<Class<*>, String, List<Class<*>>>, Method>()
+    private val fieldCache = ConcurrentHashMap<Pair<Class<*>, String>, Field>()
+
+    /**
+     * Invalidate the cache.
+     * Allows user to invalidate the cache for whatever reason, like dynamic class loading.
+     */
+    fun invalidateCache() {
+        methodCache.clear()
+        fieldCache.clear()
+    }
 
 
     @JvmName("classByName")
     fun classByName(name: String): Class<*> = Class.forName(
         EnvironmentRemapper.remapClassName(name).replace('/', '.')
     )
-
-    @JvmName("classByObject")
-    fun classByObject(obj: Any): Class<*> = obj::class.java
 
     @JvmName("newInstance")
     fun newInstance(clazz: Class<*>, vararg args: Any?): Any? =
@@ -61,12 +76,17 @@ object ScriptReflectionUtil {
      */
 
     @JvmName("getField")
-    fun getField(obj: Any, name: String): Any? = obj::class.java.fields
-        .find { field ->
-            name == EnvironmentRemapper.remapField(obj::class.java, field.name)
-        }?.apply {
-            isAccessible = true
-        }?.get(obj)
+    fun getField(obj: Any, name: String): Any? {
+        val key = Pair(obj::class.java, name)
+        return fieldCache.getOrPut(key) {
+            obj::class.java.fields
+                .find { field ->
+                    name == EnvironmentRemapper.remapField(obj::class.java, field.name)
+                }?.apply {
+                    isAccessible = true
+                } ?: throw NoSuchFieldException("Field '$name' not found in ${obj::class.java.name}")
+        }.get(obj)
+    }
 
     /**
      * Get the value of a declared field from class
@@ -77,12 +97,16 @@ object ScriptReflectionUtil {
      */
 
     @JvmName("getDeclaredField")
-    fun getDeclaredField(clazz: Class<*>, name: String): Any? = clazz.declaredFields
-        .find { field ->
-            name == EnvironmentRemapper.remapField(clazz, field.name)
-        }?.apply {
-            isAccessible = true
-        }?.get(null)
+    fun getDeclaredField(clazz: Class<*>, name: String): Any? {
+        return fieldCache.getOrPut(Pair(clazz, name)) {
+            clazz.declaredFields
+                .find { field ->
+                    name == EnvironmentRemapper.remapField(clazz, field.name)
+                }?.apply {
+                    isAccessible = true
+                } ?: throw NoSuchFieldException("Field '$name' not found in ${clazz.name}")
+        }.get(null)
+    }
 
     private val primitiveTypeMap = mapOf(
         java.lang.Integer::class.java to Int::class.javaPrimitiveType,
@@ -95,6 +119,7 @@ object ScriptReflectionUtil {
         java.lang.Character::class.java to Char::class.javaPrimitiveType
         // not removing the redundant qualifier name for consistency
     )
+
 
     /**
      * Invoke method(**PUBLIC ONLY**) based on method name on an object,
@@ -121,31 +146,7 @@ object ScriptReflectionUtil {
 
     @JvmName("invokeMethod")
     fun invokeMethod(obj: Any, name: String, vararg args: Any?): Any? {
-        if (args.any { it == null }) {
-            throw IllegalArgumentException(
-                "Null argument is not support by this api, please use " +
-                    "reflection api with EnvironmentRemapper manually"
-            )
-        }
-
-        // Pre-compute argument types, mapping boxed types to primitive types where applicable
-        val argTypes = args.map { arg ->
-            primitiveTypeMap[arg!!.javaClass] ?: arg.javaClass
-        }
-
-        val potentialMatches = obj::class.java.methods.filter { method ->
-            method.parameterTypes.size == args.size &&
-                method.parameterTypes.zip(argTypes).all { (paramType, argType) ->
-                    paramType == argType || (!paramType.isPrimitive && paramType.isAssignableFrom(argType))
-                }
-        }
-
-        // only check remapped names for potential matches (expensive operation)
-        return potentialMatches.find { method ->
-            EnvironmentRemapper.remapMethod(obj::class.java, method.name) == name
-        }?.apply {
-            isAccessible = true
-        }?.invoke(obj, *args)
+        return findMethodInternal(obj::class.java, name, args) { it.methods }.invoke(obj, *args)
     }
 
 
@@ -163,6 +164,15 @@ object ScriptReflectionUtil {
 
     @JvmName("invokeDeclaredMethod")
     fun invokeDeclaredMethod(clazz: Class<*>, name: String, vararg args: Any?): Any? {
+        return findMethodInternal(clazz, name, args) { it.declaredMethods }.invoke(null, args)
+    }
+
+    private fun findMethodInternal(
+        clazz: Class<*>,
+        name: String,
+        args: Array<out Any?>,
+        methodProvider: (Class<*>) -> Array<Method>
+    ): Method {
         if (args.any { it == null }) {
             throw IllegalArgumentException(
                 "Null argument is not support by this api, please use " +
@@ -170,23 +180,30 @@ object ScriptReflectionUtil {
             )
         }
 
+        // Pre-compute argument types
         val argTypes = args.map { arg ->
             primitiveTypeMap[arg!!.javaClass] ?: arg.javaClass
         }
 
-        val potentialMatches = clazz.declaredMethods.filter { method ->
-            method.parameterTypes.size == args.size &&
-                method.parameterTypes.zip(argTypes).all { (paramType, argType) ->
-                    paramType == argType || (!paramType.isPrimitive && paramType.isAssignableFrom(argType))
-                }
-        }
+        val cacheKey = Triple(clazz, name, argTypes)
 
-        // only check remapped names for potential matches (expensive operation)
-        return potentialMatches.find { method ->
-            EnvironmentRemapper.remapMethod(clazz, method.name) == name
-        }?.apply {
-            isAccessible = true
-        }?.invoke(null, *args)
+        // Try to get from cache first
+        return methodCache.getOrPut(cacheKey) {
+            val potentialMatches = methodProvider(clazz).filter { method ->
+                method.parameterTypes.size == args.size &&
+                    method.parameterTypes.mapArray { arg -> primitiveTypeMap[arg] ?: arg }
+                        .zip(argTypes).all { (paramType, argType) ->
+                            paramType == argType || (!paramType.isPrimitive && paramType.isAssignableFrom(argType))
+                        }
+            }
+
+            // Find and return the matching method
+            potentialMatches.find { method ->
+                EnvironmentRemapper.remapMethod(clazz, method.name) == name
+            }?.apply {
+                isAccessible = true
+            } ?: throw NoSuchMethodException("Could not find method $name with matching argument types")
+        }
     }
 
 }
