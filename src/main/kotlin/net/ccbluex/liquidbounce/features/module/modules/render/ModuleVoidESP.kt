@@ -110,8 +110,7 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
 
             mutable.set(it)
 
-            i = 0
-            while (i++ < yThreshold) {
+            repeat(yThreshold) { _ ->
                 mutable.y--
 
                 if (chunk.canBlockStandOn(mutable)) {
