@@ -199,6 +199,8 @@ public abstract class MixinWorldRenderer {
             return true;
         } else if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
             return true;
+        } else if (ModuleStorageESP.Glow.INSTANCE.getRunning() && ModuleStorageESP.categorize(entity) != null) {
+            return true;
         } else {
             return false;
         }
@@ -217,9 +219,14 @@ public abstract class MixinWorldRenderer {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
         } else if (entity instanceof TntEntity tntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
             return ModuleTNTTimer.INSTANCE.getTntColor(tntEntity.getFuse()).toARGB();
-        } else {
-            return original;
+        } else if (ModuleStorageESP.Glow.INSTANCE.getRunning()) {
+            var color = ModuleStorageESP.categorize(entity);
+            if (color != null) {
+                return color.getColor().toARGB();
+            }
         }
+
+        return original;
     }
 
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE))
