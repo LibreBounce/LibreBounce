@@ -357,10 +357,14 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     var currentOptimalLine: Line? = null
+    var rawInput = DirectionalInput.NONE
 
     @Suppress("unused")
-    private val handleMovementInput = handler<MovementInputEvent> { event ->
+    private val handleMovementInput = handler<MovementInputEvent>(
+        priority = EventPriorityConvention.MODEL_STATE
+    ) { event ->
         this.currentOptimalLine = null
+        this.rawInput = event.directionalInput
 
         val currentInput = event.directionalInput
 
@@ -373,6 +377,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent>(
+        // Runs after the model state
         priority = EventPriorityConvention.SAFETY_FEATURE
     ) { event ->
         if (forceSneak > 0) {
@@ -388,7 +393,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
                 technique.activeChoice
             }
 
-            val (jump, sneak, stepStop) = ledge(
+            val (jump, sneak, stepStop, stepBack) = ledge(
                 this.currentTarget,
                 RotationManager.currentRotation ?: player.rotation,
                 technique as? ScaffoldLedgeExtension
@@ -403,6 +408,13 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
             if (stepStop) {
                 event.directionalInput = DirectionalInput.NONE
+            }
+
+            if (stepBack) {
+                event.directionalInput = event.directionalInput.copy(
+                    forwards = false,
+                    backwards = true
+                )
             }
 
             if (sneak > forceSneak) {

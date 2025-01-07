@@ -29,7 +29,8 @@ import kotlin.math.max
 data class LedgeAction(
     val jump: Boolean = false,
     val sneakTime: Int = 0,
-    val stopInput: Boolean = false
+    val stopInput: Boolean = false,
+    val stepBack: Boolean = false
 ) {
     companion object {
         val NO_LEDGE = LedgeAction(jump = false, sneakTime = 0, stopInput = false)

@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.getTargetedPosition
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.rawInput
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.LedgeAction
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldLedgeExtension
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique.NORMAL_INVESTIGATION_OFFSETS
@@ -54,6 +55,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
          * Might not be as consistent as the other modes.
          */
         STOP_INPUT("StopInput"),
+        BACKWARDS("Backwards"),
         RANDOM("Random")
     }
 
@@ -106,6 +108,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
                 mode == Mode.JUMP -> LedgeAction(jump = true)
                 mode == Mode.SNEAK -> LedgeAction(sneakTime = this@ScaffoldGodBridgeTechnique.sneakTime)
                 mode == Mode.STOP_INPUT -> LedgeAction(stopInput = true)
+                mode == Mode.BACKWARDS -> LedgeAction(stepBack = true)
                 mode == Mode.RANDOM -> if (Random.nextBoolean()) {
                     LedgeAction(jump = true, sneakTime = 0)
                 } else {
@@ -140,15 +143,13 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
     }
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
-        val dirInput = DirectionalInput(player.input)
-
-        if (dirInput == DirectionalInput.NONE) {
+        if (rawInput == DirectionalInput.NONE) {
             target ?: return null
 
             return getRotationForNoInput(target)
         }
 
-        val direction = getMovementDirectionOfInput(player.yaw, dirInput) + 180
+        val direction = getMovementDirectionOfInput(player.yaw, rawInput) + 180
 
         // Round to 45°-steps (NORTH, NORTH_EAST, etc.)
         val movingYaw = round(direction / 45) * 45
