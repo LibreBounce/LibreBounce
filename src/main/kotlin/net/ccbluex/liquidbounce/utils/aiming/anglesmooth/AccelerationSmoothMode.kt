@@ -9,8 +9,12 @@ import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.entity.Entity
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.exp
+import kotlin.math.floor
+import kotlin.math.max
 
 class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Acceleration") {
 
@@ -118,24 +122,42 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
 
     override fun howLongToReach(currentRotation: Rotation, targetRotation: Rotation): Int {
         val prevRotation = RotationManager.previousRotation ?: player.lastRotation
-
         val prevDiff = prevRotation.rotationDeltaTo(currentRotation)
         val diff = currentRotation.rotationDeltaTo(targetRotation)
 
-        val (computedH, computedV) = computeTurnSpeed(
+        // Check if we are already on target
+        if (MathHelper.approximatelyEquals(diff.deltaYaw, 0f) &&
+            MathHelper.approximatelyEquals(diff.deltaPitch, 0f)) {
+            return 0
+        }
+
+        val (newYawDiff, newPitchDiff) = computeTurnSpeed(
             prevDiff,
             diff,
             false,
             0.0
         )
 
-        val lowest = min(computedH, computedV)
-
-        if (lowest <= 0.0) {
+        // If we are not turning anyway, we might as well return 0
+        if (MathHelper.approximatelyEquals(newYawDiff, 0f) &&
+            MathHelper.approximatelyEquals(newPitchDiff, 0f)) {
             return 0
         }
 
-        return (diff.length() / lowest).roundToInt()
+        // Check if we are already on target
+        if (abs(diff.deltaYaw) < abs(newYawDiff) && abs(diff.deltaPitch) < abs(newPitchDiff)) {
+            return 0
+        }
+
+        val ticksH = floor(abs(diff.deltaYaw) / abs(newYawDiff))
+        val ticksV = floor(abs(diff.deltaPitch) / abs(newPitchDiff))
+
+        // Check if ticksH or ticksV are NaN
+        if (ticksH.isNaN() || ticksV.isNaN()) {
+            return 0
+        }
+
+        return max(ticksH, ticksV).toInt()
     }
 
     @Suppress("LongParameterList", "CognitiveComplexMethod")
