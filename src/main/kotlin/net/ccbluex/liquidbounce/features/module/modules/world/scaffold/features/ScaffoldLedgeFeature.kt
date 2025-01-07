@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import kotlin.math.max
 
 data class LedgeState(
@@ -34,24 +34,24 @@ data class LedgeState(
 }
 
 fun ledge(
-    simulatedPlayer: SimulatedPlayer,
     target: BlockPlacementTarget?,
     rotation: Rotation,
     extension: ScaffoldLedgeExtension? = null
 ): LedgeState {
     val ticks = ModuleScaffold.ScaffoldRotationConfigurable.howLongToReach(rotation)
-    val simClone = simulatedPlayer.clone()
-    simClone.tick()
 
-    // [ledgeSoon] could be replaced with isCloseToEdge, but I feel like this is more consistent
-    val ledgeSoon = simulatedPlayer.clipLedged || simClone.clipLedged
+    val simulatedPlayerCache = PlayerSimulationCache.getSimulationForLocalPlayer()
+    val snapshotOne = simulatedPlayerCache.getSnapshotAt(1)
+    val snapshotTwo = simulatedPlayerCache.getSnapshotAt(2)
+
+    val ledgeSoon = snapshotOne.clipLedged || snapshotTwo.clipLedged
 
     if ((ticks >= 1 || ModuleScaffold.blockCount <= 0) && ledgeSoon) {
         return LedgeState(requiresJump = false, requiresSneak = max(1, ticks))
     }
 
     return extension?.ledge(
-        ledge = simulatedPlayer.clipLedged,
+        ledge = snapshotOne.clipLedged,
         ledgeSoon = ledgeSoon,
         target = target,
         rotation = rotation

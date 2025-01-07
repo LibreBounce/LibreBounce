@@ -21,7 +21,8 @@ package net.ccbluex.liquidbounce.utils.block.placer
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -127,7 +128,7 @@ class BlockPlacer(
     private var sneakTimes = 0
 
     @Suppress("unused")
-    private val targetUpdater = handler<SimulatedTickEvent>(priority = -20) {
+    private val targetUpdater = handler<ScheduleRotationUpdateEvent>(priority = -20) {
         if (ticksToWait > 0) {
             ticksToWait--
         } else if (ranAction) {
@@ -141,12 +142,7 @@ class BlockPlacer(
             return@handler
         }
 
-        if (sneakTimes > 0) {
-            sneakTimes--
-            it.movementEvent.sneak = true
-        }
-
-        if (blocks.isEmpty()) {
+        if (blocks.isEmpty) {
             return@handler
         }
 
@@ -168,7 +164,15 @@ class BlockPlacer(
         }
     }
 
-    private fun findSupportPath(itemStack: ItemStack, event: SimulatedTickEvent) {
+    @Suppress("unused")
+    private val movementInputHandler = handler<MovementInputEvent> { event ->
+        if (sneakTimes > 0) {
+            sneakTimes--
+            event.sneak = true
+        }
+    }
+
+    private fun findSupportPath(itemStack: ItemStack, event: ScheduleRotationUpdateEvent) {
         val currentPlaceCandidates = mutableSetOf<BlockPos>()
         var supportPath: Set<BlockPos>? = null
 
@@ -218,7 +222,7 @@ class BlockPlacer(
         support.chronometer.reset()
     }
 
-    private fun scheduleCurrentPlacements(itemStack: ItemStack, it: SimulatedTickEvent): Boolean {
+    private fun scheduleCurrentPlacements(itemStack: ItemStack, it: ScheduleRotationUpdateEvent): Boolean {
         var hasPlaced = false
 
         val iterator = blocks.object2BooleanEntrySet().iterator()
@@ -264,7 +268,6 @@ class BlockPlacer(
                 )
             ) {
                 sneakTimes = sneak - 1
-                it.movementEvent.sneak = true
             }
 
             if (rotationMode.activeChoice(entry.booleanValue, pos, placementTarget)) {

@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Vec3d
@@ -21,7 +22,9 @@ object PlayerSimulationCache: EventListener {
         this.otherPlayerCache.clear()
     }
 
-    private val movementHandler = handler<MovementInputEvent> {
+    private val movementHandler = handler<MovementInputEvent>(
+        priority = EventPriorityConvention.FIRST_PRIORITY
+    ) {
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
             SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(it.directionalInput)
         )
@@ -130,6 +133,7 @@ class SimulatedPlayerSnapshot(s: SimulatedPlayer) {
     val fallDistance = s.fallDistance
     val velocity = s.velocity
     val onGround = s.onGround
+    val clipLedged = s.clipLedged
 }
 
 /**

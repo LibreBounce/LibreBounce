@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.autobuild
 
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
@@ -50,7 +50,7 @@ object PlatformMode : ModuleAutoBuild.AutoBuildMode("Platform") {
     }
 
     @Suppress("unused")
-    private val targetUpdater = handler<SimulatedTickEvent> {
+    private val targetUpdater = handler<ScheduleRotationUpdateEvent> {
         val blocks1 = hashSetOf<BlockPos>()
         val center = BlockPos.ofFloored(player.pos).down()
         val pos = center.mutableCopy()

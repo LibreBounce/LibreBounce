@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.traps
 
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -61,7 +61,7 @@ object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = array
     }
 
     @Suppress("unused")
-    private val rotationUpdateHandler = handler<SimulatedTickEvent> {
+    private val rotationUpdateHandler = handler<ScheduleRotationUpdateEvent> {
         if (timeout) {
             return@handler
         }

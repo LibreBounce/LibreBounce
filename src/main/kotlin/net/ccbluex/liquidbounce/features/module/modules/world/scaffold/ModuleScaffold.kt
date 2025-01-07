@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BlockCountChangeEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -288,7 +288,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     private fun updateRenderCount(count: Int? = null) = EventManager.callEvent(BlockCountChangeEvent(count))
 
     @Suppress("unused")
-    val rotationUpdateHandler = handler<SimulatedTickEvent> {
+    private val rotationUpdateHandler = handler<ScheduleRotationUpdateEvent> {
         NoFallBlink.waitUntilGround = true
 
         val blockInHotbar = findBestValidHotbarSlotForTarget()
@@ -348,20 +348,14 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
             // Ledge feature - AutoJump and AutoSneak
             if (ledge) {
-                val ledgeRotation = rotation ?: RotationManager.currentRotation ?: player.rotation
                 val (requiresJump, requiresSneak) = ledge(
-                    it.simulatedPlayer,
                     target,
-                    ledgeRotation,
+                    rotation ?: RotationManager.currentRotation ?: player.rotation,
                     technique as? ScaffoldLedgeExtension
                 )
 
-                if (requiresJump) {
-                    it.movementEvent.jump = true
-                }
-
-                if (requiresSneak > 0) {
-                    it.movementEvent.sneak = true
+                this.requiresJump = requiresJump
+                if (requiresSneak > forceSneak) {
                     forceSneak = requiresSneak
                 }
             }
@@ -391,10 +385,18 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         this.currentOptimalLine = ScaffoldMovementPlanner.getOptimalMovementLine(event.directionalInput)
     }
 
+    var requiresJump = false
+
     @Suppress("unused")
-    private val movementInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.SAFETY_FEATURE) {
+    private val movementInputHandler = handler<MovementInputEvent>(
+        priority = EventPriorityConvention.SAFETY_FEATURE
+    ) { event ->
+        if (requiresJump) {
+            event.jump = true
+        }
+
         if (forceSneak > 0) {
-            it.sneak = true
+            event.sneak = true
             forceSneak--
         }
     }
@@ -407,7 +409,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     @Suppress("unused")
-    val tickHandler = tickHandler {
+    private val tickHandler = tickHandler {
         updateRenderCount(blockCount)
 
         if (player.isOnGround) {

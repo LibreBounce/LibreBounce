@@ -37,7 +37,6 @@ import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.Vec3i
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.round

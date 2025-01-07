@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
@@ -60,7 +60,7 @@ object LegitNukerMode : Choice("Legit") {
     private val switchDelay by int("SwitchDelay", 0, 0..20, "ticks")
 
     @Suppress("unused")
-    private val simulatedTickHandler = handler<SimulatedTickEvent> {
+    private val simulatedTickHandler = handler<ScheduleRotationUpdateEvent> {
         if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
             this.currentTarget = null
             return@handler
