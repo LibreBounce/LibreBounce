@@ -153,7 +153,7 @@ class BlockPlacer(
 
         inaccessible.clear()
         rotationMode.activeChoice.onTickStart()
-        if (scheduleCurrentPlacements(itemStack, it)) {
+        if (scheduleCurrentPlacements(itemStack)) {
             return@handler
         }
 
@@ -216,13 +216,13 @@ class BlockPlacer(
             }.forEach { pos ->
                 addToQueue(pos, isSupport = true)
             }
-            scheduleCurrentPlacements(itemStack, event)
+            scheduleCurrentPlacements(itemStack)
         }
 
         support.chronometer.reset()
     }
 
-    private fun scheduleCurrentPlacements(itemStack: ItemStack, it: ScheduleRotationUpdateEvent): Boolean {
+    private fun scheduleCurrentPlacements(itemStack: ItemStack): Boolean {
         var hasPlaced = false
 
         val iterator = blocks.object2BooleanEntrySet().iterator()
