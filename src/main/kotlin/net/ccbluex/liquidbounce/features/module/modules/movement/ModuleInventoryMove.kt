@@ -95,8 +95,8 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         }
 
         @Suppress("unused")
-        val screenHandler = handler<ScreenEvent> {
-            if (it.screen is HandledScreen<*>) {
+        val screenHandler = handler<ScreenEvent> { event ->
+            if (event.screen is HandledScreen<*>) {
                 chronometer.reset()
 
                 notification("InventoryMove", message("blinkStart", maximumTime.formatAsTime()),

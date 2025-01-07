@@ -1,7 +1,24 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity.projectile;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -18,16 +35,9 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(FishingBobberEntity.class)
 public abstract class MixinFishingBobberEntity {
 
-    @WrapOperation(method = "handleStatus", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/FishingBobberEntity;pullHookedEntity(Lnet/minecraft/entity/Entity;)V"))
-    private void hookNoPushByFishingRoad(FishingBobberEntity instance, Entity entity, Operation<Void> original) {
-        if (!instance.getWorld().isClient || entity != MinecraftClient.getInstance().player) {
-            original.call(instance, entity);
-            return;
-        }
-
-        if (!ModuleNoPush.INSTANCE.isFishingRoads()) {
-            original.call(instance, entity);
-        }
+    @WrapWithCondition(method = "handleStatus", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/FishingBobberEntity;pullHookedEntity(Lnet/minecraft/entity/Entity;)V"))
+    private boolean hookNoPushByFishingRod(FishingBobberEntity instance, Entity entity) {
+        return entity != MinecraftClient.getInstance().player || !ModuleNoPush.INSTANCE.isFishingRod();
     }
 
 }
