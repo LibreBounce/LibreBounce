@@ -39,6 +39,10 @@ class PacketSerializer : JsonSerializer<Packet> {
         packetRegistry[packetClass] = packetName
     }
 
+    inline fun <reified T : Packet> register(name: String) {
+        registerPacket(name, T::class.java)
+    }
+
     /**
      * Gson invokes this call-back method during serialization when it encounters a field of the
      * specified type.
@@ -78,6 +82,10 @@ class PacketDeserializer : JsonDeserializer<Packet> {
      */
     fun registerPacket(packetName: String, packetClass: Class<out Packet>) {
         packetRegistry[packetName] = packetClass
+    }
+
+    inline fun <reified T : Packet> register(name: String) {
+        registerPacket(name, T::class.java)
     }
 
     /**

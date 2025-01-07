@@ -65,6 +65,7 @@ import net.ccbluex.liquidbounce.utils.client.TpsObserver
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
@@ -136,6 +137,7 @@ object LiquidBounce : EventListener {
             ConfigSystem
             combatTargetsConfigurable
 
+            RenderedEntities
             ChunkScanner
             InputTracker
 

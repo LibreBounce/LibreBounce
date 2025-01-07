@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -64,7 +64,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     private var lastExtinguishPos: BlockPos? = null
     private val lastAttemptTimer = Chronometer()
 
-    val tickMovementHandler = handler<SimulatedTickEvent> {
+    val tickMovementHandler = handler<RotationUpdateEvent> {
         this.currentTarget = null
 
         val target = findAction() ?: return@handler

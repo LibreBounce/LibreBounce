@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.block.BlockState
@@ -105,16 +106,26 @@ fun raycast(
     rotation: Rotation = RotationManager.currentRotation ?: player.rotation,
     range: Double = max(player.blockInteractionRange, player.entityInteractionRange),
     includeFluids: Boolean = false,
-    tickDelta: Float = 1.0f,
-): BlockHitResult? {
-    val entity = mc.cameraEntity ?: return null
+    tickDelta: Float = 1f,
+): BlockHitResult {
+    return raycast(
+        range = range,
+        includeFluids = includeFluids,
+        start = player.getCameraPosVec(tickDelta),
+        direction = rotation.rotationVec
+    )
+}
 
-    val start = entity.getCameraPosVec(tickDelta)
-    val rotationVec = rotation.rotationVec
+fun raycast(
+    range: Double = max(player.blockInteractionRange, player.entityInteractionRange),
+    includeFluids: Boolean = false,
+    start: Vec3d,
+    direction: Vec3d,
+    entity: Entity = mc.cameraEntity!!,
+): BlockHitResult {
+    val end = start.add(direction.x * range, direction.y * range, direction.z * range)
 
-    val end = start.add(rotationVec.x * range, rotationVec.y * range, rotationVec.z * range)
-
-    return mc.world?.raycast(
+    return world.raycast(
         RaycastContext(
             start,
             end,

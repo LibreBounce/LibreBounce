@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.markAsError
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.minecraft.client.gui.screen.DisconnectedScreen
 
 /**
@@ -99,6 +100,7 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         refresh()
 
         // Minimap
+        RenderedEntities.subscribe(this)
         ChunkScanner.subscribe(ChunkRenderer.MinimapChunkUpdateSubscriber)
     }
 
@@ -108,6 +110,7 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         browserTab = null
 
         // Minimap
+        RenderedEntities.unsubscribe(this)
         ChunkScanner.unsubscribe(ChunkRenderer.MinimapChunkUpdateSubscriber)
         ChunkRenderer.unloadEverything()
     }
