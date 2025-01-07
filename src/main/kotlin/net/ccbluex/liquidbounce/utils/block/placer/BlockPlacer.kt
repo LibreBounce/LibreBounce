@@ -160,7 +160,7 @@ class BlockPlacer(
         // no possible position found, now a support placement can be considered
 
         if (support.enabled && support.chronometer.hasElapsed(support.delay.toLong())) {
-            findSupportPath(itemStack, it)
+            findSupportPath(itemStack)
         }
     }
 
@@ -172,7 +172,7 @@ class BlockPlacer(
         }
     }
 
-    private fun findSupportPath(itemStack: ItemStack, event: RotationUpdateEvent) {
+    private fun findSupportPath(itemStack: ItemStack) {
         val currentPlaceCandidates = mutableSetOf<BlockPos>()
         var supportPath: Set<BlockPos>? = null
 
