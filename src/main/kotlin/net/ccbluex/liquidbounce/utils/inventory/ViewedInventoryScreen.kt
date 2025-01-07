@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,13 +100,16 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
         context.matrices.push()
         context.matrices.translate(0f, 0f, 232f)
         context.drawItem(stack, x, y)
-        context.drawItemInSlot(textRenderer, stack, x, y, null)
+        context.drawStackOverlay(textRenderer, stack, x, y, null)
         context.matrices.pop()
     }
 
     private fun drawBackground(context: DrawContext, mouseX: Int, mouseY: Int) {
         val backgroundTexture = Identifier.ofVanilla("textures/gui/container/inventory.png")
-        context.drawTexture(backgroundTexture, x, y, 0, 0, backgroundWidth, backgroundHeight)
+        context.drawTexture(
+            RenderLayer::getGuiTextured, backgroundTexture, x, y, 0f, 0f, backgroundWidth, backgroundHeight,
+            backgroundWidth, backgroundHeight
+        )
         player()?.let { player ->
             drawEntity(
                 context, x + 26, y + 8, x + 75, y + 78,
@@ -121,10 +124,10 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
         context.matrices.push()
         context.matrices.translate(0f, 0f, 100f)
         if (slot.stack.isEmpty && slot.isEnabled) {
-            val pair = slot.backgroundSprite
-            if (pair != null) {
-                val sprite = mc.getSpriteAtlas(pair.first).apply(pair.second) as Sprite
-                context.drawSprite(slot.x, slot.y, 0, 16, 16, sprite)
+            val identifier = slot.backgroundSprite
+            if (identifier != null) {
+                val sprite = mc.getSpriteAtlas(identifier).apply(identifier) as Sprite
+                context.drawSpriteStretched(RenderLayer::getGuiTextured, sprite, slot.x, slot.y, 16, 16)
                 spriteDrawn = true
             }
         }
@@ -137,7 +140,7 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
                 context.drawItem(slot.stack, slot.x, slot.y, seed)
             }
 
-            context.drawItemInSlot(textRenderer, slot.stack, slot.x, slot.y, null)
+            context.drawStackOverlay(textRenderer, slot.stack, slot.x, slot.y, null)
         }
 
         context.matrices.pop()

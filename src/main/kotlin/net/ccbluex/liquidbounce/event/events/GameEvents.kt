@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.network.ServerInfo
+import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.option.Perspective
 import net.minecraft.client.session.Session
 import net.minecraft.client.util.InputUtil
@@ -33,7 +35,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 
 @Nameable("gameTick")
-class GameTickEvent : Event()
+object GameTickEvent : Event()
 
 /**
  * We can use this event to populate the render task queue with tasks that should be
@@ -41,7 +43,7 @@ class GameTickEvent : Event()
  * and allows to also schedule tasks off-schedule.
  */
 @Nameable("gameRenderTaskQueue")
-class GameRenderTaskQueueEvent : Event()
+object GameRenderTaskQueueEvent : Event()
 
 @Nameable("key")
 @WebSocketEvent
@@ -49,17 +51,20 @@ class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 
 // Input events
 @Nameable("inputHandle")
-class InputHandleEvent : Event()
+object InputHandleEvent : Event()
 
 @Nameable("movementInput")
-class MovementInputEvent(var directionalInput: DirectionalInput, var jumping: Boolean, var sneaking: Boolean) : Event()
+class MovementInputEvent(var directionalInput: DirectionalInput, var jump: Boolean, var sneak: Boolean) : Event()
 
 @Nameable("mouseRotation")
 class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : CancellableEvent()
 
 @Nameable("keybindChange")
 @WebSocketEvent
-class KeybindChangeEvent: Event()
+object KeybindChangeEvent: Event()
+
+@Nameable("keybindIsPressed")
+class KeybindIsPressedEvent(val keyBinding: KeyBinding, var isPressed: Boolean) : Event()
 
 @Nameable("useCooldown")
 class UseCooldownEvent(var cooldown: Int) : Event()
@@ -109,11 +114,11 @@ class SplashProgressEvent(val progress: Float, val isComplete: Boolean) : Event(
 
 @Nameable("serverConnect")
 @WebSocketEvent
-class ServerConnectEvent(val serverName: String, val serverAddress: String) : Event()
+class ServerConnectEvent(val serverInfo: ServerInfo) : Event()
 
 @Nameable("disconnect")
 @WebSocketEvent
-class DisconnectEvent : Event()
+object DisconnectEvent : Event()
 
 @Nameable("overlayMessage")
 @WebSocketEvent

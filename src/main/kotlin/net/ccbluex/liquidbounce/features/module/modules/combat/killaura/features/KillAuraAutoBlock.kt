@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,12 @@ import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEquals1_7_10
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.minecraft.item.ItemStack
+import net.minecraft.item.consume.UseAction
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.UseAction
 import net.minecraft.util.hit.HitResult
 import java.security.SecureRandom
 
@@ -140,6 +142,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
             // Interact with the item in the block hand
             val actionResult = interaction.interactItem(player, blockHand)
+
             if (actionResult.isAccepted) {
                 if (actionResult.shouldSwingHand()) {
                     player.swingHand(blockHand)

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,9 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.toRadians
-import net.ccbluex.liquidbounce.utils.math.geometry.Face
+import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.NormalizedPlane
-import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
@@ -51,16 +50,12 @@ abstract class FaceTargetPositionFactory {
      * Samples a position (relative to [targetPos]).
      * @param face is relative to origin.
      */
-    abstract fun producePositionOnFace(face: Face, targetPos: BlockPos): Vec3d
-
-    protected fun getFaceRelativeToTargetPosition(face: Face, targetPos: BlockPos): Face {
-        return face.offset(Vec3d.of(targetPos).negate())
-    }
+    abstract fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d
 
     /**
      * Trims a face to be only as wide as the config allows it to be
      */
-    protected fun trimFace(face: Face): Face {
+    protected fun trimFace(face: AlignedFace): AlignedFace {
         val offsets = face.dimensions.multiply(0.15)
 
         var rangeX = face.from.x + offsets.x..face.to.x - offsets.x
@@ -77,7 +72,7 @@ abstract class FaceTargetPositionFactory {
             rangeZ = face.center.z..face.center.z
         }
 
-        val trimmedFace = Face(
+        val trimmedFace = AlignedFace(
             Vec3d(
                 face.from.x.coerceIn(rangeX),
                 face.from.y.coerceIn(rangeY),
@@ -93,18 +88,13 @@ abstract class FaceTargetPositionFactory {
         return trimmedFace
     }
 
-    protected fun getPositionsOnFace(face: Face, step: Double): List<Vec3d> {
-        // Collects all possible rotations
-        return (face.from..face.to step step).map { Vec3d(it[0], it[1], it[2]) }.toList()
-    }
-
 }
 
 /**
  * Always targets the point with the nearest rotation angle to the current rotation angle
  */
 class NearestRotationTargetPositionFactory(val config: PositionFactoryConfiguration) : FaceTargetPositionFactory() {
-    override fun producePositionOnFace(face: Face, targetPos: BlockPos): Vec3d {
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         val trimmedFace = trimFace(face)
 
         return aimAtNearestPointToRotationLine(targetPos, trimmedFace)
@@ -112,10 +102,11 @@ class NearestRotationTargetPositionFactory(val config: PositionFactoryConfigurat
 
     fun aimAtNearestPointToRotationLine(
         targetPos: BlockPos,
-        face: Face
+        face: AlignedFace
     ): Vec3d {
-        if (MathHelper.approximatelyEquals(face.area, 0.0))
+        if (MathHelper.approximatelyEquals(face.area, 0.0)) {
             return face.from
+        }
 
         val currentRotation = RotationManager.serverRotation
 
@@ -161,10 +152,10 @@ class StabilizedRotationTargetPositionFactory(
     val config: PositionFactoryConfiguration,
     private val optimalLine: Line?
 ) : FaceTargetPositionFactory() {
-    override fun producePositionOnFace(face: Face, targetPos: BlockPos): Vec3d {
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         val trimmedFace = trimFace(face).offset(Vec3d.of(targetPos))
 
-        val targetFace = getTargetFace(player, trimmedFace, face) ?: trimmedFace
+        val targetFace = getTargetFace(player, trimmedFace) ?: trimmedFace
 
         return NearestRotationTargetPositionFactory(this.config).aimAtNearestPointToRotationLine(
             targetPos,
@@ -174,9 +165,8 @@ class StabilizedRotationTargetPositionFactory(
 
     private fun getTargetFace(
         player: ClientPlayerEntity,
-        trimmedFace: Face,
-        face: Face
-    ): Face? {
+        trimmedFace: AlignedFace
+    ): AlignedFace? {
         val optimalLine = optimalLine ?: return null
 
         val nearsetPointToOptimalLine = optimalLine.getNearestPointTo(player.pos)
@@ -199,15 +189,16 @@ class StabilizedRotationTargetPositionFactory(
         val clampedFace = trimmedFace.clamp(cropBox)
 
         // Not much left of the area? Then don't try to sample a point on the face
-        if (clampedFace.area < 0.0001)
+        if (clampedFace.area < 0.0001) {
             return null
+        }
 
         return clampedFace
     }
 }
 
 class RandomTargetPositionFactory(val config: PositionFactoryConfiguration) : FaceTargetPositionFactory() {
-    override fun producePositionOnFace(face: Face, targetPos: BlockPos): Vec3d {
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         val trimmedFace = trimFace(face)
 
         return trimmedFace.randomPointOnFace()
@@ -215,13 +206,13 @@ class RandomTargetPositionFactory(val config: PositionFactoryConfiguration) : Fa
 }
 
 object CenterTargetPositionFactory : FaceTargetPositionFactory() {
-    override fun producePositionOnFace(face: Face, targetPos: BlockPos): Vec3d {
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         return face.center
     }
 }
 
 class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) : FaceTargetPositionFactory() {
-    override fun producePositionOnFace(face: Face, targetPos: BlockPos): Vec3d {
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         val trimmedFace = trimFace(face)
 
         val reverseYawRotation = aimAtNearestPointToReverseYaw(targetPos, trimmedFace)
@@ -235,10 +226,11 @@ class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) 
 
     fun aimAtNearestPointToReverseYaw(
         targetPos: BlockPos,
-        face: Face
+        face: AlignedFace
     ): Vec3d? {
-        if (MathHelper.approximatelyEquals(face.area, 0.0))
+        if (MathHelper.approximatelyEquals(face.area, 0.0)) {
             return face.from
+        }
 
         val plane = NormalizedPlane.fromParams(
             config.eyePos.subtract(Vec3d.of(targetPos)),

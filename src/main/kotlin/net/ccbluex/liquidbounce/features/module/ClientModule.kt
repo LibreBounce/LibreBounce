@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,11 @@ import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.*
-import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.SequenceManager.cancelAllSequences
+import net.ccbluex.liquidbounce.event.events.ModuleActivationEvent
+import net.ccbluex.liquidbounce.event.events.ModuleToggleEvent
+import net.ccbluex.liquidbounce.event.events.NotificationEvent
+import net.ccbluex.liquidbounce.event.events.RefreshArrayListEvent
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translation
@@ -57,7 +60,8 @@ open class ClientModule(
      * Option to enable or disable the module, this DOES NOT mean the module is running. This
      * should be checked with [running] instead. Only use this for toggling the module!
      */
-    internal var enabled by boolean("Enabled", state).also {
+    @ScriptApiRequired
+    var enabled by boolean("Enabled", state).also {
         // Might not include the enabled state of the module depending on the category
         if (category == Category.MISC || category == Category.FUN || category == Category.RENDER) {
             if (this is ModuleAntiBot) {
@@ -92,6 +96,8 @@ open class ClientModule(
             if (new) {
                 enable()
             } else {
+                // Cancel all sequences when module is disabled, maybe disable first and then cancel?
+                cancelAllSequences(this)
                 disable()
             }
         }.onSuccess {
@@ -104,12 +110,13 @@ open class ClientModule(
             }
 
             if (!loadingNow) {
-                notification(
-                    if (new) translation("liquidbounce.generic.enabled")
-                    else translation("liquidbounce.generic.disabled"),
-                    this.name,
-                    if (new) NotificationEvent.Severity.ENABLED else NotificationEvent.Severity.DISABLED
-                )
+                val (title, severity) = if (new) {
+                    translation("liquidbounce.generic.enabled") to NotificationEvent.Severity.ENABLED
+                } else {
+                    translation("liquidbounce.generic.disabled") to NotificationEvent.Severity.DISABLED
+                }
+
+                notification(title, this.name, severity)
             }
 
             // Notify everyone about module state
@@ -132,17 +139,25 @@ open class ClientModule(
      * If the module is running and in game. Can be overridden to add additional checks.
      */
     override val running: Boolean
-        get() = super.running && inGame && enabled
+        get() = super.running && inGame && (enabled || disableActivation)
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
-        .independentDescription()
+        .independentDescription().apply {
+            if (disableActivation) {
+                notAnOption()
+            }
+        }
     var hidden by boolean("Hidden", hide)
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeHidden }
         .independentDescription()
         .onChange {
-            EventManager.callEvent(RefreshArrayListEvent())
+            EventManager.callEvent(RefreshArrayListEvent)
             it
+        }.apply {
+            if (disableActivation) {
+                notAnOption()
+            }
         }
 
     /**
@@ -165,7 +180,7 @@ open class ClientModule(
     @ScriptApiRequired
     open val settings by lazy { inner.associateBy { it.name } }
 
-    private var calledSinceStartup = false
+    internal var calledSinceStartup = false
 
     /**
      * Called when module is turned on
@@ -183,24 +198,6 @@ open class ClientModule(
     open fun init() {}
 
     /**
-     * Handles disconnect and if [disableOnQuit] is true disables module
-     */
-    @Suppress("unused")
-    val onDisconnect = handler<DisconnectEvent>(ignoreNotRunning = true) {
-        if (enabled && disableOnQuit) {
-            enabled = false
-        }
-    }
-
-    @Suppress("unused")
-    val onWorldChange = handler<WorldChangeEvent>(ignoreNotRunning = true) {
-        if (enabled && !calledSinceStartup && it.world != null) {
-            calledSinceStartup = true
-            enable()
-        }
-    }
-
-    /**
      * If we want a module to have the requires bypass option, we specifically call it
      * on init. This will add the option and enable the feature.
      */
@@ -215,7 +212,7 @@ open class ClientModule(
 
         // Refresh arraylist on tag change
         setting.onChanged {
-            EventManager.callEvent(RefreshArrayListEvent())
+            EventManager.callEvent(RefreshArrayListEvent)
         }
     }
 
@@ -230,14 +227,14 @@ open class ClientModule(
         }
     }
 
-    protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
+    protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
     protected fun <T : Choice> choices(
         name: String,
-        activeIndex: Int,
+        activeIndex: Int = 0,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(this, name, { it.choices[activeIndex] }, choicesCallback)
+    ) = choices(this, name, activeIndex, choicesCallback)
 
     fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
 

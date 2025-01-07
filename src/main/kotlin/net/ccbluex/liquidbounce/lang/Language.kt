@@ -7,6 +7,8 @@ package net.ccbluex.liquidbounce.lang
 
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.events.ClientLanguageChangedEvent
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.text.*
@@ -24,7 +26,10 @@ object LanguageManager : Configurable("lang") {
         get() = overrideLanguage.ifBlank { mc.options.language }
 
     // The game language can be overridden by the user
-    var overrideLanguage by text("OverrideLanguage", "")
+    var overrideLanguage by text("OverrideLanguage", "").onChanged { lang ->
+        loadLanguage(lang)
+        EventManager.callEvent(ClientLanguageChangedEvent())
+    }
 
     // Common language
     private const val COMMON_UNDERSTOOD_LANGUAGE = "en_us"
@@ -56,7 +61,7 @@ object LanguageManager : Configurable("lang") {
         } else {
             runCatching {
                 languageMap.computeIfAbsent(language) {
-                    val languageFile = javaClass.getResourceAsStream("/assets/liquidbounce/lang/$language.json")
+                    val languageFile = javaClass.getResourceAsStream("/resources/liquidbounce/lang/$language.json")
                     val translations = decode<HashMap<String, String>>(languageFile!!)
 
                     ClientLanguage(translations)

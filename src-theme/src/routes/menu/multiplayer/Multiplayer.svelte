@@ -177,7 +177,7 @@
                             :`data:image/png;base64,${server.icon}`}
                               title={server.name}
                               on:dblclick={() => connectToServer(server.address)}>
-                    <TextComponent slot="subtitle" fontSize={18}
+                    <TextComponent allowPreformatting={true} preFormattingMonospace={false} slot="subtitle" fontSize={18}
                                    textComponent={server.ping <= 0 ? "§CCan't connect to server" : server.label}/>
 
                     <svelte:fragment slot="tag">

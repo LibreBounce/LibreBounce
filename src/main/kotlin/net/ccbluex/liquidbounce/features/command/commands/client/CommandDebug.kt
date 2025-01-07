@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,13 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.asForm
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.publicGson
@@ -38,7 +44,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
-import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.minecraft.SharedConstants
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
@@ -165,7 +170,10 @@ object CommandDebug : CommandFactory {
      */
     private fun uploadToPaste(content: String): String {
         val form = "content=$content"
-        return HttpClient.postForm("https://paste.ccbluex.net/api.php", form)
+        return runBlocking(Dispatchers.IO) {
+            HttpClient.request("https://paste.ccbluex.net/api.php", HttpMethod.POST, body = form.asForm())
+                .parse<String>()
+        }
     }
 
 }

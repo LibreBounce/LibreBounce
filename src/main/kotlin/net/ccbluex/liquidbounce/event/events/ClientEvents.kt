@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.utils.client.Nameable
-import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.inventory.InventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.InventoryActionChain
 import net.ccbluex.liquidbounce.utils.inventory.InventoryConstraints
@@ -58,10 +57,14 @@ class ClickGuiValueChangeEvent(val configurable: Configurable) : Event()
 class SpaceSeperatedNamesChangeEvent(val value: Boolean) : Event()
 
 @Nameable("clientStart")
-class ClientStartEvent : Event()
+object ClientStartEvent : Event()
 
 @Nameable("clientShutdown")
-class ClientShutdownEvent : Event()
+object ClientShutdownEvent : Event()
+
+@Nameable("clientLanguageChanged")
+@WebSocketEvent
+class ClientLanguageChangedEvent : Event()
 
 @Nameable("valueChanged")
 @WebSocketEvent
@@ -77,7 +80,7 @@ class ModuleToggleEvent(val moduleName: String, val hidden: Boolean, val enabled
 
 @Nameable("refreshArrayList")
 @WebSocketEvent
-class RefreshArrayListEvent : Event()
+object RefreshArrayListEvent : Event()
 
 @Nameable("notification")
 @WebSocketEvent
@@ -192,17 +195,11 @@ class ServerPingedEvent(val server: ServerInfo) : Event()
 @WebSocketEvent(serializer = GsonInstance.ACCESSIBLE_INTEROP)
 class ComponentsUpdate(val components: List<Component>) : Event()
 
-/**
- * The simulated tick event is called by the [MovementInputEvent] with a simulated movement context.
- * This context includes a simulated player position one tick into the future.
- * Position changes will not apply within the simulated tick. Only use this for prediction purposes as
- * updating the rotation or target.
- */
-@Nameable("simulatedTick")
-class SimulatedTickEvent(val movementEvent: MovementInputEvent, val simulatedPlayer: SimulatedPlayer) : Event()
+@Nameable("rotationUpdate")
+object RotationUpdateEvent : Event()
 
 @Nameable("resourceReload")
-class ResourceReloadEvent : Event()
+object ResourceReloadEvent : Event()
 
 @Nameable("scaleFactorChange")
 @WebSocketEvent

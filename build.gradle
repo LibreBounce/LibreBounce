@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,36 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+def getContributors(repoOwner, repoName) {
+    def url = "https://api.github.com/repos/${repoOwner}/${repoName}/stats/contributors"
+    def connection = (HttpURLConnection) new URI(url).toURL().openConnection()
+
+    connection.requestMethod = "GET"
+    connection.connectTimeout = 5000
+    connection.readTimeout = 5000
+
+    connection.setRequestProperty("User-Agent", "LiquiudBounce-App")
+
+    if (200 <= connection.responseCode && connection.responseCode <= 299) {
+        def response = connection.inputStream.text
+        def json = new JsonSlurper().parseText(response)
+        return json
+                .collect { it['author']['login'] }
+                .findAll { !(it as String).contains("dependabot") }
+                .reversed()
+
+    } else {
+        def error = connection.errorStream?.text ?: "No response details"
+        logger.log(LogLevel.ERROR, "Failed to collect contributors, github api responsed invalid status code: ${connection.responseCode}\n${error}")
+        return []
+    }
+}
+
 
 plugins {
     id "fabric-loom"
@@ -28,9 +57,11 @@ plugins {
     id "org.jetbrains.dokka" version "1.9.10"
 }
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+base {
+    archivesBaseName = project.archives_base_name
+    version = project.mod_version
+    group = project.maven_group
+}
 
 configurations {
     includeDependency
@@ -88,7 +119,11 @@ dependencies {
     // Recommended mods (on IDE)
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
-    modCompileOnly "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
+    modImplementation "maven.modrinth:lithium:${project.lithium_version}"
+
+    // ViaFabricPlus
+    modImplementation "com.viaversion:viafabricplus-api:${project.viafabricplus_version}"
+    modRuntimeOnly "com.viaversion:viafabricplus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
@@ -98,13 +133,18 @@ dependencies {
         exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
         exclude group: "org.slf4j", module: "slf4j-api"
         exclude group: "com.mojang", module: "authlib"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
     // JCEF Support
-    includeModDependency "com.github.CCBlueX:mcef:1.3.0-1.21.1"
+    includeModDependency ("com.github.CCBlueX:mcef:${project.mcef_version}") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
     includeDependency "org.apache.commons:commons-exec:1.3"
+    includeDependency "org.apache.commons:commons-compress:1.27.1"
     includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
     // Discord RPC Support
@@ -114,11 +154,17 @@ dependencies {
     includeDependency "net.fabricmc:tiny-mappings-parser:0.3.0+build.17"
     includeDependency "org.graalvm.polyglot:polyglot:24.0.2"
     includeDependency "org.graalvm.polyglot:js-community:24.0.2"
+    includeDependency "org.graalvm.polyglot:tools-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:python-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:wasm-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:java-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:ruby-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
+
+    // HTTP library
+    includeDependency ("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
 
     // SOCKS5 Proxy Support
     includeDependency ("io.netty:netty-handler-proxy:4.1.97.Final") {
@@ -138,6 +184,9 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.3"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
+    // Fix nullable annotations
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+
     afterEvaluate {
         configurations.includeDependency.incoming.resolutionResult.allDependencies.each {
             dependencies.include(dependencies.implementation(dependencies.compileOnlyApi(it.requested.toString()) {
@@ -148,6 +197,8 @@ dependencies {
 }
 
 processResources {
+    String contributors = JsonOutput.prettyPrint(JsonOutput.toJson(getContributors("CCBlueX", "LiquidBounce")))
+
     inputs.property "version", project.version
 
     inputs.property "minecraft_version", minecraft_version
@@ -156,6 +207,7 @@ processResources {
     inputs.property "min_loader_version", min_loader_version
     inputs.property "fabric_kotlin_version", fabric_kotlin_version
     inputs.property "viafabricplus_version", viafabricplus_version
+    inputs.property "contributors", contributors
 
     filesMatching("fabric.mod.json") {
         expand([
@@ -164,6 +216,7 @@ processResources {
                 fabric_version       : fabric_version,
                 loader_version       : loader_version,
                 min_loader_version   : min_loader_version,
+                contributors         : contributors,
                 fabric_kotlin_version: fabric_kotlin_version,
                 viafabricplus_version: viafabricplus_version
         ])
@@ -269,6 +322,47 @@ task detektProjectBaseline(type: io.gitlab.arturbosch.detekt.DetektCreateBaselin
     include("**/*.kts")
     exclude("**/resources/**")
     exclude("**/build/**")
+}
+
+tasks.register("verifyI18nJsonKeys") {
+    def baselineFileName = "en_us.json"
+
+    group = "verification"
+    description = "Compare i18n JSON files with ${baselineFileName} as the baseline and report missing keys."
+
+    def i18nDir = file("src/main/resources/resources/liquidbounce/lang")
+
+    doLast {
+        if (!i18nDir.exists() || !i18nDir.isDirectory()) {
+            throw new GradleException("The specified directory ${i18nDir} does not exist or is not a directory.")
+        }
+
+        def baselineFile = new File(i18nDir, baselineFileName)
+        if (!baselineFile.exists()) {
+            throw new GradleException("Baseline file ${baselineFileName} not found in ${i18nDir}.")
+        }
+
+        def baseline = new JsonSlurper().parse(baselineFile)
+
+        i18nDir.eachFile { file ->
+            if (file.name.endsWith(".json") && file.name != baselineFileName) {
+                def currentFile = new JsonSlurper().parse(file)
+
+                def missingKeys = baseline.keySet() - currentFile.keySet()
+
+                if (missingKeys.isEmpty()) {
+                    println "${file.name} is complete. No missing keys."
+                } else {
+                    def limitedMissingKeys = missingKeys.take(5)
+                    def output = limitedMissingKeys.join(', ')
+                    if (missingKeys.size() > 5) {
+                        output += ", ..."
+                    }
+                    println "${file.name} is missing the following keys (${missingKeys.size()}): ${output}"
+                }
+            }
+        }
+    }
 }
 
 java {

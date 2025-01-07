@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,8 +33,9 @@ enum class AutoFarmTrackedStates {
 
 object AutoFarmBlockTracker : AbstractBlockLocationTracker<AutoFarmTrackedStates>() {
     override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates? {
-        if (ModuleAutoFarm.isTargeted(state, pos))
+        if (ModuleAutoFarm.isTargeted(state, pos)) {
             return AutoFarmTrackedStates.Destroy
+        }
 
         val stateBellow = pos.down().getState() ?: return null
 

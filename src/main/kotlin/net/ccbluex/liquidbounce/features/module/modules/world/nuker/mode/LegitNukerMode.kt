@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
@@ -52,11 +52,7 @@ object LegitNukerMode : Choice("Legit") {
 
     private val range by float("Range", 5F, 1F..6F)
     private val wallRange by float("WallRange", 0f, 0F..6F).onChange {
-        if (it > range) {
-            range
-        } else {
-            it
-        }
+        minOf(it, range)
     }
 
     private val forceImmediateBreak by boolean("ForceImmediateBreak", false)
@@ -64,7 +60,7 @@ object LegitNukerMode : Choice("Legit") {
     private val switchDelay by int("SwitchDelay", 0, 0..20, "ticks")
 
     @Suppress("unused")
-    private val simulatedTickHandler = handler<SimulatedTickEvent> {
+    private val simulatedTickHandler = handler<RotationUpdateEvent> {
         if (!ignoreOpenInventory && mc.currentScreen is HandledScreen<*>) {
             this.currentTarget = null
             return@handler
@@ -127,7 +123,7 @@ object LegitNukerMode : Choice("Legit") {
         currentTarget?.let { pos ->
             val blockState = pos.getState() ?: return@let
 
-            if (blockState.isNotBreakable(pos)) {
+            if (blockState.isNotBreakable(pos) || !ModuleNuker.isValid(blockState)) {
                 return@let
             }
 

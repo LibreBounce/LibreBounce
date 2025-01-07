@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,13 +45,13 @@ object ModuleSneak : ClientModule("Sneak", Category.MOVEMENT) {
             get() = modes
 
         @Suppress("unused")
-        val inputHandler = handler<MovementInputEvent> {
+        private val inputHandler = handler<MovementInputEvent> { event ->
             if (player.moving && notDuringMove) {
                 return@handler
             }
 
             // Temporarily override sneaking
-            it.sneaking = true
+            event.sneak = true
         }
 
     }

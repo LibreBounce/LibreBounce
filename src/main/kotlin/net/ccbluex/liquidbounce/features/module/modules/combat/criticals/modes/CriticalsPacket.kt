@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,12 +43,12 @@ object CriticalsPacket : Choice("Packet") {
 
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> { event ->
-        if (event.entity !is LivingEntity) {
+        if (event.isCancelled || event.entity !is LivingEntity) {
             return@handler
         }
 
-        val ignoreSprinting = !ModuleCriticals.WhenSprinting.enabled ||
-            (ModuleCriticals.WhenSprinting.enabled && ModuleCriticals.WhenSprinting.stopSprinting != ModuleCriticals.WhenSprinting.StopSprintingMode.NONE)
+        val ignoreSprinting = ModuleCriticals.WhenSprinting.shouldAttemptCritWhileSprinting()
+
         if (!canDoCriticalHit(true, ignoreSprinting)) {
             return@handler
         }

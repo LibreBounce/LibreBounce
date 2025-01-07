@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2016 - 2024 CCBlueX
+ * Copyright (c) 2016 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ object CommandHelp : CommandFactory {
                     .build()
             )
             .handler { command, args ->
-                val page = if (args.size > 1) {
+                val page = if (args.size > 0) {
                     args[0] as Int
                 } else {
                     1

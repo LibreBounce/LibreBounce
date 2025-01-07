@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,10 @@ class PacketSerializer : JsonSerializer<Packet> {
      */
     fun registerPacket(packetName: String, packetClass: Class<out Packet>) {
         packetRegistry[packetClass] = packetName
+    }
+
+    inline fun <reified T : Packet> register(name: String) {
+        registerPacket(name, T::class.java)
     }
 
     /**
@@ -78,6 +82,10 @@ class PacketDeserializer : JsonDeserializer<Packet> {
      */
     fun registerPacket(packetName: String, packetClass: Class<out Packet>) {
         packetRegistry[packetName] = packetClass
+    }
+
+    inline fun <reified T : Packet> register(name: String) {
+        registerPacket(name, T::class.java)
     }
 
     /**

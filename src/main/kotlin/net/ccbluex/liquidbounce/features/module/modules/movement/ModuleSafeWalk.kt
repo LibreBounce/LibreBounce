@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
                         event.directionalInput,
-                        event.jumping,
+                        event.jump,
                         player.isSprinting,
                         true
                     )
@@ -68,7 +68,7 @@ object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
                 simulatedPlayer.tick()
 
                 if (simulatedPlayer.clipLedged) {
-                    event.sneaking = true
+                    event.sneak = true
                 }
             }
         }
@@ -93,7 +93,7 @@ object ModuleSafeWalk : ClientModule("SafeWalk", Category.MOVEMENT) {
                 val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
                         event.directionalInput,
-                        event.jumping,
+                        event.jump,
                         player.isSprinting,
                         true
                     )

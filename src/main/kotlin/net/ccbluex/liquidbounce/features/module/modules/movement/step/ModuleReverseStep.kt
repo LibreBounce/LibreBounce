@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +111,8 @@ object ModuleReverseStep : ClientModule("ReverseStep", Category.MOVEMENT) {
                     if (simulateFalling) {
                         simulationQueue += PlayerMoveC2SPacket.PositionAndOnGround(
                             simulatePlayer.pos.x,
-                            simulatePlayer.pos.y, simulatePlayer.pos.z, simulatePlayer.onGround
+                            simulatePlayer.pos.y, simulatePlayer.pos.z, simulatePlayer.onGround,
+                            simulatePlayer.horizontalCollision
                         )
                     }
                 }

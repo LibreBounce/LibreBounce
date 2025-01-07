@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,11 +47,11 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER, aliases = arrayOf("F
         val backwards by boolean("Backwards", false)
 
         fun shouldSneak(event: MovementInputEvent): Boolean = when {
-            !enabled || event.sneaking -> true
+            !enabled || event.sneak -> true
             holdingBlocks && !isValidBlock(player.mainHandStack) && !isValidBlock(player.offHandStack) -> false
             onGround && !player.isOnGround -> false
             player.pitch !in pitch -> false
-            sneak && !event.sneaking -> false
+            sneak && !event.sneak -> false
             left && !event.directionalInput.left -> false
             right && !event.directionalInput.right -> false
             forwards && !event.directionalInput.forwards -> false
@@ -70,7 +70,7 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER, aliases = arrayOf("F
     ) { event ->
         val shouldBeActive = !player.abilities.flying && Conditional.shouldSneak(event)
 
-        event.sneaking = shouldBeActive && player.isCloseToEdge(event.directionalInput, edgeDistance.toDouble())
+        event.sneak = shouldBeActive && player.isCloseToEdge(event.directionalInput, edgeDistance.toDouble())
     }
 
 }

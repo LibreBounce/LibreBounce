@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,13 @@ internal object FlyVulcan286Teleport : Choice("Vulcan286-Teleport-18") {
         waitUntil { player.hurtTime > 0 }
 
         // Flag to disable some checks...
-        network.sendPacket(PositionAndOnGround(player.x, player.y - 0.1, player.z, player.isOnGround))
+        network.sendPacket(PositionAndOnGround(
+            player.x,
+            player.y - 0.1,
+            player.z,
+            player.isOnGround,
+            player.horizontalCollision
+        ))
 
         waitUntil { flagged }
 
@@ -92,7 +98,13 @@ internal object FlyVulcan286Teleport : Choice("Vulcan286-Teleport-18") {
             // Used 9 because stable...
             // Otherwise, last teleport would flag since player also moves a bit
             player.setPosition(player.x + vector.x * 9, player.y, player.z + vector.z * 9)
-            network.sendPacket(PositionAndOnGround(player.x, player.y, player.z, player.isOnGround))
+            network.sendPacket(PositionAndOnGround(
+                player.x,
+                player.y,
+                player.z,
+                player.isOnGround,
+                player.horizontalCollision
+            ))
         }
 
         ModuleFly.enabled = false

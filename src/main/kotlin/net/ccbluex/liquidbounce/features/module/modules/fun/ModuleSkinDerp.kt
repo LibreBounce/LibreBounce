@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,11 +50,11 @@ object ModuleSkinDerp : ClientModule("SkinDerp", Category.FUN) {
     override fun disable() {
         // Disable all current model parts
         for (modelPart in PlayerModelPart.entries) {
-            mc.options.togglePlayerModelPart(modelPart, false)
+            mc.options.setPlayerModelPart(modelPart, false)
         }
         // Enable all old model parts
         for (modelPart in prevModelParts) {
-            mc.options.togglePlayerModelPart(modelPart, true)
+            mc.options.setPlayerModelPart(modelPart, true)
         }
     }
 
@@ -71,10 +71,11 @@ object ModuleSkinDerp : ClientModule("SkinDerp", Category.FUN) {
         )
         for ((part, isEnabled) in partsMap) {
             if (isEnabled) {
-                if (sync)
-                    mc.options.togglePlayerModelPart(part, !mc.options.isPlayerModelPartEnabled(part))
-                else
-                    mc.options.togglePlayerModelPart(part, Random.nextBoolean())
+                if (sync) {
+                    mc.options.setPlayerModelPart(part, !mc.options.isPlayerModelPartEnabled(part))
+                } else {
+                    mc.options.setPlayerModelPart(part, Random.nextBoolean())
+                }
             }
         }
     }

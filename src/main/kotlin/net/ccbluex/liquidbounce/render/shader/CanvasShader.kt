@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.render.shader
 
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gl.GlUniform
+import net.minecraft.client.gl.GlUsage
 import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
@@ -32,10 +33,11 @@ import org.lwjgl.opengl.GL30
  * Inspired from the GLSL Panorama Shader Mod
  * https://github.com/magistermaks/mod-glsl
  */
-class CanvasShader(vertex: String, fragment: String) : Shader(vertex, fragment) {
+open class CanvasShader(vertex: String, fragment: String, uniforms: Array<UniformProvider> = emptyArray())
+    : Shader(vertex, fragment, uniforms) {
 
     private var canvas = ScalableCanvas()
-    private var buffer = VertexBuffer(VertexBuffer.Usage.DYNAMIC)
+    private var buffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
 
     private val timeLocation: Int
     private val mouseLocation: Int
@@ -73,10 +75,18 @@ class CanvasShader(vertex: String, fragment: String) : Shader(vertex, fragment) 
         canvas.write()
 
         // update uniforms
-        GL30.glUniform1f(timeLocation, time)
-        time += (delta / 10f)
-        GL30.glUniform2f(mouseLocation, mouseX.toFloat(), mouseY.toFloat())
-        GL30.glUniform2f(resolutionLocation, canvas.width().toFloat(), canvas.height().toFloat())
+        if (timeLocation != -1) {
+            GL30.glUniform1f(timeLocation, time)
+            time += (delta / 10f)
+        }
+
+        if (mouseLocation != -1) {
+            GL30.glUniform2f(mouseLocation, mouseX.toFloat(), mouseY.toFloat())
+        }
+
+        if (resolutionLocation != -1) {
+            GL30.glUniform2f(resolutionLocation, canvas.width().toFloat(), canvas.height().toFloat())
+        }
 
         // draw
         buffer.bind()

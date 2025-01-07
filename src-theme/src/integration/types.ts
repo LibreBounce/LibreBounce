@@ -368,10 +368,9 @@ export interface ClientInfo {
 }
 
 export interface ClientUpdate {
-    updateAvailable: boolean;
     development: boolean;
     commit: string;
-    newestVersion: {
+    update: {
         buildId: number | undefined;
         commitId: string | undefined;
         branch: string | undefined;
@@ -381,7 +380,7 @@ export interface ClientUpdate {
         date: string;
         message: string;
         url: string;
-    }
+    } | undefined;
 }
 
 export interface Browser {

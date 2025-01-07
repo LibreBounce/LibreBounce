@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
@@ -37,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility;
 import net.ccbluex.liquidbounce.utils.combat.CombatManager;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -56,15 +58,13 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
-import static net.ccbluex.liquidbounce.utils.client.ProtocolUtilKt.getHasProtocolTranslator;
+import static net.ccbluex.liquidbounce.utils.client.ProtocolUtilKt.getUsesViaFabricPlus;
 
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
@@ -128,7 +128,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;onResolutionChanged()V"))
     private void startClient(CallbackInfo callback) {
-        EventManager.INSTANCE.callEvent(new ClientStartEvent());
+        EventManager.INSTANCE.callEvent(ClientStartEvent.INSTANCE);
     }
 
     /**
@@ -138,7 +138,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "stop", at = @At("HEAD"))
     private void stopClient(CallbackInfo callback) {
-        EventManager.INSTANCE.callEvent(new ClientShutdownEvent());
+        EventManager.INSTANCE.callEvent(ClientShutdownEvent.INSTANCE);
     }
 
     @Inject(method = "<init>", at = @At(value = "FIELD",
@@ -182,7 +182,7 @@ public abstract class MixinMinecraftClient {
         titleBuilder.append(" | ");
 
         // ViaFabricPlus compatibility
-        if (getHasProtocolTranslator()) {
+        if (getUsesViaFabricPlus()) {
             var protocolVersion = VfpCompatibility.INSTANCE.unsafeGetProtocolVersion();
 
             if (protocolVersion != null) {
@@ -235,7 +235,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "tick", at = @At("HEAD"))
     private void hookTickEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new GameTickEvent());
+        EventManager.INSTANCE.callEvent(GameTickEvent.INSTANCE);
     }
 
     /**
@@ -243,7 +243,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "render", at = @At("HEAD"))
     private void hookRenderTaskQueue(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new GameRenderTaskQueueEvent());
+        EventManager.INSTANCE.callEvent(GameRenderTaskQueueEvent.INSTANCE);
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "handleInputEvents", at = @At("RETURN"))
     private void hookHandleInputEvent(CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new InputHandleEvent());
+        EventManager.INSTANCE.callEvent(InputHandleEvent.INSTANCE);
     }
 
     /**
@@ -314,14 +314,6 @@ public abstract class MixinMinecraftClient {
         EventManager.INSTANCE.callEvent(new WorldChangeEvent(world));
     }
 
-    /**
-     * Removes frame rate limit
-     */
-    @ModifyConstant(method = "getFramerateLimit", constant = @Constant(intValue = 60))
-    private int getFramerateLimit(int original) {
-        return getWindow().getFramerateLimit();
-    }
-
     @Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentFps:I",
             ordinal = 0, shift = At.Shift.AFTER))
     private void hookFpsChange(CallbackInfo ci) {
@@ -330,7 +322,7 @@ public abstract class MixinMinecraftClient {
 
     @Inject(method = "onFinishedLoading", at = @At("HEAD"))
     private void onFinishedLoading(CallbackInfo ci) {
-        EventManager.INSTANCE.callEvent(new ResourceReloadEvent());
+        EventManager.INSTANCE.callEvent(ResourceReloadEvent.INSTANCE);
     }
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
@@ -367,6 +359,19 @@ public abstract class MixinMinecraftClient {
         // unintended modification to the attack cooldown, which is not intended.
         return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen ||
                 this.currentScreen instanceof ModuleClickGui.ClickScreen);
+    }
+
+    @Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
+    private void hookSpoofFramebuffer(CallbackInfoReturnable<Framebuffer> cir) {
+        var framebuffer = GlobalFramebuffer.getSpoofedFramebuffer();
+        if (framebuffer != null) {
+            cir.setReturnValue(framebuffer);
+        }
+    }
+
+    @Inject(method = "onDisconnected", at = @At("HEAD"))
+    private void handleDisconnection(CallbackInfo ci) {
+        EventManager.INSTANCE.callEvent(DisconnectEvent.INSTANCE);
     }
 
 }

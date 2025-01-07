@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ internal object FlyVerusB3869Flat : Choice("VerusB3896Flat") {
         network.sendPacket(
             PlayerMoveC2SPacket.PositionAndOnGround(
                 player.x, player.y - 0.5, player.z,
-                false
+                false, player.horizontalCollision
             )
         )
     }

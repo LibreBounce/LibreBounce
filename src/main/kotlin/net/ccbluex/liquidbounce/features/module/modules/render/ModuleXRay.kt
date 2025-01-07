@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -190,6 +190,14 @@ object ModuleXRay : ClientModule("XRay", Category.RENDER) {
         exposedOnly -> Direction.entries.any {
             blockPos.add(it.vector)?.let { pos -> pos.getState()?.isSolidBlock(world, pos) } == false
         }
+
+        else -> true
+    }
+
+    fun shouldRender(state: BlockState, otherState: BlockState, side: Direction) = when {
+        state.block !in blocks -> false
+
+        exposedOnly -> !state.isSideInvisible(otherState, side)
 
         else -> true
     }

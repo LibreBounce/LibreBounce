@@ -11,8 +11,9 @@ import org.lwjgl.glfw.GLFW
 object DebugCPSRecorder : ModuleDebugRecorder.DebugRecorderMode("CPS") {
 
     val packetHandler = handler<PacketEvent> { event ->
-        if (event.packet !is HandSwingC2SPacket)
+        if (event.packet !is HandSwingC2SPacket) {
             return@handler
+        }
 
         recordPacket(JsonObject().apply {
             addProperty("type", "swingPacket")

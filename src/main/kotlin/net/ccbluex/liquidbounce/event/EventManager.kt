@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.event
 
 import net.ccbluex.liquidbounce.event.events.*
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import java.util.concurrent.CopyOnWriteArrayList
@@ -52,6 +52,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     KeyEvent::class,
     MouseRotationEvent::class,
     KeybindChangeEvent::class,
+    KeybindIsPressedEvent::class,
     AttackEntityEvent::class,
     SessionEvent::class,
     ScreenEvent::class,
@@ -87,6 +88,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PacketEvent::class,
     ClientStartEvent::class,
     ClientShutdownEvent::class,
+    ClientLanguageChangedEvent::class,
     ValueChangedEvent::class,
     ModuleActivationEvent::class,
     ModuleToggleEvent::class,
@@ -102,7 +104,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     VirtualScreenEvent::class,
     FpsChangeEvent::class,
     ClientPlayerDataEvent::class,
-    SimulatedTickEvent::class,
+    RotationUpdateEvent::class,
     SplashOverlayEvent::class,
     SplashProgressEvent::class,
     RefreshArrayListEvent::class,
@@ -173,13 +175,6 @@ object EventManager {
         registry[eventClass]?.remove(eventHook as EventHook<in Event>)
     }
 
-    /**
-     * Unregisters event handlers.
-     */
-    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: Collection<EventHook<in Event>>) {
-        registry[eventClass]?.removeAll(hooks.toHashSet())
-    }
-
     fun unregisterEventHandler(eventListener: EventListener) {
         registry.values.forEach {
             it.removeIf { it.handlerClass == eventListener }
@@ -198,12 +193,14 @@ object EventManager {
      * @param event to call
      */
     fun <T : Event> callEvent(event: T): T {
+        if (isDestructed) {
+            return event
+        }
+
         val target = registry[event.javaClass] ?: return event
 
         for (eventHook in target) {
-            EventScheduler.process(event)
-
-            if (!eventHook.ignoreNotRunning && !eventHook.handlerClass.running) {
+            if (!eventHook.handlerClass.running) {
                 continue
             }
 

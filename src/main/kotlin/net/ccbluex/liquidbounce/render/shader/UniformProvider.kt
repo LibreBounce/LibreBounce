@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,20 @@
  */
 package net.ccbluex.liquidbounce.render.shader
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gl.GlUniform
+import org.lwjgl.opengl.GL20
+import org.lwjgl.system.MemoryUtil
 
-class UniformProvider(val name: String, val set: (pointer: Int) -> Unit) {
+private val BUFFER = MemoryUtil.memAllocFloat(16)
+
+object ProjMatUniform : UniformProvider("projMat", { pointer ->
+    BUFFER.position(0)
+    RenderSystem.getProjectionMatrix().get(BUFFER)
+    GL20.glUniformMatrix4fv(pointer, false, BUFFER)
+})
+
+open class UniformProvider(val name: String, val set: (pointer: Int) -> Unit) {
 
     var pointer = -1
 

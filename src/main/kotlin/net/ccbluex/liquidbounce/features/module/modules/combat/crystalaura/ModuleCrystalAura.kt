@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
-import net.ccbluex.liquidbounce.utils.aiming.RotationMode
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -63,9 +62,9 @@ object ModuleCrystalAura : ClientModule(
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
-    val rotationMode = choices<RotationMode>(this, "RotationMode", { it.choices[0] }, {
+    val rotationMode = choices(this, "RotationMode") {
         arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
-    })
+    }
 
     var currentTarget: LivingEntity? = null
 
@@ -81,7 +80,7 @@ object ModuleCrystalAura : ClientModule(
     }
 
     @Suppress("unused")
-    val simulatedTickHandler = handler<SimulatedTickEvent> {
+    val simulatedTickHandler = handler<RotationUpdateEvent> {
         CrystalAuraDamageOptions.cacheMap.clear()
         if (CombatManager.shouldPauseCombat) {
             return@handler

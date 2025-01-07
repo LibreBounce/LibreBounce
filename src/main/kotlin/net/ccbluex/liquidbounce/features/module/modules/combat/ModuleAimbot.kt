@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -62,19 +61,19 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
-    private var angleSmooth = choices<AngleSmoothMode>(this, "AngleSmooth", { it.choices[0] }, {
+    private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
             LinearAngleSmoothMode(it),
             SigmoidAngleSmoothMode(it)
         )
-    })
+    }
 
-    private var slowStart = tree(SlowStart(this))
+    private val slowStart = tree(SlowStart(this))
 
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    val tickHandler = handler<SimulatedTickEvent> { _ ->
+    private val tickHandler = handler<RotationUpdateEvent> { _ ->
         this.targetTracker.validateLock { target -> target.boxedDistanceTo(player) <= range }
         this.playerRotation = player.rotation
 
@@ -97,6 +96,9 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 target
             )
         }
+
+        // Update Auto Weapon
+        ModuleAutoWeapon.prepare(targetTracker.lockedOnTarget)
     }
 
     override fun disable() {
@@ -149,19 +151,19 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 continue
             }
 
-            val (fromPoint, toPoint, box, cutOffBox) = pointTracker.gatherPoint(target,
+            val pointOnHitbox = pointTracker.gatherPoint(target,
                 PointTracker.AimSituation.FOR_NOW)
 
-            val rotationPreference = LeastDifferencePreference(player.rotation, toPoint)
+            val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 
             val spot = raytraceBox(
-                fromPoint,
-                cutOffBox,
+                pointOnHitbox.fromPoint,
+                pointOnHitbox.cutOffBox,
                 range = range.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                fromPoint, box, range = range.toDouble(),
+                pointOnHitbox.fromPoint, pointOnHitbox.box, range = range.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: continue

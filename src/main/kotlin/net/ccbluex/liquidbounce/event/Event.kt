@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ open class CancellableEvent : Event() {
 }
 
 /**
- * State of event. Might be PRE or POST.
+ * MixinEntityRenderState of event. Might be PRE or POST.
  */
 enum class EventState(val stateName: String) {
     PRE("PRE"), POST("POST")

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ object ModuleTwerk : ClientModule("Twerk", Category.FUN) {
      */
     val movementInputHandler = handler<MovementInputEvent>(priority = 10) {
         val sneaking = player.age % (delay * 2) < delay
-        it.sneaking = sneaking
+        it.sneak = sneaking
     }
 
 }

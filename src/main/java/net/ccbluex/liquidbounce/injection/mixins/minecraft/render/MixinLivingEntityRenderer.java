@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,67 +21,98 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import it.unimi.dsi.fastutil.floats.FloatFloatPair;
-import net.ccbluex.liquidbounce.features.cosmetic.CosmeticCategory;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.ccbluex.liquidbounce.api.models.cosmetics.CosmeticCategory;
 import net.ccbluex.liquidbounce.features.cosmetic.CosmeticService;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleTrueSight;
+import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition;
+import net.ccbluex.liquidbounce.utils.aiming.Rotation;
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
-import org.apache.commons.lang3.function.Suppliers;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntityRenderer.class)
-public class MixinLivingEntityRenderer<T extends LivingEntity> {
+public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
 
     @Unique
-    private final ThreadLocal<@Nullable FloatFloatPair> rotationPitch = ThreadLocal.withInitial(Suppliers.nul());
+    private Pair<Rotation, Rotation> getOverwriteRotation(ModuleRotations.BodyPart bodyPart) {
+        if (ModuleRotations.INSTANCE.getRunning() && ModuleRotations.INSTANCE.getBodyParts().allows(bodyPart)) {
+            var rotation = ModuleRotations.INSTANCE.getModelRotation();
+            var prevRotation = ModuleRotations.INSTANCE.getPrevModelRotation();
 
-    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"))
-    private void injectRender(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        final var rotationPitch = ModuleRotations.INSTANCE.getRotationPitch();
-
-        this.rotationPitch.remove();
-
-        if (livingEntity != MinecraftClient.getInstance().player || !ModuleRotations.INSTANCE.shouldDisplayRotations() || !ModuleRotations.INSTANCE.getBodyParts().getHead()) {
-            return;
+            if (rotation != null && prevRotation != null) {
+                return new Pair<>(prevRotation, rotation);
+            }
         }
 
-        this.rotationPitch.set(FloatFloatPair.of(rotationPitch.keyFloat(), rotationPitch.valueFloat()));
-    }
-
-    /**
-     * Head rotation pitch injection hook
-     */
-    @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerp(FFF)F", ordinal = 0))
-    private float injectRotationPitch(float g, float f, float s) {
-        final var rot = this.rotationPitch.get();
-        if (rot != null) {
-            return MathHelper.lerp(g, rot.keyFloat(), rot.valueFloat());
-        } else {
-            return MathHelper.lerp(g, f, s);
+        if (ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableRotations()) {
+            var serverRotation = RotationManager.INSTANCE.getServerRotation();
+            return new Pair<>(serverRotation, serverRotation);
         }
+
+        return null;
     }
 
+    @ModifyExpressionValue(method = "updateRenderState(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;clampBodyYaw(Lnet/minecraft/entity/LivingEntity;FF)F"))
+    private float hookBodyYaw(float original, LivingEntity entity, S state, float tickDelta) {
+        if (entity != MinecraftClient.getInstance().player) {
+            return original;
+        }
 
-    @ModifyExpressionValue(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isInvisibleTo(Lnet/minecraft/entity/player/PlayerEntity;)Z"))
-    private boolean injectTrueSight(boolean original, T livingEntity) {
+        var overwriteRotation = getOverwriteRotation(ModuleRotations.BodyPart.BODY);
+        if (overwriteRotation != null) {
+            return MathHelper.lerpAngleDegrees(tickDelta, overwriteRotation.getLeft().getYaw(), overwriteRotation.getRight().getYaw());
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "updateRenderState(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerpAngleDegrees(FFF)F"))
+    private float hookHeadYaw(float original, LivingEntity entity, S state, float tickDelta) {
+        if (entity != MinecraftClient.getInstance().player) {
+            return original;
+        }
+
+        var overwriteRotation = getOverwriteRotation(ModuleRotations.BodyPart.HEAD);
+        if (overwriteRotation != null) {
+            return MathHelper.lerpAngleDegrees(tickDelta, overwriteRotation.getLeft().getYaw(), overwriteRotation.getRight().getYaw());
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "updateRenderState(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getLerpedPitch(F)F"))
+    private float hookPitch(float original, LivingEntity entity, S state, float tickDelta) {
+        if (entity != MinecraftClient.getInstance().player) {
+            return original;
+        }
+
+        var overwriteRotation = getOverwriteRotation(ModuleRotations.BodyPart.HEAD);
+        if (overwriteRotation != null) {
+            return MathHelper.lerpAngleDegrees(tickDelta, overwriteRotation.getLeft().getPitch(), overwriteRotation.getRight().getPitch());
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;isVisible(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;)Z"))
+    private boolean injectTrueSight(boolean original, @Local(argsOnly = true) S livingEntityRenderState) {
         // Check if TrueSight is enabled and entities are enabled or ESP is enabled and in glow mode
         if (ModuleTrueSight.INSTANCE.getRunning() && ModuleTrueSight.INSTANCE.getEntities() ||
-                ModuleESP.INSTANCE.getRunning() && ModuleESP.INSTANCE.requiresTrueSight(livingEntity)) {
-            return false;
+                ModuleESP.INSTANCE.getRunning() && ModuleESP.INSTANCE.requiresTrueSight(((LivingEntity) ((EntityRenderStateAddition) livingEntityRenderState).liquid_bounce$getEntity()))) {
+            return true;
         }
 
         return original;

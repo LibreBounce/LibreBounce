@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.hideShieldSlot
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock.shouldHideOffhand
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeWithNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
@@ -148,11 +148,11 @@ data class ScoreboardData(val header: Text, val entries: Array<SidebarEntry?>) {
                     val entryWithDecoration: Text = Team.decorateName(team, entryName)
                     val entryValue: Text = scoreboardEntry.formatted(numberFormat)
 
-                    SidebarEntry(entryWithDecoration.sanitizeWithNameProtect(), entryValue.sanitizeWithNameProtect())
+                    SidebarEntry(entryWithDecoration.sanitizeForeignInput(), entryValue.sanitizeForeignInput())
                 }
                 .toArray { arrayOfNulls<SidebarEntry>(it) }
 
-            return ScoreboardData(objective.displayName.sanitizeWithNameProtect(), sidebarEntries)
+            return ScoreboardData(objective.displayName.sanitizeForeignInput(), sidebarEntries)
         }
     }
 

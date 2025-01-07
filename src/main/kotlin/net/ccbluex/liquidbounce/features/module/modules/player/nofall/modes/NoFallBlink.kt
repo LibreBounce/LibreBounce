@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ internal object NoFallBlink : Choice("Blink") {
     override val parent: ChoiceConfigurable<*>
         get() = modes
 
-    val inputHandler = handler<MovementInputEvent> { event ->
+    private val inputHandler = handler<MovementInputEvent> { event ->
         // If we are invincible, we don't need to care about fall damage
         if (player.isCreative || player.abilities.allowFlying || player.abilities.flying) {
             blinkFall = false
@@ -88,7 +88,7 @@ internal object NoFallBlink : Choice("Blink") {
         val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
             SimulatedPlayer.SimulatedPlayerInput(
                 event.directionalInput,
-                event.jumping,
+                event.jump,
                 player.isSprinting,
                 true
             ))
@@ -112,7 +112,7 @@ internal object NoFallBlink : Choice("Blink") {
         )
 
         // Check if we collect fall distance above 2f in the next 10 ticks
-        for (i in 0..MAXIMUM_TICKS) {
+        for (ignored in 0..MAXIMUM_TICKS) {
             simulatedPlayer.tick()
 
             if (simulatedPlayer.fallDistance > triggerFallDistance) {

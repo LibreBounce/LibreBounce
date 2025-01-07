@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ object CommandPanic : CommandFactory {
                 when (val type = args.getOrNull(0) as String? ?: "nonrender") {
                     "all" -> msg = command.result("disabledAllModules")
                     "nonrender" -> {
-                        modules = modules.filter { it.category != Category.RENDER && it.category != Category.CLIENT}
+                        modules = modules.filter { it.category != Category.RENDER && it.category != Category.CLIENT }
                         msg = command.result("disabledAllCategoryModules", command.result("nonRender"))
                     }
 
@@ -67,16 +67,15 @@ object CommandPanic : CommandFactory {
                     }
                 }
 
-                AutoConfig.loadingNow = true
                 runCatching {
-                    for (module in modules) {
-                        module.enabled = false
+                    AutoConfig.withLoading {
+                        for (module in modules) {
+                            module.enabled = false
+                        }
                     }
                 }.onSuccess {
-                    AutoConfig.loadingNow = false
                     chat(regular(msg), command)
                 }.onFailure {
-                    AutoConfig.loadingNow = false
                     throw CommandException(command.result("panicFailed"))
                 }
             }

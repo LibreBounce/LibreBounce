@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,10 @@ object ScriptRotationUtil {
      * It has almost zero performance impact, so it's recommended to use this if you don't need the best spot.
      */
     @JvmName("newRotationEntity")
-    fun newRotationEntity(entity: Entity) = RotationManager.makeRotation(entity.boundingBox.center, mc.player!!.eyes)
+    fun newRotationEntity(entity: Entity) = Rotation.lookingAt(
+        point = entity.boundingBox.center,
+        from = mc.player!!.eyes
+    )
 
     /**
      * Aims at the given [rotation] using the in-built RotationManager.

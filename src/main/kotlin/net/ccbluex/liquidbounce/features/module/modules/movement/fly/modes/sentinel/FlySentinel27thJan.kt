@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ internal object FlySentinel27thJan : Choice("Sentinel27thJan") {
 
         player.velocity.y = when {
             player.isSneaking -> -0.4
-            player.input.jumping -> 0.42
+            player.input.playerInput.jump -> 0.42
             else -> 0.2
         }
         player.strafe(speed = horizontalSpeed.random())

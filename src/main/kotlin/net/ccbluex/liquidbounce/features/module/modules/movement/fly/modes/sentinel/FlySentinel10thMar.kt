@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ internal object FlySentinel10thMar : Choice("Sentinel10thMar") {
     }
 
     val moveHandler = handler<MovementInputEvent> {
-        it.jumping = false
+        it.jump = false
     }
 
     val packetHandler = handler<PacketEvent> { event ->

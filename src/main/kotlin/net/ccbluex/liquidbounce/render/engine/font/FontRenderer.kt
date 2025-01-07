@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,18 @@
 package net.ccbluex.liquidbounce.render.engine.font
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.ModuleNameProtect
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeWithNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.FontManager.DEFAULT_FONT_SIZE
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
-import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextProcessor
 import net.ccbluex.liquidbounce.render.engine.font.processor.MinecraftTextProcessor
 import net.ccbluex.liquidbounce.render.engine.font.processor.TextProcessor
-import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.asText
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.text.Text
 import net.minecraft.util.math.Vec3d
-import org.apache.logging.log4j.MarkerManager
 import org.joml.Vector3f
 import java.awt.Font
 import java.util.*
@@ -89,11 +86,11 @@ class FontRenderer(
     }
 
     override fun process(text: String, defaultColor: Color4b): TextProcessor.ProcessedText {
-        return LegacyTextProcessor(ModuleNameProtect.replace(text), defaultColor, Random.nextLong()).process()
+        return process(text.asText(), defaultColor)
     }
 
     override fun process(text: Text, defaultColor: Color4b): TextProcessor.ProcessedText {
-        return MinecraftTextProcessor(text.sanitizeWithNameProtect(), defaultColor, Random.nextLong()).process()
+        return MinecraftTextProcessor(text.sanitizeForeignInput(), defaultColor, Random.nextLong()).process()
     }
 
     override fun draw(
@@ -229,9 +226,10 @@ class FontRenderer(
         }
     }
 
+    @Suppress("LongParameterList")
     private fun drawLine(
         x0: Float,
-        x: Float,
+        x1: Float,
         y: Float,
         z: Float,
         color: Color4b,
@@ -241,7 +239,7 @@ class FontRenderer(
             this.cache.lines.add(
                 RenderedLine(
                     Vec3(x0, y - this.height + this.ascent, z),
-                    Vec3(x, y - this.height + this.ascent, z),
+                    Vec3(x1, y - this.height + this.ascent, z),
                     color
                 )
             )
@@ -249,7 +247,7 @@ class FontRenderer(
             this.cache.lines.add(
                 RenderedLine(
                     Vec3(x0, y + 1.0f, z),
-                    Vec3(x, y + 1.0f, z),
+                    Vec3(x1, y + 1.0f, z),
                     color
                 )
             )

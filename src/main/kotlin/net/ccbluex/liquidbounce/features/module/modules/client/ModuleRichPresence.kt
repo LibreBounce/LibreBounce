@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,14 @@ import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
 import com.jagrosh.discordipc.exceptions.NoDiscordClientException
 import kotlinx.coroutines.Dispatchers
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientBranch
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersion
-import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.ccbluex.liquidbounce.api.core.AsyncLazy
+import net.ccbluex.liquidbounce.api.services.cdn.ClientCdn
 import net.ccbluex.liquidbounce.config.gson.util.jsonArrayOf
 import net.ccbluex.liquidbounce.config.gson.util.jsonObjectOf
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
@@ -45,16 +46,15 @@ import net.ccbluex.liquidbounce.utils.client.hideSensitiveAddress
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.protocolVersion
-import net.ccbluex.liquidbounce.utils.io.HttpClient
 
-data class IpcConfiguration(
-    val appID: Long,
-    val assets: Map<String, String>
-)
-
-val ipcConfiguration by lazy {
-    logger.info("Loading Discord IPC configuration...")
-    decode<IpcConfiguration>(HttpClient.get("$CLIENT_CLOUD/discord.json"))
+val ipcConfiguration by AsyncLazy {
+    runCatching {
+        ClientCdn.requestDiscordConfiguration()
+    }.onSuccess {
+        LiquidBounce.logger.info("Successfully loaded Discord IPC configuration [${it.appID}].")
+    }.onFailure {
+        LiquidBounce.logger.error("Failed to load Discord IPC configuration.", it)
+    }.getOrNull()
 }
 
 object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state = true, hide = true,
@@ -83,6 +83,8 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
     }
 
     private fun connectIpc() {
+        val ipcConfiguration = ipcConfiguration ?: return
+
         if (doNotTryToConnect || ipcClient?.status == PipeStatus.CONNECTED) {
             return
         }
@@ -147,6 +149,8 @@ object ModuleRichPresence : ClientModule("RichPresence", Category.CLIENT, state 
             if (ipcClient == null || ipcClient!!.status != PipeStatus.CONNECTED) {
                 return@waitFor
             }
+
+            val ipcConfiguration = ipcConfiguration ?: return@waitFor
 
             ipcClient!!.sendRichPresence {
                 // Set playing time

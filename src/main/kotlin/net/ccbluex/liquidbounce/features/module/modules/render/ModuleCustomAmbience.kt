@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,23 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.platform.GlStateManager
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.render.MixinBackgroundRenderer
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.shader.shaders.BlendShader
+import net.ccbluex.liquidbounce.render.shader.shaders.BlendShaderData
 import net.minecraft.block.enums.CameraSubmersionType
+import net.minecraft.client.gl.Framebuffer
+import net.minecraft.client.gl.SimpleFramebuffer
 import net.minecraft.client.render.Camera
+import net.minecraft.client.render.Fog
 import net.minecraft.client.render.FogShape
 import net.minecraft.util.math.MathHelper
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args
+import org.lwjgl.opengl.GL13
 
 /**
  * CustomAmbience module
@@ -46,7 +51,7 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
         val layers by int("Layers", 3, 1..14)
     }
 
-    object Fog : ToggleableConfigurable(this, "Fog", true) {
+    object FogConfigurable : ToggleableConfigurable(this, "Fog", true) {
 
         private val color by color("Color", Color4b(47, 128, 255, 201))
         private val backgroundColor by color("BackgroundColor", Color4b(47, 128, 255, 201))
@@ -57,42 +62,35 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
         /**
          * [MixinBackgroundRenderer]
          */
-        fun modifyFog(camera: Camera, viewDistance: Float) {
+        fun modifyFog(camera: Camera, viewDistance: Float, fog: Fog): Fog {
             if (!this.running) {
-                return
+                return fog
             }
 
-            RenderSystem.setShaderFogStart(MathHelper.clamp(fogStart, -8f, viewDistance))
-            RenderSystem.setShaderFogEnd(MathHelper.clamp(fogStart + density, 0f, viewDistance))
+            val start = MathHelper.clamp(fogStart, -8f, viewDistance)
+            val end = MathHelper.clamp(fogStart + density, 0f, viewDistance)
 
+            var shape = fog.shape
             val type = camera.submersionType
-            if (type != CameraSubmersionType.NONE) {
-                return
+            if (type == CameraSubmersionType.NONE) {
+                shape = fogShape.fogShape
             }
 
-            RenderSystem.setShaderFogShape(fogShape.fogShape)
+            return Fog(start, end, shape, color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f)
         }
 
-        fun modifyFogColor() {
-            if (!this.running) {
-                return
-            }
-
-            val color = color
-            RenderSystem.setShaderFogColor(
-                color.r / 255f,
-                color.g / 255f,
-                color.b / 255f,
-                color.a / 255f
-            )
-        }
-
-        fun modifySetColorArgs(args: Args) {
+        fun modifyClearColor(): Boolean {
             if (!this.running || backgroundColor.a == 0) {
-                return
+                return false
             }
 
-            args.setAll(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f, 0f)
+            GlStateManager._clearColor(
+                backgroundColor.r / 255f,
+                backgroundColor.g / 255f,
+                backgroundColor.b / 255f,
+                backgroundColor.a / 255f
+            )
+            return true
         }
 
         @Suppress("unused")
@@ -103,35 +101,39 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER) {
 
     }
 
-    object CustomLightColor : ToggleableConfigurable(this, "CustomLightColor", true) {
+    object CustomLightColor :
+        ToggleableConfigurable(this, "CustomLightColor", true), AutoCloseable {
 
-        private val lightColor by color("LightColor", Color4b(70, 119, 255, 255))
+        private val lightColor by color("LightColor", Color4b(70, 119, 255, 255)).onChanged {
+            update()
+        }
 
-        fun blendWithLightColor(srcColor: Int): Int {
-            if (lightColor.a == 255) {
-                return lightColor.toABGR()
-            } else if (lightColor.a == 0) {
-                return srcColor
-            }
+        val framebuffer: Framebuffer = SimpleFramebuffer(16, 16, false)
 
-            val srcB = (srcColor shr 16) and 0xFF
-            val srcG = (srcColor shr 8) and 0xFF
-            val srcR = srcColor and 0xFF
+        init {
+            framebuffer.setTexFilter(9729)
+            framebuffer.setClearColor(1f, 1f, 1f, 1f)
+        }
 
-            val dstAlpha = lightColor.a / 255f
+        fun update() {
+            framebuffer.clear()
+            framebuffer.beginWrite(true)
+            GlStateManager._activeTexture(GL13.GL_TEXTURE0)
+            GlStateManager._bindTexture(mc.gameRenderer.lightmapTextureManager.lightmapFramebuffer.colorAttachment)
+            BlendShaderData.color = lightColor
+            BlendShader.blit()
+            framebuffer.endWrite()
+        }
 
-            val outB = ((srcB * (1 - dstAlpha)) + (lightColor.b * dstAlpha)).toInt()
-            val outG = ((srcG * (1 - dstAlpha)) + (lightColor.g * dstAlpha)).toInt()
-            val outR = ((srcR * (1 - dstAlpha)) + (lightColor.r * dstAlpha)).toInt()
-
-            return (255 shl 24) or (outB shl 16) or (outG shl 8) or outR
+        override fun close() {
+            framebuffer.delete()
         }
 
     }
 
     init {
         tree(Precipitation)
-        tree(Fog)
+        tree(FogConfigurable)
         tree(CustomLightColor)
     }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -34,6 +34,7 @@ import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.interactItem
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
@@ -46,14 +47,11 @@ import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
-import kotlin.math.atan
-import kotlin.math.atan2
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 /**
  * A module that automatically shoots at the nearest enemy.
@@ -88,7 +86,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     )
 
     /**
-     * So far I have never seen an anti-cheat which detects high turning speed for actions such as
+     * So far, I have never seen an anti-cheat which detects high turning speed for actions such as
      * shooting.
      */
     private val rotationConfigurable = tree(RotationsConfigurable(this))
@@ -112,7 +110,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      * as fast possible. This means we already pre-aim before we peek around the corner.
      */
     @Suppress("unused")
-    val simulatedTickHandler = handler<SimulatedTickEvent> {
+    val simulatedTickHandler = handler<RotationUpdateEvent> {
         targetTracker.cleanup()
 
         // Find the recommended target
@@ -195,11 +193,8 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
 
-        // Check difference between server and client rotation
-        val rotationDifference = RotationManager.rotationDifference(
-            rotation ?: return@tickHandler,
-            RotationManager.serverRotation
-        )
+        // Check the difference between server and client rotation
+        val rotationDifference = RotationManager.serverRotation.angleTo(rotation ?: return@tickHandler)
 
         // Check if we are not aiming at the target yet
         if (rotationDifference > aimOffThreshold) {
@@ -231,58 +226,19 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     }
 
     private fun generateRotation(target: LivingEntity, gravityType: GravityType): Rotation? {
-        val (fromPoint, toPoint, _, _)
-            = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)
+        val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NEXT_TICK)
 
         return when (gravityType) {
-
             GravityType.AUTO -> {
                 // Should not happen, we convert [gravityType] to LINEAR or PROJECTILE before.
                 return null
             }
-
-            GravityType.LINEAR -> {
-                RotationManager.makeRotation(toPoint, fromPoint)
-            }
-
+            GravityType.LINEAR -> Rotation.lookingAt(pointOnHitbox.toPoint, pointOnHitbox.fromPoint)
             // Determines the required yaw and pitch angles to hit a target with a projectile,
             // considering gravity's effect on the projectile's motion.
             GravityType.PROJECTILE -> {
-                // The velocity of the projectile at the moment of launch, determined by testing.
-                // todo: use math: eggEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 1.5F, 1.0F);
-                val targetPosition = toPoint.subtract(fromPoint)
+                SituationalProjectileAngleCalculator.calculateAngleForEntity(TrajectoryInfo.GENERIC, target)
 
-                val launchVelocity = 0.6f
-
-                // Compute the horizontal distance to the target on the XZ plane (ignoring y-component).
-                val horizontalDistance = sqrt(
-                    targetPosition.x * targetPosition.x +
-                        targetPosition.z * targetPosition.z
-                )
-
-                // Calculate yaw angle: the horizontal angle between the player's forward direction
-                // and the direction to the target, in radians converted to degrees and adjusted by -90°.
-                val yaw = (atan2(targetPosition.z, targetPosition.x) * 180.0f / Math.PI).toFloat() - 90.0f
-
-                // Calculate the pitch angle required to hit the target by solving the projectile
-                // motion equation, considering gravity and initial launch velocity.
-                val pitch = (-Math.toDegrees(
-                    atan(
-                        (launchVelocity.pow(2) - sqrt(
-                            launchVelocity.pow(4) -
-                                0.006f * (0.006f * (horizontalDistance.pow(2)) + 2 * targetPosition.y *
-                                launchVelocity.pow(2))
-                        )) / (0.006f * horizontalDistance)
-                    )
-                )).toFloat()
-
-                // Check if the calculated yaw and pitch are valid numbers; if not, return null.
-                if (yaw.isNaN() || pitch.isNaN()) {
-                    return null
-                }
-
-                // Return the computed Rotation object containing the yaw and pitch angles.
-                Rotation(yaw, pitch)
             }
         }
     }
@@ -318,7 +274,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     }
 
     private enum class ThrowableType(override val choiceName: String) : NamedChoice {
-        EGG_AND_SNOWBALL("Egg and Snowball"),
+        EGG_AND_SNOWBALL("EggAndSnowball"),
         ANYTHING("Anything"),
     }
 

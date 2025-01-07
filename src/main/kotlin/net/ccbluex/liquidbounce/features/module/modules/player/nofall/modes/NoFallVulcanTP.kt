@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
+import net.ccbluex.liquidbounce.utils.entity.set
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 /**
@@ -50,7 +51,9 @@ internal object NoFallVulcanTP : Choice("VulcanTP288") {
 
             // Extreme high fall velocity
             player.setVelocity(0.0, -99.887575, 0.0)
-            player.input.sneaking = true
+            player.input.set(
+                sneak = true
+            )
         }
     }
 

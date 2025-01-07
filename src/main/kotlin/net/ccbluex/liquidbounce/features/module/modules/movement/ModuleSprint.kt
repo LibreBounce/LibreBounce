@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
 
     private val ignoreBlindness by boolean("IgnoreBlindness", false)
     private val ignoreHunger by boolean("IgnoreHunger", false)
+    private val ignoreCollision by boolean("IgnoreCollision", false)
     private val stopOnGround by boolean("StopOnGround", true)
     private val stopOnAir by boolean("StopOnAir", true)
 
@@ -58,6 +59,8 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     fun shouldIgnoreBlindness() = running && ignoreBlindness
 
     fun shouldIgnoreHunger() = running && ignoreHunger
+
+    fun shouldIgnoreCollision() = running && ignoreCollision
 
     fun shouldPreventSprint(): Boolean {
         val deltaYaw = player.yaw - (RotationManager.currentRotation ?: return false).yaw
@@ -100,6 +103,4 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         RotationManager.aimAt(rotationsConfigurable.toAimPlan(rotation), Priority.NOT_IMPORTANT,
             this@ModuleSprint)
     }
-
-
 }

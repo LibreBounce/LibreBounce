@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent> { event ->
         if (event.directionalInput.isMoving && hasBeenHurt) {
-            event.jumping = true
+            event.jump = true
         }
     }
 
@@ -122,13 +122,13 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
         externalDamageAdjust = 0
         hasBeenHurt = false
         enabledTime = System.currentTimeMillis()
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false))
         network.sendPacket(
             PlayerMoveC2SPacket.PositionAndOnGround(
                 player.x, player.y + 3.25, player.z,
-            false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false))
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true))
+            false, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, false, false))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, true, false))
     }
 
 }

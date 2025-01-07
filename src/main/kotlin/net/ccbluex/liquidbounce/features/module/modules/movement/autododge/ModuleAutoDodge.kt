@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.autododge
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.once
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.*
@@ -81,8 +80,8 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         }
 
         if (dodgePlan.shouldJump && AllowRotationChange.allowJump && player.isOnGround) {
-            EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                it.jumping = true
+            once<MovementInputEvent> { event ->
+                event.jump = true
             }
         }
 
@@ -96,7 +95,8 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
             if (it !is ArrowEntity) {
                 return@mapNotNull null
             }
-            if (it.inGround) {
+
+            if (it.isInGround()) {
                 return@mapNotNull null
             }
 
@@ -191,11 +191,11 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         return null
     }
 
-    fun getInflictedHit(pos: Vec3d): ModuleAutoDodge.HitInfo? {
-        val arrows = ModuleAutoDodge.findFlyingArrows(net.ccbluex.liquidbounce.utils.client.world)
+    fun getInflictedHit(pos: Vec3d): HitInfo? {
+        val arrows = findFlyingArrows(net.ccbluex.liquidbounce.utils.client.world)
         val playerSimulation = RigidPlayerSimulation(pos)
 
-        return ModuleAutoDodge.getInflictedHits(playerSimulation, arrows, maxTicks = 40)
+        return getInflictedHits(playerSimulation, arrows, maxTicks = 40)
     }
 
     data class HitInfo(

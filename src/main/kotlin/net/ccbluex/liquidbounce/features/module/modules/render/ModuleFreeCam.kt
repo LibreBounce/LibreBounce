@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -81,7 +82,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
 
         // Reset player rotation
         if (!allowRotationChange) {
-            val rotation = ModuleRotations.displayRotations()
+            val rotation = RotationManager.currentRotation ?: RotationManager.serverRotation
 
             player.yaw = rotation.yaw
             player.pitch = rotation.pitch
@@ -92,8 +93,8 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
     val inputHandler = handler<MovementInputEvent> { event ->
         val speed = this.speed.toDouble()
         val yAxisMovement = when {
-            event.jumping -> 1.0f
-            event.sneaking -> -1.0f
+            event.jump -> 1.0f
+            event.sneak -> -1.0f
             else -> 0.0f
         }
         val directionYaw = getMovementDirectionOfInput(player.yaw, event.directionalInput)
@@ -104,8 +105,8 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         updatePosition(velocity)
 
         event.directionalInput = DirectionalInput.NONE
-        event.jumping = false
-        event.sneaking = false
+        event.jump = false
+        event.sneak = false
     }
 
     fun applyCameraPosition(entity: Entity, tickDelta: Float) {

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,12 +41,15 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.io.extractZip
 import net.ccbluex.liquidbounce.utils.io.resource
 import net.ccbluex.liquidbounce.utils.io.resourceToString
+import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.ccbluex.liquidbounce.utils.render.refreshRate
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
+import java.io.Closeable
 import java.io.File
 
 object ThemeManager : Configurable("theme") {
@@ -71,6 +74,10 @@ object ThemeManager : Configurable("theme") {
             if (!value.exists) {
                 logger.warn("Unable to set theme to ${value.name}, theme does not exist")
                 return
+            }
+
+            if (field != defaultTheme) {
+                activeTheme.close()
             }
 
             field = value
@@ -142,19 +149,30 @@ object ThemeManager : Configurable("theme") {
         }
     }
 
-    fun drawBackground(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float): Boolean {
+    fun drawBackground(context: DrawContext, width: Int, height: Int, mousePos: Vec2i, delta: Float): Boolean {
         if (shaderEnabled) {
             val shader = activeTheme.compiledShaderBackground ?: defaultTheme.compiledShaderBackground
 
             if (shader != null) {
-                shader.draw(mouseX, mouseY, delta)
+                shader.draw(mousePos.x, mousePos.y, delta)
                 return true
             }
         }
 
         val image = activeTheme.loadedBackgroundImage ?: defaultTheme.loadedBackgroundImage
         if (image != null) {
-            context.drawTexture(image, 0, 0, 0f, 0f, width, height, width, height)
+            context.drawTexture(
+                RenderLayer::getGuiTextured,
+                image,
+                0,
+                0,
+                0f,
+                0f,
+                width,
+                height,
+                width,
+                height
+            )
             return true
         }
 
@@ -163,8 +181,6 @@ object ThemeManager : Configurable("theme") {
 
     fun chooseTheme(name: String) {
         activeTheme = Theme(name)
-
-
     }
 
     fun themes() = themesFolder.listFiles()?.filter { it.isDirectory }?.mapNotNull { it.name } ?: emptyList()
@@ -173,7 +189,7 @@ object ThemeManager : Configurable("theme") {
 
 }
 
-class Theme(val name: String) {
+class Theme(val name: String) : Closeable {
 
     private val folder = File(ThemeManager.themesFolder, name)
 
@@ -213,7 +229,7 @@ class Theme(val name: String) {
         }
 
         readShaderBackground()?.let { shaderBackground ->
-            compiledShaderBackground = CanvasShader(resourceToString("/assets/liquidbounce/shaders/vertex.vert"),
+            compiledShaderBackground = CanvasShader(resourceToString("/resources/liquidbounce/shaders/vertex.vert"),
                 shaderBackground)
             logger.info("Compiled background shader for theme $name")
             return true
@@ -231,7 +247,8 @@ class Theme(val name: String) {
         }
 
         val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = mc.textureManager.registerDynamicTexture("liquidbounce-theme-bg-$name", image)
+        loadedBackgroundImage = Identifier.of("liquidbounce-theme-bg-$name")
+        mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true
     }
@@ -280,11 +297,15 @@ class Theme(val name: String) {
         return componentList
     }
 
+    override fun close() {
+        mc.textureManager.destroyTexture(loadedBackgroundImage)
+    }
+
     companion object {
 
         fun defaults() = runCatching {
             val folder = ThemeManager.themesFolder.resolve("default")
-            val stream = resource("/assets/liquidbounce/default_theme.zip")
+            val stream = resource("/resources/liquidbounce/default_theme.zip")
 
             if (folder.exists()) {
                 folder.deleteRecursively()

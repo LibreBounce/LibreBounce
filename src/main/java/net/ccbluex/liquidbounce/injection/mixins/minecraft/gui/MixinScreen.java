@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,9 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
-import net.ccbluex.liquidbounce.utils.client.RunnableClickEvent;
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager;
+import net.ccbluex.liquidbounce.utils.client.RunnableClickEvent;
+import net.ccbluex.liquidbounce.utils.math.Vec2i;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -41,7 +42,6 @@ import javax.annotation.Nullable;
 
 @Mixin(Screen.class)
 public abstract class MixinScreen {
-
     @Shadow
     protected abstract void remove(Element child);
 
@@ -72,7 +72,7 @@ public abstract class MixinScreen {
     @Inject(method = "renderBackground", at = @At("HEAD"), cancellable = true)
     private void renderBackgroundTexture(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (this.client != null && this.client.world == null && !HideAppearance.INSTANCE.isHidingNow()) {
-            if (ThemeManager.INSTANCE.drawBackground(context, width, height, mouseX, mouseY, delta)) {
+            if (ThemeManager.INSTANCE.drawBackground(context, width, height, new Vec2i(mouseX, mouseY), delta)) {
                 ci.cancel();
             }
         }
@@ -81,7 +81,7 @@ public abstract class MixinScreen {
     /**
      * Allows the execution of {@link RunnableClickEvent}.
      */
-    @Inject(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;)V", ordinal = 2, shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;)V", ordinal = 2, shift = At.Shift.BEFORE, remap = false), cancellable = true)
     private void hookExecuteClickEvents(Style style, CallbackInfoReturnable<Boolean> cir, @Local ClickEvent clickEvent) {
         if (clickEvent instanceof RunnableClickEvent runnableClickEvent) {
             runnableClickEvent.run();

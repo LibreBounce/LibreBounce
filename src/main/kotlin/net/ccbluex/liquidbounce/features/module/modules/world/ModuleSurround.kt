@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,9 +30,7 @@ import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.CrystalDestroyFeature
 import net.ccbluex.liquidbounce.utils.block.placer.NoRotationMode
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
@@ -281,7 +279,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     }
 
     @Suppress("unused")
-    private val targetUpdater = handler<SimulatedTickEvent> {
+    private val targetUpdater = handler<RotationUpdateEvent> {
         if (disableOnYChange && player.pos.y != startY) {
             enabled = false
             return@handler
@@ -361,13 +359,13 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         }
 
         val searchOptions = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i.ZERO),
-            ItemStack(Items.SANDSTONE),
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            player.pos,
-            player.pose,
-            placer.wallRange > 0
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory, considerFacingAwayFaces = placer.wallRange > 0),
+            stackToPlaceWith = ItemStack(Items.SANDSTONE),
+            PlayerLocationOnPlacement(position = player.pos, pose = player.pose),
         )
 
         val placementTarget = findBestBlockPlacementTarget(pos, searchOptions) ?: return
@@ -387,7 +385,8 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         if (rotationMode.send) {
             val rotation = placementTarget.rotation.normalize()
             network.connection!!.send(
-                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround),
+                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
+                    player.horizontalCollision),
                 null
             )
         }

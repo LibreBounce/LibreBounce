@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,8 +95,8 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         }
 
         @Suppress("unused")
-        val screenHandler = handler<ScreenEvent> {
-            if (it.screen is HandledScreen<*>) {
+        val screenHandler = handler<ScreenEvent> { event ->
+            if (event.screen is HandledScreen<*>) {
                 chronometer.reset()
 
                 notification("InventoryMove", message("blinkStart", maximumTime.formatAsTime()),

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.network.packet.s2c.play.HealthUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * FakeLag module
@@ -159,9 +160,11 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
 
             // Flush on explosion
             is ExplosionS2CPacket -> {
-                if (packet.playerVelocityX != 0f || packet.playerVelocityY != 0f || packet.playerVelocityZ != 0f) {
-                    chronometer.reset()
-                    return@handler
+                packet.playerKnockback.getOrNull()?.let { knockback ->
+                    if (knockback.x != 0.0 || knockback.y != 0.0 || knockback.z != 0.0) {
+                        chronometer.reset()
+                        return@handler
+                    }
                 }
             }
 

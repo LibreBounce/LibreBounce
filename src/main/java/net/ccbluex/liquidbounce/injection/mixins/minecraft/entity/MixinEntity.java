@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleNoPitchLimit;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiBounce;
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -85,6 +86,16 @@ public abstract class MixinEntity {
         EntityMarginEvent marginEvent = new EntityMarginEvent((Entity) (Object) this, callback.getReturnValue());
         EventManager.INSTANCE.callEvent(marginEvent);
         callback.setReturnValue(marginEvent.getMargin());
+    }
+
+    @ModifyExpressionValue(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;getVelocity(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/Vec3d;"))
+    private Vec3d hookNoPushInLiquids(Vec3d original) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return original;
+        }
+
+        return ModuleNoPush.INSTANCE.isLiquids()
+                ? Vec3d.ZERO : original;
     }
 
     /**
@@ -171,6 +182,29 @@ public abstract class MixinEntity {
                 cir.setReturnValue(false);
             }
         }
+    }
+
+    /**
+     * Restores client-side fall distance calculation that was disabled
+     * after Minecraft 1.21.4 (or 1.21.3, I don't know)
+     * <p>
+     * The vanilla game stopped calculating fall distance on the client side due to
+     * PlayerEntity always returning true for isControlledByPlayer(). This modification
+     * enables fall distance calculation by returning false when the entity is
+     * the client's player instance.
+     * <p>
+     * Because we don't know if this might also break something else, when we would overwrite
+     * the function to always return false, we only return false on fall distance calculation.
+     *
+     * @return false if the entity is the client's player, otherwise returns the original value
+     */
+    @ModifyExpressionValue(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isControlledByPlayer()Z"))
+    private boolean fixFallDistanceCalculation(boolean original) {
+        if ((Object) this == MinecraftClient.getInstance().player) {
+            return false;
+        }
+
+        return original;
     }
 
 }

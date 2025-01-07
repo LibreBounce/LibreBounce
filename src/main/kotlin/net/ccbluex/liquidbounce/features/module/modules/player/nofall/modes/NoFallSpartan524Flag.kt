@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ internal object NoFallSpartan524Flag : Choice("Spartan524Flag") {
 
     val repeatable = tickHandler {
         if (player.fallDistance > 2f) {
-            network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true))
+            network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true, player.horizontalCollision))
             waitTicks(1)
         }
     }

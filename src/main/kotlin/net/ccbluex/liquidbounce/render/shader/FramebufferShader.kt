@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,14 @@ package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.common.GlobalFramebuffer
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
+import net.minecraft.client.gl.GlUsage
 import net.minecraft.client.gl.SimpleFramebuffer
 import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL13
 import java.io.Closeable
 
@@ -35,14 +36,14 @@ import java.io.Closeable
  */
 open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, Closeable {
 
-    private val framebuffers = mutableListOf<SimpleFramebuffer>()
-    private var buffer = VertexBuffer(VertexBuffer.Usage.DYNAMIC)
+    protected val framebuffers = mutableListOf<SimpleFramebuffer>()
+    protected var buffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
 
     init {
         val width = mc.window.framebufferWidth
         val height = mc.window.framebufferHeight
         shaders.forEach { _ ->
-            val framebuffer = SimpleFramebuffer(width, height, false, false)
+            val framebuffer = SimpleFramebuffer(width, height, false)
             framebuffer.setClearColor(0f, 0f, 0f, 0f)
             framebuffers.add(framebuffer)
         }
@@ -63,55 +64,58 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         val height = mc.window.framebufferHeight
         framebuffers.forEach {
             if (it.textureWidth != width || it.textureHeight != height) {
-                it.resize(width, height, false)
+                it.resize(width, height)
             }
         }
 
-        framebuffers[0].clear(false)
+        framebuffers[0].clear()
         framebuffers[0].beginWrite(true)
+
+        GlobalFramebuffer.push(framebuffers[0])
     }
 
-    fun apply() {
+    open fun apply(popFramebufferStack: Boolean = true) {
+        if (popFramebufferStack) {
+            GlobalFramebuffer.pop()
+        }
+
         val active = GlStateManager._getActiveTexture()
-        val alphaTest = GL11.glIsEnabled(GL11.GL_ALPHA_TEST)
 
-        GL11.glDisable(GL11.GL_ALPHA_TEST)
         GlStateManager._bindTexture(0)
-
         RenderSystem.disableDepthTest()
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+        enableBlend()
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 0f)
+        buffer.bind()
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         shaders.forEachIndexed { i, shader ->
             val inputFramebuffer = framebuffers.getOrNull(i) ?: framebuffers.first()
             val outputFramebuffer = framebuffers.getOrNull(i + 1)
 
-            outputFramebuffer?.clear(false)
+            outputFramebuffer?.clear()
             outputFramebuffer?.beginWrite(true) ?: mc.framebuffer.beginWrite(false)
 
             GlStateManager._activeTexture(GL13.GL_TEXTURE0 + i)
             GlStateManager._bindTexture(inputFramebuffer.colorAttachment)
 
             shader.use()
-
-            buffer.bind()
             buffer.draw()
-            VertexBuffer.unbind()
-
             shader.stop()
         }
 
-        shaders.indices.forEach {
-            GlStateManager._activeTexture(GL13.GL_TEXTURE0 + it)
-            GlStateManager._bindTexture(0)
-        }
+        VertexBuffer.unbind()
 
+        endBlend()
         RenderSystem.enableDepthTest()
         GlStateManager._activeTexture(active)
-        if (alphaTest) {
-            GL11.glEnable(GL11.GL_ALPHA_TEST)
-        }
+    }
+
+    protected open fun enableBlend() {
+        RenderSystem.enableBlend()
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+    }
+
+    protected open fun endBlend() {
     }
 
     fun render(drawAction: () -> Unit) {

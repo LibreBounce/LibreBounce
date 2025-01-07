@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.gl.GlProgramManager
 import java.io.Closeable
 
 open class Shader(vertex: String, fragment: String, private val uniforms: Array<UniformProvider> = emptyArray()) :
@@ -55,7 +54,7 @@ open class Shader(vertex: String, fragment: String, private val uniforms: Array<
 
     private fun compileShader(source: String, type: Int): Int {
         val shader = GlStateManager.glCreateShader(type)
-        GlStateManager.glShaderSource(shader, listOf(source))
+        GlStateManager.glShaderSource(shader, source)
         GlStateManager.glCompileShader(shader)
 
         // check compilation status
@@ -68,14 +67,14 @@ open class Shader(vertex: String, fragment: String, private val uniforms: Array<
     }
 
     fun use() {
-        GlProgramManager.useProgram(this.program)
+        GlStateManager._glUseProgram(this.program)
         uniforms.forEach { uniform ->
             uniform.set(uniform.pointer)
         }
     }
 
     fun stop() {
-        GlProgramManager.useProgram(0)
+        GlStateManager._glUseProgram(0)
     }
 
     override fun close() {

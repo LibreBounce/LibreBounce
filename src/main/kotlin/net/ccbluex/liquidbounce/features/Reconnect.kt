@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +38,9 @@ object Reconnect : EventListener {
 
     private var lastServer: ServerInfo? = null
 
-    val handleServerConnect = handler<ServerConnectEvent> {
-        lastServer = ServerInfo(it.serverName, it.serverAddress, ServerInfo.ServerType.OTHER)
+    @Suppress("unused")
+    private val handleServerConnect = handler<ServerConnectEvent> { event ->
+        lastServer = event.serverInfo
     }
 
     /**

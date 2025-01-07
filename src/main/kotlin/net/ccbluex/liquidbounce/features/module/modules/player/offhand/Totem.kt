@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
                     return 0f
                 }
 
-                if (ignoreElytra && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
+                if (ignoreElytra && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
                     return 0f
                 }
 
@@ -221,7 +221,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
                 }
 
                 maxDamage = maxDamage.coerceAtLeast(
-                    player.getDamageFromExplosion(pos.toVec3d(), null, 5f, 10f, 100f, exclude)
+                    player.getDamageFromExplosion(pos.toVec3d(), 5f, 10f, 100f, exclude)
                 )
 
                 if (maxDamage >= allowedDamage) {

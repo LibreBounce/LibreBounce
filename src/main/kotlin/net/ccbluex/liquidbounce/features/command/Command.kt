@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import java.util.*
 
 typealias CommandHandler = (Command, Array<Any>) -> Unit
 
+@Suppress("LongParameterList")
 class Command(
     val name: String,
     val aliases: Array<out String>,
@@ -194,8 +195,8 @@ class Command(
 
         val handler = parameter.autocompletionHandler ?: return
 
-        for (s in handler(args.getOrElse(idx) { "" }, args)) {
-            builder.suggest(s)
-        }
+        val suggestions = handler.autocomplete(begin = args.getOrElse(idx) { "" }, args = args)
+
+        suggestions.forEach(builder::suggest)
     }
 }

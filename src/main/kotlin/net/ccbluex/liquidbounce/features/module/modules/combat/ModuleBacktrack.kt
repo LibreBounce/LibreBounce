@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +145,9 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
                 val pos = if (packet is EntityS2CPacket) {
                     position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
                 } else {
-                    (packet as EntityPositionS2CPacket).let { vec -> Vec3d(vec.x, vec.y, vec.z) }
+                    (packet as EntityPositionS2CPacket).let { p ->
+                        Vec3d(p.change.position.x, p.change.position.y, p.change.position.z)
+                    }
                 }
 
                 position?.setPos(pos)
@@ -217,8 +219,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
                         0.0,
                         0.0,
                         0.0,
-                        entity.yaw,
-                        1.0f,
+                        1f,
                         event.matrixStack,
                         mc.bufferBuilders.entityVertexConsumers,
                         reducedLight

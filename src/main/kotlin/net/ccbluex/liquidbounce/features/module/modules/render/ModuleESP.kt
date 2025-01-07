@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -48,19 +49,27 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
     private val colorModes = choices("ColorMode", 0) {
         arrayOf(
             GenericEntityHealthColorMode(it),
-            GenericStaticColorMode(it, Color4b.WHITE.alpha(100)),
+            GenericStaticColorMode(it, Color4b.WHITE.with(a = 100)),
             GenericRainbowColorMode(it)
         )
     }
 
-    private val friendColor by color("Friends", Color4b(0, 0, 255))
+    private val friendColor by color("Friends", Color4b.GREEN)
 
-    abstract class EspMode(
+    sealed class EspMode(
         name: String,
         val requiresTrueSight: Boolean = false
     ) : Choice(name) {
         override val parent
             get() = modes
+    }
+
+    override fun enable() {
+        RenderedEntities.subscribe(this)
+    }
+
+    override fun disable() {
+        RenderedEntities.unsubscribe(this)
     }
 
     private object BoxMode : EspMode("Box") {
@@ -71,7 +80,7 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
         val renderHandler = handler<WorldRenderEvent> { event ->
             val matrixStack = event.matrixStack
 
-            val entitiesWithBoxes = findRenderedEntities().map { entity ->
+            val entitiesWithBoxes = RenderedEntities.map { entity ->
                 val dimensions = entity.getDimensions(entity.pose)
 
                 val d = dimensions.width.toDouble() / 2.0
@@ -85,8 +94,8 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
                         val pos = entity.interpolateCurrentPosition(event.partialTicks)
                         val color = getColor(entity)
 
-                        val baseColor = color.alpha(50)
-                        val outlineColor = color.alpha(100)
+                        val baseColor = color.with(a = 50)
+                        val outlineColor = color.with(a = 100)
 
                         withPositionRelativeToCamera(pos) {
                             drawBox(
@@ -105,8 +114,6 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
     object GlowMode : EspMode("Glow", requiresTrueSight = true)
 
     object OutlineMode : EspMode("Outline", requiresTrueSight = true)
-
-    fun findRenderedEntities() = world.entities.filterIsInstance<LivingEntity>().filter { it.shouldBeShown() }
 
     private fun getBaseColor(entity: LivingEntity): Color4b {
         if (entity is PlayerEntity) {

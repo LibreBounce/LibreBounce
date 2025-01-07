@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -30,6 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.client.ModuleLiquidChat
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresence
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
+import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
@@ -81,6 +83,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModuleP
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -139,14 +142,49 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         }
     }
 
+    /**
+     * Handles world change and enables modules that are not enabled yet
+     */
     @Suppress("unused")
-    val worldHandler = handler<WorldChangeEvent> {
+    private val handleWorldChange = handler<WorldChangeEvent> { event ->
+        // Delayed start handling
+        if (event.world != null) {
+            for (module in modules) {
+                if (!module.enabled || module.calledSinceStartup) continue
+
+                try {
+                    module.calledSinceStartup = true
+                    module.enable()
+                } catch (e: Exception) {
+                    logger.error("Failed to enable module ${module.name}", e)
+                }
+            }
+        }
+
+        // Store modules configuration after world change, happens on disconnect as well
         ConfigSystem.storeConfigurable(modulesConfigurable)
+    }
+
+    /**
+     * Handles disconnect and if [Module.disableOnQuit] is true disables module
+     */
+    @Suppress("unused")
+    private val handleDisconnect = handler<DisconnectEvent> {
+        for (module in modules) {
+            if (module.disableOnQuit) {
+                try {
+                    module.enabled = false
+                } catch (e: Exception) {
+                    logger.error("Failed to disable module ${module.name}", e)
+                }
+            }
+        }
     }
 
     /**
      * Register inbuilt client modules
      */
+    @Suppress("LongMethod")
     fun registerInbuilt() {
         var builtin = arrayOf(
             // Combat
@@ -212,7 +250,9 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleVomit,
 
             // Misc
+            ModuleBookBot,
             ModuleAntiBot,
+            ModuleBetterTab,
             ModuleBetterChat,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,
@@ -223,6 +263,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleAutoChatGame,
             ModuleFocus,
+            ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
@@ -262,6 +303,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleVehicleControl,
             ModuleSpider,
             ModuleTargetStrafe,
+            ModuleAnchor,
 
             // Player
             ModuleAntiVoid,
@@ -365,20 +407,20 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             builtin += ModuleDebugRecorder
         }
 
-        builtin.forEach {
-            addModule(it)
-            it.walkKeyPath()
-            it.verifyFallbackDescription()
+        builtin.forEach { module ->
+            addModule(module)
+            module.walkKeyPath()
+            module.verifyFallbackDescription()
         }
     }
 
-    private fun addModule(module: ClientModule) {
+    fun addModule(module: ClientModule) {
         module.initConfigurable()
         module.init()
         modules.sortedInsert(module, ClientModule::name)
     }
 
-    private fun removeModule(module: ClientModule) {
+    fun removeModule(module: ClientModule) {
         if (module.running) {
             module.disable()
         }
@@ -386,30 +428,11 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules -= module
     }
 
-    /**
-     * Allow `ModuleManager += Module` syntax
-     */
-    operator fun plusAssign(module: ClientModule) {
-        addModule(module)
-    }
-
-    operator fun plusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::addModule)
-    }
-
-    operator fun minusAssign(module: ClientModule) {
-        removeModule(module)
-    }
-
-    operator fun minusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::removeModule)
-    }
-
     fun clear() {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, args: List<String>, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
         val resultPrefix = parts.dropLast(1).joinToString(",") + ","

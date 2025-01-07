@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.Hotbar
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.OffHandSlot
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.hasProtocolTranslator
 import net.ccbluex.liquidbounce.utils.client.isNewerThanOrEquals1_16
+import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.item.findInventorySlot
 import net.minecraft.component.DataComponentTypes
@@ -93,7 +93,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         tree(Gapple)
         tree(Strength)
 
-        if (!hasProtocolTranslator) {
+        if (!usesViaFabricPlus) {
             switchMode = enumChoice("SwitchMode", SwitchMode.SWITCH)
         }
     }
@@ -161,7 +161,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         }
 
         if (activeMode != lastTagMode) {
-            EventManager.callEvent(RefreshArrayListEvent())
+            EventManager.callEvent(RefreshArrayListEvent)
             lastTagMode = activeMode
         }
 

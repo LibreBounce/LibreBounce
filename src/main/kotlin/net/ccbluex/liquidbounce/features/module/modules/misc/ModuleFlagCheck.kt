@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arra
         private val renderTime by int("Alive", 1000, 0..3000, "ms")
         private val fadeOut by curve("FadeOut", Easing.QUAD_OUT)
         private val outTime by int("OutTime", 500, 0..2000, "ms")
-        private var color by color("Color", Color4b.RED.alpha(100).darker())
+        private var color by color("Color", Color4b.RED.with(a = 100).darker())
         private var outlineColor by color("OutlineColor", Color4b.RED.darker())
 
         val wireframePlayer = WireframePlayer(Vec3d.ZERO, 0f, 0f)
@@ -124,7 +124,9 @@ object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arra
                 flagCount++
                 alert(AlertReason.LAGBACK)
                 Render.reset()
-                Render.wireframePlayer.setPosRot(packet.x, packet.y, packet.z, packet.yaw, packet.pitch)
+                val change = packet.change
+                val position = change.position
+                Render.wireframePlayer.setPosRot(position.x, position.y, position.z, change.yaw, change.pitch)
             }
 
             is DisconnectS2CPacket -> {

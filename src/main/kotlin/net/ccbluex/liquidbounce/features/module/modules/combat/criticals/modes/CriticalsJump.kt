@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleC
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.combat.findEnemies
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
@@ -89,7 +90,7 @@ object CriticalsJump : Choice("Jump") {
         // Change the jump motion only if the jump is a normal jump (small jumps, i.e. honey blocks
         // are not affected) and currently.
         if (enemies.isNotEmpty() && player.isOnGround) {
-            event.jumping = true
+            event.jump = true
             adjustNextJump = true
         }
     }
@@ -192,7 +193,7 @@ object CriticalsJump : Choice("Jump") {
         for (i in 0 until ticks) {
             // Rotate to the target after some time
             if (i == reactionTime) {
-                simulatedPlayer.yaw = RotationManager.makeRotation(target.pos, simulatedPlayer.pos).yaw
+                simulatedPlayer.yaw = Rotation.lookingAt(point = target.pos, from = simulatedPlayer.pos).yaw
             }
 
             simulatedPlayer.tick()

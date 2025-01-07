@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.script.PolyglotScript
 import net.ccbluex.liquidbounce.utils.client.*
+import java.util.function.Supplier
 import kotlin.reflect.KClass
 
 class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) : ClientModule(
@@ -38,8 +39,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
         get() = _tag
 
     private var _description: String? = null
-    override var description: String? = ""
-        get() = _description ?: ""
+    override var description: Supplier<String?> = Supplier { _description ?: "" }
 
     /**
      * Allows the user to access values by typing module.settings.<valuename>
@@ -124,8 +124,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
                 this,
                 {
                     callEvent(eventName, it)
-                },
-                false
+                }
             )
         )
     }

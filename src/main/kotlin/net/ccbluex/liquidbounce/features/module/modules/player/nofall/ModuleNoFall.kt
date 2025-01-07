@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             }
 
             // With Elytra - we don't want to reduce fall damage.
-            if (!duringFallFlying && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
+            if (!duringFallFlying && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
                 return false
             }
 

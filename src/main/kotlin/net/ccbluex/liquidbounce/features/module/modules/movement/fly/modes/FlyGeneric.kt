@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.util.shape.VoxelShapes
+import kotlin.jvm.optionals.getOrNull
 
 internal object FlyVanilla : Choice("Vanilla") {
 
@@ -75,8 +76,8 @@ internal object FlyVanilla : Choice("Vanilla") {
 
         player.strafe(speed = hSpeed.toDouble())
         player.velocity.y = when {
-            player.input.jumping -> vSpeed.toDouble()
-            player.input.sneaking -> (-vSpeed).toDouble()
+            player.input.playerInput.jump -> vSpeed.toDouble()
+            player.input.playerInput.sneak -> (-vSpeed).toDouble()
             else -> glide.toDouble()
         }
 
@@ -227,12 +228,14 @@ internal object FlyExplosion : Choice("Explosion") {
             waitTicks(1)
             strafeSince = startStrafe
         } else if (packet is ExplosionS2CPacket) { // Check if explosion affects velocity
-            packet.playerVelocityX = 0f
-            packet.playerVelocityY *= vertical
-            packet.playerVelocityZ = 0f
+            packet.playerKnockback.getOrNull()?.let { knockback ->
+                knockback.x = 0.0
+                knockback.y *= vertical
+                knockback.z = 0.0
 
-            waitTicks(1)
-            strafeSince = startStrafe
+                waitTicks(1)
+                strafeSince = startStrafe
+            }
         }
     }
 
@@ -244,7 +247,7 @@ internal object FlyJetpack : Choice("Jetpack") {
         get() = ModuleFly.modes
 
     val repeatable = tickHandler {
-        if (player.input.jumping) {
+        if (player.input.playerInput.jump) {
             player.velocity.x *= 1.1
             player.velocity.y += 0.15
             player.velocity.z *= 1.1

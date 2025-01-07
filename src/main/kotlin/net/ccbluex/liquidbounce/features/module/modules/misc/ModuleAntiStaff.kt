@@ -1,6 +1,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
+import kotlinx.coroutines.Dispatchers
+import net.ccbluex.liquidbounce.api.core.HttpException
+import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.services.cdn.ClientCdn.requestStaffList
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -10,11 +13,9 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket
-import kotlin.concurrent.thread
 
 /**
  * Notifies you about staff actions.
@@ -62,7 +63,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
         private val showInTabList by boolean("ShowInTabList", true)
 
-        private val serverStaffList = hashMapOf<String, Array<String>>()
+        private val serverStaffList = hashMapOf<String, Set<String>>()
 
         override fun enable() {
             val serverEntry = mc.currentServerEntry ?: return
@@ -71,24 +72,30 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             if (serverStaffList.containsKey(address)) {
                 return
             }
-            serverStaffList[address] = arrayOf()
+            serverStaffList[address] = emptySet<String>()
 
-            loadStaffList(address)
+            withScope {
+                loadStaffList(address)
+            }
             super.enable()
         }
 
         @Suppress("unused")
         val handleServerConnect = sequenceHandler<ServerConnectEvent> { event ->
-            val address = event.serverAddress.dropPort().rootDomain()
+            val address = event.serverInfo.address.dropPort().rootDomain()
 
             if (serverStaffList.containsKey(address)) {
                 return@sequenceHandler
             }
-            serverStaffList[address] = arrayOf()
+            serverStaffList[address] = emptySet<String>()
 
             // Keeps us from loading the staff list multiple times
             waitUntil { inGame && mc.currentScreen != null }
-            loadStaffList(address)
+
+            // Load the staff list
+            waitFor(Dispatchers.IO) {
+                loadStaffList(address)
+            }
         }
 
         val packetHandler = handler<PacketEvent> { event ->
@@ -108,31 +115,24 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             }
         }
 
-        private fun loadStaffList(address: String) {
-            // Loads the server config
-            thread(name = "staff-loader") {
-                runCatching {
-                    val (code, staffList) =
-                        HttpClient.requestWithCode("$CLIENT_CLOUD/staffs/$address", "GET")
+        suspend fun loadStaffList(address: String) {
+            try {
+                val staffs = requestStaffList(address)
+                serverStaffList[address] = staffs
 
-                    when (code) {
-                        200 -> {
-                            val staffs = staffList.lines().toTypedArray()
-                            serverStaffList[address] = staffs
-
-                            notification("AntiStaff", message("staffsLoaded", staffs.size, address),
-                                NotificationEvent.Severity.SUCCESS)
-                        }
-
-                        404 -> notification("AntiStaff", message("noStaffs", address),
-                            NotificationEvent.Severity.ERROR)
-                        else -> notification("AntiStaff", message("staffsFailed", address, code),
-                            NotificationEvent.Severity.ERROR)
-                    }
-                }.onFailure {
-                    notification("AntiStaff", message("staffsFailed", address, it.javaClass.simpleName),
+                logger.info("[AntiStaff] Loaded ${staffs.size} staff member for $address")
+                notification("AntiStaff", message("staffsLoaded", staffs.size, address),
+                    NotificationEvent.Severity.SUCCESS)
+            } catch (httpException: HttpException) {
+                when (httpException.code) {
+                    404 -> notification("AntiStaff", message("noStaffs", address),
+                        NotificationEvent.Severity.ERROR)
+                    else -> notification("AntiStaff", message("staffsFailed", address, httpException.code),
                         NotificationEvent.Severity.ERROR)
                 }
+            } catch (exception: Exception) {
+                notification("AntiStaff", message("staffsFailed", address, exception.javaClass.simpleName),
+                    NotificationEvent.Severity.ERROR)
             }
         }
 

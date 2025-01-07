@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.rotation
 
 /**
  * Telly feature
@@ -75,8 +74,8 @@ object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "T
         val isStraight = RotationManager.currentRotation == null || straightTicks == 0
 
         when (resetMode) {
-            Mode.REVERSE -> event.jumping = true
-            Mode.RESET -> if (isStraight && ticksUntilJump >= jumpTicks) event.jumping = true
+            Mode.REVERSE -> event.jump = true
+            Mode.RESET -> if (isStraight && ticksUntilJump >= jumpTicks) event.jump = true
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer
 
 import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -31,13 +32,13 @@ import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
+import net.ccbluex.liquidbounce.utils.entity.getEffectiveDamage
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
-import net.minecraft.world.explosion.Explosion
-import net.minecraft.world.explosion.ExplosionBehavior
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.*
 
 /**
@@ -54,8 +55,6 @@ object CommandFakePlayer : CommandFactory, EventListener {
 
     private var recording = false
     private val snapshots = ArrayList<PosPoseSnapshot>()
-
-    private val explosionBehavior: ExplosionBehavior = ExplosionBehavior()
 
     // the entity ids of fake players shouldn't conflict with real entity ids, so they are negative
     private var fakePlayerId = -1
@@ -130,9 +129,9 @@ object CommandFakePlayer : CommandFactory, EventListener {
                         regular(
                             command.result(
                                 "fakePlayerRemoved",
-                                roundToDecimalPlaces(fakePlayer.x),
-                                roundToDecimalPlaces(fakePlayer.y),
-                                roundToDecimalPlaces(fakePlayer.z)
+                                fakePlayer.x.roundToDecimalPlaces(),
+                                fakePlayer.y.roundToDecimalPlaces(),
+                                fakePlayer.z.roundToDecimalPlaces()
                             )
                         ),
                         metadata = MessageMetadata(id = "CFakePlayer#info")
@@ -262,9 +261,9 @@ object CommandFakePlayer : CommandFactory, EventListener {
             regular(
                 translation(
                     "liquidbounce.command.fakeplayer.fakePlayerSpawned",
-                    roundToDecimalPlaces(fakePlayer.x),
-                    roundToDecimalPlaces(fakePlayer.y),
-                    roundToDecimalPlaces(fakePlayer.z)
+                    fakePlayer.x.roundToDecimalPlaces(),
+                    fakePlayer.y.roundToDecimalPlaces(),
+                    fakePlayer.z.roundToDecimalPlaces()
                 )
             ),
             metadata = MessageMetadata(id = "CFakePlayer#info")
@@ -293,29 +292,14 @@ object CommandFakePlayer : CommandFactory, EventListener {
          * so an ExplosionS2CPacket handler is required.
          */
         if (packet is ExplosionS2CPacket) {
-            val explosion = Explosion(
-                world,
-                null,
-                packet.x,
-                packet.y,
-                packet.z,
-                packet.radius,
-                packet.affectedBlocks,
-                packet.destructionType,
-                packet.particle,
-                packet.emitterParticle,
-                packet.soundEvent
-            )
-
             fakePlayers.forEach { fakePlayer ->
-                if (!explosionBehavior.shouldDamage(explosion, fakePlayer)) { // might not be necessary
-                    return@handler
-                }
-
-                fakePlayer.damage(
-                    Explosion.createDamageSource(world, null),
-                    explosionBehavior.calculateDamage(explosion, fakePlayer)
+                val damage = fakePlayer.getDamageFromExplosion(
+                    pos = packet.center // will only work for crystals
                 )
+
+                val absorption = fakePlayer.absorptionAmount
+                fakePlayer.health -= damage - absorption
+                fakePlayer.absorptionAmount -= damage.coerceAtMost(absorption)
             }
         }
 
@@ -324,12 +308,50 @@ object CommandFakePlayer : CommandFactory, EventListener {
          */
         if (
             packet is PlayerInteractEntityC2SPacket &&
-            fakePlayers.any { fakePlayers ->
-                packet.entityId == fakePlayers.id
+            fakePlayers.any { fakePlayer ->
+                packet.entityId == fakePlayer.id
             }
         ) {
             it.cancelEvent()
         }
+    }
+
+    @Suppress("unused")
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        if (event.isCancelled) {
+            return@handler
+        }
+
+        if (fakePlayers.isEmpty()) {
+            return@handler
+        }
+
+        val contains = fakePlayers.none { player ->
+            player.id == event.entity.id
+        }
+
+        if (!contains) {
+            return@handler
+        }
+
+        val fakePlayer = event.entity as LivingEntity
+
+        val genericAttackDamage = if (player.isUsingRiptide) {
+                player.riptideAttackDamage
+            } else {
+                player.getAttributeValue(EntityAttributes.ATTACK_DAMAGE).toFloat()
+            }
+        val damageSource = player.damageSources.playerAttack(player)
+        var enchantAttackDamage = player.getDamageAgainst(fakePlayer, genericAttackDamage,
+            damageSource) - genericAttackDamage
+
+        val attackCooldown = player.getAttackCooldownProgress(0.5f)
+        enchantAttackDamage *= attackCooldown
+        val damage = fakePlayer.getEffectiveDamage(damageSource, enchantAttackDamage, false)
+
+        val absorption = fakePlayer.absorptionAmount
+        fakePlayer.health -= damage - absorption
+        fakePlayer.absorptionAmount -= damage.coerceAtMost(absorption)
     }
 
     /**
@@ -370,17 +392,6 @@ object CommandFakePlayer : CommandFactory, EventListener {
             translation("liquidbounce.command.fakeplayer.stoppedRecording"),
             NotificationEvent.Severity.INFO
         )
-    }
-
-    /**
-     * Rounds the given number to the specified decimal place (the first by default).
-     * For additional info see [RoundingMode#HALF_UP].
-     *
-     * For example ```roundToNDecimalPlaces(1234.567,decimalPlaces=1)``` will
-     * return ```1234.6```.
-     */
-    private fun roundToDecimalPlaces(number: Double, decimalPlaces: Int = 1): Double {
-        return BigDecimal(number).setScale(decimalPlaces, RoundingMode.HALF_UP).toDouble()
     }
 
 }

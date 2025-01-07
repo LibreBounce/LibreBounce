@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015-2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,9 +119,9 @@ object ModuleVehicleControl : ClientModule("VehicleControl", Category.MOVEMENT, 
             val isVehicleSafe = player.controllingVehicle?.let { it.isOnGround || it.isTouchingWater } == true
 
             // Do not quit vehicle if not safe to do so
-            event.sneaking = event.sneaking && isVehicleSafe
+            event.sneak = event.sneak && isVehicleSafe
 
-            if (event.sneaking) {
+            if (event.sneak) {
                 Rehook.vehicleId = -1
             }
         }

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
+import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.Vec3d
 
 abstract class ScaffoldTechnique(name: String) : Choice(name) {
@@ -44,6 +45,7 @@ abstract class ScaffoldTechnique(name: String) : Choice(name) {
 
     open fun getRotations(target: BlockPlacementTarget?) = target?.rotation
 
-    open fun getCrosshairTarget(target: BlockPlacementTarget?, rotation: Rotation) = raycast(rotation)
+    open fun getCrosshairTarget(target: BlockPlacementTarget?, rotation: Rotation): BlockHitResult? =
+        raycast(rotation)
 
 }

@@ -10,7 +10,7 @@ import net.minecraft.item.Items
 import net.minecraft.util.Identifier
 
 object MurderMysteryInfectionMode : MurderMysteryGenericMode("Infection") {
-    override val parent: ChoiceConfigurable<Choice>
+    override val parent
         get() = ModuleMurderMystery.modes
 
     val rep =

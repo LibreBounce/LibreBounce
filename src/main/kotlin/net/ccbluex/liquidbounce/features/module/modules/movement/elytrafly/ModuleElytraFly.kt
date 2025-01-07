@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,32 +19,109 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraStatic
-import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraVanilla
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeStatic
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeVanilla
+import net.ccbluex.liquidbounce.utils.entity.set
+import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.effect.StatusEffects
+import net.minecraft.item.Items
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
 /**
  * ElytraFly module
  *
- * Makes you fly faster on Elytra.
+ * Makes elytra flying easier to control.
  */
-
 object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
 
-    val instant by boolean("Instant", true)
-    val instantStop by boolean("InstantStop", false)
+    private val instantStart by boolean("InstantStart", false)
+    private val instantStop by boolean("InstantStop", true)
+
     object Speed : ToggleableConfigurable(this, "Speed", true) {
         val vertical by float("Vertical", 0.5f, 0.1f..2f)
-        val horizontal by float("Horizontal", 1f, 0.1f..2f)
+        val horizontal by float("Horizontal", 1f, 0.1f..5f)
     }
 
     init {
         tree(Speed)
     }
 
-    internal val modes = choices("Mode", ElytraVanilla, arrayOf(
-        ElytraStatic,
-        ElytraVanilla
+    private val notInFluid by boolean("NotInFluid", false)
+
+    /**
+     * Spams elytra starting so that we switch between falling and gliding all the time and so don't use any elytra
+     * durability.
+     */
+    private val durabilityExploit by boolean("DurabilityExploit", false)
+
+    internal val modes = choices("Mode", ElytraFlyModeStatic, arrayOf(
+        ElytraFlyModeStatic,
+        ElytraFlyModeVanilla
     ))
+
+    private var needsToRestart = false
+
+    override fun enable() {
+        needsToRestart = false
+    }
+
+    override fun disable() {
+        needsToRestart = true
+    }
+
+    // checks and start logic
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
+        if (shouldNotOperate()) {
+            needsToRestart = false
+            return@tickHandler
+        }
+
+        val stop = mc.options.sneakKey.isPressed && instantStop && player.isOnGround || notInFluid && player.isInFluid
+        if (stop && player.isGliding) {
+            player.stopGliding()
+            network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
+            needsToRestart = false
+            return@tickHandler
+        }
+
+        if (player.isGliding) {
+            // we're already flying, yay
+            if (Speed.enabled) {
+                modes.activeChoice.onTick()
+            }
+
+            if (durabilityExploit) {
+                network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
+                needsToRestart = true
+            }
+        } else if (player.input.playerInput.jump && player.velocity.y != 0.0 && instantStart || needsToRestart) {
+            // If the player has an elytra and wants to fly instead
+
+            // Jump must be off due to abnormal speed boosts
+            player.input.set(jump = false)
+            player.startGliding()
+            network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
+        }
+    }
+
+    fun shouldNotOperate(): Boolean {
+        if (player.vehicle != null) {
+            return true
+        }
+
+        if (player.abilities.creativeMode || player.hasStatusEffect(StatusEffects.LEVITATION)) {
+            return true
+        }
+
+        // Find the chest slot
+        val chestSlot = player.getEquippedStack(EquipmentSlot.CHEST)
+
+        // If the player doesn't have an elytra in the chest slot or is in fluids
+        return chestSlot.item != Items.ELYTRA || chestSlot.willBreakNextUse()
+    }
+
 }

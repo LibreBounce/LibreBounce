@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.block
 
 import it.unimi.dsi.fastutil.booleans.BooleanObjectPair
@@ -50,6 +53,8 @@ import net.minecraft.world.BlockView
 import net.minecraft.world.RaycastContext
 import kotlin.math.ceil
 import kotlin.math.floor
+
+val DEFAULT_BLOCK_STATE: BlockState = Blocks.AIR.defaultState
 
 fun Vec3i.toBlockPos() = BlockPos(this)
 
@@ -501,6 +506,12 @@ private inline fun handleActionsOnAccept(
 
     return
 }
+
+private fun ActionResult.shouldSwingHand(): Boolean {
+    return this !is ActionResult.Success ||
+        this.swingSource != ActionResult.SwingSource.SERVER
+}
+
 
 /**
  * Just interacts with the item in the hand instead of using it on the block

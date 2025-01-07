@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -170,15 +170,6 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
 
         val health = if (forUse) player.health else 0f
         return stack.getPotionEffects().any { foundTargetEffect(it, health) }
-    }
-
-    private fun releaseUseKey() {
-        mc.options.useKey.isPressed = false
-    }
-
-    override fun disable() {
-        releaseUseKey()
-        super.disable()
     }
 
     private fun isValidPotion(stack: ItemStack) =

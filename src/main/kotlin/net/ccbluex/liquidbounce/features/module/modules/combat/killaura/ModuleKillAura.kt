@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,13 @@ import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.InputHandleEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
@@ -156,7 +157,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    val rotationUpdateHandler = handler<SimulatedTickEvent> {
+    val rotationUpdateHandler = handler<RotationUpdateEvent> {
         // Make sure killaura-logic is not running while inventory is open
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
@@ -171,6 +172,9 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Update current target tracker to make sure you attack the best enemy
         updateEnemySelection()
+
+        // Update Auto Weapon
+        ModuleAutoWeapon.prepare(targetTracker.lockedOnTarget)
     }
 
     @Suppress("unused")
@@ -414,28 +418,31 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      *  @return The best spot to attack the entity
      */
     private fun getSpot(entity: LivingEntity, range: Double, situation: PointTracker.AimSituation): VecRotation? {
-        val (eyes, nextPoint, box, cutOffBox) = pointTracker.gatherPoint(
+        val point = pointTracker.gatherPoint(
             entity,
             situation
         )
 
+        val eyes = point.fromPoint
+        val nextPoint = point.toPoint
+
         ModuleDebug.debugGeometry(this, "Box",
-            ModuleDebug.DebuggedBox(box, Color4b.RED.alpha(60)))
+            ModuleDebug.DebuggedBox(point.box, Color4b.RED.with(a = 60)))
         ModuleDebug.debugGeometry(this, "CutOffBox",
-            ModuleDebug.DebuggedBox(cutOffBox, Color4b.GREEN.alpha(90)))
+            ModuleDebug.DebuggedBox(point.cutOffBox, Color4b.GREEN.with(a = 90)))
         ModuleDebug.debugGeometry(this, "Point", ModuleDebug.DebuggedPoint(nextPoint, Color4b.WHITE))
 
         val rotationPreference = LeastDifferencePreference.leastDifferenceToLastPoint(eyes, nextPoint)
 
         // find best spot
         val spot = raytraceBox(
-            eyes, cutOffBox,
+            eyes, point.cutOffBox,
             // Since [range] is squared, we need to square root
             range = range,
             wallsRange = wallRange.toDouble(),
             rotationPreference = rotationPreference
         ) ?: raytraceBox(
-            eyes, box,
+            eyes, point.box,
             range = range,
             wallsRange = wallRange.toDouble(),
             rotationPreference = rotationPreference
@@ -443,13 +450,13 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         return if (spot == null && rotations.aimThroughWalls) {
             val throughSpot = raytraceBox(
-                eyes, cutOffBox,
+                eyes, point.cutOffBox,
                 // Since [range] is squared, we need to square root
                 range = range,
                 wallsRange = range,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                eyes, box,
+                eyes, point.box,
                 range = range,
                 wallsRange = range,
                 rotationPreference = rotationPreference
@@ -494,7 +501,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val wasBlocking = player.isBlockAction
 
         if (wasBlocking) {
-            if (!KillAuraAutoBlock.enabled && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
+            if (!KillAuraAutoBlock.enabled && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
                 return
             }
 
@@ -505,19 +512,21 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem && (!ModuleMultiActions.running || !ModuleMultiActions.attackingWhileUsing)) {
+        } else if (player.isUsingItem && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 
         if (rotations.rotationTimingMode == RotationTimingMode.ON_TICK && rotation != null) {
-            network.sendPacket(Full(player.x, player.y, player.z, rotation.yaw, rotation.pitch, player.isOnGround))
+            network.sendPacket(Full(player.x, player.y, player.z, rotation.yaw, rotation.pitch, player.isOnGround,
+                player.horizontalCollision))
         }
 
         attack()
 
         if (rotations.rotationTimingMode == RotationTimingMode.ON_TICK && rotation != null) {
             network.sendPacket(
-                Full(player.x, player.y, player.z, player.withFixedYaw(rotation), player.pitch, player.isOnGround)
+                Full(player.x, player.y, player.z, player.withFixedYaw(rotation), player.pitch, player.isOnGround,
+                    player.horizontalCollision)
             )
         }
 

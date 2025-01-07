@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.minecraft.client.input.Input;
+import net.minecraft.util.PlayerInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,23 +30,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Input.class)
-public class MixinInput {
-    @Shadow
-    public boolean pressingRight;
-    @Shadow
-    public boolean pressingLeft;
-    @Shadow
-    public boolean pressingBack;
-    @Shadow
-    public boolean pressingForward;
+public abstract class MixinInput {
+
     @Shadow
     public float movementForward;
+
     @Shadow
     public float movementSideways;
-    @Shadow
-    public boolean jumping;
 
-    @Shadow public boolean sneaking;
+    @Shadow
+    public PlayerInput playerInput;
 
     @Inject(method = "hasForwardMovement", cancellable = true, at = @At("RETURN"))
     private void hookOmnidirectionalSprintA(final CallbackInfoReturnable<Boolean> callbackInfoReturnable) {

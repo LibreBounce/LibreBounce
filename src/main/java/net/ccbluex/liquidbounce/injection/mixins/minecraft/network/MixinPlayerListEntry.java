@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,10 +53,11 @@ public abstract class MixinPlayerListEntry {
             return;
         }
 
-        fetchCapeTexture();
+        liquid_bounce$fetchCapeTexture();
     }
 
-    private void fetchCapeTexture() {
+    @Unique
+    private void liquid_bounce$fetchCapeTexture() {
         if (capeTextureLoading)
             return;
 

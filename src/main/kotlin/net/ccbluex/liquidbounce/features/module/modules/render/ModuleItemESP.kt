@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,8 +63,8 @@ object ModuleItemESP : ClientModule("ItemESP", Category.RENDER) {
             val matrixStack = event.matrixStack
 
             val base = getColor()
-            val baseColor = base.alpha(50)
-            val outlineColor = base.alpha(100)
+            val baseColor = base.with(a = 50)
+            val outlineColor = base.with(a = 100)
 
             val filtered = world.entities.filter(::shouldRender)
 
