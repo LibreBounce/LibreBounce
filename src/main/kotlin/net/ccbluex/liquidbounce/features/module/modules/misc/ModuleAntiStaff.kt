@@ -82,7 +82,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
         @Suppress("unused")
         val handleServerConnect = sequenceHandler<ServerConnectEvent> { event ->
-            val address = event.serverAddress.dropPort().rootDomain()
+            val address = event.serverInfo.address.dropPort().rootDomain()
 
             if (serverStaffList.containsKey(address)) {
                 return@sequenceHandler
