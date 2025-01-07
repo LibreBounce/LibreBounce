@@ -393,33 +393,30 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
                 technique.activeChoice
             }
 
-            val (jump, sneak, stepStop, stepBack) = ledge(
+            val ledgeAction = ledge(
                 this.currentTarget,
                 RotationManager.currentRotation ?: player.rotation,
                 technique as? ScaffoldLedgeExtension
             )
-            ModuleDebug.debugParameter(this, "Jump", jump.toString())
-            ModuleDebug.debugParameter(this, "Sneak", sneak.toString())
-            ModuleDebug.debugParameter(this, "StepStop", stepStop.toString())
 
-            if (jump) {
+            if (ledgeAction.jump) {
                 event.jump = true
             }
 
-            if (stepStop) {
+            if (ledgeAction.stopInput) {
                 event.directionalInput = DirectionalInput.NONE
             }
 
-            if (stepBack) {
+            if (ledgeAction.stepBack) {
                 event.directionalInput = event.directionalInput.copy(
                     forwards = false,
                     backwards = true
                 )
             }
 
-            if (sneak > forceSneak) {
+            if (ledgeAction.sneakTime > forceSneak) {
                 event.sneak = true
-                forceSneak = sneak
+                forceSneak = ledgeAction.sneakTime
             }
         }
     }
