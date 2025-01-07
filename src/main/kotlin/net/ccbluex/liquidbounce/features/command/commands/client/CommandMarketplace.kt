@@ -18,12 +18,17 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.api.Marketplace
-import net.ccbluex.liquidbounce.api.MarketplaceItemType
+import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.models.auth.ClientAccount.Companion.EMPTY_ACCOUNT
+import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemType
+import net.ccbluex.liquidbounce.api.services.marketplace.MarketplaceApi
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.variable
 
 object CommandMarketplace : CommandFactory {
 
@@ -56,19 +61,20 @@ object CommandMarketplace : CommandFactory {
         .handler { command, anies ->
             val page = anies.getOrNull(0) as? Int ?: 1
 
-            val response = Marketplace.requestMarketplaceItems(page, 10)
+            withScope {
+                val response = MarketplaceApi.getMarketplaceItems(page, 10)
+                if (response.items.isEmpty()) {
+                    chat(command.result("noItems"))
+                    return@withScope
+                }
 
-            if (response.items.isEmpty()) {
-                chat(command.result("noItems"))
-                return@handler
-            }
-
-            for (item in response.items) {
-                chat(
-                    regular(
-                        "ID: ${item.id} | Name: ${item.name} | Type: ${item.type} | Description: ${item.description}"
+                for (item in response.items) {
+                    chat(
+                        regular(
+                            "ID: ${item.id} | Name: ${item.name} | Type: ${item.type} | Description: ${item.description}"
+                        )
                     )
-                )
+                }
             }
         }
         .build()
@@ -89,7 +95,13 @@ object CommandMarketplace : CommandFactory {
                     ParameterBuilder
                         .begin<String>("type")
                         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                        .autocompletedWith { begin -> MarketplaceItemType.entries.map { it.name }.filter { it.startsWith(begin) } }
+                        .autocompletedWith { begin, _ ->
+                            MarketplaceItemType.entries.map { itemType ->
+                                itemType.name
+                            }.filter { itemTypeName ->
+                                itemTypeName.startsWith(begin)
+                            }
+                        }
                         .required()
                         .build()
                 )
@@ -106,19 +118,30 @@ object CommandMarketplace : CommandFactory {
                     val type = args[1] as String
                     val description = (args[2] as Array<*>).joinToString(" ")
 
-                    val response = Marketplace.createMarketplaceItem(name, MarketplaceItemType.valueOf(type), description)
+                    val clientAccount = ClientAccountManager.clientAccount
 
-                    chat(
-                        regular(
-                            command.result(
-                                "itemCreated",
-                                variable(response.id.toString()),
-                                variable(response.name),
-                                variable(response.type.name),
-                                variable(response.description)
+                    if (clientAccount == EMPTY_ACCOUNT) {
+                        chat(regular("You are not logged in."))
+                        return@handler
+                    }
+
+                    withScope {
+                        val response = MarketplaceApi.createMarketplaceItem(clientAccount.takeSession(),
+                            name, MarketplaceItemType.valueOf(type), description)
+
+                        chat(
+                            regular(
+                                command.result(
+                                    "itemCreated",
+                                    variable(response.id.toString()),
+                                    variable(response.name),
+                                    variable(response.type.name),
+                                    variable(response.description)
+                                )
                             )
                         )
-                    )
+                    }
+
                 }
                 .build()
         )
@@ -143,7 +166,13 @@ object CommandMarketplace : CommandFactory {
                     ParameterBuilder
                         .begin<String>("type")
                         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                        .autocompletedWith { begin -> MarketplaceItemType.entries.map { it.name }.filter { it.startsWith(begin) } }
+                        .autocompletedWith { begin, _ ->
+                            MarketplaceItemType.entries.map { itemType ->
+                                itemType.name
+                            }.filter { itemTypeName ->
+                                itemTypeName.startsWith(begin)
+                            }
+                        }
                         .required()
                         .build()
                 )
@@ -161,19 +190,29 @@ object CommandMarketplace : CommandFactory {
                     val type = args[2] as String
                     val description = (args[3] as Array<*>).joinToString(" ")
 
-                    val response = Marketplace.updateMarketplaceItem(id, name, MarketplaceItemType.valueOf(type), description)
+                    val clientAccount = ClientAccountManager.clientAccount
 
-                    chat(
-                        regular(
-                            command.result(
-                                "itemEdited",
-                                variable(response.id.toString()),
-                                variable(response.name),
-                                variable(response.type.name),
-                                variable(response.description)
+                    if (clientAccount == EMPTY_ACCOUNT) {
+                        chat(regular("You are not logged in."))
+                        return@handler
+                    }
+
+                    withScope {
+                        val response = MarketplaceApi.updateMarketplaceItem(clientAccount.takeSession(),
+                            id, name, MarketplaceItemType.valueOf(type), description)
+
+                        chat(
+                            regular(
+                                command.result(
+                                    "itemEdited",
+                                    variable(response.id.toString()),
+                                    variable(response.name),
+                                    variable(response.type.name),
+                                    variable(response.description)
+                                )
                             )
                         )
-                    )
+                    }
                 }
                 .build()
         )
@@ -190,10 +229,18 @@ object CommandMarketplace : CommandFactory {
                 .handler { command, args ->
                     val id = args[0] as Int
 
-                    Marketplace.deleteMarketplaceItem(id)
+                    val clientAccount = ClientAccountManager.clientAccount
 
-                    chat(regular(command.result("itemDeleted", variable(id.toString())))
-                    )
+                    if (clientAccount == EMPTY_ACCOUNT) {
+                        chat(regular("You are not logged in."))
+                        return@handler
+                    }
+
+                    withScope {
+                        MarketplaceApi.deleteMarketplaceItem(clientAccount.takeSession(), id)
+
+                        chat(regular(command.result("itemDeleted", variable(id.toString()))))
+                    }
                 }
                 .build()
         )
