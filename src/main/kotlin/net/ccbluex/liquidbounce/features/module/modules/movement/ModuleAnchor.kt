@@ -68,7 +68,7 @@ object ModuleAnchor : ClientModule(
         // if we're already in a hole, we should just center us in that
         val playerBB = player.boundingBox
         HoleTracker.holes.firstOrNull { hole -> playerBB.intersects(hole.positions.getBoundingBox()) }?.let { hole ->
-            goal = hole.positions.getCenterPos(true)
+            goal = hole.positions.getBottomFaceCenter()
             return@tickHandler
         }
 
@@ -85,7 +85,7 @@ object ModuleAnchor : ClientModule(
         // not in a hole and no valid goal means we need to search one
         goal = HoleTracker.holes
             .filter { hole -> hole.positions.to.y + 1.0 <= playerPos.y }
-            .map { hole -> hole.positions.getCenterPos(true) }
+            .map { hole -> hole.positions.getBottomFaceCenter() }
             .filter { vec3d -> vec3d.squaredDistanceTo(playerPos) <= maxDistanceSq }
             .minByOrNull { vec3d -> vec3d.squaredDistanceTo(playerPos) }
     }
@@ -94,48 +94,17 @@ object ModuleAnchor : ClientModule(
     private val moveHandler = handler<PlayerMoveEvent> { event ->
         val goal = goal ?: return@handler
 
-        val movement = event.movement
-        val playerPos = player.pos
-
-        // determine the speed limits
-        val horizontalSpeedLimit = if (horizontalSpeed == 0f) {
-            0.0
-        } else {
-            max(horizontalSpeed.toDouble(), hypot(movement.x, movement.z))
-        }
-
-        val verticalSpeedLimit = if (verticalSpeed == 0f) {
-            0.0
-        } else {
-            max(verticalSpeed.toDouble(), abs(movement.y))
-        }
-
         // determine the desired movement
-        var delta = goal.subtract(playerPos)
+        val delta = goal.subtract(player.pos)
 
-        // clamp the movement
-        val exceedsHSpeed = hypot(delta.x, delta.z) > horizontalSpeedLimit
-        val exceedsVSpeed = abs(delta.y) > verticalSpeedLimit
-        when {
-            exceedsHSpeed && exceedsVSpeed -> {
-                delta = delta.normalize().multiply(horizontalSpeedLimit, verticalSpeedLimit, horizontalSpeedLimit)
-            }
+        // apply the movement
+        val movement = event.movement
+        modifyHorizontalSpeed(movement, delta, goal)
+        modifyVerticalSpeed(movement, delta)
+    }
 
-            exceedsHSpeed -> {
-                val adjusted = delta.normalize().multiply(horizontalSpeedLimit, 0.0, horizontalSpeedLimit)
-                delta.x = adjusted.x
-                delta.z = adjusted.z
-            }
-
-            exceedsVSpeed -> delta.y = delta.normalize().multiply(0.0, verticalSpeedLimit, 0.0).y
-        }
-
-        // modify the original movement
-        movement.y = if (verticalSpeed == 0f) movement.y else delta.y
-        if (horizontalSpeed != 0f) {
-            movement.x = delta.x
-            movement.z = delta.z
-        } else {
+    private fun modifyHorizontalSpeed(movement: Vec3d, delta: Vec3d, goal: Vec3d) {
+        if (horizontalSpeed == 0f) {
             // only cancel the movement if the player would fall into the hole
             val playerBB = player.boundingBox
 
@@ -147,7 +116,46 @@ object ModuleAnchor : ClientModule(
                 movement.x = 0.0
                 movement.z = 0.0
             }
+
+            return
         }
+
+        // determine the speed limit
+        val horizontalSpeedLimit = if (horizontalSpeed == 0f) {
+            0.0
+        } else {
+            max(horizontalSpeed.toDouble(), hypot(movement.x, movement.z))
+        }
+
+        // clamp the speed
+        val exceedsHSpeed = hypot(delta.x, delta.z) > horizontalSpeedLimit
+        if (exceedsHSpeed) {
+            val adjusted = delta.normalize().multiply(horizontalSpeedLimit, 0.0, horizontalSpeedLimit)
+            delta.x = adjusted.x
+            delta.z = adjusted.z
+        }
+
+        // modify the original movement
+        movement.x = delta.x
+        movement.z = delta.z
+    }
+
+    private fun modifyVerticalSpeed(movement: Vec3d, delta: Vec3d) {
+        if (verticalSpeed == 0f) {
+            return
+        }
+
+        // determine the speed limit
+        val verticalSpeedLimit = max(verticalSpeed.toDouble(), abs(movement.y))
+
+        // clamp the speed
+        val exceedsVSpeed = abs(delta.y) > verticalSpeedLimit
+        if (exceedsVSpeed) {
+            delta.y = delta.normalize().y * verticalSpeedLimit
+        }
+
+        // modify the original movement
+        movement.y = delta.y
     }
 
     override val running: Boolean

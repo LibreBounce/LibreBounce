@@ -128,9 +128,9 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
             this.to.z <= min.z || this.from.z >= max.z)
     }
 
-    fun getCenterPos(lowestY: Boolean = false) = Vec3d(
+    fun getBottomFaceCenter() = Vec3d(
         (from.x + to.x + 1).toDouble() / 2.0,
-        if (lowestY) from.y.toDouble() else (from.y + to.y + 1).toDouble() / 2.0,
+        from.y.toDouble(),
         (from.z + to.z + 1).toDouble() / 2.0
     )
 
