@@ -32,7 +32,7 @@ object ModuleNoPush : ClientModule("NoPush", Category.MOVEMENT) {
 
     private val entities by boolean("Entities", true)
     private val blocks by boolean("Blocks", true)
-    private val fishingRoads by boolean("FishingRod", false)
+    private val fishingRod by boolean("FishingRod", false)
     private val liquids by boolean("Liquids", false)
     private val sinking by boolean("Sinking", false)
 
@@ -42,7 +42,7 @@ object ModuleNoPush : ClientModule("NoPush", Category.MOVEMENT) {
 
     fun isBlocks() = running && blocks
 
-    fun isFishingRod() = running && fishingRoads
+    fun isFishingRod() = running && fishingRod
 
     @Suppress("unused")
     private val tickHandler = handler<GameTickEvent> {
