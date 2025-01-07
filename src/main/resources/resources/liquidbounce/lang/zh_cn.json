@@ -211,6 +211,9 @@
   "liquidbounce.command.panic.result.nonRender": "非渲染",
   "liquidbounce.command.ping.description": "查看你的延迟。",
   "liquidbounce.command.ping.result.pingCheck": "你的延迟是: %sms。",
+  "liquidbounce.command.tps.description": "估算服务器的 TPS。",
+  "liquidbounce.command.tps.result.tpsCheck": "服务器的 TPS 为 %s。",
+  "liquidbounce.command.tps.result.nan": "TPS 还未计算完成！",
   "liquidbounce.command.client.subcommand.prefix.description": "更改命令前缀。",
   "liquidbounce.command.client.subcommand.prefix.parameter.prefix.description": "新的命令前缀。",
   "liquidbounce.command.client.subcommand.prefix.result.prefixChanged": "成功将命令前缀更改为 \"%s\"。",
@@ -621,6 +624,7 @@
   "liquidbounce.module.packetMine.description": "使你能通过单次点击破坏方块。",
   "liquidbounce.module.fastExp.description": "自动用经验瓶修复你的装备。",
   "liquidbounce.module.bookBot.description": "自动在书中写字。",
+  "liquidbounce.module.itemChams.description": "在你的手持物品上添加视觉效果。",
   "liquidbounce.module.betterTab.description": "对标签列表进行了多项改进。",
   "liquidbounce.module.autoPearl.description": "瞄准并向敌方珍珠的轨迹投掷一颗珍珠。"
 }
