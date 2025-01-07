@@ -138,14 +138,11 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
             0.0
         )
 
-        // If we are not turning anyway, we might as well return 0
-        if (MathHelper.approximatelyEquals(newYawDiff, 0f) &&
-            MathHelper.approximatelyEquals(newPitchDiff, 0f)) {
-            return 0
-        }
-
         // Check if we are already on target
-        if (abs(diff.deltaYaw) < abs(newYawDiff) && abs(diff.deltaPitch) < abs(newPitchDiff)) {
+        if (MathHelper.approximatelyEquals(newYawDiff, 0f) &&
+            MathHelper.approximatelyEquals(newPitchDiff, 0f) ||
+            abs(diff.deltaYaw) < abs(newYawDiff) &&
+            abs(diff.deltaPitch) < abs(newPitchDiff)) {
             return 0
         }
 
