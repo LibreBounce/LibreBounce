@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -64,7 +64,7 @@ object FlyFireballLegitTechnique : Choice("Legit") {
     }
 
     @Suppress("unused")
-    private val rotationUpdateHandler = handler<ScheduleRotationUpdateEvent> {
+    private val rotationUpdateHandler = handler<RotationUpdateEvent> {
         RotationManager.aimAt(
             Rotation(if (Rotations.backwards) this.invertYaw(player.yaw) else player.yaw, Rotations.pitch),
             configurable = Rotations,

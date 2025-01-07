@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -73,7 +73,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    private val tickHandler = handler<ScheduleRotationUpdateEvent> { _ ->
+    private val tickHandler = handler<RotationUpdateEvent> { _ ->
         this.targetTracker.validateLock { target -> target.boxedDistanceTo(player) <= range }
         this.playerRotation = player.rotation
 

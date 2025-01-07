@@ -195,8 +195,8 @@ class ServerPingedEvent(val server: ServerInfo) : Event()
 @WebSocketEvent(serializer = GsonInstance.ACCESSIBLE_INTEROP)
 class ComponentsUpdate(val components: List<Component>) : Event()
 
-@Nameable("scheduleRotationUpdate")
-object ScheduleRotationUpdateEvent : Event()
+@Nameable("rotationUpdate")
+object RotationUpdateEvent : Event()
 
 @Nameable("resourceReload")
 object ResourceReloadEvent : Event()

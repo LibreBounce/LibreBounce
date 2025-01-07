@@ -22,7 +22,7 @@ import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.InputHandleEvent
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -157,7 +157,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    val rotationUpdateHandler = handler<ScheduleRotationUpdateEvent> {
+    val rotationUpdateHandler = handler<RotationUpdateEvent> {
         // Make sure killaura-logic is not running while inventory is open
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen

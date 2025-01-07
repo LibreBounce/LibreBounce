@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -110,7 +110,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      * as fast possible. This means we already pre-aim before we peek around the corner.
      */
     @Suppress("unused")
-    val simulatedTickHandler = handler<ScheduleRotationUpdateEvent> {
+    val simulatedTickHandler = handler<RotationUpdateEvent> {
         targetTracker.cleanup()
 
         // Find the recommended target

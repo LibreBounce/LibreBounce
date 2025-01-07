@@ -22,7 +22,7 @@ import com.oracle.truffle.runtime.collection.ArrayQueue
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -111,7 +111,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     }
 
     @Suppress("unused")
-    private val simulatedTickHandler = sequenceHandler<ScheduleRotationUpdateEvent> {
+    private val simulatedTickHandler = sequenceHandler<RotationUpdateEvent> {
         val rotation = queue.peek() ?: return@sequenceHandler
 
         CombatManager.pauseCombatForAtLeast(combatPauseTime)

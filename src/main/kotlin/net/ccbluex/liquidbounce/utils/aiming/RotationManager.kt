@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerVelocityStrafe
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
@@ -221,7 +221,7 @@ object RotationManager : EventListener {
     private val gameTickHandler = handler<GameTickEvent>(
         priority = EventPriorityConvention.FIRST_PRIORITY
     ) { event ->
-        EventManager.callEvent(ScheduleRotationUpdateEvent)
+        EventManager.callEvent(RotationUpdateEvent)
         update()
 
         // Reset the trigger

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
@@ -70,7 +70,7 @@ internal object NoFallMLG : Choice("MLG") {
     }
 
     @Suppress("unused")
-    private val tickMovementHandler = handler<ScheduleRotationUpdateEvent> {
+    private val tickMovementHandler = handler<RotationUpdateEvent> {
         val currentGoal = this.getCurrentGoal()
 
         this.currentTarget = currentGoal

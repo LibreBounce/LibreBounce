@@ -21,48 +21,47 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
+import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.entity.isCloseToEdge
+import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import kotlin.math.max
 
-data class LedgeState(
-    val requiresJump: Boolean,
-    val requiresSneak: Int
+data class LedgeAction(
+    val jump: Boolean = false,
+    val sneakTime: Int = 0,
+    val stopInput: Boolean = false
 ) {
     companion object {
-        val NO_LEDGE = LedgeState(requiresJump = false, requiresSneak = 0)
+        val NO_LEDGE = LedgeAction(jump = false, sneakTime = 0, stopInput = false)
     }
+
 }
 
 fun ledge(
     target: BlockPlacementTarget?,
     rotation: Rotation,
     extension: ScaffoldLedgeExtension? = null
-): LedgeState {
-    val ticks = ModuleScaffold.ScaffoldRotationConfigurable.howLongToReach(rotation)
+): LedgeAction {
+    if (player.isCloseToEdge(DirectionalInput(player.input))) {
+        val ticks = ModuleScaffold.ScaffoldRotationConfigurable.howLongToReach(rotation)
 
-    val simulatedPlayerCache = PlayerSimulationCache.getSimulationForLocalPlayer()
-    val snapshotOne = simulatedPlayerCache.getSnapshotAt(1)
-    val snapshotTwo = simulatedPlayerCache.getSnapshotAt(2)
+        val isLowOnBlocks = ModuleScaffold.blockCount <= 0
+        val isNotReady = ticks >= 1
 
-    val ledgeSoon = snapshotOne.clipLedged || snapshotTwo.clipLedged
-
-    if ((ticks >= 1 || ModuleScaffold.blockCount <= 0) && ledgeSoon) {
-        return LedgeState(requiresJump = false, requiresSneak = max(1, ticks))
+        if (isLowOnBlocks || isNotReady) {
+            return LedgeAction(jump = false, sneakTime = max(1, ticks))
+        }
     }
 
     return extension?.ledge(
-        ledge = snapshotOne.clipLedged,
-        ledgeSoon = ledgeSoon,
         target = target,
         rotation = rotation
-    ) ?: LedgeState.NO_LEDGE
+    ) ?: LedgeAction.NO_LEDGE
 }
 
 interface ScaffoldLedgeExtension {
     fun ledge(
-        ledge: Boolean,
-        ledgeSoon: Boolean,
         target: BlockPlacementTarget?,
         rotation: Rotation
-    ): LedgeState
+    ): LedgeAction
 }

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -65,7 +65,7 @@ object ModuleProjectilePuncher : ClientModule("ProjectilePuncher", Category.WORL
         target = null
     }
 
-    val tickHandler = handler<ScheduleRotationUpdateEvent> {
+    val tickHandler = handler<RotationUpdateEvent> {
         if (player.isSpectator) {
             return@handler
         }

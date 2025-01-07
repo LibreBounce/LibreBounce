@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -80,7 +80,7 @@ object ModuleCrystalAura : ClientModule(
     }
 
     @Suppress("unused")
-    val simulatedTickHandler = handler<ScheduleRotationUpdateEvent> {
+    val simulatedTickHandler = handler<RotationUpdateEvent> {
         CrystalAuraDamageOptions.cacheMap.clear()
         if (CombatManager.shouldPauseCombat) {
             return@handler

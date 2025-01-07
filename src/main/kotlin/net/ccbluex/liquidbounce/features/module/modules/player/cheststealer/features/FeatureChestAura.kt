@@ -21,7 +21,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.ScheduleRotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.ModuleChestStealer
@@ -93,7 +93,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
 
     // Event handler responsible for updating the target block
     @Suppress("unused")
-    private val simulatedTickHandler = handler<ScheduleRotationUpdateEvent> {
+    private val simulatedTickHandler = handler<RotationUpdateEvent> {
         val searchRadius = interactionRange + 1
         val searchRadiusSquared = searchRadius * searchRadius
         val playerEyesPosition = player.eyes
