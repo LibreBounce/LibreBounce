@@ -162,6 +162,8 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
                 val debuggedOwners = debugParameters.keys.groupBy { it.owner }
 
+                val currentTime = System.currentTimeMillis()
+
                 debuggedOwners.onEach { (owner, parameter) ->
                     val ownerName = when (owner) {
                         is ClientModule -> owner.name
@@ -175,12 +177,14 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
                     parameter.forEach { debuggedParameter ->
                         val parameterName = debuggedParameter.name
-                        val parameterValue = debugParameters[debuggedParameter]
+                        val parameterCapture = debugParameters[debuggedParameter] ?: return@forEach
                         textList += Text.literal("$parameterName: ").styled {
                             it.withColor(Formatting.WHITE)
-                        }.append(Text.literal(parameterValue.toString()).styled {
+                        }.append(Text.literal(parameterCapture.value.toString()).styled {
                             it.withColor(Formatting.GREEN)
-                        })
+                        }).append(" [${((currentTime - parameterCapture.time) / 1000).toInt()}s ago]").styled {
+                            it.withColor(Formatting.GRAY)
+                        }
                     }
                 }
 
@@ -199,9 +203,9 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
                         draw(
                             process(text),
                             120f,
-                            40 + ((fontRenderer.height * 0.15f) * index).toFloat(),
+                            40 + ((fontRenderer.height * 0.17f) * index).toFloat(),
                             shadow = true,
-                            scale = 0.15f
+                            scale = 0.17f
                         )
                     }
 
@@ -234,7 +238,9 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private val debugParameters = hashMapOf<DebuggedParameter, Any>()
+    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any)
+
+    private val debugParameters = hashMapOf<DebuggedParameter, ParameterCapture>()
 
     inline fun debugParameter(owner: Any, name: String, lazyValue: () -> Any) {
         if (!running) {
@@ -249,7 +255,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
             return
         }
 
-        debugParameters[DebuggedParameter(owner, name)] = value
+        debugParameters[DebuggedParameter(owner, name)] = ParameterCapture(value = value)
     }
 
     fun getArrayEntryColor(idx: Int, length: Int): Color4b {
