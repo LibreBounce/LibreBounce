@@ -82,6 +82,10 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private val sprintHandler = handler<SprintEvent>(
         priority = EventPriorityConvention.FIRST_PRIORITY
     ) { event ->
+        if (!event.directionalInput.isMoving) {
+            return@handler
+        }
+
         if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
             event.sprint = true
         }

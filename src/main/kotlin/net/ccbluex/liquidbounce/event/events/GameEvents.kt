@@ -61,11 +61,11 @@ class MovementInputEvent(
 ) : Event()
 
 @Nameable("sprint")
-class SprintEvent(var sprint: Boolean, val source: Source) : Event() {
-    enum class Source(val key: Boolean) {
-        INPUT(true),
-        MOVEMENT_TICK(true),
-        NETWORK(false)
+class SprintEvent(val directionalInput: DirectionalInput, var sprint: Boolean, val source: Source) : Event() {
+    enum class Source {
+        INPUT,
+        MOVEMENT_TICK,
+        NETWORK
     }
 }
 

@@ -549,7 +549,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent> { event ->
-        if (shouldBlockSprinting) {
+        if (shouldBlockSprinting && (event.source == SprintEvent.Source.MOVEMENT_TICK ||
+                event.source == SprintEvent.Source.INPUT)) {
             event.sprint = false
         }
     }

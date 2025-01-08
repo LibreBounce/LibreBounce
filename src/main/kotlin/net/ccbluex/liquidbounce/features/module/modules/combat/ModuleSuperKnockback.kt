@@ -114,7 +114,8 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         private val movementHandler = handler<SprintEvent>(
             priority = EventPriorityConvention.FIRST_PRIORITY
         ) { event ->
-            if (cancelSprint && event.source.key) {
+            if (cancelSprint && (event.source == SprintEvent.Source.MOVEMENT_TICK ||
+                    event.source == SprintEvent.Source.INPUT)) {
                 event.sprint = false
             }
         }

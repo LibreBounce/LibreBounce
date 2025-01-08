@@ -76,7 +76,7 @@ public abstract class MixinKeyboardInput extends MixinInput {
         EventManager.INSTANCE.callEvent(event);
         var directionalInput = changeDirection(event.getDirectionalInput());
 
-        var sprintEvent = new SprintEvent(original.sprint(), SprintEvent.Source.INPUT);
+        var sprintEvent = new SprintEvent(directionalInput, original.sprint(), SprintEvent.Source.INPUT);
         EventManager.INSTANCE.callEvent(sprintEvent);
 
         return new PlayerInput(
