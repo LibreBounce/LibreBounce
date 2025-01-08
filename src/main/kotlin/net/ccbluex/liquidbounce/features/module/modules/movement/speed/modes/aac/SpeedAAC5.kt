@@ -9,7 +9,17 @@ import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
 class SpeedAAC5(override val parent: ChoiceConfigurable<*>) : Choice("AAC5") {
-    var speedInAir: Float = player.speed
+    var speedInAir: Float? = null
+
+    override fun enable() {
+        super.enable()
+        speedInAir = player.speed
+    }
+
+    override fun disable() {
+        super.disable()
+        speedInAir = null
+    }
     val inputHandler = handler<MovementInputEvent> { event -> {
         Timer.requestTimerSpeed(1.0f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed, 1)
 
@@ -21,7 +31,8 @@ class SpeedAAC5(override val parent: ChoiceConfigurable<*>) : Choice("AAC5") {
             Timer.requestTimerSpeed(0.9385f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed, 1)
             speedInAir = 0.0201f
         } else {
-            player.speed = speedInAir
+            // apparently surrounding it with a null check doesn't make anything different (it does)
+            player.speed = speedInAir ?: player.speed
         }
         if (player.fallDistance < 2.5) {
             if (player.fallDistance > 0.7) {
