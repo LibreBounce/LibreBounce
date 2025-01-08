@@ -21,14 +21,17 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.DummyEvent
-import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.minus
+import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
@@ -55,33 +58,12 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         tree(OnlyOnMove)
     }
 
-    var sequence: Sequence<DummyEvent>? = null
-
-    init {
-        modes.onChange {
-            reset()
-            it
-        }
-    }
-
-    override val running: Boolean
-        get() {
-            val running = super.running
-
-            // Reset if the module is not handling events anymore
-            if (!running) {
-                reset()
-            }
-
-            return running
-        }
-
     object Packet : Choice("Packet") {
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEntityEvent> { event ->
+        private val attackHandler = handler<AttackEntityEvent> { event ->
             if (event.isCancelled) {
                 return@handler
             }
@@ -114,23 +96,34 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         private val reSprintTicks by intRange("ReSprint", 0..1, 0..10, "ticks")
 
-        var antiSprint = false
+        private var cancelSprint = false
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEntityEvent> { event ->
-            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
-                return@handler
+        private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event)) {
+                return@sequenceHandler
             }
 
-            runWithDummyEvent {
-                antiSprint = true
+            cancelSprint = true
+            waitUntil { !player.isSprinting && !player.lastSprinting }
+            waitTicks(reSprintTicks.random())
+            cancelSprint = false
+        }
 
-                it.waitUntil { !player.isSprinting && !player.lastSprinting }
-                it.waitTicks(reSprintTicks.random())
-
-                antiSprint = false
+        @Suppress("unused")
+        private val movementHandler = handler<SprintEvent>(
+            priority = EventPriorityConvention.FIRST_PRIORITY
+        ) { event ->
+            if (cancelSprint) {
+                event.sprint = false
             }
         }
+
+        override fun disable() {
+            cancelSprint = false
+            super.disable()
+        }
+
     }
 
     object WTap : Choice("WTap") {
@@ -142,27 +135,34 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         private val ticksUntilAllowedMovement by intRange("UntilAllowedMovement", 0..1, 0..10,
             "ticks")
 
-        var stopMoving = false
+        private var cancelMovement = false
 
         @Suppress("unused")
-        val attackHandler = handler<AttackEntityEvent> { event ->
-            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || sequence != null) {
-                return@handler
+        private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event)) {
+                return@sequenceHandler
             }
 
-            runWithDummyEvent {
-                it.waitTicks(ticksUntilMovementBlock.random())
-                stopMoving = true
-                it.waitUntil { !player.input.hasForwardMovement() }
-                it.waitTicks(ticksUntilAllowedMovement.random())
-                stopMoving = false
+            waitTicks(ticksUntilMovementBlock.random())
+            cancelMovement = true
+            waitUntil { !player.input.hasForwardMovement() }
+            waitTicks(ticksUntilAllowedMovement.random())
+            cancelMovement = false
+        }
+
+        @Suppress("unused")
+        private val movementHandler = handler<MovementInputEvent> { event ->
+            if (cancelMovement) {
+                event.directionalInput = DirectionalInput.NONE
             }
         }
+
+        override fun disable() {
+            cancelMovement = false
+            super.disable()
+        }
+
     }
-
-    fun shouldBlockSprinting() = running && SprintTap.isSelected && SprintTap.antiSprint
-
-    fun shouldStopMoving() = running && WTap.isSelected && WTap.stopMoving
 
     private fun shouldStopSprinting(event: AttackEntityEvent): Boolean {
         val enemy = event.entity
@@ -199,22 +199,6 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         }
 
         return true
-    }
-
-    private fun reset() {
-        sequence?.cancel()
-        sequence = null
-
-        WTap.stopMoving = false
-        SprintTap.antiSprint = false
-    }
-
-    private fun runWithDummyEvent(action: suspend (Sequence<DummyEvent>) -> Unit) {
-        sequence = Sequence(this, {
-            action(this)
-        }, DummyEvent)
-
-        sequence = null
     }
 
 }

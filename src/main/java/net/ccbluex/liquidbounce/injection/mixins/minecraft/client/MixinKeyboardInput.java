@@ -23,9 +23,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent;
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
+import net.ccbluex.liquidbounce.event.events.SprintEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.input.InputTracker;
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
@@ -61,9 +60,10 @@ public abstract class MixinKeyboardInput extends MixinInput {
     }
 
     /**
-     * At settings.backKey.isPressed()
+     * Later in the code, the sprint key is checked for being pressed. We need to update the state of the key
+     * as well.
      */
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 1))
+    @Inject(method = "tick", at = @At("HEAD"))
     private void hookInventoryMoveSprint(CallbackInfo ci) {
         if (ModuleInventoryMove.INSTANCE.shouldHandleInputs(this.settings.sprintKey)) {
             this.settings.sprintKey.setPressed(InputTracker.INSTANCE.isPressedOnAny(this.settings.sprintKey));
@@ -76,6 +76,9 @@ public abstract class MixinKeyboardInput extends MixinInput {
         EventManager.INSTANCE.callEvent(event);
         var directionalInput = changeDirection(event.getDirectionalInput());
 
+        var sprintEvent = new SprintEvent(original.sprint(), SprintEvent.Source.INPUT);
+        EventManager.INSTANCE.callEvent(sprintEvent);
+
         return new PlayerInput(
                 directionalInput.getForwards(),
                 directionalInput.getBackwards(),
@@ -83,19 +86,8 @@ public abstract class MixinKeyboardInput extends MixinInput {
                 directionalInput.getRight(),
                 event.getJump(),
                 event.getSneak(),
-                playerInput.sprint()
+                sprintEvent.getSprint()
         );
-    }
-
-    @Inject(method = "tick", at = @At("RETURN"))
-    private void injectStopMove(CallbackInfo ci) {
-        if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
-            this.movementForward = 0f;
-
-            if (ModuleSprint.INSTANCE.shouldSprintOmnidirectionally()) {
-                this.movementSideways = 0f;
-            }
-        }
     }
 
     @Unique

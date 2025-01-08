@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.events.InputHandleEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -209,7 +210,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             return@tickHandler
         }
 
-        if (player.isSprinting && shouldBlockSprinting()) {
+        if (player.isSprinting && shouldBlockSprinting) {
             player.isSprinting = false
             return@tickHandler
         }
@@ -294,7 +295,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     }
 
                     // Attack enemy
-                    chosenEntity.attack(true, keepSprint && !shouldBlockSprinting())
+                    chosenEntity.attack(true, keepSprint && !shouldBlockSprinting)
                     KillAuraNotifyWhenFail.failedHitsIncrement = 0
 
                     GenericDebugRecorder.recordDebugInfo(ModuleKillAura, "attackEntity", JsonObject().apply {
@@ -540,10 +541,18 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
     }
 
-    fun shouldBlockSprinting() = running && !player.isOnGround &&
-        criticalsMode != CriticalsMode.IGNORE &&
-        targetTracker.lockedOnTarget != null &&
-        clickScheduler.isClickOnNextTick(1)
+    val shouldBlockSprinting
+        get() = !player.isOnGround &&
+            criticalsMode != CriticalsMode.IGNORE &&
+            targetTracker.lockedOnTarget != null &&
+            clickScheduler.isClickOnNextTick(1)
+
+    @Suppress("unused")
+    private val sprintHandler = handler<SprintEvent> { event ->
+        if (shouldBlockSprinting) {
+            event.sprint = false
+        }
+    }
 
     private enum class RotationTimingMode(override val choiceName: String) : NamedChoice {
         NORMAL("Normal"),

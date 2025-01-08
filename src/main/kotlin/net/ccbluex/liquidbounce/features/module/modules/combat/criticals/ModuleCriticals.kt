@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -89,6 +90,21 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
             if (stopSprinting == StopSprintingMode.ON_ATTACK && player.lastSprinting) {
                 network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.STOP_SPRINTING))
                 player.lastSprinting = false
+            }
+        }
+
+        @Suppress("unused")
+        private val sprintHandler = handler<SprintEvent> { event ->
+            when (stopSprinting) {
+                StopSprintingMode.LEGIT ->
+                    if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
+                        event.sprint = false
+                    }
+                StopSprintingMode.ON_NETWORK ->
+                    if (event.source == SprintEvent.Source.NETWORK || event.source == SprintEvent.Source.INPUT) {
+                        event.sprint = false
+                    }
+                else -> {}
             }
         }
 
