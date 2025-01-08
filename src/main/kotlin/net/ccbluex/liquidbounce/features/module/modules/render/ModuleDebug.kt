@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -68,17 +67,12 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         private val ticksToPredict by int("TicksToPredict", 20, 5..100)
 
         @Suppress("unused")
-        val tickRep = handler<MovementInputEvent> { _ ->
-            // We aren't actually where we are because of blink.
-            // So this module shall not cause any disturbance in that case.
-            if (ModuleBlink.running) {
-                return@handler
-            }
-
+        private val movementInputHandler = handler<MovementInputEvent> { _ ->
             PlayerSimulationCache.getSimulationForLocalPlayer().simulateUntil(this.ticksToPredict)
         }
 
-        val renderHandler = handler<WorldRenderEvent> { event ->
+        @Suppress("unused")
+        private val renderHandler = handler<WorldRenderEvent> { event ->
             val cachedPositions = PlayerSimulationCache
                 .getSimulationForLocalPlayer()
                 .getSnapshotsBetween(0 until this.ticksToPredict)
