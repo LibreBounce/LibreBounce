@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.render.*
@@ -58,6 +57,8 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
     private val geometry by boolean("Geometry", true).onChanged { _ ->
         debuggedGeometry.clear()
     }
+
+    private val expireTime by int("Expires", 5, 1..30, "secs")
 
     private val fontRenderer
         get() = FontManager.FONT_RENDERER
@@ -97,7 +98,8 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     private val debuggedGeometry = hashMapOf<DebuggedGeometryOwner, DebuggedGeometry>()
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
+    @Suppress("unused")
+    private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
 
         if (!geometry) {
@@ -105,14 +107,15 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         }
 
         renderEnvironmentForWorld(matrixStack) {
-            debuggedGeometry.values.forEach {
-                it.render(this)
+            debuggedGeometry.values.forEach { geometry ->
+                geometry.render(this)
             }
         }
     }
 
-    val repeatable = tickHandler {
-        if (!ModuleSpeed.running) {
+    @Suppress("unused")
+    private val scaffoldDebugging = tickHandler {
+        if (!ModuleScaffold.running) {
             return@tickHandler
         }
 
@@ -143,7 +146,16 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
     }
 
     @Suppress("unused")
-    val screenRenderHandler = handler<OverlayRenderEvent> { event ->
+    private val expireHandler = tickHandler {
+        val currentTime = System.currentTimeMillis()
+
+        debugParameters.entries.removeIf { (parameter, capture) ->
+            (currentTime - capture.time) / 1000 >= expireTime
+        }
+    }
+
+    @Suppress("unused")
+    private val screenRenderHandler = handler<OverlayRenderEvent> { event ->
         val context = event.context
 
         if (mc.options.playerListKey.isPressed || !parameters) {
