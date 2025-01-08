@@ -71,7 +71,7 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             }
 
             // With Elytra - we don't want to reduce fall damage.
-            if (!notWhileGliding && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
+            if (notWhileGliding && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
                 return false
             }
 
