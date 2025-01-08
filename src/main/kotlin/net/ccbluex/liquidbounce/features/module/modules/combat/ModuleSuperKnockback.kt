@@ -100,7 +100,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
-            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event)) {
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || cancelSprint) {
                 return@sequenceHandler
             }
 
@@ -114,7 +114,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         private val movementHandler = handler<SprintEvent>(
             priority = EventPriorityConvention.FIRST_PRIORITY
         ) { event ->
-            if (cancelSprint) {
+            if (cancelSprint && event.source.key) {
                 event.sprint = false
             }
         }
@@ -135,30 +135,34 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         private val ticksUntilAllowedMovement by intRange("UntilAllowedMovement", 0..1, 0..10,
             "ticks")
 
+        private var inSequence = false
         private var cancelMovement = false
 
         @Suppress("unused")
         private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
-            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event)) {
+            if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || inSequence) {
                 return@sequenceHandler
             }
 
+            inSequence = true
             waitTicks(ticksUntilMovementBlock.random())
             cancelMovement = true
             waitUntil { !player.input.hasForwardMovement() }
             waitTicks(ticksUntilAllowedMovement.random())
             cancelMovement = false
+            inSequence = false
         }
 
         @Suppress("unused")
         private val movementHandler = handler<MovementInputEvent> { event ->
-            if (cancelMovement) {
+            if (inSequence && cancelMovement) {
                 event.directionalInput = DirectionalInput.NONE
             }
         }
 
         override fun disable() {
             cancelMovement = false
+            inSequence = false
             super.disable()
         }
 
