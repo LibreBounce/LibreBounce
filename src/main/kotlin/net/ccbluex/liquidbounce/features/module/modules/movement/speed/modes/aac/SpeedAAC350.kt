@@ -11,7 +11,8 @@ class SpeedAAC350(override val parent: ChoiceConfigurable<*>) : Choice("AAC3.5.0
     val handler = handler<PlayerNetworkMovementTickEvent> { event ->
         val thePlayer = mc.player ?: return@handler
 
-        if (event.state == EventState.POST && thePlayer.moving && !thePlayer.isSubmergedInWater && !thePlayer.isSneaking) {
+        if (event.state == EventState.POST && thePlayer.moving
+            && !thePlayer.isSubmergedInWater && !thePlayer.isSneaking) {
             //thePlayer.jumpVelocity += 0.00208f
             if (thePlayer.fallDistance <= 1f) {
                 if (thePlayer.isOnGround) {
