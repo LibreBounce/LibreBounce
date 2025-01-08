@@ -373,32 +373,52 @@ object RenderUtils : MinecraftInstance {
 
         GlStateManager.disableTexture2D()
         GlStateManager.disableCull()
+
         GlStateManager.enableBlend()
         GlStateManager.enableDepth()
-        GL11.glDepthMask(false)
+        GlStateManager.depthMask(false)
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
 
         f()
 
-        RenderUtils.glColor(Color.WHITE)
+        GlStateManager.resetColor()
 
         GlStateManager.enableTexture2D()
-        GL11.glDepthMask(true)
+        GlStateManager.depthMask(true)
+        GlStateManager.enableCull()
+
         GlStateManager.disableBlend()
         GlStateManager.disableDepth()
-        GlStateManager.enableCull()
 
         GlStateManager.popMatrix()
         GlStateManager.popAttrib()
     }
 
-    fun drawCone(width: Float, height: Float) {
+    fun drawCone(width: Float, height: Float, useTexture: Boolean = false) {
+        if (useTexture) {
+            // TODO: Maybe image option support to allow many different type of hats.
+            mc.textureManager.bindTexture(ResourceLocation("liquidbounce/textures/hat.png"))
+            GlStateManager.enableTexture2D()
+            GlStateManager.depthMask(true)
+        }
+
         GL11.glBegin(GL11.GL_TRIANGLE_FAN)
+
+        if (useTexture) {
+            // Place texture in the middle, on the tip
+            GL11.glTexCoord2d(0.5, 0.5)
+        }
 
         // The tip of the cone
         GL11.glVertex3d(0.0, height.toDouble(), 0.0)
 
         for (point in circlePoints) {
+            if (useTexture) {
+                val u = 0.5 + 0.5 * point.xCoord
+                val v = 0.5 + 0.5 * point.zCoord
+                GL11.glTexCoord2d(u, v)
+            }
+
             GL11.glVertex3d(point.xCoord * width, 0.0, point.zCoord * width)
         }
 
@@ -975,6 +995,9 @@ object RenderUtils : MinecraftInstance {
         glColor4f(red / 255f, green / 255f, blue / 255f, alpha / 255f)
 
     fun glColor(color: Color) = glColor(color.red, color.green, color.blue, color.alpha)
+
+    fun glStateManagerColor(color: Color) =
+        GlStateManager.color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
 
     private fun glColor(hex: Int) = glColor(hex shr 16 and 0xFF, hex shr 8 and 0xFF, hex and 0xFF, hex shr 24 and 0xFF)
 
