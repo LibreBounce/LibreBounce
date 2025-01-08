@@ -20,6 +20,7 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleNoPitchLimit;
@@ -109,26 +110,26 @@ public abstract class MixinEntity {
         return MathHelper.clamp(value, min, max);
     }
 
-    @Redirect(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))
-    public Vec3d hookVelocity(Vec3d movementInput, float speed, float yaw) {
-        if ((Object) this == MinecraftClient.getInstance().player) {
-            PlayerVelocityStrafe event = new PlayerVelocityStrafe(movementInput, speed, yaw, MixinEntity.movementInputToVelocity(movementInput, speed, yaw));
-            EventManager.INSTANCE.callEvent(event);
-            return event.getVelocity();
+    @ModifyExpressionValue(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))
+    public Vec3d hookVelocity(Vec3d original, @Local(argsOnly = true) Vec3d movementInput, @Local(argsOnly = true) float speed, @Local(argsOnly = true) float yaw) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return original;
         }
 
-        return MixinEntity.movementInputToVelocity(movementInput, speed, yaw);
+        var event = new PlayerVelocityStrafe(movementInput, speed, yaw, original);
+        EventManager.INSTANCE.callEvent(event);
+        return event.getVelocity();
     }
 
-    @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getStepHeight()F"))
-    private float hookStepHeight(Entity instance) {
-        if ((Object) this == MinecraftClient.getInstance().player) {
-            PlayerStepEvent stepEvent = new PlayerStepEvent(instance.getStepHeight());
-            EventManager.INSTANCE.callEvent(stepEvent);
-            return stepEvent.getHeight();
+    @ModifyExpressionValue(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getStepHeight()F"))
+    private float hookStepHeight(float original) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return original;
         }
 
-        return instance.getStepHeight();
+        var stepEvent = new PlayerStepEvent(original);
+        EventManager.INSTANCE.callEvent(stepEvent);
+        return stepEvent.getHeight();
     }
 
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",

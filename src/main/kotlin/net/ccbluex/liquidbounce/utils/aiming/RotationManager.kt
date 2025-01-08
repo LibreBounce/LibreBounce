@@ -40,7 +40,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
-import net.minecraft.util.math.Vec3d
 
 
 /**
@@ -213,7 +212,14 @@ object RotationManager : EventListener {
     @Suppress("unused")
     private val velocityHandler = handler<PlayerVelocityStrafe> { event ->
         if (workingAimPlan?.applyVelocityFix == true) {
-            event.velocity = fixVelocity(event.velocity, event.movementInput, event.speed)
+            val rotation = currentRotation ?: return@handler
+
+            // This works for 1.21.1 or lower. Not for 1.21.3 - 1.21.4?
+            event.velocity = Entity.movementInputToVelocity(
+                event.movementInput,
+                event.speed,
+                rotation.yaw
+            )
         }
     }
 
@@ -263,26 +269,6 @@ object RotationManager : EventListener {
             actualServerRotation = rotation
         }
         theoreticalServerRotation = rotation
-    }
-
-    /**
-     * Fix velocity
-     */
-    private fun fixVelocity(currVelocity: Vec3d, movementInput: Vec3d, speed: Float): Vec3d {
-        currentRotation?.let { rotation ->
-            val yaw = rotation.yaw
-            val d = movementInput.lengthSquared()
-
-            return if (d < 1.0E-7) {
-                Vec3d.ZERO
-            } else {
-                val vec3d = (if (d > 1.0) movementInput.normalize() else movementInput).multiply(speed.toDouble())
-
-                vec3d.rotateY(-yaw.toRadians())
-            }
-        }
-
-        return currVelocity
     }
 
     override val running: Boolean
