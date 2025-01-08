@@ -214,7 +214,6 @@ object RotationManager : EventListener {
         if (workingAimPlan?.applyVelocityFix == true) {
             val rotation = currentRotation ?: return@handler
 
-            // This works for 1.21.1 or lower. Not for 1.21.3 - 1.21.4?
             event.velocity = Entity.movementInputToVelocity(
                 event.movementInput,
                 event.speed,
