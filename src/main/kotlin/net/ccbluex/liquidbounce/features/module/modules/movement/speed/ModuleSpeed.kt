@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpe
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedCustom
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedLegitHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedSpeedYPort
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.aac.SpeedAAC350
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.aac.SpeedAAC4
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.aac.SpeedAAC5
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.blocksmc.SpeedBlocksMC
@@ -98,7 +99,8 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
 
         SpeedBlocksMC(configurable),
         SpeedAAC4(configurable),
-        SpeedAAC5(configurable)
+        SpeedAAC5(configurable),
+        SpeedAAC350(configurable)
     )
 
     val modes = choices("Mode", 0, this::initializeSpeeds).apply(::tagBy)
