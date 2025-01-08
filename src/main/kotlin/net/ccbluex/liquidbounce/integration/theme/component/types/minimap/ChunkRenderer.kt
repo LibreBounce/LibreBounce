@@ -143,7 +143,7 @@ object ChunkRenderer {
                     (color.blue * brightness).roundToInt(),
                 ).rgb
             } catch (e: Exception) {
-                logger.error("Failed to get color for chunk at $x, $z")
+                logger.error("Failed to get color for chunk at $x, $z", e)
                 return AIR_COLOR
             }
         }
