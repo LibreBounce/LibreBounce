@@ -22,9 +22,11 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationUtil.angleDifference
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.hypot
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 data class Rotation(
     var yaw: Float,
@@ -111,7 +113,7 @@ data class Rotation(
 
 }
 
-class RotationDelta(val deltaYaw: Float, val deltaPitch: Float) {
+data class RotationDelta(val deltaYaw: Float, val deltaPitch: Float) {
     fun length() = hypot(deltaYaw, deltaPitch)
 }
 data class VecRotation(val rotation: Rotation, val vec: Vec3d)

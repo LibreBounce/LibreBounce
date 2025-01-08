@@ -128,12 +128,20 @@ class SimulatedPlayerCache(private val simulatedPlayer: SimulatedPlayer) {
 
 }
 
-class SimulatedPlayerSnapshot(s: SimulatedPlayer) {
-    val pos = s.pos
-    val fallDistance = s.fallDistance
-    val velocity = s.velocity
-    val onGround = s.onGround
-    val clipLedged = s.clipLedged
+data class SimulatedPlayerSnapshot(
+    val pos: Vec3d,
+    val fallDistance: Float,
+    val velocity: Vec3d,
+    val onGround: Boolean,
+    val clipLedged: Boolean
+) {
+    constructor(s: SimulatedPlayer): this(
+        s.pos,
+        s.fallDistance,
+        s.velocity,
+        s.onGround,
+        s.clipLedged
+    )
 }
 
 /**

@@ -283,6 +283,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         ScaffoldMovementPlanner.reset()
         SilentHotbar.resetSlot(this)
         updateRenderCount()
+        forceSneak = 0
     }
 
     private fun updateRenderCount(count: Int? = null) = EventManager.callEvent(BlockCountChangeEvent(count))

@@ -78,7 +78,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
         // but we hope it does not. :)
         val snapshotOne = simulatedPlayerCache.getSnapshotAt(1)
 
-        ModuleDebug.debugParameter(this, "Snapshot", snapshotOne.toString())
+        ModuleDebug.debugParameter(this, "Snapshot Ledged", snapshotOne.clipLedged)
 
         return if (snapshotOne.clipLedged) {
             val cameraPosition = snapshotOne.pos.add(0.0, player.standingEyeHeight.toDouble(), 0.0)

@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.ClickTechnique.entries
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import kotlin.random.Random
@@ -151,7 +152,10 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         }
     }
 
-    val gameHandler = handler<GameTickEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) {
+    @Suppress("unused")
+    private val gameHandler = handler<GameTickEvent>(
+        priority = EventPriorityConvention.READ_FINAL_STATE
+    ) {
         clickCycle?.next()
 
         if (clickCycle == null || clickCycle?.isFinished() == true) {
