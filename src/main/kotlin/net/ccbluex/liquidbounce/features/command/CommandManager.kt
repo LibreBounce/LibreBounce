@@ -25,8 +25,10 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.ChatSendEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.command.CommandManager.getSubCommand
 import net.ccbluex.liquidbounce.features.command.commands.client.*
 import net.ccbluex.liquidbounce.features.command.commands.client.client.CommandClient
+import net.ccbluex.liquidbounce.features.command.commands.client.marketplace.CommandMarketplace
 import net.ccbluex.liquidbounce.features.command.commands.ingame.*
 import net.ccbluex.liquidbounce.features.command.commands.ingame.creative.*
 import net.ccbluex.liquidbounce.features.command.commands.ingame.fakeplayer.CommandFakePlayer

@@ -29,7 +29,6 @@ import net.minecraft.client.texture.NativeImageBackedTexture
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import okio.BufferedSource
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -125,9 +124,9 @@ suspend inline fun <reified T> Response.parse(): T {
     return use {
         when (T::class) {
             String::class -> body.string() as T
+            ByteArray::class -> body.bytes() as T
             Unit::class -> Unit as T
             InputStream::class -> body.byteStream() as T
-            BufferedSource::class -> body.source() as T
             NativeImageBackedTexture::class -> body.byteStream().use { stream ->
                 NativeImageBackedTexture(NativeImage.read(stream)) as T
             }

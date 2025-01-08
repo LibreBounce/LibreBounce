@@ -24,14 +24,17 @@ import net.ccbluex.liquidbounce.api.core.BaseApi
 import net.ccbluex.liquidbounce.api.core.asJson
 import net.ccbluex.liquidbounce.api.models.auth.OAuthSession
 import net.ccbluex.liquidbounce.api.models.auth.addAuth
-import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItem
-import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemRevision
-import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemType
+import net.ccbluex.liquidbounce.api.models.marketplace.*
 import net.ccbluex.liquidbounce.api.models.pagination.PaginatedResponse
 import net.ccbluex.liquidbounce.config.gson.GsonInstance
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
 
+    // Marketplace Items
     suspend fun getMarketplaceItems(page: Int = 1, limit: Int = 10) =
         get<PaginatedResponse<MarketplaceItem>>("/marketplace?page=$page&limit=$limit")
 
@@ -59,7 +62,7 @@ object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
         name: String,
         type: MarketplaceItemType,
         description: String
-    ) = post<MarketplaceItem>(
+    ) = patch<MarketplaceItem>(
         "/marketplace/$id",
         JsonObject().apply {
             addProperty("name", name)
@@ -75,6 +78,109 @@ object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
     suspend fun getMarketplaceItem(id: Int) =
         get<MarketplaceItem>("/marketplace/$id")
 
+    // Revisions
     suspend fun getMarketplaceItemRevisions(id: Int, page: Int = 1, limit: Int = 10) =
         get<PaginatedResponse<MarketplaceItemRevision>>("/marketplace/$id/revisions?page=$page&limit=$limit")
+
+    suspend fun getMarketplaceItemRevision(id: Int, revisionId: Int) =
+        get<MarketplaceItemRevision>("/marketplace/$id/revisions/$revisionId")
+
+    suspend fun createMarketplaceItemRevision(
+        session: OAuthSession,
+        id: Int,
+        file: File,
+        version: String,
+        changelog: String? = null,
+        dependencies: String? = null
+    ) {
+        val multipartBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart("file", file.name, file.asRequestBody("application/octet-stream".toMediaType()))
+            .addFormDataPart("version", version)
+
+        changelog?.let { multipartBuilder.addFormDataPart("changelog", it) }
+        dependencies?.let { multipartBuilder.addFormDataPart("dependencies", it) }
+
+        post<MarketplaceItemRevision>(
+            "/marketplace/$id/revisions",
+            multipartBuilder.build(),
+            headers = { addAuth(session) }
+        )
+    }
+
+    suspend fun deleteMarketplaceItemRevision(session: OAuthSession, id: Int, revisionId: Int) =
+        delete<Unit>("/marketplace/$id/revisions/$revisionId", headers = { addAuth(session) })
+
+    suspend fun downloadRevision(id: Int, revisionId: Int) =
+        get<ByteArray>("/marketplace/$id/revisions/$revisionId/download")
+
+    // Dependencies
+    suspend fun getRevisionDependencies(id: Int, revisionId: Int) =
+        get<List<MarketplaceRevisionDependency>>("/marketplace/$id/revisions/$revisionId/dependencies")
+
+    suspend fun addRevisionDependency(
+        session: OAuthSession,
+        id: Int,
+        revisionId: Int,
+        dependencyRevisionId: Int
+    ) = post<Unit>(
+        "/marketplace/$id/revisions/$revisionId/dependencies",
+        JsonObject().apply {
+            addProperty("dependency_revision_id", dependencyRevisionId)
+        }.toString().asJson(),
+        headers = { addAuth(session) }
+    )
+
+    suspend fun removeRevisionDependency(
+        session: OAuthSession,
+        id: Int,
+        revisionId: Int,
+        dependencyRevisionId: Int
+    ) = delete<Unit>(
+        "/marketplace/$id/revisions/$revisionId/dependencies",
+        JsonObject().apply {
+            addProperty("dependency_revision_id", dependencyRevisionId)
+        }.toString().asJson(),
+        headers = { addAuth(session) }
+    )
+
+    // Reviews
+    suspend fun getReviews(id: Int, page: Int = 1, limit: Int = 10) =
+        get<PaginatedResponse<MarketplaceReview>>("/marketplace/$id/reviews?page=$page&limit=$limit")
+
+    suspend fun createReview(
+        session: OAuthSession,
+        id: Int,
+        rating: Int,
+        review: String? = null
+    ) = post<MarketplaceReview>(
+        "/marketplace/$id/reviews",
+        JsonObject().apply {
+            addProperty("rating", rating)
+            review?.let { addProperty("review", it) }
+        }.toString().asJson(),
+        headers = { addAuth(session) }
+    )
+
+    suspend fun deleteReview(session: OAuthSession, id: Int, reviewId: Int) =
+        delete<Unit>("/marketplace/$id/reviews/$reviewId", headers = { addAuth(session) })
+
+    // Thumbnails
+    suspend fun uploadThumbnail(session: OAuthSession, id: Int, thumbnailFile: File) {
+        val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart(
+                "thumbnail",
+                thumbnailFile.name,
+                thumbnailFile.asRequestBody("image/png".toMediaType())
+            )
+            .build()
+
+        post<MarketplaceItem>(
+            "/marketplace/$id/thumbnail",
+            requestBody,
+            headers = { addAuth(session) }
+        )
+    }
+
+    suspend fun deleteThumbnail(session: OAuthSession, id: Int) =
+        delete<Unit>("/marketplace/$id/thumbnail", headers = { addAuth(session) })
 }
