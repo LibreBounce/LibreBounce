@@ -52,8 +52,12 @@ import java.awt.Color
 
 object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
-    private val parameters by boolean("Parameters", true)
-    private val geometry by boolean("Geometry", true)
+    private val parameters by boolean("Parameters", true).onChanged { _ ->
+        debugParameters.clear()
+    }
+    private val geometry by boolean("Geometry", true).onChanged { _ ->
+        debuggedGeometry.clear()
+    }
 
     private val fontRenderer
         get() = FontManager.FONT_RENDERER
