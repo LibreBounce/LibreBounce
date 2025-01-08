@@ -51,7 +51,7 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
         )
     ).apply(::tagBy)
 
-    private var notWhileGliding by boolean("NotWhileGliding", false)
+    private var notWhileGliding by boolean("NotWhileGliding", true)
     private var notWithMace by boolean("NotWithMace", true)
 
     override val running: Boolean
