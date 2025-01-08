@@ -23,8 +23,9 @@ class SpeedAAC5(override val parent: ChoiceConfigurable<*>) : Choice("AAC5") {
     val inputHandler = handler<MovementInputEvent> { event -> {
         Timer.requestTimerSpeed(1.0f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed, 1)
 
-        if (!event.directionalInput.isMoving)
+        if (!event.directionalInput.isMoving) {
             return@handler
+        }
 
         if (player.isOnGround) {
             event.jump = true

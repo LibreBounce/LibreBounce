@@ -13,8 +13,9 @@ class SpeedAAC4(override val parent: ChoiceConfigurable<*>) : Choice("AAC4") {
         val thePlayer = mc.player ?: return@handler
         Timer.requestTimerSpeed(1.0f, Priority.IMPORTANT_FOR_USAGE_1, ModuleSpeed, 1)
 
-        if (!event.directionalInput.isMoving)
+        if (!event.directionalInput.isMoving) {
             return@handler
+        }
 
         if (thePlayer.isOnGround) {
             event.jump = true
