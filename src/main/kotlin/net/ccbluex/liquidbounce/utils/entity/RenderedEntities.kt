@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.inGame
@@ -40,8 +40,8 @@ object RenderedEntities : Iterable<LivingEntity>, EventListener, MinecraftShortc
     }
 
     @Suppress("unused")
-    private val disconnectHandler = handler<DisconnectEvent> {
-        registry.clear()
+    private val worldHandler = handler<WorldChangeEvent> {
+        entities = emptyList()
     }
 
     override fun iterator(): Iterator<LivingEntity> = entities.iterator()

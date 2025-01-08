@@ -72,7 +72,6 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerNetworkMovementTickEvent::class,
     PlayerPushOutEvent::class,
     PlayerMoveEvent::class,
-    RotatedMovementInputEvent::class,
     PlayerJumpEvent::class,
     PlayerAfterJumpEvent::class,
     PlayerUseMultiplier::class,

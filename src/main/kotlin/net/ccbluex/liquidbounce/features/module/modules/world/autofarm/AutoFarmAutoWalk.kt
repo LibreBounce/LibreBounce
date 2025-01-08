@@ -21,7 +21,6 @@ package net.ccbluex.liquidbounce.features.module.modules.world.autofarm
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -121,15 +120,18 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
 
     private fun shouldWalk() = (walkTarget != null && mc.currentScreen !is HandledScreen<*>)
 
-    val horizontalMovementHandling = handler<RotatedMovementInputEvent> { event ->
-        if (!shouldWalk()) return@handler
+    @Suppress("unused")
+    private val horizontalMovementHandling = handler<MovementInputEvent> { event ->
+        if (!shouldWalk()) {
+            return@handler
+        }
 
-        event.forward = 1f
-
+        event.directionalInput = event.directionalInput.copy(forwards = true)
         player.isSprinting = true
     }
 
-    val verticalMovementHandling = handler<MovementInputEvent> { event ->
+    @Suppress("unused")
+    private val verticalMovementHandling = handler<MovementInputEvent> { event ->
         if (!shouldWalk()) return@handler
 
         // We want to swim up in water, so we don't drown and can move onwards
