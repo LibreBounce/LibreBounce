@@ -76,7 +76,7 @@ object CreateItemCommand : CommandFactory {
 
             val type = try {
                 MarketplaceItemType.valueOf(typeStr.uppercase())
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 throw CommandException(translation("liquidbounce.command.marketplace.error.invalidItemType"))
             }
 

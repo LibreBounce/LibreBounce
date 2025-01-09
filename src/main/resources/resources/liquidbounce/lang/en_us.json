@@ -340,6 +340,7 @@
   "liquidbounce.command.marketplace.subcommand.search.parameter.query.description": "The search query.",
   "liquidbounce.command.marketplace.subcommand.search.result.noResults": "No items found matching your search.",
   "liquidbounce.command.marketplace.subcommand.search.result.searching": "Searching marketplace items...",
+  "liquidbounce.command.marketplace.subcommand.search.result.header": "=== Marketplace Items (Page %s/%s) ===",
   "liquidbounce.command.marketplace.subcommand.search.result.item": "#%s %s [%s]%s",
 
   "liquidbounce.command.marketplace.subcommand.subscribe.description": "Subscribe to a marketplace item to receive updates.",

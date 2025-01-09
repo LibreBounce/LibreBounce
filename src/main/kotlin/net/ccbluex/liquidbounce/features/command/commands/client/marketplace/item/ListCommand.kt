@@ -19,12 +19,14 @@
 package net.ccbluex.liquidbounce.features.command.commands.client.marketplace.item
 
 import net.ccbluex.liquidbounce.api.core.withScope
-import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemStatus
+import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemType
 import net.ccbluex.liquidbounce.api.services.marketplace.MarketplaceApi
+import net.ccbluex.liquidbounce.features.command.CommandException
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.misc.MarketplaceSubscriptionManager
+import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
@@ -37,21 +39,36 @@ object ListCommand : CommandFactory {
     override fun createCommand() = CommandBuilder.begin("list")
         .parameter(
             ParameterBuilder
+                .begin<String>("type")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .autocompletedWith { begin, _ ->
+                    MarketplaceItemType.entries.map { it.name.lowercase() }
+                        .filter { it.startsWith(begin, ignoreCase = true) }
+                }
+                .required()
+                .build()
+        )
+        .parameter(
+            ParameterBuilder
                 .begin<Int>("page")
                 .verifiedBy(ParameterBuilder.INTEGER_VALIDATOR)
                 .optional()
                 .build()
         )
         .handler { command, args ->
-            val page = args.getOrNull(0) as? Int ?: 1
+            val typeStr = args[0] as String
+            val page = args.getOrNull(1) as? Int ?: 1
+
+            val type = try {
+                MarketplaceItemType.valueOf(typeStr.uppercase())
+            } catch (_: IllegalArgumentException) {
+                throw CommandException(translation("liquidbounce.command.marketplace.error.invalidItemType"))
+            }
 
             withScope {
-                val response = MarketplaceApi.getMarketplaceItems(page, 10)
+                val response = MarketplaceApi.getMarketplaceItems(page, 10, type = type)
 
-                // Filter out pending items
-                val activeItems = response.items.filter { it.status != MarketplaceItemStatus.PENDING }
-
-                if (activeItems.isEmpty()) {
+                if (response.items.isEmpty()) {
                     chat(regular(command.result("noItems")))
                     return@withScope
                 }
@@ -61,7 +78,7 @@ object ListCommand : CommandFactory {
                     variable(response.pagination.pages.toString())
                 )))
 
-                for (item in activeItems) {
+                for (item in response.items) {
                     val subscribed = if (MarketplaceSubscriptionManager.isSubscribed(item.id)) "*" else ""
                     chat(
                         regular(
@@ -78,5 +95,4 @@ object ListCommand : CommandFactory {
             }
         }
         .build()
-
 }

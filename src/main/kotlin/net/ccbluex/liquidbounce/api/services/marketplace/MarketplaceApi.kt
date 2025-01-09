@@ -19,6 +19,8 @@
 package net.ccbluex.liquidbounce.api.services.marketplace
 
 import com.google.gson.JsonObject
+import com.google.gson.annotations.SerializedName
+import net.ccbluex.liquidbounce.api.core.API_BRANCH
 import net.ccbluex.liquidbounce.api.core.API_V3_ENDPOINT
 import net.ccbluex.liquidbounce.api.core.BaseApi
 import net.ccbluex.liquidbounce.api.core.asJson
@@ -34,12 +36,55 @@ import java.io.File
 
 object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
 
-    // Marketplace Items
-    suspend fun getMarketplaceItems(page: Int = 1, limit: Int = 10) =
-        get<PaginatedResponse<MarketplaceItem>>("/marketplace?page=$page&limit=$limit")
+    private data class MarketplaceParams(
+        val page: Int = 1,
+        val limit: Int = 10,
+        val query: String? = null,
+        val type: MarketplaceItemType? = null,
+        val uid: String? = null,
+        val branch: String? = API_BRANCH,
+        val unapproved: Boolean = false
+    ) {
+        fun buildQueryString() = buildString {
+            append("?page=$page&limit=$limit")
+            query?.let { append("&q=$it") }
+            type?.let { type ->
+                val serializedName = type.javaClass.getField(type.name)
+                    .getAnnotation(SerializedName::class.java)?.value
+                    ?: type.name
+                append("&type=$serializedName")
+            }
+            uid?.let { append("&uid=$it") }
+            branch?.let { append("&branch=$branch") }
+            if (unapproved) append("&unapproved=true")
+        }
+    }
 
-    suspend fun getFeaturedMarketplaceItems(page: Int = 1, limit: Int = 10) =
-        get<PaginatedResponse<MarketplaceItem>>("/marketplace/featured?page=$page&limit=$limit")
+    // Marketplace Items
+    suspend fun getMarketplaceItems(
+        page: Int = 1,
+        limit: Int = 10,
+        query: String? = null,
+        type: MarketplaceItemType? = null,
+        uid: String? = null,
+        branch: String? = null,
+        unapproved: Boolean = false
+    ): PaginatedResponse<MarketplaceItem> {
+        val params = MarketplaceParams(page, limit, query, type, uid, branch, unapproved)
+        return get("/marketplace${params.buildQueryString()}")
+    }
+
+    suspend fun getFeaturedMarketplaceItems(
+        page: Int = 1,
+        limit: Int = 10,
+        query: String? = null,
+        type: MarketplaceItemType? = null,
+        uid: String? = null,
+        branch: String? = null
+    ): PaginatedResponse<MarketplaceItem> {
+        val params = MarketplaceParams(page, limit, query, type, uid, branch)
+        return get("/marketplace/featured${params.buildQueryString()}")
+    }
 
     suspend fun createMarketplaceItem(
         session: OAuthSession,
