@@ -42,7 +42,7 @@ public abstract class MixinInput {
     @ModifyReturnValue(method = "hasForwardMovement", at = @At("RETURN"))
     private boolean hookOmnidirectionalSprint(boolean original) {
         // Allow omnidirectional sprinting
-        if (ModuleSprint.INSTANCE.shouldSprintOmnidirectionally()) {
+        if (ModuleSprint.INSTANCE.getShouldSprintOmnidirectional()) {
             return Math.abs(movementForward) > 1.0E-5F || Math.abs(movementSideways) > 1.0E-5F;
         }
 

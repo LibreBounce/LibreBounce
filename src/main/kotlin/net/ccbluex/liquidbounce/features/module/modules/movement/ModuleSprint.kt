@@ -38,7 +38,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
 object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
 
-    enum class SprintMode(override val choiceName: String) : NamedChoice {
+    private enum class SprintMode(override val choiceName: String) : NamedChoice {
         LEGIT("Legit"),
         OMNIDIRECTIONAL("Omnidirectional"),
         OMNIROTATIONAL("Omnirotational"),
@@ -50,18 +50,17 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private val ignoreHunger by boolean("IgnoreHunger", false)
     private val ignoreCollision by boolean("IgnoreCollision", false)
 
-    // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
-    private val rotationsConfigurable = RotationsConfigurable(this)
+    val shouldSprintOmnidirectional: Boolean
+        get() = running && sprintMode == SprintMode.OMNIDIRECTIONAL
 
-    fun shouldSprintOmnidirectionally(): Boolean {
-        return running && sprintMode == SprintMode.OMNIDIRECTIONAL
-    }
+    val shouldIgnoreBlindness
+        get() = running && ignoreBlindness
 
-    fun shouldIgnoreBlindness() = running && ignoreBlindness
+    val shouldIgnoreHunger
+        get() = running && ignoreHunger
 
-    fun shouldIgnoreHunger() = running && ignoreHunger
-
-    fun shouldIgnoreCollision() = running && ignoreCollision
+    val shouldIgnoreCollision
+        get() = running && ignoreCollision
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent>(
@@ -75,6 +74,9 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
             event.sprint = true
         }
     }
+
+    // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
+    private val rotationsConfigurable = RotationsConfigurable(this)
 
     @Suppress("unused")
     private val omniRotationalHandler = handler<GameTickEvent> {

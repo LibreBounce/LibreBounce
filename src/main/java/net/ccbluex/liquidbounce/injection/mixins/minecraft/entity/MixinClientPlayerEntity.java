@@ -300,7 +300,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyConstant(method = "canSprint", constant = @Constant(floatValue = 6.0F), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/HungerManager;getFoodLevel()I", ordinal = 0)))
     private float hookSprintIgnoreHunger(float constant) {
-        return ModuleSprint.INSTANCE.shouldIgnoreHunger() ? -1F : constant;
+        return ModuleSprint.INSTANCE.getShouldIgnoreHunger() ? -1F : constant;
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
@@ -312,17 +312,17 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyExpressionValue(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isBlind()Z"))
     private boolean hookSprintIgnoreBlindness(boolean original) {
-        return !ModuleSprint.INSTANCE.shouldIgnoreBlindness() && original;
+        return !ModuleSprint.INSTANCE.getShouldIgnoreBlindness() && original;
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/client/network/ClientPlayerEntity;horizontalCollision:Z"))
     private boolean hookSprintIgnoreCollision(boolean original) {
-        return !ModuleSprint.INSTANCE.shouldIgnoreCollision() && original;
+        return !ModuleSprint.INSTANCE.getShouldIgnoreCollision() && original;
     }
 
     @ModifyReturnValue(method = "isWalking", at = @At("RETURN"))
     private boolean hookIsWalking(boolean original) {
-        if (!ModuleSprint.INSTANCE.shouldSprintOmnidirectionally()) {
+        if (!ModuleSprint.INSTANCE.getShouldSprintOmnidirectional()) {
             return original;
         }
 

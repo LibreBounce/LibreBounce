@@ -116,7 +116,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     private val sameYMode by enumChoice("SameY", SameYMode.OFF)
 
-    enum class SameYMode(
+    private enum class SameYMode(
         override val choiceName: String,
         val getTargetedBlockPos: (BlockPos) -> BlockPos?
     ) : NamedChoice {
@@ -199,6 +199,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     init {
         tree(ScaffoldRotationConfigurable)
+        tree(ScaffoldSprintControlFeature)
         tree(SimulatePlacementAttempts)
         tree(ScaffoldSlowFeature)
         tree(ScaffoldJumpStrafe)
@@ -546,6 +547,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             ScaffoldMovementPrediction.onPlace(currentOptimalLine, previousFallOffPos)
             ScaffoldEagleFeature.onBlockPlacement()
             ScaffoldBlinkFeature.onBlockPlacement()
+            ScaffoldSprintControlFeature.onBlockPlacement()
 
             waitTicks(currentDelay)
         }
