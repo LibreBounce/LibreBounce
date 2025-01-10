@@ -48,12 +48,16 @@ object ScriptManager {
     }
 
     init {
-        // Initialize the script engine and log its version and supported languages.
-        val engine = Engine.create()
-        logger.info(
-            "[ScriptAPI] Engine Version: ${engine.version}, " +
-                "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
-        )
+        try {
+            // Initialize the script engine and log its version and supported languages.
+            val engine = Engine.create()
+            logger.info(
+                "[ScriptAPI] Engine Version: ${engine.version}, " +
+                    "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to initialize the script engine.", e)
+        }
     }
 
     /**
