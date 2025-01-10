@@ -50,25 +50,10 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private val ignoreHunger by boolean("IgnoreHunger", false)
     private val ignoreCollision by boolean("IgnoreCollision", false)
 
-//    private val stopOnGround by boolean("StopOnGround", true)
-//    private val stopOnAir by boolean("StopOnAir", true)
-
     // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
     private val rotationsConfigurable = RotationsConfigurable(this)
 
     fun shouldSprintOmnidirectionally(): Boolean {
-/*        val deltaYaw = player.yaw - (RotationManager.currentRotation ?: return false).yaw
-        val (forward, sideways) = Pair(player.input.movementForward, player.input.movementSideways)
-
-        val hasForwardMovement = forward * MathHelper.cos(deltaYaw * 0.017453292f) + sideways *
-            MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
-        val preventSprint = (if (player.isOnGround) stopOnGround else stopOnAir)
-            && !shouldSprintOmnidirectionally()
-            && RotationManager.workingAimPlan?.applyVelocityFix == false && !hasForwardMovement
-
-        return running && preventSprint
-
-        */
         return running && sprintMode == SprintMode.OMNIDIRECTIONAL
     }
 
