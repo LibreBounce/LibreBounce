@@ -20,17 +20,17 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.PlayerVelocityStrafe
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.entity.rotation
-import net.ccbluex.liquidbounce.utils.entity.set
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -40,7 +40,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
-import net.minecraft.util.math.Vec3d
 
 
 /**
@@ -211,49 +210,28 @@ object RotationManager : EventListener {
     }
 
     @Suppress("unused")
-    val velocityHandler = handler<PlayerVelocityStrafe> { event ->
+    private val velocityHandler = handler<PlayerVelocityStrafe> { event ->
         if (workingAimPlan?.applyVelocityFix == true) {
-            event.velocity = fixVelocity(event.velocity, event.movementInput, event.speed)
+            val rotation = currentRotation ?: return@handler
+
+            event.velocity = Entity.movementInputToVelocity(
+                event.movementInput,
+                event.speed,
+                rotation.yaw
+            )
         }
     }
 
-    /**
-     * Updates at movement tick, so we can update the rotation before the movement runs and the client sends the packet
-     * to the server.
-     */
     @Suppress("unused")
-    private val movementInputHandler = handler<MovementInputEvent>(
-        priority = EventPriorityConvention.READ_FINAL_STATE
+    private val gameTickHandler = handler<GameTickEvent>(
+        priority = EventPriorityConvention.FIRST_PRIORITY
     ) { event ->
-        val input = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(event.directionalInput)
-
-        input.set(
-            sneak = event.sneak,
-            jump = event.jump
-        )
-
-        val simulatedPlayer = SimulatedPlayer.fromClientPlayer(input)
-        simulatedPlayer.tick()
-
-        val oldPos = player.pos
-        player.setPosition(simulatedPlayer.pos)
-
-        EventManager.callEvent(SimulatedTickEvent(event, simulatedPlayer))
-
-        player.setPosition(oldPos)
+        EventManager.callEvent(RotationUpdateEvent)
+        update()
 
         // Reset the trigger
         if (triggerNoDifference) {
             triggerNoDifference = false
-        }
-    }
-
-    @Suppress("unused")
-    private val networkTickHandler = handler<PlayerNetworkMovementTickEvent>(
-        priority = EventPriorityConvention.READ_FINAL_STATE
-    ) { event ->
-        if (event.state == EventState.POST) {
-            update()
         }
     }
 
@@ -292,24 +270,7 @@ object RotationManager : EventListener {
         theoreticalServerRotation = rotation
     }
 
-    /**
-     * Fix velocity
-     */
-    private fun fixVelocity(currVelocity: Vec3d, movementInput: Vec3d, speed: Float): Vec3d {
-        currentRotation?.let { rotation ->
-            val yaw = rotation.yaw
-            val d = movementInput.lengthSquared()
-
-            return if (d < 1.0E-7) {
-                Vec3d.ZERO
-            } else {
-                val vec3d = (if (d > 1.0) movementInput.normalize() else movementInput).multiply(speed.toDouble())
-
-                vec3d.rotateY(-yaw.toRadians())
-            }
-        }
-
-        return currVelocity
-    }
+    override val running: Boolean
+        get() = inGame
 
 }

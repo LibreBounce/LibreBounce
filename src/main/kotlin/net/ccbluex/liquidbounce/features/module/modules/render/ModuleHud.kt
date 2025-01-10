@@ -20,7 +20,6 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
-import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
@@ -40,6 +39,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.DisconnectedScreen
 
 /**
@@ -67,7 +67,10 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
     }
 
     val isBlurable
-        get() = blur && !(mc.options.hudHidden && mc.currentScreen == null)
+        get() = blur && !(mc.options.hudHidden && mc.currentScreen == null) &&
+            // Only blur on Windows and Linux - Mac seems to have issues with it
+            // TODO: fix blur on macOS
+            !MinecraftClient.IS_SYSTEM_MAC
 
     init {
         tree(Configurable("In-built", components as MutableList<Value<*>>))

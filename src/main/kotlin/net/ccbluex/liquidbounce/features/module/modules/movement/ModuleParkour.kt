@@ -18,10 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.entity.moving
 
 /**
@@ -32,17 +33,17 @@ import net.ccbluex.liquidbounce.utils.entity.moving
 object ModuleParkour : ClientModule("Parkour", Category.MOVEMENT) {
 
     @Suppress("unused")
-    private val simulatedTickHandler = handler<SimulatedTickEvent> { event ->
+    private val simulatedTickHandler = handler<MovementInputEvent> { event ->
+        val simulatedPlayer = PlayerSimulationCache.getSimulationForLocalPlayer()
         val shouldJump = player.moving &&
                 player.isOnGround &&
                 !player.isSneaking &&
                 !mc.options.sneakKey.isPressed &&
                 !mc.options.jumpKey.isPressed &&
-                !event.simulatedPlayer.onGround
-        val movementInput = event.movementEvent
+                !simulatedPlayer.getSnapshotAt(1).onGround
 
         if (shouldJump) {
-            movementInput.jump = true
+            event.jump = true
         }
     }
 

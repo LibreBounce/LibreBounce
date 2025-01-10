@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.combat.visualTargetsConfigurable
 
-object ModuleTargets : ClientModule("Targets", Category.CLIENT, disableActivation = true, hide = true,
+object ModuleTargets : ClientModule("Targets", Category.CLIENT, notActivatable = true, hide = true,
     aliases = arrayOf("Enemies")) {
     init {
         tree(combatTargetsConfigurable)

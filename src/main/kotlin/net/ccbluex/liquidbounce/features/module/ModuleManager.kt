@@ -303,6 +303,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleVehicleControl,
             ModuleSpider,
             ModuleTargetStrafe,
+            ModuleAnchor,
 
             // Player
             ModuleAntiVoid,

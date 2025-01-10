@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.contains
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import net.minecraft.world.chunk.Chunk
 import kotlin.math.max
@@ -126,6 +127,21 @@ class Region(from: BlockPos, to: BlockPos) : ClosedRange<BlockPos>, Iterable<Blo
             this.to.y <= min.y || this.from.y >= max.y ||
             this.to.z <= min.z || this.from.z >= max.z)
     }
+
+    fun getBottomFaceCenter() = Vec3d(
+        (from.x + to.x + 1).toDouble() / 2.0,
+        from.y.toDouble(),
+        (from.z + to.z + 1).toDouble() / 2.0
+    )
+
+    fun getBoundingBox() = Box(
+        from.x.toDouble(),
+        from.y.toDouble(),
+        from.z.toDouble(),
+        to.x + 1.0,
+        to.y + 1.0,
+        to.z + 1.0
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

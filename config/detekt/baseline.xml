@@ -15,10 +15,12 @@
     <ID>CognitiveComplexMethod:ModuleKillAura.kt$ModuleKillAura$private suspend fun Sequence&lt;*>.mightAttack(chosenEntity: Entity, rotation: Rotation)</ID>
     <ID>CognitiveComplexMethod:PlacementRenderHandler.kt$PlacementRenderHandler$fun render(event: WorldRenderEvent, time: Long)</ID>
     <ID>CognitiveComplexMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
-    <ID>CognitiveComplexMethod:ScaffoldGodBridgeTechnique.kt$ScaffoldGodBridgeTechnique$override fun ledge( ledge: Boolean, ledgeSoon: Boolean, target: BlockPlacementTarget?, rotation: Rotation ): LedgeState</ID>
     <ID>CognitiveComplexMethod:SimulatedArrow.kt$SimulatedArrow$private fun updateCollision(pos: Vec3d, newPos: Vec3d): HitResult?</ID>
+    <ID>FunctionNaming:ProtocolUtil.kt$fun send1_8BlockPlacement(blockPos: BlockPos, face: Int, heldItem: ItemStack, facingXIn: Float, facingYIn: Float, facingZIn: Float)</ID>
+    <ID>FunctionNaming:ProtocolUtil.kt$fun send1_8SignUpdate(blockPos: BlockPos, lines: Array&lt;String>)</ID>
     <ID>LongMethod:CommandClientIntegrationSubcommand.kt$CommandClientIntegrationSubcommand$private fun menuSubcommand()</ID>
     <ID>LongMethod:CommandManager.kt$CommandManager$@ScriptApiRequired @JvmName("execute") fun execute(cmd: String)</ID>
+    <ID>LongParameterList:ProtocolUtil.kt$(blockPos: BlockPos, face: Int, heldItem: ItemStack, facingXIn: Float, facingYIn: Float, facingZIn: Float)</ID>
     <ID>LoopWithTooManyJumpStatements:BlockPlacer.kt$BlockPlacer$while</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleKillAura.kt$ModuleKillAura$for</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleProjectilePuncher.kt$ModuleProjectilePuncher$for</ID>
@@ -26,7 +28,6 @@
     <ID>NestedBlockDepth:AStarMode.kt$AStarMode$private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List&lt;Vec3i></ID>
     <ID>NestedBlockDepth:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>
-    <ID>NestedBlockDepth:ScaffoldGodBridgeTechnique.kt$ScaffoldGodBridgeTechnique$override fun ledge( ledge: Boolean, ledgeSoon: Boolean, target: BlockPlacementTarget?, rotation: Rotation ): LedgeState</ID>
     <ID>ThrowsCount:CommandManager.kt$CommandManager$@ScriptApiRequired @JvmName("execute") fun execute(cmd: String)</ID>
     <ID>UnusedPrivateMember:HumanInputDeserializer.kt$HumanInputDeserializer$private fun fail(s: String): Boolean</ID>
   </CurrentIssues>
