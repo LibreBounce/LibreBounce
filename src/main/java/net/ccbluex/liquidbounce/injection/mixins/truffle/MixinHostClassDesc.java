@@ -104,8 +104,9 @@ public abstract class MixinHostClassDesc {
                     getOverloads.setAccessible(true);
                     final var overloads = (Object[]) getOverloads.invoke(value);
 
-                    for (final var overload : overloads)
+                    for (final var overload : overloads) {
                         methodsToRemap.add(getReflectionMethodFromSingleMethod(overload));
+                    }
                 }
 
                 for (final Method method : methodsToRemap) {
