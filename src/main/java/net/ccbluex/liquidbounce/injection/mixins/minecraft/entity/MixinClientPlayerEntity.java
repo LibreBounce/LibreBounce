@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.Input;
@@ -304,7 +305,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
     private boolean hookAutoSprint(boolean original) {
-        var event = new SprintEvent(original, SprintEvent.Source.MOVEMENT_TICK);
+        var event = new SprintEvent(new DirectionalInput(input), original, SprintEvent.Source.MOVEMENT_TICK);
         EventManager.INSTANCE.callEvent(event);
         return event.getSprint();
     }
@@ -337,7 +338,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSprinting()Z")
     )
     private boolean hookNetworkSprint(boolean original) {
-        var event = new SprintEvent(original, SprintEvent.Source.NETWORK);
+        var event = new SprintEvent(new DirectionalInput(input), original, SprintEvent.Source.NETWORK);
         EventManager.INSTANCE.callEvent(event);
         return event.getSprint();
     }
