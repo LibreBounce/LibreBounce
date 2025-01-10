@@ -34,7 +34,7 @@ open class RotationsConfigurable(
     var fixVelocity by boolean("FixVelocity", fixVelocity)
     private val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
     private val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
-    private val changeLook by boolean("ChangeLook", changeLook)
+    internal val changeLook by boolean("ChangeLook", changeLook)
 
     fun toAimPlan(rotation: Rotation, vec: Vec3d? = null, entity: Entity? = null,
                   considerInventory: Boolean = false, whenReached: RestrictedSingleUseAction? = null) = AimPlan(

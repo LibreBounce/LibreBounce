@@ -378,15 +378,20 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                 break
             }
 
+            val (rotation, vec) = spot
+
             RotationManager.aimAt(
-                spot,
-                target,
-                considerInventory = !ignoreOpenInventory,
-                rotations,
+                rotations.toAimPlan(
+                    rotation,
+                    vec,
+                    target,
+                    considerInventory = !ignoreOpenInventory,
+                    changeLook = KillAuraFightBot.enabled || rotations.changeLook
+                ),
                 priority = Priority.IMPORTANT_FOR_USAGE_2,
                 provider = this@ModuleKillAura
             )
-            break
+            return
         }
 
         // Choose enemy for fight bot

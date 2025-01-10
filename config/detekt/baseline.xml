@@ -16,6 +16,7 @@
     <ID>CognitiveComplexMethod:PlacementRenderHandler.kt$PlacementRenderHandler$fun render(event: WorldRenderEvent, time: Long)</ID>
     <ID>CognitiveComplexMethod:RegistryFunctions.kt$@Suppress("UNUSED_PARAMETER") fun getRegistries(requestObject: RequestObject)</ID>
     <ID>CognitiveComplexMethod:SimulatedArrow.kt$SimulatedArrow$private fun updateCollision(pos: Vec3d, newPos: Vec3d): HitResult?</ID>
+    <ID>ComplexCondition:VelocityJumpReset.kt$VelocityJumpReset$player.hurtTime != 9 || !player.isOnGround || !player.isSprinting || isFallDamage || !isCooldownOver()</ID>
     <ID>FunctionNaming:ProtocolUtil.kt$fun send1_8BlockPlacement(blockPos: BlockPos, face: Int, heldItem: ItemStack, facingXIn: Float, facingYIn: Float, facingZIn: Float)</ID>
     <ID>FunctionNaming:ProtocolUtil.kt$fun send1_8SignUpdate(blockPos: BlockPos, lines: Array&lt;String>)</ID>
     <ID>LongMethod:CommandClientIntegrationSubcommand.kt$CommandClientIntegrationSubcommand$private fun menuSubcommand()</ID>

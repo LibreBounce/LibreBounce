@@ -94,20 +94,6 @@ object RotationManager : EventListener {
 
     private var triggerNoDifference = false
 
-
-    @Suppress("LongParameterList")
-    fun aimAt(
-        vecRotation: VecRotation,
-        entity: Entity? = null,
-        considerInventory: Boolean = true,
-        configurable: RotationsConfigurable,
-        priority: Priority,
-        provider: ClientModule
-    ) {
-        val (rotation, vec) = vecRotation
-        aimAt(configurable.toAimPlan(rotation, vec, entity, considerInventory = considerInventory), priority, provider)
-    }
-
     @Suppress("LongParameterList")
     fun aimAt(
         rotation: Rotation,
