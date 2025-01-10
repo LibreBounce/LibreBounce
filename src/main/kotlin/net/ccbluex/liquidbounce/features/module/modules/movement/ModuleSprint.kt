@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldSprintControlFeature
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -51,7 +52,8 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private val ignoreCollision by boolean("IgnoreCollision", false)
 
     val shouldSprintOmnidirectional: Boolean
-        get() = running && sprintMode == SprintMode.OMNIDIRECTIONAL
+        get() = running && sprintMode == SprintMode.OMNIDIRECTIONAL ||
+            ScaffoldSprintControlFeature.allowOmnidirectionalSprint
 
     val shouldIgnoreBlindness
         get() = running && ignoreBlindness

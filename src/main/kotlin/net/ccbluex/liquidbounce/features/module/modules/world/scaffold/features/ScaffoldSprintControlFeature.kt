@@ -24,13 +24,12 @@ import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 
 object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "SprintControl", false) {
 
-    private val sprintMode by enumChoice("SprintMode", SprintMode.DO_NOT_CHANGE)
-    private val networkMode by enumChoice("NetworkMode", SprintMode.DO_NOT_CHANGE)
+    private val clientMode by enumChoice("Client", SprintMode.DO_NOT_CHANGE)
+    private val serverMode by enumChoice("Server", SprintMode.DO_NOT_CHANGE)
 
     private enum class SprintMode(override val choiceName: String) : NamedChoice {
 
@@ -56,13 +55,20 @@ object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "Sp
         /**
          * This mode will stop sprinting on place.
          */
-        NO_SPRINT_ON_PLACE("NoSprintOnPlace")
+        NO_SPRINT_ON_PLACE("NoSprintOnPlace"),
 
     }
 
     private var wasPlaced = false
 
-    @Suppress
+    /**
+     * We want to sprint omnidirectional because we are walking
+     * backwards or sideways to place blocks.
+     */
+    val allowOmnidirectionalSprint
+        get() = running && clientMode == SprintMode.FORCE_SPRINT
+
+    @Suppress("unused")
     private val gameTickHandler = handler<GameTickEvent>(
         priority = EventPriorityConvention.FIRST_PRIORITY
     ) {
@@ -70,17 +76,16 @@ object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "Sp
         if (wasPlaced) {
             wasPlaced = false
         }
-        chat("Game Tick")
     }
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent> { event ->
-        chat("Source: ${event.source} Sprinting: ${event.sprint}")
+        val willPlace = false
 
         // Movement Tick will affect the client-side sprint state,
         // while we also apply it to Input to count as pressing the Sprint-Key
         if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
-            when (sprintMode) {
+            when (clientMode) {
                 SprintMode.FORCE_SPRINT -> if (event.directionalInput.isMoving) {
                     event.sprint = true
                 }
@@ -89,10 +94,8 @@ object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "Sp
                     event.sprint = false
                 }
 
-                SprintMode.NO_SPRINT_ON_PLACE -> {
-                    if (wasPlaced) {
-                        event.sprint = false
-                    }
+                SprintMode.NO_SPRINT_ON_PLACE -> if (wasPlaced) {
+                    event.sprint = false
                 }
 
                 SprintMode.DO_NOT_CHANGE -> { }
@@ -103,18 +106,18 @@ object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "Sp
         // Network and Input both count as Network Type
         // which will make the server think we are not sprinting
         if (event.source == SprintEvent.Source.NETWORK || event.source == SprintEvent.Source.INPUT) {
-            when (networkMode) {
-                SprintMode.FORCE_SPRINT -> {
+            when (serverMode) {
+
+                SprintMode.FORCE_SPRINT -> if (event.directionalInput.isMoving) {
                     event.sprint = true
                 }
+
                 SprintMode.FORCE_NO_SPRINT -> {
                     event.sprint = false
                 }
 
-                SprintMode.NO_SPRINT_ON_PLACE -> {
-                    if (wasPlaced) {
-                        event.sprint = false
-                    }
+                SprintMode.NO_SPRINT_ON_PLACE -> if (wasPlaced) {
+                    event.sprint = false
                 }
 
                 SprintMode.DO_NOT_CHANGE -> { }
@@ -122,12 +125,8 @@ object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "Sp
         }
     }
 
-    /**
-     *
-     */
     fun onBlockPlacement() {
         wasPlaced = true
-        chat("Block was placed")
     }
 
 }

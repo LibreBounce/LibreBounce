@@ -304,7 +304,14 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     }
 
     @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
-    private boolean hookAutoSprint(boolean original) {
+    private boolean hookSprintStart(boolean original) {
+        var event = new SprintEvent(new DirectionalInput(input), original, SprintEvent.Source.MOVEMENT_TICK);
+        EventManager.INSTANCE.callEvent(event);
+        return event.getSprint();
+    }
+
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;canSprint()Z"))
+    private boolean hookSprintStop(boolean original) {
         var event = new SprintEvent(new DirectionalInput(input), original, SprintEvent.Source.MOVEMENT_TICK);
         EventManager.INSTANCE.callEvent(event);
         return event.getSprint();
