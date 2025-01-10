@@ -386,7 +386,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                 priority = Priority.IMPORTANT_FOR_USAGE_2,
                 provider = this@ModuleKillAura
             )
-            return
+            break
         }
 
         // Choose enemy for fight bot

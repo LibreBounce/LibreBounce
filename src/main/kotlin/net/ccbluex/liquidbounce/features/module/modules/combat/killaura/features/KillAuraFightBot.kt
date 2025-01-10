@@ -26,12 +26,11 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.clickScheduler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.targetTracker
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.entity.rotation
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.times
@@ -60,29 +59,31 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
     }
 
     @Suppress("unused")
-    val inputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { ev ->
+    private val inputHandler = handler<MovementInputEvent>(
+        priority = FIRST_PRIORITY
+    ) { event ->
         val enemy = targetTracker.lockedOnTarget ?: return@handler
         val distance = enemy.boxedDistanceTo(player)
 
         if (clickScheduler.isClickOnNextTick()) {
             if (distance < ModuleKillAura.range) {
-                ev.directionalInput = DirectionalInput.NONE
+                event.directionalInput = DirectionalInput.NONE
                 sideToGo = !sideToGo
             } else {
-                ev.directionalInput = DirectionalInput.FORWARDS
+                event.directionalInput = DirectionalInput.FORWARDS
             }
         } else if (distance < safeRange) {
-            ev.directionalInput = DirectionalInput.BACKWARDS
+            event.directionalInput = DirectionalInput.BACKWARDS
         } else {
-            ev.directionalInput = DirectionalInput.NONE
+            event.directionalInput = DirectionalInput.NONE
         }
 
         // We are now in range of the player, so try to circle around him
-        ev.directionalInput = ev.directionalInput.copy(left = !sideToGo, right = sideToGo)
+        event.directionalInput = event.directionalInput.copy(left = !sideToGo, right = sideToGo)
 
         // Jump if we are stuck
         if (player.horizontalCollision) {
-            ev.jump = true
+            event.jump = true
         }
     }
 
