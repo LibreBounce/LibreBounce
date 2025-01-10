@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePingSpoof
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
-import net.ccbluex.liquidbounce.utils.entity.directionYaw
+import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.movement.zeroXZ
@@ -107,7 +107,7 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
 
         if (event.type == MovementType.SELF && player.moving) {
             val movement = event.movement
-            movement.strafe(player.directionYaw, strength = 1.0, speed = speed.toDouble())
+            movement.strafe(player.direction, strength = 1.0, speed = speed.toDouble())
         }
     }
 

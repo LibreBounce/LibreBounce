@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.utils.movement
 
+import net.ccbluex.liquidbounce.utils.entity.untransformed
 import net.minecraft.client.input.Input
 import net.minecraft.util.PlayerInput
 
@@ -9,8 +10,9 @@ data class DirectionalInput(
     val left: Boolean,
     val right: Boolean,
 ) {
+
     constructor(input: Input) : this(
-        input.playerInput
+        input.untransformed
     )
 
     constructor(input: PlayerInput) : this(

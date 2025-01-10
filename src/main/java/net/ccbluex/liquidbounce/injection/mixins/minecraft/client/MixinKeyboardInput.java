@@ -74,10 +74,22 @@ public abstract class MixinKeyboardInput extends MixinInput {
     private PlayerInput modifyInput(PlayerInput original) {
         var event = new MovementInputEvent(new DirectionalInput(original), original.jump(), original.sneak());
         EventManager.INSTANCE.callEvent(event);
-        var directionalInput = changeDirection(event.getDirectionalInput());
+        var untransformedDirectionalInput = event.getDirectionalInput();
+        var directionalInput = transformDirection(untransformedDirectionalInput);
 
         var sprintEvent = new SprintEvent(directionalInput, original.sprint(), SprintEvent.Source.INPUT);
         EventManager.INSTANCE.callEvent(sprintEvent);
+
+        // Store the untransformed input for later use
+        this.untransformed = new PlayerInput(
+                untransformedDirectionalInput.getForwards(),
+                untransformedDirectionalInput.getBackwards(),
+                untransformedDirectionalInput.getLeft(),
+                untransformedDirectionalInput.getRight(),
+                event.getJump(),
+                event.getSneak(),
+                sprintEvent.getSprint()
+        );
 
         return new PlayerInput(
                 directionalInput.getForwards(),
@@ -91,7 +103,7 @@ public abstract class MixinKeyboardInput extends MixinInput {
     }
 
     @Unique
-    private DirectionalInput changeDirection(DirectionalInput input) {
+    private DirectionalInput transformDirection(DirectionalInput input) {
         var player = MinecraftClient.getInstance().player;
         var rotation = RotationManager.INSTANCE.getCurrentRotation();
         var configurable = RotationManager.INSTANCE.getWorkingAimPlan();

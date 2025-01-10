@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.entity.directionYaw
+import net.ccbluex.liquidbounce.utils.entity.direction
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.decoration.ArmorStandEntity
@@ -42,7 +42,7 @@ class SpeedGrimCollide(override val parent: ChoiceConfigurable<*>) : Choice("Gri
         }
 
         // Grim gives 0.08 leniency per entity which is customizable by speed.
-        val yaw = Math.toRadians(player.directionYaw.toDouble())
+        val yaw = Math.toRadians(player.direction.toDouble())
         val boost = this.speed * collisions
         player.addVelocity(-sin(yaw) * boost, 0.0, cos(yaw) * boost)
     }

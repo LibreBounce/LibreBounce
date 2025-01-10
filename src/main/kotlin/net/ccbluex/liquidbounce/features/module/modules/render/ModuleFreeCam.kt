@@ -90,7 +90,8 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         super.disable()
     }
 
-    val inputHandler = handler<MovementInputEvent> { event ->
+    @Suppress("unused")
+    private val inputHandler = handler<MovementInputEvent> { event ->
         val speed = this.speed.toDouble()
         val yAxisMovement = when {
             event.jump -> 1.0f

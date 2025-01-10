@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
-import net.ccbluex.liquidbounce.utils.entity.directionYaw
+import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.random
 
@@ -65,7 +65,7 @@ internal object FlySentinel27thJan : Choice("Sentinel27thJan") {
     }
 
     val moveHandler = handler<PlayerMoveEvent> {
-        it.movement.strafe(player.directionYaw)
+        it.movement.strafe(player.direction)
     }
 
 }

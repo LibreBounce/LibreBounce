@@ -22,6 +22,7 @@
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.common.ShapeFlag
+import net.ccbluex.liquidbounce.interfaces.InputAddition
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
@@ -36,6 +37,7 @@ import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.ccbluex.liquidbounce.utils.movement.findEdgeCollision
 import net.minecraft.block.EntityShapeContext
 import net.minecraft.block.ShapeContext
+import net.minecraft.client.input.Input
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
@@ -53,6 +55,7 @@ import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
 import net.minecraft.stat.Stats
 import net.minecraft.util.Hand
+import net.minecraft.util.PlayerInput
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
@@ -68,6 +71,36 @@ import kotlin.math.sqrt
 
 val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
+
+val Input.untransformed: PlayerInput
+    get() = (this as InputAddition).untransformed
+
+val ClientPlayerEntity.pressingMovementButton
+    get() = input.playerInput.forward || input.playerInput.backward || input.playerInput.left
+        || input.playerInput.right
+
+val Entity.exactPosition
+    get() = Vec3d(x, y, z)
+
+val Entity.blockVecPosition
+    get() = Vec3i(blockX, blockY, blockZ)
+
+val PlayerEntity.ping: Int
+    get() = mc.networkHandler?.getPlayerListEntry(uuid)?.latency ?: 0
+
+val ClientPlayerEntity.direction: Float
+    get() = getMovementDirectionOfInput(this.yaw, DirectionalInput(this.input))
+
+val ClientPlayerEntity.isBlockAction: Boolean
+    get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
+
+fun Entity.lastRenderPos() = Vec3d(this.lastRenderX, this.lastRenderY, this.lastRenderZ)
+
+val Hand.equipmentSlot: EquipmentSlot
+    get() = when (this) {
+        Hand.MAIN_HAND -> EquipmentSlot.MAINHAND
+        Hand.OFF_HAND -> EquipmentSlot.OFFHAND
+    }
 
 fun ClientPlayerEntity.wouldBeCloseToFallOff(position: Vec3d): Boolean {
     val hitbox =
@@ -121,32 +154,6 @@ fun ClientPlayerEntity.isCloseToEdge(
     return wouldBeCloseToFallOff(pos) || wouldBeCloseToFallOff(playerPosInTwoTicks)
 }
 
-val ClientPlayerEntity.pressingMovementButton
-    get() = input.playerInput.forward || input.playerInput.backward || input.playerInput.left || input.playerInput.right
-
-val Entity.exactPosition
-    get() = Vec3d(x, y, z)
-
-val Entity.blockVecPosition
-    get() = Vec3i(blockX, blockY, blockZ)
-
-val PlayerEntity.ping: Int
-    get() = mc.networkHandler?.getPlayerListEntry(uuid)?.latency ?: 0
-
-val ClientPlayerEntity.directionYaw: Float
-    get() = getMovementDirectionOfInput(this.yaw, DirectionalInput(this.input))
-
-val ClientPlayerEntity.isBlockAction: Boolean
-    get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
-
-fun Entity.lastRenderPos() = Vec3d(this.lastRenderX, this.lastRenderY, this.lastRenderZ)
-
-val Hand.equipmentSlot: EquipmentSlot
-    get() = when (this) {
-        Hand.MAIN_HAND -> EquipmentSlot.MAINHAND
-        Hand.OFF_HAND -> EquipmentSlot.OFFHAND
-    }
-
 /**
  * Check if the player can step up by [height] blocks.
  *
@@ -159,7 +166,7 @@ fun ClientPlayerEntity.canStep(height: Double = 1.0): Boolean {
     }
 
     val box = this.boundingBox
-    val direction = this.directionYaw
+    val direction = this.direction
 
     val angle = Math.toRadians(direction.toDouble())
     val xOffset = -sin(angle) * 0.1
@@ -202,9 +209,6 @@ fun getMovementDirectionOfInput(facingYaw: Float, input: DirectionalInput): Floa
 val PlayerEntity.sqrtSpeed: Double
     get() = velocity.sqrtSpeed
 
-val LivingEntity.nextTickPos: Vec3d
-    get() = pos.add(velocity)
-
 fun ClientPlayerEntity.upwards(height: Float, increment: Boolean = true) {
     // Might be a jump
     if (isOnGround && increment) {
@@ -221,7 +225,7 @@ fun ClientPlayerEntity.downwards(motion: Float) {
     velocityDirty = true
 }
 
-fun ClientPlayerEntity.strafe(yaw: Float = directionYaw, speed: Double = sqrtSpeed, strength: Double = 1.0,
+fun ClientPlayerEntity.strafe(yaw: Float = direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
                               keyboardCheck: Boolean = true) {
     if (keyboardCheck && !moving) {
         velocity.x = 0.0
@@ -235,7 +239,7 @@ fun ClientPlayerEntity.strafe(yaw: Float = directionYaw, speed: Double = sqrtSpe
 val Vec3d.sqrtSpeed: Double
     get() = sqrt(x * x + z * z)
 
-fun Vec3d.strafe(yaw: Float = player.directionYaw, speed: Double = sqrtSpeed, strength: Double = 1.0,
+fun Vec3d.strafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
                  keyboardCheck: Boolean = false): Vec3d {
     if (keyboardCheck && !player.pressingMovementButton) {
         x = 0.0

@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
+import net.ccbluex.liquidbounce.interfaces.InputAddition;
 import net.minecraft.client.input.Input;
 import net.minecraft.util.PlayerInput;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +29,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Input.class)
-public abstract class MixinInput {
+public abstract class MixinInput implements InputAddition {
 
     @Shadow
     public float movementForward;
@@ -39,6 +40,8 @@ public abstract class MixinInput {
     @Shadow
     public PlayerInput playerInput;
 
+    protected PlayerInput untransformed;
+
     @ModifyReturnValue(method = "hasForwardMovement", at = @At("RETURN"))
     private boolean hookOmnidirectionalSprint(boolean original) {
         // Allow omnidirectional sprinting
@@ -47,6 +50,10 @@ public abstract class MixinInput {
         }
 
         return original;
+    }
+
+    public PlayerInput getUntransformed() {
+        return untransformed;
     }
 
 }

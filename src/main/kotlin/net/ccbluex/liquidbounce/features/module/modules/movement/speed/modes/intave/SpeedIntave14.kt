@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
-import net.ccbluex.liquidbounce.utils.entity.directionYaw
+import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.entity.MovementType
 
@@ -51,7 +51,7 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         private val moveHandler = handler<PlayerMoveEvent> { event ->
             if (event.type == MovementType.SELF && player.isOnGround && player.isSprinting) {
                 event.movement.strafe(
-                    player.directionYaw,
+                    player.direction,
                     strength = strength.toDouble()
                 )
             }

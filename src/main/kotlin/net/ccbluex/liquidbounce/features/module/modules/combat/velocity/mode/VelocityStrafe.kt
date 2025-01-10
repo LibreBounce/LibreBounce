@@ -18,14 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity.modes
-import net.ccbluex.liquidbounce.utils.entity.directionYaw
+import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -65,7 +62,7 @@ internal object VelocityStrafe : VelocityMode("Strafe") {
         if (player.isOnGround) {
             applyStrafe = false
         } else if (applyStrafe) {
-            event.movement.strafe(player.directionYaw, player.sqrtSpeed * strength)
+            event.movement.strafe(player.direction, player.sqrtSpeed * strength)
         }
     }
 
