@@ -33,11 +33,11 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val notInChests by boolean("NotInChests", false)
     val aacAdditionPro by boolean("AACAdditionPro", false)
     private val intave by boolean("Intave", false)
-    private val saveC0E by boolean("SaveC0E",true)
-    private val noSprintWhenClosed by boolean("NoSprintWhenClosed",false) { saveC0E }
+    private val saveC0E by boolean("SaveC0E", false)
+    private val noSprintWhenClosed by boolean("NoSprintWhenClosed", false) { saveC0E }
 
     private val isIntave = (mc.currentScreen is GuiInventory || mc.currentScreen is GuiChest) && intave
-    private val clickWindowList = mutableListOf<C0EPacketClickWindow>()
+    private val clickWindowList = ArrayDeque<C0EPacketClickWindow>()
 
     private val noMove by InventoryManager.noMoveValue
     private val noMoveAir by InventoryManager.noMoveAirValue
@@ -113,12 +113,12 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
         val player = mc.thePlayer ?: return@handler
-        if (!saveC0E)
-            return@handler
+
+        if (!saveC0E) return@handler
 
         if (noSprintWhenClosed) {
             if (clickWindowList.isNotEmpty() && !(serverOpenInventory || serverOpenContainer))
-                mc.thePlayer.isSprinting = false
+                player.isSprinting = false
 
             if (packet is C0DPacketCloseWindow) {
                 event.cancelEvent()
