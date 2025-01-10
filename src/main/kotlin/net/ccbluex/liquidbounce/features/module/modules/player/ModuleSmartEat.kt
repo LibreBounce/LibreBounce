@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.item.foodComponent
 import net.ccbluex.liquidbounce.utils.item.getPotionEffects
@@ -51,6 +52,7 @@ import kotlin.math.absoluteValue
  */
 
 object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
+
     private val HOTBAR_OFFHAND_LEFT_TEXTURE = Identifier.of("hud/hotbar_offhand_left")
 
     private val swapBackDelay by int("SwapBackDelay", 5, 1..20)
@@ -58,6 +60,9 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
     private val preferGappleHealth by float("PreferGappleHealthThreshold", 9f, 0f..20f)
     private val preferNotchAppleHealth by float("PreferNotchAppleHealthThreshold", 2f, 0f..20f)
     private val preferHealthPotHealth by float("PreferHealthPotHealthThreshold", 12f, 0f..20f)
+
+    private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
+    private val notDuringCombat by boolean("NotDuringCombat", false)
 
     private object Estimator {
         fun findBestFood(): HotbarItemSlot? {
@@ -124,7 +129,7 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
             private val offset by int("Offset", 40, 30..70)
 
             @Suppress("unused")
-            val renderHandler = handler<OverlayRenderEvent> {
+            private val renderHandler = handler<OverlayRenderEvent> {
                 renderEnvironmentForGUI {
                     // MC-Rendering code for off-hand
 
@@ -148,10 +153,11 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         }
 
         @Suppress("unused")
-        val InteractionHandler = handler<PlayerInteractedItem> { event ->
+        private val interactionHandler = handler<PlayerInteractedItem> { event ->
             if (!enabled) {
                 return@handler
             }
+
             if (event.actionResult != ActionResult.PASS) {
                 return@handler
             }
@@ -164,11 +170,16 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
                 return@handler
             }
 
+            if (notDuringCombat && CombatManager.isInCombat) {
+                return@handler
+            }
+
             // Only use silent offhand if we have tools in hand.
             if (player.mainHandStack.item !is MiningToolItem) {
                 return@handler
             }
 
+            CombatManager.pauseCombatForAtLeast(combatPauseTime)
             SilentHotbar.selectSlotSilently(
                 this@SilentOffhand,
                 currentFood.hotbarSlot,
@@ -177,12 +188,13 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         }
 
         @Suppress("unused")
-        val tickHandler = tickHandler {
+        private val tickHandler = tickHandler {
             val useAction = player.activeItem.useAction
 
             if (useAction != UseAction.EAT && useAction != UseAction.DRINK) {
                 return@tickHandler
             }
+
             if (!SilentHotbar.isSlotModifiedBy(this@SilentOffhand)) {
                 return@tickHandler
             }
@@ -194,6 +206,7 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         init {
             tree(RenderSlot)
         }
+
     }
 
     private object AutoEat : ToggleableConfigurable(this, "AutoEat", true) {
@@ -204,6 +217,11 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         @Suppress("unused")
         private val tickHandler = tickHandler {
             if (player.hungerManager.foodLevel < minHunger) {
+                if (notDuringCombat && CombatManager.isInCombat) {
+                    return@tickHandler
+                }
+
+                CombatManager.pauseCombatForAtLeast(combatPauseTime)
                 waitUntil {
                     eat()
                     player.hungerManager.foodLevel > minHunger
@@ -216,6 +234,7 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
         @Suppress("unused")
         private val keyBindIsPressedHandler = handler<KeybindIsPressedEvent> { event ->
             if (event.keyBinding == mc.options.useKey && forceUseKey) {
+                CombatManager.pauseCombatForAtLeast(combatPauseTime)
                 event.isPressed = true
             }
         }
