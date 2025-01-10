@@ -49,7 +49,7 @@ internal object LiquidWalkVanilla : Choice("Vanilla") {
 
     @Suppress("unused")
     val shapeHandler = handler<BlockShapeEvent> { event ->
-        if (player.input.playerInput.sneak || player.fallDistance > 3.0f || player.isOnFire) {
+        if (mc.options.sneakKey.isPressed || player.fallDistance > 3.0f || player.isOnFire) {
             return@handler
         }
 

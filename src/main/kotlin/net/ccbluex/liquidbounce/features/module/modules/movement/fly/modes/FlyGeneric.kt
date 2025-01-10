@@ -76,8 +76,8 @@ internal object FlyVanilla : Choice("Vanilla") {
 
         player.strafe(speed = hSpeed.toDouble())
         player.velocity.y = when {
-            player.input.playerInput.jump -> vSpeed.toDouble()
-            player.input.playerInput.sneak -> (-vSpeed).toDouble()
+            mc.options.jumpKey.isPressed -> vSpeed.toDouble()
+            mc.options.sneakKey.isPressed -> (-vSpeed).toDouble()
             else -> glide.toDouble()
         }
 

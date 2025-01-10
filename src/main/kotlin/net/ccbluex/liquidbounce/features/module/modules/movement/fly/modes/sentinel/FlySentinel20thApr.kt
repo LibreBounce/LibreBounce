@@ -118,8 +118,8 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
         }
 
         event.movement.y = when {
-            player.input.playerInput.jump -> verticalSpeed.toDouble()
-            player.input.playerInput.sneak -> (-verticalSpeed).toDouble()
+            mc.options.jumpKey.isPressed -> verticalSpeed.toDouble()
+            mc.options.sneakKey.isPressed -> (-verticalSpeed).toDouble()
             else -> 0.0
         }
 

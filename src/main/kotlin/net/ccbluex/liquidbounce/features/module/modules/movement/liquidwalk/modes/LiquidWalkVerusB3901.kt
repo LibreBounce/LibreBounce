@@ -50,7 +50,7 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
 
     @Suppress("unused")
     val shapeHandler = handler<BlockShapeEvent> { event ->
-        if (player.input.playerInput.sneak || player.fallDistance > 3.0f || player.isOnFire) {
+        if (mc.options.sneakKey.isPressed || player.fallDistance > 3.0f || player.isOnFire) {
             return@handler
         }
 
@@ -63,7 +63,7 @@ internal object LiquidWalkVerusB3901 : Choice("VerusB3901") {
         val packet = event.packet
 
         if (event.origin == TransferOrigin.SEND && packet is PlayerMoveC2SPacket) {
-            if (!player.input.playerInput.sneak &&
+            if (!mc.options.sneakKey.isPressed &&
                 !player.isTouchingWater &&
                 standingOnWater() &&
                 !collidesWithAnythingElse()

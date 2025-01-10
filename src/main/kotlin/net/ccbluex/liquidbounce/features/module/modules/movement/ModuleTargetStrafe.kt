@@ -10,10 +10,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.watchdog.SpeedHypixelLowHop
-import net.ccbluex.liquidbounce.utils.entity.pressingMovementButton
-import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
-import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.ccbluex.liquidbounce.utils.entity.wouldFallIntoVoid
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.util.math.Vec3d
 import java.lang.Math.toDegrees
@@ -150,10 +147,10 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
             }
 
             // Determine the direction to strafe
-            if (!(player.input.playerInput.left && player.input.playerInput.right) && controlDirection) {
+            if (!(player.input.untransformed.left && player.input.untransformed.right) && controlDirection) {
                 when {
-                    player.input.playerInput.left -> direction = -1
-                    player.input.playerInput.right -> direction = 1
+                    player.input.untransformed.left -> direction = -1
+                    player.input.untransformed.right -> direction = 1
                 }
             }
 
