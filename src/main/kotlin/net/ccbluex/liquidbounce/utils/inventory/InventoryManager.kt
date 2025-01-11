@@ -89,8 +89,8 @@ object InventoryManager : EventListener {
             return@tickHandler
         }
 
-        ModuleDebug.debugParameter("InventoryManager", "Inventory Open", isInventoryOpen)
-        ModuleDebug.debugParameter("InventoryManager", "Inventory Open Server Side", isInventoryOpenServerSide)
+        ModuleDebug.debugParameter(this, "Inventory Open", isInventoryOpen)
+        ModuleDebug.debugParameter(this, "Inventory Open Server Side", isInventoryOpenServerSide)
 
         var maximumCloseDelay = 0
 
@@ -120,7 +120,7 @@ object InventoryManager : EventListener {
                     acc + inventoryActionChains
                 } ?: break
 
-            ModuleDebug.debugParameter("InventoryManager", "Schedule Size", schedule.size)
+            ModuleDebug.debugParameter(this, "Schedule Size", schedule.size)
 
             // If the schedule is empty, we can break the loop
             if (schedule.isEmpty()) {
