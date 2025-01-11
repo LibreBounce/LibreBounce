@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ContainerItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -88,6 +89,9 @@ object InventoryManager : EventListener {
             return@tickHandler
         }
 
+        ModuleDebug.debugParameter("InventoryManager", "Inventory Open", isInventoryOpen)
+        ModuleDebug.debugParameter("InventoryManager", "Inventory Open Server Side", isInventoryOpenServerSide)
+
         var maximumCloseDelay = 0
 
         var cycles = 0
@@ -115,6 +119,8 @@ object InventoryManager : EventListener {
                 .reduceOrNull { acc, inventoryActionChains ->
                     acc + inventoryActionChains
                 } ?: break
+
+            ModuleDebug.debugParameter("InventoryManager", "Schedule Size", schedule.size)
 
             // If the schedule is empty, we can break the loop
             if (schedule.isEmpty()) {
@@ -221,8 +227,12 @@ object InventoryManager : EventListener {
     val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
         val packet = event.packet
 
+        if (event.isCancelled) {
+            return@handler
+        }
+
         // If we actually send a click packet, we can reset the click chronometer
-        if (packet is ClickSlotC2SPacket && !event.isCancelled) {
+        if (packet is ClickSlotC2SPacket) {
             clickOccurred()
 
             if (packet.syncId == 0) {
@@ -252,6 +262,12 @@ object InventoryManager : EventListener {
         }
 
         if (screen is InventoryScreen || screen is GenericContainerScreen) {
+            // ViaFabricPlus injects into [tutorialManager.onInventoryOpened()] but we take
+            // the easy way and just listen for the screen event.
+            if (screen is InventoryScreen && isOlderThanOrEqual1_11_1) {
+                isInventoryOpenServerSide = true
+            }
+
             inventoryOpened()
         }
     }
