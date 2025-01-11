@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -70,7 +70,7 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBa
     val repeatable = tickHandler {
         if (player.isOnGround) {
             // Strafe when on ground
-            player.strafe()
+            player.velocity = player.velocity.withStrafe()
             return@tickHandler
         } else {
             // Not much speed boost, but still a little bit - if someone wants to improve this, feel free to do so
@@ -99,7 +99,7 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBa
             0.0
         }
 
-        player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
+        player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
     }
 
     /**
@@ -124,7 +124,7 @@ class SpeedHypixelBHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBa
             } else {
                 player.sqrtSpeed
             }
-            player.strafe(speed = speed)
+            player.velocity = player.velocity.withStrafe(speed = speed)
         } else if (packet is PlayerPositionLookS2CPacket) {
             wasFlagged = true
         }

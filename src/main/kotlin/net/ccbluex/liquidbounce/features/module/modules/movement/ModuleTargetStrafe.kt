@@ -119,7 +119,7 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
         @Suppress("unused")
         private val moveHandler = handler<PlayerMoveEvent>(priority = EventPriorityConvention.MODEL_STATE) { event ->
             // If the player is not pressing any movement keys, we exit early
-            if (!player.pressingMovementButton) {
+            if (!player.input.initial.any) {
                 return@handler
             }
 
@@ -187,24 +187,21 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
                 }
 
                 if (SpeedHypixelLowHop.shouldStrafe) {
-                    event.movement.strafe(
+                    event.movement = event.movement.withStrafe(
                         yaw = toDegrees(atan2(-strafeVec.x, strafeVec.z)).toFloat(),
-                        speed = player.sqrtSpeed.coerceAtLeast(minSpeed),
-                        keyboardCheck = false
+                        speed = player.sqrtSpeed.coerceAtLeast(minSpeed)
                     )
                 } else {
-                    event.movement.strafe(
+                    event.movement = event.movement.withStrafe(
                         yaw = toDegrees(atan2(-strafeVec.x, strafeVec.z)).toFloat(),
                         speed = player.sqrtSpeed.coerceAtLeast(minSpeed),
-                        keyboardCheck = false,
                         strength = 0.02
                     )
                 }
             } else {
-                event.movement.strafe(
+                event.movement = event.movement.withStrafe(
                     yaw = toDegrees(atan2(-strafeVec.x, strafeVec.z)).toFloat(),
-                    speed = player.sqrtSpeed,
-                    keyboardCheck = false
+                    speed = player.sqrtSpeed
                 )
             }
         }

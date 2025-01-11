@@ -30,7 +30,6 @@ import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -105,7 +104,7 @@ object ModuleProjectilePuncher : ClientModule("ProjectilePuncher", Category.WORL
             val nextTickFireballPosition = entity.pos + entity.pos - entity.prevPos
 
             val entityBox = entity.dimensions.getBoxAt(nextTickFireballPosition)
-            val distanceSquared = entityBox.squaredBoxedDistanceTo(player.eyes)
+            val distanceSquared = entityBox.squaredBoxedDistanceTo(player.eyePos)
 
             if (distanceSquared > rangeSquared) {
                 continue
@@ -113,7 +112,7 @@ object ModuleProjectilePuncher : ClientModule("ProjectilePuncher", Category.WORL
 
             // find best spot
             val spot = raytraceBox(
-                player.eyes, entity.box, range = range.toDouble(), wallsRange = 0.0
+                player.eyePos, entity.box, range = range.toDouble(), wallsRange = 0.0
             ) ?: continue
 
             target = entity

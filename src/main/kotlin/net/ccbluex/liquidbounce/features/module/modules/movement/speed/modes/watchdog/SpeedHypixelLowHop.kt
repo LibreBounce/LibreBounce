@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.entity.effect.StatusEffects
 
 /**
@@ -48,7 +48,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
         shouldStrafe = false
 
         if (player.isOnGround) {
-            player.strafe()
+            player.velocity = player.velocity.withStrafe()
             shouldStrafe = true
             airTicks = 0
             return@tickHandler
@@ -57,7 +57,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
 
             when (airTicks) {
                 1 -> {
-                    player.strafe()
+                    player.velocity = player.velocity.withStrafe()
                     shouldStrafe = true
                 }
                 5 -> player.velocity.y -= 0.1905189780583944
@@ -67,12 +67,12 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
             }
 
             if (airTicks >= 7 && glide) {
-                player.strafe(speed = player.sqrtSpeed.coerceAtLeast(0.281), strength = 0.7)
+                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281), strength = 0.7)
                 shouldStrafe = true
             }
 
             if (player.hurtTime == 9) {
-                player.strafe()
+                player.velocity = player.velocity.withStrafe()
                 shouldStrafe = true
             }
 
@@ -88,7 +88,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
     private val jumpHandler = handler<PlayerJumpEvent> {
         val atLeast = 0.281 + 0.13 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
 
-        player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
+        player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
     }
 
     override fun disable() {

@@ -34,14 +34,16 @@ import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.Im
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.NormalMineMode
 import net.ccbluex.liquidbounce.render.EMPTY_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquaredEyes
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.item.getEnchantment
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -166,7 +168,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     private fun handleRotating(blockPos: BlockPos, state: BlockState): Rotation? {
         val rotate = rotationMode.shouldRotate()
 
-        val eyes = player.eyes
+        val eyes = player.eyePos
         val raytrace = raytraceBlock(
             eyes,
             blockPos,

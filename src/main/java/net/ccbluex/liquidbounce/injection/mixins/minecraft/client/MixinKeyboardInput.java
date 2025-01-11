@@ -72,6 +72,8 @@ public abstract class MixinKeyboardInput extends MixinInput {
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "NEW", target = "(ZZZZZZZ)Lnet/minecraft/util/PlayerInput;"))
     private PlayerInput modifyInput(PlayerInput original) {
+        this.initial = original;
+
         var event = new MovementInputEvent(new DirectionalInput(original), original.jump(), original.sneak());
         EventManager.INSTANCE.callEvent(event);
         var untransformedDirectionalInput = event.getDirectionalInput();

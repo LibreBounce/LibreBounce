@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.inventory.hasInventorySpace
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -81,7 +80,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
         val target = walkTarget ?: return false
 
         RotationManager.aimAt(
-            Rotation.lookingAt(point = target, from = player.eyes),
+            Rotation.lookingAt(point = target, from = player.eyePos),
             configurable = ModuleAutoFarm.rotations,
             priority = Priority.IMPORTANT_FOR_USAGE_1,
             provider = ModuleAutoFarm

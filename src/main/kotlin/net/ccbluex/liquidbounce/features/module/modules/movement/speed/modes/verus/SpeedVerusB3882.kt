@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.Spe
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.entity.MovementType
 
@@ -52,7 +52,7 @@ class SpeedVerusB3882(override val parent: ChoiceConfigurable<*>) : SpeedBHopBas
         // Might just strafe when player controls itself
         if (event.type == MovementType.SELF && player.moving) {
             val movement = event.movement
-            movement.strafe(player.direction, strength = 1.0)
+            movement.withStrafe(player.direction, strength = 1.0)
         }
     }
 

@@ -53,7 +53,6 @@ import net.minecraft.item.consume.UseAction
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
-import net.minecraft.stat.Stats
 import net.minecraft.util.Hand
 import net.minecraft.util.PlayerInput
 import net.minecraft.util.hit.HitResult
@@ -75,9 +74,8 @@ val ClientPlayerEntity.moving
 val Input.untransformed: PlayerInput
     get() = (this as InputAddition).untransformed
 
-val ClientPlayerEntity.pressingMovementButton
-    get() = input.playerInput.forward || input.playerInput.backward || input.playerInput.left
-        || input.playerInput.right
+val Input.initial: PlayerInput
+    get() = (this as InputAddition).initial
 
 val Entity.exactPosition
     get() = Vec3d(x, y, z)
@@ -209,42 +207,13 @@ fun getMovementDirectionOfInput(facingYaw: Float, input: DirectionalInput): Floa
 val PlayerEntity.sqrtSpeed: Double
     get() = velocity.sqrtSpeed
 
-fun ClientPlayerEntity.upwards(height: Float, increment: Boolean = true) {
-    // Might be a jump
-    if (isOnGround && increment) {
-        // Allows to bypass modern anti-cheat techniques
-        incrementStat(Stats.JUMP)
-    }
-
-    velocity.y = height.toDouble()
-    velocityDirty = true
-}
-
-fun ClientPlayerEntity.downwards(motion: Float) {
-    velocity.y = -motion.toDouble()
-    velocityDirty = true
-}
-
-fun ClientPlayerEntity.strafe(yaw: Float = direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
-                              keyboardCheck: Boolean = true) {
-    if (keyboardCheck && !moving) {
-        velocity.x = 0.0
-        velocity.z = 0.0
-        return
-    }
-
-    velocity.strafe(yaw, speed, strength)
-}
-
 val Vec3d.sqrtSpeed: Double
     get() = sqrt(x * x + z * z)
 
-fun Vec3d.strafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
-                 keyboardCheck: Boolean = false): Vec3d {
-    if (keyboardCheck && !player.pressingMovementButton) {
-        x = 0.0
-        z = 0.0
-        return this
+fun Vec3d.withStrafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
+                     keyboardCheck: Boolean = false): Vec3d {
+    if (keyboardCheck && !player.input.initial.any) {
+        return Vec3d(0.0, y, 0.0)
     }
 
     val prevX = x * (1.0 - strength)
@@ -252,13 +221,10 @@ fun Vec3d.strafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, stren
     val useSpeed = speed * strength
 
     val angle = Math.toRadians(yaw.toDouble())
-    x = (-sin(angle) * useSpeed) + prevX
-    z = (cos(angle) * useSpeed) + prevZ
-    return this
+    val x = (-sin(angle) * useSpeed) + prevX
+    val z = (cos(angle) * useSpeed) + prevZ
+    return Vec3d(x, y, z)
 }
-
-val Entity.eyes: Vec3d
-    get() = eyePos
 
 val Entity.prevPos: Vec3d
     get() = Vec3d(this.prevX, this.prevY, this.prevZ)
@@ -280,7 +246,7 @@ fun Entity.boxedDistanceTo(entity: Entity): Double {
 }
 
 fun Entity.squaredBoxedDistanceTo(entity: Entity): Double {
-    return this.squaredBoxedDistanceTo(entity.eyes)
+    return this.squaredBoxedDistanceTo(entity.eyePos)
 }
 
 fun Entity.squaredBoxedDistanceTo(otherPos: Vec3d): Double {
@@ -288,7 +254,7 @@ fun Entity.squaredBoxedDistanceTo(otherPos: Vec3d): Double {
 }
 
 fun Entity.squareBoxedDistanceTo(entity: Entity, offsetPos: Vec3d): Double {
-    return this.box.offset(offsetPos - this.pos).squaredBoxedDistanceTo(entity.eyes)
+    return this.box.offset(offsetPos - this.pos).squaredBoxedDistanceTo(entity.eyePos)
 }
 
 fun Box.squaredBoxedDistanceTo(otherPos: Vec3d): Double {

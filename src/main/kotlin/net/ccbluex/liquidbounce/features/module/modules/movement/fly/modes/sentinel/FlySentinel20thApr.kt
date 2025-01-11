@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
@@ -95,7 +95,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
     val moveHandler = handler<PlayerMoveEvent> { event ->
         if (player.hurtTime > 0  && !hasBeenHurt) {
             hasBeenHurt = true
-            player.strafe(speed = horizontalSpeed.toDouble())
+            player.velocity = player.velocity.withStrafe(speed = horizontalSpeed.toDouble())
             notification(
                 "Fly",
                 translation("liquidbounce.module.fly.messages.cubecraft20thAprBoostMessage"),
@@ -124,7 +124,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
         }
 
         if (constantSpeed) {
-            event.movement.strafe(speed = horizontalSpeed.toDouble(), keyboardCheck = true)
+            event.movement = event.movement.withStrafe(speed = horizontalSpeed.toDouble(), keyboardCheck = true)
         }
     }
 

@@ -2,7 +2,6 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.MathHelper
@@ -22,7 +21,7 @@ object RotationUtil {
      */
     fun crosshairAngleToEntity(entity: Entity): Float {
         val player = mc.player ?: return 0.0F
-        val eyes = player.eyes
+        val eyes = player.eyePos
 
         val rotationToEntity = Rotation.lookingAt(point = entity.box.center, from = eyes)
 

@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 
 internal object ElytraFlyModeStatic : ElytraFlyMode("Static") {
 
@@ -34,7 +34,7 @@ internal object ElytraFlyModeStatic : ElytraFlyMode("Static") {
 
         val speed = ModuleElytraFly.Speed.enabled
         if (speed && player.moving) {
-            event.movement.strafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
+            event.movement = event.movement.withStrafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
         } else {
             event.movement.x = 0.0
             event.movement.z = 0.0

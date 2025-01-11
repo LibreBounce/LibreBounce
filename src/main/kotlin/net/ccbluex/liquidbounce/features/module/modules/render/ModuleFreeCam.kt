@@ -21,15 +21,16 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.minecraft.client.option.Perspective
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Direction
@@ -100,14 +101,21 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         }
         val directionYaw = getMovementDirectionOfInput(player.yaw, event.directionalInput)
 
+        ModuleDebug.debugParameter(this, "DirectionYaw", "%.2f".format(directionYaw))
         val velocity = Vec3d.of(Vec3i.ZERO)
-            .apply { strafe(directionYaw, speed, keyboardCheck = true) }
+            .withStrafe(directionYaw, speed, keyboardCheck = true)
             .withAxis(Direction.Axis.Y, yAxisMovement * speed)
+        ModuleDebug.debugParameter(this, "Velocity", velocity.toString())
         updatePosition(velocity)
 
         event.directionalInput = DirectionalInput.NONE
         event.jump = false
         event.sneak = false
+    }
+
+    @Suppress("unused")
+    private val perspectiveHandler = handler<PerspectiveEvent> { event ->
+        event.perspective = Perspective.FIRST_PERSON
     }
 
     fun applyCameraPosition(entity: Entity, tickDelta: Float) {
@@ -144,7 +152,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
     fun shouldDisableRotations() = running && !allowRotationChange
 
     private fun updatePosition(velocity: Vec3d) {
-        pos = (pos ?: PositionPair(player.eyes, player.eyes)).apply { this += velocity }
+        pos = (pos ?: PositionPair(player.eyePos, player.eyePos)).apply { this += velocity }
     }
 
 }

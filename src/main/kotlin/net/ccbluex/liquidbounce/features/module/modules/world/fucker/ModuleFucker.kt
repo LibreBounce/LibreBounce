@@ -33,7 +33,6 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.*
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
 import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
@@ -202,7 +201,7 @@ object ModuleFucker : ClientModule("Fucker", Category.WORLD, aliases = arrayOf("
     }
 
     private fun updateTarget() {
-        val eyesPos = player.eyes
+        val eyesPos = player.eyePos
 
         val rangeSq = range.sq()
 
@@ -320,7 +319,7 @@ object ModuleFucker : ClientModule("Fucker", Category.WORLD, aliases = arrayOf("
         }
 
         val raytrace = raytraceBlock(
-            player.eyes,
+            player.eyePos,
             target.pos,
             target.pos.getState()!!,
             range = range,
@@ -352,7 +351,7 @@ object ModuleFucker : ClientModule("Fucker", Category.WORLD, aliases = arrayOf("
     private fun updateSurroundings(initialPosition: BlockPos) {
         val raytraceResult = world.raycast(
             RaycastContext(
-                player.eyes,
+                player.eyePos,
                 initialPosition.toCenterPos(),
                 RaycastContext.ShapeType.COLLIDER,
                 RaycastContext.FluidHandling.NONE,
@@ -368,7 +367,7 @@ object ModuleFucker : ClientModule("Fucker", Category.WORLD, aliases = arrayOf("
 
         val arr = ArrayList<Pair<BlockPos, Vec3d>>()
 
-        traceWayToTarget(initialPosition, player.eyes, blockPos, HashSet(), arr)
+        traceWayToTarget(initialPosition, player.eyePos, blockPos, HashSet(), arr)
 
         val hotbarItems = HOTBAR_SLOTS.map { it.itemStack }
 

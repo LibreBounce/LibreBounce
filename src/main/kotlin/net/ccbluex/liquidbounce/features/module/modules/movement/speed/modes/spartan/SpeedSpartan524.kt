@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 
@@ -52,11 +52,11 @@ class SpeedSpartan524(override val parent: ChoiceConfigurable<*>) : Choice("Spar
 
         when {
             player.isOnGround -> {
-                player.strafe(speed = 0.83)
+                player.velocity = player.velocity.withStrafe(speed = 0.83)
                 player.velocity.y = 0.16
             }
         }
-        player.strafe()
+        player.velocity = player.velocity.withStrafe()
     }
 
     override fun enable() {

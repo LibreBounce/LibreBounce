@@ -22,10 +22,13 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.aiming.PointTracker.PreferredBoxPart.entries
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.combat.ClickScheduler.Companion.RNG
-import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.entity.prevPos
+import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.minecraft.entity.LivingEntity
@@ -260,7 +263,7 @@ class PointTracker(
      */
     fun gatherPoint(entity: LivingEntity, situation: AimSituation): Point {
         val playerPosition = player.pos
-        val playerEyes = player.eyes
+        val playerEyes = player.eyePos
         val currentRotation = RotationManager.currentRotation ?: player.rotation
         val positionDifference = playerPosition.y - entity.pos.y
 

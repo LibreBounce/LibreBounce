@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 
@@ -49,7 +49,7 @@ internal object VelocityStrafe : VelocityMode("Strafe") {
             waitTicks(delay)
 
             // Apply strafe
-            player.strafe(speed = player.sqrtSpeed * strength)
+            player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed * strength)
 
             if (untilGround) {
                 applyStrafe = true
@@ -62,7 +62,7 @@ internal object VelocityStrafe : VelocityMode("Strafe") {
         if (player.isOnGround) {
             applyStrafe = false
         } else if (applyStrafe) {
-            event.movement.strafe(player.direction, player.sqrtSpeed * strength)
+            event.movement = event.movement.withStrafe(player.direction, player.sqrtSpeed * strength)
         }
     }
 

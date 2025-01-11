@@ -20,11 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.autododge
 
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.rayTraceCollidingBlocks
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.toRadians
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.plus
@@ -148,7 +146,7 @@ class DodgePlanner(
         val isJumpEffective = effectiveVelocity > 0.11
 
         val rotation =
-            Rotation.lookingAt(point = player.pos + optimalDodgePosRelativeToPlayer, from = player.eyes).normalize()
+            Rotation.lookingAt(point = player.pos + optimalDodgePosRelativeToPlayer, from = player.eyePos).normalize()
 
         return DodgePlan(
             directionalInput = DirectionalInput.FORWARDS,

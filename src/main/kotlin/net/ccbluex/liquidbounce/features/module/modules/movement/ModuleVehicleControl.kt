@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.client.warning
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 import net.minecraft.util.Hand
 import net.minecraft.util.math.Vec3d
@@ -108,7 +108,7 @@ object ModuleVehicleControl : ClientModule("VehicleControl", Category.MOVEMENT, 
             vehicle.velocity.x,
             verticalSpeed,
             vehicle.velocity.z
-        ).strafe(yaw = player.direction, speed = horizontalSpeed)
+        ).withStrafe(yaw = player.direction, speed = horizontalSpeed)
 
         vehicle.velocity = velocity
     }

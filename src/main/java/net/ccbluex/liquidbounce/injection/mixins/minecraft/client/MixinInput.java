@@ -39,6 +39,9 @@ public abstract class MixinInput implements InputAddition {
     public float movementSideways;
 
     @Unique
+    protected PlayerInput initial = PlayerInput.DEFAULT;
+
+    @Unique
     protected PlayerInput untransformed = PlayerInput.DEFAULT;
 
     @ModifyReturnValue(method = "hasForwardMovement", at = @At("RETURN"))
@@ -51,6 +54,12 @@ public abstract class MixinInput implements InputAddition {
         return original;
     }
 
+    @Override
+    public PlayerInput getInitial() {
+        return initial;
+    }
+
+    @Override
     public PlayerInput getUntransformed() {
         return untransformed;
     }

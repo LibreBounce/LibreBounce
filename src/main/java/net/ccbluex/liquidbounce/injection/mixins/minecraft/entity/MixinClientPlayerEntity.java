@@ -175,11 +175,11 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     }
 
     /**
-     * Hook move function at HEAD and call out move event, which is able to stop the cancel the execution.
+     * Hook move function to modify movement
      */
-    @Inject(method = "move", at = @At("HEAD"))
-    private void hookMove(MovementType type, Vec3d movement, CallbackInfo callbackInfo) {
-        EventManager.INSTANCE.callEvent(new PlayerMoveEvent(type, movement));
+    @ModifyVariable(method = "move", at = @At("HEAD"), name = "arg2", ordinal = 0, index = 2, argsOnly = true)
+    private Vec3d hookMove(Vec3d movement, MovementType type) {
+        return EventManager.INSTANCE.callEvent(new PlayerMoveEvent(type, movement)).getMovement();
     }
 
     /**

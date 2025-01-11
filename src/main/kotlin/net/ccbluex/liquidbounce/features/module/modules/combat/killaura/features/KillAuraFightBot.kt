@@ -29,7 +29,6 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
@@ -72,7 +71,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
         val outOfDistance = distance  > opponentRange
 
         val targetRotation = target.rotation.copy(pitch = 0.0f)
-        val requiredTargetRotation = Rotation.lookingAt(playerPosition, target.eyes).copy(pitch = 0.0f)
+        val requiredTargetRotation = Rotation.lookingAt(playerPosition, target.eyePos).copy(pitch = 0.0f)
 
         // Allow combo from the side
         val outOfDanger = targetRotation.angleTo(requiredTargetRotation) > dangerousYawDiff

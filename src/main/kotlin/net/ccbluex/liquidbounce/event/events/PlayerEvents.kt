@@ -62,7 +62,7 @@ class PlayerNetworkMovementTickEvent(val state: EventState,
 class PlayerPushOutEvent : CancellableEvent()
 
 @Nameable("playerMove")
-class PlayerMoveEvent(val type: MovementType, val movement: Vec3d) : Event()
+class PlayerMoveEvent(val type: MovementType, var movement: Vec3d) : Event()
 
 @Nameable("playerJump")
 class PlayerJumpEvent(var motion: Float) : CancellableEvent()

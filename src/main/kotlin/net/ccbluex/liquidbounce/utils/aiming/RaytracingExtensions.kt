@@ -21,7 +21,6 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
@@ -61,7 +60,7 @@ fun raytraceEntity(
 ): EntityHitResult? {
     val entity = mc.cameraEntity ?: return null
 
-    val cameraVec = entity.eyes
+    val cameraVec = entity.eyePos
     val rotationVec = rotation.rotationVec
 
     val vec3d3 = cameraVec.add(rotationVec.x * range, rotationVec.y * range, rotationVec.z * range)
@@ -88,7 +87,7 @@ fun raytraceBlock(
 ): BlockHitResult? {
     val entity: Entity = mc.cameraEntity ?: return null
 
-    val start = entity.eyes
+    val start = entity.eyePos
     val rotationVec = rotation.rotationVec
 
     val end = start.add(rotationVec.x * range, rotationVec.y * range, rotationVec.z * range)
@@ -166,7 +165,7 @@ fun facingEnemy(
     range: Double,
     wallsRange: Double,
 ): Boolean {
-    val cameraVec = fromEntity.eyes
+    val cameraVec = fromEntity.eyePos
     val rotationVec = rotation.rotationVec
 
     val rangeSquared = range * range

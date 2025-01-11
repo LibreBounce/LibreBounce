@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.entity.MovementType
 
 /**
@@ -56,7 +56,7 @@ object ModuleStrafe : ClientModule("Strafe", Category.MOVEMENT) {
             }
 
             if (player.moving) {
-                movement.strafe(player.direction, strength = strength.toDouble())
+                movement.withStrafe(player.direction, strength = strength.toDouble())
             } else if (strictMovement) {
                 movement.x = 0.0
                 movement.z = 0.0

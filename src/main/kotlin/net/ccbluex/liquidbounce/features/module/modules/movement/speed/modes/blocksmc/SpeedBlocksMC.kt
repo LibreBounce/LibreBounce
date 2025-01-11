@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 import net.minecraft.entity.effect.StatusEffects
@@ -62,7 +62,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
 
     override fun disable() {
         airTicks = 0
-        player.strafe(speed = 0.0)
+        player.velocity = player.velocity.withStrafe(speed = 0.0)
     }
 
     @Suppress("unused")
@@ -78,11 +78,11 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             }
             if (fullStrafe) {
                 if (player.moving) {
-                    player.strafe(speed = player.sqrtSpeed - 0.004)
+                    player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed - 0.004)
                 }
             } else {
                 if (airTicks >= 6 && player.moving) {
-                    player.strafe()
+                    player.velocity = player.velocity.withStrafe()
                 }
             }
 
@@ -107,16 +107,16 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             if (damageBoost && player.moving) {
                 when (lastVelocity) {
                     1, 2 -> {
-                        player.strafe(speed = 1.1)
+                        player.velocity = player.velocity.withStrafe(speed = 1.1)
                     }
                     3, 4, 5, 6, 7, 8, 9 -> {
-                        player.strafe(speed = 1.0)
+                        player.velocity = player.velocity.withStrafe(speed = 1.0)
                     }
                     10, 11, 12, 13, 14 -> {
-                        player.strafe(speed = 0.75)
+                        player.velocity = player.velocity.withStrafe(speed = 0.75)
                     }
                     15, 16, 17, 18, 19, 20 -> {
-                        player.strafe(speed = 0.5)
+                        player.velocity = player.velocity.withStrafe(speed = 0.5)
                     }
                 }
             }
@@ -144,7 +144,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             return@handler
         }
 
-        player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast) - 0.01)
+        player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast) - 0.01)
     }
 
     @Suppress("unused")

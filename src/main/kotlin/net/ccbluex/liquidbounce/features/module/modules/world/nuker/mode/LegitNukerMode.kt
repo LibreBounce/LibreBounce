@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.doBreak
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.util.hit.HitResult
@@ -116,7 +115,7 @@ object LegitNukerMode : Choice("Legit") {
      * Chooses the best block to break next and aims at it.
      */
     private fun lookupTarget(): BlockPos? {
-        val eyes = player.eyes
+        val eyes = player.eyePos
         val packetMine = ModulePacketMine.running
 
         // Check if the current target is still valid

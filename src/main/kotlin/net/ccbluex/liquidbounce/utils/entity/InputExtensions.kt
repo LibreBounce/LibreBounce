@@ -21,6 +21,9 @@ package net.ccbluex.liquidbounce.utils.entity
 import net.minecraft.client.input.Input
 import net.minecraft.util.PlayerInput
 
+val PlayerInput.any: Boolean
+    get() = forward || backward || left || right
+
 @Suppress("LongParameterList")
 fun PlayerInput.copy(
     forward: Boolean = this.forward,

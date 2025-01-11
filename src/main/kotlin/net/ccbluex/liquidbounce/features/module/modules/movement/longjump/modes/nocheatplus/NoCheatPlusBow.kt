@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.Module
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
@@ -102,7 +102,7 @@ internal object NoCheatPlusBow : Choice("NoCheatPlusBow") {
             shotArrows = 0f
             waitTicks(5)
             player.jump()
-            player.strafe(speed = speed.toDouble())
+            player.velocity = player.velocity.withStrafe(speed = speed.toDouble())
             waitTicks(5)
             arrowBoost = 0f
         }

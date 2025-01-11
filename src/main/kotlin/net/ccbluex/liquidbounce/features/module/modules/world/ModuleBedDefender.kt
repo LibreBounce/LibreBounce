@@ -30,7 +30,6 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.searchBedLayer
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.ccbluex.liquidbounce.utils.item.isFullBlock
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -115,7 +114,7 @@ object ModuleBedDefender : ClientModule("BedDefender", category = Category.WORLD
 
         placer.slotFinder(null) ?: return@handler
 
-        val eyesPos = player.eyes
+        val eyesPos = player.eyePos
         val rangeSq = placer.range * placer.range
 
         // The bed that need to be defended may be already covered, so we search further

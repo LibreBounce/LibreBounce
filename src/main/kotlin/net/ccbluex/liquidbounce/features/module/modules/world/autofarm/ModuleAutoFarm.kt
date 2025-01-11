@@ -24,11 +24,13 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.raytraceUpperBlockSide
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
 import net.ccbluex.liquidbounce.utils.inventory.Hotbar
 import net.ccbluex.liquidbounce.utils.inventory.hasInventorySpace
@@ -122,8 +124,8 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         val rayTraceResult = world.raycast(
             RaycastContext(
-                player.eyes,
-                player.eyes.add(currentRotation.rotationVec.multiply(range.toDouble())),
+                player.eyePos,
+                player.eyePos.add(currentRotation.rotationVec.multiply(range.toDouble())),
                 RaycastContext.ShapeType.OUTLINE,
                 RaycastContext.FluidHandling.NONE,
                 player
@@ -186,7 +188,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         for ((pos, state) in blocksToBreak) {
             val (rotation, _) = raytraceBlock(
-                player.eyes,
+                player.eyePos,
                 pos,
                 state,
                 range = range.toDouble() - 0.1,
@@ -227,7 +229,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         for (pos in blocksToPlace) {
             // We can only plant on the upper side
             val (rotation, _) = raytraceUpperBlockSide(
-                player.eyes,
+                player.eyePos,
                 range = range.toDouble() - 0.1,
                 wallsRange = wallRange.toDouble() - 0.1,
                 pos
@@ -256,7 +258,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         val radius = range
         val radiusSquared = radius * radius
-        val eyesPos = player.eyes
+        val eyesPos = player.eyePos
 
         // Can we find a breakable target?
         if (updateTargetToBreakable(radius, radiusSquared, eyesPos)) {
