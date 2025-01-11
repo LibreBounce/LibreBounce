@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
+import net.ccbluex.liquidbounce.lang.translationButton
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.elements.GuiPasswordField
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
@@ -57,14 +58,14 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
         Keyboard.enableRepeatEvents(true)
 
         // Login button
-        loginButton = +GuiButton(2, width / 2 - 100, height / 2 - 90, "Login")
+        loginButton = +GuiButton(2, width / 2 - 100, height / 2 - 90, translationButton("login"))
 
         // Generate button
         generateButton = +GuiButton(1, width / 2 - 100, height / 2, "Generate")
 
         // Buy & Back buttons
-        +GuiButton(3, width / 2 - 100, height / 2 + 70, 98, 20, "Buy")
-        +GuiButton(0, width / 2 + 2, height / 2 + 70, 98, 20, "Back")
+        +GuiButton(3, width / 2 - 100, height / 2 + 70, 98, 20, translationButton("buy"))
+        +GuiButton(0, width / 2 + 2, height / 2 + 70, 98, 20, translationButton("back"))
 
         // Token text field
         tokenField = GuiTextField(666, Fonts.font40, width / 2 - 100, height / 2 - 120, 200, 20)
