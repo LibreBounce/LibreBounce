@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
@@ -62,7 +61,6 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
                 3 -> player.velocity.y -= 0.13
                 4 -> player.velocity.y -= 0.2
                 7 -> {
-                    chat((player.y % 1.0).toString())
                     if (glide && isGroundExempt()) {
                         player.velocity.y = 0.0
                     }
