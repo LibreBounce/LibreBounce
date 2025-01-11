@@ -118,7 +118,7 @@ object ModuleFucker : ClientModule("Fucker", Category.WORLD, aliases = arrayOf("
 
         currentTarget = null
         wasTarget = null
-        super.disable()
+        targetRenderer.clearSilently()
     }
 
     @Suppress("unused")
