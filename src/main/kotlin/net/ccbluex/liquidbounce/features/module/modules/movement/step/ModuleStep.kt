@@ -263,7 +263,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
     /**
      * NCP Step
      *
-     * @author ported from legacy by Jucku
+     * @author 1zun4, ported from legacy by Jucku
      */
     object NCP : Choice("NCP") {
 
