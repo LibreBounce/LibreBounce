@@ -299,8 +299,9 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         @Suppress("unused")
         private val stepConfirmHandler = handler<PlayerStepSuccessEvent> { event ->
             val stepHeight = event.adjustedVec.y
-            if (stepHeight <= 0.5 || jumpOrder.isEmpty())
+            if (stepHeight <= 0.5 || jumpOrder.isEmpty()) {
                 return@handler
+            }
 
             player.incrementStat(Stats.JUMP)
 
