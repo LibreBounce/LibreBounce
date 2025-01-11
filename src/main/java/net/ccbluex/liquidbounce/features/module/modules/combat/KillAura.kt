@@ -233,6 +233,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val useHitDelay by boolean("UseHitDelay", false)
     private val hitDelayTicks by int("HitDelayTicks", 1, 1..5) { useHitDelay }
 
+    private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
+
     private val randomization = RandomizationSettings(this) { options.rotationsActive }
     private val outborder by boolean("Outborder", false) { options.rotationsActive }
 
@@ -885,11 +887,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+        val simPlayer =
+            SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+        simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
 
         var pos = currPos
 
-        (0..predictClientMovement + 1).forEach { i ->
+        repeat(predictClientMovement) {
             val previousPos = simPlayer.pos
 
             simPlayer.tick()
@@ -907,7 +912,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                 pos = simPlayer.pos
 
                 if (currDist <= range && currDist <= prevDist) {
-                    return@forEach
+                    return@repeat
                 }
             }
 
@@ -918,6 +923,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
         val rotation = searchCenter(
             boundingBox,
+            generateSpotBasedOnDistance,
             outborder && !attackTimer.hasTimePassed(attackDelay / 2),
             randomization,
             predict = false,
