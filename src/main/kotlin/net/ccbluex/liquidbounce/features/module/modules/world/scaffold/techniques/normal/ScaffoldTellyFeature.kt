@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.moving
 
 /**
@@ -41,13 +42,12 @@ import net.ccbluex.liquidbounce.utils.entity.moving
 object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "Telly", false) {
 
     val doNotAim: Boolean
-        get() = offGroundTicks < straightTicks && ticksUntilJump >= jumpTicks
+        get() = player.airTicks <= straightTicks && ticksUntilJump >= jumpTicks
 
     // New val to determine if the player is telly bridging
     val isTellyBridging: Boolean
         get() = ticksUntilJump >= jumpTicks && player.moving
 
-    private var offGroundTicks = 0
     private var ticksUntilJump = 0
 
     val resetMode by enumChoice("ResetMode", Mode.RESET)
@@ -58,10 +58,7 @@ object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "T
     @Suppress("unused")
     private val gameHandler = handler<GameTickEvent> {
         if (player.isOnGround) {
-            offGroundTicks = 0
             ticksUntilJump++
-        } else {
-            offGroundTicks++
         }
     }
 
