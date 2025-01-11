@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
@@ -61,7 +62,8 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
                 3 -> player.velocity.y -= 0.13
                 4 -> player.velocity.y -= 0.2
                 7 -> {
-                    if (glide && player.y % 1.0 == 0.4082799430386146) {
+                    chat((player.y % 1.0).toString())
+                    if (glide && isGroundExempt()) {
                         player.velocity.y = 0.0
                     }
                 }
@@ -71,7 +73,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
                 player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281))
                 shouldStrafe = true
             }
-            
+
             if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) == 2) {
                 when (player.airTicks) {
                     1, 2, 5, 6, 8 -> player.velocity = player.velocity.multiply(1.2,1.0,1.2)
@@ -89,7 +91,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
     }
 
     private fun isGroundExempt() =
-        world.getBlockCollisions(player, player.boundingBox.offset(0.0, -0.42, 0.0)).any { shape ->
+        world.getBlockCollisions(player, player.boundingBox.offset(0.0, -0.66, 0.0)).any { shape ->
             shape != VoxelShapes.empty()
         } && player.velocity.y < 0
 
