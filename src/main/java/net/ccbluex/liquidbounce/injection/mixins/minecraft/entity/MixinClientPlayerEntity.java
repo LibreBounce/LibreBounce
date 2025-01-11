@@ -326,7 +326,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
     @ModifyVariable(method = "sendMovementPackets", at = @At("STORE"), ordinal = 1)
     private boolean hookFreeCamPreventRotations(boolean bl4) {
         // Prevent rotation changes when free cam is active, unless a rotation is being set via the rotation manager
-        return (!ModuleFreeCam.INSTANCE.shouldDisableRotations() ||
+        return (!ModuleFreeCam.INSTANCE.getRunning() ||
                 RotationManager.INSTANCE.getCurrentRotation() != null) && bl4;
     }
 

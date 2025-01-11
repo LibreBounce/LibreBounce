@@ -99,11 +99,17 @@ public abstract class MixinGameRenderer {
             return original;
         }
 
-        var rotation = (RotationManager.INSTANCE.getCurrentRotation() != null) ?
-                RotationManager.INSTANCE.getCurrentRotation() :
-                ModuleFreeCam.INSTANCE.getRunning() ?
-                        RotationManager.INSTANCE.getServerRotation() :
-                        new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta), true);
+        var cameraRotation = new Rotation(camera.getYaw(tickDelta), camera.getPitch(tickDelta), true);
+
+        Rotation rotation;
+        if (RotationManager.INSTANCE.getCurrentRotation() != null) {
+            rotation = RotationManager.INSTANCE.getCurrentRotation();
+        } if (ModuleFreeCam.INSTANCE.getRunning()) {
+            var serverRotation = RotationManager.INSTANCE.getServerRotation();
+            rotation = ModuleFreeCam.INSTANCE.shouldDisableCameraInteract() ? serverRotation : cameraRotation;
+        } else {
+            rotation = cameraRotation;
+        }
 
         return RaytracingExtensionsKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
                 ModuleLiquidPlace.INSTANCE.getRunning(), tickDelta);

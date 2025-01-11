@@ -20,6 +20,7 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
@@ -137,9 +138,9 @@ public abstract class MixinEntity {
         }
     }
 
-    @Inject(method = "getCameraPosVec", at = @At("RETURN"), cancellable = true)
-    private void hookFreeCamModifiedRaycast(float tickDelta, CallbackInfoReturnable<Vec3d> cir) {
-        cir.setReturnValue(ModuleFreeCam.INSTANCE.modifyRaycast(cir.getReturnValue(), (Entity) (Object) this, tickDelta));
+    @ModifyReturnValue(method = "getCameraPosVec", at = @At("RETURN"))
+    private Vec3d hookFreeCamModifiedRaycast(Vec3d original, float tickDelta) {
+        return ModuleFreeCam.INSTANCE.modifyRaycast(original, (Entity) (Object) this, tickDelta);
     }
 
     /**

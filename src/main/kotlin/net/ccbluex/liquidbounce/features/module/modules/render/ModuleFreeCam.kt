@@ -20,14 +20,19 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.client.option.Perspective
@@ -50,12 +55,26 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
      * Allows to interact from the camera perspective. This is very useful to interact with blocks that
      * are behind the player or walls. Similar functionality to the GhostBlock module.
      */
-    private val allowCameraInteract by boolean("AllowCameraInteract", true)
+    private object CameraInteract : ToggleableConfigurable(ModuleFreeCam, "AllowCameraInteract", true) {
 
-    /**
-     * Allows to change the player's rotation while in FreeCam mode. This is useful to look around while
-     */
-    private val allowRotationChange by boolean("AllowRotationChange", true)
+        private val lookAt by boolean("LookAt", true)
+        private val rotationsConfigurable = tree(RotationsConfigurable(this))
+
+        @Suppress("unused")
+        private val rotationHandler = handler<RotationUpdateEvent> {
+            if (!lookAt) return@handler
+
+            // Aim at crosshair target
+            val crosshairTarget = mc.crosshairTarget ?: return@handler
+            val lookAt = Rotation.lookingAt(crosshairTarget.pos, player.eyePos)
+            RotationManager.aimAt(rotationsConfigurable.toAimPlan(lookAt), Priority.NOT_IMPORTANT, ModuleFreeCam)
+        }
+
+    }
+
+    init {
+        tree(CameraInteract)
+    }
 
     private data class PositionPair(var pos: Vec3d, var lastPos: Vec3d) {
         operator fun plusAssign(velocity: Vec3d) {
@@ -82,12 +101,9 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         pos = null
 
         // Reset player rotation
-        if (!allowRotationChange) {
-            val rotation = RotationManager.currentRotation ?: RotationManager.serverRotation
-
-            player.yaw = rotation.yaw
-            player.pitch = rotation.pitch
-        }
+        val rotation = RotationManager.currentRotation ?: RotationManager.serverRotation
+        player.yaw = rotation.yaw
+        player.pitch = rotation.pitch
         super.disable()
     }
 
@@ -139,16 +155,14 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
      * Modify the raycast position
      */
     fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float): Vec3d {
-        if (!running || entity != mc.player || !allowCameraInteract) {
+        if (!running || entity != mc.player || !CameraInteract.running) {
             return original
         }
 
         return pos?.interpolate(tickDelta) ?: original
     }
 
-    fun shouldDisableCrosshair() = running && !allowCameraInteract
-
-    fun shouldDisableRotations() = running && !allowRotationChange
+    fun shouldDisableCameraInteract() = running && !CameraInteract.running
 
     private fun updatePosition(velocity: Vec3d) {
         pos = (pos ?: PositionPair(player.eyePos, player.eyePos)).apply { this += velocity }
