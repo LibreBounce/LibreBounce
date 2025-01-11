@@ -25,13 +25,15 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
+import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.entity.effect.StatusEffects
+import net.minecraft.util.shape.VoxelShapes
 
 /**
  * @anticheat Watchdog (NCP)
- * @anticheatVersion 01.10.24
+ * @anticheatVersion 11.01.25
  * @testedOn hypixel.net
  */
 class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("HypixelLowHop", parent) {
@@ -40,8 +42,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
         var shouldStrafe = false
     }
 
-    private var glide by boolean("Glide", true)
-    private var airTicks = 0
+    private var glide by boolean("Glide", false)
 
     @Suppress("unused")
     val tickHandler = tickHandler {
@@ -50,35 +51,29 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
         if (player.isOnGround) {
             player.velocity = player.velocity.withStrafe()
             shouldStrafe = true
-            airTicks = 0
-            return@tickHandler
         } else {
-            airTicks++
-
-            when (airTicks) {
+            when (player.airTicks) {
                 1 -> {
                     player.velocity = player.velocity.withStrafe()
                     shouldStrafe = true
+                    player.velocity.y += 0.0568
                 }
-                5 -> player.velocity.y -= 0.1905189780583944
-                4 -> player.velocity.y -= 0.03
-                6 -> player.velocity.y *= 1.01
-                7 -> if (glide) player.velocity.y /= 1.5
+                3 -> player.velocity.y -= 0.13
+                4 -> player.velocity.y -= 0.2
+                7 -> {
+                    if (glide && player.y % 1.0 == 0.4082799430386146) {
+                        player.velocity.y = 0.0
+                    }
+                }
             }
 
-            if (airTicks >= 7 && glide) {
-                player.velocity =
-                    player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281), strength = 0.7)
+            if (isGroundExempt() || player.hurtTime >= 7) {
+                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281))
                 shouldStrafe = true
             }
-
-            if (player.hurtTime == 9) {
-                player.velocity = player.velocity.withStrafe()
-                shouldStrafe = true
-            }
-
+            
             if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) == 2) {
-                when (airTicks) {
+                when (player.airTicks) {
                     1, 2, 5, 6, 8 -> player.velocity = player.velocity.multiply(1.2,1.0,1.2)
                 }
             }
@@ -90,10 +85,12 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
         val atLeast = 0.281 + 0.13 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
 
         player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
+        shouldStrafe = true
     }
 
-    override fun disable() {
-        airTicks = 0
-    }
+    private fun isGroundExempt() =
+        world.getBlockCollisions(player, player.boundingBox.offset(0.0, -0.42, 0.0)).any { shape ->
+            shape != VoxelShapes.empty()
+        } && player.velocity.y < 0
 
 }
