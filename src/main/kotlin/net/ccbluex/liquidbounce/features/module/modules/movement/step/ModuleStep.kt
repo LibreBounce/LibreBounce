@@ -50,7 +50,8 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         Instant,
         Legit,
         Vulcan286,
-        BlocksMC
+        BlocksMC,
+        NCP
     )).apply { tagBy(this) }
 
     object Legit : Choice("Legit") {
@@ -258,3 +259,70 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
     }
 
 }
+
+    /**
+     * NCP Step
+     *
+     * @author Jucku (code ported from legacy)
+     */
+    object NCP : Choice("NCP") {
+
+        override val parent: ChoiceConfigurable<Choice>
+            get() = modes
+
+        private val delay by int("Delay", 400, 0..500, "ms")
+        private var stepping = false
+        private var lastStepTime = 0L
+
+        private val jumpOrder = listOf(
+            0.41999998688698,
+            0.7531999805212,
+            1.001335979112147
+        )
+
+        @Suppress("unused")
+        private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
+            if (player.canStep(1.0) && !stepping) {
+                event.jump = true
+            }
+        }
+
+        @Suppress("unused")
+        private val stepHandler = handler<PlayerStepEvent> { event ->
+            if (!player.isOnGround || !player.canStep(1.0) || System.currentTimeMillis() - lastStepTime < delay) {
+                return@handler
+            }
+
+            event.height = 1.0F
+        }
+
+        @Suppress("unused")
+        private val stepConfirmHandler = handler<PlayerStepSuccessEvent> { event ->
+            val stepHeight = event.adjustedVec.y
+            if (stepHeight <= 0.5 || jumpOrder.isEmpty())
+                return@handler
+
+            player.incrementStat(Stats.JUMP)
+
+            jumpOrder.forEachIndexed { index, additionalY ->
+                val destinationY = player.y + additionalY
+
+                network.sendPacket(MovePacketType.FULL.generatePacket().apply {
+                    x = player.x
+                    y = destinationY
+                    z = player.z
+                    onGround = index == jumpOrder.size - 1
+                })
+            }
+
+            lastStepTime = System.currentTimeMillis()
+
+            stepping = true
+        }
+
+        override fun disable() {
+            stepping = false
+            lastStepTime = 0L
+            super.disable()
+        }
+    }
