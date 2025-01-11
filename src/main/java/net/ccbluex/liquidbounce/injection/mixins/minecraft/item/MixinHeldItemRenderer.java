@@ -29,6 +29,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -40,32 +41,52 @@ import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class MixinHeldItemRenderer {
 
+    @Final
+    @Shadow
+    private MinecraftClient client;
+
+    @Shadow
+    private ItemStack offHand;
+
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;push()V", shift = At.Shift.AFTER))
     private void hookRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (ModuleAnimations.INSTANCE.getRunning()) {
-            if (Hand.MAIN_HAND == hand && ModuleAnimations.MainHand.INSTANCE.getRunning()) {
-                matrices.translate(ModuleAnimations.MainHand.INSTANCE.getMainHandX(), ModuleAnimations.MainHand.INSTANCE.getMainHandY(), ModuleAnimations.MainHand.INSTANCE.getMainHandItemScale());
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ModuleAnimations.MainHand.INSTANCE.getMainHandPositiveX()));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(ModuleAnimations.MainHand.INSTANCE.getMainHandPositiveY()));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(ModuleAnimations.MainHand.INSTANCE.getMainHandPositiveZ()));
-            } else if (ModuleAnimations.OffHand.INSTANCE.getRunning()) {
-                matrices.translate(ModuleAnimations.OffHand.INSTANCE.getOffHandX(), ModuleAnimations.OffHand.INSTANCE.getOffHandY(), ModuleAnimations.OffHand.INSTANCE.getOffHandItemScale());
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(ModuleAnimations.OffHand.INSTANCE.getOffHandPositiveX()));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(ModuleAnimations.OffHand.INSTANCE.getOffHandPositiveY()));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(ModuleAnimations.OffHand.INSTANCE.getOffHandPositiveZ()));
+            var isInBothHands = Hand.MAIN_HAND == hand && item.contains(DataComponentTypes.MAP_ID) && offHand.isEmpty();
+            ModuleAnimations.MainHand mainHand = ModuleAnimations.MainHand.INSTANCE;
+            ModuleAnimations.OffHand offHand = ModuleAnimations.OffHand.INSTANCE;
+            if (isInBothHands && mainHand.getRunning() && offHand.getRunning()) {
+                liquid_bounce$applyTransformations(matrices,
+                        (mainHand.getMainHandX() + offHand.getOffHandX()) / 2,
+                        (mainHand.getMainHandY() + offHand.getOffHandY()) / 2,
+                        (mainHand.getMainHandItemScale() + offHand.getOffHandItemScale()) / 2,
+                        (mainHand.getMainHandPositiveX() + offHand.getOffHandPositiveX()) / 2,
+                        (mainHand.getMainHandPositiveY() + offHand.getOffHandPositiveY()) / 2,
+                        (mainHand.getMainHandPositiveZ() + offHand.getOffHandPositiveZ()) / 2
+                );
+            } else if (isInBothHands && mainHand.getRunning()) {
+                matrices.translate(0f, 0f, mainHand.getMainHandItemScale());
+            } else if (Hand.MAIN_HAND == hand && mainHand.getRunning()) {
+                liquid_bounce$applyTransformations(matrices, mainHand.getMainHandX(), mainHand.getMainHandY(), mainHand.getMainHandItemScale(), mainHand.getMainHandPositiveX(), mainHand.getMainHandPositiveY(), mainHand.getMainHandPositiveZ());
+            } else if (offHand.getRunning()) {
+                liquid_bounce$applyTransformations(matrices, offHand.getOffHandX(), offHand.getOffHandY(), offHand.getOffHandItemScale(), offHand.getOffHandPositiveX(), offHand.getOffHandPositiveY(), offHand.getOffHandPositiveZ());
             }
         }
     }
 
-    @Final
-    @Shadow
-    private MinecraftClient client;
+    @Unique
+    private void liquid_bounce$applyTransformations(MatrixStack matrices, float translateX, float translateY, float translateZ, float rotateX, float rotateY, float rotateZ) {
+        matrices.translate(translateX, translateY, translateZ);
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rotateX));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotateY));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotateZ));
+    }
 
     @Inject(method = "renderFirstPersonItem", at = @At("HEAD"), cancellable = true)
     private void hideShield(AbstractClientPlayerEntity player, float tickDelta, float pitch,
