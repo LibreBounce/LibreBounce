@@ -79,7 +79,9 @@ object ScaffoldSprintControlFeature : ToggleableConfigurable(ModuleScaffold, "Sp
     }
 
     @Suppress("unused")
-    private val sprintHandler = handler<SprintEvent> { event ->
+    private val sprintHandler = handler<SprintEvent>(
+        priority = EventPriorityConvention.MODEL_STATE
+    ) { event ->
         val willPlace = false
 
         // Movement Tick will affect the client-side sprint state,
