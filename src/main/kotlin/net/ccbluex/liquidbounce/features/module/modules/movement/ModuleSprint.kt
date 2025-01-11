@@ -75,9 +75,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         get() = running && ignoreCollision
 
     @Suppress("unused")
-    private val sprintHandler = handler<SprintEvent>(
-        priority = CRITICAL_MODIFICATION
-    ) { event ->
+    private val sprintHandler = handler<SprintEvent>(priority = CRITICAL_MODIFICATION) { event ->
         if (!event.directionalInput.isMoving) {
             return@handler
         }
