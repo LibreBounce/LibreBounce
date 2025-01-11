@@ -85,6 +85,9 @@ class UseCooldownEvent(var cooldown: Int) : Event()
 @Nameable("cancelBlockBreaking")
 class CancelBlockBreakingEvent : CancellableEvent()
 
+@Nameable("autoJump")
+class MinecraftAutoJumpEvent(var autoJump: Boolean) : Event()
+
 /**
  * All events which are related to the minecraft client
  */

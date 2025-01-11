@@ -56,6 +56,12 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
     object Legit : Choice("Legit") {
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
+
+        @Suppress("unused")
+        private val autoJumpHandler = handler<MinecraftAutoJumpEvent> { event ->
+            event.autoJump = true
+        }
+
     }
 
     object Instant : Choice("Instant") {

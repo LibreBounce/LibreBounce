@@ -24,13 +24,11 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.events.*;
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFightBot;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePortalMenu;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEntityControl;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.ModuleNoSlow;
-import net.ccbluex.liquidbounce.features.module.modules.movement.step.ModuleStep;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
@@ -284,15 +282,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
 
     @ModifyReturnValue(method = "isAutoJumpEnabled", at = @At("RETURN"))
     private boolean injectLegitStep(boolean original) {
-        if (ModuleStep.Legit.INSTANCE.getRunning()) {
-            return true;
-        }
-
-        if (KillAuraFightBot.INSTANCE.getMinecraftAutoJump()) {
-            return true;
-        }
-
-        return original;
+        return new MinecraftAutoJumpEvent(original).getAutoJump();
     }
 
     @Inject(method = "swingHand", at = @At("HEAD"), cancellable = true)

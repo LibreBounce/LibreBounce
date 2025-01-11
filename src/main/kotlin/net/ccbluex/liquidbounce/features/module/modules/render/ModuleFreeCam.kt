@@ -30,12 +30,16 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.raycast
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.ccbluex.liquidbounce.utils.navigation.NavigationBaseConfigurable
 import net.minecraft.client.option.Perspective
+import net.minecraft.client.util.InputUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Direction
@@ -56,24 +60,53 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
      * are behind the player or walls. Similar functionality to the GhostBlock module.
      */
     private object CameraInteract : ToggleableConfigurable(ModuleFreeCam, "AllowCameraInteract", true) {
+        val lookAt by boolean("LookAt", true)
+    }
 
-        private val lookAt by boolean("LookAt", true)
-        private val rotationsConfigurable = tree(RotationsConfigurable(this))
+    /**
+     * Navigation configuration for the FreeCam module
+     */
+    private object Navigation : NavigationBaseConfigurable<Unit>(ModuleFreeCam, "Navigation", false) {
 
-        @Suppress("unused")
-        private val rotationHandler = handler<RotationUpdateEvent> {
-            if (!lookAt) return@handler
+        private val controlKey by key("Key", InputUtil.GLFW_KEY_LEFT_CONTROL)
 
-            // Aim at crosshair target
-            val crosshairTarget = mc.crosshairTarget ?: return@handler
-            val lookAt = Rotation.lookingAt(crosshairTarget.pos, player.eyePos)
-            RotationManager.aimAt(rotationsConfigurable.toAimPlan(lookAt), Priority.NOT_IMPORTANT, ModuleFreeCam)
+        val shouldBeGoing
+            get() = running && controlKey != InputUtil.UNKNOWN_KEY &&
+                InputUtil.isKeyPressed(mc.window.handle, controlKey.code)
+
+        /**
+         * Creates context for navigation
+         */
+        override fun createNavigationContext() { }
+
+        /**
+         * Calculates the desired position to move towards
+         *
+         * @return Target position as Vec3d
+         */
+        override fun calculateGoalPosition(context: Unit): Vec3d? {
+            if (!shouldBeGoing) {
+                return null
+            }
+
+            val pos = pos ?: return null
+            val cameraPosition = pos.interpolate(1f)
+            val target = raycast(
+                range = 100.0,
+                start = cameraPosition,
+                direction = mc.cameraEntity?.rotation?.rotationVec ?: return null
+            )
+
+            return target.pos
         }
 
     }
 
+    private val rotationsConfigurable = tree(RotationsConfigurable(this))
+
     init {
         tree(CameraInteract)
+        tree(Navigation)
     }
 
     private data class PositionPair(var pos: Vec3d, var lastPos: Vec3d) {
@@ -131,6 +164,22 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
     @Suppress("unused")
     private val perspectiveHandler = handler<PerspectiveEvent> { event ->
         event.perspective = Perspective.FIRST_PERSON
+    }
+
+    @Suppress("unused")
+    private val rotationHandler = handler<RotationUpdateEvent> {
+        val lookAt = if (Navigation.shouldBeGoing) {
+            // Look at target position
+            Navigation.getMovementRotation()
+        } else if (CameraInteract.running && CameraInteract.lookAt) {
+            // Aim at crosshair target
+            val crosshairTarget = mc.crosshairTarget ?: return@handler
+            Rotation.lookingAt(crosshairTarget.pos, player.eyePos)
+        } else {
+            return@handler
+        }
+
+        RotationManager.aimAt(rotationsConfigurable.toAimPlan(lookAt), Priority.NOT_IMPORTANT, ModuleFreeCam)
     }
 
     fun applyCameraPosition(entity: Entity, tickDelta: Float) {
