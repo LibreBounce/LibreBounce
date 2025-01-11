@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.autobow
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.KeybindIsPressedEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -52,8 +53,12 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
         return currentChargeRandom!!
     }
 
+    private var forceUncharged = false
+
     @Suppress("unused")
-    val tickRepeatable = handler<GameTickEvent> {
+    private val tickHandler = handler<GameTickEvent> {
+        forceUncharged = false
+
         val currentItem = player.activeItem?.item
 
         // Should check if player is using bow
@@ -64,6 +69,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
         if (player.itemUseTime < charged + getChargedRandom()) { // Wait until the bow is fully charged
             return@handler
         }
+
         if (!ModuleAutoBow.lastShotTimer.hasElapsed((delayBetweenShots * 1000.0F).toLong())) {
             return@handler
         }
@@ -88,8 +94,15 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
             }
         }
 
-        interaction.stopUsingItem(player)
+        forceUncharged = true
         updateChargeRandom()
+    }
+
+    @Suppress("unused")
+    private val keybindHandler = handler<KeybindIsPressedEvent> { event ->
+        if (event.keyBinding == mc.options.useKey && forceUncharged) {
+            event.isPressed = false
+        }
     }
 
     fun getHypotheticalHit(): AbstractClientPlayerEntity? {
@@ -144,4 +157,10 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
             Pair(it, PlayerSimulationCache.getSimulationForOtherPlayers(it))
         }
     }
+
+    override fun disable() {
+        forceUncharged = false
+        super.disable()
+    }
+
 }
