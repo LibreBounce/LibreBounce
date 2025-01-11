@@ -63,12 +63,12 @@ public abstract class MixinHeldItemRenderer {
             ModuleAnimations.OffHand offHand = ModuleAnimations.OffHand.INSTANCE;
             if (isInBothHands && mainHand.getRunning() && offHand.getRunning()) {
                 liquid_bounce$applyTransformations(matrices,
-                        (mainHand.getMainHandX() + offHand.getOffHandX()) / 2,
-                        (mainHand.getMainHandY() + offHand.getOffHandY()) / 2,
-                        (mainHand.getMainHandItemScale() + offHand.getOffHandItemScale()) / 2,
-                        (mainHand.getMainHandPositiveX() + offHand.getOffHandPositiveX()) / 2,
-                        (mainHand.getMainHandPositiveY() + offHand.getOffHandPositiveY()) / 2,
-                        (mainHand.getMainHandPositiveZ() + offHand.getOffHandPositiveZ()) / 2
+                        (mainHand.getMainHandX() + offHand.getOffHandX()) / 2f,
+                        (mainHand.getMainHandY() + offHand.getOffHandY()) / 2f,
+                        (mainHand.getMainHandItemScale() + offHand.getOffHandItemScale()) / 2f,
+                        (mainHand.getMainHandPositiveX() + offHand.getOffHandPositiveX()) / 2f,
+                        (mainHand.getMainHandPositiveY() + offHand.getOffHandPositiveY()) / 2f,
+                        (mainHand.getMainHandPositiveZ() + offHand.getOffHandPositiveZ()) / 2f
                 );
             } else if (isInBothHands && mainHand.getRunning()) {
                 matrices.translate(0f, 0f, mainHand.getMainHandItemScale());
