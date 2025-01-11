@@ -395,7 +395,11 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Choose enemy for fight bot
         if (KillAuraFightBot.enabled) {
-            targetTracker.lock(targetTracker.enemies().firstOrNull() ?: return)
+            val target = targetTracker.enemies().firstOrNull()
+            if (target != null) {
+                targetTracker.lock(target)
+            }
+
             RotationManager.aimAt(
                 rotations.toAimPlan(
                     KillAuraFightBot.getMovementRotation() ?: return,
