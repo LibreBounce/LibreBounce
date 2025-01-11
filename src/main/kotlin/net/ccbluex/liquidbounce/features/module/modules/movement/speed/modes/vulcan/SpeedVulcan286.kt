@@ -46,10 +46,12 @@ class SpeedVulcan286(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase
         val speedLevel = (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
 
         waitTicks(1)
-        player.velocity = player.velocity.withStrafe(speed = if (goingSideways) 0.3345 else 0.3355 * (1 + speedLevel * 0.3819))
+        player.velocity =
+            player.velocity.withStrafe(speed = if (goingSideways) 0.3345 else 0.3355 * (1 + speedLevel * 0.3819))
         waitTicks(1)
         if (player.isSprinting) {
-            player.velocity = player.velocity.withStrafe(speed = if (goingSideways) 0.3235 else 0.3284 * (1 + speedLevel * 0.355))
+            player.velocity =
+                player.velocity.withStrafe(speed = if (goingSideways) 0.3235 else 0.3284 * (1 + speedLevel * 0.355))
         }
 
         waitTicks(2)

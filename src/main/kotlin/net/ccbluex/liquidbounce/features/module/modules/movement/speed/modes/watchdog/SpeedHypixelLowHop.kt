@@ -67,7 +67,8 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
             }
 
             if (airTicks >= 7 && glide) {
-                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281), strength = 0.7)
+                player.velocity =
+                    player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281), strength = 0.7)
                 shouldStrafe = true
             }
 

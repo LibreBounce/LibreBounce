@@ -138,8 +138,10 @@ class SpeedCustom(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("C
             }
 
             when {
-                customSpeed -> player.velocity = player.velocity.withStrafe(speed = speed.toDouble(), strength = strength.toDouble())
-                else -> player.velocity = player.velocity.withStrafe(strength = strength.toDouble())
+                customSpeed -> player.velocity =
+                        player.velocity.withStrafe(speed = speed.toDouble(), strength = strength.toDouble())
+                else ->
+                    player.velocity = player.velocity.withStrafe(strength = strength.toDouble())
             }
         }
 

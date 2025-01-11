@@ -113,7 +113,8 @@ class SpeedNCP(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("NCP"
                 player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(groundMin))
             } else if (shouldStrafeInAir) {
                 val airMin = AIR_CONSTANT + SPEED_CONSTANT * speedMultiplier
-                player.velocity = player.velocity.withStrafe(strength = 0.7, speed = player.sqrtSpeed.coerceAtLeast(airMin))
+                player.velocity =
+                    player.velocity.withStrafe(strength = 0.7, speed = player.sqrtSpeed.coerceAtLeast(airMin))
             }
         }
 
