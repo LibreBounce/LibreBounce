@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.minecraft.entity.LivingEntity
 import java.util.*
 
@@ -28,14 +28,14 @@ object RenderedEntities : Iterable<LivingEntity>, EventListener, MinecraftShortc
     }
 
     @Suppress("unused")
-    private val tickHandler = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
+    private val tickHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
         if (!inGame) {
             return@handler
         }
 
         @Suppress("UNCHECKED_CAST")
-        entities = world.entities.filter {
-            it is LivingEntity && it.shouldBeShown()
+        entities = world.entities.filter { entity ->
+            entity is LivingEntity && entity.shouldBeShown()
         } as Iterable<LivingEntity>
     }
 

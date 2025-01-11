@@ -22,7 +22,6 @@ import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.math.copy
@@ -55,7 +54,7 @@ object ModuleStrafe : ClientModule("Strafe", Category.MOVEMENT) {
             }
 
             if (player.moving) {
-                event.movement = event.movement.withStrafe(player.direction, strength = strength.toDouble())
+                event.movement = event.movement.withStrafe(strength = strength.toDouble())
             } else if (strictMovement) {
                 event.movement = event.movement.copy(x = 0.0, z = 0.0)
             }

@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -51,7 +50,7 @@ class SpeedVerusB3882(override val parent: ChoiceConfigurable<*>) : SpeedBHopBas
     private val moveHandler = handler<PlayerMoveEvent> { event ->
         // Might just strafe when player controls itself
         if (event.type == MovementType.SELF && player.moving) {
-            event.movement = event.movement.withStrafe(player.direction, strength = 1.0)
+            event.movement = event.movement.withStrafe(strength = 1.0)
         }
     }
 

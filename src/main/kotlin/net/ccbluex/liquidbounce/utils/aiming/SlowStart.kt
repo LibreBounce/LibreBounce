@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 
 /**
  * The slow start modulates the rotation speed based on the time duration
@@ -50,7 +50,7 @@ class SlowStart(owner: EventListener? = null)
         }
 
     @Suppress("unused")
-    private val gameHandler = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
+    private val gameHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
         ticksElapsed++
     }
 

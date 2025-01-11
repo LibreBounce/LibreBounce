@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket
 
@@ -24,7 +24,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
 
     object VelocityCheck : ToggleableConfigurable(this, "VelocityCheck", true) {
 
-        val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+        val packetHandler = handler<PacketEvent>(priority = CRITICAL_MODIFICATION) { event ->
             val packet = event.packet
 
             // Check if this is a regular velocity update

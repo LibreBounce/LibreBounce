@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 
@@ -68,7 +68,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent>(
-        priority = EventPriorityConvention.FIRST_PRIORITY
+        priority = CRITICAL_MODIFICATION
     ) { event ->
         if (!event.directionalInput.isMoving) {
             return@handler

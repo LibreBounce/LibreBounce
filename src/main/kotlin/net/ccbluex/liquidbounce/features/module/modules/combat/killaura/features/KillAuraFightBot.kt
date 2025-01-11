@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.rotation
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.ccbluex.liquidbounce.utils.movement.getDegreesRelativeToView
@@ -270,7 +270,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
 
     @Suppress("unused")
     private val inputHandler = handler<MovementInputEvent>(
-        priority = FIRST_PRIORITY
+        priority = CRITICAL_MODIFICATION
     ) { event ->
         val playerPosition = player.pos
 
@@ -294,7 +294,7 @@ object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", fal
     }
 
     @Suppress("unused")
-    private val sprintHandler = handler<SprintEvent>(priority = FIRST_PRIORITY) { event ->
+    private val sprintHandler = handler<SprintEvent>(priority = CRITICAL_MODIFICATION) { event ->
         if (!autoSprint || !event.directionalInput.isMoving) {
             return@handler
         }

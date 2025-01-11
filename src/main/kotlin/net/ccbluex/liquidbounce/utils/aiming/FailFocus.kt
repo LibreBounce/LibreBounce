@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import kotlin.random.Random
 
@@ -43,7 +43,7 @@ class FailFocus(owner: EventListener? = null)
         get() = enabled && ticksElapsed < currentTransitionInDuration
 
     @Suppress("unused")
-    private val gameTick = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
+    private val gameTick = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
         // Fail rate
         val chance = (0f..100f).random()
         if (failRate > chance) {

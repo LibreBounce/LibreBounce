@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.Entity
@@ -112,7 +112,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
 
         @Suppress("unused")
         private val movementHandler = handler<SprintEvent>(
-            priority = EventPriorityConvention.FIRST_PRIORITY
+            priority = CRITICAL_MODIFICATION
         ) { event ->
             if (cancelSprint && (event.source == SprintEvent.Source.MOVEMENT_TICK ||
                     event.source == SprintEvent.Source.INPUT)) {

@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.Modu
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.minecraft.block.CobwebBlock
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -81,7 +81,7 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
 
         @Suppress("unused")
         private val attackHandler = handler<AttackEntityEvent>(
-            priority = EventPriorityConvention.FIRST_PRIORITY
+            priority = CRITICAL_MODIFICATION
         ) { event ->
             if (event.isCancelled) {
                 return@handler

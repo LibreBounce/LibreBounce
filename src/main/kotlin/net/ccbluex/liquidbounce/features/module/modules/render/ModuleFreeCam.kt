@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.client.option.Perspective
@@ -92,18 +92,17 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
     }
 
     @Suppress("unused")
-    private val inputHandler = handler<MovementInputEvent> { event ->
+    private val inputHandler = handler<MovementInputEvent>(priority = FIRST_PRIORITY) { event ->
         val speed = this.speed.toDouble()
         val yAxisMovement = when {
             event.jump -> 1.0f
             event.sneak -> -1.0f
             else -> 0.0f
         }
-        val directionYaw = getMovementDirectionOfInput(player.yaw, event.directionalInput)
 
-        ModuleDebug.debugParameter(this, "DirectionYaw", "%.2f".format(directionYaw))
+        ModuleDebug.debugParameter(this, "DirectionalInput", event.directionalInput)
         val velocity = Vec3d.of(Vec3i.ZERO)
-            .withStrafe(directionYaw, speed, checkInput = true)
+            .withStrafe(speed, input = event.directionalInput)
             .withAxis(Direction.Axis.Y, yAxisMovement * speed)
         ModuleDebug.debugParameter(this, "Velocity", velocity.toString())
         updatePosition(velocity)

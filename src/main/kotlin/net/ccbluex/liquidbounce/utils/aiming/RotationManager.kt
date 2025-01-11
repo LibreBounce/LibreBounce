@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.RequestHandler
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
@@ -210,7 +211,7 @@ object RotationManager : EventListener {
 
     @Suppress("unused")
     private val gameTickHandler = handler<GameTickEvent>(
-        priority = EventPriorityConvention.FIRST_PRIORITY
+        priority = FIRST_PRIORITY
     ) { event ->
         EventManager.callEvent(RotationUpdateEvent)
         update()

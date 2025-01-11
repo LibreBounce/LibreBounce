@@ -87,7 +87,11 @@ val PlayerEntity.ping: Int
     get() = mc.networkHandler?.getPlayerListEntry(uuid)?.latency ?: 0
 
 val ClientPlayerEntity.direction: Float
-    get() = getMovementDirectionOfInput(this.yaw, DirectionalInput(this.input))
+    get() = getMovementDirectionOfInput(DirectionalInput(input))
+
+fun ClientPlayerEntity.getMovementDirectionOfInput(input: DirectionalInput): Float {
+    return getMovementDirectionOfInput(this.yaw, input)
+}
 
 val ClientPlayerEntity.isBlockAction: Boolean
     get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
@@ -210,9 +214,13 @@ val PlayerEntity.sqrtSpeed: Double
 val Vec3d.sqrtSpeed: Double
     get() = sqrt(x * x + z * z)
 
-fun Vec3d.withStrafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
-                     checkInput: Boolean = true): Vec3d {
-    if (checkInput && !player.input.initial.any && !player.input.untransformed.any) {
+fun Vec3d.withStrafe(
+    speed: Double = sqrtSpeed,
+    strength: Double = 1.0,
+    input: DirectionalInput? = DirectionalInput(player.input),
+    yaw: Float = player.getMovementDirectionOfInput(input ?: DirectionalInput(player.input)),
+): Vec3d {
+    if (input?.isMoving == false) {
         return Vec3d(0.0, y, 0.0)
     }
 

@@ -190,21 +190,21 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
                     event.movement = event.movement.withStrafe(
                         yaw = toDegrees(atan2(-strafeVec.x, strafeVec.z)).toFloat(),
                         speed = player.sqrtSpeed.coerceAtLeast(minSpeed),
-                        checkInput = false
+                        input = null
                     )
                 } else {
                     event.movement = event.movement.withStrafe(
                         yaw = toDegrees(atan2(-strafeVec.x, strafeVec.z)).toFloat(),
                         speed = player.sqrtSpeed.coerceAtLeast(minSpeed),
                         strength = 0.02,
-                        checkInput = false
+                        input = null
                     )
                 }
             } else {
                 event.movement = event.movement.withStrafe(
                     yaw = toDegrees(atan2(-strafeVec.x, strafeVec.z)).toFloat(),
                     speed = player.sqrtSpeed,
-                    checkInput = false
+                    input = null
                 )
             }
         }
