@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.ccbluex.liquidbounce.utils.movement.zeroXZ
+import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 /**
@@ -79,7 +79,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
     }
 
     override fun disable() {
-        player.zeroXZ()
+        player.stopXZVelocity()
     }
 
     val repeatable = tickHandler {
@@ -88,7 +88,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
 
         if (boostOnce) {
             ModuleFly.enabled = false
-            player.zeroXZ()
+            player.stopXZVelocity()
         }
     }
 

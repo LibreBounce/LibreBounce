@@ -24,6 +24,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.events.*;
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFightBot;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModulePortalMenu;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleEntityControl;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
@@ -257,6 +258,10 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyReturnValue(method = "isAutoJumpEnabled", at = @At("RETURN"))
     private boolean injectLegitStep(boolean original) {
         if (ModuleStep.Legit.INSTANCE.getRunning()) {
+            return true;
+        }
+
+        if (KillAuraFightBot.INSTANCE.getMinecraftAutoJump()) {
             return true;
         }
 

@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.utils.movement
 
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.toDegrees
 import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.math.minus
@@ -42,7 +43,7 @@ import kotlin.math.atan2
  */
 fun getDegreesRelativeToView(
     positionRelativeToPlayer: Vec3d,
-    yaw: Float = RotationManager.currentRotation?.yaw ?: mc.player!!.yaw,
+    yaw: Float = RotationManager.currentRotation?.yaw ?: player.yaw,
 ): Float {
     val optimalYaw =
         atan2(-positionRelativeToPlayer.x, positionRelativeToPlayer.z).toFloat()
@@ -174,7 +175,6 @@ private fun collectCollisionBoundingBoxes(
     return foundBoxes
 }
 
-fun ClientPlayerEntity.zeroXZ() {
-    this.velocity.x = 0.0
-    this.velocity.z = 0.0
+fun ClientPlayerEntity.stopXZVelocity() {
+    this.velocity = Vec3d(0.0, this.velocity.y, 0.0)
 }

@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.movement.zeroXZ
+import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 
 
 /**
@@ -60,7 +60,7 @@ class SpeedSpartan524(override val parent: ChoiceConfigurable<*>) : Choice("Spar
     }
 
     override fun enable() {
-        player.zeroXZ()
+        player.stopXZVelocity()
         player.velocity.y = 0.0
     }
 }

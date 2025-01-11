@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.strafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.movement.zeroXZ
+import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 /**
@@ -90,6 +90,6 @@ internal object FlyVerusB3896Damage : Choice("VerusB3896Damage") {
 
     override fun disable() {
         flyTicks = 0
-        player.zeroXZ()
+        player.stopXZVelocity()
     }
 }

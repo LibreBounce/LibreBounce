@@ -26,6 +26,7 @@ import net.minecraft.client.input.Input;
 import net.minecraft.util.PlayerInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Input.class)
@@ -37,10 +38,8 @@ public abstract class MixinInput implements InputAddition {
     @Shadow
     public float movementSideways;
 
-    @Shadow
-    public PlayerInput playerInput;
-
-    protected PlayerInput untransformed;
+    @Unique
+    protected PlayerInput untransformed = PlayerInput.DEFAULT;
 
     @ModifyReturnValue(method = "hasForwardMovement", at = @At("RETURN"))
     private boolean hookOmnidirectionalSprint(boolean original) {

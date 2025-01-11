@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.ModuleSpe
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.ccbluex.liquidbounce.utils.movement.zeroXZ
+import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 import net.minecraft.entity.MovementType
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import kotlin.math.ceil
@@ -83,7 +83,7 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
     }
 
     override fun disable() {
-        player.zeroXZ()
+        player.stopXZVelocity()
     }
 
     @Suppress("unused")

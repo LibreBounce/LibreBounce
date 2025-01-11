@@ -20,107 +20,144 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.clickScheduler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.targetTracker
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
-import net.ccbluex.liquidbounce.utils.entity.prevPos
+import net.ccbluex.liquidbounce.utils.entity.eyes
+import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
-import net.ccbluex.liquidbounce.utils.kotlin.random
-import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
-import net.minecraft.entity.Entity
-import kotlin.math.abs
+import net.ccbluex.liquidbounce.utils.movement.getDegreesRelativeToView
+import net.ccbluex.liquidbounce.utils.movement.getDirectionalInputForDegrees
+import kotlin.math.min
 
 /**
  * A fight bot, fights for you, probably better than you. Lol.
  */
 object KillAuraFightBot : ToggleableConfigurable(ModuleKillAura, "FightBot", false) {
 
-    private val safeRange by float("SafeRange", 4f, 0.1f..5f)
-    private var sideToGo = false
+    private val opponentRange by float("OpponentRange", 3f, 0.1f..5f)
+    private val dangerousYawDiff by float("DangerousYaw", 55f, 0f..90f, suffix = "°")
 
-    val repeatable = tickHandler {
-        sideToGo = !sideToGo
+    private val runawayOnCooldown by boolean("RunawayOnCooldown", true)
 
-        waitTicks(
-            if (player.horizontalCollision) {
-                (60..90).random()
-            } else {
-                (10..35).random()
-            }
-        )
-    }
+    private val autoSprint by boolean("AutoSprint", true)
+    private val autoJump by boolean("AutoJump", true)
+
+    /**
+     * Enables Minecraft Auto Jump logic,
+     * no matter if the game option is enabled or not.
+     */
+    val minecraftAutoJump
+        get() = running && autoJump
 
     @Suppress("unused")
     private val inputHandler = handler<MovementInputEvent>(
         priority = FIRST_PRIORITY
     ) { event ->
-        val enemy = targetTracker.lockedOnTarget ?: return@handler
-        val distance = enemy.boxedDistanceTo(player)
+        val target = targetTracker.lockedOnTarget ?: return@handler
 
-        if (clickScheduler.isClickOnNextTick()) {
-            if (distance < ModuleKillAura.range) {
-                event.directionalInput = DirectionalInput.NONE
-                sideToGo = !sideToGo
-            } else {
-                event.directionalInput = DirectionalInput.FORWARDS
-            }
-        } else if (distance < safeRange) {
-            event.directionalInput = DirectionalInput.BACKWARDS
+        val playerPosition = player.pos
+        val targetPosition = target.pos
+        val distance = playerPosition.distanceTo(targetPosition)
+        val range = min(ModuleKillAura.range, distance.toFloat())
+        val outOfDistance = distance  > opponentRange
+
+        val targetRotation = target.rotation.copy(pitch = 0.0f)
+        val requiredTargetRotation = Rotation.lookingAt(playerPosition, target.eyes).copy(pitch = 0.0f)
+
+        // Allow combo from the side
+        val outOfDanger = targetRotation.angleTo(requiredTargetRotation) > dangerousYawDiff
+
+        // (Target position + Target rotation vector * distance)
+        val targetLookPosition = targetPosition.add(
+            targetRotation.rotationVec * range.toDouble()
+        )
+
+        val goal = if (runawayOnCooldown && !clickScheduler.isClickOnNextTick()) {
+            // Subtract the target rotation vector from the player position, which means
+            // we run away from the target
+            val playerRunawayPosition = playerPosition.add(requiredTargetRotation.rotationVec * range.toDouble())
+
+            playerRunawayPosition
         } else {
-            event.directionalInput = DirectionalInput.NONE
+            (0..360 step 10).mapNotNull { yaw ->
+                val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
+                val position = targetPosition.add(rotation.rotationVec * range.toDouble())
+
+                val isInAngle = rotation.angleTo(targetRotation) <= dangerousYawDiff
+
+                ModuleDebug.debugGeometry(
+                    this, "Possible Position $yaw",
+                    ModuleDebug.DebuggedPoint(position, if (!isInAngle) Color4b.GREEN else Color4b.RED)
+                )
+
+                // Filter out yaw that is too close to the target yaw
+                if (isInAngle) {
+                    return@mapNotNull null
+                }
+
+                position
+            }
+                // Sort by distance to target look position
+                .sortedBy { position -> position.squaredDistanceTo(targetLookPosition) }
+                // Then find the closest to the player
+                .minByOrNull { position -> position.squaredDistanceTo(playerPosition) } ?: targetLookPosition
         }
 
-        // We are now in range of the player, so try to circle around him
-        event.directionalInput = event.directionalInput.copy(left = !sideToGo, right = sideToGo)
+        ModuleDebug.debugGeometry(
+            this,
+            "Target Look Position",
+            ModuleDebug.DebuggedPoint(targetLookPosition, Color4b.BLACK, size = 0.4)
+        )
+        ModuleDebug.debugGeometry(this, "Goal", ModuleDebug.DebuggedPoint(goal, Color4b.BLUE, size = 0.4))
 
-        // Jump if we are stuck
-        if (player.horizontalCollision) {
-            event.jump = true
+        val dgs = getDegreesRelativeToView(goal.subtract(player.pos), player.yaw)
+        val directionInput = getDirectionalInputForDegrees(event.directionalInput, dgs, deadAngle = 20.0F)
+        event.directionalInput = directionInput
+
+        if (autoJump) {
+            if (player.horizontalCollision || outOfDistance && !outOfDanger) {
+                event.jump = true
+            }
         }
     }
 
-    private val maximumDriftRandom = (10f..30f).random()
-
-    fun makeClientSideRotationNeeded(target: Entity): Rotation? {
-        if (!enabled) return null
-
-        val targetDistance = target.boxedDistanceTo(player)
-
-        // Unlikely that we can travel such distance with such basic methods
-        if (targetDistance > 69) {
-            return null
+    @Suppress("unused")
+    private val sprintHandler = handler<SprintEvent>(
+        priority = FIRST_PRIORITY
+    ) { event ->
+        if (!autoSprint) {
+            return@handler
         }
 
-        // Cause lag behind
-        var box = target.box.center
-
-        val positionNow = target.pos
-        val prevTargetPosition = target.prevPos
-        val diff = positionNow - prevTargetPosition
-
-        box -= (diff * ((targetDistance - 4.0).coerceAtLeast(1.0)))
-
-        val directRotation = Rotation.lookingAt(point = box, from = player.eyePos)
-
-        if (directRotation != player.rotation) {
-            val pitchDifference = abs(directRotation.pitch - player.rotation.pitch)
-
-            // Limit pitch difference
-            if (pitchDifference < maximumDriftRandom) {
-                directRotation.pitch = player.rotation.pitch + (-2f..2f).random().toFloat()
-            }
+        if (!event.directionalInput.isMoving) {
+            return@handler
         }
 
-        // This is very basic and should be handled by the path finder in the future
-        return directRotation
+        if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
+            event.sprint = true
+        }
+    }
+
+    /**
+     * Get the rotation to look at the target while moving towards it
+     */
+    fun getMovementRotation(): Rotation? {
+        val target = targetTracker.lockedOnTarget ?: return null
+
+        val movementYaw = getMovementDirectionOfInput(player.yaw, DirectionalInput(player.input))
+        val lookAtRotation = Rotation.lookingAt(point = target.box.center, from = player.eyePos)
+
+        return Rotation(movementYaw, lookAtRotation.pitch)
     }
 
 }

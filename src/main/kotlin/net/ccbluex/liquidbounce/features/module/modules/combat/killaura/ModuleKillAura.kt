@@ -385,8 +385,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     rotation,
                     vec,
                     target,
-                    considerInventory = !ignoreOpenInventory,
-                    changeLook = KillAuraFightBot.enabled || rotations.changeLook
+                    considerInventory = !ignoreOpenInventory
                 ),
                 priority = Priority.IMPORTANT_FOR_USAGE_2,
                 provider = this@ModuleKillAura
@@ -396,18 +395,15 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Choose enemy for fight bot
         if (KillAuraFightBot.enabled) {
-            // Because target tracker enemies are sorted by priority, we can just take the first one
-            val targetByPriority = targetTracker.enemies().firstOrNull() ?: return
-
-            val rotationToEnemy = KillAuraFightBot.makeClientSideRotationNeeded(targetByPriority) ?: return
-            // lock on target tracker
+            targetTracker.lock(targetTracker.enemies().firstOrNull() ?: return)
             RotationManager.aimAt(
-                rotations.toAimPlan(rotationToEnemy, null, targetByPriority, !ignoreOpenInventory,
-                    changeLook = true),
+                rotations.toAimPlan(
+                    KillAuraFightBot.getMovementRotation() ?: return,
+                    considerInventory = !ignoreOpenInventory
+                ),
                 priority = Priority.IMPORTANT_FOR_USAGE_2,
                 provider = this@ModuleKillAura
             )
-            targetTracker.lock(targetByPriority)
         }
     }
 
