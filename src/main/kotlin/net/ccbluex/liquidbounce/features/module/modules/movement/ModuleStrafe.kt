@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.math.copy
 import net.minecraft.entity.MovementType
 
 /**
@@ -46,8 +47,6 @@ object ModuleStrafe : ClientModule("Strafe", Category.MOVEMENT) {
     val moveHandler = handler<PlayerMoveEvent> { event ->
         // Might just strafe when player controls itself
         if (event.type == MovementType.SELF) {
-            val movement = event.movement
-
             val strength = if (player.isOnGround) strengthOnGround else strengthInAir
 
             // Don't strafe if strength is 0
@@ -56,10 +55,9 @@ object ModuleStrafe : ClientModule("Strafe", Category.MOVEMENT) {
             }
 
             if (player.moving) {
-                movement.withStrafe(player.direction, strength = strength.toDouble())
+                event.movement = event.movement.withStrafe(player.direction, strength = strength.toDouble())
             } else if (strictMovement) {
-                movement.x = 0.0
-                movement.z = 0.0
+                event.movement = event.movement.copy(x = 0.0, z = 0.0)
             }
         }
     }

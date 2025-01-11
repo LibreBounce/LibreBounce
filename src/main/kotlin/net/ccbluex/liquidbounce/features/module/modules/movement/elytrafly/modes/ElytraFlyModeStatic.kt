@@ -21,19 +21,18 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.mode
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
-import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 
 internal object ElytraFlyModeStatic : ElytraFlyMode("Static") {
 
     @Suppress("unused")
-    private val networkMovementTickHandler = handler<PlayerMoveEvent> { event ->
+    private val moveHandler = handler<PlayerMoveEvent> { event ->
         if (ModuleElytraFly.shouldNotOperate() || !player.isGliding) {
             return@handler
         }
 
         val speed = ModuleElytraFly.Speed.enabled
-        if (speed && player.moving) {
+        if (speed) {
             event.movement = event.movement.withStrafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
         } else {
             event.movement.x = 0.0

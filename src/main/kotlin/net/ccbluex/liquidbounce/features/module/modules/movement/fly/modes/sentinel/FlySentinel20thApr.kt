@@ -124,7 +124,7 @@ internal object FlySentinel20thApr : Choice("Sentinel20thApr") {
         }
 
         if (constantSpeed) {
-            event.movement = event.movement.withStrafe(speed = horizontalSpeed.toDouble(), keyboardCheck = true)
+            event.movement = event.movement.withStrafe(speed = horizontalSpeed.toDouble())
         }
     }
 

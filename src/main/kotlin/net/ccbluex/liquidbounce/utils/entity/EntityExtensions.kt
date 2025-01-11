@@ -211,8 +211,8 @@ val Vec3d.sqrtSpeed: Double
     get() = sqrt(x * x + z * z)
 
 fun Vec3d.withStrafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
-                     keyboardCheck: Boolean = false): Vec3d {
-    if (keyboardCheck && !player.input.initial.any) {
+                     checkInput: Boolean = true): Vec3d {
+    if (checkInput && !player.input.initial.any) {
         return Vec3d(0.0, y, 0.0)
     }
 

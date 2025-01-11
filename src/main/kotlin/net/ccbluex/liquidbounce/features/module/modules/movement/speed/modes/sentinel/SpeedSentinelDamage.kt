@@ -106,8 +106,7 @@ class SpeedSentinelDamage(override val parent: ChoiceConfigurable<*>) : Choice("
         }
 
         if (event.type == MovementType.SELF && player.moving) {
-            val movement = event.movement
-            movement.withStrafe(player.direction, strength = 1.0, speed = speed.toDouble())
+            event.movement = event.movement.withStrafe(player.direction, strength = 1.0, speed = speed.toDouble())
         }
     }
 

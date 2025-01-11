@@ -103,7 +103,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
 
         ModuleDebug.debugParameter(this, "DirectionYaw", "%.2f".format(directionYaw))
         val velocity = Vec3d.of(Vec3i.ZERO)
-            .withStrafe(directionYaw, speed, keyboardCheck = true)
+            .withStrafe(directionYaw, speed, checkInput = true)
             .withAxis(Direction.Axis.Y, yAxisMovement * speed)
         ModuleDebug.debugParameter(this, "Velocity", velocity.toString())
         updatePosition(velocity)

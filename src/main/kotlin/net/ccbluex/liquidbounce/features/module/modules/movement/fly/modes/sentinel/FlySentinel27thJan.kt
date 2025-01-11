@@ -64,8 +64,8 @@ internal object FlySentinel27thJan : Choice("Sentinel27thJan") {
         waitTicks(6)
     }
 
-    val moveHandler = handler<PlayerMoveEvent> {
-        it.movement.withStrafe(player.direction)
+    val moveHandler = handler<PlayerMoveEvent> { event ->
+        event.movement = event.movement.withStrafe(player.direction)
     }
 
 }

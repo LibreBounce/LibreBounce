@@ -33,9 +33,9 @@ import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.math.copy
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 import net.minecraft.util.Hand
-import net.minecraft.util.math.Vec3d
 
 /**
  * Vehicle control module
@@ -104,13 +104,9 @@ object ModuleVehicleControl : ClientModule("VehicleControl", Category.MOVEMENT, 
         }
 
         // Vehicle control velocity
-        val velocity = Vec3d(
-            vehicle.velocity.x,
-            verticalSpeed,
-            vehicle.velocity.z
-        ).withStrafe(yaw = player.direction, speed = horizontalSpeed)
-
-        vehicle.velocity = velocity
+        vehicle.velocity = vehicle.velocity
+            .copy(y = verticalSpeed)
+            .withStrafe(yaw = player.direction, speed = horizontalSpeed)
     }
 
     @Suppress("unused")

@@ -51,8 +51,7 @@ class SpeedVerusB3882(override val parent: ChoiceConfigurable<*>) : SpeedBHopBas
     private val moveHandler = handler<PlayerMoveEvent> { event ->
         // Might just strafe when player controls itself
         if (event.type == MovementType.SELF && player.moving) {
-            val movement = event.movement
-            movement.withStrafe(player.direction, strength = 1.0)
+            event.movement = event.movement.withStrafe(player.direction, strength = 1.0)
         }
     }
 
