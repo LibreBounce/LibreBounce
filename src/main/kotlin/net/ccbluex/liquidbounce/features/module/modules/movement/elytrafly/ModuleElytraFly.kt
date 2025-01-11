@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeStatic
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeVanilla
+import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.set
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.effect.StatusEffects
@@ -41,8 +42,8 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
     private val instantStop by boolean("InstantStop", true)
 
     object Speed : ToggleableConfigurable(this, "Speed", true) {
-        val vertical by float("Vertical", 0.5f, 0.1f..2f)
-        val horizontal by float("Horizontal", 1f, 0.1f..5f)
+        val vertical by float("Vertical", 0.5f, 0.1f..5f)
+        val horizontal by float("Horizontal", 1f, 0.1f..8f)
     }
 
     init {
@@ -90,11 +91,14 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
 
         if (player.isGliding) {
             // we're already flying, yay
+            val activeChoice = modes.activeChoice
             if (Speed.enabled) {
-                modes.activeChoice.onTick()
+                activeChoice.onTick()
             }
 
-            if (durabilityExploit) {
+            val modeDoesNotPreventStopping = activeChoice !is ElytraFlyModeStatic ||
+                !activeChoice.durabilityExploitNotWhileMove || !player.moving
+            if (durabilityExploit && modeDoesNotPreventStopping) {
                 network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
                 needsToRestart = true
             }
