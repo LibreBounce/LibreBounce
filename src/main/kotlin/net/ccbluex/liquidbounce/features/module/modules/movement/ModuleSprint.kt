@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.minecraft.util.math.MathHelper
 
 /**
  * Sprint module
@@ -52,6 +53,13 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private val ignoreBlindness by boolean("IgnoreBlindness", false)
     private val ignoreHunger by boolean("IgnoreHunger", false)
     private val ignoreCollision by boolean("IgnoreCollision", false)
+
+    /**
+     * This is used to stop sprinting when the player is not moving forward
+     * without velocity fix enabled.
+     */
+    private val stopOnGround by boolean("StopOnGround", true)
+    private val stopOnAir by boolean("StopOnAir", true)
 
     val shouldSprintOmnidirectional: Boolean
         get() = running && sprintMode == SprintMode.OMNIDIRECTIONAL ||
@@ -79,6 +87,15 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         }
     }
 
+    @Suppress("unused")
+    private val sprintPreventionHandler = handler<SprintEvent> { event ->
+        // In this case we want to prevent sprinting on movement tick only,
+        // because otherwise you could guess from the input change that this is automated.
+        if (event.source == SprintEvent.Source.MOVEMENT_TICK && shouldPreventSprint()) {
+            event.sprint = false
+        }
+    }
+
     // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
     private val rotationsConfigurable = RotationsConfigurable(this)
 
@@ -97,4 +114,18 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         RotationManager.aimAt(rotationsConfigurable.toAimPlan(rotation), Priority.NOT_IMPORTANT,
             this@ModuleSprint)
     }
+
+    fun shouldPreventSprint(): Boolean {
+        val deltaYaw = player.yaw - (RotationManager.currentRotation ?: return false).yaw
+        val (forward, sideways) = Pair(player.input.movementForward, player.input.movementSideways)
+
+        val hasForwardMovement = forward * MathHelper.cos(deltaYaw * 0.017453292f) + sideways *
+            MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
+        val preventSprint = (if (player.isOnGround) stopOnGround else stopOnAir)
+            && !shouldSprintOmnidirectional
+            && RotationManager.workingAimPlan?.applyVelocityFix == false && !hasForwardMovement
+
+        return running && preventSprint
+    }
+
 }
