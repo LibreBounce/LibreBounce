@@ -148,7 +148,6 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     }
 
     override fun disable() {
-        targetRenderer.clearSilently()
         targetPos = null
     }
 

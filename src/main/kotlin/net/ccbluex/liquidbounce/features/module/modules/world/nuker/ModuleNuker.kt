@@ -69,7 +69,7 @@ object ModuleNuker : ClientModule("Nuker", Category.WORLD, disableOnQuit = true)
 
     override fun disable() {
         wasTarget = null
-        targetRenderer.clearSilently()
+        super.disable()
     }
 
 }
