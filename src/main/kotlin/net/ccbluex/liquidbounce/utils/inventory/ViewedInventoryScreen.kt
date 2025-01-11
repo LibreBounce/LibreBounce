@@ -104,7 +104,8 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
     }
 
     private fun drawBackground(context: DrawContext, mouseX: Int, mouseY: Int) {
-        context.drawTexture(RenderLayer::getGuiTextured, BACKGROUND_TEXTURE, x, y, 0.0F, 0.0F, this.backgroundWidth, this.backgroundHeight, 256, 256);
+        context.drawTexture(RenderLayer::getGuiTextured, BACKGROUND_TEXTURE, x, y,
+            0.0F, 0.0F, this.backgroundWidth, this.backgroundHeight, 256, 256);
         player()?.let { player ->
             drawEntity(
                 context, x + 26, y + 8, x + 75, y + 78,
