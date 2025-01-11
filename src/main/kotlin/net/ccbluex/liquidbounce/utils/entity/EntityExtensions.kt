@@ -22,6 +22,7 @@
 package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.common.ShapeFlag
+import net.ccbluex.liquidbounce.interfaces.ClientPlayerEntityAddition
 import net.ccbluex.liquidbounce.interfaces.InputAddition
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
@@ -72,10 +73,10 @@ val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
 
 val Input.untransformed: PlayerInput
-    get() = (this as InputAddition).untransformed
+    get() = (this as InputAddition).`liquid_bounce$getUntransformed`()
 
 val Input.initial: PlayerInput
-    get() = (this as InputAddition).initial
+    get() = (this as InputAddition).`liquid_bounce$getInitial`()
 
 val Entity.exactPosition
     get() = Vec3d(x, y, z)
@@ -85,6 +86,12 @@ val Entity.blockVecPosition
 
 val PlayerEntity.ping: Int
     get() = mc.networkHandler?.getPlayerListEntry(uuid)?.latency ?: 0
+
+val ClientPlayerEntity.airTicks: Int
+    get() = (this as ClientPlayerEntityAddition).`liquid_bounce$getAirTicks`()
+
+val ClientPlayerEntity.onGroundTicks: Int
+    get() = (this as ClientPlayerEntityAddition).`liquid_bounce$getOnGroundTicks`()
 
 val ClientPlayerEntity.direction: Float
     get() = getMovementDirectionOfInput(DirectionalInput(input))

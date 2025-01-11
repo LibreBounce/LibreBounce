@@ -55,12 +55,12 @@ public abstract class MixinInput implements InputAddition {
     }
 
     @Override
-    public PlayerInput getInitial() {
+    public PlayerInput liquid_bounce$getInitial() {
         return initial;
     }
 
     @Override
-    public PlayerInput getUntransformed() {
+    public PlayerInput liquid_bounce$getUntransformed() {
         return untransformed;
     }
 

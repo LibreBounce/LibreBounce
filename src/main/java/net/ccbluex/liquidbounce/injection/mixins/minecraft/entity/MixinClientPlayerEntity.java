@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VrScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
+import net.ccbluex.liquidbounce.interfaces.ClientPlayerEntityAddition;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
@@ -57,7 +58,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
+public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implements ClientPlayerEntityAddition {
 
     @Shadow
     public Input input;
@@ -69,14 +70,16 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @Shadow
     public abstract boolean isSubmergedInWater();
 
-    @Shadow
-    protected abstract boolean isWalking();
-
     @Unique
     private PlayerData lastKnownStatistics = null;
 
     @Unique
     private PlayerNetworkMovementTickEvent eventMotion;
+
+    @Unique
+    private int onGroundTicks = 0;
+    @Unique
+    private int airTicks = 0;
 
     /**
      * Hook entity tick event
@@ -180,6 +183,30 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @ModifyVariable(method = "move", at = @At("HEAD"), name = "arg2", ordinal = 0, index = 2, argsOnly = true)
     private Vec3d hookMove(Vec3d movement, MovementType type) {
         return EventManager.INSTANCE.callEvent(new PlayerMoveEvent(type, movement)).getMovement();
+    }
+
+    /**
+     * Hook counter for on ground and air ticks
+     */
+    @Inject(method = "move", at = @At("RETURN"))
+    private void hookGroundAirTimeCounters(CallbackInfo ci) {
+        if (this.isOnGround()) {
+            onGroundTicks++;
+            airTicks = 0;
+        } else {
+            airTicks++;
+            onGroundTicks = 0;
+        }
+    }
+
+    @Override
+    public int liquid_bounce$getOnGroundTicks() {
+        return onGroundTicks;
+    }
+
+    @Override
+    public int liquid_bounce$getAirTicks() {
+        return airTicks;
     }
 
     /**

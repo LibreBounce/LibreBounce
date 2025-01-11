@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
@@ -50,7 +51,6 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     private val damageLowHop by boolean("DamageLowHop", false)
     private val safeY by boolean("SafeY", true)
 
-    private var airTicks = 0
     private var canSpeed = false
 
     private var lastVelocity = 0
@@ -61,17 +61,14 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     }
 
     override fun disable() {
-        airTicks = 0
         player.velocity = player.velocity.withStrafe(speed = 0.0)
     }
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
         if (player.isOnGround) {
-            airTicks = 0
             canSpeed = true
         } else {
-            airTicks++
 
             if (!canSpeed) {
                 return@tickHandler
@@ -81,12 +78,12 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
                     player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed - 0.004)
                 }
             } else {
-                if (airTicks >= 6 && player.moving) {
+                if (player.airTicks >= 6 && player.moving) {
                     player.velocity = player.velocity.withStrafe()
                 }
             }
 
-            if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) > 0 && airTicks == 3) {
+            if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) > 0 && player.airTicks == 3) {
                 player.velocity = player.velocity.multiply(
                     1.12,
                     1.0,
@@ -94,7 +91,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
                 )
             }
 
-            if (lowHop && airTicks == 4) {
+            if (lowHop && player.airTicks == 4) {
                 if (safeY) {
                     if (player.y % 1.0 == 0.16610926093821377) {
                         player.velocity.y = -0.09800000190734863

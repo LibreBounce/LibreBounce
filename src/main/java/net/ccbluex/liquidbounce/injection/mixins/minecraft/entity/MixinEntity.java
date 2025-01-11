@@ -49,11 +49,6 @@ public abstract class MixinEntity {
     public boolean noClip;
 
     @Shadow
-    public static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw) {
-        return null;
-    }
-
-    @Shadow
     public abstract boolean isOnGround();
 
     @Shadow
