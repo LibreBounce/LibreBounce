@@ -263,6 +263,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
     /**
      * NCP Step
      *
+     * @testedOn anticheat-test.com
      * @author 1zun4, ported from legacy by Jucku
      */
     object NCP : Choice("NCP") {
