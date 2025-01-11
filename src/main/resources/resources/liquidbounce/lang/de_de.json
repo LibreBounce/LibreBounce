@@ -628,5 +628,6 @@
   "liquidbounce.module.baritone.description": "Einstellungen für Baritone.",
   "liquidbounce.command.tps.description": "Schätzt die TPS des Servers ab.",
   "liquidbounce.command.tps.result.tpsCheck": "Die TPS des Servers betragen %s.",
-  "liquidbounce.command.tps.result.nan": "noch nicht berechnet"
+  "liquidbounce.command.tps.result.nan": "noch nicht berechnet",
+  "liquidbounce.module.anchor.description": "Geht automatisch in sichere Löcher für Crystal PvP."
 }
