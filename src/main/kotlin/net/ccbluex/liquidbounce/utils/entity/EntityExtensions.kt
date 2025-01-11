@@ -212,7 +212,7 @@ val Vec3d.sqrtSpeed: Double
 
 fun Vec3d.withStrafe(yaw: Float = player.direction, speed: Double = sqrtSpeed, strength: Double = 1.0,
                      checkInput: Boolean = true): Vec3d {
-    if (checkInput && !player.input.initial.any) {
+    if (checkInput && !player.input.initial.any && !player.input.untransformed.any) {
         return Vec3d(0.0, y, 0.0)
     }
 
