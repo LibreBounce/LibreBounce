@@ -55,7 +55,7 @@ object CommandItemSkull : CommandFactory, MinecraftShortcuts {
                     throw CommandException(command.result("mustBeCreative"))
                 }
 
-                val itemStack = createItem("minecraft:player_head{SkullOwner:$name}")
+                val itemStack = createItem("minecraft:player_head[profile=$name]")
                 val emptySlot = player.inventory!!.emptySlot
 
                 if (emptySlot == -1) {
