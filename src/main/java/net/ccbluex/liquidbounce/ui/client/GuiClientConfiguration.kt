@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.GuiTextField
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.Display
@@ -36,6 +37,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
         var stylisedAlts = true
         var unformattedAlts = false
         var altsLength = 16
+        var altsPrefix = ""
 
         fun updateClientWindow() {
             if (enabledClientTitle) {
@@ -64,6 +66,8 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
     private lateinit var altsSlider: GuiSlider
 
     private lateinit var titleButton: GuiButton
+
+    private lateinit var altPrefixField: GuiTextField
 
     override fun initGui() {
         // Title button
@@ -131,8 +135,11 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             it.enabled = stylisedAlts
         }
 
+        altPrefixField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 260 + 25, 200, 20)
+        altPrefixField.maxStringLength = 16
+
         // Back button
-        +GuiButton(8, width / 2 - 100, height / 4 + 25 + 25 * 11, "Back")
+        +GuiButton(8, width / 2 - 100, height / 4 + 25 + 25 + 25 * 11, "Back")
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -255,6 +262,17 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
         Fonts.font40.drawString(
             translationMenu("altManager"), width / 2F - 98F, height / 4F + 200F, 0xFFFFFF, true
         )
+
+        altPrefixField.drawTextBox()
+        if (altPrefixField.text.isEmpty() && !altPrefixField.isFocused) {
+            Fonts.font35.drawStringWithShadow(
+                altsPrefix.ifEmpty { translationMenu("altManager.typeCustomPrefix") },
+                altPrefixField.xPosition + 4f,
+                altPrefixField.yPosition + (altPrefixField.height - Fonts.font35.FONT_HEIGHT) / 2F,
+                0xffffff
+            )
+        }
+
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -264,7 +282,18 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             return
         }
 
+        if (altPrefixField.isFocused) {
+            altPrefixField.textboxKeyTyped(typedChar, keyCode)
+            altsPrefix = altPrefixField.text
+            saveConfig(valuesConfig)
+        }
+
         super.keyTyped(typedChar, keyCode)
+    }
+
+    public override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
+        altPrefixField.mouseClicked(mouseX, mouseY, mouseButton)
+        super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
     override fun onGuiClosed() {

@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.lang.LanguageManager.overrideLanguage
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.altsLength
+import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.altsPrefix
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.enabledClientTitle
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.enabledCustomBackground
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.particles
@@ -115,6 +116,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     if (jsonValue.has("StylisedAlts")) stylisedAlts = jsonValue["StylisedAlts"].asBoolean
                     if (jsonValue.has("AltsLength")) altsLength = jsonValue["AltsLength"].asInt
                     if (jsonValue.has("CleanAlts")) unformattedAlts = jsonValue["CleanAlts"].asBoolean
+                    if (jsonValue.has("AltsPrefix")) altsPrefix = jsonValue["AltsPrefix"].asString
                     if (jsonValue.has("OverrideLanguage")) overrideLanguage = jsonValue["OverrideLanguage"].asString
                 }
 
@@ -201,6 +203,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
             addProperty("StylisedAlts", stylisedAlts)
             addProperty("AltsLength", altsLength)
             addProperty("CleanAlts", unformattedAlts)
+            addProperty("AltsPrefix", altsPrefix)
             addProperty("OverrideLanguage", overrideLanguage)
         }
         jsonObject.add("clientConfiguration", clientObject)

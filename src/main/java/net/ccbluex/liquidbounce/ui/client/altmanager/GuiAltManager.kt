@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager
 
-import com.google.gson.JsonParser
 import com.thealtening.AltService
 import kotlinx.coroutines.launch
 import me.liuli.elixir.account.CrackedAccount
@@ -71,7 +70,6 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
             scrollBy(mightBeTheCurrentAccount * altsList.getSlotHeight())
         }
-
 
         // Setup buttons
 

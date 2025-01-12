@@ -15,6 +15,8 @@
 
         "menu.discordRPC.typeBox": "Type Here..",
 
+        "menu.altManager.typeCustomPrefix": "Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "Enabled %s",
         "notification.moduleDisabled": "Disabled %s",
 

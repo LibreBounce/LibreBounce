@@ -12,6 +12,8 @@
 
         "menu.discordRPC.typeBox": "UNTRANSLATED: Type Here..",
 
+        "menu.altManager.typeCustomPrefix": "UNTRANSLATED: Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "%s се активира",
         "notification.moduleDisabled": "%s се деактивира",
 

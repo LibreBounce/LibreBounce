@@ -13,6 +13,8 @@
 
         "menu.discordRPC.typeBox": "UNTRANSLATED: Type Here..",
 
+        "menu.altManager.typeCustomPrefix": "UNTRANSLATED: Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "Ligaste %s",
         "notification.moduleDisabled": "Desligastes %s",
 
