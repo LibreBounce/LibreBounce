@@ -103,7 +103,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
      *
      * @return Target position as Vec3d
      */
-    override fun calculateGoalPosition(context: CombatContext): Vec3d {
+    override fun calculateGoalPosition(context: CombatContext): Vec3d? {
         // Try to follow leader first
         if (LeaderFollower.running && LeaderFollower.username.isNotEmpty()) {
             val leader = world.players.find { it.gameProfile.name == LeaderFollower.username }
@@ -113,7 +113,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
         }
 
         // Otherwise handle combat movement
-        val combatTarget = context.combatTarget ?: return context.playerPosition
+        val combatTarget = context.combatTarget ?: return null
         return if (runawayOnCooldown && !clickScheduler.isClickOnNextTick()) {
             calculateRunawayPosition(context, combatTarget)
         } else {
@@ -144,7 +144,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
      *
      * @return Movement rotation or null if no target
      */
-    public override fun getMovementRotation(): Rotation {
+    override fun getMovementRotation(): Rotation {
         val movementRotation = super.getMovementRotation()
         val movementPitch = targetTracker.lockedOnTarget?.let { entity ->
             Rotation.lookingAt(point = entity.box.center, from = player.eyePos).pitch
