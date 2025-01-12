@@ -59,7 +59,8 @@ object CommandItemRename : CommandFactory {
                     throw CommandException(command.result("mustHoldItem"))
                 }
 
-                val name = (args.getOrElse(0, defaultValue = { arrayOf("") }) as Array<*>).joinToString(" ") { it as String }
+                val name = (args.getOrElse(0, defaultValue = { arrayOf("") }) as Array<*>)
+                    .joinToString(" ") { it as String }
                 when (name) {
                     "" -> {
                         itemStack!!.remove(DataComponentTypes.CUSTOM_NAME)
