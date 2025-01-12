@@ -14,6 +14,7 @@ internal object NoFallPacketJump : Choice("PacketJump") {
         arrayOf(MovePacketType.FULL, MovePacketType.POSITION_AND_ON_GROUND))
     private val onLanding by boolean("OnLanding", true)
     private val minDistance by float("MinDistance", 3f, 0f..3f)
+    private val resetFallDistance by boolean("ResetFallDistance", true)
 
     private var falling = false
 
@@ -26,7 +27,9 @@ internal object NoFallPacketJump : Choice("PacketJump") {
             network.sendPacket(packetType.generatePacket().apply {
                 y += 1.0E-9
             })
-            player.onLanding()
+            if (resetFallDistance) {
+                player.onLanding()
+            }
         }
     }
 
@@ -39,7 +42,6 @@ internal object NoFallPacketJump : Choice("PacketJump") {
                 z = player.lastZ
                 onGround = false
             })
-            player.onLanding()
         }
     }
 }
