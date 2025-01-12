@@ -12,9 +12,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 internal object NoFallPacketJump : Choice("PacketJump") {
     private val packetType by enumChoice("PacketType", MovePacketType.FULL,
         arrayOf(MovePacketType.FULL, MovePacketType.POSITION_AND_ON_GROUND))
-    private val onLanding by boolean("OnLanding", true)
-    private val minDistance by float("MinDistance", 3f, 0f..3f)
-    private val resetFallDistance by boolean("ResetFallDistance", true)
+    private val fallDistance by float("FallDistance", 3f, 0f..3f)
+    private val timing = choices("Timing", Landing, arrayOf(Landing, Falling))
 
     private var falling = false
 
@@ -22,19 +21,19 @@ internal object NoFallPacketJump : Choice("PacketJump") {
         get() = ModuleNoFall.modes
 
     val tickHandler = handler<PlayerTickEvent> {
-        falling = player.fallDistance > minDistance
-        if (!onLanding && !player.isOnGround && falling) {
+        falling = player.fallDistance > fallDistance
+        if (timing.activeChoice is Falling && !player.isOnGround && falling) {
             network.sendPacket(packetType.generatePacket().apply {
                 y += 1.0E-9
             })
-            if (resetFallDistance) {
+            if (Falling.resetFallDistance) {
                 player.onLanding()
             }
         }
     }
 
     val packetHandler = handler<PacketEvent> { event ->
-        if (onLanding && event.packet is PlayerMoveC2SPacket && event.packet.onGround && falling) {
+        if (timing.activeChoice is Landing && event.packet is PlayerMoveC2SPacket && event.packet.onGround && falling) {
             falling = false
             network.sendPacket(packetType.generatePacket().apply {
                 x = player.lastX
@@ -43,5 +42,17 @@ internal object NoFallPacketJump : Choice("PacketJump") {
                 onGround = false
             })
         }
+    }
+
+    private object Landing : Choice("Landing") {
+        override val parent: ChoiceConfigurable<*>
+            get() = timing
+    }
+
+    private object Falling : Choice("Falling") {
+        override val parent: ChoiceConfigurable<*>
+            get() = timing
+
+        val resetFallDistance by boolean("ResetFallDistance", true)
     }
 }
