@@ -1285,6 +1285,7 @@ object RenderUtils : MinecraftInstance {
 
         glEnable(GL_TEXTURE_2D)
         glEnable(GL_BLEND)
+        glDisable(GL_CULL_FACE)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_ALPHA_TEST)
         glAlphaFunc(GL_GREATER, 0f)
@@ -1303,6 +1304,7 @@ object RenderUtils : MinecraftInstance {
         glDisable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_ALPHA_TEST)
+        glEnable(GL_CULL_FACE)
 
         glPopMatrix()
         glPopAttrib()
