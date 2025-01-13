@@ -27,13 +27,11 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.NORMAL
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.SAFE
-import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
-import net.ccbluex.liquidbounce.utils.client.formatAsTime
-import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
 import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -52,6 +50,7 @@ import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
     private val behavior by enumChoice("Behavior", NORMAL)
+    private val timer by float("Timer", 1.0f, 0.1f..2.0f)
 
     enum class Behaviour(override val choiceName: String) : NamedChoice {
         NORMAL("Normal"),
@@ -68,6 +67,13 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
     val cancelClicks
         get() = behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
+
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
+        if (mc.currentScreen is InventoryScreen) {
+            Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
+        }
+    }
 
     object Blink : ToggleableConfigurable(this,"Blink", false) {
 
