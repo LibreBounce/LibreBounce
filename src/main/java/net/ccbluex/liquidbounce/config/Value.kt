@@ -40,7 +40,7 @@ sealed class Value<T>(
     var hidden = false
         private set
 
-    open fun setAndUpdateDefault(new: T): Boolean {
+    fun setAndUpdateDefault(new: T): Boolean {
         default = new
 
         return set(new)
