@@ -15,7 +15,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
@@ -538,7 +537,6 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     val rainbow = value.rainbow
 
                     if (leftClickPressed || rightClickPressed) {
-                        chat("${mouseX}, ${colorPreviewX1..colorPreviewX2}, $mouseY, ${colorPreviewY1..colorPreviewY2}")
                         val isColorPreview =
                             mouseX in colorPreviewX1..colorPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
                         val isRainbowPreview =

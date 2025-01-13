@@ -16,10 +16,12 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.minecraft.client.gui.FontRenderer
 import org.lwjgl.input.Mouse
 import java.awt.Color
 import javax.vecmath.Vector2f
+import kotlin.math.roundToInt
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -38,7 +40,7 @@ sealed class Value<T>(
     var hidden = false
         private set
 
-    fun setAndUpdateDefault(new: T): Boolean {
+    open fun setAndUpdateDefault(new: T): Boolean {
         default = new
 
         return set(new)
@@ -400,10 +402,10 @@ open class ColorValue(
         }
 
     init {
-        initializeSliderValues(defaultColor)
+        setupSliders(defaultColor)
     }
 
-    fun initializeSliderValues(color: Color) {
+    fun setupSliders(color: Color) {
         Color.RGBtoHSB(color.red, color.green, color.blue, null).also {
             hueSliderY = it[0]
             opacitySliderY = color.alpha / 255f
@@ -419,7 +421,7 @@ open class ColorValue(
 
     override fun toJsonF(): JsonElement {
         val pos = colorPickerPos
-        return JsonPrimitive("colorpicker: [${pos.x}, ${pos.y}], hueslider: ${hueSliderY}, opacity:${opacitySliderY}, rainbow: $rainbow")
+        return JsonPrimitive("colorpicker: [${pos.x}, ${pos.y}], hueslider: ${hueSliderY}, opacity: ${opacitySliderY}, rainbow: $rainbow")
     }
 
     override fun fromJsonF(element: JsonElement): Color? {
@@ -443,7 +445,10 @@ open class ColorValue(
                     this.opacitySliderY = opacitySliderY
                     this.rainbow = rainbowString
 
-                    return value
+                    // Change the current color based on the data from values.json
+                    return Color(
+                        Color.HSBtoRGB(this.hueSliderY, colorPickerX, 1 - colorPickerY), true
+                    ).withAlpha((opacitySliderY * 255).roundToInt())
                 }
             }
         }
@@ -457,16 +462,17 @@ open class ColorValue(
         return selectedColor()
     }
 
+    // Every change that is not coming from any ClickGUI styles should modify the sliders to synchronize with the new color.
+    override fun onChanged(oldValue: Color, newValue: Color) {
+        setupSliders(newValue)
+    }
+
     fun readColorFromConfig(str: String): List<String>? {
         val regex =
             """Color\[picker=\[\s*(-?\d*\.?\d+),\s*(-?\d*\.?\d+)],\s*hueslider=\s*(-?\d*\.?\d+),\s*opacity=\s*(-?\d*\.?\d+),\s*rainbow=(true|false)]""".toRegex()
         val matchResult = regex.find(str)
 
-        return matchResult?.let {
-            listOf(
-                it.groupValues[1], it.groupValues[2], it.groupValues[3], it.groupValues[4], it.groupValues[5]
-            )
-        }
+        return matchResult?.groupValues?.drop(1)
     }
 
     enum class SliderType {
