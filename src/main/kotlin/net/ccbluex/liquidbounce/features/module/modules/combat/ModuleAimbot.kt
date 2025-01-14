@@ -35,7 +35,9 @@ import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
+import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.MathHelper
 
@@ -69,6 +71,9 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     }
 
     private val slowStart = tree(SlowStart(this))
+
+    private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
+    private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
 
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
@@ -113,6 +118,14 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, partialTicks)
+        }
+
+        if (!ignoreOpenScreen && mc.currentScreen != null) {
+            return@handler
+        }
+
+        if (!ignoreOpenContainer && (InventoryManager.isInventoryOpen || mc.currentScreen is HandledScreen<*>)) {
+            return@handler
         }
 
         val currentRotation = playerRotation ?: return@handler
