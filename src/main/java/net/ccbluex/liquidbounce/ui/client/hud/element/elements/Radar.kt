@@ -53,7 +53,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
     private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(50))
 
-    private val borderStrength by float("Border Strength", 2F, 1F..5F)
+    private val borderStrength by float("Border-Strength", 2F, 1F..5F)
 
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { borderRainbow }
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { borderRainbow }

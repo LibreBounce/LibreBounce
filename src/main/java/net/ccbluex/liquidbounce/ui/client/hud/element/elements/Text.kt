@@ -110,9 +110,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private var displayString by text("DisplayText", "")
 
-    private val textColorMode by choices("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val textColorMode by choices("Text-ColorMode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
 
-    private val colors = ColorSettingsInteger(this, applyMax = true) { textColorMode == "Custom" }
+    private val colors = ColorSettingsInteger(this, "TextColor", applyMax = true) { textColorMode == "Custom" }
 
     private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
 
@@ -125,9 +125,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private var backgroundScale by float("Background-Scale", 1F, 1F..3F)
 
-    private val backgroundMode by choices("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
 
-    private val bgColors = ColorSettingsInteger(this, "Background")
+    private val bgColors = ColorSettingsInteger(this, "BackgroundColor")
     { backgroundMode == "Custom" }.with(a = 0)
 
     private val gradientBackgroundSpeed by float("Background-Gradient-Speed", 1f, 0.5f..10f)
@@ -140,7 +140,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private val backgroundBorder by float("BackgroundBorder-Width", 0.5F, 0.5F..5F)
 
-    private val bgBorderColors = ColorSettingsInteger(this, "BackgroundBorder").with(a = 0)
+    private val bgBorderColors = ColorSettingsInteger(this, "BackgroundBorderColor").with(a = 0)
 
     private fun isColorModeUsed(value: String) = textColorMode == value || backgroundMode == value
 

@@ -53,13 +53,13 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
 
     private val colors = ColorSettingsInteger(
         this,
-        "Text",
+        "TextColor",
         applyMax = true
     ) { renderServerPos == "Box" }
 
     private val boxColors = ColorSettingsInteger(
         this,
-        "Box",
+        "BoxColor",
     ) { renderServerPos == "Box" }.with(r = 255, g = 255)
 
     private val scale by float("Scale", 1F, 1F..6F) { renderServerPos == "Box" }

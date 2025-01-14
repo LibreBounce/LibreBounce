@@ -41,8 +41,8 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
     private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val espColorMode by choices("ESP-Color", arrayOf("None", "Custom"), "None")
-    private val espColor = ColorSettingsInteger(this, "ESP")
+    private val espColorMode by choices("ESP-ColorMode", arrayOf("None", "Custom"), "None")
+    private val espColor = ColorSettingsInteger(this, "ESPColor")
     { espColorMode == "Custom" }.with(255, 179, 72)
 
     private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..500) {

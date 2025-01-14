@@ -28,7 +28,7 @@ import kotlin.math.pow
 
 object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
-    private val colorMode by choices("Color", arrayOf("Custom", "DistanceColor"), "Custom")
+    private val colorMode by choices("ColorMode", arrayOf("Custom", "DistanceColor"), "Custom")
     private val color by color("Color", Color(0, 160, 255, 150)) { colorMode == "Custom" }
 
     private val thickness by float("Thickness", 2F, 1F..5F)

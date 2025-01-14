@@ -47,13 +47,13 @@ class Target : Element() {
 
     private val borderStrength by float("Border-Strength", 3F, 1F..5F)
 
-    private val backgroundMode by choices("Background-Color", arrayOf("Custom", "Rainbow"), "Custom")
-    private val backgroundColor by color("Background", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
+    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private val borderMode by choices("Border-Color", arrayOf("Custom", "Rainbow"), "Custom")
-    private val borderColor by color("Border", Color.BLACK) { borderMode == "Custom" }
+    private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
 
-    private val textColor by color("Text", Color.WHITE)
+    private val textColor by color("TextColor", Color.WHITE)
 
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
@@ -173,7 +173,7 @@ class Target : Element() {
                     ).roundToInt()
 
                     val targetBorder = if (shouldRender) {
-                        borderAlpha
+                        borderColor.alpha
                     } else if (delayCounter >= vanishDelay) {
                         0f
                     } else alphaBorder

@@ -46,9 +46,9 @@ class Arraylist(
 ) : Element(x, y, scale, side) {
 
     private val textColorMode by choices(
-        "Text-Color", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
+        "Text-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
-    private val textColors = ColorSettingsInteger(this, "Text") { textColorMode == "Custom" }.with(0, 111, 255)
+    private val textColors = ColorSettingsInteger(this, "TextColor") { textColorMode == "Custom" }.with(0, 111, 255)
     private val textFadeColors = ColorSettingsInteger(this, "Text-Fade") { textColorMode == "Fade" }.with(0, 111, 255)
 
     private val textFadeDistance by int("Text-Fade-Distance", 50, 0..100) { textColorMode == "Fade" }
@@ -61,12 +61,12 @@ class Arraylist(
     private val textGradColors =
         ColorSettingsFloat.create(this, "Text-Gradient") { textColorMode == "Gradient" && it <= maxTextGradientColors }
 
-    private val rectMode by choices("Rect", arrayOf("None", "Left", "Right", "Outline"), "None")
+    private val rectMode by choices("Rect-Mode", arrayOf("None", "Left", "Right", "Outline"), "None")
     private val roundedRectRadius by float("RoundedRect-Radius", 0F, 0F..2F) { rectMode !in setOf("None", "Outline") }
     private val rectColorMode by choices(
-        "Rect-Color", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Rainbow"
+        "Rect-ColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Rainbow"
     ) { rectMode != "None" }
-    private val rectColors = ColorSettingsInteger(this, "Rect", applyMax = true) { isCustomRectSupported }
+    private val rectColors = ColorSettingsInteger(this, "RectColor", applyMax = true) { isCustomRectSupported }
     private val rectFadeColors = ColorSettingsInteger(this, "Rect-Fade", applyMax = true) { rectColorMode == "Fade" }
 
     private val rectFadeDistance by int("Rect-Fade-Distance", 50, 0..100) { rectColorMode == "Fade" }
@@ -83,9 +83,9 @@ class Arraylist(
     private val roundedBackgroundRadius by float("RoundedBackGround-Radius", 0F, 0F..5F) { bgColors.color().alpha > 0 }
 
     private val backgroundMode by choices(
-        "Background-Color", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
+        "Background-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
-    private val bgColors = ColorSettingsInteger(this, "Background") { backgroundMode == "Custom" }.with(a = 0)
+    private val bgColors = ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(a = 0)
     private val bgFadeColors = ColorSettingsInteger(this, "Background-Fade") { backgroundMode == "Fade" }
 
     private val bgFadeDistance by int("Background-Fade-Distance", 50, 0..100) { backgroundMode == "Fade" }
@@ -136,9 +136,7 @@ class Arraylist(
     companion object {
         val spacedModules by boolean("SpacedModules", false)
         val inactiveStyle by choices(
-            "InactiveModulesStyle",
-            arrayOf("Normal", "Color", "Hide"),
-            "Color"
+            "InactiveModulesStyle", arrayOf("Normal", "Color", "Hide"), "Color"
         ) { GameDetector.state }
     }
 

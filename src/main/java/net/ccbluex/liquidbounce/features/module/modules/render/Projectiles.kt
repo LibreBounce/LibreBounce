@@ -45,7 +45,7 @@ import kotlin.math.sqrt
 object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = false, hideModule = false) {
     private val maxTrailSize by int("MaxTrailSize", 20, 1..100)
 
-    private val colorMode by choices("Color", arrayOf("Custom", "BowPower"), "Custom")
+    private val colorMode by choices("ColorMode", arrayOf("Custom", "BowPower"), "Custom")
     private val color by color("Color", Color(0, 160, 255)) { colorMode == "Custom" }
 
     private val trailPositions = mutableMapOf<Entity, ArrayDeque<ProjectilePos>>()

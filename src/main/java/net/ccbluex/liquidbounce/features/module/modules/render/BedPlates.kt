@@ -64,8 +64,8 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
     private val maxLayers by int("MaxLayers", 5, 1..10)
     private val scale by float("Scale", 3F, 1F..5F)
 
-    private val textMode by choices("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
-    private val textColors = ColorSettingsInteger(this, "Text", applyMax = true) { textMode == "Custom" }
+    private val textMode by choices("Text-ColorMode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val textColors = ColorSettingsInteger(this, "TextColor", applyMax = true) { textMode == "Custom" }
 
     private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textMode == "Gradient" }
 
@@ -76,8 +76,8 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
 
     private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
 
-    private val backgroundMode by choices("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
-    private val bgColors = ColorSettingsInteger(this, "Background") { backgroundMode == "Custom" }.with(a = 100)
+    private val backgroundMode by choices("Background-Mode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val bgColors = ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(a = 100)
 
     private val gradientBackgroundSpeed by float("Background-Gradient-Speed", 1f, 0.5f..10f)
     { backgroundMode == "Gradient" }

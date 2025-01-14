@@ -42,7 +42,7 @@ class TabGUI(x: Double = 2.0, y: Double = 31.0) : Element(x = x, y = y) {
     private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(150))
 
     private val borderValue by boolean("Border", false)
-    private val borderStrength by float("Border Strength", 2F, 1F..5F) { borderValue }
+    private val borderStrength by float("Border-Strength", 2F, 1F..5F) { borderValue }
 
     private val borderColor = color("BorderColor", Color.BLACK.withAlpha(150)) { borderValue }
 
