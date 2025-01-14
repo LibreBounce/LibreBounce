@@ -1,10 +1,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
-import net.ccbluex.liquidbounce.utils.inventory.ALL_SLOTS_IN_INVENTORY
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.ArmorComparator
 import net.ccbluex.liquidbounce.utils.item.ArmorKitParameters
-import net.ccbluex.liquidbounce.utils.item.ArmorParameter
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.AnimalArmorItem
@@ -17,7 +16,7 @@ object ArmorEvaluation {
     private const val EXPECTED_DAMAGE: Float = 6.0F
 
     fun findBestArmorPieces(
-        slots: List<ItemSlot> = ALL_SLOTS_IN_INVENTORY
+        slots: List<ItemSlot> = Slots.All
     ): Map<EquipmentSlot, ArmorPiece?> {
         val armorPiecesGroupedByType = groupArmorByType(slots)
 
@@ -37,7 +36,7 @@ object ArmorEvaluation {
     }
 
     fun findBestArmorPiecesWithComparator(
-        slots: List<ItemSlot> = ALL_SLOTS_IN_INVENTORY,
+        slots: List<ItemSlot> = Slots.All,
         comparator: ArmorComparator
     ): Map<EquipmentSlot, ArmorPiece?> {
         val armorPiecesGroupedByType = groupArmorByType(slots)

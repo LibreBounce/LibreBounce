@@ -7,11 +7,11 @@ import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.PlayerInventoryConstraints
-import net.ccbluex.liquidbounce.utils.item.findInventorySlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.WrittenBookContentComponent
 import net.minecraft.item.ItemStack
@@ -86,7 +86,7 @@ object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = tr
             itemStack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT)?.pages?.isEmpty() == true
     }
 
-    private val randomBook get() = findInventorySlot(::isCandidate)
+    private val randomBook get() = Slots.All.findSlot(::isCandidate)
 
     @Suppress("unused")
     private val scheduleInventoryAction = handler<ScheduleInventoryActionEvent> { event ->

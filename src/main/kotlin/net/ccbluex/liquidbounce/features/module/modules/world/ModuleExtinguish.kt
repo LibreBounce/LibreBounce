@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.entity.effect.StatusEffects
@@ -130,7 +130,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     }
 
     private fun planExtinguishing(): PlacementPlan? {
-        val waterBucketSlot = Hotbar.findClosestItem(Items.WATER_BUCKET) ?: return null
+        val waterBucketSlot = Slots.Hotbar.findClosestItem(Items.WATER_BUCKET) ?: return null
 
         val simulation = PlayerSimulationCache.getSimulationForLocalPlayer()
 
@@ -156,7 +156,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     }
 
     private fun planPickup(blockPos: BlockPos): PlacementPlan? {
-        val bucket = Hotbar.findClosestItem(Items.BUCKET) ?: return null
+        val bucket = Slots.Hotbar.findClosestItem(Items.BUCKET) ?: return null
 
         val options = BlockPlacementTargetFindingOptions(
             BlockOffsetOptions(

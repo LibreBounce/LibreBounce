@@ -22,13 +22,9 @@
 package net.ccbluex.liquidbounce.utils.item
 
 import com.mojang.brigadier.StringReader
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlot
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.inventory.ALL_SLOTS_IN_INVENTORY
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
 import net.minecraft.block.Block
 import net.minecraft.command.argument.ItemStackArgument
 import net.minecraft.command.argument.ItemStringReader
@@ -76,36 +72,6 @@ fun createSplashPotion(name: String, vararg effects: StatusEffectInstance): Item
     return itemStack
 }
 
-fun findHotbarSlot(item: Item): Int? = findHotbarSlot { it.item == item }
-
-inline fun findHotbarSlot(predicate: (ItemStack) -> Boolean): Int? {
-    return (0..8).firstOrNull { predicate(player.inventory.getStack(it)) }
-}
-
-fun findHotbarItemSlot(item: Item): HotbarItemSlot? = findHotbarItemSlot { it.itemStack.item == item }
-
-inline fun findHotbarItemSlot(predicate: (HotbarItemSlot) -> Boolean): HotbarItemSlot? {
-    return HOTBAR_SLOTS.firstOrNull { predicate(it) }
-}
-
-fun findInventorySlot(item: Item): ItemSlot? = findInventorySlot { it.item == item }
-
-inline fun findInventorySlot(predicate: (ItemStack) -> Boolean): ItemSlot? {
-    if (mc.player == null) {
-        return null
-    }
-
-    return ALL_SLOTS_IN_INVENTORY.find { predicate(it.itemStack) }
-}
-
-inline fun findInventorySlot(slots: List<ItemSlot>,  predicate: (ItemStack) -> Boolean): ItemSlot? {
-    if (mc.player == null) {
-        return null
-    }
-
-    return slots.find { predicate(it.itemStack) }
-}
-
 /**
  * Check if a stack is nothing (means empty slot)
  */
@@ -135,6 +101,7 @@ val ItemStack.isConsumable: Boolean
 
 val ItemStack.isFood: Boolean
     get() = foodComponent != null && this.useAction == UseAction.EAT
+
 val ItemStack.foodComponent: FoodComponent?
     get() = this.get(DataComponentTypes.FOOD)
 

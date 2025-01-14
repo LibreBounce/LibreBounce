@@ -463,6 +463,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
 
     }
 
+    @Suppress("unused")
     enum class ToolMode(override val choiceName: String, val end: Boolean, val between: Boolean) : NamedChoice {
 
         ON_STOP("OnStop", true, false),
@@ -486,7 +487,9 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
                 return null
             }
 
-            return ModuleAutoTool.toolSelector.activeChoice.getTool(player.inventory, state)
+            return ModuleAutoTool.toolSelector.activeChoice.getTool(state)?.let {
+                IntObjectImmutablePair(it.hotbarSlot, it.itemStack)
+            }
         }
 
     }
