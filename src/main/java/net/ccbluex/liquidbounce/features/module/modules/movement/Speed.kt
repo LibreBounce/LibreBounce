@@ -16,7 +16,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac.
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.hypixel.HypixelHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.hypixel.HypixelLowHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.intave.IntaveHop14
-import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.intave.IntaveTimer14
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix.MatrixHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix.MatrixSlowHop
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix.OldMatrixHop
@@ -80,7 +79,6 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
 
         // Intave
         IntaveHop14,
-        IntaveTimer14,
 
         // Server specific
         TeleportCubeCraft,
