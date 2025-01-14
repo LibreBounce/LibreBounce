@@ -34,7 +34,7 @@ import kotlin.random.Random
 object ModuleKeepSprint : ClientModule("KeepSprint", Category.COMBAT) {
     private val motion by floatRange("Motion", 100f..100f, 0f..100f, "%")
     private val motionWhenHurt by floatRange("MotionWhenHurt", 100f..100f, 0f..100f, "%")
-    private val hurtTicks by intRange("HurtTicks", 1..10, 1..10)
+    private val hurtTime by intRange("HurtTime", 1..10, 1..10)
     private val chance by float("Chance", 100f, 0f..100f, "%")
 
     // prevents getting slowed multiple times in a tick (without knockback item)
@@ -51,7 +51,7 @@ object ModuleKeepSprint : ClientModule("KeepSprint", Category.COMBAT) {
         }
 
         return when {
-            player.hurtTime in hurtTicks -> motionWhenHurt
+            player.hurtTime in hurtTime -> motionWhenHurt
             else -> motion
         }.random() / 100.0
     }
