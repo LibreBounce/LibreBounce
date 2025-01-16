@@ -111,7 +111,7 @@ data class MessageMetadata(
     replaceWith = ReplaceWith("chat(*texts, metadata = MessageMetadata(prefix = prefix))")
 )
 fun chat(vararg texts: Text, prefix: Boolean) {
-    chat(*texts, metadata =  MessageMetadata(prefix = prefix))
+    chat(texts = texts, metadata = MessageMetadata(prefix = prefix))
 }
 
 /**
