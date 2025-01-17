@@ -34,7 +34,7 @@ import kotlin.math.pow
 
 object StorageESP : Module("StorageESP", Category.RENDER) {
     private val mode by
-    ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
+    choices("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
 
     private val glowRenderScale by float("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
     private val glowRadius by int("Glow-Radius", 4, 1..5) { mode == "Glow" }

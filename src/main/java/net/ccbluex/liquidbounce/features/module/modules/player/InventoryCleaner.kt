@@ -6,10 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
@@ -40,6 +37,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
+import java.util.function.Predicate
 
 object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule = false) {
     private val drop by boolean("Drop", true, subjective = true)
@@ -97,17 +95,17 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
 
     val highlightUseful by boolean("HighlightUseful", true, subjective = true)
 
-    private val slot1Value = SortValue("Slot1", "Sword")
-    private val slot2Value = SortValue("Slot2", "Bow")
-    private val slot3Value = SortValue("Slot3", "Pickaxe")
-    private val slot4Value = SortValue("Slot4", "Axe")
-    private val slot5Value = SortValue("Slot5", "Shovel")
-    private val slot6Value = SortValue("Slot6", "Food")
-    private val slot7Value = SortValue("Slot7", "Throwable")
-    private val slot8Value = SortValue("Slot8", "FishingRod")
-    private val slot9Value = SortValue("Slot9", "Block")
+    private val slot1Value = sortChoice("Slot1", "Sword")
+    private val slot2Value = sortChoice("Slot2", "Bow")
+    private val slot3Value = sortChoice("Slot3", "Pickaxe")
+    private val slot4Value = sortChoice("Slot4", "Axe")
+    private val slot5Value = sortChoice("Slot5", "Shovel")
+    private val slot6Value = sortChoice("Slot6", "Food")
+    private val slot7Value = sortChoice("Slot7", "Throwable")
+    private val slot8Value = sortChoice("Slot8", "FishingRod")
+    private val slot9Value = sortChoice("Slot9", "Block")
 
-    private val SORTING_VALUES = arrayOf(
+    private val SORTING_VALUES: Array<ListValue> = arrayOf(
         slot1Value, slot2Value, slot3Value, slot4Value, slot5Value, slot6Value, slot7Value, slot8Value, slot9Value
     )
 
@@ -974,18 +972,20 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
         }
     }
 
-    private class SortValue(name: String, value: String) : ListValue(name, SORTING_KEYS, value, subjective = true) {
-        override fun isSupported() = sort
-        override fun onChanged(oldValue: String, newValue: String) =
-            SORTING_VALUES.forEach { value ->
-                if (value != this && newValue == value.get() && SORTING_TARGETS.keys.indexOf(value.get()) < 5) {
-                    value.set(oldValue)
-                    value.openList = true
+    private fun sortChoice(name: String, value: String) = choices(name, SORTING_KEYS, value, subjective = true) {
+        sort
+    }.onChange { old, new ->
+        if (new in SINGLE_KEYS) {
+            SORTING_VALUES.find { it.get() == new }?.let { another ->
+                another.set(old)
+                another.openList = true
 
-                    chat("§8[§9§lInventoryCleaner§8] §3Value §a${value.name}§3 was changed to §a$oldValue§3 to prevent conflicts.")
-                }
+                chat("§8[§9§lInventoryCleaner§8] §3Value §a${another.name}§3 was changed to §a$old§3 to prevent conflicts.")
             }
-    }
+        }
+
+        new
+    } as ListValue
 }
 
 private val ITEMS_WHITELIST = arrayOf(
@@ -1018,3 +1018,5 @@ private val SORTING_TARGETS: Map<String, ((Item?) -> Boolean)?> = mapOf(
 )
 
 private val SORTING_KEYS = SORTING_TARGETS.keys.toTypedArray()
+
+private val SINGLE_KEYS = SORTING_KEYS.copyOfRange(0, 5)

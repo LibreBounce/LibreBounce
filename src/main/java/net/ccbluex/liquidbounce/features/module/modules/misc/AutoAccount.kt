@@ -69,16 +69,14 @@ object AutoAccount :
     { relogInvalidValue.isActive() || relogKickedValue.isActive() }
     private val reconnectDelay by reconnectDelayValue
 
-    private val accountModeValue = object : ListValue("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
-        override fun isSupported() = reconnectDelayValue.isSupported() || startupValue.isActive()
-
-        override fun onChange(oldValue: String, newValue: String): String {
-            if (newValue == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
-                chat("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
-                return oldValue
-            }
-
-            return super.onChange(oldValue, newValue)
+    private val accountModeValue = choices("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
+        reconnectDelayValue.isSupported() || startupValue.isActive()
+    }.onChange { old, new ->
+        if (new == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
+            chat("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
+            old
+        } else {
+            new
         }
     }
     private val accountMode by accountModeValue

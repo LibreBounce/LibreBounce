@@ -52,11 +52,9 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         override fun isSupported() = mode == "Modern"
     }
 
-    val mode by object : ListValue("Mode", arrayOf("Legacy", "Modern"), "Modern") {
-        override fun onChanged(oldValue: String, newValue: String) {
-            clearPackets()
-            backtrackedPlayer.clear()
-        }
+    val mode by choices("Mode", arrayOf("Legacy", "Modern"), "Modern").onChanged {
+        clearPackets()
+        backtrackedPlayer.clear()
     }
 
     // Legacy

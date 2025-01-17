@@ -15,7 +15,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.coerceBodyPoint
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performAngleChange
@@ -42,32 +41,32 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
     ) { horizontalAim || verticalAim }
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
-    private val highestBodyPointToTargetValue: ListValue =
-        object : ListValue("HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head") {
-            override fun isSupported() = verticalAim
 
-            override fun onChange(oldValue: String, newValue: String): String {
-                val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-                val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
-                val coercedPoint = coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
-                return coercedPoint.name
-            }
-        }
-    private val highestBodyPointToTarget by highestBodyPointToTargetValue
+    private val highestBodyPointToTargetValue = choices(
+        "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
+    ) {
+        verticalAim
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
+        coercedPoint.name
+    }
 
-    private val lowestBodyPointToTargetValue: ListValue =
-        object : ListValue("LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet") {
-            override fun isSupported() = verticalAim
+    private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
-            override fun onChange(oldValue: String, newValue: String): String {
-                val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-                val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
-                val coercedPoint = coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-                return coercedPoint.name
-            }
-        }
+    private val lowestBodyPointToTargetValue = choices(
+        "LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet"
+    ) {
+        verticalAim
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+        coercedPoint.name
+    }
 
-    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
+    private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
 
     private val maxHorizontalBodySearch: Value<Float> = float("MaxHorizontalBodySearch", 1f, 0f..1f) {
         horizontalAim
