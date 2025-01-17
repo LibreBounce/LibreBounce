@@ -37,7 +37,10 @@ import net.minecraft.util.Colors;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
@@ -52,101 +55,73 @@ public abstract class MixinPlayerListHud {
     @Shadow
     protected abstract List<PlayerListEntry> collectPlayerEntries();
 
-    @ModifyConstant(constant = @Constant(longValue = 80L), method = "collectPlayerEntries")
-    private long hookTabSize(long count) {
-        return ModuleBetterTab.INSTANCE.getRunning() ?
-                ModuleBetterTab.Limits.INSTANCE.getTabSize() : count;
+    @WrapOperation(method = "collectPlayerEntries", at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;limit(J)Ljava/util/stream/Stream;"))
+    private Stream<PlayerListEntry> injectTabSize(Stream<PlayerListEntry> instance, long l, Operation<Stream<PlayerListEntry>> original) {
+        long size = ModuleBetterTab.INSTANCE.getRunning() ? ModuleBetterTab.Limits.INSTANCE.getTabSize() : l;
+        return original.call(instance, size);
     }
 
     @WrapOperation(method = "collectPlayerEntries", at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;sorted(Ljava/util/Comparator;)Ljava/util/stream/Stream;"))
     private Stream<PlayerListEntry> hookSort(Stream<PlayerListEntry> instance, Comparator<PlayerListEntry> defaultComparator, Operation<Stream<PlayerListEntry>> original) {
-        var sorting = ModuleBetterTab.INSTANCE.getSorting();
-
         var betterTab = ModuleBetterTab.INSTANCE;
-        var running = betterTab.getRunning();
-        var customComparator = sorting.getComparator();
 
-        var comparator = running
-                ? (customComparator != null ? customComparator : defaultComparator)
-                : defaultComparator;
+        var running = betterTab.getRunning();
+        var customComparator = betterTab.getSorting().getComparator();
+
+        var comparator = running ? (customComparator != null ? customComparator : defaultComparator) : defaultComparator;
 
         var playerHider = ModuleBetterTab.PlayerHider.INSTANCE;
-        var hided = running && playerHider.getRunning()
-                ? instance.filter(player -> !playerHider.getFilter().isInFilter(player)) : instance;
+        var hidden = running && playerHider.getRunning() ? instance.filter(player -> !playerHider.getFilter().isInFilter(player)) : instance;
 
-        return original.call(hided, comparator);
+        return original.call(hidden, comparator);
     }
 
-    @ModifyExpressionValue(method = "render", at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/gui/hud/PlayerListHud;header:Lnet/minecraft/text/Text;",
-            ordinal = 0
-    ))
+    @ModifyExpressionValue(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;header:Lnet/minecraft/text/Text;", ordinal = 0))
     private Text hookHeader(Text original) {
         if (!ModuleBetterTab.INSTANCE.getRunning()) {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getHeader() ?
-                original : null;
+        return ModuleBetterTab.Visibility.INSTANCE.getHeader() ? original : null;
     }
 
-    @ModifyExpressionValue(method = "render", at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/gui/hud/PlayerListHud;footer:Lnet/minecraft/text/Text;",
-            ordinal = 0
-    ))
+    @ModifyExpressionValue(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;footer:Lnet/minecraft/text/Text;", ordinal = 0))
     private Text hookFooter(Text original) {
         if (!ModuleBetterTab.INSTANCE.getRunning()) {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getFooter() ?
-                original : null;
+        return ModuleBetterTab.Visibility.INSTANCE.getFooter() ? original : null;
     }
 
-    @ModifyExpressionValue(method = "render", at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/gui/hud/PlayerListHud$ScoreDisplayEntry;name:Lnet/minecraft/text/Text;"
-    ))
+    @ModifyExpressionValue(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/hud/PlayerListHud$ScoreDisplayEntry;name:Lnet/minecraft/text/Text;"))
     private Text hookVisibilityName(Text original, @Local(ordinal = 0) PlayerListEntry entry) {
         if (!ModuleBetterTab.INSTANCE.getRunning()) {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ?
-                Text.of(entry.getProfile().getName()) : original;
+        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ? Text.of(entry.getProfile().getName()) : original;
 
     }
 
-    @ModifyExpressionValue(method = "render", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"
-    ))
+    @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"))
     private Text hookWidthVisibilityName(Text original, @Local(ordinal = 0) PlayerListEntry entry) {
         if (!ModuleBetterTab.INSTANCE.getRunning()) {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ?
-                Text.of(entry.getProfile().getName()) : original;
+        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ? Text.of(entry.getProfile().getName()) : original;
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I", shift = At.Shift.BEFORE))
-    private void hookTabColumnHeight(CallbackInfo ci, @Local(ordinal = 5) LocalIntRef o, @Local(ordinal = 6)LocalIntRef p) {
+    private void hookTabColumnHeight(CallbackInfo ci, @Local(ordinal = 5) LocalIntRef o, @Local(ordinal = 6) LocalIntRef p) {
         if (!ModuleBetterTab.INSTANCE.getRunning()) {
             return;
         }
 
-        int totalPlayers = collectPlayerEntries().size();
-        int columns = 1;
-        int rows = totalPlayers;
-
-        while (rows > ModuleBetterTab.Limits.INSTANCE.getHeight()) {
-            columns++;
-            rows = (totalPlayers + columns - 1) / columns;
-        }
-
+        int playerCount = collectPlayerEntries().size();
+        int columns = MathHelper.ceil((double) playerCount / ModuleBetterTab.Limits.INSTANCE.getHeight());
+        int rows = MathHelper.ceil((double) playerCount / columns);
         o.set(rows);
         p.set(columns);
     }
@@ -183,25 +158,19 @@ public abstract class MixinPlayerListHud {
 
         if (w < entries.size()) {
             var entry = entries.get(w);
-            if (highlight.getSelf().getRunning()) {
-                if (Objects.equals(entry.getProfile().getName(), MinecraftClient.getInstance().player.getGameProfile().getName())) {
-                    args.set(4, highlight.getSelf().getColor().toARGB());
-                    return;
-                }
+            if (highlight.getSelf().getRunning() && Objects.equals(entry.getProfile().getName(), MinecraftClient.getInstance().player.getGameProfile().getName())) {
+                args.set(4, highlight.getSelf().getColor().toARGB());
+                return;
             }
 
-            if (highlight.getFriends().getRunning()) {
-                if (FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
-                    args.set(4, highlight.getFriends().getColor().toARGB());
-                    return;
-                }
+            if (highlight.getFriends().getRunning() && FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
+                args.set(4, highlight.getFriends().getColor().toARGB());
+                return;
             }
 
             var others = highlight.getOthers();
-            if (others.getRunning()) {
-                if (others.getFilter().isInFilter(entry)) {
-                    args.set(4, others.getColor().toARGB());
-                }
+            if (others.getRunning() && others.getFilter().isInFilter(entry)) {
+                args.set(4, others.getColor().toARGB());
             }
         }
     }
@@ -209,11 +178,9 @@ public abstract class MixinPlayerListHud {
     @ModifyReturnValue(method = "getPlayerName", at = @At("RETURN"))
     private Text modifyPlayerName(Text original, PlayerListEntry entry) {
         if (ModuleAntiStaff.UsernameCheck.INSTANCE.shouldShowAsStaffOnTab(entry.getProfile().getName())) {
-            return original.copy().append(
-                    Text.literal(" - (Staff)")
-                            .withColor(Colors.LIGHT_RED)
-            );
+            return original.copy().append(Text.literal(" - (Staff)").withColor(Colors.LIGHT_RED));
         }
+
         return original;
     }
 
