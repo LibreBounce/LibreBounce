@@ -295,9 +295,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val maxRotationDifferenceToSwing by float(
         "MaxRotationDifferenceToSwing", 180f, 0f..180f
     ) { swing && failSwing && options.rotationsActive }
-    private val swingWhenTicksLate = object : BoolValue("SwingWhenTicksLate", false) {
-        override fun isSupported() =
-            swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
+    private val swingWhenTicksLate = boolean("SwingWhenTicksLate", false) {
+        swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
     }
     private val ticksLateToSwing by int(
         "TicksLateToSwing", 4, 0..20

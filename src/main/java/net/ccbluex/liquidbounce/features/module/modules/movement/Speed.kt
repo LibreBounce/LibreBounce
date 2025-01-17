@@ -115,14 +115,10 @@ object Speed : Module("Speed", Category.MOVEMENT, hideModule = false) {
         MiJump, Frame
     )
 
-    private val showDeprecatedValue = object : BoolValue("DeprecatedMode", true) {
-        override fun onUpdate(value: Boolean) {
-            mode.changeValue(modesList.first { it !in deprecatedMode }.modeName)
-            mode.updateValues(modesList.filter { value || it !in deprecatedMode }.map { it.modeName }.toTypedArray())
-        }
+    private val showDeprecated by boolean("DeprecatedMode", true).onChanged { value ->
+        mode.changeValue(modesList.first { it !in deprecatedMode }.modeName)
+        mode.updateValues(modesList.filter { value || it !in deprecatedMode }.map { it.modeName }.toTypedArray())
     }
-
-    private val showDeprecated by showDeprecatedValue
 
     private var modesList = speedModes
 

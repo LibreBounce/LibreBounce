@@ -97,8 +97,10 @@ sealed class Value<T>(
     open fun toJson() = toJsonF()
 
     open fun fromJson(element: JsonElement) {
-        val result = fromJsonF(element)
-        if (result != null) changeValue(result)
+        val result = fromJsonF(element) ?: return
+        changeValue(result)
+
+        onChangedListeners.forEach { it.invoke(result) }
     }
 
     abstract fun toJsonF(): JsonElement?

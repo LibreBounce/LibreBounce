@@ -95,15 +95,10 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         CubeCraft
     )
 
-    private val showDeprecatedValue: BoolValue = object : BoolValue("DeprecatedMode", true) {
-        override fun onUpdate(value: Boolean) {
-            modeValue.changeValue(modesList.first { it !in deprecatedMode }.modeName)
-            modeValue.updateValues(modesList.filter { value || it !in deprecatedMode }.map { it.modeName }
-                .toTypedArray())
-        }
+    private val showDeprecated by boolean("DeprecatedMode", true).onChanged { value ->
+        modeValue.changeValue(modesList.first { it !in deprecatedMode }.modeName)
+        modeValue.updateValues(modesList.filter { value || it !in deprecatedMode }.map { it.modeName }.toTypedArray())
     }
-
-    private val showDeprecated by showDeprecatedValue
 
     private var modesList = flyModes
 

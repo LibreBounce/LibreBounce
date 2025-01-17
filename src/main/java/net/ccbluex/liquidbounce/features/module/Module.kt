@@ -66,32 +66,26 @@ open class Module(
             saveConfig(modulesConfig)
         }
 
-    val hideModuleValue: BoolValue = object : BoolValue("Hide", false, subjective = true) {
-        override fun onUpdate(value: Boolean) {
-            inArray = !value
-        }
+    val hideModuleValue = boolean("Hide", false, subjective = true).onChanged { value ->
+        inArray = !value
     }
 
     // Use for synchronizing
-    val hideModuleValues: BoolValue = object : BoolValue("HideSync", hideModuleValue.get(), subjective = true) {
-        override fun onUpdate(value: Boolean) {
-            hideModuleValue.set(value)
-        }
+    val hideModuleValues = boolean("HideSync", hideModuleValue.get(), subjective = true).onChanged { value ->
+        hideModuleValue.set(value)
     }
 
-    private val resetValue: BoolValue = object : BoolValue("Reset", false, subjective = true) {
-        override fun onChange(oldValue: Boolean, newValue: Boolean): Boolean {
-            try {
-                values.forEach { if (it != this) it.reset() else return@forEach }
-            } catch (any: Exception) {
-                LOGGER.error("Failed to reset all values", any)
-                chat("Failed to reset all values: ${any.message}")
-            } finally {
-                addNotification(Notification("Successfully reset all settings from ${this@Module.name}"))
-                saveConfig(valuesConfig)
-            }
-            return false
+    private val resetValue = boolean("Reset", false, subjective = true).onChange { _, _ ->
+        try {
+            values.forEach { if (it != this) it.reset() else return@forEach }
+        } catch (any: Exception) {
+            LOGGER.error("Failed to reset all values", any)
+            chat("Failed to reset all values: ${any.message}")
+        } finally {
+            addNotification(Notification("Successfully reset all settings from ${this@Module.name}"))
+            saveConfig(valuesConfig)
         }
+        return@onChange false
     }
 
     var inArray = defaultInArray

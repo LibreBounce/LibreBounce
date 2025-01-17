@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false, hideModule = false) {
 
-    private val staffMode by object : ListValue(
+    private val staffMode by choices(
         "StaffMode", arrayOf(
             "BlocksMC", "CubeCraft", "Gamster",
             "AgeraPvP", "HypeMC", "Hypixel",
@@ -39,11 +39,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             "CoralMC", "LibreCraft", "Originera",
             "OC-TC", "AssPixel"
         ), "BlocksMC"
-    ) {
-        override fun onUpdate(value: String) {
-            loadStaffData()
-        }
-    }
+    ).onChanged { loadStaffData() }
 
     private val tab by boolean("TAB", true)
     private val packet by boolean("Packet", true)
