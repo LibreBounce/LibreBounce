@@ -5,10 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.liuli.elixir.account.CrackedAccount
-import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.TextValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.features.module.Category
@@ -32,30 +29,32 @@ object AutoAccount :
     private val register by boolean("AutoRegister", true)
     private val login by boolean("AutoLogin", true)
 
+    private const val DEFAULT_PASSWORD = "axolotlaxolotl"
+
     // Gamster requires 8 chars+
-    private val passwordValue = object : TextValue("Password", "axolotlaxolotl") {
-        override fun onChange(oldValue: String, newValue: String) =
-            when {
-                ' ' in newValue -> {
-                    chat("§7[§a§lAutoAccount§7] §cPassword cannot contain a space!")
-                    oldValue
-                }
-
-                newValue.equals("reset", true) -> {
-                    chat("§7[§a§lAutoAccount§7] §3Password reset to its default value.")
-                    "axolotlaxolotl"
-                }
-
-                newValue.length < 4 -> {
-                    chat("§7[§a§lAutoAccount§7] §cPassword must be longer than 4 characters!")
-                    oldValue
-                }
-
-                else -> super.onChange(oldValue, newValue)
+    private val passwordValue = text("Password", DEFAULT_PASSWORD) {
+        register || login
+    }.onChange { old, new ->
+        when {
+            new.any { it.isWhitespace() } -> {
+                chat("§7[§a§lAutoAccount§7] §cPassword cannot contain a space!")
+                old
             }
 
-        override fun isSupported() = register || login
+            new.lowercase() == "reset" -> {
+                chat("§7[§a§lAutoAccount§7] §3Password reset to its default value.")
+                DEFAULT_PASSWORD
+            }
+
+            new.length < 4 -> {
+                chat("§7[§a§lAutoAccount§7] §cPassword must be longer than 4 characters!")
+                old
+            }
+
+            else -> new
+        }
     }
+
     private val password by passwordValue
 
     // Needed for Gamster

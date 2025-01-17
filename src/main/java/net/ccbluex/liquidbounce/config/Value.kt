@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-private typealias OnChangeInterceptor<T> = (old: T, new: T) -> Unit
+private typealias OnChangeInterceptor<T> = (old: T, new: T) -> T
 private typealias OnChangedHandler<T> = (new: T) -> Unit
 
 sealed class Value<T>(
@@ -37,16 +37,24 @@ sealed class Value<T>(
     }
 
     fun set(newValue: T, saveImmediately: Boolean = true): Boolean {
-        if (newValue == value || hidden || excluded) return false
+        if (newValue == value || hidden || excluded) {
+            return false
+        }
 
         val oldValue = value
 
         try {
-            val handledValue = onChange(oldValue, newValue)
-            if (handledValue == oldValue) return false
+            var handledValue = oldValue
+            onChangeInterceptors.forEach { handledValue = it(handledValue, newValue) }
+
+            handledValue = onChange(oldValue, newValue) // TODO: remove this line
+            if (handledValue == oldValue) {
+                return false
+            }
 
             changeValue(handledValue)
-            onChanged(oldValue, handledValue)
+            onChangedListeners.forEach { it.invoke(handledValue) }
+            onChanged(oldValue, handledValue) // TODO: remove this line
 
             if (saveImmediately) {
                 saveConfig(valuesConfig)
