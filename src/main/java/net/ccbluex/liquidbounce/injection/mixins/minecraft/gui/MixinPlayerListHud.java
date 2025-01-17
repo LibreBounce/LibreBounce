@@ -40,9 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.Comparator;
 import java.util.List;
@@ -145,34 +143,27 @@ public abstract class MixinPlayerListHud {
         }
     }
 
-    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V", ordinal = 2))
-    private void hookRenderPlayerBackground(Args args, @Local(ordinal = 13) int w, @Local(ordinal = 0) List<PlayerListEntry> entries) {
-        if (!ModuleBetterTab.INSTANCE.getRunning()) {
-            return;
-        }
+    // ModifyArg breaks lunar compatibility as of 17.1.2025 (minecraft 1.21.4); that's why WrapOperation is used
+    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V", ordinal = 2))
+    private void hookRenderPlayerBackground(DrawContext instance, int x1, int y1, int x2, int y2, int color, Operation<Void> original, @Local(ordinal = 13) int w, @Local(ordinal = 0) List<PlayerListEntry> entries) {
+        var drawColor = color;
 
         var highlight = ModuleBetterTab.Highlight.INSTANCE;
-        if (!highlight.getRunning()) {
-            return;
-        }
-
-        if (w < entries.size()) {
+        if (ModuleBetterTab.INSTANCE.getRunning() && highlight.getRunning() && w < entries.size()) {
             var entry = entries.get(w);
-            if (highlight.getSelf().getRunning() && Objects.equals(entry.getProfile().getName(), MinecraftClient.getInstance().player.getGameProfile().getName())) {
-                args.set(4, highlight.getSelf().getColor().toARGB());
-                return;
-            }
-
-            if (highlight.getFriends().getRunning() && FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
-                args.set(4, highlight.getFriends().getColor().toARGB());
-                return;
-            }
-
             var others = highlight.getOthers();
-            if (others.getRunning() && others.getFilter().isInFilter(entry)) {
-                args.set(4, others.getColor().toARGB());
+
+            //noinspection DataFlowIssue
+            if (highlight.getSelf().getRunning() && Objects.equals(entry.getProfile().getName(), MinecraftClient.getInstance().player.getGameProfile().getName())) {
+                drawColor = highlight.getSelf().getColor().toARGB();
+            } else if (highlight.getFriends().getRunning() && FriendManager.INSTANCE.isFriend(entry.getProfile().getName())) {
+                drawColor = highlight.getFriends().getColor().toARGB();
+            } else if (others.getRunning() && others.getFilter().isInFilter(entry)) {
+                drawColor = others.getColor().toARGB();
             }
         }
+
+        original.call(instance, x1, y1, x2, y2, drawColor);
     }
 
     @ModifyReturnValue(method = "getPlayerName", at = @At("RETURN"))
