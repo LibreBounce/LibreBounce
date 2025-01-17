@@ -39,10 +39,8 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
 
     private val color by color("Color", Color.GREEN)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 50, 1..100) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val scale by float("Scale", 3F, 1F..5F) { itemText }

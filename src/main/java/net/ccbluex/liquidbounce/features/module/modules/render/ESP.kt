@@ -53,10 +53,8 @@ object ESP : Module("ESP", Category.RENDER, hideModule = false) {
 
     private val espColor = ColorSettingsInteger(this, "ESPColor").with(255, 255, 255)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)

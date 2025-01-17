@@ -9,7 +9,10 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.choices
+import net.ccbluex.liquidbounce.config.color
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -57,13 +60,15 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
     private val simulateShortStop by boolean("SimulateShortStop", false)
 
-    private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
-        override fun isSupported() = !smartDelay
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
+    private val maxDelay: Int by int("MaxDelay", 50, 0..500) {
+        !smartDelay
+    }.onChange { _, new ->
+        new.coerceAtLeast(minDelay)
     }
-    private val minDelay by object : IntegerValue("MinDelay", 50, 0..500) {
-        override fun isSupported() = maxDelay > 0 && !smartDelay
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
+    private val minDelay: Int by int("MinDelay", 50, 0..500) {
+        maxDelay > 0 && !smartDelay
+    }.onChange { _, new ->
+        new.coerceAtMost(maxDelay)
     }
 
     private val startDelay by int("StartDelay", 50, 0..500)
@@ -82,7 +87,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
     val silentGUI by boolean("SilentGUI", false, subjective = true)
 
     val highlightSlot by boolean("Highlight-Slot", false, subjective = true) { !silentGUI }
-    val backgroundColor = color("BackgroundColor", Color(128, 128, 128), subjective = true) { highlightSlot && !silentGUI }
+    val backgroundColor =
+        color("BackgroundColor", Color(128, 128, 128), subjective = true) { highlightSlot && !silentGUI }
 
     val borderStrength by int("Border-Strength", 3, 1..5, subjective = true) { highlightSlot && !silentGUI }
     val borderColor = color("BorderColor", Color(128, 128, 128), subjective = true) { highlightSlot && !silentGUI }

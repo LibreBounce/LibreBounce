@@ -72,10 +72,8 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
     private val border by boolean("Border", true)
     private val borderColor by color("BorderColor", Color.BLACK.withAlpha(100)) { border }
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)

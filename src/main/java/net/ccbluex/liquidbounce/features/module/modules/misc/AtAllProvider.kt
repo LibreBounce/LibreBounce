@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -21,15 +21,12 @@ import kotlin.concurrent.withLock
 object AtAllProvider :
     Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
 
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0..20000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
+    private val maxDelay: Int by int("MaxDelay", 1000, 0..20000).onChange { _, new ->
+        new.coerceAtLeast(minDelay)
     }
-    private val maxDelay by maxDelayValue
 
-    private val minDelay by object : IntegerValue("MinDelay", 500, 0..20000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-
-        override fun isSupported() = !maxDelayValue.isMinimal()
+    private val minDelay: Int by int("MinDelay", 500, 0..20000).onChange { _, new ->
+        new.coerceAtMost(maxDelay)
     }
 
     private val retry by boolean("Retry", false)

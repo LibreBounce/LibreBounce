@@ -57,20 +57,17 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
     val mode by choices("Mode", modes, "MLG")
 
     val minFallDistance by float("MinMLGHeight", 5f, 2f..50f, subjective = true) { mode == "MLG" }
-    private val retrieveDelayValue: IntegerValue = object : IntegerValue("RetrieveDelayTicks", 5, 1..10, subjective = true) {
-        override fun isSupported() = mode == "MLG"
-        override fun onChange(oldValue: Int, newValue: Int): Int {
-            maxRetrievalWaitingTimeValue.set(max(maxRetrievalWaitingTime, newValue))
 
-            return newValue
-        }
+    val retrieveDelay: Int by int("RetrieveDelayTicks", 5, 1..10, subjective = true) {
+        mode == "MLG"
+    }.onChanged {
+        maxRetrievalWaitingTimeValue.set(max(maxRetrievalWaitingTime, it))
     }
 
-    val retrieveDelay by retrieveDelayValue
-
-    val maxRetrievalWaitingTimeValue = object : IntegerValue("MaxRetrievalWaitingTime", 10, 1..20) {
-        override fun isSupported() = mode == "MLG"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(retrieveDelay)
+    private val maxRetrievalWaitingTimeValue = int("MaxRetrievalWaitingTime", 10, 1..20) {
+        mode == "MLG"
+    }.onChange{ _, new ->
+        new.coerceAtLeast(retrieveDelay)
     }
 
     val maxRetrievalWaitingTime by maxRetrievalWaitingTimeValue

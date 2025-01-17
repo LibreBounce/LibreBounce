@@ -7,9 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.text
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -19,15 +17,13 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomString
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 
 object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule = false) {
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0..5000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
+    private val maxDelayValue: Value<Int> = int("MaxDelay", 1000, 0..5000).onChange { _, new ->
+        new.coerceAtLeast(minDelay)
     }
     private val maxDelay by maxDelayValue
 
-    private val minDelay: Int by object : IntegerValue("MinDelay", 500, 0..5000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-
-        override fun isSupported() = !maxDelayValue.isMinimal()
+    private val minDelay: Int by int("MinDelay", 500, 0..5000).onChange { _, new ->
+        new.coerceAtMost(maxDelay)
     }
 
     private val message by text("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")

@@ -8,7 +8,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import net.ccbluex.liquidbounce.config.IntegerValue
 import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
@@ -38,13 +37,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
 object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
-    private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
+    private val maxDelay: Int by int("MaxDelay", 50, 0..500).onChange { _, new ->
+        new.coerceAtLeast(minDelay)
     }
-    private val minDelay by object : IntegerValue("MinDelay", 50, 0..500) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-
-        override fun isSupported() = maxDelay > 0
+    private val minDelay: Int by int("MinDelay", 50, 0..500).onChange { _, new ->
+        new.coerceAtMost(maxDelay)
     }
     private val minItemAge by int("MinItemAge", 0, 0..2000)
 

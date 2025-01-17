@@ -94,14 +94,16 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     { jumpCooldownMode == "ReceivedHits" && mode == "Jump" }
 
     // Ghost Block
-    private val maxHurtTime: IntegerValue = object : IntegerValue("MaxHurtTime", 9, 1..10) {
-        override fun isSupported() = mode == "GhostBlock"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minHurtTime.get())
+    private val maxHurtTime: Value<Int> = int("MaxHurtTime", 9, 1..10) {
+        mode == "GhostBlock"
+    }.onChange { _, new ->
+        new.coerceAtLeast(minHurtTime.get())
     }
 
-    private val minHurtTime: IntegerValue = object : IntegerValue("MinHurtTime", 1, 1..10) {
-        override fun isSupported() = mode == "GhostBlock" && !maxHurtTime.isMinimal()
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(0, maxHurtTime.get())
+    private val minHurtTime: Value<Int> = int("MinHurtTime", 1, 1..10) {
+        mode == "GhostBlock"
+    }.onChange { _, new ->
+        new.coerceIn(0, maxHurtTime.get())
     }
 
     // Delay

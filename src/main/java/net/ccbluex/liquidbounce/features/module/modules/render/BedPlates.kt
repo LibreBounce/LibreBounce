@@ -51,10 +51,8 @@ import kotlin.math.roundToInt
 object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
     private val renderYOffset by float("RenderYOffset", 1f, -5f..5f)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
     private var maxRenderDistanceSq = 0.0
         set(value) {

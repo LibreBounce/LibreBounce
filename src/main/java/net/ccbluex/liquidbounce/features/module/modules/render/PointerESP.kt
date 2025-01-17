@@ -43,10 +43,8 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
     private val distanceAlpha by boolean("DistanceAlpha", true)
     private val alphaMin by int("AlphaMin", 100, -50..255) { distanceAlpha }
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private var maxRenderDistanceSq = 0.0
