@@ -45,7 +45,7 @@ sealed class Value<T>(
 
         try {
             var handledValue = oldValue
-            onChangeInterceptors.forEach { handledValue = it(handledValue, newValue) }
+            onChangeInterceptors.forEach { handledValue = it(oldValue, handledValue) }
 
             handledValue = onChange(oldValue, newValue) // TODO: remove this line
             if (handledValue == oldValue) {
