@@ -246,21 +246,20 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
         coercedPoint.name
     }
-    private val highestBodyPointToTarget by highestBodyPointToTargetValue
+    private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
     private val lowestBodyPointToTargetValue = choices(
         "LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet"
     ) {
         options.rotationsActive
     }.onChange { _, new ->
-            val newPoint = RotationUtils.BodyPoint.fromString(new)
-            val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
-            val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-            coercedPoint.name
-        }
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+        coercedPoint.name
     }
 
-    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
+    private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
 
     private val maxHorizontalBodySearch: Value<Float> = float("MaxHorizontalBodySearch", 1f, 0f..1f) {
         options.rotationsActive
