@@ -5,11 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import com.google.gson.JsonElement
-import net.ccbluex.liquidbounce.config.TextValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.float
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -55,24 +51,11 @@ class Image : Element() {
 
     }
 
-    private val image = object : TextValue("Image", "") {
+    private val image = text("Image", "").onChanged { value ->
+        if (value.isBlank())
+            return@onChanged
 
-        override fun fromJson(element: JsonElement) {
-            super.fromJson(element)
-
-            if (get().isEmpty())
-                return
-
-            setImage(get())
-        }
-
-        override fun onChanged(oldValue: String, newValue: String) {
-            if (get().isEmpty())
-                return
-
-            setImage(get())
-        }
-
+        setImage(value)
     }
 
     private val resourceLocation = ResourceLocation(randomNumber(128))

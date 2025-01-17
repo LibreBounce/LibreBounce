@@ -118,7 +118,7 @@ class IntegerRangeValue(
 /**
  * Float value represents a value with a float
  */
-open class FloatValue(
+class FloatValue(
     name: String,
     value: Float,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
@@ -186,7 +186,7 @@ class FloatRangeValue(
 /**
  * Text value represents a value with a string
  */
-open class TextValue(
+class TextValue(
     name: String,
     value: String,
     subjective: Boolean = false,
@@ -201,7 +201,7 @@ open class TextValue(
 /**
  * Font value represents a value with a font
  */
-open class FontValue(
+class FontValue(
     name: String,
     value: FontRenderer,
     subjective: Boolean = false,
@@ -249,7 +249,7 @@ open class FontValue(
 /**
  * Block value represents a value with a block
  */
-open class BlockValue(
+class BlockValue(
     name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null,
 ) : IntegerValue(name, value, 1..197, null, subjective, isSupported)
 
