@@ -283,7 +283,6 @@ open class ListValue(
     }
 }
 
-// TODO: add to script API
 class ColorValue(
     name: String, defaultColor: Color, var rainbow: Boolean = false, var showPicker: Boolean = false,
     subjective: Boolean = false, isSupported: (() -> Boolean)? = null
