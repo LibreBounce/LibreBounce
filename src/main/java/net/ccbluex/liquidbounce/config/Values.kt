@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
+import net.ccbluex.liquidbounce.utils.kotlin.coerceIn
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.minecraft.client.gui.FontRenderer
@@ -58,6 +59,8 @@ open class IntegerValue(
     isSupported: (() -> Boolean)? = null,
 ) : Value<Int>(name, value, subjective, isSupported, suffix) {
 
+    override fun validate(newValue: Int): Int = newValue.coerceIn(range)
+
     fun set(newValue: Number) = set(newValue.toInt())
 
     override fun toJsonF() = JsonPrimitive(value)
@@ -80,6 +83,8 @@ class IntegerRangeValue(
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
 ) : Value<IntRange>(name, value, subjective, isSupported, suffix) {
+
+    override fun validate(newValue: IntRange): IntRange = newValue.coerceIn(range)
 
     fun setFirst(newValue: Int, immediate: Boolean = true) = set(newValue..value.last, immediate)
     fun setLast(newValue: Int, immediate: Boolean = true) = set(value.first..newValue, immediate)
@@ -122,6 +127,8 @@ open class FloatValue(
     isSupported: (() -> Boolean)? = null,
 ) : Value<Float>(name, value, subjective, isSupported, suffix) {
 
+    override fun validate(newValue: Float): Float = newValue.coerceIn(range)
+
     fun set(newValue: Number) = set(newValue.toFloat())
 
     override fun toJsonF() = JsonPrimitive(value)
@@ -144,6 +151,8 @@ class FloatRangeValue(
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
 ) : Value<ClosedFloatingPointRange<Float>>(name, value, subjective, isSupported, suffix) {
+
+    override fun validate(newValue: ClosedFloatingPointRange<Float>): ClosedFloatingPointRange<Float> = newValue.coerceIn(range)
 
     fun setFirst(newValue: Float, immediate: Boolean = true) = set(newValue..value.endInclusive, immediate)
     fun setLast(newValue: Float, immediate: Boolean = true) = set(value.start..newValue, immediate)
@@ -254,6 +263,8 @@ open class ListValue(
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
 ) : Value<String>(name, value, subjective, isSupported) {
+
+    override fun validate(newValue: String): String = values.find { it.equals(newValue, true) } ?: default
 
     var openList = false
 

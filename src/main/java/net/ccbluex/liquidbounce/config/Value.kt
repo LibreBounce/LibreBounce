@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.config
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -45,7 +44,7 @@ sealed class Value<T>(
         val oldValue = value
 
         try {
-            var handledValue = oldValue
+            var handledValue = validate(newValue)
             onChangeInterceptors.forEach { handledValue = it(oldValue, handledValue) }
 
             handledValue = onChange(oldValue, newValue) // TODO: remove this line
@@ -129,8 +128,10 @@ sealed class Value<T>(
 
     // TODO: END
 
-    // TODO
-    // abstract fun validate(newValue: T): T
+    /**
+     * Make the value able to set.
+     */
+    open fun validate(newValue: T): T = newValue
 
     // Support for delegating values using the `by` keyword.
     override operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
