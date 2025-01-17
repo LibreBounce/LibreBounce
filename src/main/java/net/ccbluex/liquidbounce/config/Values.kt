@@ -72,7 +72,7 @@ open class IntegerValue(
 }
 
 // TODO: Replace Min/Max options with this instead
-open class IntegerRangeValue(
+class IntegerRangeValue(
     name: String,
     value: IntRange,
     val range: IntRange = 0..Int.MAX_VALUE,
@@ -110,8 +110,33 @@ open class IntegerRangeValue(
         get() = nextInt(value.first, value.last)
 }
 
+/**
+ * Float value represents a value with a float
+ */
+open class FloatValue(
+    name: String,
+    value: Float,
+    val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    suffix: String? = null,
+    subjective: Boolean = false,
+    isSupported: (() -> Boolean)? = null,
+) : Value<Float>(name, value, subjective, isSupported, suffix) {
+
+    fun set(newValue: Number) = set(newValue.toFloat())
+
+    override fun toJsonF() = JsonPrimitive(value)
+
+    override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asFloat else null
+
+    fun isMinimal() = value <= minimum
+    fun isMaximal() = value >= maximum
+
+    val minimum = range.start
+    val maximum = range.endInclusive
+}
+
 // TODO: Replace Min/Max options with this instead
-open class FloatRangeValue(
+class FloatRangeValue(
     name: String,
     value: ClosedFloatingPointRange<Float>,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
@@ -147,31 +172,6 @@ open class FloatRangeValue(
 
     val random
         get() = nextFloat(value.start, value.endInclusive)
-}
-
-/**
- * Float value represents a value with a float
- */
-open class FloatValue(
-    name: String,
-    value: Float,
-    val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
-    suffix: String? = null,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<Float>(name, value, subjective, isSupported, suffix) {
-
-    fun set(newValue: Number) = set(newValue.toFloat())
-
-    override fun toJsonF() = JsonPrimitive(value)
-
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asFloat else null
-
-    fun isMinimal() = value <= minimum
-    fun isMaximal() = value >= maximum
-
-    val minimum = range.start
-    val maximum = range.endInclusive
 }
 
 /**
