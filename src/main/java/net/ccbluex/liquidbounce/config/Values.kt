@@ -268,7 +268,7 @@ open class ListValue(
     }
 }
 
-open class ColorValue(
+class ColorValue(
     name: String, defaultColor: Color, var rainbow: Boolean = false, var showPicker: Boolean = false,
     subjective: Boolean = false, isSupported: (() -> Boolean)? = null
 ) : Value<Color>(name, defaultColor, subjective = subjective, isSupported = isSupported) {
@@ -347,8 +347,8 @@ open class ColorValue(
     }
 
     // Every change that is not coming from any ClickGUI styles should modify the sliders to synchronize with the new color.
-    override fun onChanged(oldValue: Color, newValue: Color) {
-        setupSliders(newValue)
+    init {
+        onChanged(::setupSliders)
     }
 
     fun readColorFromConfig(str: String): List<String>? {

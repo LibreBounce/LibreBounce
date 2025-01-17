@@ -98,8 +98,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val minCPS: Int by object : IntegerValue("MinCPS", 5, 1..20) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxCPS)
 
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            attackDelay = randomClickDelay(newValue, maxCPS)
+        override fun onUpdate(value: Int) {
+            attackDelay = randomClickDelay(value, maxCPS)
         }
 
         override fun isSupported() = !maxCPSValue.isMinimal() && !simulateCooldown

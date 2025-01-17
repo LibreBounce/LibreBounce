@@ -12,6 +12,9 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+private typealias OnChangeInterceptor<T> = (old: T, new: T) -> Unit
+private typealias OnChangedHandler<T> = (new: T) -> Unit
+
 sealed class Value<T>(
     val name: String,
     protected open var value: T,
@@ -44,7 +47,6 @@ sealed class Value<T>(
 
             changeValue(handledValue)
             onChanged(oldValue, handledValue)
-            onUpdate(handledValue)
 
             if (saveImmediately) {
                 saveConfig(valuesConfig)
@@ -89,23 +91,36 @@ sealed class Value<T>(
     open fun fromJson(element: JsonElement) {
         val result = fromJsonF(element)
         if (result != null) changeValue(result)
-
-        onInit(value)
-        onUpdate(value)
     }
 
     abstract fun toJsonF(): JsonElement?
     abstract fun fromJsonF(element: JsonElement): T?
 
-    protected open fun onInit(value: T) {}
+    private var onChangeInterceptors: Array<OnChangeInterceptor<T>> = emptyArray()
+    private var onChangedListeners: Array<OnChangedHandler<T>> = emptyArray()
+
+    fun onChange(interceptor: OnChangeInterceptor<T>): Value<T> {
+        onChangeInterceptors += interceptor
+        return this
+    }
+
+    fun onChanged(handler: OnChangedHandler<T>): Value<T> {
+        this.onChangedListeners += handler
+        return this
+    }
+
+    // TODO: START
     protected open fun onUpdate(value: T) {}
     protected open fun onChange(oldValue: T, newValue: T) = newValue
     protected open fun onChanged(oldValue: T, newValue: T) {}
+
     open fun isSupported() = isSupported?.invoke() != false
 
     open fun setSupport(condition: (Boolean) -> Boolean) {
         isSupported = { condition(isSupported()) }
     }
+
+    // TODO: END
 
     // Support for delegating values using the `by` keyword.
     override operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
