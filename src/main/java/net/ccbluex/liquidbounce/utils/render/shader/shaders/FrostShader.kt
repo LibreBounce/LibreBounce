@@ -8,11 +8,14 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
     var isInUse = false
         private set
     
+    var intensity = 0.3f
+    
     override fun setupUniforms() {
         setupUniform("texture")
         setupUniform("texelSize")
         setupUniform("radius")
         setupUniform("alpha")
+        setupUniform("intensity")
     }
 
     override fun updateUniforms() {
@@ -23,6 +26,7 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
         )
         glUniform1f(getUniform("radius"), 2f)
         glUniform1f(getUniform("alpha"), 0.6f)
+        glUniform1f(getUniform("intensity"), intensity)
     }
 
     override fun startShader() {
@@ -40,8 +44,9 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
             stopShader()
     }
 
-    fun begin(enable: Boolean) = apply {
+    fun begin(enable: Boolean, intensity: Float = 0.3f) = apply {
         if (!enable) return@apply
+        this.intensity = intensity
         startShader()
     }
 } 

@@ -50,6 +50,7 @@ class Target : Element() {
 
     private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Frost"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
+    private val frostIntensity by float("Frost-Intensity", 0.3F, 0.1F..1F) { backgroundMode == "Frost" }
 
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
@@ -204,7 +205,7 @@ class Target : Element() {
                 if (fadeMode && shouldRender || smoothMode && shouldRender || delayCounter < vanishDelay) {
                     when (backgroundMode) {
                         "Frost" -> {
-                            FrostShader.begin(true).use {
+                            FrostShader.begin(true, frostIntensity).use {
                                 drawRoundedBorderRect(
                                     0F, 0F, width, height, borderStrength,
                                     0,

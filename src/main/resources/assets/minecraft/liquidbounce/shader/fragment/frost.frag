@@ -4,6 +4,7 @@ uniform sampler2D texture;
 uniform vec2 texelSize;
 uniform float radius;
 uniform float alpha;
+uniform float intensity;
 
 void main() {
     vec4 color = vec4(0.0);
@@ -18,8 +19,8 @@ void main() {
         }
     }
 
-    // Average the sampled colors and add slight white tint for frost effect
+    // Average the sampled colors and add white tint based on intensity
     color = color / count;
-    color = mix(color, vec4(1.0), 0.3);
+    color = mix(color, vec4(1.0), intensity);
     gl_FragColor = vec4(color.rgb, color.a * alpha);
 } 
