@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -70,7 +71,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     private val lastAttemptTimer = Chronometer()
 
     @Suppress("unused")
-    private val tickMovementHandler = handler<RotationUpdateEvent> {
+    private val rotationUpdateHandler = handler<RotationUpdateEvent> {
         // we can't place water in the nether
         if (world.dimension.ultrawarm) {
             return@handler
@@ -88,6 +89,11 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
             priority = Priority.IMPORTANT_FOR_PLAYER_LIFE,
             provider = ModuleNoFall
         )
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        currentTarget = null
     }
 
     private fun findAction(): PlacementPlan? {
@@ -117,7 +123,8 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
         return planExtinguishing()
     }
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         val target = currentTarget ?: return@tickHandler
 
         val rayTraceResult = raycast()
