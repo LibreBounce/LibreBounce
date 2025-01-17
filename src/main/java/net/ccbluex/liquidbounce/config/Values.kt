@@ -1,3 +1,8 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
 package net.ccbluex.liquidbounce.config
 
 import com.google.gson.JsonElement
@@ -15,7 +20,6 @@ import java.awt.Color
 import javax.vecmath.Vector2f
 import kotlin.math.roundToInt
 import kotlin.reflect.KProperty
-
 
 /**
  * Bool value represents a value with a boolean
@@ -268,6 +272,7 @@ open class ListValue(
     }
 }
 
+// TODO: add to script API
 class ColorValue(
     name: String, defaultColor: Color, var rainbow: Boolean = false, var showPicker: Boolean = false,
     subjective: Boolean = false, isSupported: (() -> Boolean)? = null

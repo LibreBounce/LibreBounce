@@ -6,10 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import com.google.common.collect.Queues
-import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -48,12 +45,11 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
     private val delay by int("Delay", 550, 0..1000)
     private val recoilTime by int("RecoilTime", 750, 0..2000)
 
-    private val maxAllowedDistToEnemy: FloatValue = object : FloatValue("MaxAllowedDistToEnemy", 3.5f, 0f..6f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minAllowedDistToEnemy.get())
+    private val maxAllowedDistToEnemy: Value<Float> = float("MaxAllowedDistToEnemy", 3.5f, 0f..6f).onChange { _, new ->
+        new.coerceAtLeast(minAllowedDistToEnemy.get())
     }
-    private val minAllowedDistToEnemy: FloatValue = object : FloatValue("MinAllowedDistToEnemy", 1.5f, 0f..6f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxAllowedDistToEnemy.get())
-        override fun isSupported(): Boolean = !maxAllowedDistToEnemy.isMinimal()
+    private val minAllowedDistToEnemy: Value<Float> = float("MinAllowedDistToEnemy", 1.5f, 0f..6f).onChange { _, new ->
+        new.coerceAtMost(maxAllowedDistToEnemy.get())
     }
 
     private val blinkOnAction by boolean("BlinkOnAction", true)

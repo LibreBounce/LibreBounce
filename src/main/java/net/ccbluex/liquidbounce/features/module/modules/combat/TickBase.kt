@@ -34,11 +34,11 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     private val balanceRecoveryIncrement by float("BalanceRecoveryIncrement", 0.1f, 0.01f..10f)
     private val maxTicksAtATime by int("MaxTicksAtATime", 20, 1..100)
 
-    private val maxRangeToAttack: FloatValue = object : FloatValue("MaxRangeToAttack", 5.0f, 0f..10f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minRangeToAttack.get())
+    private val maxRangeToAttack: Value<Float> = float("MaxRangeToAttack", 5.0f, 0f..10f).onChange { _, new ->
+        new.coerceAtLeast(minRangeToAttack.get())
     }
-    private val minRangeToAttack: FloatValue = object : FloatValue("MinRangeToAttack", 3.0f, 0f..10f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxRangeToAttack.get())
+    private val minRangeToAttack: Value<Float> = float("MinRangeToAttack", 3.0f, 0f..10f).onChange { _, new ->
+        new.coerceAtMost(maxRangeToAttack.get())
     }
 
     private val forceGround by boolean("ForceGround", false)

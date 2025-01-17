@@ -86,14 +86,13 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
     // Using too many times of simulatePlayer could result timer flag. Hence, why this is disabled by default.
     val checkFallDist by boolean("CheckFallDistance", false, subjective = true) { mode == "Blink" }
 
-    val minFallDist: FloatValue = object : FloatValue("MinFallDistance", 2.5f, 0f..10f, subjective = true) {
-        override fun isSupported() = mode == "Blink" && checkFallDist
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxFallDist.get())
-    }
-    val maxFallDist: FloatValue = object : FloatValue("MaxFallDistance", 20f, 0f..100f, subjective = true) {
-        override fun isSupported() = mode == "Blink" && checkFallDist
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minFallDist.get())
-    }
+    val minFallDist: Value<Float> = float("MinFallDistance", 2.5f, 0f..10f, subjective = true) {
+        mode == "Blink" && checkFallDist
+    }.onChange { _, new -> new.coerceAtMost(maxFallDist.get()) }
+
+    val maxFallDist: Value<Float> = float ("MaxFallDistance", 20f, 0f..100f, subjective = true) {
+        mode == "Blink" && checkFallDist
+    }.onChange { _, new -> new.coerceAtLeast(minFallDist.get()) }
 
     val autoOff by boolean("AutoOff", true) { mode == "Blink" }
     val simulateDebug by boolean("SimulationDebug", false, subjective = true) { mode == "Blink" }

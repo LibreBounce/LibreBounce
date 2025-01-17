@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.TextValue
 import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.text
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -30,8 +30,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule 
         override fun isSupported() = !maxDelayValue.isMinimal()
     }
 
-    private val message by
-    TextValue("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")
+    private val message by text("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")
 
     private val custom by boolean("Custom", false)
 

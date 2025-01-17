@@ -21,45 +21,45 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     open val shortStopDurationValue = intRange("ShortStopDuration", 1..2, 1..5) { simulateShortStop }
     open val strafeValue = boolean("Strafe", false) { rotationsActive && applyServerSide && generalApply() }
     open val strictValue = boolean("Strict", false) { strafeValue.isActive() && generalApply() }
-    open val keepRotationValue = boolean(
-        "KeepRotation", true
-    ) { rotationsActive && applyServerSide && generalApply() }
-    open val resetTicksValue = object : IntegerValue("ResetTicks", 1, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minimum)
-        override fun isSupported() = rotationsActive && applyServerSide && generalApply()
+    open val keepRotationValue = boolean("KeepRotation", true) { rotationsActive && applyServerSide && generalApply() }
+
+    open val resetTicksValue: Value<Int> = int("ResetTicks", 1, 1..20) {
+        rotationsActive && applyServerSide && generalApply()
+    }.onChange { _, new ->
+        new.coerceAtLeast(1) // minimum
     }
 
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
-    open val maxHorizontalAngleChangeValue: FloatValue = object : FloatValue(
-        "MaxHorizontalAngleChange", 180f, 1f..180f
-    ) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalAngleChange)
-        override fun isSupported() = rotationsActive && generalApply()
+    open val maxHorizontalAngleChangeValue = float("MaxHorizontalAngleChange", 180f, 1f..180f) {
+        rotationsActive && generalApply()
+    }.onChange { _, new ->
+        new.coerceAtLeast(minHorizontalAngleChange)
+    }
+    open val minHorizontalAngleChangeValue: Value<Float> = float("MinHorizontalAngleChange", 180f, 1f..180f) {
+        rotationsActive && generalApply()
+    }.onChange { _, new ->
+        new.coerceAtMost(maxHorizontalAngleChange)
     }
 
-    open val minHorizontalAngleChangeValue: FloatValue = object : FloatValue(
-        "MinHorizontalAngleChange", 180f, 1f..180f
-    ) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalAngleChange)
-        override fun isSupported() = !maxHorizontalAngleChangeValue.isMinimal() && rotationsActive && generalApply()
+    open val maxVerticalAngleChangeValue: Value<Float> = float("MaxVerticalAngleChange", 180f, 1f..180f) {
+        rotationsActive && generalApply()
+    }.onChange { _, new ->
+        new.coerceAtLeast(minVerticalAngleChange)
     }
 
-    open val maxVerticalAngleChangeValue: FloatValue = object : FloatValue("MaxVerticalAngleChange", 180f, 1f..180f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minVerticalAngleChange)
-        override fun isSupported() = rotationsActive && generalApply()
+    open val minVerticalAngleChangeValue: Value<Float> = float("MinVerticalAngleChange", 180f, 1f..180f) {
+        rotationsActive && generalApply()
+    }.onChange { _, new ->
+        new.coerceAtMost(maxVerticalAngleChange)
     }
 
-    open val minVerticalAngleChangeValue: FloatValue = object : FloatValue("MinVerticalAngleChange", 180f, 1f..180f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxVerticalAngleChange)
-        override fun isSupported() = !maxVerticalAngleChangeValue.isMinimal() && rotationsActive && generalApply()
+    open val angleResetDifferenceValue = float("AngleResetDifference", 5f.withGCD(), 0.0f..180f) {
+        rotationsActive && applyServerSide && generalApply()
+    }.onChange { _, new ->
+        new.withGCD().coerceIn(0.0f..180f) // range
     }
 
-    open val angleResetDifferenceValue: FloatValue = object : FloatValue("AngleResetDifference", 5f.withGCD(), 0.0f..180f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.withGCD().coerceIn(range)
-        override fun isSupported() = rotationsActive && applyServerSide && generalApply()
-    }
-
-    open val minRotationDifferenceValue = FloatValue(
+    open val minRotationDifferenceValue = float(
         "MinRotationDifference", 2f, 0f..4f
     ) { rotationsActive && generalApply() }
 

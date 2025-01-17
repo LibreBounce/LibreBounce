@@ -89,16 +89,16 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
 
     private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
 
-    private val maxHorizontalBodySearch: FloatValue = object : FloatValue("MaxHorizontalBodySearch", 1f, 0f..1f) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalBodySearch.get())
+    private val maxHorizontalBodySearch: Value<Float> = float("MaxHorizontalBodySearch", 1f, 0f..1f) {
+        options.rotationsActive
+    }.onChange { _, new ->
+        new.coerceAtLeast(minHorizontalBodySearch.get())
     }
 
-    private val minHorizontalBodySearch: FloatValue = object : FloatValue("MinHorizontalBodySearch", 0f, 0f..1f) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
+    private val minHorizontalBodySearch: Value<Float> = float("MinHorizontalBodySearch", 0f, 0f..1f) {
+        options.rotationsActive
+    }.onChange { _, new ->
+        new.coerceAtMost(maxHorizontalBodySearch.get())
     }
 
     private val mark by boolean("Mark", true, subjective = true)

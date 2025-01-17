@@ -67,14 +67,15 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
     // Modern
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
 
-    private val maxDistanceValue: FloatValue = object : FloatValue("MaxDistance", 3.0f, 0.0f..3.5f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minDistance)
-        override fun isSupported() = mode == "Modern"
+    private val maxDistance: Float by float("MaxDistance", 3.0f, 0.0f..3.5f) {
+        mode == "Modern"
+    }.onChange { _, new ->
+        new.coerceAtLeast(minDistance)
     }
-    private val maxDistance by maxDistanceValue
-    private val minDistance by object : FloatValue("MinDistance", 2.0f, 0.0f..3.0f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceIn(minimum, maxDistance)
-        override fun isSupported() = mode == "Modern"
+    private val minDistance: Float by float("MinDistance", 2.0f, 0.0f..3.0f) {
+        mode == "Modern"
+    }.onChange { _, new ->
+        new.coerceAtMost(maxDistance)
     }
     private val smart by boolean("Smart", true) { mode == "Modern" }
 

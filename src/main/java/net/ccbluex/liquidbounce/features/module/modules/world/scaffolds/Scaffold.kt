@@ -260,24 +260,28 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
     // Jump Strafe
     private val jumpStrafe by boolean("JumpStrafe", false)
-    private val maxJumpStraightStrafe: FloatValue = object : FloatValue("MaxStraightStrafe", 0.45f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minJumpStraightStrafe.get())
-        override fun isSupported() = jumpStrafe
+    private val maxJumpStraightStrafe: Value<Float> = float("MaxStraightStrafe", 0.45f, 0.1f..1f) {
+        jumpStrafe
+    }.onChange { _, new ->
+        new.coerceAtLeast(minJumpStraightStrafe.get())
     }
 
-    private val minJumpStraightStrafe: FloatValue = object : FloatValue("MinStraightStrafe", 0.4f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxJumpStraightStrafe.get())
-        override fun isSupported() = jumpStrafe
+    private val minJumpStraightStrafe: Value<Float> = float("MinStraightStrafe", 0.4f, 0.1f..1f) {
+        jumpStrafe
+    }.onChange { _, new ->
+        new.coerceAtMost(maxJumpStraightStrafe.get())
     }
 
-    private val maxJumpDiagonalStrafe: FloatValue = object : FloatValue("MaxDiagonalStrafe", 0.45f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minJumpDiagonalStrafe.get())
-        override fun isSupported() = jumpStrafe
+    private val maxJumpDiagonalStrafe: Value<Float> = float("MaxDiagonalStrafe", 0.45f, 0.1f..1f) {
+        jumpStrafe
+    }.onChange { _, new ->
+        new.coerceAtLeast(minJumpDiagonalStrafe.get())
     }
 
-    private val minJumpDiagonalStrafe: FloatValue = object : FloatValue("MinDiagonalStrafe", 0.4f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxJumpDiagonalStrafe.get())
-        override fun isSupported() = jumpStrafe
+    private val minJumpDiagonalStrafe: Value<Float> = float("MinDiagonalStrafe", 0.4f, 0.1f..1f) {
+        jumpStrafe
+    }.onChange { _, new ->
+        new.coerceAtMost(maxJumpDiagonalStrafe.get())
     }
 
     // Safety
