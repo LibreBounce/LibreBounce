@@ -46,7 +46,7 @@ object UiRenderer : MinecraftShortcuts {
         arrayOf(
             UniformProvider("texture0") { pointer ->
                 GlStateManager._activeTexture(GL13.GL_TEXTURE0)
-                GlStateManager._bindTexture(mc.framebuffer.colorAttachment)
+                GlStateManager._bindTexture(tmpFramebuffer.colorAttachment)
                 GL20.glUniform1i(pointer, 0)
             },
             UniformProvider("overlay") { pointer ->
@@ -62,6 +62,18 @@ object UiRenderer : MinecraftShortcuts {
     private var isDrawingHudFramebuffer = false
 
     private val overlayFramebuffer by lazy {
+        val fb = SimpleFramebuffer(
+            mc.window.framebufferWidth,
+            mc.window.framebufferHeight,
+            true
+        )
+
+        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+
+        fb
+    }
+
+    private val tmpFramebuffer by lazy {
         val fb = SimpleFramebuffer(
             mc.window.framebufferWidth,
             mc.window.framebufferHeight,
@@ -138,6 +150,12 @@ object UiRenderer : MinecraftShortcuts {
         RenderSystem.disableBlend()
 //        RenderSystem.disableDepthTest()
 //        RenderSystem.resetTextureMatrix()
+
+        // Draw Minecraft's framebuffer to the temporary one to avoid feedback loop
+        this.tmpFramebuffer.clear()
+        this.tmpFramebuffer.beginWrite(true)
+
+        mc.framebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
 
         mc.framebuffer.beginWrite(true)
 
