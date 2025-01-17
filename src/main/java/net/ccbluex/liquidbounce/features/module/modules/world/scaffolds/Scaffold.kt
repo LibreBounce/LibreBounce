@@ -94,14 +94,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }.onChange { _, new ->
         new.coerceAtLeast(minDelay)
     } as IntegerValue
-    private val maxDelay by maxDelayValue
+    private val maxDelay: Int by maxDelayValue
 
     private val minDelayValue = int("MinDelay", 0, 0..1000) {
         placeDelayValue.isActive()
     }.onChange { _, new ->
         new.coerceAtMost(maxDelay)
     } as IntegerValue
-    private val minDelay by minDelayValue
+    private val minDelay: Int by minDelayValue
 
     // Extra clicks
     private val extraClicks by boolean("DoExtraClicks", false)

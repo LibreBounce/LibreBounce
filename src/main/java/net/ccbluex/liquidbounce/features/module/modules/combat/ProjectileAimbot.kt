@@ -66,7 +66,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
         val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
         coercedPoint.name
     }
-    private val highestBodyPointToTarget by highestBodyPointToTargetValue
+    private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
     private val lowestBodyPointToTargetValue = choices(
         "LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet"
@@ -79,7 +79,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
         coercedPoint.name
     }
 
-    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
+    private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
 
     private val maxHorizontalBodySearch: Value<Float> = float("MaxHorizontalBodySearch", 1f, 0f..1f) {
         options.rotationsActive

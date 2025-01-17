@@ -50,7 +50,7 @@ open class BoolValue(
 /**
  * Integer value represents a value with a integer
  */
-sealed class IntegerValue(
+open class IntegerValue(
     name: String,
     value: Int,
     val range: IntRange = 0..Int.MAX_VALUE,
@@ -248,6 +248,8 @@ class FontValue(
 
 /**
  * Block value represents a value with a block
+ *
+ * TODO: make a new impl
  */
 class BlockValue(
     name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null,
