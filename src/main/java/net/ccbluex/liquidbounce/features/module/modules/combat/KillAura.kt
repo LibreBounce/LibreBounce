@@ -83,26 +83,22 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { !simulateCooldown }
 
     // CPS - Attack speed
-    private val maxCPSValue = object : IntegerValue("MaxCPS", 8, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minCPS)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            attackDelay = randomClickDelay(minCPS, newValue)
-        }
-
-        override fun isSupported() = !simulateCooldown
+    private val maxCPSValue = int("MaxCPS", 8, 1..20) {
+        !simulateCooldown
+    }.onChange { _, new ->
+        new.coerceAtLeast(minCPS)
+    }.onChanged {
+        attackDelay = randomClickDelay(minCPS, it)
     }
 
     private val maxCPS by maxCPSValue
 
-    private val minCPS: Int by object : IntegerValue("MinCPS", 5, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxCPS)
-
-        override fun onUpdate(value: Int) {
-            attackDelay = randomClickDelay(value, maxCPS)
-        }
-
-        override fun isSupported() = !maxCPSValue.isMinimal() && !simulateCooldown
+    private val minCPS: Int by int("MinCPS", 5, 1..20) {
+        !simulateCooldown
+    }.onChange { _, new ->
+        new.coerceAtMost(maxCPS)
+    }.onChanged {
+        attackDelay = randomClickDelay(it, maxCPS)
     }
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }

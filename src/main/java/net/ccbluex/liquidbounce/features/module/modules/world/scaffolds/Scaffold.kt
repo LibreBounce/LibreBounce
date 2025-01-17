@@ -89,30 +89,34 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
     // Placeable delay
     private val placeDelayValue = boolean("PlaceDelay", true) { scaffoldMode != "GodBridge" }
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 0, 0..1000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-        override fun isSupported() = placeDelayValue.isActive()
-    }
+    private val maxDelayValue = int("MaxDelay", 0, 0..1000) {
+        placeDelayValue.isActive()
+    }.onChange { _, new ->
+        new.coerceAtLeast(minDelay)
+    } as IntegerValue
     private val maxDelay by maxDelayValue
 
-    private val minDelayValue = object : IntegerValue("MinDelay", 0, 0..1000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-        override fun isSupported() = placeDelayValue.isActive() && !maxDelayValue.isMinimal()
-    }
+    private val minDelayValue = int("MinDelay", 0, 0..1000) {
+        placeDelayValue.isActive()
+    }.onChange { _, new ->
+        new.coerceAtMost(maxDelay)
+    } as IntegerValue
     private val minDelay by minDelayValue
 
     // Extra clicks
     private val extraClicks by boolean("DoExtraClicks", false)
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { extraClicks }
-    private val extraClickMaxCPSValue: IntegerValue = object : IntegerValue("ExtraClickMaxCPS", 7, 0..50) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(extraClickMinCPS)
-        override fun isSupported() = extraClicks
+    private val extraClickMaxCPSValue: Value<Int> = int("ExtraClickMaxCPS", 7, 0..50) {
+        extraClicks
+    }.onChange { _, new ->
+        new.coerceAtLeast(extraClickMinCPS)
     }
     private val extraClickMaxCPS by extraClickMaxCPSValue
 
-    private val extraClickMinCPS by object : IntegerValue("ExtraClickMinCPS", 3, 0..50) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(extraClickMaxCPS)
-        override fun isSupported() = extraClicks && !extraClickMaxCPSValue.isMinimal()
+    private val extraClickMinCPS by int("ExtraClickMinCPS", 3, 0..50) {
+        extraClicks
+    }.onChange { _, new ->
+        new.coerceAtMost(extraClickMaxCPS)
     }
 
     private val placementAttempt by choices(
@@ -135,9 +139,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val swing by boolean("Swing", true, subjective = true)
     private val down by boolean("Down", true) { !sameY && scaffoldMode !in arrayOf("GodBridge", "Telly") }
 
-    private val ticksUntilRotation: IntegerValue = object : IntegerValue("TicksUntilRotation", 3, 1..5) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
+    private val ticksUntilRotation: Value<Int> = int("TicksUntilRotation", 3, 1..5) {
+        scaffoldMode == "Telly"
     }
 
     // GodBridge mode sub-values
@@ -148,54 +151,59 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     ) { isGodBridgeEnabled && !useOptimizedPitch }
 
     val jumpAutomatically by boolean("JumpAutomatically", true) { scaffoldMode == "GodBridge" }
-    private val maxBlocksToJump: IntegerValue = object : IntegerValue("MaxBlocksToJump", 4, 1..8) {
-        override fun isSupported() = scaffoldMode == "GodBridge" && !jumpAutomatically
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minBlocksToJump.get())
+    private val maxBlocksToJump: Value<Int> = int("MaxBlocksToJump", 4, 1..8) {
+        scaffoldMode == "GodBridge" && !jumpAutomatically
+    }.onChange { _, new ->
+        new.coerceAtLeast(minBlocksToJump.get())
     }
 
-    private val minBlocksToJump: IntegerValue = object : IntegerValue("MinBlocksToJump", 4, 1..8) {
-        override fun isSupported() = scaffoldMode == "GodBridge" && !jumpAutomatically && !maxBlocksToJump.isMinimal()
-
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxBlocksToJump.get())
+    private val minBlocksToJump: Value<Int> = int("MinBlocksToJump", 4, 1..8) {
+        scaffoldMode == "GodBridge" && !jumpAutomatically
+    }.onChange { _, new ->
+        new.coerceAtMost(maxBlocksToJump.get())
     }
 
     // Telly mode subvalues
     private val startHorizontally by boolean("StartHorizontally", true) { scaffoldMode == "Telly" }
-    private val maxHorizontalPlacements: IntegerValue = object : IntegerValue("MaxHorizontalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minHorizontalPlacements.get())
+    private val maxHorizontalPlacements: Value<Int> = int("MaxHorizontalPlacements", 1, 1..10) {
+        scaffoldMode == "Telly"
+    }.onChange { _, new ->
+        new.coerceAtLeast(minHorizontalPlacements.get())
     }
-    private val minHorizontalPlacements: IntegerValue = object : IntegerValue("MinHorizontalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxHorizontalPlacements.get())
+    private val minHorizontalPlacements: Value<Int> = int("MinHorizontalPlacements", 1, 1..10) {
+        scaffoldMode == "Telly"
+    }.onChange { _, new ->
+        new.coerceAtMost(maxHorizontalPlacements.get())
     }
-    private val maxVerticalPlacements: IntegerValue = object : IntegerValue("MaxVerticalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minVerticalPlacements.get())
-    }
-
-    private val minVerticalPlacements: IntegerValue = object : IntegerValue("MinVerticalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxVerticalPlacements.get())
+    private val maxVerticalPlacements: Value<Int> = int("MaxVerticalPlacements", 1, 1..10) {
+        scaffoldMode == "Telly"
+    }.onChange { _, new ->
+        new.coerceAtLeast(minVerticalPlacements.get())
     }
 
-    private val maxJumpTicks: IntegerValue = object : IntegerValue("MaxJumpTicks", 0, 0..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minJumpTicks.get())
+    private val minVerticalPlacements: Value<Int> = int("MinVerticalPlacements", 1, 1..10) {
+        scaffoldMode == "Telly"
+    }.onChange { _, new ->
+        new.coerceAtMost(maxVerticalPlacements.get())
     }
-    private val minJumpTicks: IntegerValue = object : IntegerValue("MinJumpTicks", 0, 0..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxJumpTicks.get())
+
+    private val maxJumpTicks: Value<Int> = int("MaxJumpTicks", 0, 0..10) {
+        scaffoldMode == "Telly"
+    }.onChange { _, new ->
+        new.coerceAtLeast(minJumpTicks.get())
+    }
+    private val minJumpTicks: Value<Int> = int("MinJumpTicks", 0, 0..10) {
+        scaffoldMode == "Telly"
+    }.onChange { _, new ->
+        new.coerceAtMost(maxJumpTicks.get())
     }
 
     private val allowClutching by boolean("AllowClutching", true) { scaffoldMode !in arrayOf("Telly", "Expand") }
-    private val horizontalClutchBlocks: IntegerValue = object : IntegerValue("HorizontalClutchBlocks", 3, 1..5) {
-        override fun isSupported() = allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
+    private val horizontalClutchBlocks: Value<Int> = int("HorizontalClutchBlocks", 3, 1..5) {
+        allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
     }
-    private val verticalClutchBlocks: IntegerValue = object : IntegerValue("VerticalClutchBlocks", 2, 1..3) {
-        override fun isSupported() = allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
+    private val verticalClutchBlocks: Value<Int> = int("VerticalClutchBlocks", 2, 1..3) {
+        allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
     }
     private val blockSafe by boolean("BlockSafe", false) { !isGodBridgeEnabled }
 
@@ -235,17 +243,19 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val zitterSpeed by float("ZitterSpeed", 0.13f, 0.1f..0.3f) { zitterMode == "Teleport" }
     private val zitterStrength by float("ZitterStrength", 0.05f, 0f..0.2f) { zitterMode == "Teleport" }
 
-    private val maxZitterTicksValue: IntegerValue = object : IntegerValue("MaxZitterTicks", 3, 0..6) {
-        override fun isSupported() = zitterMode == "Smooth"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minZitterTicks)
-    }
-    private val maxZitterTicks by maxZitterTicksValue
+    private val maxZitterTicksValue = int("MaxZitterTicks", 3, 0..6) {
+        zitterMode == "Smooth"
+    }.onChange { _, new ->
+        new.coerceAtLeast(minZitterTicks)
+    } as IntegerValue
+    private val maxZitterTicks: Int by maxZitterTicksValue
 
-    private val minZitterTicksValue: IntegerValue = object : IntegerValue("MinZitterTicks", 2, 0..6) {
-        override fun isSupported() = zitterMode == "Smooth" && !maxZitterTicksValue.isMinimal()
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxZitterTicks)
-    }
-    private val minZitterTicks by minZitterTicksValue
+    private val minZitterTicksValue = int("MinZitterTicks", 2, 0..6) {
+        zitterMode == "Smooth"
+    }.onChange { _, new ->
+        new.coerceAtMost(maxZitterTicks)
+    } as IntegerValue
+    private val minZitterTicks: Int by minZitterTicksValue
 
     private val useSneakMidAir by boolean("UseSneakMidAir", false) { zitterMode == "Smooth" }
 

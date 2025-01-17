@@ -50,7 +50,7 @@ open class BoolValue(
 /**
  * Integer value represents a value with a integer
  */
-open class IntegerValue(
+sealed class IntegerValue(
     name: String,
     value: Int,
     val range: IntRange = 0..Int.MAX_VALUE,

@@ -43,13 +43,11 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     private val drop by boolean("Drop", true, subjective = true)
     val sort by boolean("Sort", true, subjective = true)
 
-    private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
+    private val maxDelay: Int by int("MaxDelay", 50, 0..500).onChange { _, new ->
+        new.coerceAtLeast(minDelay)
     }
-    private val minDelay by object : IntegerValue("MinDelay", 50, 0..500) {
-        override fun isSupported() = maxDelay > 0
-
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
+    private val minDelay by int("MinDelay", 50, 0..500).onChange { _, new ->
+        new.coerceAtMost(maxDelay)
     }
     private val minItemAge by int("MinItemAge", 0, 0..2000)
 

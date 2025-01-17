@@ -47,14 +47,12 @@ sealed class Value<T>(
             var handledValue = validate(newValue)
             onChangeInterceptors.forEach { handledValue = it(oldValue, handledValue) }
 
-            handledValue = onChange(oldValue, newValue) // TODO: remove this line
             if (handledValue == oldValue) {
                 return false
             }
 
             changeValue(handledValue)
             onChangedListeners.forEach { it.invoke(handledValue) }
-            onChanged(oldValue, handledValue) // TODO: remove this line
 
             if (saveImmediately) {
                 saveConfig(valuesConfig)
@@ -118,9 +116,6 @@ sealed class Value<T>(
     }
 
     // TODO: START
-    protected open fun onUpdate(value: T) {}
-    protected open fun onChange(oldValue: T, newValue: T) = newValue
-    protected open fun onChanged(oldValue: T, newValue: T) {}
 
     open fun isSupported() = isSupported?.invoke() != false
 
