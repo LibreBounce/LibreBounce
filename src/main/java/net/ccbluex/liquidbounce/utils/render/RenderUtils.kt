@@ -193,8 +193,14 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawCircle(
-        entity: EntityLivingBase, speed: Float, height: ClosedFloatingPointRange<Float>, size: Float, filled: Boolean,
-        withHeight: Boolean, circleY: ClosedFloatingPointRange<Float>? = null, color: Color
+        entity: EntityLivingBase,
+        speed: Float,
+        height: ClosedFloatingPointRange<Float>,
+        size: Float,
+        filled: Boolean,
+        withHeight: Boolean,
+        circleY: ClosedFloatingPointRange<Float>? = null,
+        color: Color
     ) {
         val manager = mc.renderManager
 
@@ -363,7 +369,12 @@ object RenderUtils : MinecraftInstance {
     }
 
     private fun calculateDomeVertex(
-        entityX: Double, entityY: Double, entityZ: Double, theta: Double, phi: Double, horizontalRadius: Double,
+        entityX: Double,
+        entityY: Double,
+        entityZ: Double,
+        theta: Double,
+        phi: Double,
+        horizontalRadius: Double,
         verticalRadius: Double
     ): DoubleArray {
         return doubleArrayOf(
@@ -666,14 +677,14 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawRoundedBorder(x: Float, y: Float, x2: Float, y2: Float, width: Float, color: Int, radius: Float) {
-        drawRoundedBordered(x, y, x2, y2, color, width, radius)
+        renderRoundedBorder(x, y, x2, y2, color, width, radius)
     }
 
     fun drawRoundedBorderInt(x: Int, y: Int, x2: Int, y2: Int, width: Float, color: Int, radius: Float) {
-        drawRoundedBordered(x.toFloat(), y.toFloat(), x2.toFloat(), y2.toFloat(), color, width, radius)
+        renderRoundedBorder(x.toFloat(), y.toFloat(), x2.toFloat(), y2.toFloat(), color, width, radius)
     }
 
-    private fun drawRoundedBordered(
+    private fun renderRoundedBorder(
         x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, radius: Float, bottom: Boolean = true
     ) {
         val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
@@ -690,7 +701,7 @@ object RenderUtils : MinecraftInstance {
 
         if (bottom) glBegin(GL_LINE_LOOP) else glBegin(GL_LINE_STRIP)
 
-        val radiusD = radius.toDouble()
+        val radiusD = min(radius.toDouble(), min(newX2 - newX1, newY2 - newY1) / 2.0)
 
         val corners = arrayOf(
             doubleArrayOf(newX2 - radiusD, newY2 - radiusD, 0.0),
@@ -719,7 +730,7 @@ object RenderUtils : MinecraftInstance {
 
     fun drawRoundedBorderedWithoutBottom(
         x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, radius: Float
-    ) = drawRoundedBordered(x1, y1, x2, y2, color, width, radius, false)
+    ) = renderRoundedBorder(x1, y1, x2, y2, color, width, radius, false)
 
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float) {
         glBegin(GL_QUADS)
@@ -851,15 +862,15 @@ object RenderUtils : MinecraftInstance {
         }
     }
 
-    fun drawRoundedRect(x1: Float, y1: Float, x2: Float, y2: Float, color: Int, radius: Float) {
+    fun drawRoundedRect(x1: Float, y1: Float, x2: Float, y2: Float, color: Int, radius: Float, cornersToRound: RoundedCorners = RoundedCorners.ALL) {
         val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
-        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius)
+        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius, cornersToRound)
     }
 
-    fun drawRoundedRect2(x1: Float, y1: Float, x2: Float, y2: Float, color: Color, radius: Float) {
+    fun drawRoundedRect2(x1: Float, y1: Float, x2: Float, y2: Float, color: Color, radius: Float, cornersToRound: RoundedCorners = RoundedCorners.ALL) {
         val alpha = color.alpha / 255.0f
         val red = color.red / 255.0f
         val green = color.green / 255.0f
@@ -867,31 +878,66 @@ object RenderUtils : MinecraftInstance {
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
-        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius)
+        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius, cornersToRound)
     }
 
-    fun drawRoundedRect3(x1: Float, y1: Float, x2: Float, y2: Float, color: Float, radius: Float) {
-        val intColor = color.toInt()
-        val alpha = (intColor ushr 24 and 0xFF) / 255.0f
-        val red = (intColor ushr 16 and 0xFF) / 255.0f
-        val green = (intColor ushr 8 and 0xFF) / 255.0f
-        val blue = (intColor and 0xFF) / 255.0f
+    fun drawRoundedRect3(
+        x1: Float, y1: Float, x2: Float, y2: Float, rgba: Int, radius: Float, cornersToRound: RoundedCorners = RoundedCorners.ALL
+    ) {
+        val alpha = (rgba ushr 24 and 0xFF) / 255.0f
+        val red = (rgba ushr 16 and 0xFF) / 255.0f
+        val green = (rgba ushr 8 and 0xFF) / 255.0f
+        val blue = (rgba and 0xFF) / 255.0f
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
-        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius)
+        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius, cornersToRound)
     }
 
-    fun drawRoundedRectInt(x1: Int, y1: Int, x2: Int, y2: Int, color: Int, radius: Float) {
+    fun drawRoundedRectInt(
+        x1: Int,
+        y1: Int,
+        x2: Int,
+        y2: Int,
+        color: Int,
+        radius: Float,
+        cornersToRound: RoundedCorners = RoundedCorners.ALL
+    ) {
         val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1.toFloat(), y1.toFloat(), x2.toFloat(), y2.toFloat())
 
-        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius)
+        drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius, cornersToRound)
+    }
+
+    enum class Corner {
+        TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+    }
+
+    enum class RoundedCorners(val corners: Set<Corner>) {
+        NONE(emptySet()),
+        TOP_LEFT_ONLY(setOf(Corner.TOP_LEFT)),
+        TOP_RIGHT_ONLY(setOf(Corner.TOP_RIGHT)),
+        BOTTOM_LEFT_ONLY(setOf(Corner.BOTTOM_LEFT)),
+        BOTTOM_RIGHT_ONLY(setOf(Corner.BOTTOM_RIGHT)),
+        TOP_ONLY(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT)),
+        BOTTOM_ONLY(setOf(Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT)),
+        LEFT_ONLY(setOf(Corner.TOP_LEFT, Corner.BOTTOM_LEFT)),
+        RIGHT_ONLY(setOf(Corner.TOP_RIGHT, Corner.BOTTOM_RIGHT)),
+        ALL(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT, Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT))
     }
 
     private fun drawRoundedRectangle(
-        x1: Float, y1: Float, x2: Float, y2: Float, red: Float, green: Float, blue: Float, alpha: Float, radius: Float
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        red: Float,
+        green: Float,
+        blue: Float,
+        alpha: Float,
+        radius: Float,
+        cornersToRound: RoundedCorners = RoundedCorners.ALL
     ) {
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
@@ -904,22 +950,32 @@ object RenderUtils : MinecraftInstance {
         glColor4f(red, green, blue, alpha)
         glBegin(GL_TRIANGLE_FAN)
 
-        val radiusD = radius.toDouble()
+        val radiusD = min(radius.toDouble(), min(newX2 - newX1, newY2 - newY1) / 2.0)
 
-        // Draw corners
         val corners = arrayOf(
-            doubleArrayOf(newX2 - radiusD, newY2 - radiusD, 0.0),
-            doubleArrayOf(newX2 - radiusD, newY1 + radiusD, 90.0),
-            doubleArrayOf(newX1 + radiusD, newY1 + radiusD, 180.0),
-            doubleArrayOf(newX1 + radiusD, newY2 - radiusD, 270.0)
+            Corner.BOTTOM_RIGHT to doubleArrayOf(
+                newX2 - radiusD, newY2 - radiusD, 0.0, newX2.toDouble(), newY2.toDouble()
+            ), Corner.TOP_RIGHT to doubleArrayOf(
+                newX2 - radiusD, newY1 + radiusD, 90.0, newX2.toDouble(), newY1.toDouble()
+            ), Corner.TOP_LEFT to doubleArrayOf(
+                newX1 + radiusD, newY1 + radiusD, 180.0, newX1.toDouble(), newY1.toDouble()
+            ), Corner.BOTTOM_LEFT to doubleArrayOf(
+                newX1 + radiusD, newY2 - radiusD, 270.0, newX1.toDouble(), newY2.toDouble()
+            )
         )
 
-        for ((cx, cy, startAngle) in corners) {
-            for (i in 0..90 step 10) {
-                val angle = Math.toRadians(startAngle + i)
-                val x = cx + radiusD * sin(angle)
-                val y = cy + radiusD * cos(angle)
-                glVertex2d(x, y)
+        for ((corner, directionData) in corners) {
+            val (cx, cy, startAngle, ox, oy) = directionData
+
+            if (corner in cornersToRound.corners) {
+                for (i in 0..90 step 10) {
+                    val angle = Math.toRadians(startAngle + i)
+                    val x = cx + radiusD * sin(angle)
+                    val y = cy + radiusD * cos(angle)
+                    glVertex2d(x, y)
+                }
+            } else {
+                glVertex2d(ox, oy)
             }
         }
 
@@ -986,7 +1042,7 @@ object RenderUtils : MinecraftInstance {
         glPopAttrib()
     }
 
-    fun drawImage(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, color: Color = Color.WHITE) {
+    fun drawImage(image: ResourceLocation?, x: Number, y: Number, width: Int, height: Int, color: Color = Color.WHITE) {
         glPushMatrix()
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
@@ -1186,7 +1242,15 @@ object RenderUtils : MinecraftInstance {
     fun setGlState(cap: Int, state: Boolean) = if (state) glEnable(cap) else glDisable(cap)
 
     fun drawScaledCustomSizeModalRect(
-        x: Int, y: Int, u: Float, v: Float, uWidth: Int, vHeight: Int, width: Int, height: Int, tileWidth: Float,
+        x: Int,
+        y: Int,
+        u: Float,
+        v: Float,
+        uWidth: Int,
+        vHeight: Int,
+        width: Int,
+        height: Int,
+        tileWidth: Float,
         tileHeight: Float
     ) = drawWithTessellatorWorldRenderer {
         val f = 1f / tileWidth
@@ -1208,7 +1272,11 @@ object RenderUtils : MinecraftInstance {
     private val colorValueCache: MutableMap<ColorValue, MutableMap<Int, ColorValueCache>> = mutableMapOf()
 
     fun ColorValue.updateTextureCache(
-        id: Int, hue: Float, width: Int, height: Int, generateImage: (BufferedImage, Graphics2D) -> Unit,
+        id: Int,
+        hue: Float,
+        width: Int,
+        height: Int,
+        generateImage: (BufferedImage, Graphics2D) -> Unit,
         drawAt: (Int) -> Unit
     ) {
         val cached = colorValueCache[this]?.get(id)
