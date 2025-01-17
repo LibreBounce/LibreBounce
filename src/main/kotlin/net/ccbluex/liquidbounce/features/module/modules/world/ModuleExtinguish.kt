@@ -42,6 +42,11 @@ import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
+/**
+ * Module Extinguish
+ *
+ * Automatically extinguishes yourself when you're burning.
+ */
 object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
 
     private val cooldown by float("Cooldown", 1.0F, 0.0F..20.0F, "s")
@@ -64,7 +69,13 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     private var lastExtinguishPos: BlockPos? = null
     private val lastAttemptTimer = Chronometer()
 
-    val tickMovementHandler = handler<RotationUpdateEvent> {
+    @Suppress("unused")
+    private val tickMovementHandler = handler<RotationUpdateEvent> {
+        // we can't place water in the nether
+        if (world.dimension.ultrawarm) {
+            return@handler
+        }
+
         this.currentTarget = null
 
         val target = findAction() ?: return@handler
@@ -109,7 +120,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     val repeatable = tickHandler {
         val target = currentTarget ?: return@tickHandler
 
-        val rayTraceResult = raycast() ?: return@tickHandler
+        val rayTraceResult = raycast()
 
         if (!target.doesCorrespondTo(rayTraceResult)) {
             return@tickHandler
