@@ -33,7 +33,9 @@ object ColorUtils {
     }
 
     fun Color.withAlpha(a: Int) = Color(red, green, blue, a)
+
     fun Color.normalize() = Color(this.red / 255f, this.green / 255f, this.blue / 255f, this.alpha / 255f)
+
     fun packARGBValue(r: Int, g: Int, b: Int, a: Int = 0xff): Int {
         return (a and 255 shl 24) or (r and 255 shl 16) or (g and 255 shl 8) or (b and 255)
     }
@@ -126,6 +128,16 @@ object ColorUtils {
         val green = (g * healthRatio).toInt()
 
         return Color(red, green, b, a)
+    }
+
+    /**
+     * @author Ell1ott
+     */
+    fun shiftHue(color: Color, shift: Int): Color {
+        val hsb = Color.RGBtoHSB(color.red, color.green, color.blue, null)
+        val shiftedColor = Color(Color.HSBtoRGB((hsb[0] + shift.toFloat() / 360) % 1F, hsb[1], hsb[2]))
+
+        return Color(shiftedColor.red, shiftedColor.green, shiftedColor.blue, color.alpha)
     }
 
     fun fade(colorSettings: ColorSettingsInteger, speed: Int, count: Int): Color {

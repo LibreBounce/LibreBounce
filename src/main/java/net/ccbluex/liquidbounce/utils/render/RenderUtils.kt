@@ -15,14 +15,12 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.*
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE
 import org.lwjgl.opengl.GL14
@@ -46,7 +44,6 @@ object RenderUtils : MinecraftInstance {
     var deltaTime = 0
 
     fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime / (ticks.toDouble() * 50)).coerceAtMost(1.0)
-
 
     private const val CIRCLE_STEPS = 40
 
@@ -280,6 +277,58 @@ object RenderUtils : MinecraftInstance {
         glPopAttrib()
     }
 
+    fun drawHueCircle(position: Vec3, radius: Float, innerColor: Color, outerColor: Color) {
+        val manager = mc.renderManager
+
+        val renderX = manager.viewerPosX
+        val renderY = manager.viewerPosY
+        val renderZ = manager.viewerPosZ
+
+        glPushAttrib(GL_ALL_ATTRIB_BITS)
+        glPushMatrix()
+
+        glDisable(GL_TEXTURE_2D)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glDisable(GL_DEPTH_TEST)
+        glDisable(GL_CULL_FACE)
+        glEnable(GL_ALPHA_TEST)
+        glAlphaFunc(GL_GREATER, 0.0f)
+        mc.entityRenderer.disableLightmap()
+
+        glBegin(GL_TRIANGLE_FAN)
+        circlePoints.forEachIndexed { index, pos ->
+            val innerX = pos.xCoord * radius
+            val innerZ = pos.zCoord * radius
+
+            val innerHue = ColorUtils.shiftHue(innerColor, (index / CIRCLE_STEPS).toInt())
+            glColor4f(innerHue.red / 255f, innerHue.green / 255f, innerHue.blue / 255f, innerColor.alpha / 255f)
+            glVertex3d(position.xCoord - renderX + innerX, position.yCoord - renderY, position.zCoord - renderZ + innerZ)
+        }
+        glEnd()
+
+        glBegin(GL_LINE_LOOP)
+        circlePoints.forEachIndexed { index, pos ->
+            val outerX = pos.xCoord * radius
+            val outerZ = pos.zCoord * radius
+
+            val outerHue = ColorUtils.shiftHue(outerColor, (index / CIRCLE_STEPS).toInt())
+            glColor4f(outerHue.red / 255f, outerHue.green / 255f, outerHue.alpha / 255f, outerColor.alpha / 255f)
+            glVertex3d(position.xCoord - renderX + outerX, position.yCoord - renderY, position.zCoord - renderZ + outerZ)
+        }
+        glEnd()
+
+        glEnable(GL_CULL_FACE)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_ALPHA_TEST)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glPopMatrix()
+        glPopAttrib()
+    }
+
     /**
      * Draws a dome around the specified [pos]
      *
@@ -385,61 +434,61 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawConesForEntities(f: () -> Unit) {
-        GlStateManager.pushAttrib()
-        GlStateManager.pushMatrix()
+        pushAttrib()
+        pushMatrix()
 
-        GlStateManager.disableTexture2D()
-        GlStateManager.disableCull()
+        disableTexture2D()
+        disableCull()
 
-        GlStateManager.enableBlend()
-        GlStateManager.enableDepth()
-        GlStateManager.depthMask(false)
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+        enableBlend()
+        enableDepth()
+        depthMask(false)
+        blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         f()
 
-        GlStateManager.resetColor()
+        resetColor()
 
-        GlStateManager.enableTexture2D()
-        GlStateManager.depthMask(true)
-        GlStateManager.enableCull()
+        enableTexture2D()
+        depthMask(true)
+        enableCull()
 
-        GlStateManager.disableBlend()
-        GlStateManager.disableDepth()
+        disableBlend()
+        disableDepth()
 
-        GlStateManager.popMatrix()
-        GlStateManager.popAttrib()
+        popMatrix()
+        popAttrib()
     }
 
     fun drawCone(width: Float, height: Float, useTexture: Boolean = false) {
         if (useTexture) {
             // TODO: Maybe image option support to allow many different type of hats.
             mc.textureManager.bindTexture(ResourceLocation("liquidbounce/textures/hat.png"))
-            GlStateManager.enableTexture2D()
-            GlStateManager.depthMask(true)
+            enableTexture2D()
+            depthMask(true)
         }
 
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN)
+        glBegin(GL_TRIANGLE_FAN)
 
         if (useTexture) {
             // Place texture in the middle, on the tip
-            GL11.glTexCoord2d(0.5, 0.5)
+            glTexCoord2d(0.5, 0.5)
         }
 
         // The tip of the cone
-        GL11.glVertex3d(0.0, height.toDouble(), 0.0)
+        glVertex3d(0.0, height.toDouble(), 0.0)
 
         for (point in circlePoints) {
             if (useTexture) {
                 val u = 0.5 + 0.5 * point.xCoord
                 val v = 0.5 + 0.5 * point.zCoord
-                GL11.glTexCoord2d(u, v)
+                glTexCoord2d(u, v)
             }
 
-            GL11.glVertex3d(point.xCoord * width, 0.0, point.zCoord * width)
+            glVertex3d(point.xCoord * width, 0.0, point.zCoord * width)
         }
 
-        GL11.glEnd()
+        glEnd()
     }
 
     fun drawEntityBox(entity: Entity, color: Color, outline: Boolean) {
@@ -1108,7 +1157,7 @@ object RenderUtils : MinecraftInstance {
     fun glColor(color: Color) = glColor(color.red, color.green, color.blue, color.alpha)
 
     fun glStateManagerColor(color: Color) =
-        GlStateManager.color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
+        color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
 
     private fun glColor(hex: Int) = glColor(hex shr 16 and 0xFF, hex shr 8 and 0xFF, hex and 0xFF, hex shr 24 and 0xFF)
 

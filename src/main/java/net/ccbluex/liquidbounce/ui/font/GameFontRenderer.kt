@@ -23,7 +23,7 @@ import java.awt.Font
 /**
  * Extends Minecraft's [FontRenderer] for potential fallback usage.
  *
- *  * @author opZywl
+ * @author opZywl
  */
 class GameFontRenderer(
     font: Font
