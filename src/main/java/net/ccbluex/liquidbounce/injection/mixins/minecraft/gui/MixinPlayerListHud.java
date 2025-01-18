@@ -124,11 +124,21 @@ public abstract class MixinPlayerListHud {
         p.set(columns);
     }
 
+    /**
+     * @source <a href="https://github.com/MeteorDevelopment/meteor-client/blob/2025789457e5b4c0671f04f0d3c7e0d91a31765c/src/main/java/meteordevelopment/meteorclient/mixin/PlayerListHudMixin.java#L46-L51">code section</a>
+     * @contributor sqlerrorthing (<a href="https://github.com/CCBlueX/LiquidBounce/pull/5077">pull request</a>)
+     * @author Paul1365972 (on Meteor Client)
+     */
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I"), index = 0)
     private int hookWidth(int width) {
         return ModuleBetterTab.INSTANCE.getRunning() && ModuleBetterTab.AccurateLatency.INSTANCE.getRunning() ? width + 30 : width;
     }
 
+    /**
+     * @source <a href="https://github.com/MeteorDevelopment/meteor-client/blob/2025789457e5b4c0671f04f0d3c7e0d91a31765c/src/main/java/meteordevelopment/meteorclient/mixin/PlayerListHudMixin.java#L28">code section</a>
+     * @contributor sqlerrorthing (<a href="https://github.com/CCBlueX/LiquidBounce/pull/5077">pull request</a>)
+     * @author Paul1365972 (on Meteor Client)
+     */
     @Inject(method = "renderLatencyIcon", at = @At("HEAD"), cancellable = true)
     private void hookOnRenderLatencyIcon(DrawContext context, int width, int x, int y, PlayerListEntry entry, CallbackInfo ci) {
         var accurateLatency = ModuleBetterTab.AccurateLatency.INSTANCE;
