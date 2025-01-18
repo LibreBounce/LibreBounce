@@ -5,6 +5,7 @@ uniform vec2 texelSize;
 uniform float radius;
 uniform float alpha;
 uniform float intensity;
+uniform vec3 tintColor;
 
 void main() {
     vec4 color = vec4(0.0);
@@ -19,8 +20,9 @@ void main() {
         }
     }
 
-    // Average the sampled colors and add white tint based on intensity
+    // Average the sampled colors and add tint based on intensity
     color = color / count;
-    color = mix(color, vec4(1.0), intensity);
+    vec4 tint = vec4(tintColor, 1.0);
+    color = mix(color, tint, intensity);
     gl_FragColor = vec4(color.rgb, color.a * alpha);
 } 

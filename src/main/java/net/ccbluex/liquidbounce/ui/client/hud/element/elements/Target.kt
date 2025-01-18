@@ -91,7 +91,7 @@ class Target : Element() {
 
     private var delayCounter = 0
 
-    private val frostTint by color("Frost-Tint", Color.WHITE) { backgroundMode == "Frost" }
+    private val frostTintColor by color("Frost-TintColor", Color.WHITE) { backgroundMode == "Frost" }
 
     override fun drawElement(): Border {
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
@@ -207,9 +207,7 @@ class Target : Element() {
                 if (fadeMode && shouldRender || smoothMode && shouldRender || delayCounter < vanishDelay) {
                     when (backgroundMode) {
                         "Frost" -> {
-                            FrostShader.begin(true, frostIntensity).use {
-                                FrostShader.setTintColor(frostTint.selectedColor())
-                                
+                            FrostShader.begin(true, frostIntensity, frostTintColor).use {
                                 drawRoundedBorderRect(
                                     0F, 0F, width, height, borderStrength,
                                     0,
