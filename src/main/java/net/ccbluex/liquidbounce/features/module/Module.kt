@@ -45,7 +45,7 @@ open class Module(
 ) : MinecraftInstance, Listenable {
 
     // Value that determines whether the module should depend on GameDetector
-    private val onlyInGameValue = boolean("OnlyInGame", true, subjective = true) { GameDetector.state }
+    private val onlyInGameValue = boolean("OnlyInGame", true) { GameDetector.state }.subjective()
 
     // List to register additional options from classes
     private val configurables = mutableListOf<Class<*>>()
@@ -66,16 +66,16 @@ open class Module(
             saveConfig(modulesConfig)
         }
 
-    val hideModuleValue = boolean("Hide", false, subjective = true).onChanged { value ->
+    val hideModuleValue = boolean("Hide", false).subjective().onChanged { value ->
         inArray = !value
     }
 
     // Use for synchronizing
-    val hideModuleValues = boolean("HideSync", hideModuleValue.get(), subjective = true).onChanged { value ->
+    val hideModuleValues = boolean("HideSync", hideModuleValue.get()).subjective().onChanged { value ->
         hideModuleValue.set(value)
     }
 
-    private val resetValue = boolean("Reset", false, subjective = true).onChange { _, _ ->
+    private val resetValue = boolean("Reset", false).subjective().onChange { _, _ ->
         try {
             values.forEach { if (it != this) it.reset() else return@forEach }
         } catch (any: Exception) {

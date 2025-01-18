@@ -82,19 +82,19 @@ object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false)
 
     private val randomSlot by boolean("RandomSlot", true)
 
-    private val progressBar by boolean("ProgressBar", true, subjective = true)
+    private val progressBar by boolean("ProgressBar", true).subjective()
 
-    val silentGUI by boolean("SilentGUI", false, subjective = true)
+    val silentGUI by boolean("SilentGUI", false).subjective()
 
-    val highlightSlot by boolean("Highlight-Slot", false, subjective = true) { !silentGUI }
+    val highlightSlot by boolean("Highlight-Slot", false) { !silentGUI }.subjective()
     val backgroundColor =
-        color("BackgroundColor", Color(128, 128, 128), subjective = true) { highlightSlot && !silentGUI }
+        color("BackgroundColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
 
-    val borderStrength by int("Border-Strength", 3, 1..5, subjective = true) { highlightSlot && !silentGUI }
-    val borderColor = color("BorderColor", Color(128, 128, 128), subjective = true) { highlightSlot && !silentGUI }
+    val borderStrength by int("Border-Strength", 3, 1..5) { highlightSlot && !silentGUI }.subjective()
+    val borderColor = color("BorderColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
 
-    private val chestDebug by choices("Chest-Debug", arrayOf("Off", "Text", "Notification"), "Off", subjective = true)
-    private val itemStolenDebug by boolean("ItemStolen-Debug", false, subjective = true) { chestDebug != "Off" }
+    private val chestDebug by choices("Chest-Debug", arrayOf("Off", "Text", "Notification"), "Off").subjective()
+    private val itemStolenDebug by boolean("ItemStolen-Debug", false) { chestDebug != "Off" }.subjective()
 
     private var progress: Float? = null
         set(value) {

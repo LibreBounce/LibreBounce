@@ -72,7 +72,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         minDistanceFromOpponentSq = value.pow(2)
     }
 
-    private val visualSwing by boolean("VisualSwing", true, subjective = true)
+    private val visualSwing by boolean("VisualSwing", true).subjective()
 
     private val ignoreLooted by boolean("IgnoreLootedChests", true)
     private val detectRefill by boolean("DetectChestRefill", true)

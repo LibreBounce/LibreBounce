@@ -24,7 +24,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     open val keepRotationValue = boolean("KeepRotation", true) { rotationsActive && applyServerSide && generalApply() }
 
     open val resetTicksValue: Value<Int> = int("ResetTicks", 1, 1..20) {
-        rotationsActive && applyServerSide && generalApply()
+        rotationsActive && applyServerSide && keepRotation && generalApply()
     }.onChange { _, new ->
         new.coerceAtLeast(1) // minimum
     }
@@ -136,7 +136,7 @@ class RotationSettingsWithRotationModes(
 
     override val rotationsValue = super.rotationsValue.apply { excludeWithState() }
 
-    val rotationModeValue = listValue.apply { isSupported = generalApply }
+    val rotationModeValue = listValue.setSupport { generalApply() }
 
     val rotationMode by rotationModeValue
 

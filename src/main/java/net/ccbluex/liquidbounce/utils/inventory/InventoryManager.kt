@@ -42,14 +42,14 @@ object InventoryManager : MinecraftInstance, Listenable {
     { if (invOpenValue.get()) autoCloseValue.get() else simulateInventoryValue.get() }
 
     // Shared highlight slot values between AutoArmor and InventoryCleaner
-    val highlightSlotValue = boolean("Highlight-Slot", false, subjective = true)
+    val highlightSlotValue = boolean("Highlight-Slot", false).subjective()
 
     // Shared highlight slot background values between AutoArmor and InventoryCleaner
-    val backgroundColor = color("BackgroundColor", Color(128, 128, 128), subjective = true) { highlightSlotValue.get() }
+    val backgroundColor = color("BackgroundColor", Color(128, 128, 128)) { highlightSlotValue.get() }.subjective()
 
     // Shared highlight slot border values between AutoArmor and InventoryCleaner
-    val borderStrength = int("Border-Strength", 3, 1..5, subjective = true) { highlightSlotValue.get() }
-    val borderColor = color("BorderColor", Color(128, 128, 128), subjective = true) { highlightSlotValue.get() }
+    val borderStrength = int("Border-Strength", 3, 1..5) { highlightSlotValue.get() }.subjective()
+    val borderColor = color("BorderColor", Color(128, 128, 128)) { highlightSlotValue.get() }.subjective()
 
     // Undetectable
     val undetectableValue = boolean("Undetectable", false)

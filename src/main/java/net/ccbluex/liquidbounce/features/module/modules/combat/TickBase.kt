@@ -45,8 +45,8 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     private val pauseAfterTick by int("PauseAfterTick", 0, 0..100)
     private val pauseOnFlag by boolean("PauseOnFlag", true)
 
-    private val line by boolean("Line", true, subjective = true)
-    private val lineColor by color("LineColor", Color.GREEN, subjective = true) { line }
+    private val line by boolean("Line", true).subjective()
+    private val lineColor by color("LineColor", Color.GREEN) { line }.subjective()
 
     private var ticksToSkip = 0
     private var tickBalance = 0f

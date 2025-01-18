@@ -55,9 +55,7 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
     ) { options.rotationsActive }
     private val scannerMode by choices("Scanner", arrayOf("Nearest", "Random"), "Nearest")
 
-    private val options = RotationSettings(this).apply {
-        resetTicksValue.setSupport { it && keepRotation }
-    }
+    private val options = RotationSettings(this)
 
     private val onSneakOnly by boolean("OnSneakOnly", true)
     private val autoSneak by choices("AutoSneak", arrayOf("Off", "Normal", "Packet"), "Off") { !onSneakOnly }

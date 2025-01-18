@@ -38,8 +38,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true, hide
         "RenderServerPos-Mode",
         arrayOf("None", "Box"),
         "None",
-        subjective = true
-    )
+    ).subjective()
 
     private val resetFlagCounterTicks by int("ResetCounterTicks", 5000, 1000..10000)
 

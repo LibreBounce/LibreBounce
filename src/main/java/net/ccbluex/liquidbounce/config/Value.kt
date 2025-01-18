@@ -18,11 +18,17 @@ private typealias OnChangedHandler<T> = (new: T) -> Unit
 sealed class Value<T>(
     val name: String,
     protected var value: T,
-    val subjective: Boolean = false,
-    var isSupported: (() -> Boolean)? = null,
     val suffix: String? = null,
     protected var default: T = value,
 ) : ReadWriteProperty<Any?, T> {
+
+    /**
+     * Whether this value should be excluded from public configuration (text config)
+     */
+    var subjective: Boolean = false
+        private set
+
+    fun subjective() = apply { subjective = true }
 
     var excluded: Boolean = false
         private set
@@ -101,6 +107,12 @@ sealed class Value<T>(
         onChangedListeners.forEach { it.invoke(result) }
     }
 
+    open fun getString() = "$value"
+
+//    open fun toText(): String = value.toString()
+//
+//    abstract fun fromText(text: String)
+
     // Serializations: JSON/Text
 
     protected abstract fun toJsonF(): JsonElement?
@@ -118,11 +130,12 @@ sealed class Value<T>(
     }
 
     // TODO: START
+    private var supportCondition = { true }
 
-    fun isSupported() = isSupported?.invoke() != false
+    fun isSupported() = supportCondition.invoke()
 
-    fun setSupport(condition: (Boolean) -> Boolean) {
-        isSupported = { condition(isSupported()) }
+    fun setSupport(condition: (Boolean) -> Boolean) = apply {
+        supportCondition = { condition(supportCondition.invoke()) }
     }
 
     // TODO: END
@@ -137,8 +150,6 @@ sealed class Value<T>(
     override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         set(value)
     }
-
-    open fun getString() = "$value"
 
     fun shouldRender() = isSupported() && !hidden
 

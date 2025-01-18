@@ -57,10 +57,10 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideM
     private val pauseOnNoMove by boolean("PauseOnNoMove", true)
     private val pauseOnChest by boolean("PauseOnChest", false)
 
-    private val line by boolean("Line", true, subjective = true)
-    private val lineColor by color("LineColor", Color.GREEN, subjective = true) { line }
+    private val line by boolean("Line", true).subjective()
+    private val lineColor by color("LineColor", Color.GREEN) { line }.subjective()
 
-    private val renderModel by boolean("RenderModel", false, subjective = true)
+    private val renderModel by boolean("RenderModel", false).subjective()
 
     private val packetQueue = Queues.newArrayDeque<QueueData>()
     private val positions = Queues.newArrayDeque<PositionData>()

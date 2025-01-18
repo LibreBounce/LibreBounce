@@ -40,8 +40,8 @@ import net.minecraft.potion.Potion
 import java.util.function.Predicate
 
 object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule = false) {
-    private val drop by boolean("Drop", true, subjective = true)
-    val sort by boolean("Sort", true, subjective = true)
+    private val drop by boolean("Drop", true).subjective()
+    val sort by boolean("Sort", true).subjective()
 
     private val maxDelay: Int by int("MaxDelay", 50, 0..500).onChange { _, new ->
         new.coerceAtLeast(minDelay)
@@ -51,22 +51,21 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     }
     private val minItemAge by int("MinItemAge", 0, 0..2000)
 
-    private val limitStackCounts by boolean("LimitStackCounts", true, subjective = true)
-    private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36, subjective = true) { limitStackCounts }
-    private val maxFoodStacks by int("MaxFoodStacks", 5, 0..36, subjective = true) { limitStackCounts }
+    private val limitStackCounts by boolean("LimitStackCounts", true).subjective()
+    private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36) { limitStackCounts }.subjective()
+    private val maxFoodStacks by int("MaxFoodStacks", 5, 0..36) { limitStackCounts }.subjective()
     private val maxThrowableStacks by int(
         "MaxThrowableStacks",
         5,
         0..36,
-        subjective = true
-    ) { limitStackCounts }
+    ) { limitStackCounts }.subjective()
     // TODO: max potion, vehicle, ..., stacks?
 
-    private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10, subjective = true)
+    private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10).subjective()
 
-    private val mergeStacks by boolean("MergeStacks", true, subjective = true)
+    private val mergeStacks by boolean("MergeStacks", true).subjective()
 
-    private val repairEquipment by boolean("RepairEquipment", true, subjective = true)
+    private val repairEquipment by boolean("RepairEquipment", true).subjective()
 
     private val invOpen by InventoryManager.invOpenValue
     private val simulateInventory by InventoryManager.simulateInventoryValue
@@ -81,9 +80,9 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     private val noMoveGround by InventoryManager.noMoveGroundValue
 
     private val randomSlot by boolean("RandomSlot", false)
-    private val ignoreVehicles by boolean("IgnoreVehicles", false, subjective = true)
+    private val ignoreVehicles by boolean("IgnoreVehicles", false).subjective()
 
-    private val onlyGoodPotions by boolean("OnlyGoodPotions", false, subjective = true)
+    private val onlyGoodPotions by boolean("OnlyGoodPotions", false).subjective()
 
     val highlightSlot by InventoryManager.highlightSlotValue
     val backgroundColor by InventoryManager.borderColor
@@ -91,7 +90,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
     val borderStrength by InventoryManager.borderStrength
     val borderColor by InventoryManager.borderColor
 
-    val highlightUseful by boolean("HighlightUseful", true, subjective = true)
+    val highlightUseful by boolean("HighlightUseful", true).subjective()
 
     private val slot1Value = sortChoice("Slot1", "Sword")
     private val slot2Value = sortChoice("Slot2", "Bow")
@@ -970,7 +969,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
         }
     }
 
-    private fun sortChoice(name: String, value: String) = choices(name, SORTING_KEYS, value, subjective = true) {
+    private fun sortChoice(name: String, value: String) = choices(name, SORTING_KEYS, value) {
         sort
     }.onChange { old, new ->
         if (new in SINGLE_KEYS) {
@@ -983,7 +982,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
         }
 
         new
-    } as ListValue
+    }.subjective() as ListValue
 }
 
 private val ITEMS_WHITELIST = arrayOf(

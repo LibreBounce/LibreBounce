@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
+import net.ccbluex.liquidbounce.config.ColorValue
 import net.ccbluex.liquidbounce.config.color
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -13,16 +14,14 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import java.awt.Color
 
 class ColorSettingsFloat(owner: Any, name: String, val index: Int? = null, generalApply: () -> Boolean = { true }) {
-    private val colors = color(
+    val color by color(
         "$name${index ?: "Color"}",
         Color(
             if ((index ?: 0) % 3 == 1) 255 else 0,
             if ((index ?: 0) % 3 == 2) 255 else 0,
             if ((index ?: 0) % 3 == 0) 255 else 0
-        ), subjective = true
-    ) { generalApply() }
-
-    fun color() = colors.selectedColor()
+        )
+    ) { generalApply() }.subjective()
 
     init {
         when (owner) {
@@ -50,8 +49,7 @@ class ColorSettingsInteger(
     private val string = if (name == null) "Color" else "$name"
     private val max = if (applyMax) 255 else 0
 
-    private val colors = color("${string}${index ?: ""}", Color(max, max, max, 255), subjective = true)
-    { generalApply() }
+    private val colors = color("${string}${index ?: ""}", Color(max, max, max, 255)) { generalApply() }.subjective() as ColorValue
 
     fun color(a: Int = colors.selectedColor().alpha) = color().withAlpha(a)
 
@@ -89,7 +87,7 @@ class ColorSettingsInteger(
 }
 
 fun List<ColorSettingsFloat>.toColorArray(max: Int) = (0 until max).map {
-    val colors = this[it].color()
+    val colors = this[it].color
 
     floatArrayOf(
         colors.red.toFloat() / 255f,

@@ -55,7 +55,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT, hideModule = false) {
     private val blinkDelay by int("BlinkDelay", 10, 1..20) { mode == "Blink" }
     private val onScaffold by boolean("OnScaffold", false) { mode == "Blink" }
     private val ticksToDelay by int("TicksDelay", 5, 1..20) { mode == "Blink" && !onScaffold }
-    private val indicator by boolean("Indicator", true, subjective = true)
+    private val indicator by boolean("Indicator", true).subjective()
 
     private var detectedLocation: BlockPos? = null
     private var lastFound = 0F

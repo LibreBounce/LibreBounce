@@ -53,7 +53,7 @@ object AutoAccount :
 
             else -> new
         }
-    }
+    }.subjective()
 
     private val password by passwordValue
 

@@ -9,52 +9,66 @@ import net.minecraft.client.gui.FontRenderer
 import java.awt.Color
 
 fun int(
-    name: String, value: Int, range: IntRange = 0..Int.MAX_VALUE, suffix: String? = null, subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
-) = IntegerValue(name, value, range, suffix, subjective, isSupported)
+    name: String, value: Int, range: IntRange, suffix: String? = null, isSupported: (() -> Boolean)? = null
+) = IntegerValue(name, value, range, suffix).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun float(
-    name: String, value: Float, range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE, suffix: String? = null,
-    subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = FloatValue(name, value, range, suffix, subjective, isSupported)
+    name: String, value: Float, range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE, suffix: String? = null, isSupported: (() -> Boolean)? = null
+) = FloatValue(name, value, range, suffix).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun choices(
-    name: String, values: Array<String>, value: String, subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
-) = ListValue(name, values, value, subjective, isSupported)
+    name: String, values: Array<String>, value: String, isSupported: (() -> Boolean)? = null
+) = ListValue(name, values, value).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun block(
-    name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = BlockValue(name, value, subjective, isSupported)
+    name: String, value: Int, isSupported: (() -> Boolean)? = null
+) = BlockValue(name, value).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun font(
-    name: String, value: FontRenderer, subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = FontValue(name, value, subjective, isSupported)
+    name: String, value: FontRenderer, isSupported: (() -> Boolean)? = null
+) = FontValue(name, value).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun text(
-    name: String, value: String, subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = TextValue(name, value, subjective, isSupported)
+    name: String, value: String, isSupported: (() -> Boolean)? = null
+) = TextValue(name, value).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun boolean(
-    name: String, value: Boolean, subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = BoolValue(name, value, subjective, isSupported)
+    name: String, value: Boolean, isSupported: (() -> Boolean)? = null
+) = BoolValue(name, value).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun intRange(
-    name: String, value: IntRange, range: IntRange = 0..Int.MAX_VALUE, suffix: String? = null,
-    subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = IntegerRangeValue(name, value, range, suffix, subjective, isSupported)
+    name: String, value: IntRange, range: IntRange, suffix: String? = null, isSupported: (() -> Boolean)? = null
+) = IntegerRangeValue(name, value, range, suffix).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun floatRange(
     name: String, value: ClosedFloatingPointRange<Float>, range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
-    suffix: String? = null, subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) = FloatRangeValue(name, value, range, suffix, subjective, isSupported)
+    suffix: String? = null, isSupported: (() -> Boolean)? = null
+) = FloatRangeValue(name, value, range, suffix).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun color(
-    name: String, value: Color, rainbow: Boolean = false, showPicker: Boolean = false, subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
-) = ColorValue(name, value, rainbow, showPicker, subjective, isSupported)
+    name: String, value: Color, rainbow: Boolean = false, showPicker: Boolean = false, isSupported: (() -> Boolean)? = null
+) = ColorValue(name, value, rainbow, showPicker).apply {
+    if (isSupported != null) setSupport { isSupported.invoke() }
+}
 
 fun color(
-    name: String, value: Int, rainbow: Boolean = false, showPicker: Boolean = false, subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null
-) = color(name, Color(value, true), rainbow, showPicker, subjective, isSupported)
+    name: String, value: Int, rainbow: Boolean = false, showPicker: Boolean = false, isSupported: (() -> Boolean)? = null
+) = color(name, Color(value, true), rainbow, showPicker, isSupported)

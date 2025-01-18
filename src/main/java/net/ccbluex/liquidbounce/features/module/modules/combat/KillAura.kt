@@ -146,7 +146,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val keepSprint by boolean("KeepSprint", true)
 
     // Settings
-    private val autoF5 by boolean("AutoF5", false, subjective = true)
+    private val autoF5 by boolean("AutoF5", false)
     private val onScaffold by boolean("OnScaffold", false)
     private val onDestroyBlock by boolean("OnDestroyBlock", false)
 
@@ -302,36 +302,36 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val noInventoryAttack by boolean("NoInvAttack", false)
     private val noInventoryDelay by int("NoInvDelay", 200, 0..500) { noInventoryAttack }
     private val noConsumeAttack by choices(
-        "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off", subjective = true
-    )
+        "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off"
+    ).subjective()
 
     // Visuals
-    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle", subjective = true)
-    private val fakeSharp by boolean("FakeSharp", true, subjective = true)
+    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
+    private val fakeSharp by boolean("FakeSharp", true).subjective()
 
     // Circle options
-    private val circleRainbow by boolean("CircleRainbow", false, subjective = true) { mark == "Circle" }
+    private val circleRainbow by boolean("CircleRainbow", false) { mark == "Circle" }.subjective()
+    // TODO: replace this with color value
     private val colors = ColorSettingsInteger(
         this,
         "CircleColor"
-    ) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)
-    private val fillInnerCircle by boolean("FillInnerCircle", false, subjective = true) { mark == "Circle" }
-    private val withHeight by boolean("WithHeight", true, subjective = true) { mark == "Circle" }
-    private val animateHeight by boolean("AnimateHeight", false, subjective = true) { withHeight }
-    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f, subjective = true) { withHeight }
-    private val extraWidth by float("ExtraWidth", 0F, 0F..2F, subjective = true) { mark == "Circle" }
-    private val animateCircleY by boolean("AnimateCircleY", true, subjective = true) { fillInnerCircle || withHeight }
-    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F, subjective = true) { animateCircleY }
+    ) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)//.subjective()
+    private val fillInnerCircle by boolean("FillInnerCircle", false) { mark == "Circle" }.subjective()
+    private val withHeight by boolean("WithHeight", true) { mark == "Circle" }.subjective()
+    private val animateHeight by boolean("AnimateHeight", false) { withHeight }.subjective()
+    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f) { withHeight }.subjective()
+    private val extraWidth by float("ExtraWidth", 0F, 0F..2F) { mark == "Circle" }.subjective()
+    private val animateCircleY by boolean("AnimateCircleY", true) { fillInnerCircle || withHeight }.subjective()
+    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F) { animateCircleY }.subjective()
     private val duration by float(
         "Duration",
         1.5F,
         0.5F..3F,
-        suffix = "Seconds",
-        subjective = true
-    ) { animateCircleY || animateHeight }
+        suffix = "Seconds"
+    ) { animateCircleY || animateHeight }.subjective()
 
     // Box option
-    private val boxOutline by boolean("Outline", true, subjective = true) { mark == "Box" }
+    private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
 
     /**
      * MODULE

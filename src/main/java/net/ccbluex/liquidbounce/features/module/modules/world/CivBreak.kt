@@ -31,7 +31,7 @@ import java.awt.Color
 object CivBreak : Module("CivBreak", Category.WORLD) {
 
     private val range by float("Range", 5F, 1F..6F)
-    private val visualSwing by boolean("VisualSwing", true, subjective = false)
+    private val visualSwing by boolean("VisualSwing", true).subjective()
 
     private val options = RotationSettings(this).withoutKeepRotation()
 

@@ -105,19 +105,18 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
     val modeValue = choices("Mode", modesList.map { it.modeName }.toTypedArray(), "Vanilla")
     val mode by modeValue
 
-    val vanillaSpeed by float("VanillaSpeed", 2f, 0f..10f, subjective = true) {
+    val vanillaSpeed by float("VanillaSpeed", 2f, 0f..10f) {
         mode in arrayOf(
             "Vanilla",
             "KeepAlive",
             "MineSecure",
             "BugSpartan"
         )
-    }
+    }.subjective()
     private val vanillaKickBypass by boolean(
         "VanillaKickBypass",
-        false,
-        subjective = true
-    ) { mode in arrayOf("Vanilla", "SmoothVanilla") }
+        false
+    ) { mode in arrayOf("Vanilla", "SmoothVanilla") }.subjective()
     val ncpMotion by float("NCPMotion", 0f, 0f..1f) { mode == "NCP" }
 
     // AAC
@@ -169,14 +168,12 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         1f..2f
     ) { fireBallThrowMode == "Edge" && mode == "Fireball" }
 
-    val options = RotationSettings(this) { mode == "Fireball" }.apply {
-        resetTicksValue.setSupport { it && keepRotation }
-    }
+    val options = RotationSettings(this) { mode == "Fireball" }
 
     val autoJump by boolean("AutoJump", true) { mode == "Fireball" }
 
     // Visuals
-    private val mark by boolean("Mark", true, subjective = true)
+    private val mark by boolean("Mark", true).subjective()
 
     var wasFired = false
     var firePosition: BlockPos? = null

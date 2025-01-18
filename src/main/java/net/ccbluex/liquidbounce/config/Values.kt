@@ -25,12 +25,10 @@ import kotlin.reflect.KProperty
 /**
  * Bool value represents a value with a boolean
  */
-open class BoolValue(
+class BoolValue(
     name: String,
     value: Boolean,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<Boolean>(name, value, subjective, isSupported) {
+) : Value<Boolean>(name, value) {
 
     override fun toJsonF() = JsonPrimitive(value)
 
@@ -53,11 +51,9 @@ open class BoolValue(
 open class IntegerValue(
     name: String,
     value: Int,
-    val range: IntRange = 0..Int.MAX_VALUE,
+    val range: IntRange,
     suffix: String? = null,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<Int>(name, value, subjective, isSupported, suffix) {
+) : Value<Int>(name, value, suffix) {
 
     override fun validate(newValue: Int): Int = newValue.coerceIn(range)
 
@@ -78,11 +74,9 @@ open class IntegerValue(
 class IntegerRangeValue(
     name: String,
     value: IntRange,
-    val range: IntRange = 0..Int.MAX_VALUE,
+    val range: IntRange,
     suffix: String? = null,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<IntRange>(name, value, subjective, isSupported, suffix) {
+) : Value<IntRange>(name, value, suffix) {
 
     override fun validate(newValue: IntRange): IntRange = newValue.coerceIn(range)
 
@@ -123,9 +117,7 @@ class FloatValue(
     value: Float,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
     suffix: String? = null,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<Float>(name, value, subjective, isSupported, suffix) {
+) : Value<Float>(name, value, suffix) {
 
     override fun validate(newValue: Float): Float = newValue.coerceIn(range)
 
@@ -148,9 +140,7 @@ class FloatRangeValue(
     value: ClosedFloatingPointRange<Float>,
     val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
     suffix: String? = null,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<ClosedFloatingPointRange<Float>>(name, value, subjective, isSupported, suffix) {
+) : Value<ClosedFloatingPointRange<Float>>(name, value, suffix) {
 
     override fun validate(newValue: ClosedFloatingPointRange<Float>): ClosedFloatingPointRange<Float> = newValue.coerceIn(range)
 
@@ -189,9 +179,7 @@ class FloatRangeValue(
 class TextValue(
     name: String,
     value: String,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<String>(name, value, subjective, isSupported) {
+) : Value<String>(name, value) {
 
     override fun toJsonF() = JsonPrimitive(value)
 
@@ -204,9 +192,7 @@ class TextValue(
 class FontValue(
     name: String,
     value: FontRenderer,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<FontRenderer>(name, value, subjective, isSupported) {
+) : Value<FontRenderer>(name, value) {
 
     override fun toJsonF(): JsonElement? {
         val fontDetails = Fonts.getFontDetails(value) ?: return null
@@ -252,8 +238,8 @@ class FontValue(
  * TODO: make a new impl
  */
 class BlockValue(
-    name: String, value: Int, subjective: Boolean = false, isSupported: (() -> Boolean)? = null,
-) : IntegerValue(name, value, 1..197, null, subjective, isSupported)
+    name: String, value: Int
+) : IntegerValue(name, value, 1..197, null)
 
 /**
  * List value represents a selectable list of values
@@ -262,9 +248,7 @@ open class ListValue(
     name: String,
     var values: Array<String>,
     value: String,
-    subjective: Boolean = false,
-    isSupported: (() -> Boolean)? = null,
-) : Value<String>(name, value, subjective, isSupported) {
+) : Value<String>(name, value) {
 
     override fun validate(newValue: String): String = values.find { it.equals(newValue, true) } ?: default
 
@@ -282,9 +266,8 @@ open class ListValue(
 }
 
 class ColorValue(
-    name: String, defaultColor: Color, var rainbow: Boolean = false, var showPicker: Boolean = false,
-    subjective: Boolean = false, isSupported: (() -> Boolean)? = null
-) : Value<Color>(name, defaultColor, subjective = subjective, isSupported = isSupported) {
+    name: String, defaultColor: Color, var rainbow: Boolean = false, var showPicker: Boolean = false
+) : Value<Color>(name, defaultColor) {
     // Sliders
     var hueSliderY = 0F
     var opacitySliderY = 0F
@@ -356,7 +339,11 @@ class ColorValue(
         "Color[picker=[${colorPickerPos.x},${colorPickerPos.y}],hueslider=${hueSliderY},opacity=${(opacitySliderY)},rainbow=$rainbow]"
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): Color {
-        return selectedColor()
+        return if (rainbow) {
+            ColorUtils.rainbow(alpha = opacitySliderY)
+        } else {
+            get()
+        }
     }
 
     // Every change that is not coming from any ClickGUI styles should modify the sliders to synchronize with the new color.

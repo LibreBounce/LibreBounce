@@ -132,11 +132,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     ) { earlySwitch && !sortByHighestAmount }
 
     // Settings
-    private val autoF5 by boolean("AutoF5", false, subjective = true)
+    private val autoF5 by boolean("AutoF5", false).subjective()
 
     // Basic stuff
     val sprint by boolean("Sprint", false)
-    private val swing by boolean("Swing", true, subjective = true)
+    private val swing by boolean("Swing", true).subjective()
     private val down by boolean("Down", true) { !sameY && scaffoldMode !in arrayOf("GodBridge", "Telly") }
 
     private val ticksUntilRotation: Value<Int> = int("TicksUntilRotation", 3, 1..5) {
@@ -302,8 +302,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val airSafe by boolean("AirSafe", false) { safeWalkValue.isActive() }
 
     // Visuals
-    private val mark by boolean("Mark", false, subjective = true)
-    private val trackCPS by boolean("TrackCPS", false, subjective = true)
+    private val mark by boolean("Mark", false).subjective()
+    private val trackCPS by boolean("TrackCPS", false).subjective()
 
     // Target placement
     var placeRotation: PlaceRotation? = null

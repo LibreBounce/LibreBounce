@@ -29,21 +29,20 @@ import java.awt.Color
 
 object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule = false) {
 
-    private val bow by boolean("Bow", true, subjective = true)
-    private val egg by boolean("Egg", true, subjective = true)
-    private val snowball by boolean("Snowball", true, subjective = true)
-    private val pearl by boolean("EnderPearl", false, subjective = true)
-    private val otherItems by boolean("OtherItems", false, subjective = true)
+    private val bow by boolean("Bow", true).subjective()
+    private val egg by boolean("Egg", true).subjective()
+    private val snowball by boolean("Snowball", true).subjective()
+    private val pearl by boolean("EnderPearl", false).subjective()
+    private val otherItems by boolean("OtherItems", false).subjective()
 
     private val range by float("Range", 10f, 0f..30f)
-    private val throughWalls by boolean("ThroughWalls", false, subjective = true)
+    private val throughWalls by boolean("ThroughWalls", false)
     private val throughWallsRange by float("ThroughWallsRange", 10f, 0f..30f) { throughWalls }
 
     private val priority by choices(
         "Priority",
         arrayOf("Health", "Distance", "Direction"),
-        "Direction",
-        subjective = true
+        "Direction"
     )
 
     private val gravityType by choices("GravityType", arrayOf("None", "Projectile"), "Projectile")
@@ -93,7 +92,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule
         new.coerceAtMost(maxHorizontalBodySearch.get())
     }
 
-    private val mark by boolean("Mark", true, subjective = true)
+    private val mark by boolean("Mark", true).subjective()
 
     private var target: Entity? = null
 
