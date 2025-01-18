@@ -210,7 +210,7 @@ class Target : Element() {
                                 FrostShader.updateTintColor(frostTintColor)
                                 drawRoundedBorderRect(
                                     0F, 0F, width, height, borderStrength,
-                                    0,
+                                    backgroundColor.withAlpha(150).rgb,
                                     borderCustomColor,
                                     roundedRectRadius
                                 )
