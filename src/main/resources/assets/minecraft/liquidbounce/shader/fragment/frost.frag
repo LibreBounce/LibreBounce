@@ -7,8 +7,8 @@ uniform float alpha;
 uniform float intensity;
 uniform vec3 tintColor;
 
-// Improved Gaussian weights for better blur quality
-const float weights[5] = float[5](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
+// Enhanced Gaussian weights for stronger blur
+const float weights[5] = float[5](0.27027, 0.21621, 0.13513, 0.08108, 0.02702);
 
 float hash(vec2 p) {
     float h = dot(p, vec2(127.1, 311.7));
@@ -28,35 +28,57 @@ float noise(vec2 p) {
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
+// Enhanced blur with larger sampling area
 vec4 blur13(sampler2D image, vec2 uv, vec2 direction) {
     vec4 color = texture2D(image, uv) * weights[0];
+    float totalWeight = weights[0];
     
     for(int i = 1; i < 5; i++) {
-        vec2 offset = direction * texelSize * float(i) * radius;
-        color += texture2D(image, uv + offset) * weights[i];
-        color += texture2D(image, uv - offset) * weights[i];
+        vec2 offset = direction * texelSize * float(i) * radius * 2.0; // Doubled sampling distance
+        vec4 sampleA = texture2D(image, uv + offset);
+        vec4 sampleB = texture2D(image, uv - offset);
+        
+        float weight = weights[i];
+        color += sampleA * weight + sampleB * weight;
+        totalWeight += 2.0 * weight;
     }
     
-    return color;
+    return color / totalWeight;
+}
+
+// New distortion function
+vec2 distort(vec2 uv) {
+    float distortionStrength = intensity * 0.05; // Increased distortion
+    vec2 noise1 = vec2(noise(uv * 8.0), noise(uv * 8.0 + 0.5));
+    vec2 noise2 = vec2(noise(uv * 15.0 + 1.0), noise(uv * 15.0 + 1.5));
+    
+    return uv + (noise1 + noise2 - 1.0) * distortionStrength;
 }
 
 void main() {
     vec2 uv = gl_TexCoord[0].xy;
     
-    // Apply two-pass gaussian blur
-    vec4 color = blur13(texture, uv, vec2(1.0, 0.0));
-    color = blur13(texture, uv, vec2(0.0, 1.0));
+    // Apply stronger distortion
+    vec2 distortedUV = distort(uv);
     
-    // Create frost pattern
-    float frost = noise(uv * 10.0) * noise(uv * 15.0);
-    vec4 frostColor = vec4(tintColor * (0.85 + 0.15 * frost), 1.0);
+    // Apply enhanced two-pass gaussian blur with distortion
+    vec4 color = blur13(texture, distortedUV, vec2(1.0, 0.0));
+    color = blur13(texture, distortedUV, vec2(0.0, 1.0));
     
-    // Mix blur and frost
-    color = mix(color, frostColor, intensity * 0.6);
+    // Create more prominent frost pattern
+    float frost = noise(uv * 12.0) * noise(uv * 18.0) * 1.5; // Increased scale and contrast
+    vec4 frostColor = vec4(tintColor * (0.75 + 0.25 * frost), 1.0);
     
-    // Add crystalline highlights
-    float highlight = pow(frost, 4.0) * 0.6;
-    color.rgb += vec3(highlight) * intensity;
+    // Enhanced frost mixing
+    color = mix(color, frostColor, intensity * 0.8); // Increased mixing intensity
+    
+    // Add stronger crystalline highlights
+    float highlight = pow(frost, 3.0) * 0.8; // Reduced power for broader highlights
+    color.rgb += vec3(highlight) * intensity * 1.5; // Increased highlight intensity
+    
+    // Add subtle frost edges
+    float edge = smoothstep(0.4, 0.6, frost);
+    color.rgb += tintColor * edge * intensity * 0.4;
     
     gl_FragColor = vec4(color.rgb, color.a * alpha);
 } 
