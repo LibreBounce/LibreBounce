@@ -32,7 +32,7 @@ object JumpCircle : Module("JumpCircle", Category.RENDER, hideModule = false) {
     private val innerColor = color("InnerColor", Color(0, 0, 0, 50))
     private val outerColor = color("OuterColor", Color(0, 111, 255, 255))
     private val hueOffsetAnim by int("HueOffsetAnim", 63, -360..360)
-    private val lifeTime by int("LifeTime", 20, 1..50)
+    private val lifeTime by int("LifeTime", 20, 1..50, "Ticks")
     private val blackHole by boolean("BlackHole", false)
 
     private val circles = mutableListOf<JumpData>()
