@@ -230,12 +230,8 @@ object LiquidBounceStyle : Style() {
                             yPos += 22
                         }
 
-                        is IntegerValue -> {
-                            val text = value.name + "§f: §c" + if (value is BlockValue) {
-                                getBlockName(value.get()) + " (" + value.get() + ")"
-                            } else {
-                                value.get()
-                            } + " §8${suffix}"
+                        is BlockValue -> {
+                            val text = value.name + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8$suffix"
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
@@ -265,7 +261,38 @@ object LiquidBounceStyle : Style() {
                             yPos += 22
                         }
 
-                        is IntegerRangeValue -> {
+                        is IntValue -> {
+                            val text = value.name + "§f: §c" + value.get() + " §8$suffix"
+
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+
+                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
+                                val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
+                                value.setAndSaveValueOnButtonRelease(
+                                    (value.minimum + (value.maximum - value.minimum) * percentage).roundToInt()
+                                        .coerceIn(value.range)
+                                )
+
+                                // Keep changing this slider until mouse is unpressed.
+                                sliderValueHeld = value
+
+                                // Stop rendering and interacting only when this event was triggered by a mouse click.
+                                if (mouseButton == 0) return true
+                            }
+
+                            drawRect(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
+
+                            val displayValue = value.get().coerceIn(value.range)
+                            val sliderValue =
+                                moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
+                            drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
+
+                            font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+
+                            yPos += 22
+                        }
+
+                        is IntRangeValue -> {
                             val slider1 = value.get().first
                             val slider2 = value.get().last
 

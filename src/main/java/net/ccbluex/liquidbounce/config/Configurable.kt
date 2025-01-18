@@ -10,7 +10,7 @@ import java.awt.Color
 
 fun int(
     name: String, value: Int, range: IntRange, suffix: String? = null, isSupported: (() -> Boolean)? = null
-) = IntegerValue(name, value, range, suffix).apply {
+) = IntValue(name, value, range, suffix).apply {
     if (isSupported != null) setSupport { isSupported.invoke() }
 }
 
@@ -52,7 +52,7 @@ fun boolean(
 
 fun intRange(
     name: String, value: IntRange, range: IntRange, suffix: String? = null, isSupported: (() -> Boolean)? = null
-) = IntegerRangeValue(name, value, range, suffix).apply {
+) = IntRangeValue(name, value, range, suffix).apply {
     if (isSupported != null) setSupport { isSupported.invoke() }
 }
 

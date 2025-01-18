@@ -393,7 +393,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     realHeight += 20
                 }
 
-                is IntegerValue -> {
+                is IntValue -> {
                     val current = value.get()
                     val min = value.minimum
                     val max = value.maximum

@@ -93,14 +93,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         placeDelayValue.isActive()
     }.onChange { _, new ->
         new.coerceAtLeast(minDelay)
-    } as IntegerValue
+    } as IntValue
     private val maxDelay: Int by maxDelayValue
 
     private val minDelayValue = int("MinDelay", 0, 0..1000) {
         placeDelayValue.isActive()
     }.onChange { _, new ->
         new.coerceAtMost(maxDelay)
-    } as IntegerValue
+    } as IntValue
     private val minDelay: Int by minDelayValue
 
     // Extra clicks
@@ -247,14 +247,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         zitterMode == "Smooth"
     }.onChange { _, new ->
         new.coerceAtLeast(minZitterTicks)
-    } as IntegerValue
+    } as IntValue
     private val maxZitterTicks: Int by maxZitterTicksValue
 
     private val minZitterTicksValue = int("MinZitterTicks", 2, 0..6) {
         zitterMode == "Smooth"
     }.onChange { _, new ->
         new.coerceAtMost(maxZitterTicks)
-    } as IntegerValue
+    } as IntValue
     private val minZitterTicks: Int by minZitterTicksValue
 
     private val useSneakMidAir by boolean("UseSneakMidAir", false) { zitterMode == "Smooth" }

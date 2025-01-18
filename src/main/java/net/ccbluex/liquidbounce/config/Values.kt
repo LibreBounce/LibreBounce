@@ -60,7 +60,7 @@ class BoolValue(
 /**
  * Integer value represents a value with a integer
  */
-open class IntegerValue(
+class IntValue(
     name: String,
     value: Int,
     val range: IntRange,
@@ -87,7 +87,7 @@ open class IntegerValue(
 }
 
 // TODO: Replace Min/Max options with this instead
-class IntegerRangeValue(
+class IntRangeValue(
     name: String,
     value: IntRange,
     val range: IntRange,
@@ -269,17 +269,34 @@ class FontValue(
 
 /**
  * Block value represents a value with a block
- *
- * TODO: make a new impl
  */
 class BlockValue(
-    name: String, value: Int
-) : IntegerValue(name, value, 1..197, null)
+    name: String, value: Int, val range: IntRange = 1..197
+) : Value<Int>(name, value, suffix = null) {
+
+    override fun validate(newValue: Int): Int = newValue.coerceIn(range)
+
+    override fun toJson() = JsonPrimitive(value)
+
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element.isJsonPrimitive -> element.asInt
+            else -> null
+        }
+
+    override fun fromTextF(text: String): Int? = text.toIntOrNull()
+
+    fun isMinimal() = value <= minimum
+    fun isMaximal() = value >= maximum
+
+    val minimum = range.first
+    val maximum = range.last
+}
 
 /**
  * List value represents a selectable list of values
  */
-open class ListValue(
+class ListValue(
     name: String,
     var values: Array<String>,
     value: String,

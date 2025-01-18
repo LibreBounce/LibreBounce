@@ -44,10 +44,10 @@ object Setting {
     /**
      * Creates an integer value.
      * @param settingInfo JavaScript object containing information about the value.
-     * @return An instance of [IntegerValue]
+     * @return An instance of [IntValue]
      */
     @JvmStatic
-    fun integer(settingInfo: JSObject): IntegerValue {
+    fun integer(settingInfo: JSObject): IntValue {
         val name = settingInfo["name"] as String
         val default = settingInfo["default"]!!.toInt()
         val min = settingInfo["min"]!!.toInt()
@@ -63,7 +63,7 @@ object Setting {
             onChangeCallback?.call(null, old, new)?.toInt() ?: new
         }.onChanged { new ->
             onChangedCallback?.call(null, new)
-        } as IntegerValue
+        } as IntValue
     }
 
     /**

@@ -133,7 +133,6 @@ sealed class Value<T>(
         this.onChangedListeners += handler
     }
 
-    // TODO: START
     private var supportCondition = { true }
 
     fun isSupported() = supportCondition.invoke()
@@ -142,8 +141,6 @@ sealed class Value<T>(
         val oldCondition = supportCondition
         supportCondition = { condition(oldCondition.invoke()) }
     }
-
-    // TODO: END
 
     /**
      * Make the value able to set.
