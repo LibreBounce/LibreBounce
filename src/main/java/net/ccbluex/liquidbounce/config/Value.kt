@@ -17,7 +17,7 @@ private typealias OnChangedHandler<T> = (new: T) -> Unit
 
 sealed class Value<T>(
     val name: String,
-    protected open var value: T,
+    protected var value: T,
     val subjective: Boolean = false,
     var isSupported: (() -> Boolean)? = null,
     val suffix: String? = null,
@@ -88,13 +88,13 @@ sealed class Value<T>(
 
     fun get() = value
 
-    open fun changeValue(newValue: T) {
+    private fun changeValue(newValue: T) {
         value = newValue
     }
 
-    open fun toJson() = toJsonF()
+    fun toJson() = toJsonF()
 
-    open fun fromJson(element: JsonElement) {
+    fun fromJson(element: JsonElement) {
         val result = fromJsonF(element) ?: return
         changeValue(result)
 
@@ -117,7 +117,7 @@ sealed class Value<T>(
 
     // TODO: START
 
-    open fun isSupported() = isSupported?.invoke() != false
+    fun isSupported() = isSupported?.invoke() != false
 
     open fun setSupport(condition: (Boolean) -> Boolean) {
         isSupported = { condition(isSupported()) }

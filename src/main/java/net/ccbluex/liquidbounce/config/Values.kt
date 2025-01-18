@@ -261,7 +261,7 @@ class BlockValue(
 open class ListValue(
     name: String,
     var values: Array<String>,
-    override var value: String,
+    value: String,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null,
 ) : Value<String>(name, value, subjective, isSupported) {
@@ -271,10 +271,6 @@ open class ListValue(
     var openList = false
 
     operator fun contains(string: String?) = values.any { it.equals(string, true) }
-
-    override fun changeValue(newValue: String) {
-        values.find { it.equals(newValue, true) }?.let { value = it }
-    }
 
     override fun toJsonF() = JsonPrimitive(value)
 
