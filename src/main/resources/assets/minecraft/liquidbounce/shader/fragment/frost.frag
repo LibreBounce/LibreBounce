@@ -32,9 +32,9 @@ void main() {
     vec2 noiseCoord = gl_TexCoord[0].xy * noiseScale;
     float noise = random(noiseCoord) * 0.2 - 0.1;
     
-    // Mix with tint color and add noise
-    vec3 tinted = mix(color.rgb, tintColor, intensity);
-    tinted += noise;
+    // Mix with tint color while preserving alpha
+    vec3 tinted = mix(color.rgb, tintColor, intensity * color.a);
+    tinted += noise * color.a; // Only apply noise to visible areas
     
     gl_FragColor = vec4(tinted, color.a * alpha);
 } 
