@@ -2,8 +2,8 @@ package net.ccbluex.liquidbounce.utils.render.shader.shaders
 
 import net.ccbluex.liquidbounce.utils.render.shader.FramebufferShader
 import org.lwjgl.opengl.GL20.*
-import java.io.Closeable
 import java.awt.Color
+import java.io.Closeable
 
 object FrostShader : FramebufferShader("frost.frag"), Closeable {
     var isInUse = false
@@ -54,12 +54,12 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
             stopShader()
     }
 
-    fun begin(enable: Boolean, intensity: Float = 0.3f, tintColor: Color = Color.WHITE, radius: Float = 2f, alpha: Float = 0.6f) = apply {
+    fun begin(enable: Boolean, intensity: Float = 0.3f, tintColor: Color = Color.WHITE, radius: Float = 2f) = apply {
         if (!enable) return@apply
         this.intensity = intensity
         this.tintColor = tintColor
         this.blurRadius = radius
-        this.frostAlpha = alpha
+        this.frostAlpha = tintColor.alpha / 255f
         startShader()
     }
 } 
