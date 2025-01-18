@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawScaledCustomSizeMod
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil.debugFPS
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
+import net.ccbluex.liquidbounce.utils.render.shader.shaders.FrostShader
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.ResourceLocation
@@ -47,8 +48,9 @@ class Target : Element() {
 
     private val borderStrength by float("Border-Strength", 3F, 1F..5F)
 
-    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Frost"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
+    private val frostIntensity by float("Frost-Intensity", 0.3F, 0.1F..1F) { backgroundMode == "Frost" }
 
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
@@ -201,14 +203,27 @@ class Target : Element() {
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
                 if (fadeMode && shouldRender || smoothMode && shouldRender || delayCounter < vanishDelay) {
-                    // Draw rect box
-                    RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
-                        drawRoundedBorderRect(
-                            0F, 0F, width, height, borderStrength,
-                            if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
-                            borderCustomColor,
-                            roundedRectRadius
-                        )
+                    when (backgroundMode) {
+                        "Frost" -> {
+                            FrostShader.begin(true, frostIntensity).use {
+                                drawRoundedBorderRect(
+                                    0F, 0F, width, height, borderStrength,
+                                    0,
+                                    borderCustomColor,
+                                    roundedRectRadius
+                                )
+                            }
+                        }
+                        else -> {
+                            RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
+                                drawRoundedBorderRect(
+                                    0F, 0F, width, height, borderStrength,
+                                    if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
+                                    borderCustomColor,
+                                    roundedRectRadius
+                                )
+                            }
+                        }
                     }
 
                     // Health bar
