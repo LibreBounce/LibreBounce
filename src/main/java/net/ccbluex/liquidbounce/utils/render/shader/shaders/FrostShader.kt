@@ -11,8 +11,8 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
     
     var intensity = 0.3f
     var tintColor = Color.WHITE
-    override var radius = 2f
-    override var alpha = 0.6f
+    var blurRadius = 2f
+    var frostAlpha = 0.6f
     
     override fun setupUniforms() {
         setupUniform("texture")
@@ -29,8 +29,8 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
             1f / mc.displayWidth * renderScale,
             1f / mc.displayHeight * renderScale
         )
-        glUniform1f(getUniform("radius"), radius)
-        glUniform1f(getUniform("alpha"), alpha)
+        glUniform1f(getUniform("radius"), blurRadius)
+        glUniform1f(getUniform("alpha"), frostAlpha)
         glUniform1f(getUniform("intensity"), intensity)
         glUniform3f(getUniform("tintColor"), 
             tintColor.red / 255f,
@@ -58,8 +58,8 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
         if (!enable) return@apply
         this.intensity = intensity
         this.tintColor = tintColor
-        this.radius = radius
-        this.alpha = alpha
+        this.blurRadius = radius
+        this.frostAlpha = alpha
         startShader()
     }
 } 
