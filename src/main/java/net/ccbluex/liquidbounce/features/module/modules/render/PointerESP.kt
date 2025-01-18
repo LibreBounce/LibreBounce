@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -26,7 +25,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
 
-object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
+object PointerESP : Module("PointerESP", Category.RENDER) {
     private val dimension by choices("Dimension", arrayOf("2d", "3d"), "2d")
     private val mode by choices("Mode", arrayOf("Solid", "Line", "LoopLine"), "Solid")
     private val thickness by float("Thickness", 3f, 1f..5f) { mode.contains("Line") }
@@ -160,6 +159,7 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
                         absorption
                     )
                 }
+
                 else -> colors.color(a = alpha)
             }
 

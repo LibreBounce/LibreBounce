@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.extensions.withGCD
 import kotlin.math.abs
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true }) {
+open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true }) : Configurable("RotationSettings") {
 
     open val rotationsValue = boolean("Rotations", true) { generalApply() }
     open val applyServerSideValue = boolean("ApplyServerSide", true) { rotationsActive && generalApply() }
@@ -126,7 +126,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     }
 
     init {
-        owner.addConfigurable(this)
+        owner.addValues(this.values)
     }
 }
 
@@ -144,6 +144,6 @@ class RotationSettingsWithRotationModes(
         get() = rotationMode != "Off"
 
     init {
-        owner.addConfigurable(this)
+        owner.addValues(this.values)
     }
 }

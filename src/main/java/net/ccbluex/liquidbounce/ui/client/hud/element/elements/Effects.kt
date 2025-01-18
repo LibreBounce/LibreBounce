@@ -12,8 +12,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.font
 import net.minecraft.client.resources.I18n
 import net.minecraft.potion.Potion
 

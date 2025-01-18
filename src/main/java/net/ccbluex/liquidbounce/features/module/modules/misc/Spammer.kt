@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomString
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 
-object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule = false) {
+object Spammer : Module("Spammer", Category.MISC, subjective = true) {
     private val maxDelayValue: Value<Int> = int("MaxDelay", 1000, 0..5000).onChange { _, new ->
         new.coerceAtLeast(minDelay)
     }

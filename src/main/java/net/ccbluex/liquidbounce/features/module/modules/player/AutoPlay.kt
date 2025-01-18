@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -17,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
-object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false, hideModule = false) {
+object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
     private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 

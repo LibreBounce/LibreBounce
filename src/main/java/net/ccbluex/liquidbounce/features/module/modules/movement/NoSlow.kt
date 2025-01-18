@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -34,7 +30,7 @@ import net.minecraft.network.status.server.S01PacketPong
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
-object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false, hideModule = false) {
+object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
     private val swordMode by choices(
         "SwordMode",
@@ -103,7 +99,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false, hideM
         if (isUsingItem || shouldSwap) {
             if (heldItem.item !is ItemSword && heldItem.item !is ItemBow && (consumeFoodOnly && heldItem.item is ItemFood ||
                         consumeDrinkOnly && (heldItem.item is ItemPotion || heldItem.item is ItemBucketMilk))
-                ) {
+            ) {
                 when (consumeMode.lowercase()) {
                     "aac5" ->
                         sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))

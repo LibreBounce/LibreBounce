@@ -5,7 +5,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.liuli.elixir.account.CrackedAccount
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.features.module.Category
@@ -24,7 +23,7 @@ import net.minecraft.util.ChatComponentText
 import net.minecraft.util.Session
 
 object AutoAccount :
-    Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+    Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false) {
 
     private val register by boolean("AutoRegister", true)
     private val login by boolean("AutoLogin", true)

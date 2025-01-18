@@ -9,4 +9,4 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 
 object ComponentOnHover :
-    Module("ComponentOnHover", Category.MISC, subjective = true, gameDetecting = false, hideModule = false)
+    Module("ComponentOnHover", Category.MISC, subjective = true, gameDetecting = false)

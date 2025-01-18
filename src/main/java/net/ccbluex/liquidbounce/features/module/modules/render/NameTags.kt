@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -42,7 +41,7 @@ import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
-object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
+object NameTags : Module("NameTags", Category.RENDER) {
     private val renderSelf by boolean("RenderSelf", false)
     private val health by boolean("Health", true)
     private val healthFromScoreboard by boolean("HealthFromScoreboard", false) { health }

@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import co.uk.hexeption.utils.OutlineUtils
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler

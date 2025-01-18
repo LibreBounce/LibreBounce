@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
@@ -24,7 +24,7 @@ import net.minecraft.stats.StatList
 import net.minecraft.util.BlockPos
 import kotlin.math.truncate
 
-object Tower : MinecraftInstance, Listenable {
+object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
     val towerModeValues = choices(
         "TowerMode",

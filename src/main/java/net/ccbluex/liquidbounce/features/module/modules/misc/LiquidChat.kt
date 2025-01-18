@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
-import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -27,12 +27,9 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.util.regex.Pattern
 
-object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameDetecting = false) {
-
-    init {
-        state = true
-        inArray = false
-    }
+object LiquidChat : Module(
+    "LiquidChat", Category.MISC, subjective = true, gameDetecting = false, defaultState = true, defaultHidden = true
+) {
 
     var jwt by boolean("JWT", false).onChanged {
         if (state) {

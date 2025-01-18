@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -41,7 +41,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
-object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
+object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
     private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..700).onChange { _, new ->
@@ -79,10 +79,15 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
     private val smart by boolean("Smart", true) { mode == "Modern" }
 
     // ESP
-    private val espMode by choices("ESP-Mode", arrayOf("None", "Box", "Model", "Wireframe"), "Box") { mode == "Modern" }.subjective()
+    private val espMode by choices(
+        "ESP-Mode",
+        arrayOf("None", "Box", "Model", "Wireframe"),
+        "Box"
+    ) { mode == "Modern" }.subjective()
     private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..5f) { espMode == "WireFrame" }
 
-    private val espColor = ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
+    private val espColor =
+        ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = mutableListOf<Pair<Vec3, Long>>()

@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
-import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -22,7 +21,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import javax.vecmath.Point2i
 
-object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false, hideModule = false) {
+object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
 
     private var snake = mutableListOf(Point2i(0, 0))
     private var lastKey = 208
@@ -76,10 +75,12 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false, hide
                         if (score % 3 == 0) generateOneObstacle()
                         if (score % 10 == 0 && obstacles.isNotEmpty()) obstacles.removeAt(obstacles.lastIndex)
                     }
+
                     "Normal" -> {
                         if (score % 2 == 0) generateOneObstacle()
                         if (score % 5 == 0 && obstacles.isNotEmpty()) obstacles.removeAt(obstacles.lastIndex)
                     }
+
                     "Hard" -> {
                         if (score % 5 == 0 && obstacles.isNotEmpty()) obstacles.removeAt(obstacles.lastIndex)
                     }
@@ -208,6 +209,7 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false, hide
             "Hard" -> {
                 generateObstacles(7)
             }
+
             "Normal", "Easy" -> {
                 obstacles.clear()
             }

@@ -9,10 +9,6 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -52,7 +48,7 @@ import net.minecraft.network.play.server.S30PacketWindowItems
 import java.awt.Color
 import kotlin.math.sqrt
 
-object ChestStealer : Module("ChestStealer", Category.WORLD, hideModule = false) {
+object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by int("DelayMultiplier", 120, 0..500) { smartDelay }

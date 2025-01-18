@@ -48,7 +48,7 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
-object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
+object BedPlates : Module("BedPlates", Category.RENDER) {
     private val renderYOffset by float("RenderYOffset", 1f, -5f..5f)
 
     private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
@@ -102,7 +102,8 @@ object BedPlates : Module("BedPlates", Category.RENDER, hideModule = false) {
     ) : Comparable<SurroundingBlock> {
         val itemStack = ItemStack(block, count)
 
-        override fun compareTo(other: SurroundingBlock): Int = compareValuesBy(this, other,
+        override fun compareTo(other: SurroundingBlock): Int = compareValuesBy(
+            this, other,
             { it.layer }, { -it.count }, { it.block.unlocalizedName })
     }
 

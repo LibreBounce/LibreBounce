@@ -7,9 +7,6 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.config.Value
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
-import net.ccbluex.liquidbounce.config.text
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -22,7 +19,7 @@ import java.util.*
 import kotlin.random.Random
 
 object NameProtect :
-    Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+    Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false) {
 
     val allPlayers by boolean("AllPlayers", false)
 

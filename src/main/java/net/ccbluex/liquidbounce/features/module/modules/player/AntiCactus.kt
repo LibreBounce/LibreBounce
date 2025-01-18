@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.block.BlockCactus
 import net.minecraft.util.AxisAlignedBB
 
-object AntiCactus : Module("AntiCactus", Category.PLAYER, gameDetecting = false, hideModule = false) {
+object AntiCactus : Module("AntiCactus", Category.PLAYER, gameDetecting = false) {
 
     val onBlockBB = handler<BlockBBEvent> { event ->
         if (event.block is BlockCactus)

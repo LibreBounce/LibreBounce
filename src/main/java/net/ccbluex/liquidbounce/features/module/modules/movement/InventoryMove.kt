@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -28,7 +26,7 @@ import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import org.lwjgl.input.Mouse
 
-object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting = false, hideModule = false) {
+object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting = false) {
 
     private val notInChests by boolean("NotInChests", false)
     val aacAdditionPro by boolean("AACAdditionPro", false)
@@ -124,7 +122,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
                 event.cancelEvent()
                 player.isSprinting = false
                 if (!player.serverSprintState)
-                    PacketUtils.sendPacket(C0DPacketCloseWindow(),false)
+                    PacketUtils.sendPacket(C0DPacketCloseWindow(), false)
             }
         }
 
@@ -135,7 +133,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
             }
         } else if (clickWindowList.isNotEmpty()) {
             clickWindowList.forEach {
-                PacketUtils.sendPacket(it,false)
+                PacketUtils.sendPacket(it, false)
             }
             clickWindowList.clear()
         }

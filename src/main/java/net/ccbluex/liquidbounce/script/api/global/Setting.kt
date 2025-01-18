@@ -15,8 +15,10 @@ import net.minecraft.client.gui.FontRenderer
 /**
  * Object used by the script API to provide an idiomatic way of creating module values.
  * TODO: intRange, floatRange, color
+ *
+ * Note: this usage of [Configurable] is incorrect!!
  */
-object Setting {
+object Setting : Configurable("ScriptSetting") {
 
     /**
      * Creates a boolean value.

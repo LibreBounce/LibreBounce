@@ -6,10 +6,6 @@
 
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.features.module.modules.render.ESP
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element

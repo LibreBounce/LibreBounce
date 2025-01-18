@@ -7,9 +7,7 @@ package net.ccbluex.liquidbounce.utils.inventory
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
@@ -23,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.serverOnGround
 import net.minecraft.client.gui.inventory.GuiInventory
 import java.awt.Color
 
-object InventoryManager : MinecraftInstance, Listenable {
+object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, Listenable {
 
     // Shared no move click values
     val noMoveValue = boolean("NoMoveClicks", false)

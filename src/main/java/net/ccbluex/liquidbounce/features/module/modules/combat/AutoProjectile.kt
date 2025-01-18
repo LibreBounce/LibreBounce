@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.init.Items.egg
 import net.minecraft.init.Items.snowball
 
-object AutoProjectile : Module("AutoProjectile", Category.COMBAT, hideModule = false) {
+object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
     private val facingEnemy by boolean("FacingEnemy", true)
 
     private val mode by choices("Mode", arrayOf("Normal", "Smart"), "Normal")

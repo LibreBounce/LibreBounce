@@ -8,8 +8,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeRepairedWithOther
@@ -36,7 +34,7 @@ import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
-object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
+object AutoArmor : Module("AutoArmor", Category.COMBAT) {
     private val maxDelay: Int by int("MaxDelay", 50, 0..500).onChange { _, new ->
         new.coerceAtLeast(minDelay)
     }

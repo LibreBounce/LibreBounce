@@ -6,9 +6,7 @@
 package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.LiquidBounce.isStarting
-import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.config.Value
-import net.ccbluex.liquidbounce.config.boolean
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.misc.GameDetector
 import net.ccbluex.liquidbounce.file.FileManager.modulesConfig
@@ -18,46 +16,48 @@ import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.client.asResourceLocation
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.playSound
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.clearTicked
 import org.lwjgl.input.Keyboard
-import java.util.concurrent.CopyOnWriteArraySet
 
 private val SPLIT_REGEX = "(?<=[a-z])(?=[A-Z])".toRegex()
 
 open class Module(
-    val name: String,
+    name: String,
     val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
-    val defaultInArray: Boolean = true, // Used in HideCommand to reset modules visibility.
     private val canBeEnabled: Boolean = true,
     private val forcedDescription: String? = null,
 
     // Adds spaces between lowercase and uppercase letters (KillAura -> Kill Aura)
     val spacedName: String = name.splitToSequence(SPLIT_REGEX).joinToString(separator = " "),
-    val subjective: Boolean = category == Category.RENDER,
+    subjective: Boolean = category == Category.RENDER,
     val gameDetecting: Boolean = canBeEnabled,
-    val hideModule: Boolean = false,
+    defaultState: Boolean = false,
+    defaultHidden: Boolean = false,
+) : Configurable(name), MinecraftInstance, Listenable {
 
-) : MinecraftInstance, Listenable {
+    init {
+        if (subjective) {
+            subjective()
+        }
+    }
 
     // Value that determines whether the module should depend on GameDetector
-    private val onlyInGameValue = boolean("OnlyInGame", true) { GameDetector.state }.subjective()
-
-    // List to register additional options from classes
-    private val configurables = mutableListOf<Class<*>>()
-
-    fun addConfigurable(provider: Any) {
-        configurables += provider::class.java
-    }
+    private val onlyInGameValue = boolean("OnlyInGame", true) {
+        GameDetector.state
+    }.subjective().excludeWhen(!gameDetecting)
 
     // Module information
 
     // Get normal or spaced name
-    fun getName(spaced: Boolean = Arraylist.spacedModules) = if (spaced) spacedName else name
+    fun getName(spaced: Boolean = Arraylist.spacedModulesValue.get()) = if (spaced) spacedName else name
 
     var keyBind = defaultKeyBind
         set(keyBind) {
@@ -66,18 +66,13 @@ open class Module(
             saveConfig(modulesConfig)
         }
 
-    val hideModuleValue = boolean("Hide", false).subjective().onChanged { value ->
-        inArray = !value
+    var isHidden: Boolean by boolean("Hide", defaultHidden).subjective().onChanged {
+        saveConfig(modulesConfig)
     }
 
-    // Use for synchronizing
-    val hideModuleValues = boolean("HideSync", hideModuleValue.get()).subjective().onChanged { value ->
-        hideModuleValue.set(value)
-    }
-
-    private val resetValue = boolean("Reset", false).subjective().onChange { _, _ ->
+    private val resetValue = boolean("Reset", false).subjective().exclude().onChange { _, _ ->
         try {
-            values.forEach { if (it != this) it.reset() else return@forEach }
+            values.forEach { if (it !== this) it.resetValue() else return@forEach }
         } catch (any: Exception) {
             LOGGER.error("Failed to reset all values", any)
             chat("Failed to reset all values: ${any.message}")
@@ -88,20 +83,13 @@ open class Module(
         return@onChange false
     }
 
-    var inArray = defaultInArray
-        set(value) {
-            field = value
-
-            saveConfig(modulesConfig)
-        }
-
     val description
         get() = forcedDescription ?: translation("module.${name.toLowerCamelCase()}.description")
 
     var slideStep = 0F
 
     // Current state of module
-    var state = false
+    var state = defaultState
         set(value) {
             if (field == value)
                 return
@@ -169,37 +157,12 @@ open class Module(
     /**
      * Get value by [valueName]
      */
-    open fun getValue(valueName: String) = values.find { it.name.equals(valueName, ignoreCase = true) }
+    fun getValue(valueName: String) = values.find { it.name.equals(valueName, ignoreCase = true) }
 
     /**
      * Get value via `module[valueName]`
      */
     operator fun get(valueName: String) = getValue(valueName)
-
-    /**
-     * Get all values of module with unique names
-     */
-    open val values: Set<Value<*>>
-        get() {
-            val orderedValues = CopyOnWriteArraySet<Value<*>>()
-
-            try {
-                javaClass.declaredFields.forEach { innerField ->
-                    innerField.isAccessible = true
-                    val element = innerField[this] ?: return@forEach
-
-                    ClassUtils.findValues(element, configurables, orderedValues)
-                }
-
-                if (gameDetecting) orderedValues += onlyInGameValue
-                if (!hideModule) orderedValues += hideModuleValue
-                orderedValues += resetValue
-            } catch (e: Exception) {
-                LOGGER.error(e)
-            }
-
-            return orderedValues
-        }
 
     val isActive
         get() = !gameDetecting || !onlyInGameValue.get() || GameDetector.isInGame()

@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -17,7 +15,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 
-object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = false, hideModule = false) {
+object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = false) {
 
     private val notify by choices("Notify", arrayOf("Chat", "Notification"), "Chat")
     val packetType by choices("PacketType", arrayOf("Both", "Server", "Client", "Custom"), "Both")

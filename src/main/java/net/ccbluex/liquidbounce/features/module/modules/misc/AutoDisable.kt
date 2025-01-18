@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
@@ -22,7 +20,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
-object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false, hideModule = false) {
+object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false) {
     private val modulesList = hashSetOf(KillAura, Scaffold, Fly, Speed)
 
     private val onFlagged by boolean("onFlag", true)

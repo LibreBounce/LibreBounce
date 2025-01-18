@@ -30,7 +30,6 @@ class ModulesConfig(file: File) : FileConfig(file) {
             val jsonModule = value as JsonObject
             module.state = jsonModule["State"].asBoolean
             module.keyBind = jsonModule["KeyBind"].asInt
-            if (jsonModule.has("Array")) module.inArray = jsonModule["Array"].asBoolean
         }
     }
 
@@ -47,7 +46,6 @@ class ModulesConfig(file: File) : FileConfig(file) {
             jsonMod.run {
                 addProperty("State", module.state)
                 addProperty("KeyBind", module.keyBind)
-                addProperty("Array", module.inArray)
             }
             jsonObject[module.name] = jsonMod
         }

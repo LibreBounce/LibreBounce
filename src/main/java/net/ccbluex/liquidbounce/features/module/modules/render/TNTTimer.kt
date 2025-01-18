@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -22,7 +21,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", hideModule = false) {
+object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer") {
 
     private val scale by float("Scale", 3F, 1F..4F)
     private val font by font("Font", Fonts.font40)

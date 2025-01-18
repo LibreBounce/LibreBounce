@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -27,7 +27,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.*
 import java.awt.Color
 
-object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT, hideModule = false) {
+object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
 
     private val bow by boolean("Bow", true).subjective()
     private val egg by boolean("Egg", true).subjective()

@@ -33,8 +33,13 @@ sealed class Value<T>(
     var excluded: Boolean = false
         private set
 
-    var hidden = false
-        private set
+    fun exclude() = apply { excluded = true }
+
+    fun excludeWhen(condition: Boolean) = apply {
+        if (condition) {
+            excluded = true
+        }
+    }
 
     fun setAndUpdateDefault(new: T): Boolean {
         default = new
@@ -43,7 +48,7 @@ sealed class Value<T>(
     }
 
     fun set(newValue: T, saveImmediately: Boolean = true): Boolean {
-        if (newValue == value || hidden || excluded) {
+        if (newValue == value || excluded) {
             return false
         }
 
@@ -68,17 +73,6 @@ sealed class Value<T>(
             LOGGER.error("[ValueSystem ($name)]: ${e.javaClass.name} (${e.message}) [$oldValue >> $newValue]")
             return false
         }
-    }
-
-    /**
-     * Use only when you want an option to be hidden while keeping its state.
-     *
-     * [state] the value it will be set to before it is hidden.
-     */
-    fun hideWithState(state: T = value) {
-        setAndUpdateDefault(state)
-
-        hidden = true
     }
 
     /**
@@ -153,7 +147,7 @@ sealed class Value<T>(
         set(value)
     }
 
-    fun shouldRender() = isSupported() && !hidden
+    fun shouldRender() = isSupported() && !excluded
 
-    fun reset() = set(default)
+    fun resetValue() = set(default)
 }

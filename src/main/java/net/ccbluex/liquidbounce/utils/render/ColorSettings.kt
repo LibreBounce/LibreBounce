@@ -6,15 +6,13 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import net.ccbluex.liquidbounce.config.ColorValue
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.ui.client.hud.element.Element
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import java.awt.Color
 
-class ColorSettingsFloat(owner: Any, name: String, val index: Int? = null, generalApply: () -> Boolean = { true }) {
-    val color by color(
+class ColorSettingsFloat(owner: Configurable, name: String, val index: Int? = null, generalApply: () -> Boolean = { true }) : Configurable(name) {
+    private val colors = color(
         "$name${index ?: "Color"}",
         Color(
             if ((index ?: 0) % 3 == 1) 255 else 0,
@@ -23,17 +21,15 @@ class ColorSettingsFloat(owner: Any, name: String, val index: Int? = null, gener
         )
     ) { generalApply() }.subjective()
 
+    val color: Color by colors
+
     init {
-        when (owner) {
-            is Element -> owner.addConfigurable(this)
-            is Module -> owner.addConfigurable(this)
-            // Should any other class use this, add here
-        }
+        owner.addValue(colors)
     }
 
     companion object {
-        fun create(
-            owner: Any, name: String, colors: Int = MAX_GRADIENT_COLORS, generalApply: (Int) -> Boolean = { true },
+        inline fun create(
+            owner: Configurable, name: String, colors: Int = MAX_GRADIENT_COLORS, crossinline generalApply: (Int) -> Boolean = { true },
         ): List<ColorSettingsFloat> {
             return (1..colors).map { ColorSettingsFloat(owner, name, it) { generalApply(it) } }
         }
@@ -41,15 +37,14 @@ class ColorSettingsFloat(owner: Any, name: String, val index: Int? = null, gener
 }
 
 class ColorSettingsInteger(
-    owner: Any, name: String? = null,
+    owner: Configurable, name: String? = null,
     val index: Int? = null,
     applyMax: Boolean = false,
     generalApply: () -> Boolean = { true }
-) {
-    private val string = if (name == null) "Color" else "$name"
+) : Configurable(name ?: "Color") {
     private val max = if (applyMax) 255 else 0
 
-    private val colors = color("${string}${index ?: ""}", Color(max, max, max, 255)) { generalApply() }.subjective() as ColorValue
+    private val colors = color("${this.name}${index ?: ""}", Color(max, max, max, 255)) { generalApply() }.subjective() as ColorValue
 
     fun color(a: Int = colors.selectedColor().alpha) = color().withAlpha(a)
 
@@ -68,16 +63,12 @@ class ColorSettingsInteger(
     fun with(color: Color) = with(color.red, color.green, color.blue, color.alpha)
 
     init {
-        when (owner) {
-            is Element -> owner.addConfigurable(this)
-            is Module -> owner.addConfigurable(this)
-            // Should any other class use this, add here
-        }
+        owner.addValue(colors)
     }
 
     companion object {
-        fun create(
-            owner: Any, name: String, colors: Int, applyMax: Boolean = false, generalApply: (Int) -> Boolean = { true }
+        inline fun create(
+            owner: Configurable, name: String, colors: Int, applyMax: Boolean = false, crossinline generalApply: (Int) -> Boolean = { true }
         ): List<ColorSettingsInteger> {
             return (1..colors).map {
                 ColorSettingsInteger(owner, name, it, applyMax) { generalApply(it) }

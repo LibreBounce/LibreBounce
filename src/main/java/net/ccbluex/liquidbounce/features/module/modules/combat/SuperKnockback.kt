@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -23,7 +23,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
 import kotlin.math.abs
 
-object SuperKnockback : Module("SuperKnockback", Category.COMBAT, hideModule = false) {
+object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     private val chance by int("Chance", 100, 0..100)
     private val delay by int("Delay", 0, 0..500)

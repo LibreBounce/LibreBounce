@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -40,7 +39,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import java.awt.Color
 
-object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
+object Fucker : Module("Fucker", Category.WORLD) {
 
     /**
      * SETTINGS

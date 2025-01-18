@@ -6,7 +6,6 @@
 
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.features.command.commands.TacoCommand.tacoToggle
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element

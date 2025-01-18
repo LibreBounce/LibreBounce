@@ -74,7 +74,7 @@ import java.awt.Color
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule = false) {
+object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     /**
      * OPTIONS
      */
@@ -311,6 +311,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
     // Circle options
     private val circleRainbow by boolean("CircleRainbow", false) { mark == "Circle" }.subjective()
+
     // TODO: replace this with color value
     private val colors = ColorSettingsInteger(
         this,

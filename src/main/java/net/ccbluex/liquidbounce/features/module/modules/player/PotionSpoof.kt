@@ -5,15 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.potion.Potion.*
 import net.minecraft.potion.PotionEffect
 
-object PotionSpoof : Module("PotionSpoof", Category.PLAYER, hideModule = false) {
+object PotionSpoof : Module("PotionSpoof", Category.PLAYER) {
 
     private val level by int("PotionLevel", 2, 1..5).onChanged {
         onDisable()

@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -41,7 +40,7 @@ import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
-object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false) {
+object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     private val flyModes = arrayOf(
         Vanilla, SmoothVanilla,
 

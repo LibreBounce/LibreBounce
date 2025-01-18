@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.int
-import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -19,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 object AtAllProvider :
-    Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+    Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false) {
 
     private val maxDelay: Int by int("MaxDelay", 1000, 0..20000).onChange { _, new ->
         new.coerceAtLeast(minDelay)

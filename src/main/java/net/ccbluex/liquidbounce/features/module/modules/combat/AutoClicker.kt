@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -31,7 +28,7 @@ import net.minecraft.item.EnumAction
 import net.minecraft.item.ItemBlock
 import kotlin.random.Random.Default.nextBoolean
 
-object AutoClicker : Module("AutoClicker", Category.COMBAT, hideModule = false) {
+object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false)
 

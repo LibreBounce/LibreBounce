@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.network.play.client.C03PacketPlayer
 
-object PotionSaver : Module("PotionSaver", Category.PLAYER, hideModule = false) {
+object PotionSaver : Module("PotionSaver", Category.PLAYER) {
 
     val onPacket = handler<PacketEvent> {
         val packet = it.packet

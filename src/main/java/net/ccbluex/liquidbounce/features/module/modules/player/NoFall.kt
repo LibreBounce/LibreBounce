@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -23,7 +23,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import kotlin.math.max
 
-object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
+object NoFall : Module("NoFall", Category.PLAYER) {
     private val noFallModes = arrayOf(
 
         // Main
@@ -66,7 +66,7 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
 
     private val maxRetrievalWaitingTimeValue = int("MaxRetrievalWaitingTime", 10, 1..20) {
         mode == "MLG"
-    }.onChange{ _, new ->
+    }.onChange { _, new ->
         new.coerceAtLeast(retrieveDelay)
     }
 
@@ -86,7 +86,7 @@ object NoFall : Module("NoFall", Category.PLAYER, hideModule = false) {
         mode == "Blink" && checkFallDist
     }.onChange { _, new -> new.coerceAtMost(maxFallDist.get()) }.subjective()
 
-    val maxFallDist: Value<Float> = float ("MaxFallDistance", 20f, 0f..100f) {
+    val maxFallDist: Value<Float> = float("MaxFallDistance", 20f, 0f..100f) {
         mode == "Blink" && checkFallDist
     }.onChange { _, new -> new.coerceAtLeast(minFallDist.get()) }.subjective()
 

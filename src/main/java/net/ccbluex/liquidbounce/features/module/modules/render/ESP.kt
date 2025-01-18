@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -35,7 +34,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-object ESP : Module("ESP", Category.RENDER, hideModule = false) {
+object ESP : Module("ESP", Category.RENDER) {
 
     val mode by choices(
         "Mode",

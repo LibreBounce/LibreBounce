@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.ListValue
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
@@ -37,9 +37,8 @@ import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
-import java.util.function.Predicate
 
-object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule = false) {
+object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     private val drop by boolean("Drop", true).subjective()
     val sort by boolean("Sort", true).subjective()
 

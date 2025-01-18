@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.blockStatus
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner

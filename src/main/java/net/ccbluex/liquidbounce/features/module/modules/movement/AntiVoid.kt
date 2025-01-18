@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -43,7 +39,7 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
 
-object AntiVoid : Module("AntiVoid", Category.MOVEMENT, hideModule = false) {
+object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
     private val mode by choices(
         "Mode",

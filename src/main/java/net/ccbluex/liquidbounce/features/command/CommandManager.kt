@@ -54,7 +54,6 @@ object CommandManager {
         registerCommand(RemoteViewCommand)
         registerCommand(PrefixCommand)
         registerCommand(ShortcutCommand)
-        registerCommand(HideCommand)
         registerCommand(XrayCommand)
         registerCommand(LiquidChatCommand)
         registerCommand(PrivateChatCommand)

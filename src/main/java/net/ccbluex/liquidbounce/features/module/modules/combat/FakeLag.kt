@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import com.google.common.collect.Queues
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -40,7 +40,7 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.min
 
-object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false, hideModule = false) {
+object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val delay by int("Delay", 550, 0..1000)
     private val recoilTime by int("RecoilTime", 750, 0..2000)

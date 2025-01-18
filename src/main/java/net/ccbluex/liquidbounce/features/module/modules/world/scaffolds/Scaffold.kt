@@ -5,7 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.IntValue
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -47,7 +48,7 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 import kotlin.math.*
 
-object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule = false) {
+object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     /**
      * TOWER MODES & SETTINGS
