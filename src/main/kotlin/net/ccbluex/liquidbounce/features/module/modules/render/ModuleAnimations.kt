@@ -65,6 +65,8 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER) {
         val OffHandPositiveZ by float("PositiveRotationZ", 0f, -50f..50f)
     }
 
+    val swingDuration by int("SwingDuration", 6, 1..20)
+
     /**
      * A choice that allows the user to choose the animation that will be used during the blocking
      * of a sword.
