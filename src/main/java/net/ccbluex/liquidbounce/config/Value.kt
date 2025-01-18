@@ -88,7 +88,7 @@ sealed class Value<T>(
 
     fun get() = value
 
-    private fun changeValue(newValue: T) {
+    fun changeValue(newValue: T) {
         value = newValue
     }
 
@@ -101,8 +101,10 @@ sealed class Value<T>(
         onChangedListeners.forEach { it.invoke(result) }
     }
 
-    abstract fun toJsonF(): JsonElement?
-    abstract fun fromJsonF(element: JsonElement): T?
+    // Serializations: JSON/Text
+
+    protected abstract fun toJsonF(): JsonElement?
+    protected abstract fun fromJsonF(element: JsonElement): T?
 
     private var onChangeInterceptors: Array<OnChangeInterceptor<T>> = emptyArray()
     private var onChangedListeners: Array<OnChangedHandler<T>> = emptyArray()
@@ -119,7 +121,7 @@ sealed class Value<T>(
 
     fun isSupported() = isSupported?.invoke() != false
 
-    open fun setSupport(condition: (Boolean) -> Boolean) {
+    fun setSupport(condition: (Boolean) -> Boolean) {
         isSupported = { condition(isSupported()) }
     }
 
