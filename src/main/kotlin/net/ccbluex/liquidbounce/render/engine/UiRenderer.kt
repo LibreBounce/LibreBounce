@@ -157,7 +157,7 @@ object UiRenderer : MinecraftShortcuts {
 
         mc.framebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
 
-        mc.framebuffer.beginWrite(true)
+        mc.framebuffer.beginWrite(false)
 
         UiBlurShader.blit()
 
