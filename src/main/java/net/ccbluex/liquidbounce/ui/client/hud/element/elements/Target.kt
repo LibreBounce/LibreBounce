@@ -51,7 +51,6 @@ class Target : Element() {
     private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Frost"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
     private val frostIntensity by float("Frost-Intensity", 0.3F, 0.1F..1F) { backgroundMode == "Frost" }
-    private val frostTintColor by color("Frost-Tint", Color.WHITE) { backgroundMode == "Frost" }
 
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
@@ -91,6 +90,8 @@ class Target : Element() {
         get() = alphaBorder > 0 || alphaBackground > 0 || alphaText > 0
 
     private var delayCounter = 0
+
+    private val frostTint by color("Frost-Tint", Color.WHITE) { backgroundMode == "Frost" }
 
     override fun drawElement(): Border {
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
@@ -207,10 +208,11 @@ class Target : Element() {
                     when (backgroundMode) {
                         "Frost" -> {
                             FrostShader.begin(true, frostIntensity).use {
-                                FrostShader.updateTintColor(frostTintColor)
+                                FrostShader.setTintColor(frostTint.selectedColor())
+                                
                                 drawRoundedBorderRect(
                                     0F, 0F, width, height, borderStrength,
-                                    backgroundColor.rgb,
+                                    0,
                                     borderCustomColor,
                                     roundedRectRadius
                                 )
