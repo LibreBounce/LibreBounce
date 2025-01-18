@@ -50,7 +50,12 @@ class Target : Element() {
 
     private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Frost"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
+
+    
     private val frostIntensity by float("Frost-Intensity", 0.3F, 0.1F..1F) { backgroundMode == "Frost" }
+    private val frostTintColor by color("Frost-TintColor", Color.WHITE) { backgroundMode == "Frost" }
+    private val frostBlurRadius by float("Frost-BlurRadius", 2F, 0.5F..5F) { backgroundMode == "Frost" }
+    private val frostAlpha by float("Frost-Alpha", 0.6F, 0.1F..1F) { backgroundMode == "Frost" }
 
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
@@ -90,11 +95,6 @@ class Target : Element() {
         get() = alphaBorder > 0 || alphaBackground > 0 || alphaText > 0
 
     private var delayCounter = 0
-
-    private val frostTintColor by color("Frost-TintColor", Color.WHITE) { backgroundMode == "Frost" }
-
-    private val frostBlurRadius by float("Frost-BlurRadius", 2F, 0.5F..5F) { backgroundMode == "Frost" }
-    private val frostAlpha by float("Frost-Alpha", 0.6F, 0.1F..1F) { backgroundMode == "Frost" }
 
     override fun drawElement(): Border {
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer

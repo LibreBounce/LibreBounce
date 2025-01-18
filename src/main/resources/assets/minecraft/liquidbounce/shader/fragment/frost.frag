@@ -28,7 +28,7 @@ float noise(vec2 p) {
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// Enhanced blur with larger sampling area
+// Blur
 vec4 blur13(sampler2D image, vec2 uv, vec2 direction) {
     vec4 color = texture2D(image, uv) * weights[0];
     float totalWeight = weights[0];
@@ -46,7 +46,7 @@ vec4 blur13(sampler2D image, vec2 uv, vec2 direction) {
     return color / totalWeight;
 }
 
-// New distortion function
+// Distortion
 vec2 distort(vec2 uv) {
     float distortionStrength = intensity * 0.05; // Increased distortion
     vec2 noise1 = vec2(noise(uv * 8.0), noise(uv * 8.0 + 0.5));
@@ -58,23 +58,19 @@ vec2 distort(vec2 uv) {
 void main() {
     vec2 uv = gl_TexCoord[0].xy;
     
-    // Apply stronger distortion
     vec2 distortedUV = distort(uv);
     
-    // Apply enhanced two-pass gaussian blur with distortion
+    // two-pass gaussian blur with distortion
     vec4 color = blur13(texture, distortedUV, vec2(1.0, 0.0));
     color = blur13(texture, distortedUV, vec2(0.0, 1.0));
     
-    // Create more prominent frost pattern
-    float frost = noise(uv * 12.0) * noise(uv * 18.0) * 1.5; // Increased scale and contrast
+    float frost = noise(uv * 12.0) * noise(uv * 18.0) * 1.5; 
     vec4 frostColor = vec4(tintColor * (0.75 + 0.25 * frost), 1.0);
     
-    // Enhanced frost mixing
-    color = mix(color, frostColor, intensity * 0.8); // Increased mixing intensity
+    color = mix(color, frostColor, intensity * 0.8); 
     
-    // Add stronger crystalline highlights
-    float highlight = pow(frost, 3.0) * 0.8; // Reduced power for broader highlights
-    color.rgb += vec3(highlight) * intensity * 1.5; // Increased highlight intensity
+    float highlight = pow(frost, 3.0) * 0.8; 
+    color.rgb += vec3(highlight) * intensity * 1.5; 
     
     // Add subtle frost edges
     float edge = smoothstep(0.4, 0.6, frost);
