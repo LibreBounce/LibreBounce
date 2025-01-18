@@ -98,7 +98,13 @@ sealed class Value<T>(
         value = newValue
     }
 
-    fun toJson() = toJsonF()
+    // Serializations: JSON/Text
+
+    abstract fun toJson(): JsonElement?
+    open fun toText(): String = value.toString()
+
+    protected abstract fun fromJsonF(element: JsonElement): T?
+    protected abstract fun fromTextF(text: String): T?
 
     fun fromJson(element: JsonElement) {
         val result = fromJsonF(element) ?: return
@@ -107,16 +113,14 @@ sealed class Value<T>(
         onChangedListeners.forEach { it.invoke(result) }
     }
 
-    open fun getString() = "$value"
+    fun fromText(text: String) {
+        val result = fromTextF(text) ?: return
+        changeValue(result)
 
-//    open fun toText(): String = value.toString()
-//
-//    abstract fun fromText(text: String)
+        onChangedListeners.forEach { it.invoke(result) }
+    }
 
-    // Serializations: JSON/Text
-
-    protected abstract fun toJsonF(): JsonElement?
-    protected abstract fun fromJsonF(element: JsonElement): T?
+    // Serializations END
 
     private var onChangeInterceptors: Array<OnChangeInterceptor<T>> = emptyArray()
     private var onChangedListeners: Array<OnChangedHandler<T>> = emptyArray()
@@ -135,7 +139,8 @@ sealed class Value<T>(
     fun isSupported() = supportCondition.invoke()
 
     fun setSupport(condition: (Boolean) -> Boolean) = apply {
-        supportCondition = { condition(supportCondition.invoke()) }
+        val oldCondition = supportCondition
+        supportCondition = { condition(oldCondition.invoke()) }
     }
 
     // TODO: END

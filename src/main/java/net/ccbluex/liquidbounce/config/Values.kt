@@ -5,11 +5,14 @@
  */
 package net.ccbluex.liquidbounce.config
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.utils.io.json
+import net.ccbluex.liquidbounce.utils.io.jsonArray
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.kotlin.coerceIn
@@ -30,11 +33,20 @@ class BoolValue(
     value: Boolean,
 ) : Value<Boolean>(name, value) {
 
-    override fun toJsonF() = JsonPrimitive(value)
+    override fun toJson() = JsonPrimitive(value)
 
     override fun fromJsonF(element: JsonElement) =
-        if (element.isJsonPrimitive) element.asBoolean || element.asString.equals("true", ignoreCase = true)
-        else null
+        when {
+            element.isJsonPrimitive -> element.asBoolean || element.asString.equals("true", ignoreCase = true)
+            else -> null
+        }
+
+    override fun fromTextF(text: String): Boolean? =
+        when (text.lowercase()) {
+            "true", "t", "yes", "y" -> true
+            "false", "f", "no", "n" -> false
+            else -> null
+        }
 
     fun toggle() = set(!value)
 
@@ -57,11 +69,15 @@ open class IntegerValue(
 
     override fun validate(newValue: Int): Int = newValue.coerceIn(range)
 
-    fun set(newValue: Number) = set(newValue.toInt())
+    override fun toJson() = JsonPrimitive(value)
 
-    override fun toJsonF() = JsonPrimitive(value)
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element.isJsonPrimitive -> element.asInt
+            else -> null
+        }
 
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asInt else null
+    override fun fromTextF(text: String): Int? = text.toIntOrNull()
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
@@ -83,20 +99,19 @@ class IntegerRangeValue(
     fun setFirst(newValue: Int, immediate: Boolean = true) = set(newValue..value.last, immediate)
     fun setLast(newValue: Int, immediate: Boolean = true) = set(value.first..newValue, immediate)
 
-    override fun toJsonF(): JsonElement {
-        return JsonPrimitive("${value.first}-${value.last}")
+    override fun toJson(): JsonElement = jsonArray {
+        +JsonPrimitive(value.first)
+        +JsonPrimitive(value.last)
     }
 
     override fun fromJsonF(element: JsonElement): IntRange? {
-        return element.asJsonPrimitive?.asString?.split("-")?.takeIf { it.size == 2 }?.let {
-            val (start, end) = it
+        val array = (element as? JsonArray)?.takeIf { it.size() == 2 } ?: return null
+        return IntRange(array[0].asInt, array[1].asInt)
+    }
 
-            start.toIntOrNull()?.let { s ->
-                end.toIntOrNull()?.let { e ->
-                    s..e
-                }
-            }
-        }
+    override fun fromTextF(text: String): IntRange? {
+        val (first, last) = text.split("..").takeIf { it.size == 2 } ?: return null
+        return IntRange(first.toInt(), last.toInt())
     }
 
     fun isMinimal() = value.first <= minimum
@@ -115,7 +130,7 @@ class IntegerRangeValue(
 class FloatValue(
     name: String,
     value: Float,
-    val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    val range: ClosedFloatingPointRange<Float>,
     suffix: String? = null,
 ) : Value<Float>(name, value, suffix) {
 
@@ -123,9 +138,15 @@ class FloatValue(
 
     fun set(newValue: Number) = set(newValue.toFloat())
 
-    override fun toJsonF() = JsonPrimitive(value)
+    override fun toJson() = JsonPrimitive(value)
 
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asFloat else null
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element.isJsonPrimitive -> element.asFloat
+            else -> null
+        }
+
+    override fun fromTextF(text: String): Float? = text.toFloatOrNull()
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
@@ -138,7 +159,7 @@ class FloatValue(
 class FloatRangeValue(
     name: String,
     value: ClosedFloatingPointRange<Float>,
-    val range: ClosedFloatingPointRange<Float> = 0f..Float.MAX_VALUE,
+    val range: ClosedFloatingPointRange<Float>,
     suffix: String? = null,
 ) : Value<ClosedFloatingPointRange<Float>>(name, value, suffix) {
 
@@ -147,20 +168,19 @@ class FloatRangeValue(
     fun setFirst(newValue: Float, immediate: Boolean = true) = set(newValue..value.endInclusive, immediate)
     fun setLast(newValue: Float, immediate: Boolean = true) = set(value.start..newValue, immediate)
 
-    override fun toJsonF(): JsonElement {
-        return JsonPrimitive("${value.start}-${value.endInclusive}")
+    override fun toJson(): JsonElement = jsonArray {
+        +JsonPrimitive(value.start)
+        +JsonPrimitive(value.endInclusive)
     }
 
     override fun fromJsonF(element: JsonElement): ClosedFloatingPointRange<Float>? {
-        return element.asJsonPrimitive?.asString?.split("-")?.takeIf { it.size == 2 }?.let {
-            val (start, end) = it
+        val array = (element as? JsonArray)?.takeIf { it.size() == 2 } ?: return null
+        return array[0].asFloat..array[1].asFloat
+    }
 
-            start.toFloatOrNull()?.let { s ->
-                end.toFloatOrNull()?.let { e ->
-                    s..e
-                }
-            }
-        }
+    override fun fromTextF(text: String): ClosedFloatingPointRange<Float>? {
+        val (first, last) = text.split("..").takeIf { it.size == 2 } ?: return null
+        return first.toFloat()..last.toFloat()
     }
 
     fun isMinimal() = value.start <= minimum
@@ -181,9 +201,16 @@ class TextValue(
     value: String,
 ) : Value<String>(name, value) {
 
-    override fun toJsonF() = JsonPrimitive(value)
+    override fun toJson() = JsonPrimitive(value)
 
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asString else null
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element.isJsonPrimitive -> element.asString
+            else -> null
+        }
+
+    override fun fromTextF(text: String): String = text
+
 }
 
 /**
@@ -194,30 +221,38 @@ class FontValue(
     value: FontRenderer,
 ) : Value<FontRenderer>(name, value) {
 
-    override fun toJsonF(): JsonElement? {
+    override fun toJson(): JsonElement? {
         val fontDetails = Fonts.getFontDetails(value) ?: return null
-        val valueObject = JsonObject()
-        valueObject.run {
-            addProperty("fontName", fontDetails.name)
-            addProperty("fontSize", fontDetails.size)
+        return json {
+            "fontName" to fontDetails.name
+            "fontSize" to fontDetails.size
         }
-        return valueObject
     }
 
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonObject) {
-        val valueObject = element.asJsonObject
-        Fonts.getFontRenderer(valueObject["fontName"].asString, valueObject["fontSize"].asInt)
-    } else null
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element is JsonObject -> Fonts.getFontRenderer(element["fontName"].asString, element["fontSize"].asInt)
+            else -> null
+        }
+
+    override fun toText(): String {
+        return displayName
+    }
+
+    override fun fromTextF(text: String): FontRenderer? {
+        // Font values are always excluded from Text configs
+        return null
+    }
 
     val displayName
-        get() = when (value) {
-            is GameFontRenderer -> "Font: ${(value as GameFontRenderer).defaultFont.font.name} - ${(value as GameFontRenderer).defaultFont.font.size}"
-            Fonts.minecraftFont -> "Font: Minecraft"
+        get() = "Font: " + when (val cur = value) {
+            is GameFontRenderer -> "${cur.defaultFont.font.name} - ${cur.defaultFont.font.size}"
+            Fonts.minecraftFont -> "Minecraft"
             else -> {
-                val fontInfo = Fonts.getFontDetails(value)
+                val fontInfo = Fonts.getFontDetails(cur)
                 fontInfo?.let {
                     "${it.name}${if (it.size != -1) " - ${it.size}" else ""}"
-                } ?: "Font: Unknown"
+                } ?: "Unknown"
             }
         }
 
@@ -256,9 +291,15 @@ open class ListValue(
 
     operator fun contains(string: String?) = values.any { it.equals(string, true) }
 
-    override fun toJsonF() = JsonPrimitive(value)
+    override fun toJson() = JsonPrimitive(value)
 
-    override fun fromJsonF(element: JsonElement) = if (element.isJsonPrimitive) element.asString else null
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element.isJsonPrimitive -> validate(element.asString)
+            else -> null
+        }
+
+    override fun fromTextF(text: String): String? = values.find { it.equals(text, true) }
 
     fun updateValues(newValues: Array<String>) {
         values = newValues
@@ -299,44 +340,70 @@ class ColorValue(
         get()
     }
 
-    override fun toJsonF(): JsonElement {
+    override fun toJson(): JsonElement {
         val pos = colorPickerPos
-        return JsonPrimitive("colorpicker: [${pos.x}, ${pos.y}], hueslider: ${hueSliderY}, opacity: ${opacitySliderY}, rainbow: $rainbow")
-    }
-
-    override fun fromJsonF(element: JsonElement): Color? {
-        if (element.isJsonPrimitive) {
-            val raw = element.asString
-
-            val regex =
-                """colorpicker:\s*\[\s*(-?\d*\.?\d+),\s*(-?\d*\.?\d+)\s*],\s*hueslider:\s*(-?\d*\.?\d+),\s*opacity:\s*(-?\d*\.?\d+),\s*rainbow:\s*(true|false)""".toRegex()
-            val matchResult = regex.find(raw)
-
-            if (matchResult != null) {
-                val colorPickerX = matchResult.groupValues[1].toFloatOrNull()
-                val colorPickerY = matchResult.groupValues[2].toFloatOrNull()
-                val hueSliderY = matchResult.groupValues[3].toFloatOrNull()
-                val opacitySliderY = matchResult.groupValues[4].toFloatOrNull()
-                val rainbowString = matchResult.groupValues[5].toBoolean()
-
-                if (colorPickerX != null && colorPickerY != null && hueSliderY != null && opacitySliderY != null) {
-                    colorPickerPos = Vector2f(colorPickerX, colorPickerY)
-                    this.hueSliderY = hueSliderY
-                    this.opacitySliderY = opacitySliderY
-                    this.rainbow = rainbowString
-
-                    // Change the current color based on the data from values.json
-                    return Color(
-                        Color.HSBtoRGB(this.hueSliderY, colorPickerX, 1 - colorPickerY), true
-                    ).withAlpha((opacitySliderY * 255).roundToInt())
-                }
-            }
+        return json {
+            "ColorPicker" to jsonArray { +JsonPrimitive(pos.x); +JsonPrimitive(pos.y) }
+            "HueSliderY" to hueSliderY
+            "OpacitySliderY" to opacitySliderY
+            "Rainbow" to rainbow
         }
-        return null
     }
 
-    override fun getString() =
-        "Color[picker=[${colorPickerPos.x},${colorPickerPos.y}],hueslider=${hueSliderY},opacity=${(opacitySliderY)},rainbow=$rainbow]"
+    override fun fromJsonF(element: JsonElement): Color? =
+        when {
+            element is JsonObject -> try {
+                val colorPickerX = element["ColorPicker"].asJsonArray[0].asFloat
+                val colorPickerY = element["ColorPicker"].asJsonArray[1].asFloat
+                val hueSliderY = element["HueSliderY"].asFloat
+                val opacitySliderY = element["OpacitySliderY"].asFloat
+                val rainbowString = element["Rainbow"].asBoolean
+
+                this.colorPickerPos = Vector2f(colorPickerX, colorPickerY)
+                this.hueSliderY = hueSliderY
+                this.opacitySliderY = opacitySliderY
+                this.rainbow = rainbowString
+
+                // Change the current color based on the data from values.json
+                Color(
+                    Color.HSBtoRGB(this.hueSliderY, colorPickerX, 1 - colorPickerY), true
+                ).withAlpha((opacitySliderY * 255).roundToInt())
+            } catch (_: Exception) { null }
+            else -> null
+        }
+
+    override fun toText() =
+        "Color(ColorPicker=[${colorPickerPos.x},${colorPickerPos.y}],HueSliderY=${hueSliderY},OpacitySliderY=${(opacitySliderY)},Rainbow=$rainbow)"
+
+    override fun fromTextF(text: String): Color? {
+        return try {
+            val colorPickerRegex = "ColorPicker=\\[(\\d+\\.?\\d*),(\\d+\\.?\\d*)]".toRegex()
+            val colorPickerMatch = colorPickerRegex.find(text)
+            val colorPickerX = colorPickerMatch?.groupValues?.get(1)?.toFloat() ?: return null
+            val colorPickerY = colorPickerMatch.groupValues[2].toFloat()
+
+            val hueSliderRegex = "HueSliderY=(\\d+\\.?\\d*)".toRegex()
+            val hueSliderMatch = hueSliderRegex.find(text)
+            val hueSliderY = hueSliderMatch?.groupValues?.get(1)?.toFloat() ?: return null
+
+            val opacitySliderRegex = "OpacitySliderY=(\\d+\\.?\\d*)".toRegex()
+            val opacitySliderMatch = opacitySliderRegex.find(text)
+            val opacitySliderY = opacitySliderMatch?.groupValues?.get(1)?.toFloat() ?: return null
+
+            val rainbowRegex = "Rainbow=(true|false)".toRegex()
+            val rainbowMatch = rainbowRegex.find(text)
+            val rainbow = rainbowMatch?.groupValues?.get(1)?.toBoolean() ?: return null
+
+            this.colorPickerPos = Vector2f(colorPickerX, colorPickerY)
+            this.hueSliderY = hueSliderY
+            this.opacitySliderY = opacitySliderY
+            this.rainbow = rainbow
+
+            Color(
+                Color.HSBtoRGB(this.hueSliderY, colorPickerX, 1 - colorPickerY), true
+            ).withAlpha((opacitySliderY * 255).roundToInt())
+        } catch (_: Exception) { null }
+    }
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): Color {
         return selectedColor()
@@ -345,14 +412,6 @@ class ColorValue(
     // Every change that is not coming from any ClickGUI styles should modify the sliders to synchronize with the new color.
     init {
         onChanged(::setupSliders)
-    }
-
-    fun readColorFromConfig(str: String): List<String>? {
-        val regex =
-            """Color\[picker=\[\s*(-?\d*\.?\d+),\s*(-?\d*\.?\d+)],\s*hueslider=\s*(-?\d*\.?\d+),\s*opacity=\s*(-?\d*\.?\d+),\s*rainbow=(true|false)]""".toRegex()
-        val matchResult = regex.find(str)
-
-        return matchResult?.groupValues?.drop(1)
     }
 
     enum class SliderType {

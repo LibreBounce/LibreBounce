@@ -157,50 +157,7 @@ object SettingsUtils {
         }
 
         try {
-            when (moduleValue) {
-                is BoolValue -> moduleValue.changeValue(value.toBoolean())
-                is FloatValue -> moduleValue.changeValue(value.toFloat())
-                is IntegerValue -> moduleValue.changeValue(value.toInt())
-                is TextValue -> moduleValue.changeValue(StringUtils.toCompleteString(args, 2))
-                is ListValue -> moduleValue.changeValue(value)
-                is IntegerRangeValue, is FloatRangeValue -> {
-                    value.split("..").takeIf { it.size == 2 }?.let {
-                        val (min, max) = (it[0].toFloatOrNull() ?: return@let) to (it[1].toFloatOrNull() ?: return@let)
-
-                        if (moduleValue is IntegerRangeValue) {
-                            moduleValue.changeValue(min.toInt()..max.toInt())
-                        } else (moduleValue as FloatRangeValue).changeValue(min..max)
-                    }
-                }
-
-                is ColorValue -> {
-                    moduleValue.readColorFromConfig(value)?.let { list ->
-                        val pos = list[0].toFloatOrNull() to list[1].toFloatOrNull()
-                        val hue = list[2].toFloatOrNull()
-                        val alpha = list[3].toFloatOrNull()
-                        val rainbow = list[4].toBooleanStrictOrNull()
-
-                        rainbow?.let { moduleValue.rainbow = it }
-
-                        if (pos.first != null && pos.second != null && hue != null && alpha != null) {
-                            moduleValue.colorPickerPos = Vector2f(pos.first!!, pos.second!!)
-                            moduleValue.hueSliderY = hue
-                            moduleValue.opacitySliderY = alpha
-
-                            val rgb = Color.HSBtoRGB(hue, pos.first!!, 1 - pos.second!!)
-
-                            val a = (alpha * 255).roundToInt()
-
-                            val r = (rgb shr 16) and 0xFF
-                            val g = (rgb shr 8) and 0xFF
-                            val b = rgb and 0xFF
-
-                            moduleValue.set(Color(a shl 24 or (r shl 16) or (g shl 8) or b, true))
-                        }
-                    }
-                }
-            }
-
+            moduleValue.fromText(value)
             chat("§7[§3§lAutoSettings§7] §a§l${module.getName()}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")
         } catch (e: Exception) {
             chat("§7[§3§lAutoSettings§7] §a§l${e.javaClass.name}§7(${e.message}) §cAn Exception occurred while setting §a§l$value§c to §a§l${moduleValue.name}§c in §a§l${module.getName()}§c.")
@@ -223,7 +180,7 @@ object SettingsUtils {
                     if (values) {
                         for (value in module.values) {
                             if (all || !value.subjective && value.shouldRender()) {
-                                val valueString = "${module.name} ${value.name} ${value.getString()}"
+                                val valueString = "${module.name} ${value.name} ${value.toText()}"
 
                                 if (valueString.isNotBlank()) {
                                     appendLine(valueString)
