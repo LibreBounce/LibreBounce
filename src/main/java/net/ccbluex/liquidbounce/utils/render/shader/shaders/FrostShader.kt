@@ -11,8 +11,8 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
     
     var intensity = 0.3f
     var tintColor = Color.WHITE
-    var radius = 2f
-    var alpha = 0.6f
+    override var radius = 2f
+    override var alpha = 0.6f
     
     override fun setupUniforms() {
         setupUniform("texture")
