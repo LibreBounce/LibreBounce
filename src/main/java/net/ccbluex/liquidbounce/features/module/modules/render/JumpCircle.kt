@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.extensions.currPos
+import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.shiftHue
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHueCircle
@@ -45,7 +46,7 @@ object JumpCircle : Module("JumpCircle", Category.RENDER, hideModule = false) {
 
         circles.removeIf {
             val progress = ((runTimeTicks + partialTick) - it.endTime) / lifeTime
-            val radius = circleRadius.start + (circleRadius.endInclusive - circleRadius.start) * progress
+            val radius = circleRadius.lerpWith(progress)
 
             drawHueCircle(
                 it.pos,
