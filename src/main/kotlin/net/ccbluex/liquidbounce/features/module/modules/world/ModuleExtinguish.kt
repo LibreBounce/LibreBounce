@@ -70,6 +70,10 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     private var lastExtinguishPos: BlockPos? = null
     private val lastAttemptTimer = Chronometer()
 
+    override fun enable() {
+        currentTarget = null
+    }
+
     @Suppress("unused")
     private val rotationUpdateHandler = handler<RotationUpdateEvent> {
         // we can't place water in the nether
