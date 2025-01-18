@@ -153,7 +153,7 @@ object UiRenderer : MinecraftShortcuts {
 
         // Draw Minecraft's framebuffer to the temporary one to avoid feedback loop
         this.tmpFramebuffer.clear()
-        this.tmpFramebuffer.beginWrite(true)
+        this.tmpFramebuffer.beginWrite(false)
 
         mc.framebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
 
@@ -172,6 +172,7 @@ object UiRenderer : MinecraftShortcuts {
 
     fun setupDimensions(width: Int, height: Int) {
         this.overlayFramebuffer.resize(width, height)
+        this.tmpFramebuffer.resize(width, height)
     }
 
 }
