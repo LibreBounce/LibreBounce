@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.utils.render.shader.shaders
 import net.ccbluex.liquidbounce.utils.render.shader.FramebufferShader
 import org.lwjgl.opengl.GL20.*
 import java.io.Closeable
+import java.awt.Color
 
 object FrostShader : FramebufferShader("frost.frag"), Closeable {
     var isInUse = false
@@ -10,12 +11,16 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
     
     var intensity = 0.3f
     
+    private var tintColor = Color(255, 255, 255)
+    
     override fun setupUniforms() {
         setupUniform("texture")
         setupUniform("texelSize")
         setupUniform("radius")
         setupUniform("alpha")
         setupUniform("intensity")
+        setupUniform("tintColor")
+        setupUniform("noiseScale")
     }
 
     override fun updateUniforms() {
@@ -27,6 +32,12 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
         glUniform1f(getUniform("radius"), 2f)
         glUniform1f(getUniform("alpha"), 0.6f)
         glUniform1f(getUniform("intensity"), intensity)
+        glUniform3f(getUniform("tintColor"), 
+            tintColor.red / 255f,
+            tintColor.green / 255f,
+            tintColor.blue / 255f
+        )
+        glUniform1f(getUniform("noiseScale"), 100f)
     }
 
     override fun startShader() {
@@ -48,5 +59,9 @@ object FrostShader : FramebufferShader("frost.frag"), Closeable {
         if (!enable) return@apply
         this.intensity = intensity
         startShader()
+    }
+
+    fun updateTintColor(color: Color) {
+        this.tintColor = color
     }
 } 
