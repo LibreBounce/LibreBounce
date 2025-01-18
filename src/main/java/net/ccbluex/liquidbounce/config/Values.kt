@@ -38,10 +38,10 @@ class BoolValue(
 
     fun toggle() = set(!value)
 
-    fun isActive() = value && (isSupported() || hidden)
+    fun isActive() = value && shouldRender()
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean {
-        return super.getValue(thisRef, property) && isActive()
+        return super.getValue(thisRef, property) && shouldRender()
     }
 }
 
@@ -339,11 +339,7 @@ class ColorValue(
         "Color[picker=[${colorPickerPos.x},${colorPickerPos.y}],hueslider=${hueSliderY},opacity=${(opacitySliderY)},rainbow=$rainbow]"
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): Color {
-        return if (rainbow) {
-            ColorUtils.rainbow(alpha = opacitySliderY)
-        } else {
-            get()
-        }
+        return selectedColor()
     }
 
     // Every change that is not coming from any ClickGUI styles should modify the sliders to synchronize with the new color.
