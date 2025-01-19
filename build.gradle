@@ -80,8 +80,6 @@ dependencies {
 
     // Swing LookAndFeel
     include "com.formdev:flatlaf:3.5.4"
-
-    include fileTree(include: ["*.jar"], dir: "libs")
 }
 
 shadowJar {
