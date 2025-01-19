@@ -357,7 +357,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }
 
-            "around" -> EnumFacing.values().any { !isBlockBBValid(blockPos.offset(it)) }
+            "around" -> EnumFacing.entries.any { !isBlockBBValid(blockPos.offset(it)) }
 
             else -> true
         }

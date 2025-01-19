@@ -256,7 +256,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 movingObjectPosition != null && movingObjectPosition.blockPos == pos
             }
 
-            "around" -> EnumFacing.values().any { !isBlockBBValid(pos.offset(it)) }
+            "around" -> EnumFacing.entries.any { !isBlockBBValid(pos.offset(it)) }
 
             else -> true
         }

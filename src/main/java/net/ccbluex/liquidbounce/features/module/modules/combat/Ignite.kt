@@ -85,7 +85,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
                     player.sendUseItem(itemStack)
                 } else {
-                    for (side in EnumFacing.values()) {
+                    for (side in EnumFacing.entries) {
                         val neighbor = blockPos.offset(side)
 
                         if (!neighbor.canBeClicked())

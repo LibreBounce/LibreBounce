@@ -165,7 +165,7 @@ class Side(var horizontal: Horizontal, var vertical: Vertical) {
         RIGHT("Right");
 
         companion object {
-            fun getByName(name: String) = values().find { it.sideName == name }
+            fun getByName(name: String) = entries.find { it.sideName == name }
 
         }
 
@@ -181,7 +181,7 @@ class Side(var horizontal: Horizontal, var vertical: Vertical) {
         DOWN("Down");
 
         companion object {
-            fun getByName(name: String) = values().find { it.sideName == name }
+            fun getByName(name: String) = entries.find { it.sideName == name }
 
         }
 

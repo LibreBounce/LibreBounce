@@ -422,7 +422,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             var dif = 0.5
             val blockPos = BlockPos(player).down()
 
-            for (side in EnumFacing.values()) {
+            for (side in EnumFacing.entries) {
                 if (side.axis == EnumFacing.Axis.Y) {
                     continue
                 }
@@ -965,7 +965,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         var currPlaceRotation: PlaceRotation?
 
-        for (side in EnumFacing.values()) {
+        for (side in EnumFacing.entries) {
             if (horizontalOnly && side.axis == EnumFacing.Axis.Y) {
                 continue
             }

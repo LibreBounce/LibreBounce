@@ -82,7 +82,7 @@ class TabGUI(x: Double = 2.0, y: Double = 31.0) : Element("TabGUI", x = x, y = y
     private var itemY = 0F
 
     init {
-        for (category in Category.values()) {
+        for (category in Category.entries) {
             val tab = Tab(category.displayName)
 
             moduleManager.forEach { module ->
