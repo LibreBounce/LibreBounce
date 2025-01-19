@@ -19,13 +19,7 @@ import kotlin.concurrent.withLock
 object AtAllProvider :
     Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false) {
 
-    private val maxDelay: Int by int("MaxDelay", 1000, 0..20000).onChange { _, new ->
-        new.coerceAtLeast(minDelay)
-    }
-
-    private val minDelay: Int by int("MinDelay", 500, 0..20000).onChange { _, new ->
-        new.coerceAtMost(maxDelay)
-    }
+    private val delay by intRange("Delay", 500..1000, 0..20000)
 
     private val retry by boolean("Retry", false)
     private val sendQueue = ArrayDeque<String>()
@@ -54,7 +48,7 @@ object AtAllProvider :
             mc.thePlayer.sendChatMessage(sendQueue.removeFirst())
         }
 
-        delay(randomDelay(minDelay, maxDelay).toLong())
+        delay(delay.random().toLong())
     }
 
     val onPacket = handler<PacketEvent> { event ->

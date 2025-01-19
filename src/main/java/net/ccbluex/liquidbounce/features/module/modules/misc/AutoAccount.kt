@@ -57,7 +57,7 @@ object AutoAccount :
     private val password by passwordValue
 
     // Needed for Gamster
-    private val sendDelay by int("SendDelay", 250, 0..500) { passwordValue.isSupported() }
+    private val sendDelay by intRange("SendDelay", 150..300, 0..500) { passwordValue.isSupported() }
 
     private val autoSession by boolean("AutoSession", false)
     private val startupValue = boolean("RandomAccountOnStart", false) { autoSession }
@@ -97,7 +97,7 @@ object AutoAccount :
         changeAccount()
 
         SharedScopes.IO.launch {
-            delay(sendDelay.toLong())
+            delay(sendDelay.random().toLong())
             withContext(Dispatchers.Main) {
                 // connectToLastServer needs thread with OpenGL context
                 ServerUtils.connectToLastServer()
@@ -109,7 +109,7 @@ object AutoAccount :
         register && "/reg" in msg -> {
             addNotification(Notification("Trying to register."))
             SharedScopes.IO.launch {
-                delay(sendDelay.toLong())
+                delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/register $password $password")
             }
             true
@@ -118,7 +118,7 @@ object AutoAccount :
         login && "/log" in msg -> {
             addNotification(Notification("Trying to log in."))
             SharedScopes.IO.launch {
-                delay(sendDelay.toLong())
+                delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/login $password")
             }
             true

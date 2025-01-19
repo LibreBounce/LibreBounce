@@ -94,16 +94,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     { jumpCooldownMode == "ReceivedHits" && mode == "Jump" }
 
     // Ghost Block
-    private val maxHurtTime: Value<Int> = int("MaxHurtTime", 9, 1..10) {
+    private val hurtTimeRange by intRange("HurtTime", 1..9, 1..10) {
         mode == "GhostBlock"
-    }.onChange { _, new ->
-        new.coerceAtLeast(minHurtTime.get())
-    }
-
-    private val minHurtTime: Value<Int> = int("MinHurtTime", 1, 1..10) {
-        mode == "GhostBlock"
-    }.onChange { _, new ->
-        new.coerceIn(0, maxHurtTime.get())
     }
 
     // Delay
@@ -745,7 +737,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         if (mode == "GhostBlock") {
             if (hasReceivedVelocity) {
-                if (player.hurtTime in minHurtTime.get()..maxHurtTime.get()) {
+                if (player.hurtTime in hurtTimeRange) {
                     // Check if there is air exactly 1 level above the player's Y position
                     if (event.block is BlockAir && event.y == mc.thePlayer.posY.toInt() + 1) {
                         event.boundingBox = AxisAlignedBB(

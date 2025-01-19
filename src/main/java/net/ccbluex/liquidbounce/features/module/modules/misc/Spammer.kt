@@ -7,24 +7,16 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomString
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 
 object Spammer : Module("Spammer", Category.MISC, subjective = true) {
-    private val maxDelayValue: Value<Int> = int("MaxDelay", 1000, 0..5000).onChange { _, new ->
-        new.coerceAtLeast(minDelay)
-    }
-    private val maxDelay by maxDelayValue
 
-    private val minDelay: Int by int("MinDelay", 500, 0..5000).onChange { _, new ->
-        new.coerceAtMost(maxDelay)
-    }
+    private val delay by intRange("Delay", 500..1000, 0..5000)
 
     private val message by text("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")
 
@@ -36,7 +28,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true) {
             else message + " >" + randomString(nextInt(5, 11)) + "<"
         )
 
-        delay(randomDelay(minDelay, maxDelay).toLong())
+        delay(delay.random().toLong())
     }
 
     private fun replace(text: String): String {

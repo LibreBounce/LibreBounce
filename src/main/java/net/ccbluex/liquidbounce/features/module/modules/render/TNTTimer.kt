@@ -38,7 +38,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer") 
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
-            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
+            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2) else value
         }
 
     private val tntEntities by EntityLookup<EntityTNTPrimed>()

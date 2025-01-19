@@ -22,7 +22,7 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
     private val delay by int("Delay", 100, 0..1000)
 
     private val timer = MSTimer()
-    val selectedPackets = mutableListOf<String>()
+    val selectedPackets = mutableSetOf<String>()
 
     val onPacket = handler<PacketEvent> { event ->
         if (mc.thePlayer == null || mc.theWorld == null) {
