@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.io.FileFilters
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.io.MiscUtils.showErrorPopup
+import net.ccbluex.liquidbounce.utils.io.MiscUtils.showMessageDialog
 import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
@@ -32,7 +33,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
-import org.lwjgl.opengl.Display
 
 class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
 
@@ -171,7 +171,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
                         "png" -> backgroundImageFile
                         "frag", "glsl", "shader" -> backgroundShaderFile
                         else -> {
-                            showErrorPopup("Error", "Invalid file extension: $fileExtension")
+                            showMessageDialog("Error", "Invalid file extension: $fileExtension")
                             return
                         }
                     }

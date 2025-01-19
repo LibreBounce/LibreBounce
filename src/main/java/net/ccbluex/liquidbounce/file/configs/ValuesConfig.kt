@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.cape.CapeService
@@ -13,6 +14,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.LiquidChat.jwtToken
 import net.ccbluex.liquidbounce.features.special.ClientFixes
 import net.ccbluex.liquidbounce.features.special.ClientRichPresence
 import net.ccbluex.liquidbounce.file.FileConfig
+import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
@@ -31,10 +33,18 @@ class ValuesConfig(file: File) : FileConfig(file) {
     override fun loadConfig() {
         val json = file.readJson() as? JsonObject ?: return
 
+        val prevVersion = json["ClientVersion"]?.asString ?: "unknown"
+        // Compare the versions
+        if (prevVersion != LiquidBounce.clientVersionText) {
+            // Run backup
+            FileManager.backupAllConfigs(prevVersion, LiquidBounce.clientVersionText)
+        }
+
         for ((key, value) in json.entrySet()) {
             when {
-                key.equals("commandprefix", true) ->
+                key.equals("CommandPrefix", true) -> {
                     commandManager.prefix = value.asString
+                }
 
                 key.equals(ClientRichPresence.name, true) -> {
                     ClientRichPresence.fromJson(value)
@@ -100,6 +110,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
         val jsonObject = JsonObject()
         jsonObject.run {
             addProperty("CommandPrefix", commandManager.prefix)
+            addProperty("ClientVersion", LiquidBounce.clientVersionText)
         }
 
         jsonObject.add(ClientRichPresence.name, ClientRichPresence.toJson())

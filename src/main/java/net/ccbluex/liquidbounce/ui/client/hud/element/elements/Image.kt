@@ -78,12 +78,12 @@ class Image : Element("Image") {
         val file = MiscUtils.openFileChooser(FileFilters.ALL_IMAGES, acceptAll = false) ?: return false
 
         if (!file.exists()) {
-            MiscUtils.showErrorPopup("Error", "The file does not exist.")
+            MiscUtils.showMessageDialog("Error", "The file does not exist.")
             return false
         }
 
         if (file.isDirectory) {
-            MiscUtils.showErrorPopup("Error", "The file is a directory.")
+            MiscUtils.showMessageDialog("Error", "The file is a directory.")
             return false
         }
 
@@ -91,7 +91,7 @@ class Image : Element("Image") {
             setImage(file)
             true
         } catch (e: Exception) {
-            MiscUtils.showErrorPopup("Error", "Exception occurred while opening the image: ${e.message}")
+            MiscUtils.showMessageDialog("Error", "Exception occurred while opening the image: ${e.message}")
             false
         }
     }

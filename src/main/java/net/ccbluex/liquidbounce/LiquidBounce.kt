@@ -49,6 +49,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.movement.BPSUtils
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
@@ -261,6 +262,10 @@ object LiquidBounce {
         } finally {
             // Set is starting status
             isStarting = false
+
+            if (!FileManager.firstStart && FileManager.backedup) {
+                MiscUtils.showMessageDialog("Warning: backup triggered", "Client update detected! Please check the config folder.")
+            }
 
             EventManager.call(StartupEvent)
             LOGGER.info("Successfully started client")
