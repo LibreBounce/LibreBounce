@@ -30,11 +30,7 @@ import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.parti
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.stylisedAlts
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.unformattedAlts
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetDead
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*
 
@@ -66,13 +62,8 @@ class ValuesConfig(file: File) : FileConfig(file) {
                         jsonValue["ShowRichPresenceModulesCount"].asBoolean
                 }
 
-                key.equals("targets", true) -> {
-                    val jsonValue = value as JsonObject
-                    if (jsonValue.has("TargetPlayer")) targetPlayer = jsonValue["TargetPlayer"].asBoolean
-                    if (jsonValue.has("TargetMobs")) targetMobs = jsonValue["TargetMobs"].asBoolean
-                    if (jsonValue.has("TargetAnimals")) targetAnimals = jsonValue["TargetAnimals"].asBoolean
-                    if (jsonValue.has("TargetInvisible")) targetInvisible = jsonValue["TargetInvisible"].asBoolean
-                    if (jsonValue.has("TargetDead")) targetDead = jsonValue["TargetDead"].asBoolean
+                key.equals(Targets.name, true) -> {
+                    Targets.fromJson(value)
                 }
 
                 key.equals("features", true) -> {
@@ -160,16 +151,8 @@ class ValuesConfig(file: File) : FileConfig(file) {
         }
         jsonObject.add("discordRPC", jsonDiscordRPC)
 
-        val jsonTargets = JsonObject()
-        jsonTargets.run {
-            addProperty("TargetPlayer", targetPlayer)
-            addProperty("TargetMobs", targetMobs)
-            addProperty("TargetAnimals", targetAnimals)
-            addProperty("TargetInvisible", targetInvisible)
-            addProperty("TargetDead", targetDead)
-        }
+        jsonObject.add(Targets.name, Targets.toJson())
 
-        jsonObject.add("targets", jsonTargets)
         val jsonFeatures = JsonObject()
         jsonFeatures.run {
             addProperty("AntiForge", fmlFixesEnabled)

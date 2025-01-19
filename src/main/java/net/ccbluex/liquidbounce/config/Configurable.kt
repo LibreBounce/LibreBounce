@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.config
 
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.utils.io.json
 import net.minecraft.client.gui.FontRenderer
 import java.awt.Color
@@ -43,7 +44,15 @@ open class Configurable(
     }
 
     override fun fromJsonF(element: JsonElement): MutableList<Value<*>>? {
-        TODO("Not yet implemented")
+        element as JsonObject
+
+        val values = get()
+        // Set all sub values from the JSON object
+        for ((valueName, value) in element.entrySet()) {
+            values.find { it.name.equals(valueName, true) }?.fromJson(value)
+        }
+
+        return values
     }
 
     override fun toText(): String {

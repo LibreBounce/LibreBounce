@@ -10,15 +10,12 @@ import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.api.ClientApi
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.io.HttpUtils
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
 import org.lwjgl.input.Keyboard
-import java.awt.Color
-import javax.vecmath.Vector2f
-import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty0
 
 /**
@@ -89,11 +86,11 @@ object SettingsUtils {
                     }
                 }
 
-                "targetPlayer", "targetPlayers" -> setTargetSetting(EntityUtils::targetPlayer, args)
-                "targetMobs" -> setTargetSetting(EntityUtils::targetMobs, args)
-                "targetAnimals" -> setTargetSetting(EntityUtils::targetAnimals, args)
-                "targetInvisible" -> setTargetSetting(EntityUtils::targetInvisible, args)
-                "targetDead" -> setTargetSetting(EntityUtils::targetDead, args)
+                "targetPlayer", "targetPlayers" -> setTargetSetting(Targets::player, args)
+                "targetMobs" -> setTargetSetting(Targets::mob, args)
+                "targetAnimals" -> setTargetSetting(Targets::animal, args)
+                "targetInvisible" -> setTargetSetting(Targets::invisible, args)
+                "targetDead" -> setTargetSetting(Targets::dead, args)
 
                 else -> {
                     if (args.size < 3) {
@@ -125,13 +122,13 @@ object SettingsUtils {
 
     // Utility functions for setting target settings
     private fun setTargetSetting(setting: KMutableProperty0<Boolean>, args: Array<String>) {
-        setting.set(args[1].equals("true", ignoreCase = true))
+        setting.set(args[1].toBoolean())
         chat("§7[§3§lAutoSettings§7] §a§l${args[0]}§7 set to §c§l${args[1]}§7.")
     }
 
     // Utility functions for setting toggles
     private fun setToggle(module: Module, value: String) {
-        module.state = value.equals("true", ignoreCase = true)
+        module.state = value.toBoolean()
         chat("§7[§3§lAutoSettings§7] §a§l${module.getName()} §7was toggled §c§l${if (module.state) "on" else "off"}§7.")
     }
 
