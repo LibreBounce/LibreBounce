@@ -1091,6 +1091,26 @@ object RenderUtils : MinecraftInstance {
         glPopAttrib()
     }
 
+    fun drawHead(
+        skin: ResourceLocation?,
+        x: Int,
+        y: Int,
+        u: Float,
+        v: Float,
+        uWidth: Int,
+        vHeight: Int,
+        width: Int,
+        height: Int,
+        tileWidth: Float,
+        tileHeight: Float
+    ) {
+        val texture: ResourceLocation = skin ?: mc.thePlayer.locationSkin
+
+        glColor4f(1F, 1F, 1F, 1F)
+        mc.textureManager.bindTexture(texture)
+        drawScaledCustomSizeModalRect(x, y, u, v, uWidth, vHeight, width, height, tileWidth, tileHeight)
+    }
+
     fun drawImage(image: ResourceLocation?, x: Number, y: Number, width: Int, height: Int, color: Color = Color.WHITE) {
         glPushMatrix()
         glDisable(GL_DEPTH_TEST)

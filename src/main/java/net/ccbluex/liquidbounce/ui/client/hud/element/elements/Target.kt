@@ -17,15 +17,14 @@ import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawScaledCustomSizeModalRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.FrostShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
@@ -78,14 +77,14 @@ class Target : Element() {
     private var width = 0f
     private var height = 0f
 
-    private val isRendered: Boolean
+    private val isRendered
         get() = width > 0f || height > 0f
 
     private var alphaText = 0
     private var alphaBackground = 0
     private var alphaBorder = 0
 
-    private val isAlpha: Boolean
+    private val isAlpha
         get() = alphaBorder > 0 || alphaBackground > 0 || alphaText > 0
 
     private var delayCounter = 0
@@ -97,9 +96,9 @@ class Target : Element() {
         val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
 
-        assumeNonVolatile {
-            val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
+        val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
 
+        assumeNonVolatile {
             if (shouldRender) {
                 delayCounter = 0
             } else if (isRendered || isAlpha) {
@@ -264,7 +263,7 @@ class Target : Element() {
 
                             // Draw head
                             val locationSkin = it.locationSkin
-                            drawHead(locationSkin, 30, 30)
+                            drawHead(locationSkin, 4, 4, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F)
                         }
                     }
                 }
@@ -274,15 +273,7 @@ class Target : Element() {
         }
 
         lastTarget = target
-        return Border(0F, 0F, 116F, 40F)
-    }
-
-    private fun drawHead(skin: ResourceLocation?, width: Int, height: Int) {
-        val texture: ResourceLocation = skin ?: mc.thePlayer.locationSkin
-
-        glColor4f(1F, 1F, 1F, 1F)
-        mc.textureManager.bindTexture(texture)
-        drawScaledCustomSizeModalRect(4, 4, 8F, 8F, 8, 8, width - 2, height - 2, 64F, 64F)
+        return Border(0F, 0F, stringWidth, 40F)
     }
 
 }
