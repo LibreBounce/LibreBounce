@@ -779,8 +779,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     realHeight += spacing
                 }
 
-                // TODO: branch completion, especially for range values
-                else -> TODO()
+                // TODO: branch completion
+                else -> {}
             }
         }
 
