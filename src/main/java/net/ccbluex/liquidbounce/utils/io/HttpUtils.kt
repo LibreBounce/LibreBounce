@@ -124,7 +124,7 @@ object HttpUtils {
     inline fun <reified T> getJson(url: String): T? {
         return runCatching {
             httpClient.newCall(Request.Builder().url(url).build()).execute().use {
-                it.body.charStream()?.decodeJson<T>()
+                it.body.charStream().decodeJson<T>()
             }
         }.onFailure {
             ClientUtils.LOGGER.error("[HTTP] Failed to GET JSON from $url", it)

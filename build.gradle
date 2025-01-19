@@ -69,7 +69,7 @@ dependencies {
     include("org.knowm.xchart:xchart:3.8.8")
 
     // HTTP Client
-    include("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") { // for Kotlin 1.6.20
+    include("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
         exclude module: "kotlin-stdlib"
     }
 
