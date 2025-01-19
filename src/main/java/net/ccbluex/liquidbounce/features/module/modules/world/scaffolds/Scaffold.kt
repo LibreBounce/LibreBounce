@@ -57,20 +57,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     // -->
 
     private val towerMode by Tower.towerModeValues
-    private val stopWhenBlockAbove by Tower.stopWhenBlockAboveValues
-    private val onJump by Tower.onJumpValues
-    private val notOnMove by Tower.notOnMoveValues
-    private val jumpMotion by Tower.jumpMotionValues
-    private val jumpDelay by Tower.jumpDelayValues
-    private val constantMotion by Tower.constantMotionValues
-    private val constantMotionJumpGround by Tower.constantMotionJumpGroundValues
-    private val constantMotionJumpPacket by Tower.constantMotionJumpPacketValues
-    private val triggerMotion by Tower.triggerMotionValues
-    private val dragMotion by Tower.dragMotionValues
-    private val teleportHeight by Tower.teleportHeightValues
-    private val teleportDelay by Tower.teleportDelayValues
-    private val teleportGround by Tower.teleportGroundValues
-    private val teleportNoMotion by Tower.teleportNoMotionValues
+
+    init {
+        addValues(Tower.values)
+    }
 
     // <--
 
