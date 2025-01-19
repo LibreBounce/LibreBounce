@@ -264,7 +264,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     override fun drawElement(): Border {
         val stack = mc.thePlayer?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
         val shouldRender = showBlock && stack?.item is ItemBlock
-        val showBlockScale = if (shouldRender) 1.2F else 1F
+        val blockScale = if (shouldRender) 2.5F else 1F
         val fontHeight = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT) + 2
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
@@ -274,12 +274,17 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
         val heightPadding = if (font == mc.fontRendererObj) 1F else 0F
 
         val bgScale = max(backgroundScale, 1F)
+        val horizontalPadding = (if (shouldRender) 16F else 2F) + blockScale
+        val verticalPadding = (if (shouldRender) 3F else 2F + heightPadding) + (blockScale - 1F)
 
-        val params = floatArrayOf(
-            -(if (shouldRender) 16F else 2F) * bgScale * showBlockScale,
-            -(if (shouldRender) 3F else 2 + heightPadding) * bgScale * showBlockScale,
-            width + bgScale * showBlockScale,
-            (if (shouldRender) 1F else 1 + heightPadding) + fontHeight * bgScale * showBlockScale
+        val scaledWidth = width + (horizontalPadding * bgScale)
+        val scaledHeight = fontHeight + (verticalPadding * bgScale) - 1F
+
+        val rectPos = floatArrayOf(
+            -horizontalPadding * bgScale,
+            -verticalPadding * bgScale,
+            scaledWidth - if (shouldRender) 16F else 0F,
+            scaledHeight
         )
 
         assumeNonVolatile {
@@ -305,7 +310,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 ).use {
                     RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
                         drawRoundedRect(
-                            params[0], params[1], params[2], params[3],
+                            rectPos[0], rectPos[1], rectPos[2], rectPos[3],
                             when (backgroundMode) {
                                 "Gradient" -> 0
                                 "Rainbow" -> 0
@@ -318,10 +323,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
                 if (bgBorderColors.color().alpha > 0) {
                     drawRoundedBorder(
-                        params[0],
-                        params[1],
-                        params[2],
-                        params[3],
+                        rectPos[0],
+                        rectPos[1],
+                        rectPos[2],
+                        rectPos[3],
                         backgroundBorder,
                         bgBorderColors.color().rgb,
                         roundedBackgroundRadius
@@ -376,7 +381,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
             }
         }
 
-        return Border(params[0], params[1], params[2], params[3])
+        return Border(rectPos[0], rectPos[1], rectPos[2], rectPos[3])
     }
 
     override fun updateElement() {
