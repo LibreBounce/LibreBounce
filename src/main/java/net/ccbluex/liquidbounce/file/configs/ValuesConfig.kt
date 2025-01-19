@@ -6,29 +6,15 @@
 package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.LiquidBounce.clientRichPresence
 import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.cape.CapeService
 import net.ccbluex.liquidbounce.features.module.modules.misc.LiquidChat.jwtToken
-import net.ccbluex.liquidbounce.features.special.AutoReconnect.delay
-import net.ccbluex.liquidbounce.features.special.BungeeCordSpoof
-import net.ccbluex.liquidbounce.features.special.ClientFixes.blockFML
-import net.ccbluex.liquidbounce.features.special.ClientFixes.blockPayloadPackets
-import net.ccbluex.liquidbounce.features.special.ClientFixes.blockProxyPacket
-import net.ccbluex.liquidbounce.features.special.ClientFixes.blockResourcePackExploit
-import net.ccbluex.liquidbounce.features.special.ClientFixes.clientBrand
-import net.ccbluex.liquidbounce.features.special.ClientFixes.fmlFixesEnabled
+import net.ccbluex.liquidbounce.features.special.ClientFixes
+import net.ccbluex.liquidbounce.features.special.ClientRichPresence
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
-import net.ccbluex.liquidbounce.lang.LanguageManager.overrideLanguage
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.altsLength
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.altsPrefix
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.enabledClientTitle
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.enabledCustomBackground
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.particles
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.stylisedAlts
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.unformattedAlts
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.io.readJson
@@ -50,34 +36,16 @@ class ValuesConfig(file: File) : FileConfig(file) {
                 key.equals("commandprefix", true) ->
                     commandManager.prefix = value.asCharacter
 
-                key.equals("discordRPC", true) -> {
-                    val jsonValue = value as JsonObject
-                    if (jsonValue.has("ShowRichPresence")) clientRichPresence.showRPCValue =
-                        jsonValue["ShowRichPresence"].asBoolean
-                    if (jsonValue.has("ShowRichPresenceServerIP")) clientRichPresence.showRPCServerIP =
-                        jsonValue["ShowRichPresenceServerIP"].asBoolean
-                    if (jsonValue.has("RichPresenceCustomText")) clientRichPresence.customRPCText =
-                        jsonValue["RichPresenceCustomText"].asString
-                    if (jsonValue.has("ShowRichPresenceModulesCount")) clientRichPresence.showRPCModulesCount =
-                        jsonValue["ShowRichPresenceModulesCount"].asBoolean
+                key.equals(ClientRichPresence.name, true) -> {
+                    ClientRichPresence.fromJson(value)
                 }
 
                 key.equals(Targets.name, true) -> {
                     Targets.fromJson(value)
                 }
 
-                key.equals("features", true) -> {
-                    val jsonValue = value as JsonObject
-                    if (jsonValue.has("AntiForge")) fmlFixesEnabled = jsonValue["AntiForge"].asBoolean
-                    if (jsonValue.has("AntiForgeFML")) blockFML = jsonValue["AntiForgeFML"].asBoolean
-                    if (jsonValue.has("AntiForgeProxy")) blockProxyPacket = jsonValue["AntiForgeProxy"].asBoolean
-                    if (jsonValue.has("AntiForgePayloads")) blockPayloadPackets =
-                        jsonValue["AntiForgePayloads"].asBoolean
-                    if (jsonValue.has("FixResourcePackExploit")) blockResourcePackExploit =
-                        jsonValue["FixResourcePackExploit"].asBoolean
-                    if (jsonValue.has("ClientBrand")) clientBrand = jsonValue["ClientBrand"].asString
-                    if (jsonValue.has("BungeeSpoof")) BungeeCordSpoof.enabled = jsonValue["BungeeSpoof"].asBoolean
-                    if (jsonValue.has("AutoReconnectDelay")) delay = jsonValue["AutoReconnectDelay"].asInt
+                key.equals(ClientFixes.name, true) -> {
+                    ClientFixes.fromJson(value)
                 }
 
                 key.equals("thealtening", true) -> {
@@ -97,24 +65,16 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     }
                 }
 
-                key.equals("clientConfiguration", true) -> {
-                    val jsonValue = value as JsonObject
-                    if (jsonValue.has("EnabledClientTitle")) enabledClientTitle =
-                        jsonValue["EnabledClientTitle"].asBoolean
-                    if (jsonValue.has("EnabledBackground")) enabledCustomBackground =
-                        jsonValue["EnabledBackground"].asBoolean
-                    if (jsonValue.has("Particles")) particles = jsonValue["Particles"].asBoolean
-                    if (jsonValue.has("StylisedAlts")) stylisedAlts = jsonValue["StylisedAlts"].asBoolean
-                    if (jsonValue.has("AltsLength")) altsLength = jsonValue["AltsLength"].asInt
-                    if (jsonValue.has("CleanAlts")) unformattedAlts = jsonValue["CleanAlts"].asBoolean
-                    if (jsonValue.has("AltsPrefix")) altsPrefix = jsonValue["AltsPrefix"].asString
-                    if (jsonValue.has("OverrideLanguage")) overrideLanguage = jsonValue["OverrideLanguage"].asString
+                key.equals(ClientConfiguration.name, true) -> {
+                    ClientConfiguration.fromJson(value)
                 }
 
-                key.equals("background", true) -> { // Compatibility with old versions
+                // Deprecated
+                // Compatibility with old versions
+                key.equals("background", true) -> {
                     val jsonValue = value as JsonObject
-                    if (jsonValue.has("Enabled")) enabledCustomBackground = jsonValue["Enabled"].asBoolean
-                    if (jsonValue.has("Particles")) particles = jsonValue["Particles"].asBoolean
+                    if (jsonValue.has("Enabled")) ClientConfiguration.customBackground = jsonValue["Enabled"].asBoolean
+                    if (jsonValue.has("Particles")) ClientConfiguration.particles = jsonValue["Particles"].asBoolean
                 }
 
                 else -> {
@@ -142,29 +102,11 @@ class ValuesConfig(file: File) : FileConfig(file) {
             addProperty("CommandPrefix", commandManager.prefix)
         }
 
-        val jsonDiscordRPC = JsonObject()
-        jsonDiscordRPC.run {
-            addProperty("ShowRichPresence", clientRichPresence.showRPCValue)
-            addProperty("ShowRichPresenceServerIP", clientRichPresence.showRPCServerIP)
-            addProperty("RichPresenceCustomText", clientRichPresence.customRPCText)
-            addProperty("ShowRichPresenceModulesCount", clientRichPresence.showRPCModulesCount)
-        }
-        jsonObject.add("discordRPC", jsonDiscordRPC)
+        jsonObject.add(ClientRichPresence.name, ClientRichPresence.toJson())
 
         jsonObject.add(Targets.name, Targets.toJson())
 
-        val jsonFeatures = JsonObject()
-        jsonFeatures.run {
-            addProperty("AntiForge", fmlFixesEnabled)
-            addProperty("AntiForgeFML", blockFML)
-            addProperty("AntiForgeProxy", blockProxyPacket)
-            addProperty("AntiForgePayloads", blockPayloadPackets)
-            addProperty("FixResourcePackExploit", blockResourcePackExploit)
-            addProperty("ClientBrand", clientBrand)
-            addProperty("BungeeSpoof", BungeeCordSpoof.enabled)
-            addProperty("AutoReconnectDelay", delay)
-        }
-        jsonObject.add("features", jsonFeatures)
+        jsonObject.add(ClientFixes.name, ClientFixes.toJson())
 
         val theAlteningObject = JsonObject()
         theAlteningObject.addProperty("API-Key", apiKey)
@@ -178,18 +120,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
         capeObject.addProperty("TransferCode", CapeService.knownToken)
         jsonObject.add("DonatorCape", capeObject)
 
-        val clientObject = JsonObject()
-        clientObject.run {
-            addProperty("EnabledClientTitle", enabledClientTitle)
-            addProperty("EnabledBackground", enabledCustomBackground)
-            addProperty("Particles", particles)
-            addProperty("StylisedAlts", stylisedAlts)
-            addProperty("AltsLength", altsLength)
-            addProperty("CleanAlts", unformattedAlts)
-            addProperty("AltsPrefix", altsPrefix)
-            addProperty("OverrideLanguage", overrideLanguage)
-        }
-        jsonObject.add("clientConfiguration", clientObject)
+        jsonObject.add(ClientConfiguration.name, ClientConfiguration.toJson())
 
         for (module in moduleManager) {
             if (module.values.isEmpty()) continue

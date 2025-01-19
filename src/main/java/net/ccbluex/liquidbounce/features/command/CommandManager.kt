@@ -67,7 +67,7 @@ object CommandManager {
      */
     fun executeCommands(input: String) {
         for (command in commands) {
-            val args = input.split(" ").toTypedArray()
+            val args = input.split(' ').toTypedArray()
 
             if (args[0].equals(prefix.toString() + command.command, ignoreCase = true)) {
                 command.execute(args)
@@ -104,8 +104,8 @@ object CommandManager {
      * @author NurMarvin
      */
     private fun getCompletions(input: String): Array<String>? {
-        if (input.isNotEmpty() && input.toCharArray()[0] == prefix) {
-            val args = input.split(" ")
+        if (input.isNotEmpty() && input.startsWith(prefix)) {
+            val args = input.split(' ')
 
             return if (args.size > 1) {
                 val command = getCommand(args[0].substring(1))
