@@ -30,9 +30,9 @@ object Refill : Module("Refill", Category.PLAYER) {
     private val invOpen by boolean("InvOpen", false)
     private val simulateInventory by boolean("SimulateInventory", false) { !invOpen }
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    private val noMove by +InventoryManager.noMoveValue
+    private val noMoveAir by +InventoryManager.noMoveAirValue
+    private val noMoveGround by +InventoryManager.noMoveGroundValue
 
     val onTick = handler<GameTickEvent> {
         if (!CLICK_TIMER.hasTimePassed(delay))

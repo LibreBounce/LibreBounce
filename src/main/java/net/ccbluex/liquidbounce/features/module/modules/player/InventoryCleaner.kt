@@ -66,28 +66,28 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private val repairEquipment by boolean("RepairEquipment", true).subjective()
 
-    private val invOpen by InventoryManager.invOpenValue
-    private val simulateInventory by InventoryManager.simulateInventoryValue
+    private val invOpen by +InventoryManager.invOpenValue
+    private val simulateInventory by +InventoryManager.simulateInventoryValue
 
-    private val postInventoryCloseDelay by InventoryManager.postInventoryCloseDelayValue
-    private val autoClose by InventoryManager.autoCloseValue
-    private val startDelay by InventoryManager.startDelayValue
-    private val closeDelay by InventoryManager.closeDelayValue
+    private val postInventoryCloseDelay by +InventoryManager.postInventoryCloseDelayValue
+    private val autoClose by +InventoryManager.autoCloseValue
+    private val startDelay by +InventoryManager.startDelayValue
+    private val closeDelay by +InventoryManager.closeDelayValue
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    private val noMove by +InventoryManager.noMoveValue
+    private val noMoveAir by +InventoryManager.noMoveAirValue
+    private val noMoveGround by +InventoryManager.noMoveGroundValue
 
     private val randomSlot by boolean("RandomSlot", false)
     private val ignoreVehicles by boolean("IgnoreVehicles", false).subjective()
 
     private val onlyGoodPotions by boolean("OnlyGoodPotions", false).subjective()
 
-    val highlightSlot by InventoryManager.highlightSlotValue
-    val backgroundColor by InventoryManager.borderColor
+    val highlightSlot by +InventoryManager.highlightSlotValue
+    val backgroundColor by +InventoryManager.borderColor
 
-    val borderStrength by InventoryManager.borderStrength
-    val borderColor by InventoryManager.borderColor
+    val borderStrength by +InventoryManager.borderStrength
+    val borderColor by +InventoryManager.borderColor
 
     val highlightUseful by boolean("HighlightUseful", true).subjective()
 

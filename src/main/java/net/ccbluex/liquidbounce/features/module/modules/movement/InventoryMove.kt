@@ -37,10 +37,10 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val isIntave = (mc.currentScreen is GuiInventory || mc.currentScreen is GuiChest) && intave
     private val clickWindowList = ArrayDeque<C0EPacketClickWindow>()
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
-    private val undetectable by InventoryManager.undetectableValue
+    private val noMove by +InventoryManager.noMoveValue
+    private val noMoveAir by +InventoryManager.noMoveAirValue
+    private val noMoveGround by +InventoryManager.noMoveGroundValue
+    private val undetectable by +InventoryManager.undetectableValue
 
     // If player violates nomove check and inventory is open, close inventory and reopen it when still
     private val silentlyCloseAndReopen by boolean("SilentlyCloseAndReopen", false)

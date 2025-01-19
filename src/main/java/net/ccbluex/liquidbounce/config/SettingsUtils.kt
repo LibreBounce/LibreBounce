@@ -36,7 +36,7 @@ object SettingsUtils {
                 return@forEachIndexed
             }
 
-            val args = s.split(" ").toTypedArray()
+            val args = s.split(' ').toTypedArray()
 
             if (args.size <= 1) {
                 chat("§7[§3§lAutoSettings§7] §cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
