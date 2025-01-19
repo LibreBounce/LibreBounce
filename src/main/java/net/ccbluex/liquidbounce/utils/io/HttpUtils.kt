@@ -100,7 +100,7 @@ object HttpUtils {
             throw IOException("Unexpected code ${response.code}")
         }
 
-        return response.body!!.byteStream() to response.code
+        return response.body.byteStream() to response.code
     }
 
     private fun request(
@@ -112,7 +112,7 @@ object HttpUtils {
     ): Pair<String, Int> {
         val request = makeRequest(url, method, agent, headers, body)
         httpClient.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string() ?: ""
+            val responseBody = response.body.string()
             return responseBody to response.code
         }
     }
@@ -124,7 +124,7 @@ object HttpUtils {
     inline fun <reified T> getJson(url: String): T? {
         return runCatching {
             httpClient.newCall(Request.Builder().url(url).build()).execute().use {
-                it.body?.charStream()?.decodeJson<T>()
+                it.body.charStream()?.decodeJson<T>()
             }
         }.onFailure {
             ClientUtils.LOGGER.error("[HTTP] Failed to GET JSON from $url", it)
@@ -218,7 +218,7 @@ object HttpUtils {
                 if (!response.isSuccessful) throw IOException("Download failed: ${response.code}")
 
                 targetFile.outputStream().use { output ->
-                    response.body?.byteStream()?.copyTo(output)
+                    response.body.byteStream().copyTo(output)
                 }
             }
         }
@@ -231,9 +231,9 @@ object HttpUtils {
 
             httpClient.newCall(request).execute().use { response ->
                 if (response.isSuccessful) {
-                    tempFile.outputStream().use { it.write(response.body?.bytes()) }
+                    tempFile.outputStream().use { it.write(response.body.bytes()) }
                 } else {
-                    throw Exception("分块下载失败: $start-$end")
+                    throw IOException("Failed to download chunk from $start to $end")
                 }
             }
         }

@@ -72,6 +72,11 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                         is IntRangeValue, is FloatRangeValue -> {
                             chatSyntax("$moduleName ${args[1].lowercase()} <min>-<max>")
                         }
+
+                        else -> {
+                            // TODO: branch completion
+                            chatInvalid(args[1], value, "Unsupported Value type")
+                        }
                     }
 
                     return
