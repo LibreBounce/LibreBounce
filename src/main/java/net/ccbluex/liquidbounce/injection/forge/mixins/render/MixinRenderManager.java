@@ -7,12 +7,8 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam;
-import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
-import net.ccbluex.liquidbounce.utils.client.PacketUtilsKt;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,17 +47,6 @@ public abstract class MixinRenderManager {
     @Inject(method = "renderEntityStatic", at = @At(value = "HEAD"))
     private void renderEntityStatic(Entity entity, float tickDelta, boolean bool, CallbackInfoReturnable<Boolean> cir) {
         FreeCam.INSTANCE.restoreOriginalPosition();
-
-        if (entity instanceof EntityPlayerSP)
-            return;
-
-        if (entity instanceof EntityLivingBase) {
-            IMixinEntity iEntity = (IMixinEntity) entity;
-
-            if (iEntity.getTruePos()) {
-                PacketUtilsKt.interpolatePosition(iEntity);
-            }
-        }
     }
 
     @Inject(method = "renderEntityStatic", at = @At("TAIL"))
