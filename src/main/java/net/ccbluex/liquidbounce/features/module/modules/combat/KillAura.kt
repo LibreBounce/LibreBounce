@@ -74,7 +74,7 @@ import java.awt.Color
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule = false) {
+object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     /**
      * OPTIONS
      */
@@ -83,26 +83,22 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { !simulateCooldown }
 
     // CPS - Attack speed
-    private val maxCPSValue = object : IntegerValue("MaxCPS", 8, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minCPS)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            attackDelay = randomClickDelay(minCPS, newValue)
-        }
-
-        override fun isSupported() = !simulateCooldown
+    private val maxCPSValue = int("MaxCPS", 8, 1..20) {
+        !simulateCooldown
+    }.onChange { _, new ->
+        new.coerceAtLeast(minCPS)
+    }.onChanged {
+        attackDelay = randomClickDelay(minCPS, it)
     }
 
     private val maxCPS by maxCPSValue
 
-    private val minCPS: Int by object : IntegerValue("MinCPS", 5, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxCPS)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            attackDelay = randomClickDelay(newValue, maxCPS)
-        }
-
-        override fun isSupported() = !maxCPSValue.isMinimal() && !simulateCooldown
+    private val minCPS: Int by int("MinCPS", 5, 1..20) {
+        !simulateCooldown
+    }.onChange { _, new ->
+        new.coerceAtMost(maxCPS)
+    }.onChanged {
+        attackDelay = randomClickDelay(it, maxCPS)
     }
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
@@ -114,10 +110,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
     // Range
     // TODO: Make block range independent from attack range
-    private val range: Float by object : FloatValue("Range", 3.7f, 1f..8f) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            blockRange = blockRange.coerceAtMost(newValue)
-        }
+    private val range: Float by float("Range", 3.7f, 1f..8f).onChanged {
+        blockRange = blockRange.coerceAtMost(it)
     }
     private val scanRange by float("ScanRange", 2f, 0f..10f)
     private val throughWallsRange by float("ThroughWallsRange", 3f, 0f..8f)
@@ -152,7 +146,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val keepSprint by boolean("KeepSprint", true)
 
     // Settings
-    private val autoF5 by boolean("AutoF5", false, subjective = true)
+    private val autoF5 by boolean("AutoF5", false)
     private val onScaffold by boolean("OnScaffold", false)
     private val onDestroyBlock by boolean("OnDestroyBlock", false)
 
@@ -203,10 +197,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val checkWeapon by boolean("CheckEnemyWeapon", true) { smartAutoBlock }
 
     // TODO: Make block range independent from attack range
-    private var blockRange by object : FloatValue("BlockRange", range, 1f..8f) {
-        override fun isSupported() = smartAutoBlock
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(this@KillAura.range)
+    private var blockRange: Float by float("BlockRange", range, 1f..8f) {
+        smartAutoBlock
+    }.onChange { _, new ->
+        new.coerceAtMost(this@KillAura.range)
     }
 
     // Don't block when you can't get damaged
@@ -238,45 +232,41 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val randomization = RandomizationSettings(this) { options.rotationsActive }
     private val outborder by boolean("Outborder", false) { options.rotationsActive }
 
-    private val highestBodyPointToTargetValue: ListValue = object : ListValue(
+    private val highestBodyPointToTargetValue = choices(
         "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
     ) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: String, newValue: String): String {
-            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-            val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
-            val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
-            return coercedPoint.name
-        }
+        options.rotationsActive
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
+        coercedPoint.name
     }
-    private val highestBodyPointToTarget by highestBodyPointToTargetValue
+    private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
-    private val lowestBodyPointToTargetValue: ListValue = object : ListValue(
+    private val lowestBodyPointToTargetValue = choices(
         "LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet"
     ) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: String, newValue: String): String {
-            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-            val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
-            val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-            return coercedPoint.name
-        }
+        options.rotationsActive
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+        coercedPoint.name
     }
 
-    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
+    private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
 
-    private val maxHorizontalBodySearch: FloatValue = object : FloatValue("MaxHorizontalBodySearch", 1f, 0f..1f) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalBodySearch.get())
+    private val maxHorizontalBodySearch: Value<Float> = float("MaxHorizontalBodySearch", 1f, 0f..1f) {
+        options.rotationsActive
+    }.onChange { _, new ->
+        new.coerceAtLeast(minHorizontalBodySearch.get())
     }
 
-    private val minHorizontalBodySearch: FloatValue = object : FloatValue("MinHorizontalBodySearch", 0f, 0f..1f) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
+    private val minHorizontalBodySearch: Value<Float> = float("MinHorizontalBodySearch", 0f, 0f..1f) {
+        options.rotationsActive
+    }.onChange { _, new ->
+        new.coerceAtMost(maxHorizontalBodySearch.get())
     }
 
     private val fov by float("FOV", 180f, 0f..180f)
@@ -297,9 +287,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val maxRotationDifferenceToSwing by float(
         "MaxRotationDifferenceToSwing", 180f, 0f..180f
     ) { swing && failSwing && options.rotationsActive }
-    private val swingWhenTicksLate = object : BoolValue("SwingWhenTicksLate", false) {
-        override fun isSupported() =
-            swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
+    private val swingWhenTicksLate = boolean("SwingWhenTicksLate", false) {
+        swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
     }
     private val ticksLateToSwing by int(
         "TicksLateToSwing", 4, 0..20
@@ -313,36 +302,37 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val noInventoryAttack by boolean("NoInvAttack", false)
     private val noInventoryDelay by int("NoInvDelay", 200, 0..500) { noInventoryAttack }
     private val noConsumeAttack by choices(
-        "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off", subjective = true
-    )
+        "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off"
+    ).subjective()
 
     // Visuals
-    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle", subjective = true)
-    private val fakeSharp by boolean("FakeSharp", true, subjective = true)
+    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
+    private val fakeSharp by boolean("FakeSharp", true).subjective()
 
     // Circle options
-    private val circleRainbow by boolean("CircleRainbow", false, subjective = true) { mark == "Circle" }
+    private val circleRainbow by boolean("CircleRainbow", false) { mark == "Circle" }.subjective()
+
+    // TODO: replace this with color value
     private val colors = ColorSettingsInteger(
         this,
         "CircleColor"
-    ) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)
-    private val fillInnerCircle by boolean("FillInnerCircle", false, subjective = true) { mark == "Circle" }
-    private val withHeight by boolean("WithHeight", true, subjective = true) { mark == "Circle" }
-    private val animateHeight by boolean("AnimateHeight", false, subjective = true) { withHeight }
-    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f, subjective = true) { withHeight }
-    private val extraWidth by float("ExtraWidth", 0F, 0F..2F, subjective = true) { mark == "Circle" }
-    private val animateCircleY by boolean("AnimateCircleY", true, subjective = true) { fillInnerCircle || withHeight }
-    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F, subjective = true) { animateCircleY }
+    ) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)//.subjective()
+    private val fillInnerCircle by boolean("FillInnerCircle", false) { mark == "Circle" }.subjective()
+    private val withHeight by boolean("WithHeight", true) { mark == "Circle" }.subjective()
+    private val animateHeight by boolean("AnimateHeight", false) { withHeight }.subjective()
+    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f) { withHeight }.subjective()
+    private val extraWidth by float("ExtraWidth", 0F, 0F..2F) { mark == "Circle" }.subjective()
+    private val animateCircleY by boolean("AnimateCircleY", true) { fillInnerCircle || withHeight }.subjective()
+    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F) { animateCircleY }.subjective()
     private val duration by float(
         "Duration",
         1.5F,
         0.5F..3F,
-        suffix = "Seconds",
-        subjective = true
-    ) { animateCircleY || animateHeight }
+        suffix = "Seconds"
+    ) { animateCircleY || animateHeight }.subjective()
 
     // Box option
-    private val boxOutline by boolean("Outline", true, subjective = true) { mark == "Box" }
+    private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
 
     /**
      * MODULE

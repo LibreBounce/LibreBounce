@@ -18,7 +18,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import org.lwjgl.input.Keyboard
 import java.awt.Color
-import java.io.FileWriter
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
@@ -196,7 +195,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
             JOptionPane.showMessageDialog(null, "Exported successfully!", "Port Scanner", JOptionPane.INFORMATION_MESSAGE)
         } catch (e: Exception) {
             e.printStackTrace()
-            MiscUtils.showErrorPopup("Error", "Exception class: ${e::class.java.name}\nMessage: ${e.message}")
+            MiscUtils.showMessageDialog("Error", "Exception class: ${e::class.java.name}\nMessage: ${e.message}")
         }
     }
 

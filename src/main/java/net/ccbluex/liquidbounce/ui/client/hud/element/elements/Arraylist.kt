@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.GameDetector
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -43,7 +43,7 @@ import java.awt.Color
 class Arraylist(
     x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP),
-) : Element(x, y, scale, side) {
+) : Element("Arraylist", x, y, scale, side) {
 
     private val textColorMode by choices(
         "Text-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
@@ -111,17 +111,13 @@ class Arraylist(
     private val gradientY by float("Gradient-Y", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
     private val tags by boolean("Tags", true)
-    private val tagsStyle by object : ListValue("TagsStyle", arrayOf("[]", "()", "<>", "-", "|", "Space"), "Space") {
-        override fun isSupported() = tags
-
-        // onUpdate - updates tag onInit and onChanged
-        override fun onUpdate(value: String) = updateTagDetails()
-    }
+    private val tagsStyle by choices("TagsStyle", arrayOf("[]", "()", "<>", "-", "|", "Space"), "Space") {
+        tags
+    }.onChanged { updateTagDetails() }
     private val tagsCase by choices("TagsCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal") { tags }
-    private val tagsArrayColor by object : BoolValue("TagsArrayColor", false) {
-        override fun isSupported() = tags
-        override fun onUpdate(value: Boolean) = updateTagDetails()
-    }
+    private val tagsArrayColor by boolean("TagsArrayColor", false) {
+        tags
+    }.onChanged { updateTagDetails() }
 
     private val font by font("Font", Fonts.font40)
     private val textShadow by boolean("ShadowText", true)
@@ -133,12 +129,15 @@ class Arraylist(
     private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth") { tags }
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
-    companion object {
-        val spacedModules by boolean("SpacedModules", false)
-        val inactiveStyle by choices(
-            "InactiveModulesStyle", arrayOf("Normal", "Color", "Hide"), "Color"
-        ) { GameDetector.state }
+    companion object : Configurable("StandaloneArraylist") {
+        val spacedModulesValue = boolean("SpacedModules", false)
     }
+
+    private val spacedModules: Boolean by +spacedModulesValue
+
+    private val inactiveStyle by choices(
+        "InactiveModulesStyle", arrayOf("Normal", "Color", "Hide"), "Color"
+    ) { GameDetector.state }
 
     private var x2 = 0
     private var y2 = 0F
@@ -198,7 +197,7 @@ class Arraylist(
             val delta = deltaTime
 
             for (module in moduleManager) {
-                val shouldShow = (module.inArray && module.state && (inactiveStyle != "Hide" || module.isActive))
+                val shouldShow = (!module.isHidden && module.state && (inactiveStyle != "Hide" || module.isActive))
 
                 if (!shouldShow && module.slide <= 0f) continue
 
@@ -551,7 +550,7 @@ class Arraylist(
     }
 
     override fun updateElement() {
-        modules = moduleManager.filter { it.inArray && it.slide > 0 && !it.hideModuleValues.get() }
+        modules = moduleManager.filter { it.slide > 0 && !it.isHidden }
             .sortedBy { -font.getStringWidth(getDisplayString(it)) }
     }
 }

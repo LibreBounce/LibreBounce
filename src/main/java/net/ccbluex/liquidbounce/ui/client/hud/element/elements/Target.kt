@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -37,7 +36,7 @@ import kotlin.math.pow
  * A Target HUD
  */
 @ElementInfo(name = "Target")
-class Target : Element() {
+class Target : Element("Target") {
 
     private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
 

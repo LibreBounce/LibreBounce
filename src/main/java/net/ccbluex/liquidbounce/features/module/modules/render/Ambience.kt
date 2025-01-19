@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -16,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 import net.minecraft.network.play.server.S2BPacketChangeGameState
 
-object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false, hideModule = false) {
+object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
     private val timeMode by choices("Mode", arrayOf("None", "Normal", "Custom"), "Custom")
     private val customWorldTime by int("Time", 19000, 0..24000) { timeMode == "Custom" }

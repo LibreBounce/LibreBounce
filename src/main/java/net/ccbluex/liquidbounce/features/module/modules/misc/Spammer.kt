@@ -7,31 +7,18 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.TextValue
-import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomString
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 
-object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule = false) {
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0..5000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-    }
-    private val maxDelay by maxDelayValue
+object Spammer : Module("Spammer", Category.MISC, subjective = true) {
 
-    private val minDelay: Int by object : IntegerValue("MinDelay", 500, 0..5000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
+    private val delay by intRange("Delay", 500..1000, 0..5000)
 
-        override fun isSupported() = !maxDelayValue.isMinimal()
-    }
-
-    private val message by
-    TextValue("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")
+    private val message by text("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")
 
     private val custom by boolean("Custom", false)
 
@@ -41,7 +28,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true, hideModule 
             else message + " >" + randomString(nextInt(5, 11)) + "<"
         )
 
-        delay(randomDelay(minDelay, maxDelay).toLong())
+        delay(delay.random().toLong())
     }
 
     private fun replace(text: String): String {

@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -21,9 +20,12 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBeEnabled = false) {
-    private val style by object :
-        ListValue("Style", arrayOf("LiquidBounce", "Null", "Slowly", "Black"), "LiquidBounce") {
-        override fun onChanged(oldValue: String, newValue: String) = updateStyle()
+    private val style by choices(
+        "Style",
+        arrayOf("LiquidBounce", "Null", "Slowly", "Black"),
+        "LiquidBounce"
+    ).onChanged {
+        updateStyle()
     }
     var scale by float("Scale", 0.8f, 0.5f..1.5f)
     val maxElements by int("MaxElements", 15, 1..30)

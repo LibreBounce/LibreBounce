@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.MINECRAFT_VERSION
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.handler
@@ -29,12 +30,12 @@ import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
 
-object ClientRichPresence : MinecraftInstance, Listenable {
+object ClientRichPresence : Configurable("DiscordRPC"), MinecraftInstance, Listenable {
 
-    var showRPCValue = true
-    var showRPCServerIP = true
-    var showRPCModulesCount = true
-    var customRPCText = ""
+    var showRPCValue by boolean("ShowRichPresence", true)
+    var showRPCServerIP by boolean("ShowRichPresenceServerIP", true)
+    var showRPCModulesCount by boolean("ShowRichPresenceModulesCount", true)
+    var customRPCText by text("RichPresenceCustomText", "")
 
     // IPC Client
     private var ipcClient: IPCClient? = null

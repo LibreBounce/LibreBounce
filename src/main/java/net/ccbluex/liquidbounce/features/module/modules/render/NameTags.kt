@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -42,7 +41,7 @@ import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
-object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
+object NameTags : Module("NameTags", Category.RENDER) {
     private val renderSelf by boolean("RenderSelf", false)
     private val health by boolean("Health", true)
     private val healthFromScoreboard by boolean("HealthFromScoreboard", false) { health }
@@ -72,10 +71,8 @@ object NameTags : Module("NameTags", Category.RENDER, hideModule = false) {
     private val border by boolean("Border", true)
     private val borderColor by color("BorderColor", Color.BLACK.withAlpha(100)) { border }
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)

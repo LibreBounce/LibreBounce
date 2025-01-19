@@ -9,9 +9,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -19,8 +16,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.HttpUtils
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
@@ -29,9 +26,9 @@ import net.minecraft.network.play.server.*
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.UPDATE_LATENCY
 import java.util.concurrent.ConcurrentHashMap
 
-object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false, hideModule = false) {
+object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false) {
 
-    private val staffMode by object : ListValue(
+    private val staffMode by choices(
         "StaffMode", arrayOf(
             "BlocksMC", "CubeCraft", "Gamster",
             "AgeraPvP", "HypeMC", "Hypixel",
@@ -39,11 +36,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             "CoralMC", "LibreCraft", "Originera",
             "OC-TC", "AssPixel"
         ), "BlocksMC"
-    ) {
-        override fun onUpdate(value: String) {
-            loadStaffData()
-        }
-    }
+    ).onChanged { loadStaffData() }
 
     private val tab by boolean("TAB", true)
     private val packet by boolean("Packet", true)

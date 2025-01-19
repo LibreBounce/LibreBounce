@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.config.choices
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
@@ -25,7 +24,7 @@ import org.lwjgl.opengl.GL11.*
 class Armor(
     x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)
-) : Element(x, y, scale, side) {
+) : Element("Armor", x, y, scale, side) {
 
     private val modeValue by choices("Alignment", arrayOf("Horizontal", "Vertical"), "Horizontal")
 

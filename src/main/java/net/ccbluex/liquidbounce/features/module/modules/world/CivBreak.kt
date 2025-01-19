@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -31,7 +29,7 @@ import java.awt.Color
 object CivBreak : Module("CivBreak", Category.WORLD) {
 
     private val range by float("Range", 5F, 1F..6F)
-    private val visualSwing by boolean("VisualSwing", true, subjective = false)
+    private val visualSwing by boolean("VisualSwing", true).subjective()
 
     private val options = RotationSettings(this).withoutKeepRotation()
 

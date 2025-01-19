@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -25,7 +22,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
-object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false) {
+object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val speedLimit by boolean("SpeedLimit", true)
     private val maxSpeed by float("MaxSpeed", 2f, 1f..5f) { speedLimit }
 

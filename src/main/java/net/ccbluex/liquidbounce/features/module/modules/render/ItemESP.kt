@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -27,7 +26,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
+object ItemESP : Module("ItemESP", Category.RENDER) {
     private val mode by choices("Mode", arrayOf("Box", "OtherBox", "Glow"), "Box")
 
     private val itemText by boolean("ItemText", false)
@@ -39,10 +38,8 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
 
     private val color by color("Color", Color.GREEN)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 50, 1..100) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val scale by float("Scale", 3F, 1F..5F) { itemText }

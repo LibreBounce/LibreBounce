@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -28,7 +25,7 @@ import kotlin.math.sqrt
 class SpeedGraph(
     x: Double = 75.0, y: Double = 110.0, scale: Float = 1F,
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)
-) : Element(x, y, scale, side) {
+) : Element("SpeedGraph", x, y, scale, side) {
 
     private val yMultiplier by float("yMultiplier", 7F, 1F..20F)
     private val height by int("Height", 50, 30..150)

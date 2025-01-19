@@ -6,10 +6,6 @@
 
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.features.module.modules.render.ESP
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -34,7 +30,7 @@ import java.awt.Color
 import kotlin.math.*
 
 @ElementInfo(name = "Radar", disableScale = true, priority = 2)
-class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
+class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
 
     companion object {
         private val SQRT_OF_TWO = sqrt(2f)

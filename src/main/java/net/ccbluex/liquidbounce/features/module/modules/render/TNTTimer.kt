@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -22,7 +21,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", hideModule = false) {
+object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer") {
 
     private val scale by float("Scale", 3F, 1F..4F)
     private val font by font("Font", Fonts.font40)
@@ -30,10 +29,8 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
 
     private val color by color("Color", Color.WHITE)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)
@@ -41,7 +38,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
-            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
+            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2) else value
         }
 
     private val tntEntities by EntityLookup<EntityTNTPrimed>()

@@ -6,10 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
-import net.ccbluex.liquidbounce.config.text
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -22,7 +19,7 @@ import java.util.*
 import kotlin.random.Random
 
 object NameProtect :
-    Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+    Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false) {
 
     val allPlayers by boolean("AllPlayers", false)
 
@@ -36,14 +33,16 @@ object NameProtect :
         randomNames && allPlayers && !randomNameLength
     }
 
-    private val minNameLength: IntegerValue = object : IntegerValue("MinNameLength", 6, 6..16) {
-        override fun isSupported() = allPlayers && randomNames && randomNameLength
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxNameLength.get())
+    private val minNameLength: Value<Int> = int("MinNameLength", 6, 6..16) {
+        allPlayers && randomNames && randomNameLength
+    }.onChange { _, new ->
+        new.coerceAtMost(maxNameLength.get())
     }
 
-    private val maxNameLength: IntegerValue = object : IntegerValue("MaxNameLength", 14, 6..16) {
-        override fun isSupported() = allPlayers && randomNames && randomNameLength
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minNameLength.get())
+    private val maxNameLength: Value<Int> = int("MaxNameLength", 14, 6..16) {
+        allPlayers && randomNames && randomNameLength
+    }.onChange { _, new ->
+        new.coerceAtLeast(minNameLength.get())
     }
 
     private val playerRandomNames = mutableMapOf<UUID, Pair<String, Int>>()

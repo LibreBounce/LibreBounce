@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -43,7 +40,7 @@ import net.minecraft.util.Vec3
 import net.minecraftforge.event.ForgeEventFactory
 import java.awt.Color
 
-object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
+object BedDefender : Module("BedDefender", Category.WORLD) {
 
     private val autoBlock by choices("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
     private val swing by boolean("Swing", true)
@@ -55,9 +52,7 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
     ) { options.rotationsActive }
     private val scannerMode by choices("Scanner", arrayOf("Nearest", "Random"), "Nearest")
 
-    private val options = RotationSettings(this).apply {
-        resetTicksValue.setSupport { it && keepRotation }
-    }
+    private val options = RotationSettings(this)
 
     private val onSneakOnly by boolean("OnSneakOnly", true)
     private val autoSneak by choices("AutoSneak", arrayOf("Off", "Normal", "Packet"), "Off") { !onSneakOnly }
@@ -85,7 +80,6 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
         bedBottomPositions.clear()
     }
 
-    // TODO: Proper event to update.
     val onUpdate = loopHandler {
         val player = mc.thePlayer ?: return@loopHandler
         val world = mc.theWorld ?: return@loopHandler
@@ -262,7 +256,7 @@ object BedDefender : Module("BedDefender", Category.WORLD, hideModule = false) {
                 movingObjectPosition != null && movingObjectPosition.blockPos == pos
             }
 
-            "around" -> EnumFacing.values().any { !isBlockBBValid(pos.offset(it)) }
+            "around" -> EnumFacing.entries.any { !isBlockBBValid(pos.offset(it)) }
 
             else -> true
         }

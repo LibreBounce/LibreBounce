@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -36,7 +35,7 @@ import net.minecraft.util.EnumFacing
 import java.awt.Color
 import kotlin.math.roundToInt
 
-object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule = false) {
+object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
     /**
      * OPTIONS
@@ -52,7 +51,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false, hideModule
     private val options = RotationSettings(this).apply {
         immediate = true
 
-        resetTicksValue.hideWithState()
+        resetTicksValue.excludeWithState()
         withoutKeepRotation()
     }
 

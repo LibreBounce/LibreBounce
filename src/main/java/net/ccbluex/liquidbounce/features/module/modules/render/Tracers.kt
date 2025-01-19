@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -26,17 +25,15 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
+object Tracers : Module("Tracers", Category.RENDER) {
 
     private val colorMode by choices("ColorMode", arrayOf("Custom", "DistanceColor"), "Custom")
     private val color by color("Color", Color(0, 160, 255, 150)) { colorMode == "Custom" }
 
     private val thickness by float("Thickness", 2F, 1F..5F)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..200).onChanged {
+        maxRenderDistanceSq = (it * it).toDouble()
     }
 
     private var maxRenderDistanceSq = 0.0

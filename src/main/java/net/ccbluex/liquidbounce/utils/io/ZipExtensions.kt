@@ -1,7 +1,9 @@
 package net.ccbluex.liquidbounce.utils.io
 
 import java.io.File
+import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 private fun ZipInputStream.entrySequence() = generateSequence { nextEntry }
 
@@ -13,7 +15,7 @@ fun File.extractZipTo(outputFolder: File) {
         if (!exists()) mkdirs()
     }
 
-    ZipInputStream(inputStream()).use { zis ->
+    ZipInputStream(inputStream().buffered()).use { zis ->
         zis.entrySequence().forEach { entry ->
             val newFile = File(outputFolder, entry.name)
 
@@ -26,6 +28,22 @@ fun File.extractZipTo(outputFolder: File) {
             } else {
                 newFile.parentFile.mkdirs()
                 zis.copyTo(newFile.outputStream())
+            }
+        }
+    }
+}
+
+fun Collection<File>.zipFilesTo(outputZipFile: File) {
+    ZipOutputStream(outputZipFile.outputStream().buffered()).use { zipOut ->
+        this@zipFilesTo.forEach { file ->
+            if (file.exists()) {
+                val zipEntry = ZipEntry(file.name)
+                zipOut.putNextEntry(zipEntry)
+
+                file.inputStream().use { input ->
+                    input.copyTo(zipOut)
+                }
+                zipOut.closeEntry()
             }
         }
     }

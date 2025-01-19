@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.command.CommandManager;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ComponentOnHover;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration;
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration;
 import net.ccbluex.liquidbounce.utils.render.shader.Background;
 import net.ccbluex.liquidbounce.utils.render.ParticleUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader;
@@ -87,7 +87,7 @@ public abstract class MixinGuiScreen {
         disableLighting();
         disableFog();
 
-        if (GuiClientConfiguration.Companion.getEnabledCustomBackground()) {
+        if (ClientConfiguration.INSTANCE.getCustomBackground()) {
             final Background background = LiquidBounce.INSTANCE.getBackground();
 
             if (background == null) {
@@ -118,7 +118,7 @@ public abstract class MixinGuiScreen {
                 background.drawBackground(width, height);
             }
 
-            if (GuiClientConfiguration.Companion.getParticles()) {
+            if (ClientConfiguration.INSTANCE.getParticles()) {
                 ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
             }
 
@@ -128,7 +128,7 @@ public abstract class MixinGuiScreen {
 
     @Inject(method = "drawBackground", at = @At("RETURN"))
     private void drawParticles(final CallbackInfo callbackInfo) {
-        if (GuiClientConfiguration.Companion.getParticles())
+        if (ClientConfiguration.INSTANCE.getParticles())
             ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
     }
 

@@ -25,8 +25,10 @@ import java.awt.Color
  * CustomHUD Notification element
  */
 @ElementInfo(name = "Notifications", single = true)
-class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
-                    side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
+class Notifications(
+    x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
+    side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
+) : Element("Notifications", x, y, scale, side) {
 
     /**
      * Example notification for CustomHUD designer

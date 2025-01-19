@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -41,7 +40,7 @@ import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
-object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false) {
+object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     private val flyModes = arrayOf(
         Vanilla, SmoothVanilla,
 
@@ -95,34 +94,28 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         CubeCraft
     )
 
-    private val showDeprecatedValue: BoolValue = object : BoolValue("DeprecatedMode", true) {
-        override fun onUpdate(value: Boolean) {
-            modeValue.changeValue(modesList.first { it !in deprecatedMode }.modeName)
-            modeValue.updateValues(modesList.filter { value || it !in deprecatedMode }.map { it.modeName }
-                .toTypedArray())
-        }
+    private val showDeprecated by boolean("DeprecatedMode", true).onChanged { value ->
+        modeValue.changeValue(modesList.first { it !in deprecatedMode }.modeName)
+        modeValue.updateValues(modesList.filter { value || it !in deprecatedMode }.map { it.modeName }.toTypedArray())
     }
-
-    private val showDeprecated by showDeprecatedValue
 
     private var modesList = flyModes
 
     val modeValue = choices("Mode", modesList.map { it.modeName }.toTypedArray(), "Vanilla")
     val mode by modeValue
 
-    val vanillaSpeed by float("VanillaSpeed", 2f, 0f..10f, subjective = true) {
+    val vanillaSpeed by float("VanillaSpeed", 2f, 0f..10f) {
         mode in arrayOf(
             "Vanilla",
             "KeepAlive",
             "MineSecure",
             "BugSpartan"
         )
-    }
+    }.subjective()
     private val vanillaKickBypass by boolean(
         "VanillaKickBypass",
-        false,
-        subjective = true
-    ) { mode in arrayOf("Vanilla", "SmoothVanilla") }
+        false
+    ) { mode in arrayOf("Vanilla", "SmoothVanilla") }.subjective()
     val ncpMotion by float("NCPMotion", 0f, 0f..1f) { mode == "NCP" }
 
     // AAC
@@ -174,14 +167,12 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F, hideModule = false
         1f..2f
     ) { fireBallThrowMode == "Edge" && mode == "Fireball" }
 
-    val options = RotationSettings(this) { mode == "Fireball" }.apply {
-        resetTicksValue.setSupport { it && keepRotation }
-    }
+    val options = RotationSettings(this) { mode == "Fireball" }
 
     val autoJump by boolean("AutoJump", true) { mode == "Fireball" }
 
     // Visuals
-    private val mark by boolean("Mark", true, subjective = true)
+    private val mark by boolean("Mark", true).subjective()
 
     var wasFired = false
     var firePosition: BlockPos? = null
