@@ -83,22 +83,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { !simulateCooldown }
 
     // CPS - Attack speed
-    private val maxCPSValue = int("MaxCPS", 8, 1..20) {
-        !simulateCooldown
-    }.onChange { _, new ->
-        new.coerceAtLeast(minCPS)
-    }.onChanged {
-        attackDelay = randomClickDelay(minCPS, it)
-    }
-
-    private val maxCPS by maxCPSValue
-
-    private val minCPS: Int by int("MinCPS", 5, 1..20) {
-        !simulateCooldown
-    }.onChange { _, new ->
-        new.coerceAtMost(maxCPS)
-    }.onChanged {
-        attackDelay = randomClickDelay(it, maxCPS)
+    private val cps by intRange("CPS", 5..8, 1..50) { !simulateCooldown }.onChanged {
+        attackDelay = randomClickDelay(it.first, it.last)
     }
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
@@ -257,17 +243,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
 
-    private val maxHorizontalBodySearch: Value<Float> = float("MaxHorizontalBodySearch", 1f, 0f..1f) {
-        options.rotationsActive
-    }.onChange { _, new ->
-        new.coerceAtLeast(minHorizontalBodySearch.get())
-    }
-
-    private val minHorizontalBodySearch: Value<Float> = float("MinHorizontalBodySearch", 0f, 0f..1f) {
-        options.rotationsActive
-    }.onChange { _, new ->
-        new.coerceAtMost(maxHorizontalBodySearch.get())
-    }
+    private val horizontalBodySearchRange by floatRange("HorizontalBodySearchRange", 0f..1f, 0f..1f)
+    { options.rotationsActive }
 
     private val fov by float("FOV", 180f, 0f..180f)
 
@@ -540,9 +517,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         target ?: return@handler
 
         if (attackTimer.hasTimePassed(attackDelay)) {
-            if (maxCPS > 0) clicks++
+            if (cps.last > 0) clicks++
             attackTimer.reset()
-            attackDelay = randomClickDelay(minCPS, maxCPS)
+            attackDelay = randomClickDelay(cps.first, cps.last)
         }
 
         val hittableColor = if (hittable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70)
@@ -914,7 +891,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             attackRange = range,
             throughWallsRange = throughWallsRange,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
-            horizontalSearch = minHorizontalBodySearch.get()..maxHorizontalBodySearch.get()
+            horizontalSearch = horizontalBodySearchRange
         )
 
         if (rotation == null) {
