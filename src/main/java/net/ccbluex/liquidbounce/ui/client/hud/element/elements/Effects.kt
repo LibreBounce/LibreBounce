@@ -24,7 +24,7 @@ import net.minecraft.potion.Potion
 class Effects(
     x: Double = 2.0, y: Double = 10.0, scale: Float = 1F,
     side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
-) : Element(x, y, scale, side) {
+) : Element("Effects", x, y, scale, side) {
 
     private val font by font("Font", Fonts.font35)
     private val shadow by boolean("Shadow", true)

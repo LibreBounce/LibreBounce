@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import java.awt.Color
 
 @ElementInfo(name = "Keystrokes")
-class Keystrokes : Element(2.0, 123.0) {
+class Keystrokes : Element("Keystrokes", 2.0, 123.0) {
     private val radius by float("RectangleRound-Radius", 3F, 0F..10F)
     private val textColors = ColorSettingsInteger(this, "Text", applyMax = true)
     private val rectColors = ColorSettingsInteger(this, "Rectangle").with(a = 150)

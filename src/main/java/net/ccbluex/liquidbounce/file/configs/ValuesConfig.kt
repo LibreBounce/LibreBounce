@@ -34,7 +34,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
         for ((key, value) in json.entrySet()) {
             when {
                 key.equals("commandprefix", true) ->
-                    commandManager.prefix = value.asCharacter
+                    commandManager.prefix = value.asString
 
                 key.equals(ClientRichPresence.name, true) -> {
                     ClientRichPresence.fromJson(value)

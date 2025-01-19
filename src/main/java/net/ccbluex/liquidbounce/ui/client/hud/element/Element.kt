@@ -18,8 +18,9 @@ import kotlin.math.min
  * TODO: Make element name dependent
  */
 abstract class Element(
+    name: String,
     var x: Double = 2.0, var y: Double = 2.0, scale: Float = 1F, var side: Side = Side.default(),
-) : Configurable(this.javaClass.getAnnotation(ElementInfo::class.java).name), MinecraftInstance {
+) : Configurable(name), MinecraftInstance {
 
     val info = javaClass.getAnnotation(ElementInfo::class.java)
         ?: throw IllegalArgumentException("Passed element with missing element info")

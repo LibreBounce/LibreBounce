@@ -19,7 +19,7 @@ import net.minecraft.util.ResourceLocation
  * TACO TACO TACO!!
  */
 @ElementInfo(name = "Taco", priority = 1)
-class Taco(x: Double = 2.0, y: Double = 441.0) : Element(x = x, y = y) {
+class Taco(x: Double = 2.0, y: Double = 441.0) : Element("Taco", x = x, y = y) {
 
     private val frameSpeed by float("frameSpeed", 50f, 0f..200f)
     private val animationSpeed by float("animationSpeed", 0.15f, 0.01f..1.0f)

@@ -26,7 +26,7 @@ import javax.imageio.ImageIO
  * Draw custom image
  */
 @ElementInfo(name = "Image")
-class Image : Element() {
+class Image : Element("Image") {
 
     private val color by color("Color", Color.WHITE)
     private val shadow by boolean("Shadow", true)

@@ -23,7 +23,7 @@ import kotlin.math.atan
  * Draw mini figure of your character to the HUD
  */
 @ElementInfo(name = "Model")
-class Model(x: Double = 40.0, y: Double = 100.0) : Element(x, y) {
+class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
 
     private val yawMode by choices("Yaw", arrayOf("Player", "Animation", "Custom"), "Animation")
     private val customYaw by float("CustomYaw", 0F, -180F..180F) { yawMode == "Custom" }

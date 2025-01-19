@@ -23,7 +23,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
 @ElementInfo(name = "Inventory")
-class Inventory : Element(300.0, 50.0) {
+class Inventory : Element("Inventory", 300.0, 50.0) {
 
     private val font by font("Font", Fonts.font35)
     private val title by choices("Title", arrayOf("Center", "Left", "Right", "None"), "Left")

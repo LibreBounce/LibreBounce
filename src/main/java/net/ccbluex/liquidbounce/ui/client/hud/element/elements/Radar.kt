@@ -30,7 +30,7 @@ import java.awt.Color
 import kotlin.math.*
 
 @ElementInfo(name = "Radar", disableScale = true, priority = 2)
-class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
+class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
 
     companion object {
         private val SQRT_OF_TWO = sqrt(2f)

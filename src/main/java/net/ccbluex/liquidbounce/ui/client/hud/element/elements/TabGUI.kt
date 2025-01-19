@@ -27,7 +27,7 @@ import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 
 @ElementInfo(name = "TabGUI")
-class TabGUI(x: Double = 2.0, y: Double = 31.0) : Element(x = x, y = y) {
+class TabGUI(x: Double = 2.0, y: Double = 31.0) : Element("TabGUI", x = x, y = y) {
 
     private val rectColor = color("RectangleColor", Color(0, 148, 255, 140))
 

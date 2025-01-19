@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11.*
 class Armor(
     x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)
-) : Element(x, y, scale, side) {
+) : Element("Armor", x, y, scale, side) {
 
     private val modeValue by choices("Alignment", arrayOf("Horizontal", "Vertical"), "Horizontal")
 

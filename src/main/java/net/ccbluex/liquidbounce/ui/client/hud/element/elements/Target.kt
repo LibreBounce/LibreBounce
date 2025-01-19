@@ -37,7 +37,7 @@ import kotlin.math.pow
  * A Target HUD
  */
 @ElementInfo(name = "Target")
-class Target : Element() {
+class Target : Element("Target") {
 
     private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
 

@@ -22,7 +22,7 @@ import java.awt.Color
 class Cooldown(
     x: Double = 0.0, y: Double = -14.0, scale: Float = 1F,
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.MIDDLE)
-) : Element(x, y, scale, side) {
+) : Element("Cooldown", x, y, scale, side) {
 
     /**
      * Draw element
