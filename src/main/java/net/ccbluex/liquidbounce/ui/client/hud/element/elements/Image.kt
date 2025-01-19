@@ -30,8 +30,8 @@ class Image : Element("Image") {
 
     private val color by color("Color", Color.WHITE)
     private val shadow by boolean("Shadow", true)
-    private val xDistance by float("ShadowX", 1.0F, -2F..2F) { shadow }
-    private val yDistance by float("ShadowY", 1.0F, -2F..2F) { shadow }
+    private val xDistance by float("ShadowXDistance", 1.0F, -2F..2F) { shadow }
+    private val yDistance by float("ShadowYDistance", 1.0F, -2F..2F) { shadow }
     private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128)) { shadow }
 
     companion object {
