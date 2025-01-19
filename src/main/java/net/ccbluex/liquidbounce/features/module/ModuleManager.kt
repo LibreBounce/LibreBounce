@@ -125,6 +125,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             ItemESP,
             ItemPhysics,
             ItemTeleport,
+            JumpCircle,
             KeepAlive,
             KeepContainer,
             KeepTabList,

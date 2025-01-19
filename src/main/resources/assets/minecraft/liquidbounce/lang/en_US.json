@@ -214,6 +214,8 @@
 
         "module.itemPhysics.description": "Allows dropped items to have physics",
 
+        "module.jumpCircle.description": "Renders a circle below you when jumping.",
+
         "module.keepAlive.description": "Tries to prevent you from dying.",
         
         "module.keepContainer.description": "Allows you to open a formerly closed inventory container everywhere. (Press INSERT Key to open)",
