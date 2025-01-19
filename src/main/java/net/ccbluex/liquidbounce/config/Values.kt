@@ -96,6 +96,12 @@ class IntRangeValue(
 
     override fun validate(newValue: IntRange): IntRange = newValue.coerceIn(range)
 
+    var lastChosenSlider: RangeSlider? = null
+        get() {
+            if (!Mouse.isButtonDown(0)) field = null
+            return field
+        }
+
     fun setFirst(newValue: Int, immediate: Boolean = true) = set(newValue..value.last, immediate)
     fun setLast(newValue: Int, immediate: Boolean = true) = set(value.first..newValue, immediate)
 
@@ -164,6 +170,12 @@ class FloatRangeValue(
 ) : Value<ClosedFloatingPointRange<Float>>(name, value, suffix) {
 
     override fun validate(newValue: ClosedFloatingPointRange<Float>): ClosedFloatingPointRange<Float> = newValue.coerceIn(range)
+
+    var lastChosenSlider: RangeSlider? = null
+        get() {
+            if (!Mouse.isButtonDown(0)) field = null
+            return field
+        }
 
     fun setFirst(newValue: Float, immediate: Boolean = true) = set(newValue..value.endInclusive, immediate)
     fun setLast(newValue: Float, immediate: Boolean = true) = set(value.start..newValue, immediate)
@@ -435,3 +447,5 @@ class ColorValue(
         COLOR, HUE, OPACITY
     }
 }
+
+enum class RangeSlider { LEFT, RIGHT }

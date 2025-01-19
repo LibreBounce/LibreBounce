@@ -48,8 +48,6 @@ object HUD : MinecraftInstance {
         it.getAnnotation(ElementInfo::class.java)
     }
 
-    inline fun <reified T : Element> getElement(): T = elements.find { it.javaClass === T::class.java }!! as T
-
     /** Create default HUD */
     fun setDefault() {
         elements.clear()

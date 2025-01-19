@@ -5,10 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.color
-import net.ccbluex.liquidbounce.config.floatRange
-import net.ccbluex.liquidbounce.config.int
+import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -27,7 +24,7 @@ import java.awt.Color
  * @author Original by Ell1ott (Nextgen)
  * @author Modified by EclipsesDev
  */
-object JumpCircle : Module("JumpCircle", Category.RENDER, hideModule = false) {
+object JumpCircle : Module("JumpCircle", Category.RENDER) {
     private val circleRadius by floatRange("CircleRadius", 0.15F..0.8F, 0F..3F)
     private val innerColor = color("InnerColor", Color(0, 0, 0, 50))
     private val outerColor = color("OuterColor", Color(0, 111, 255, 255))
@@ -35,10 +32,12 @@ object JumpCircle : Module("JumpCircle", Category.RENDER, hideModule = false) {
     private val lifeTime by int("LifeTime", 20, 1..50, "Ticks")
     private val blackHole by boolean("BlackHole", false)
 
-    private val circles = mutableListOf<JumpData>()
+    private val circles = ArrayDeque<JumpData>()
 
     val onJump = handler<JumpEvent> {
-        circles += JumpData(mc.thePlayer.currPos, runTimeTicks + if (blackHole) lifeTime else 0)
+        if (it.eventState === EventState.POST) {
+            circles += JumpData(mc.thePlayer.currPos, runTimeTicks + if (blackHole) lifeTime else 0)
+        }
     }
 
     val onRender3D = handler<Render3DEvent> {
