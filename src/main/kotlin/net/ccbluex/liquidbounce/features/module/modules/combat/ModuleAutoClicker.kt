@@ -143,7 +143,12 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
 
     val tickHandler = tickHandler {
         Left.run {
-            if (!enabled || !attack || !isWeaponSelected() || !isOnObjective() || interaction.isBreakingBlock) {
+            if (!enabled || !attack || !isWeaponSelected() || !isOnObjective()) {
+                return@run
+            }
+
+            // Check if the player is breaking a block, if so, return
+            if (interaction.isBreakingBlock) {
                 return@run
             }
 
