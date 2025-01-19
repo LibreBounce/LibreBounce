@@ -143,7 +143,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
 
     val tickHandler = tickHandler {
         Left.run {
-            if (!enabled || !attack || !isWeaponSelected() || !isOnObjective()) {
+            if (!enabled || !attack || !isWeaponSelected() || !isOnObjective() || interaction.isBreakingBlock) {
                 return@run
             }
 
