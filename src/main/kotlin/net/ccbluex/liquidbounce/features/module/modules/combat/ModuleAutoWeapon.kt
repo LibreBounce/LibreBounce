@@ -25,12 +25,12 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon.againstShield
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon.prepare
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategorization
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.WeaponItemFacet
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.AxeItem
@@ -130,16 +130,19 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
     }
 
     private fun determineWeaponSlot(target: LivingEntity?): Int? {
-        val itemCategorization = ItemCategorization(HOTBAR_SLOTS)
-        val itemMap = HOTBAR_SLOTS
+        val itemCategorization = ItemCategorization(Slots.Hotbar)
+        val itemMap = Slots.Hotbar
             .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>().toList() }
 
         val bestSlot = itemMap
-            .filter(when {
-                !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true
-                    -> againstShield.filter
-                else -> preferredWeapon.filter
-            })
+            .filter(
+                when {
+                    !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true
+                        -> againstShield.filter
+
+                    else -> preferredWeapon.filter
+                }
+            )
             .maxOrNull()
 
         return (bestSlot?.itemSlot as HotbarItemSlot?)?.hotbarSlot

@@ -26,11 +26,11 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.foodComponent
 import net.ccbluex.liquidbounce.utils.item.getPotionEffects
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
@@ -77,7 +77,7 @@ object ModuleSmartEat : ClientModule("SmartEat", Category.PLAYER) {
                 compareBy { SilentHotbar.serversideSlot }
             )
 
-            return HOTBAR_SLOTS
+            return Slots.Hotbar
                 .mapNotNull { slot -> getFoodEstimationData(slot.itemStack)?.let { slot to it } }
                 .maxWithOrNull(comparator)?.first
         }

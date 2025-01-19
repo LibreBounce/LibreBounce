@@ -43,7 +43,7 @@ import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
@@ -264,7 +264,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         // If both is false, we have to find the item in the hotbar
         return if (!mainHand && !offHand) {
-            val throwableSlot = findHotbarSlot(item) ?: return null
+            val throwableSlot = Slots.Hotbar.findSlotIndex(item) ?: return null
             Hand.MAIN_HAND to throwableSlot
         } else if (offHand) {
             Hand.OFF_HAND to -1

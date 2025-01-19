@@ -593,7 +593,7 @@ fun Entity.isFallingToVoid(voidLevel: Double = -64.0, safetyExpand: Double = 0.0
         // Expand the bounding box to check if there might blocks to safely land on
         .expand(safetyExpand, 0.0, safetyExpand)
     return world.getBlockCollisions(this, boundingBox)
-        .all { shape -> shape == VoxelShapes.empty() }
+        .all(VoxelShapes.empty()::equals)
 }
 
 /**
@@ -613,7 +613,7 @@ fun Entity.wouldFallIntoVoid(pos: Vec3d, voidLevel: Double = -64.0, safetyExpand
         // Expand the bounding box to check if there might blocks to safely land on
         .expand(safetyExpand, 0.0, safetyExpand)
     return world.getBlockCollisions(this, boundingBox)
-        .all { shape -> shape == VoxelShapes.empty() }
+        .all(VoxelShapes.empty()::equals)
 }
 
 

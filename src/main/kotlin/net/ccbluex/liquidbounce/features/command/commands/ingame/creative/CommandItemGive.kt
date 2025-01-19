@@ -23,10 +23,10 @@ import net.ccbluex.liquidbounce.features.command.CommandException
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.features.command.builder.itemParameter
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.item.createItem
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket
-import kotlin.math.max
 
 /**
  * ItemGive Command
@@ -39,13 +39,7 @@ object CommandItemGive : CommandFactory {
         return CommandBuilder
             .begin("give")
             .requiresIngame()
-            .parameter(
-                ParameterBuilder
-                    .begin<String>("item")
-                    .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                    .required()
-                    .build()
-            )
+            .parameter(itemParameter().required().build())
             .parameter(
                 ParameterBuilder
                     .begin<Int>("amount")
@@ -54,15 +48,14 @@ object CommandItemGive : CommandFactory {
                     .build()
             )
             .handler { command, args ->
-                val item = args[0] as String
-
-                val amount = if (args.size > 2) args[1] as Int else 1 // default one
-
                 if (!interaction.hasCreativeInventory()) {
                     throw CommandException(command.result("mustBeCreative"))
                 }
 
-                val itemStack = createItem(item, max(amount, 1))
+                val item = args[0] as String
+                val amount = args.getOrElse(1, defaultValue = { 1 }) as Int // default one
+
+                val itemStack = createItem(item, amount.coerceIn(1..64))
                 val emptySlot = player.inventory.emptySlot
 
                 if (emptySlot == -1) {

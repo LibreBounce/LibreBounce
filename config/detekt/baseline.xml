@@ -27,6 +27,8 @@
     <ID>LoopWithTooManyJumpStatements:ModuleKillAura.kt$ModuleKillAura$for</ID>
     <ID>LoopWithTooManyJumpStatements:ModuleProjectilePuncher.kt$ModuleProjectilePuncher$for</ID>
     <ID>LoopWithTooManyJumpStatements:TargetFinding.kt$for</ID>
+    <ID>MaxLineLength:ModuleBookBot.kt$ModuleBookBot.BookBuilder$*</ID>
+    <ID>MaxLineLength:ModuleBookBot.kt$ModuleBookBot.GenerationMode.Random$*</ID>
     <ID>NestedBlockDepth:AStarMode.kt$AStarMode$private fun findPath(start: Vec3i, end: Vec3i, maxCost: Int, maxIterations: Int = 500): List&lt;Vec3i></ID>
     <ID>NestedBlockDepth:CombatExtensions.kt$fun Entity.attack(swing: Boolean, keepSprint: Boolean = false)</ID>
     <ID>NestedBlockDepth:CommandManager.kt$CommandManager$fun autoComplete(origCmd: String, start: Int): CompletableFuture&lt;Suggestions></ID>

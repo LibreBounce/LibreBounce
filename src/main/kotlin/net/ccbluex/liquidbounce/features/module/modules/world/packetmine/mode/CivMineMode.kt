@@ -22,7 +22,7 @@ import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleAutoTool
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.MineMode
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.block.BlockState
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
@@ -77,8 +77,8 @@ object CivMineMode : MineMode("Civ", stopOnStateChange = false) {
             ModuleAutoTool.switchToBreakBlock(blockPos)
             shouldSwitch = false
         } else if (shouldSwitch) {
-            val slot1 = findHotbarSlot { stack -> stack.isSuitableFor(state) } ?: -1
-            if (slot1 != -1 && slot1 != oldSlot) {
+            val slot1 = Slots.Hotbar.findSlotIndex { stack: ItemStack -> stack.isSuitableFor(state) }
+            if (slot1 != null && slot1 != oldSlot) {
                 network.sendPacket(UpdateSelectedSlotC2SPacket(slot1))
             } else {
                 shouldSwitch = false

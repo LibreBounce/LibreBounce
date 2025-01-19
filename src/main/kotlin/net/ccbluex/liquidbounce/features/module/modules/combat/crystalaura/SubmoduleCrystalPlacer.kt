@@ -29,8 +29,8 @@ import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isBlockedByEntitiesReturnCrystal
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
-import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.block.Blocks
 import net.minecraft.item.Items
@@ -148,10 +148,10 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     }
 
     private fun getSlot(): Int? {
-        return if (OFFHAND_SLOT.itemStack.item == Items.END_CRYSTAL) {
-            OFFHAND_SLOT.hotbarSlotForServer
+        return if (OffHandSlot.itemStack.item == Items.END_CRYSTAL) {
+            OffHandSlot.hotbarSlotForServer
         } else {
-            findHotbarSlot(Items.END_CRYSTAL)
+            Slots.Hotbar.findSlotIndex(Items.END_CRYSTAL)
         }
     }
 

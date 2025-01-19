@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -34,7 +35,7 @@ import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.entity.effect.StatusEffects
@@ -42,6 +43,11 @@ import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
+/**
+ * Module Extinguish
+ *
+ * Automatically extinguishes yourself when you're burning.
+ */
 object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
 
     private val cooldown by float("Cooldown", 1.0F, 0.0F..20.0F, "s")
@@ -64,7 +70,13 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     private var lastExtinguishPos: BlockPos? = null
     private val lastAttemptTimer = Chronometer()
 
-    val tickMovementHandler = handler<RotationUpdateEvent> {
+    @Suppress("unused")
+    private val rotationUpdateHandler = handler<RotationUpdateEvent> {
+        // we can't place water in the nether
+        if (world.dimension.ultrawarm) {
+            return@handler
+        }
+
         this.currentTarget = null
 
         val target = findAction() ?: return@handler
@@ -77,6 +89,11 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
             priority = Priority.IMPORTANT_FOR_PLAYER_LIFE,
             provider = ModuleNoFall
         )
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        currentTarget = null
     }
 
     private fun findAction(): PlacementPlan? {
@@ -106,10 +123,11 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
         return planExtinguishing()
     }
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         val target = currentTarget ?: return@tickHandler
 
-        val rayTraceResult = raycast() ?: return@tickHandler
+        val rayTraceResult = raycast()
 
         if (!target.doesCorrespondTo(rayTraceResult)) {
             return@tickHandler
@@ -130,7 +148,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     }
 
     private fun planExtinguishing(): PlacementPlan? {
-        val waterBucketSlot = Hotbar.findClosestItem(Items.WATER_BUCKET) ?: return null
+        val waterBucketSlot = Slots.Hotbar.findClosestItem(Items.WATER_BUCKET) ?: return null
 
         val simulation = PlayerSimulationCache.getSimulationForLocalPlayer()
 
@@ -156,7 +174,7 @@ object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
     }
 
     private fun planPickup(blockPos: BlockPos): PlacementPlan? {
-        val bucket = Hotbar.findClosestItem(Items.BUCKET) ?: return null
+        val bucket = Slots.Hotbar.findClosestItem(Items.BUCKET) ?: return null
 
         val options = BlockPlacementTargetFindingOptions(
             BlockOffsetOptions(
