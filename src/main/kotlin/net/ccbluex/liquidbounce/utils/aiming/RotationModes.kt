@@ -40,6 +40,14 @@ abstract class RotationMode(
      */
     val postMove by boolean("PostMove", false)
 
+    /**
+     * Instantly sends the action if possible.
+     * This does not account for packet order and might flag on some anti-cheats.
+     *
+     * PostMove might be irrelevant if this is enabled.
+     */
+    val instant by boolean("instant", false)
+
     abstract fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit)
 
     override val parent: ChoiceConfigurable<*>
@@ -57,6 +65,11 @@ class NormalRotationMode(
     val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
 
     override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
+        if (instant && isFinished()) {
+            onFinished()
+            return
+        }
+
         RotationManager.aimAt(
             rotation,
             considerInventory = !ignoreOpenInventory,
@@ -77,18 +90,27 @@ class NoRotationMode(configurable: ChoiceConfigurable<RotationMode>, module: Cli
     val send by boolean("SendRotationPacket", false)
 
     override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
-        PostRotationExecutor.addTask(module, postMove, task = {
+        val task = {
             if (send) {
                 val fixedRotation = rotation.normalize()
                 network.connection!!.send(
-                    PlayerMoveC2SPacket.LookAndOnGround(fixedRotation.yaw, fixedRotation.pitch, player.isOnGround,
-                        player.horizontalCollision),
+                    PlayerMoveC2SPacket.LookAndOnGround(
+                        fixedRotation.yaw, fixedRotation.pitch, player.isOnGround,
+                        player.horizontalCollision
+                    ),
                     null
                 )
             }
 
             onFinished()
-        })
+        }
+
+        if (instant) {
+            task()
+            return
+        }
+
+        PostRotationExecutor.addTask(module, postMove, task)
     }
 
 }

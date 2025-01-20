@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -25,6 +24,7 @@ import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
 import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.CrystalAuraTriggerer;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
@@ -74,6 +74,36 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     private void onChunkDeltaUpdateStart(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
         ChunkUpdateFlag.chunkUpdate = true;
     }
+
+    @Inject(method = "onEntityPosition", at = @At("RETURN"))
+    private void hookOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+        CrystalAuraTriggerer.INSTANCE.postMoveHandler(packet);
+    }
+
+    @Inject(method = "onBlockUpdate", at = @At("RETURN"))
+    private void hookOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+        CrystalAuraTriggerer.INSTANCE.postBlockUpdateHandler(packet);
+    }
+
+    @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
+    private void hookOnChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+        CrystalAuraTriggerer.INSTANCE.postChunkUpdateHandler(packet);
+    }
+
+    @Inject(method = "onEntitySpawn", at = @At("RETURN"))
+    private void hookOnEntitySpawn(EntitySpawnS2CPacket packet, CallbackInfo ci) {
+        CrystalAuraTriggerer.INSTANCE.postSpawnHandler(packet);
+    }
+
+    @Inject(method = "onPlaySoundFromEntity", at = @At("RETURN"))
+    private void hookOnPlaySoundFromEntity(PlaySoundFromEntityS2CPacket packet, CallbackInfo ci) {
+        CrystalAuraTriggerer.INSTANCE.postDestroyHandler(packet);
+    }
+
+  /*  @Inject(method = "onEntitiesDestroy", at = @At("RETURN"))
+    private void hookOnEntitiesDestroy(EntitiesDestroyS2CPacket packet, CallbackInfo ci) {
+        CrystalAuraTriggerer.INSTANCE.postDestroyHandler(packet);
+    }*/
 
     @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
     private void onChunkDeltaUpdateEnd(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {

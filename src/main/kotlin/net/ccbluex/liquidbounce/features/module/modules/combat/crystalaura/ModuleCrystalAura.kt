@@ -33,6 +33,13 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
 
+/**
+ * Module CrystalAura
+ *
+ * Automatically places and explodes end crystals.
+ *
+ * @author ccetl
+ */
 object ModuleCrystalAura : ClientModule(
     "CrystalAura",
     Category.COMBAT,
@@ -53,6 +60,7 @@ object ModuleCrystalAura : ClientModule(
             SubmoduleCrystalPlacer,
             SubmoduleCrystalDestroyer,
             CrystalAuraDamageOptions,
+            CrystalAuraTriggerer,
             PredictFeature,
             SubmoduleIdPredict,
             SubmoduleSetDead,
@@ -80,7 +88,7 @@ object ModuleCrystalAura : ClientModule(
     }
 
     @Suppress("unused")
-    val simulatedTickHandler = handler<RotationUpdateEvent> {
+    private val simulatedTickHandler = handler<RotationUpdateEvent> {
         CrystalAuraDamageOptions.cacheMap.clear()
         if (CombatManager.shouldPauseCombat) {
             return@handler
@@ -88,18 +96,10 @@ object ModuleCrystalAura : ClientModule(
 
         currentTarget = targetTracker.enemies().firstOrNull()
         currentTarget ?: return@handler
-        // Make the crystal destroyer run
-        SubmoduleCrystalDestroyer.tick()
-        // Make the crystal placer run
-        SubmoduleCrystalPlacer.tick()
-        if (!SubmoduleIdPredict.enabled) {
-            // Make the crystal destroyer run
-            SubmoduleCrystalDestroyer.tick()
-        }
     }
 
     @Suppress("unused")
-    val renderHandler = handler<WorldRenderEvent> {
+    private val renderHandler = handler<WorldRenderEvent> {
         val target = currentTarget ?: return@handler
 
         renderEnvironmentForWorld(it.matrixStack) {

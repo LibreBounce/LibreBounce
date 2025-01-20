@@ -107,7 +107,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
         checkedEntity: CheckedEntity
     ): DamageProvider {
         val damageConstellation = DamageConstellation(this, blockPos, crystal, requestingSubmodule)
-        return cacheMap.computeIfAbsent(damageConstellation) {
+        val calc: (DamageConstellation) -> DamageProvider = {
             val excludeNotBlastResistant = terrain &&
                 (!requestingSubmodule.basePlace || SubmoduleBasePlace.terrain)
             checkedEntity.getDamage(
@@ -117,6 +117,12 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
                 if (excludeNotBlastResistant) 9f else null,
                 if (requestingSubmodule.basePlace) BlockPos.ofFloored(crystal).down() else null
             )
+        }
+
+        return if (CrystalAuraTriggerer.canCache()) {
+            cacheMap.computeIfAbsent(damageConstellation, calc)
+        } else {
+            calc(damageConstellation)
         }
     }
 

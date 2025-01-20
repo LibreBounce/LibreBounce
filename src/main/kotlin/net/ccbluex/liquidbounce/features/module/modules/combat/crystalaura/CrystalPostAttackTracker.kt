@@ -44,8 +44,8 @@ abstract class CrystalPostAttackTracker : EventListener {
             while (hasNext()) {
                 val entry = next()
                 if (entry.longValue < attackTime) {
-                    remove()
                     timedOut(entry.intKey)
+                    remove()
                 }
             }
         }

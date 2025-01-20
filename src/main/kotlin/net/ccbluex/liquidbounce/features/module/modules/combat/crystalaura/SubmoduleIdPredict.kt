@@ -163,7 +163,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
     }
 
     @Suppress("unused")
-    val entitySpawnHandler = handler<PacketEvent> {
+    private val entitySpawnHandler = handler<PacketEvent> {
         when(val packet = it.packet) {
             is ExperienceOrbSpawnS2CPacket -> highestId = max(packet.entityId, highestId)
             is EntitySpawnS2CPacket -> highestId = max(packet.entityId, highestId)

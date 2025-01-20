@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.decoration.EndCrystalEntity
 import kotlin.math.max
 
@@ -41,7 +42,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
     val chronometer = Chronometer()
     private var currentTarget: EndCrystalEntity? = null
 
-    fun tick() {
+    fun tick(providedCrystal: EndCrystalEntity? = null) {
         if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
             return
         }
@@ -49,7 +50,12 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
         val range = range.toDouble()
         val wallsRange = wallsRange.toDouble()
 
-        updateTarget()
+        providedCrystal?.let { crystal ->
+            // just check if it works, not if it's the best
+            validateAndUpdateTarget(crystal)
+        } ?: run {
+            updateTarget()
+        }
 
         val target = currentTarget ?: return
 
@@ -108,5 +114,34 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                 }
                 .maxByOrNull { it.secondFloat() }?.first()
     }
+
+    private fun validateAndUpdateTarget(entity: EndCrystalEntity) {
+        val range = range.toDouble()
+        val wallsRange = wallsRange.toDouble()
+        val maxRange = max(wallsRange, range) + entity.boundingBox.maxX - entity.boundingBox.minX
+        currentTarget = null
+        if (player.eyePos.squaredDistanceTo(entity.pos) > maxRange.sq()) {
+            return
+        }
+
+        if (!canSeeBox(
+                player.eyePos,
+                entity.boundingBox,
+                range = range,
+                wallsRange = wallsRange,
+            )
+        ) {
+            return
+        }
+
+        CrystalAuraDamageOptions.approximateExplosionDamage(
+            entity.pos,
+            CrystalAuraDamageOptions.RequestingSubmodule.DESTROY
+        ) ?: return
+
+        currentTarget = entity
+    }
+
+    fun getMaxRange() = max(range, wallsRange)
 
 }

@@ -53,6 +53,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
     private val onlyAbove by boolean("OnlyAbove", false)
 
+    private val sequenced by boolean("Sequenced", false)
+
     val placementRenderer = tree(PlacementRenderer( // TODO slide
         "TargetRendering",
         true,
@@ -72,14 +74,14 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     }
 
     @Suppress("LongMethod", "CognitiveComplexMethod")
-    fun tick() {
+    fun tick(excludeIds : IntArray? = null) {
         if (!enabled || !chronometer.hasAtLeastElapsed(delay.toLong())) {
             return
         }
 
         getSlot() ?: return
 
-        updateTarget()
+        updateTarget(excludeIds)
         if (placementTarget != previousTarget) {
             previousTarget?.let { placementRenderer.removeBlock(it) }
         }
@@ -138,7 +140,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 blockHitResult?.withSide(side) ?: return@rotate,
                 getSlot() ?: return@rotate,
                 swingMode,
-                switchMode
+                switchMode,
+                sequenced
             )
 
             SubmoduleIdPredict.run(targetPos)
@@ -156,7 +159,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     }
 
     @Suppress("ComplexCondition", "LongMethod", "CognitiveComplexMethod")
-    private fun updateTarget() {
+    private fun updateTarget(excludeIds : IntArray?) {
         // Reset current target
         previousTarget = placementTarget
         placementTarget = null
@@ -199,9 +202,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                     return@forEach
                 }
 
-                val blocked = up.isBlockedByEntitiesReturnCrystal(
-                    box = box
-                )
+                val blocked = up.isBlockedByEntitiesReturnCrystal(box = box, excludeIds = excludeIds)
 
                 val crystal = blocked.value() != null
                 if (!blocked.keyBoolean() || crystal) {
@@ -239,5 +240,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             placementTarget = bestTarget.pos
         }
     }
+
+    fun getMaxRange() = max(range, wallsRange)
 
 }

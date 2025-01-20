@@ -51,7 +51,8 @@ fun clickBlockWithSlot(
     rayTraceResult: BlockHitResult,
     slot: Int,
     swingMode: SwingMode,
-    switchMode: SwitchMode = SwitchMode.SILENT
+    switchMode: SwitchMode = SwitchMode.SILENT,
+    sequenced: Boolean = true
 ) {
     val hand = if (slot == OffHandSlot.hotbarSlotForServer) {
         Hand.OFF_HAND
@@ -73,8 +74,12 @@ fun clickBlockWithSlot(
         }
     }
 
-    interaction.sendSequencedPacket(world) { sequence ->
-        PlayerInteractBlockC2SPacket(hand, rayTraceResult, sequence)
+    if (sequenced) {
+        interaction.sendSequencedPacket(world) { sequence ->
+            PlayerInteractBlockC2SPacket(hand, rayTraceResult, sequence)
+        }
+    } else {
+        network.sendPacket(PlayerInteractBlockC2SPacket(hand, rayTraceResult, 0))
     }
 
     val itemUsageContext = ItemUsageContext(player, hand, rayTraceResult)

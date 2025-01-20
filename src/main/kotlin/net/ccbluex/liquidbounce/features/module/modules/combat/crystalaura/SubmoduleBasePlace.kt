@@ -137,7 +137,8 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
     private val calculations = Chronometer()
     private val trying = Chronometer()
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (currentTarget != null && trying.hasElapsed(timeOut.toLong())) {
             placer.clear()
             currentTarget = null

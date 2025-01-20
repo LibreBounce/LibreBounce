@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.minecraft.entity.Entity
 import net.minecraft.entity.decoration.EndCrystalEntity
 
+// TODO CAUSES DESYNC!!!!!
 /**
  * Removes hit crystals instantly from the world instead of waiting for the actual remove packet
  * what might allow faster placement.
@@ -49,7 +50,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
             val entity = world.getEntityById(id)
             if (entity is EndCrystalEntity) {
                 super.attacked(id)
-                world.removeEntity(id, Entity.RemovalReason.DISCARDED)
+                mc.execute { world.removeEntity(id, Entity.RemovalReason.DISCARDED) } // KILLED?
                 entities.put(id, entity)
             }
         }
@@ -61,7 +62,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
         override fun timedOut(id: Int) {
             val entity = entities.remove(id) ?: return
             entity.unsetRemoved()
-            world.addEntity(entity)
+            mc.execute { world.addEntity(entity) } // TODO on frame, not send (tick) and this shouldn't run off thread at all
         }
 
         override fun cleared() {

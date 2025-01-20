@@ -658,12 +658,15 @@ inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true })
 /**
  * Like [isBlockedByEntities] but it returns a blocking end crystal if present.
  */
-fun BlockPos.isBlockedByEntitiesReturnCrystal(box: Box = FULL_BOX): BooleanObjectPair<EndCrystalEntity?> {
+fun BlockPos.isBlockedByEntitiesReturnCrystal(
+    box: Box = FULL_BOX,
+    excludeIds : IntArray? = null
+): BooleanObjectPair<EndCrystalEntity?> {
     var blocked = false
 
     val posBox = box.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
     world.entities.forEach {
-        if (it.boundingBox.intersects(posBox)) {
+        if (it.boundingBox.intersects(posBox) && (excludeIds == null || it.id !in excludeIds)) {
             if (it is EndCrystalEntity) {
                 return BooleanObjectPair.of(true, it)
             }
