@@ -159,7 +159,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         )
     }
 
-    internal val isTowering: Boolean
+    val isTowering: Boolean
         get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && mc.options.jumpKey.isPressed
 
     // SafeWalk feature - uses the SafeWalk module as a base
