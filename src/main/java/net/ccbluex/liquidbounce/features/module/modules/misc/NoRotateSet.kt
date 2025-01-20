@@ -22,12 +22,12 @@ object NoRotateSet : Module("NoRotateSet", Category.MISC, gameDetecting = false)
     val affectRotation by boolean("AffectRotation", true)
 
     private val ticksUntilStart = intRange("TicksUntilStart", 0..0, 0..20) { affectRotation }
+
     private val options = RotationSettings(this) { affectRotation }.apply {
+        withoutKeepRotation()
         rotationsValue.excludeWithState(true)
         applyServerSideValue.excludeWithState(true)
         resetTicksValue.excludeWithState(1)
-
-        withoutKeepRotation()
     }
 
     fun shouldModify(player: EntityPlayer) = handleEvents() && (!ignoreOnSpawn || player.ticksExisted != 0)
