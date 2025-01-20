@@ -19,7 +19,6 @@
 package net.ccbluex.liquidbounce.utils.block.targetfinding
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.canBeReplacedWith
@@ -28,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.client.getFace
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
@@ -46,7 +46,8 @@ enum class AimMode(override val choiceName: String) : NamedChoice {
     RANDOM("Random"),
     STABILIZED("Stabilized"),
     NEAREST_ROTATION("NearestRotation"),
-    REVERSE_YAW("ReverseYaw")
+    REVERSE_YAW("ReverseYaw"),
+    DIAGONAL_YAW("DiagonalYaw")
 }
 
 /**

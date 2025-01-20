@@ -211,20 +211,23 @@ object CenterTargetPositionFactory : FaceTargetPositionFactory() {
     }
 }
 
-class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) : FaceTargetPositionFactory() {
+abstract class BaseYawTargetPositionFactory(
+    protected val config: PositionFactoryConfiguration
+) : FaceTargetPositionFactory() {
+
     override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         val trimmedFace = trimFace(face)
 
-        val reverseYawRotation = aimAtNearestPointToReverseYaw(targetPos, trimmedFace)
+        val yawBasedRotation = aimAtNearestPointToYaw(targetPos, trimmedFace)
 
-        if (reverseYawRotation == null) {
+        if (yawBasedRotation == null) {
             return NearestRotationTargetPositionFactory(config).aimAtNearestPointToRotationLine(targetPos, trimmedFace)
         }
 
-        return reverseYawRotation
+        return yawBasedRotation
     }
 
-    fun aimAtNearestPointToReverseYaw(
+    protected fun aimAtNearestPointToYaw(
         targetPos: BlockPos,
         face: AlignedFace
     ): Vec3d? {
@@ -234,7 +237,7 @@ class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) 
 
         val plane = NormalizedPlane.fromParams(
             config.eyePos.subtract(Vec3d.of(targetPos)),
-            Vec3d(0.0, 0.0, 1.0).rotateY(-player.yaw.toRadians()),
+            Vec3d(0.0, 0.0, 1.0).rotateY(getYawAngleInRadians()),
             Vec3d(0.0, 1.0, 0.0)
         )
 
@@ -256,6 +259,16 @@ class ReverseYawTargetPositionFactory(val config: PositionFactoryConfiguration) 
 
         val rotationLine = Line(config.eyePos.subtract(Vec3d.of(targetPos)), currentRotation.rotationVec)
 
-        return lineSegment.getNearestPointsTo(rotationLine)?.first ?: return null
+        return lineSegment.getNearestPointsTo(rotationLine)?.first
     }
+
+    protected abstract fun getYawAngleInRadians(): Float
+}
+
+class ReverseYawTargetPositionFactory(config: PositionFactoryConfiguration) : BaseYawTargetPositionFactory(config) {
+    override fun getYawAngleInRadians() = -player.yaw.toRadians()
+}
+
+class DiagonalYawTargetPositionFactory(config: PositionFactoryConfiguration) : BaseYawTargetPositionFactory(config) {
+    override fun getYawAngleInRadians() = (player.yaw + 90f).toRadians()
 }
