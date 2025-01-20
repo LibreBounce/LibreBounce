@@ -272,3 +272,7 @@ class ReverseYawTargetPositionFactory(config: PositionFactoryConfiguration) : Ba
 class DiagonalYawTargetPositionFactory(config: PositionFactoryConfiguration) : BaseYawTargetPositionFactory(config) {
     override fun getYawAngleInRadians() = (player.yaw + 90f).toRadians()
 }
+
+class AngleYawTargetPositionFactory(config: PositionFactoryConfiguration) : BaseYawTargetPositionFactory(config) {
+    override fun getYawAngleInRadians() = (player.yaw + 45f).toRadians()
+}

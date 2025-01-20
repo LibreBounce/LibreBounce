@@ -133,6 +133,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
             AimMode.NEAREST_ROTATION -> NearestRotationTargetPositionFactory(config)
             AimMode.REVERSE_YAW -> ReverseYawTargetPositionFactory(config)
             AimMode.DIAGONAL_YAW -> DiagonalYawTargetPositionFactory(config)
+            AimMode.ANGLE_YAW -> AngleYawTargetPositionFactory(config)
         }
     }
 
