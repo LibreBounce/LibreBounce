@@ -45,11 +45,13 @@ object ScaffoldTowerMotion : Choice("Motion") {
     override val parent: ChoiceConfigurable<Choice>
         get() = towerMode
 
-    val jumpEvent = handler<PlayerJumpEvent> {
+    @Suppress("unused")
+    private val jumpHandler = handler<PlayerJumpEvent> {
         jumpOffPosition = player.y
     }
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (!mc.options.jumpKey.isPressed || ModuleScaffold.blockCount <= 0 || !isBlockBelow) {
             jumpOffPosition = Double.NaN
             return@tickHandler
