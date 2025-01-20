@@ -149,7 +149,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     @Suppress("UnusedPrivateProperty")
-    internal val towerMode = choices("Tower", 0) { choices ->
+    val towerMode = choices("Tower", 0) { choices ->
         arrayOf(
             NoneChoice(choices),
             ScaffoldTowerMotion,
@@ -159,7 +159,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         )
     }
 
-    val isTowering: Boolean
+    internal val isTowering: Boolean
         get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && mc.options.jumpKey.isPressed
 
     // SafeWalk feature - uses the SafeWalk module as a base
