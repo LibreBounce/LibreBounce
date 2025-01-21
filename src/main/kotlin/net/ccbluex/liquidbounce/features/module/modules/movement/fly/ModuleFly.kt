@@ -33,13 +33,13 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.senti
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.sentinel.FlySentinel27thJan
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.spartan.FlySpartan524
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyNcpClip
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific.FlyWatchdog
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.verus.FlyVerusB3869Flat
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.verus.FlyVerusB3896Damage
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan277
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286MC18
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286Teleport
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.watchdog.FlyWatchdogFlat
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -83,6 +83,8 @@ object ModuleFly : ClientModule("Fly", Category.MOVEMENT, aliases = arrayOf("Gli
             FlyVerusB3896Damage,
             FlyVerusB3869Flat,
             FlyNcpClip,
+            
+            FlyWatchdogFlat,
 
             FlyHycraftDamage
         )

@@ -19,7 +19,7 @@
  *
  */
 
-package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.specific
+package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.watchdog
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
@@ -39,7 +39,7 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
  * @testedOn hypixel.net
  * @author @liquidsquid1
  */
-object FlyWatchdog : Choice("Watchdog") {
+object FlyWatchdogFlat : Choice("WatchdogFlat") {
 
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
