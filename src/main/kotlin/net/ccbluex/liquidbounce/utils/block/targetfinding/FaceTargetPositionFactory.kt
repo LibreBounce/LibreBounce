@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.entity.any
 import net.ccbluex.liquidbounce.utils.entity.direction
 import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
@@ -217,7 +218,6 @@ private object PositionFactoryDebug
 
 abstract class BaseYawTargetPositionFactory(
     protected val config: PositionFactoryConfiguration,
-    private var allowNearest: Boolean = true,
     private val yawTolerance: Float = 5f
 ) : FaceTargetPositionFactory() {
 
@@ -225,13 +225,18 @@ abstract class BaseYawTargetPositionFactory(
         ModuleDebug.debugParameter(PositionFactoryDebug, "TargetPos", targetPos)
         val trimmedFace = trimFace(face)
 
-        return aimAtNearestPointToYaw(targetPos, trimmedFace) ?:
-            if (allowNearest) {
-                NearestRotationTargetPositionFactory(config).aimAtNearestPointToRotationLine(targetPos, trimmedFace)
-            } else {
-                null
-            }
+        // If the player is not moving, we can just aim at the nearest point
+        return if (!player.input.playerInput.any) {
+            return aimAtNearestPointToRotationLine(targetPos, trimmedFace)
+        } else {
+            aimAtNearestPointToYaw(targetPos, trimmedFace) ?: aimAtNearestPointToRotationLine(targetPos, trimmedFace)
+        }
     }
+
+    protected fun aimAtNearestPointToRotationLine(
+        targetPos: BlockPos,
+        face: AlignedFace
+    ) = NearestRotationTargetPositionFactory(config).aimAtNearestPointToRotationLine(targetPos, face)
 
     protected fun aimAtNearestPointToYaw(
         targetPos: BlockPos,
