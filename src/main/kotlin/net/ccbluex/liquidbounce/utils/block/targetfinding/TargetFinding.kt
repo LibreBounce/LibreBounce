@@ -294,6 +294,7 @@ private fun findTargetPointOnFace(
         }
 
         val targetPos = options.faceHandlingOptions.facePositionFactory.producePositionOnFace(searchFace, currPos)
+            ?: return@mapNotNull null
 
         PointOnFace(
             face,
