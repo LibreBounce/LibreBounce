@@ -273,20 +273,22 @@ abstract class BaseYawTargetPositionFactory(
         val highIntersectLine = face.toPlane().intersection(highPlane)
         val lowIntersectLine = face.toPlane().intersection(lowPlane)
 
-        val highLineSegment = highIntersectLine?.let { face.coerceInFace(it) }
-        val lowLineSegment = lowIntersectLine?.let { face.coerceInFace(it) }
+        val highLineSegment = highIntersectLine?.let { line -> face.coerceInFace(line) }
+        val lowLineSegment = lowIntersectLine?.let { line -> face.coerceInFace(line) }
 
         ModuleDebug.debugParameter(PositionFactoryDebug, "HighLineSegment", highLineSegment)
         ModuleDebug.debugParameter(PositionFactoryDebug, "LowLineSegment", lowLineSegment)
 
-        val highClosestPoint = highLineSegment?.let { findClosestPointToYaw(it, highTargetYaw) }
-        val lowClosestPoint = lowLineSegment?.let { findClosestPointToYaw(it, lowTargetYaw) }
+        val highClosestPoint = highLineSegment?.let { segment -> findClosestPointToYaw(segment, highTargetYaw) }
+        val lowClosestPoint = lowLineSegment?.let { segment -> findClosestPointToYaw(segment, lowTargetYaw) }
 
         ModuleDebug.debugParameter(PositionFactoryDebug, "HighClosestPoint", highClosestPoint)
         ModuleDebug.debugParameter(PositionFactoryDebug, "LowClosestPoint", lowClosestPoint)
 
-        val highTolerance = highClosestPoint?.let { calculateYawDifference(it, highTargetYaw) } ?: Float.MAX_VALUE
-        val lowTolerance = lowClosestPoint?.let { calculateYawDifference(it, lowTargetYaw) } ?: Float.MAX_VALUE
+        val highTolerance = highClosestPoint?.let { point -> calculateYawDifference(point, highTargetYaw) }
+            ?: Float.MAX_VALUE
+        val lowTolerance = lowClosestPoint?.let { point -> calculateYawDifference(point, lowTargetYaw) }
+            ?: Float.MAX_VALUE
 
         ModuleDebug.debugParameter(PositionFactoryDebug, "HighTolerance", highTolerance)
         ModuleDebug.debugParameter(PositionFactoryDebug, "LowTolerance", lowTolerance)
