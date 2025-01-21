@@ -13,6 +13,12 @@ import net.ccbluex.liquidbounce.utils.extensions.random
 import net.ccbluex.liquidbounce.utils.extensions.withGCD
 import kotlin.math.abs
 
+// TODO: refactor them all
+
+class AlwaysRotationSettings(owner: Module, generalApply: () -> Boolean = { true }) : RotationSettings(owner, generalApply) {
+    override val rotationsActive: Boolean = true
+}
+
 @Suppress("MemberVisibilityCanBePrivate")
 open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true }) : Configurable("RotationSettings") {
 
