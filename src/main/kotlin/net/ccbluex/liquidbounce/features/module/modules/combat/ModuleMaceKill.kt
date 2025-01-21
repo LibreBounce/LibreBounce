@@ -90,7 +90,7 @@ object ModuleMaceKill : ClientModule("MaceKill", Category.COMBAT) {
             val newBoundingBox = boundingBox.offset(0.0, i.toDouble(), 0.0)
 
             // Check if the player would collide with a block
-            if (world.getBlockCollisions(player, newBoundingBox).all(VoxelShapes.empty()::equals) {
+            if (world.getBlockCollisions(player, newBoundingBox).all(VoxelShapes.empty()::equals)) {
                 return i
             }
         }
