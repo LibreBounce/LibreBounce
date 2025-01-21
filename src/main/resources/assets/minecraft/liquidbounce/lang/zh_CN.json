@@ -381,7 +381,7 @@
 
         "module.disabler.description": "使你免受服务器或特定反作弊的作弊检测。",
 
-        "module.overrideRaycast.description": "使用服务器基于旋转的raycast覆盖您基于旋转的raycast。”",
+        "module.overrideRaycast.description": "使用服务器基于旋转的raycast覆盖您基于旋转的raycast。",
 
         "module.tickBase.description": "缓冲ticks以便尽早攻击敌人。",
 
