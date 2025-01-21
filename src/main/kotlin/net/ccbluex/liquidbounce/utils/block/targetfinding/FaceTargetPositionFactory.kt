@@ -221,7 +221,7 @@ abstract class BaseYawTargetPositionFactory(
     private val yawTolerance: Float = 5f
 ) : FaceTargetPositionFactory() {
 
-    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d? {
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
         ModuleDebug.debugParameter(PositionFactoryDebug, "TargetPos", targetPos)
         val trimmedFace = trimFace(face)
 
