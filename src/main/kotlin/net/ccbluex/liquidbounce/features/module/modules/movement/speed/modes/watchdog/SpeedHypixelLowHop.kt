@@ -33,7 +33,7 @@ import net.minecraft.util.shape.VoxelShapes
 
 /**
  * @anticheat Watchdog (NCP)
- * @anticheatVersion 11.01.25
+ * @anticheatVersion 21.01.25
  * @testedOn hypixel.net
  */
 class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("HypixelLowHop", parent) {
@@ -67,9 +67,8 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
                 }
             }
 
-            if (isGroundExempt() || player.hurtTime >= 7) {
-                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281))
-                shouldStrafe = true
+            if (player.hurtTime >= 7) {
+                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed / 2)
             }
 
             if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) == 2) {
@@ -82,7 +81,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
 
     @Suppress("unused")
     private val jumpHandler = handler<PlayerJumpEvent> {
-        val atLeast = 0.281 + 0.13 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
+        val atLeast = 0.247 + 0.13 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
 
         player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
         shouldStrafe = true
