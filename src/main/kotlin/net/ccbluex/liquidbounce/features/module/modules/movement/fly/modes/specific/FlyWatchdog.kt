@@ -44,6 +44,9 @@ object FlyWatchdog : Choice("Watchdog") {
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
+    private val timer by float("Timer", 1.0f, 0.1f..1.0f)
+    private val flySpeed by float("Speed", 1.66f, 0.8f..2.0f)
+
     private var flyTicks = 0
     private var isFlying = false
 
@@ -63,14 +66,14 @@ object FlyWatchdog : Choice("Watchdog") {
 
         when (flyTicks) {
             1 -> player.velocity = player.velocity.withStrafe(speed = 0.8)
-            2 -> player.velocity = player.velocity.withStrafe(speed = 1.66)
+            2 -> player.velocity = player.velocity.withStrafe(speed = flySpeed.toDouble())
         }
 
         if (flyTicks > 30) {
             return@tickHandler
         }
 
-        Timer.requestTimerSpeed(0.76f, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
+        Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
         player.velocity.y = 0.0314 + (Math.random() / 1000f)
         player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed)
 
