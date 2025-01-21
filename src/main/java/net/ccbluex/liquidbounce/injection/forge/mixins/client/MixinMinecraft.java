@@ -14,8 +14,8 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.AbortBreaking;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.world.FastPlace;
 import net.ccbluex.liquidbounce.file.FileManager;
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration;
 import net.ccbluex.liquidbounce.injection.forge.SplashProgressLock;
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration;
 import net.ccbluex.liquidbounce.ui.client.GuiMainMenu;
 import net.ccbluex.liquidbounce.ui.client.GuiUpdate;
 import net.ccbluex.liquidbounce.ui.client.GuiWelcome;
@@ -150,7 +150,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;setTitle(Ljava/lang/String;)V", shift = At.Shift.AFTER))
     private void createDisplay(CallbackInfo callbackInfo) {
-        if (GuiClientConfiguration.Companion.getEnabledClientTitle()) {
+        if (ClientConfiguration.INSTANCE.getClientTitle()) {
             Display.setTitle(LiquidBounce.INSTANCE.getClientTitle());
         }
     }
@@ -218,7 +218,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
         if (Util.getOSType() != Util.EnumOS.OSX) {
-            if (GuiClientConfiguration.Companion.getEnabledClientTitle()) {
+            if (ClientConfiguration.INSTANCE.getClientTitle()) {
                 final ByteBuffer[] liquidBounceFavicon = IconUtils.INSTANCE.getFavicon();
                 if (liquidBounceFavicon != null) {
                     Display.setIcon(liquidBounceFavicon);

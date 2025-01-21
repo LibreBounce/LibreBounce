@@ -14,7 +14,7 @@ import net.minecraft.network.EnumConnectionState
 import net.minecraft.network.handshake.client.C00Handshake
 
 object BungeeCordSpoof : MinecraftInstance, Listenable {
-    var enabled = false
+    var enabled by ClientFixes.bungeeSpoofValue
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet

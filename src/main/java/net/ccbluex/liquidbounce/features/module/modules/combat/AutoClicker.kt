@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -32,20 +28,10 @@ import net.minecraft.item.EnumAction
 import net.minecraft.item.ItemBlock
 import kotlin.random.Random.Default.nextBoolean
 
-object AutoClicker : Module("AutoClicker", Category.COMBAT, hideModule = false) {
+object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false)
-
-    private val maxCPSValue: IntegerValue = object : IntegerValue("MaxCPS", 8, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minCPS)
-    }
-    private val maxCPS by maxCPSValue
-
-    private val minCPS by object : IntegerValue("MinCPS", 5, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxCPS)
-
-        override fun isSupported() = !maxCPSValue.isMinimal()
-    }
+    private val cps by intRange("CPS", 5..8, 1..50)
 
     private val hurtTime by int("HurtTime", 10, 0..10) { left }
 
@@ -61,9 +47,9 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, hideModule = false) 
 
     private val onlyBlocks by boolean("OnlyBlocks", true) { right }
 
-    private var rightDelay = randomClickDelay(minCPS, maxCPS)
+    private var rightDelay = generateNewClickTime()
     private var rightLastSwing = 0L
-    private var leftDelay = randomClickDelay(minCPS, maxCPS)
+    private var leftDelay = generateNewClickTime()
     private var leftLastSwing = 0L
 
     private var lastBlocking = 0L
@@ -159,7 +145,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, hideModule = false) 
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
             leftLastSwing = time
-            leftDelay = randomClickDelay(minCPS, maxCPS)
+            leftDelay = generateNewClickTime()
         }
     }
 
@@ -168,7 +154,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, hideModule = false) 
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
             rightLastSwing = time
-            rightDelay = randomClickDelay(minCPS, maxCPS)
+            rightDelay = generateNewClickTime()
         }
     }
 
@@ -179,4 +165,6 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, hideModule = false) 
             lastBlocking = time
         }
     }
+
+    fun generateNewClickTime() = randomClickDelay(cps.first, cps.last)
 }

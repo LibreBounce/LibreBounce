@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import co.uk.hexeption.utils.OutlineUtils
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -34,21 +33,19 @@ import kotlin.math.pow
 
 object StorageESP : Module("StorageESP", Category.RENDER) {
     private val mode by
-    ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
+    choices("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
 
     private val glowRenderScale by float("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
     private val glowRadius by int("Glow-Radius", 4, 1..5) { mode == "Glow" }
     private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
     private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val espColorMode by choices("ESP-Color", arrayOf("None", "Custom"), "None")
-    private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false)
+    private val espColorMode by choices("ESP-ColorMode", arrayOf("None", "Custom"), "None")
+    private val espColor = ColorSettingsInteger(this, "ESPColor")
     { espColorMode == "Custom" }.with(255, 179, 72)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..500) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..500).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)

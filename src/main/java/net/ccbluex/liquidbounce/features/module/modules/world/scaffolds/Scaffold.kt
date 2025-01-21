@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.*
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.block.BlockBush
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.air
@@ -47,7 +46,7 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 import kotlin.math.*
 
-object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule = false) {
+object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     /**
      * TOWER MODES & SETTINGS
@@ -56,20 +55,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     // -->
 
     private val towerMode by Tower.towerModeValues
-    private val stopWhenBlockAbove by Tower.stopWhenBlockAboveValues
-    private val onJump by Tower.onJumpValues
-    private val notOnMove by Tower.notOnMoveValues
-    private val jumpMotion by Tower.jumpMotionValues
-    private val jumpDelay by Tower.jumpDelayValues
-    private val constantMotion by Tower.constantMotionValues
-    private val constantMotionJumpGround by Tower.constantMotionJumpGroundValues
-    private val constantMotionJumpPacket by Tower.constantMotionJumpPacketValues
-    private val triggerMotion by Tower.triggerMotionValues
-    private val dragMotion by Tower.dragMotionValues
-    private val teleportHeight by Tower.teleportHeightValues
-    private val teleportDelay by Tower.teleportDelayValues
-    private val teleportGround by Tower.teleportGroundValues
-    private val teleportNoMotion by Tower.teleportNoMotionValues
+
+    init {
+        addValues(Tower.values)
+    }
 
     // <--
 
@@ -89,32 +78,12 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
     // Placeable delay
     private val placeDelayValue = boolean("PlaceDelay", true) { scaffoldMode != "GodBridge" }
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 0, 0..1000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-        override fun isSupported() = placeDelayValue.isActive()
-    }
-    private val maxDelay by maxDelayValue
-
-    private val minDelayValue = object : IntegerValue("MinDelay", 0, 0..1000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-        override fun isSupported() = placeDelayValue.isActive() && !maxDelayValue.isMinimal()
-    }
-    private val minDelay by minDelayValue
+    private val delay by intRange("Delay", 0..0, 0..1000) { placeDelayValue.isActive() }
 
     // Extra clicks
     private val extraClicks by boolean("DoExtraClicks", false)
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { extraClicks }
-    private val extraClickMaxCPSValue: IntegerValue = object : IntegerValue("ExtraClickMaxCPS", 7, 0..50) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(extraClickMinCPS)
-        override fun isSupported() = extraClicks
-    }
-    private val extraClickMaxCPS by extraClickMaxCPSValue
-
-    private val extraClickMinCPS by object : IntegerValue("ExtraClickMinCPS", 3, 0..50) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(extraClickMaxCPS)
-        override fun isSupported() = extraClicks && !extraClickMaxCPSValue.isMinimal()
-    }
-
+    private val extraClickCPS by intRange("ExtraClickCPS", 3..7, 0..50) { extraClicks }
     private val placementAttempt by choices(
         "PlacementAttempt", arrayOf("Fail", "Independent"), "Fail"
     ) { extraClicks }
@@ -128,16 +97,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     ) { earlySwitch && !sortByHighestAmount }
 
     // Settings
-    private val autoF5 by boolean("AutoF5", false, subjective = true)
+    private val autoF5 by boolean("AutoF5", false).subjective()
 
     // Basic stuff
     val sprint by boolean("Sprint", false)
-    private val swing by boolean("Swing", true, subjective = true)
+    private val swing by boolean("Swing", true).subjective()
     private val down by boolean("Down", true) { !sameY && scaffoldMode !in arrayOf("GodBridge", "Telly") }
 
-    private val ticksUntilRotation: IntegerValue = object : IntegerValue("TicksUntilRotation", 3, 1..5) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
+    private val ticksUntilRotation: Value<Int> = int("TicksUntilRotation", 3, 1..5) {
+        scaffoldMode == "Telly"
     }
 
     // GodBridge mode sub-values
@@ -148,60 +116,27 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     ) { isGodBridgeEnabled && !useOptimizedPitch }
 
     val jumpAutomatically by boolean("JumpAutomatically", true) { scaffoldMode == "GodBridge" }
-    private val maxBlocksToJump: IntegerValue = object : IntegerValue("MaxBlocksToJump", 4, 1..8) {
-        override fun isSupported() = scaffoldMode == "GodBridge" && !jumpAutomatically
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minBlocksToJump.get())
-    }
+    private val blocksToJumpRange by intRange("BlocksToJumpRange", 4..4, 1..8) {  scaffoldMode == "GodBridge" && !jumpAutomatically }
 
-    private val minBlocksToJump: IntegerValue = object : IntegerValue("MinBlocksToJump", 4, 1..8) {
-        override fun isSupported() = scaffoldMode == "GodBridge" && !jumpAutomatically && !maxBlocksToJump.isMinimal()
-
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxBlocksToJump.get())
-    }
-
-    // Telly mode subvalues
+    // Telly mode sub-values
     private val startHorizontally by boolean("StartHorizontally", true) { scaffoldMode == "Telly" }
-    private val maxHorizontalPlacements: IntegerValue = object : IntegerValue("MaxHorizontalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minHorizontalPlacements.get())
-    }
-    private val minHorizontalPlacements: IntegerValue = object : IntegerValue("MinHorizontalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxHorizontalPlacements.get())
-    }
-    private val maxVerticalPlacements: IntegerValue = object : IntegerValue("MaxVerticalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minVerticalPlacements.get())
-    }
+    private val horizontalPlacementsRange by intRange("HorizontalPlacementsRange", 1..1, 1..10) { scaffoldMode == "Telly" }
+    private val verticalPlacementsRange by intRange("VerticalPlacementsRange", 1..1, 1..10) { scaffoldMode == "Telly" }
 
-    private val minVerticalPlacements: IntegerValue = object : IntegerValue("MinVerticalPlacements", 1, 1..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxVerticalPlacements.get())
-    }
-
-    private val maxJumpTicks: IntegerValue = object : IntegerValue("MaxJumpTicks", 0, 0..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minJumpTicks.get())
-    }
-    private val minJumpTicks: IntegerValue = object : IntegerValue("MinJumpTicks", 0, 0..10) {
-        override fun isSupported() = scaffoldMode == "Telly"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxJumpTicks.get())
-    }
+    private val jumpTicksRange by intRange("JumpTicksRange", 0..0, 0..10) { scaffoldMode == "Telly" }
 
     private val allowClutching by boolean("AllowClutching", true) { scaffoldMode !in arrayOf("Telly", "Expand") }
-    private val horizontalClutchBlocks: IntegerValue = object : IntegerValue("HorizontalClutchBlocks", 3, 1..5) {
-        override fun isSupported() = allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
+    private val horizontalClutchBlocks: Value<Int> = int("HorizontalClutchBlocks", 3, 1..5) {
+        allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
     }
-    private val verticalClutchBlocks: IntegerValue = object : IntegerValue("VerticalClutchBlocks", 2, 1..3) {
-        override fun isSupported() = allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(minimum, maximum)
+    private val verticalClutchBlocks: Value<Int> = int("VerticalClutchBlocks", 2, 1..3) {
+        allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
     }
     private val blockSafe by boolean("BlockSafe", false) { !isGodBridgeEnabled }
 
     // Eagle
     private val eagleValue =
-        ListValue("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal") { scaffoldMode != "GodBridge" }
+        choices("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal") { scaffoldMode != "GodBridge" }
     val eagle by eagleValue
     private val eagleMode by choices("EagleMode", arrayOf("Both", "OnGround", "InAir"), "Both")
     { eagle != "Off" && scaffoldMode != "GodBridge" }
@@ -234,18 +169,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val zitterMode by choices("Zitter", arrayOf("Off", "Teleport", "Smooth"), "Off")
     private val zitterSpeed by float("ZitterSpeed", 0.13f, 0.1f..0.3f) { zitterMode == "Teleport" }
     private val zitterStrength by float("ZitterStrength", 0.05f, 0f..0.2f) { zitterMode == "Teleport" }
-
-    private val maxZitterTicksValue: IntegerValue = object : IntegerValue("MaxZitterTicks", 3, 0..6) {
-        override fun isSupported() = zitterMode == "Smooth"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minZitterTicks)
-    }
-    private val maxZitterTicks by maxZitterTicksValue
-
-    private val minZitterTicksValue: IntegerValue = object : IntegerValue("MinZitterTicks", 2, 0..6) {
-        override fun isSupported() = zitterMode == "Smooth" && !maxZitterTicksValue.isMinimal()
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxZitterTicks)
-    }
-    private val minZitterTicks by minZitterTicksValue
+    private val zitterTicks by intRange("ZitterTicks", 2..3, 0..6) { zitterMode == "Smooth" }
 
     private val useSneakMidAir by boolean("UseSneakMidAir", false) { zitterMode == "Smooth" }
 
@@ -260,25 +184,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
     // Jump Strafe
     private val jumpStrafe by boolean("JumpStrafe", false)
-    private val maxJumpStraightStrafe: FloatValue = object : FloatValue("MaxStraightStrafe", 0.45f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minJumpStraightStrafe.get())
-        override fun isSupported() = jumpStrafe
-    }
-
-    private val minJumpStraightStrafe: FloatValue = object : FloatValue("MinStraightStrafe", 0.4f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxJumpStraightStrafe.get())
-        override fun isSupported() = jumpStrafe
-    }
-
-    private val maxJumpDiagonalStrafe: FloatValue = object : FloatValue("MaxDiagonalStrafe", 0.45f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minJumpDiagonalStrafe.get())
-        override fun isSupported() = jumpStrafe
-    }
-
-    private val minJumpDiagonalStrafe: FloatValue = object : FloatValue("MinDiagonalStrafe", 0.4f, 0.1f..1f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxJumpDiagonalStrafe.get())
-        override fun isSupported() = jumpStrafe
-    }
+    private val jumpStraightStrafe by floatRange("JumpStraightStrafe", 0.4f..0.45f, 0.1f..1f) { jumpStrafe }
+    private val jumpDiagonalStrafe by floatRange("JumpDiagonalStrafe", 0.4f..0.45f, 0.1f..1f) { jumpStrafe }
 
     // Safety
     private val sameY by boolean("SameY", false) { scaffoldMode != "GodBridge" }
@@ -288,8 +195,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val airSafe by boolean("AirSafe", false) { safeWalkValue.isActive() }
 
     // Visuals
-    private val mark by boolean("Mark", false, subjective = true)
-    private val trackCPS by boolean("TrackCPS", false, subjective = true)
+    private val mark by boolean("Mark", false).subjective()
+    private val trackCPS by boolean("TrackCPS", false).subjective()
 
     // Target placement
     var placeRotation: PlaceRotation? = null
@@ -307,11 +214,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private var zitterDirection = false
 
     // Delay
-    private val delayTimer = object : DelayTimer(minDelayValue, maxDelayValue, MSTimer()) {
+    private val delayTimer = object : DelayTimer(delay.first, delay.last, MSTimer()) {
         override fun hasTimePassed() = !placeDelayValue.isActive() || super.hasTimePassed()
     }
 
-    private val zitterTickTimer = TickDelayTimer(minZitterTicksValue, maxZitterTicksValue)
+    private val zitterTickTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
 
     // Eagle
     private var placedBlocksWithoutEagle = 0
@@ -334,7 +241,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         get() = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 
     // Extra clicks
-    private var extraClick = ExtraClickInfo(TimeUtils.randomClickDelay(extraClickMinCPS, extraClickMaxCPS), 0L, 0)
+    private var extraClick = ExtraClickInfo(TimeUtils.randomClickDelay(extraClickCPS.first, extraClickCPS.last), 0L, 0)
 
     // GodBridge
     private var blocksPlacedUntilJump = 0
@@ -342,7 +249,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     private val isManualJumpOptionActive
         get() = scaffoldMode == "GodBridge" && !jumpAutomatically
 
-    private var blocksToJump = randomDelay(minBlocksToJump.get(), maxBlocksToJump.get())
+    private var blocksToJump = blocksToJumpRange.random()
 
     private val isGodBridgeEnabled
         get() = scaffoldMode == "GodBridge" || scaffoldMode == "Normal" && options.rotationMode == "GodBridge"
@@ -366,12 +273,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         }
 
     // Telly
-    private var offGroundTicks = 0
     private var ticksUntilJump = 0
     private var blocksUntilAxisChange = 0
-    private var jumpTicks = randomDelay(minJumpTicks.get(), maxJumpTicks.get())
-    private var horizontalPlacements = randomDelay(minHorizontalPlacements.get(), maxHorizontalPlacements.get())
-    private var verticalPlacements = randomDelay(minVerticalPlacements.get(), maxVerticalPlacements.get())
+    private var jumpTicks = jumpTicksRange.random()
+    private var horizontalPlacements = horizontalPlacementsRange.random()
+    private var verticalPlacements = verticalPlacementsRange.random()
     private val shouldPlaceHorizontally
         get() = scaffoldMode == "Telly" && mc.thePlayer.isMoving && (startHorizontally && blocksUntilAxisChange <= horizontalPlacements || !startHorizontally && blocksUntilAxisChange > verticalPlacements)
 
@@ -394,12 +300,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         mc.timer.timerSpeed = timer
 
         // Telly
-        if (player.onGround) {
-            offGroundTicks = 0
-            ticksUntilJump++
-        } else {
-            offGroundTicks++
-        }
+        if (player.onGround) ticksUntilJump++
 
         if (shouldGoDown) {
             mc.gameSettings.keyBindSneak.pressed = false
@@ -417,7 +318,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             var dif = 0.5
             val blockPos = BlockPos(player).down()
 
-            for (side in EnumFacing.values()) {
+            for (side in EnumFacing.entries) {
                 if (side.axis == EnumFacing.Axis.Y) {
                     continue
                 }
@@ -529,7 +430,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
             player.tryJump()
 
             ticksUntilJump = 0
-            jumpTicks = randomDelay(minJumpTicks.get(), maxJumpTicks.get())
+            jumpTicks = jumpTicksRange.random()
         }
     }
 
@@ -648,7 +549,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
             blocksPlacedUntilJump = 0
 
-            blocksToJump = randomDelay(minBlocksToJump.get(), maxBlocksToJump.get())
+            blocksToJump = blocksToJumpRange.random()
         }
     }
 
@@ -664,8 +565,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
     }
 
     private fun setRotation(rotation: Rotation, ticks: Int) {
-        if (scaffoldMode == "Telly" && mc.thePlayer.isMoving) {
-            if (offGroundTicks < ticksUntilRotation.get() && ticksUntilJump >= jumpTicks) {
+        val player = mc.thePlayer ?: return
+
+        if (scaffoldMode == "Telly" && player.isMoving) {
+            if (player.airTicks < ticksUntilRotation.get() && ticksUntilJump >= jumpTicks) {
                 return
             }
         }
@@ -877,7 +780,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         if (event.eventState == EventState.POST) {
             MovementUtils.strafe(
-                if (!isLookingDiagonally) (minJumpStraightStrafe.get()..maxJumpStraightStrafe.get()).random() else (minJumpDiagonalStrafe.get()..maxJumpDiagonalStrafe.get()).random()
+                (if (!isLookingDiagonally) jumpStraightStrafe else jumpDiagonalStrafe).random()
             )
         }
     }
@@ -896,7 +799,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
                     if (raytrace.typeOfHit.isBlock && timePassed) {
                         extraClick = ExtraClickInfo(
-                            TimeUtils.randomClickDelay(extraClickMinCPS, extraClickMaxCPS),
+                            TimeUtils.randomClickDelay(extraClickCPS.first, extraClickCPS.last),
                             System.currentTimeMillis(),
                             extraClick.clicks + 1
                         )
@@ -960,7 +863,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
 
         var currPlaceRotation: PlaceRotation?
 
-        for (side in EnumFacing.values()) {
+        for (side in EnumFacing.entries) {
             if (horizontalOnly && side.axis == EnumFacing.Axis.Y) {
                 continue
             }
@@ -1142,8 +1045,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I, hideModule 
         if (blocksUntilAxisChange > horizontalPlacements + verticalPlacements) {
             blocksUntilAxisChange = 0
 
-            horizontalPlacements = randomDelay(minHorizontalPlacements.get(), maxHorizontalPlacements.get())
-            verticalPlacements = randomDelay(minVerticalPlacements.get(), maxVerticalPlacements.get())
+            horizontalPlacements = horizontalPlacementsRange.random()
+            verticalPlacements = verticalPlacementsRange.random()
             return
         }
 

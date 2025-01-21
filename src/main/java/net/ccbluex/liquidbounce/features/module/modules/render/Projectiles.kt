@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -15,7 +13,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.material
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.isSplashPotion
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.interpolateHSB
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
@@ -42,13 +39,11 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = false, hideModule = false) {
+object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = false) {
     private val maxTrailSize by int("MaxTrailSize", 20, 1..100)
 
-    private val colorMode by choices("Color", arrayOf("Custom", "BowPower", "Rainbow"), "Custom")
-    private val colorRed by int("R", 0, 0..255) { colorMode == "Custom" }
-    private val colorGreen by int("G", 160, 0..255) { colorMode == "Custom" }
-    private val colorBlue by int("B", 255, 0..255) { colorMode == "Custom" }
+    private val colorMode by choices("ColorMode", arrayOf("Custom", "BowPower"), "Custom")
+    private val color by color("Color", Color(0, 160, 255)) { colorMode == "Custom" }
 
     private val trailPositions = mutableMapOf<Entity, ArrayDeque<ProjectilePos>>()
 
@@ -155,8 +150,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             glColor(
                 when (colorMode.lowercase()) {
                     "bowpower" -> interpolateHSB(Color.RED, Color.GREEN, (motionFactor / 30) * 10)
-                    "rainbow" -> ColorUtils.rainbow()
-                    else -> Color(colorRed, colorGreen, colorBlue, 255)
+                    else -> color
                 }
             )
             glLineWidth(2f)

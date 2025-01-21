@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_AUTHOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.blockStatus
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -32,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.movement.TimerBalanceUtils
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader
@@ -61,6 +61,7 @@ import kotlin.math.max
  */
 @ElementInfo(name = "Text")
 class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = Side.default()) : Element(
+    "Text",
     x,
     y,
     scale,
@@ -95,7 +96,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
             text.displayString = "Blocks: %blockamount%"
             text.shadow = true
-            text.bgColors.with(a = 100)
+            text.bgColors.color().withAlpha(100)
             text.onScaffold = true
             text.showBlock = true
             text.backgroundScale = 1F
@@ -110,14 +111,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private var displayString by text("DisplayText", "")
 
-    private val textColorMode by choices("Text-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val textColorMode by choices("Text-ColorMode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
 
-    private val colors = ColorSettingsInteger(
-        this,
-        zeroAlphaCheck = true,
-        alphaApply = { textColorMode != "Rainbow" },
-        applyMax = true
-    ) { textColorMode == "Custom" }
+    private val colors = ColorSettingsInteger(this, "TextColor", applyMax = true) { textColorMode == "Custom" }
 
     private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
 
@@ -130,9 +126,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private var backgroundScale by float("Background-Scale", 1F, 1F..3F)
 
-    private val backgroundMode by choices("Background-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
 
-    private val bgColors = ColorSettingsInteger(this, "Background", zeroAlphaCheck = true)
+    private val bgColors = ColorSettingsInteger(this, "BackgroundColor")
     { backgroundMode == "Custom" }.with(a = 0)
 
     private val gradientBackgroundSpeed by float("Background-Gradient-Speed", 1f, 0.5f..10f)
@@ -145,7 +141,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private val backgroundBorder by float("BackgroundBorder-Width", 0.5F, 0.5F..5F)
 
-    private val bgBorderColors = ColorSettingsInteger(this, "BackgroundBorder", zeroAlphaCheck = true).with(a = 0)
+    private val bgBorderColors = ColorSettingsInteger(this, "BackgroundBorderColor").with(a = 0)
 
     private fun isColorModeUsed(value: String) = textColorMode == value || backgroundMode == value
 
@@ -269,7 +265,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     override fun drawElement(): Border {
         val stack = mc.thePlayer?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
         val shouldRender = showBlock && stack?.item is ItemBlock
-        val showBlockScale = if (shouldRender) 1.2F else 1F
+        val blockScale = if (shouldRender) 2.5F else 1F
         val fontHeight = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT) + 2
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
@@ -279,12 +275,17 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
         val heightPadding = if (font == mc.fontRendererObj) 1F else 0F
 
         val bgScale = max(backgroundScale, 1F)
+        val horizontalPadding = (if (shouldRender) 16F else 2F) + blockScale
+        val verticalPadding = (if (shouldRender) 3F else 2F + heightPadding) + (blockScale - 1F)
 
-        val params = floatArrayOf(
-            -(if (shouldRender) 16F else 2F) * bgScale * showBlockScale,
-            -(if (shouldRender) 3F else 2 + heightPadding) * bgScale * showBlockScale,
-            width + bgScale * showBlockScale,
-            (if (shouldRender) 1F else 1 + heightPadding) + fontHeight * bgScale * showBlockScale
+        val scaledWidth = width + (horizontalPadding * bgScale)
+        val scaledHeight = fontHeight + (verticalPadding * bgScale) - 1F
+
+        val rectPos = floatArrayOf(
+            -horizontalPadding * bgScale,
+            -verticalPadding * bgScale,
+            scaledWidth - if (shouldRender) 16F else 0F,
+            scaledHeight
         )
 
         assumeNonVolatile {
@@ -310,7 +311,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 ).use {
                     RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
                         drawRoundedRect(
-                            params[0], params[1], params[2], params[3],
+                            rectPos[0], rectPos[1], rectPos[2], rectPos[3],
                             when (backgroundMode) {
                                 "Gradient" -> 0
                                 "Rainbow" -> 0
@@ -323,10 +324,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
                 if (bgBorderColors.color().alpha > 0) {
                     drawRoundedBorder(
-                        params[0],
-                        params[1],
-                        params[2],
-                        params[3],
+                        rectPos[0],
+                        rectPos[1],
+                        rectPos[2],
+                        rectPos[3],
                         backgroundBorder,
                         bgBorderColors.color().rgb,
                         roundedBackgroundRadius
@@ -381,7 +382,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
             }
         }
 
-        return Border(params[0], params[1], params[2], params[3])
+        return Border(rectPos[0], rectPos[1], rectPos[2], rectPos[3])
     }
 
     override fun updateElement() {

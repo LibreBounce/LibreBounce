@@ -36,6 +36,8 @@
         "text.Search": "§7账号搜索",
         "text.Loggingintoaccount": "正在登录账号",
 
+        "menu.altManager.typeCustomPrefix": "UNTRANSLATED: Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "已启用 %s",
         "notification.moduleDisabled": "已禁用 %s",
 

@@ -12,6 +12,8 @@
 
         "menu.discordRPC.typeBox": "UNTRANSLATED: Type Here..",
 
+        "menu.altManager.typeCustomPrefix": "UNTRANSLATED: Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "Включен %s",
         "notification.moduleDisabled": "Выключен %s",
 

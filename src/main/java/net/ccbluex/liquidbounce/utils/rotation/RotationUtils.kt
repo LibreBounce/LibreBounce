@@ -255,11 +255,11 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         randomization?.takeIf { it.randomize }?.run {
             val yawMovement =
-                angleDifference(currRotation.yaw, lastRotations[1].yaw).sign.takeIf { it != 0f } ?: arrayOf(
+                angleDifference(currRotation.yaw, lastRotations[2].yaw).sign.takeIf { it != 0f } ?: arrayOf(
                     -1f, 1f
                 ).random()
             val pitchMovement =
-                angleDifference(currRotation.pitch, lastRotations[1].pitch).sign.takeIf { it != 0f } ?: arrayOf(
+                angleDifference(currRotation.pitch, lastRotations[2].pitch).sign.takeIf { it != 0f } ?: arrayOf(
                     -1f, 1f
                 ).random()
 
@@ -342,7 +342,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     ): Rotation {
         val (hSpeed, vSpeed) = if (settings.instant) {
             180f to 180f
-        } else settings.horizontalSpeed.random() to settings.verticalSpeed.random()
+        } else settings.horizontalSpeed to settings.verticalSpeed
 
         return performAngleChange(
             currentRotation,
@@ -764,7 +764,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         companion object {
             fun fromString(point: String): BodyPoint {
-                return values().find { it.name.equals(point, ignoreCase = true) } ?: UNKNOWN
+                return entries.find { it.name.equals(point, ignoreCase = true) } ?: UNKNOWN
             }
         }
     }

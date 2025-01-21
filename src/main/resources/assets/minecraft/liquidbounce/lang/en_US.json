@@ -37,6 +37,8 @@
 
         "menu.discordRPC.typeBox": "Type Here..",
 
+        "menu.altManager.typeCustomPrefix": "Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "Enabled %s",
         "notification.moduleDisabled": "Disabled %s",
 
@@ -234,6 +236,8 @@
 
         "module.itemPhysics.description": "Allows dropped items to have physics",
 
+        "module.jumpCircle.description": "Renders a circle below you when jumping.",
+
         "module.keepAlive.description": "Tries to prevent you from dying.",
         
         "module.keepContainer.description": "Allows you to open a formerly closed inventory container everywhere. (Press INSERT Key to open)",
@@ -392,6 +396,8 @@
 
         "module.clickRecorder.description": "Records and saves your clicks.",
 
-        "module.chineseHat.description": "Renders a chinese-like hat on specific entities."
+        "module.chineseHat.description": "Renders a chinese-like hat on specific entities.",
+
+        "module.snakeGame.description": "The snake game for free. sniff sniff."
     }
 }

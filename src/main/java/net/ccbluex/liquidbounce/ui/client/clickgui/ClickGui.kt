@@ -30,11 +30,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetDead
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.client.asResourceLocation
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -78,7 +74,7 @@ object ClickGui : GuiScreen() {
         val height = 18
         var yPos = 5
 
-        for (category in Category.values()) {
+        for (category in Category.entries) {
             panels += object : Panel(category.displayName, 100, yPos, width, height, false) {
                 override val elements = moduleManager.mapNotNull {
                     it.takeIf { module -> module.category == category }?.let(::ModuleElement)
@@ -101,20 +97,20 @@ object ClickGui : GuiScreen() {
         object : Panel("Targets", xPos, yPos, width, height, false) {
 
             override val elements = listOf(
-                ButtonElement("Players", { if (targetPlayer) guiColor else Int.MAX_VALUE }) {
-                    targetPlayer = !targetPlayer
+                ButtonElement("Players", { if (Targets.player) guiColor else Int.MAX_VALUE }) {
+                    Targets.player = !Targets.player
                 },
-                ButtonElement("Mobs", { if (targetMobs) guiColor else Int.MAX_VALUE }) {
-                    targetMobs = !targetMobs
+                ButtonElement("Mobs", { if (Targets.mob) guiColor else Int.MAX_VALUE }) {
+                    Targets.mob = !Targets.mob
                 },
-                ButtonElement("Animals", { if (targetAnimals) guiColor else Int.MAX_VALUE }) {
-                    targetAnimals = !targetAnimals
+                ButtonElement("Animals", { if (Targets.animal) guiColor else Int.MAX_VALUE }) {
+                    Targets.animal = !Targets.animal
                 },
-                ButtonElement("Invisible", { if (targetInvisible) guiColor else Int.MAX_VALUE }) {
-                    targetInvisible = !targetInvisible
+                ButtonElement("Invisible", { if (Targets.invisible) guiColor else Int.MAX_VALUE }) {
+                    Targets.invisible = !Targets.invisible
                 },
-                ButtonElement("Dead", { if (targetDead) guiColor else Int.MAX_VALUE }) {
-                    targetDead = !targetDead
+                ButtonElement("Dead", { if (Targets.dead) guiColor else Int.MAX_VALUE }) {
+                    Targets.dead = !Targets.dead
                 },
             )
 

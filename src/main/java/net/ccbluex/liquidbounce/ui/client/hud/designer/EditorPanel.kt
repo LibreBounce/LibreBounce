@@ -7,21 +7,33 @@ package net.ccbluex.liquidbounce.ui.client.hud.designer
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
+import net.ccbluex.liquidbounce.file.FileManager.saveConfig
+import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.ELEMENTS
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
-import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.extensions.lerpWith
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
+import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.MathHelper
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
+import kotlin.math.roundToInt
 
 class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: Int) : MinecraftInstance {
 
@@ -125,8 +137,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
             Fonts.font35.drawString(name, x + 2f, y + height.toFloat(), Color.WHITE.rgb)
 
-            val stringWidth = Fonts.font35.getStringWidth(name)
-            if (width < stringWidth + 8) width = stringWidth + 8
+            val stringWidth = Fonts.font35.getStringWidth(name) + 8
+            if (stringWidth > width) width = stringWidth
 
             if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
                 try {
@@ -146,7 +158,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         }
 
         drawRect(x, y, x + width, y + 12, guiColor)
-        Fonts.font35.drawString("§lCreate element", x + 2F, y + 3.5F, Color.WHITE.rgb)
+        val centerX = (x..x + width).lerpWith(0.5F)
+        Fonts.font35.drawCenteredString("§lCreate element", centerX, y + 3.5F, Color.WHITE.rgb)
     }
 
     /**
@@ -179,11 +192,12 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         for (element in HUD.elements) {
             Fonts.font35.drawString(element.name, x + 2, y + height, Color.WHITE.rgb)
 
-            val stringWidth = Fonts.font35.getStringWidth(element.name)
-            if (width < stringWidth + 8) width = stringWidth + 8
+            val stringWidth = Fonts.font35.getStringWidth(element.name) + 8
+            if (width < stringWidth) width = stringWidth
 
-            if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) hudDesigner.selectedElement =
-                element
+            if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
+                hudDesigner.selectedElement = element
+            }
 
             height += 10
             realHeight += 10
@@ -191,40 +205,53 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
         drawRect(x, y, x + width, y + 12, guiColor)
         glColor4f(1f, 1f, 1f, 1f)
-        Fonts.font35.drawString("§lEditor", x + 2F, y + 3.5f, Color.WHITE.rgb)
+        val centerX = (x..x + width).lerpWith(0.5F)
+        Fonts.font35.drawCenteredString("§lElement Editor", centerX, y + 3.5f, Color.WHITE.rgb)
 
         if (showConfirmation) {
-            val dialogX = x
-
             val confirmationMessage = "Are you sure you want to reset?"
+            val textWidth = font35.getStringWidth(confirmationMessage)
 
+            val dialogX = x
+            val dialogX2 = x + textWidth
             val dialogY = y + height
-            val dialogWidth = width + 10
+            val padding = 5
             val dialogHeight = 30
+            val centerDialogX = (dialogX..dialogX2).lerpWith(0.5F)
 
-            drawRect(dialogX, dialogY + 10, dialogX + dialogWidth, dialogY + dialogHeight + 10, Color(0, 0, 0, 150).rgb)
+            drawRect(
+                dialogX - padding, dialogY + 10,
+                dialogX2 + padding, dialogY + dialogHeight + 10,
+                Color(0, 0, 0, 150).rgb
+            )
 
-            Fonts.font35.drawString(confirmationMessage, dialogX + 4f, dialogY.toFloat() + 12, Color.WHITE.rgb)
+            Fonts.font35.drawCenteredString(confirmationMessage, centerDialogX, dialogY + 12f, Color.WHITE.rgb)
 
-            val buttonWidth = 30
-            val buttonHeight = 15
-            val yesButtonX = dialogX + 15
-            val noButtonX = dialogX + dialogWidth - buttonWidth - 18
-            val buttonY = dialogY + dialogHeight - buttonHeight + 8
+            val buttonData = listOf(
+                "Yes" to Color.GREEN to (dialogX.toFloat()..centerDialogX),
+                "No" to Color.RED to (centerDialogX..dialogX2.toFloat())
+            )
 
-            // Yes button
-            drawRect(yesButtonX, buttonY, yesButtonX + buttonWidth, buttonY + buttonHeight, Color.GREEN.rgb)
-            Fonts.font35.drawString("Yes", yesButtonX + 8f, buttonY.toFloat() + 5, Color.WHITE.rgb)
+            val answerButtonY = (dialogY + 12 + font35.height..dialogY + dialogHeight + 10).lerpWith(0.5F)
+            val buttonWidth = font35.getStringWidth("Yes")
+            val paddingY = buttonWidth / 2
 
-            // No button
-            drawRect(noButtonX, buttonY, noButtonX + buttonWidth, buttonY + buttonHeight, Color.RED.rgb)
-            Fonts.font35.drawString("No", noButtonX + 10f, buttonY.toFloat() + 5, Color.WHITE.rgb)
+            buttonData.forEach { (labelAndColor, bounds) ->
+                val (label, color) = labelAndColor
+                val buttonX = bounds.lerpWith(0.5F)
+                val isHovered = mouseX.toFloat() in (buttonX - buttonWidth..buttonX + buttonWidth) &&
+                        mouseY.toFloat() in (answerButtonY - paddingY..answerButtonY + paddingY)
 
-            if (Mouse.isButtonDown(0) && !mouseDown) {
-                if (mouseX in yesButtonX..(yesButtonX + buttonWidth) && mouseY in buttonY..(buttonY + buttonHeight)) {
-                    HUD.setDefault()
-                    showConfirmation = false
-                } else if (mouseX in noButtonX..(noButtonX + buttonWidth) && mouseY in buttonY..(buttonY + buttonHeight)) {
+                drawRect(
+                    buttonX - buttonWidth, answerButtonY - paddingY,
+                    buttonX + buttonWidth, answerButtonY + paddingY,
+                    color.let { if (isHovered) it.darker() else it }
+                )
+
+                Fonts.font35.drawCenteredString(label, buttonX, answerButtonY - 2, Color.WHITE.rgb, true)
+
+                if (Mouse.isButtonDown(0) && !mouseDown && isHovered) {
+                    if (label == "Yes") HUD.setDefault()
                     showConfirmation = false
                 }
             }
@@ -239,7 +266,6 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         realHeight = 15
 
         val prevWidth = width
-        width = 100
 
         val element = currentElement ?: return
 
@@ -269,7 +295,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         )
 
         if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
-            val values = Side.Horizontal.values()
+            val values = Side.Horizontal.entries.toTypedArray()
             val currIndex = values.indexOf(element.side.horizontal)
 
             val x = element.renderX
@@ -292,7 +318,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         )
 
         if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
-            val values = Side.Vertical.values()
+            val values = Side.Vertical.entries.toTypedArray()
             val currIndex = values.indexOf(element.side.vertical)
 
             val y = element.renderY
@@ -316,11 +342,11 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             when (value) {
                 is BoolValue -> {
                     // Title
-                    Fonts.font35.drawString(
+                    font35.drawString(
                         value.name, x + 2, y + height, if (value.get()) Color.WHITE.rgb else Color.GRAY.rgb
                     )
 
-                    val stringWidth = Fonts.font35.getStringWidth(value.name)
+                    val stringWidth = font35.getStringWidth(value.name)
                     if (width < stringWidth + 8) width = stringWidth + 8
 
                     // Toggle value
@@ -343,9 +369,9 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     // Title
                     val text = "${value.name}: §c${"%.2f".format(current)}"
 
-                    Fonts.font35.drawString(text, x + 2, y + height, Color.WHITE.rgb)
+                    font35.drawString(text, x + 2, y + height, Color.WHITE.rgb)
 
-                    val stringWidth = Fonts.font35.getStringWidth(text)
+                    val stringWidth = font35.getStringWidth(text)
                     if (width < stringWidth + 8) width = stringWidth + 8
 
                     // Slider
@@ -370,7 +396,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     realHeight += 20
                 }
 
-                is IntegerValue -> {
+                is IntValue -> {
                     val current = value.get()
                     val min = value.minimum
                     val max = value.maximum
@@ -378,9 +404,9 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     // Title
                     val text = "${value.name}: §c$current"
 
-                    Fonts.font35.drawString(text, x + 2, y + height, Color.WHITE.rgb)
+                    font35.drawString(text, x + 2, y + height, Color.WHITE.rgb)
 
-                    val stringWidth = Fonts.font35.getStringWidth(text)
+                    val stringWidth = font35.getStringWidth(text)
                     if (width < stringWidth + 8) width = stringWidth + 8
 
                     // Slider
@@ -407,7 +433,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
                 is ListValue -> {
                     // Title
-                    Fonts.font35.drawString(value.name, x + 2, y + height, Color.WHITE.rgb)
+                    font35.drawString(value.name, x + 2, y + height, Color.WHITE.rgb)
 
                     height += 10
                     realHeight += 10
@@ -416,11 +442,11 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     for (s in value.values) {
                         // Value title
                         val text = "§c> §r$s"
-                        Fonts.font35.drawString(
+                        font35.drawString(
                             text, x + 2, y + height, if (s == value.get()) Color.WHITE.rgb else Color.GRAY.rgb
                         )
 
-                        val stringWidth = Fonts.font35.getStringWidth(text)
+                        val stringWidth = font35.getStringWidth(text)
                         if (width < stringWidth + 8) width = stringWidth + 8
 
                         // Select value
@@ -440,9 +466,9 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     // Title
                     val displayString = value.displayName
 
-                    Fonts.font35.drawString(displayString, x + 2, y + height, Color.WHITE.rgb)
+                    font35.drawString(displayString, x + 2, y + height, Color.WHITE.rgb)
 
-                    val stringWidth = Fonts.font35.getStringWidth(displayString)
+                    val stringWidth = font35.getStringWidth(displayString)
                     if (width < stringWidth + 8) width = stringWidth + 8
 
                     if (((Mouse.isButtonDown(0) && !mouseDown) || (Mouse.isButtonDown(1) && !rightMouseDown)) && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
@@ -455,17 +481,317 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     height += 10
                     realHeight += 10
                 }
+
+                is ColorValue -> {
+                    val currentColor = value.selectedColor()
+
+                    val display = "${value.name}: ${"#%08X".format(currentColor.rgb)}"
+
+                    val newWidth = (font35.getStringWidth(display) * 1.5F).roundToInt()
+
+                    if (newWidth > width) {
+                        width = newWidth
+                    }
+
+                    val leftClickPressed = Mouse.isButtonDown(0) && !mouseDown
+                    val rightClickPressed = Mouse.isButtonDown(1) && !rightMouseDown
+
+                    val spacing = 14
+
+                    val maxX = x + width
+                    val startX = x
+                    val startY = y + height - 1
+
+                    // Color preview
+                    val colorPreviewSize = 9
+                    val colorPreviewX2 = maxX - colorPreviewSize
+                    val colorPreviewX1 = colorPreviewX2 - colorPreviewSize
+                    val colorPreviewY1 = startY + 1
+                    val colorPreviewY2 = colorPreviewY1 + colorPreviewSize
+
+                    val rainbowPreviewX2 = colorPreviewX1 - (colorPreviewSize / 1.5F).roundToInt()
+                    val rainbowPreviewX1 = rainbowPreviewX2 - colorPreviewSize
+
+                    // Text
+                    val textX = startX + 2F
+                    val textY = startY + 3F
+
+                    // Sliders
+                    val hueSliderWidth = 7
+                    val hueSliderHeight = 50
+                    val colorPickerWidth = 75
+                    val colorPickerHeight = 50
+
+                    val spacingBetweenSliders = 5
+
+                    val colorPickerStartX = textX.toInt()
+                    val colorPickerEndX = colorPickerStartX + colorPickerWidth
+                    val colorPickerStartY = colorPreviewY2 + spacing / 3
+                    val colorPickerEndY = colorPickerStartY + colorPickerHeight
+
+                    val hueSliderStartY = colorPickerStartY
+                    val hueSliderEndY = colorPickerStartY + hueSliderHeight
+
+                    val hueSliderX = colorPickerEndX + spacingBetweenSliders
+
+                    val opacityStartX = hueSliderX + hueSliderWidth + spacingBetweenSliders
+                    val opacityEndX = opacityStartX + hueSliderWidth
+
+                    val rainbow = value.rainbow
+
+                    if (leftClickPressed || rightClickPressed) {
+                        val isColorPreview =
+                            mouseX in colorPreviewX1..colorPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
+                        val isRainbowPreview =
+                            mouseX in rainbowPreviewX1..rainbowPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
+
+                        when {
+                            isColorPreview -> {
+                                if (leftClickPressed && rainbow) value.rainbow = false
+                                if (rightClickPressed) value.showPicker = !value.showPicker
+                                ClickGui.style.clickSound()
+                                element.updateElement()
+                            }
+
+                            isRainbowPreview -> {
+                                if (leftClickPressed) value.rainbow = true
+                                if (rightClickPressed) value.showPicker = !value.showPicker
+                                ClickGui.style.clickSound()
+                                element.updateElement()
+                            }
+                        }
+                    }
+
+                    font35.drawString(display, textX, textY, Color.WHITE.rgb)
+
+                    val normalBorderColor = if (rainbow) 0 else Color.BLUE.rgb
+                    val rainbowBorderColor = if (rainbow) Color.BLUE.rgb else 0
+
+                    val hue = if (rainbow) {
+                        Color.RGBtoHSB(currentColor.red, currentColor.green, currentColor.blue, null)[0]
+                    } else {
+                        value.hueSliderY
+                    }
+
+                    if (value.showPicker) {
+                        // Color Picker
+                        value.updateTextureCache(
+                            id = 0,
+                            hue = hue,
+                            width = colorPickerWidth,
+                            height = colorPickerHeight,
+                            generateImage = { image, _ ->
+                                for (px in 0 until colorPickerWidth) {
+                                    for (py in 0 until colorPickerHeight) {
+                                        val localS = px / colorPickerWidth.toFloat()
+                                        val localB = 1.0f - (py / colorPickerHeight.toFloat())
+                                        val rgb = Color.HSBtoRGB(hue, localS, localB)
+                                        image.setRGB(px, py, rgb)
+                                    }
+                                }
+                            },
+                            drawAt = { id ->
+                                drawTexture(
+                                    id, colorPickerStartX, colorPickerStartY, colorPickerWidth, colorPickerHeight
+                                )
+                            })
+
+                        val markerX = (colorPickerStartX..colorPickerEndX).lerpWith(value.colorPickerPos.x)
+                        val markerY = (colorPickerStartY..colorPickerEndY).lerpWith(value.colorPickerPos.y)
+
+                        if (!rainbow) {
+                            RenderUtils.drawBorder(
+                                markerX - 2f, markerY - 2f, markerX + 3f, markerY + 3f, 1.5f, Color.WHITE.rgb
+                            )
+                        }
+
+                        // Hue slider
+                        value.updateTextureCache(
+                            id = 1,
+                            hue = hue,
+                            width = hueSliderWidth,
+                            height = hueSliderHeight,
+                            generateImage = { image, _ ->
+                                for (y in 0 until hueSliderHeight) {
+                                    for (x in 0 until hueSliderWidth) {
+                                        val localHue = y / hueSliderHeight.toFloat()
+                                        val rgb = Color.HSBtoRGB(localHue, 1.0f, 1.0f)
+                                        image.setRGB(x, y, rgb)
+                                    }
+                                }
+                            },
+                            drawAt = { id ->
+                                drawTexture(
+                                    id, hueSliderX, colorPickerStartY, hueSliderWidth, hueSliderHeight
+                                )
+                            })
+
+                        // Opacity slider
+                        value.updateTextureCache(
+                            id = 2,
+                            hue = currentColor.rgb.toFloat(),
+                            width = hueSliderWidth,
+                            height = hueSliderHeight,
+                            generateImage = { image, _ ->
+                                val gridSize = 1
+
+                                for (y in 0 until hueSliderHeight) {
+                                    for (x in 0 until hueSliderWidth) {
+                                        val gridX = x / gridSize
+                                        val gridY = y / gridSize
+
+                                        val checkerboardColor = if ((gridY + gridX) % 2 == 0) {
+                                            Color.WHITE.rgb
+                                        } else {
+                                            Color.BLACK.rgb
+                                        }
+
+                                        val alpha = ((1 - y.toFloat() / hueSliderHeight.toFloat()) * 255).roundToInt()
+
+                                        val finalColor = blendColors(
+                                            Color(checkerboardColor), currentColor.withAlpha(alpha)
+                                        )
+
+                                        image.setRGB(x, y, finalColor.rgb)
+                                    }
+                                }
+                            },
+                            drawAt = { id ->
+                                drawTexture(
+                                    id, opacityStartX, colorPickerStartY, hueSliderWidth, hueSliderHeight
+                                )
+                            })
+
+                        val opacityMarkerY = (hueSliderStartY..hueSliderEndY).lerpWith(1 - value.opacitySliderY)
+                        val hueMarkerY = (hueSliderStartY..hueSliderEndY).lerpWith(hue)
+
+                        RenderUtils.drawBorder(
+                            hueSliderX.toFloat() - 1,
+                            hueMarkerY - 1f,
+                            hueSliderX + hueSliderWidth + 1f,
+                            hueMarkerY + 1f,
+                            1.5f,
+                            Color.WHITE.rgb,
+                        )
+
+                        RenderUtils.drawBorder(
+                            opacityStartX.toFloat() - 1,
+                            opacityMarkerY - 1f,
+                            opacityEndX + 1f,
+                            opacityMarkerY + 1f,
+                            1.5f,
+                            Color.WHITE.rgb,
+                        )
+
+                        val inColorPicker =
+                            mouseX in colorPickerStartX until colorPickerEndX && mouseY in colorPickerStartY until colorPickerEndY && !rainbow
+                        val inHueSlider =
+                            mouseX in hueSliderX - 1..hueSliderX + hueSliderWidth + 1 && mouseY in hueSliderStartY until hueSliderEndY && !rainbow
+                        val inOpacitySlider =
+                            mouseX in opacityStartX - 1..opacityEndX + 1 && mouseY in hueSliderStartY until hueSliderEndY
+
+                        // Must be outside the if statements below since we check for mouse button state.
+                        // If it's inside the statement, it will not update the mouse button state on time.
+                        val sliderType = value.lastChosenSlider
+
+                        if (leftClickPressed && (inColorPicker || inHueSlider || inOpacitySlider) || value.lastChosenSlider != null) {
+                            if (inColorPicker && sliderType == null || sliderType == ColorValue.SliderType.COLOR) {
+                                val newS = ((mouseX - colorPickerStartX) / colorPickerWidth.toFloat()).coerceIn(
+                                    0f, 1f
+                                )
+                                val newB = (1.0f - (mouseY - colorPickerStartY) / colorPickerHeight.toFloat()).coerceIn(
+                                    0f, 1f
+                                )
+                                value.colorPickerPos.x = newS
+                                value.colorPickerPos.y = 1 - newB
+                            }
+
+                            var finalColor = Color(
+                                Color.HSBtoRGB(
+                                    value.hueSliderY, value.colorPickerPos.x, 1 - value.colorPickerPos.y
+                                )
+                            )
+
+                            if (inHueSlider && sliderType == null || sliderType == ColorValue.SliderType.HUE) {
+                                value.hueSliderY = ((mouseY - hueSliderStartY) / hueSliderHeight.toFloat()).coerceIn(
+                                    0f, 1f
+                                )
+
+                                finalColor = Color(
+                                    Color.HSBtoRGB(
+                                        value.hueSliderY, value.colorPickerPos.x, 1 - value.colorPickerPos.y
+                                    )
+                                )
+                            }
+
+                            if (inOpacitySlider && sliderType == null || sliderType == ColorValue.SliderType.OPACITY) {
+                                value.opacitySliderY =
+                                    1 - ((mouseY - hueSliderStartY) / hueSliderHeight.toFloat()).coerceIn(
+                                        0f, 1f
+                                    )
+                            }
+
+                            finalColor = finalColor.withAlpha((value.opacitySliderY * 255).roundToInt())
+
+                            value.changeValue(finalColor)
+
+                            if (!WaitTickUtils.hasScheduled(this)) {
+                                WaitTickUtils.conditionalSchedule(this, 10) {
+                                    (value.lastChosenSlider == null).also { if (it) saveConfig(valuesConfig) }
+                                }
+                            }
+
+                            if (leftClickPressed) {
+                                value.lastChosenSlider = when {
+                                    inColorPicker && !rainbow -> ColorValue.SliderType.COLOR
+                                    inHueSlider && !rainbow -> ColorValue.SliderType.HUE
+                                    inOpacitySlider -> ColorValue.SliderType.OPACITY
+                                    else -> null
+                                }
+                            }
+                        }
+
+                        val inc = colorPickerHeight + colorPreviewSize - 6
+
+                        height += inc
+                        realHeight += inc
+                    }
+                    drawBorderedRect(
+                        colorPreviewX1,
+                        colorPreviewY1,
+                        colorPreviewX2,
+                        colorPreviewY2,
+                        1.5f,
+                        normalBorderColor,
+                        value.get().rgb
+                    )
+
+                    drawBorderedRect(
+                        rainbowPreviewX1,
+                        colorPreviewY1,
+                        rainbowPreviewX2,
+                        colorPreviewY2,
+                        1.5f,
+                        rainbowBorderColor,
+                        ColorUtils.rainbow(alpha = value.opacitySliderY).rgb
+                    )
+                    height += spacing
+                    realHeight += spacing
+                }
+
+                // TODO: branch completion
+                else -> {}
             }
         }
 
         // Header
         drawRect(x, y, x + width, y + 12, guiColor)
-        Fonts.font35.drawString("§l${element.name}", x + 2F, y + 3.5F, Color.WHITE.rgb)
+        font35.drawString("§l${element.name}", x + 2F, y + 3.5F, Color.WHITE.rgb)
 
         // Delete button
         if (!element.info.force) {
-            val deleteWidth = x + width - Fonts.font35.getStringWidth("§lDelete") - 2
-            Fonts.font35.drawString("§lDelete", deleteWidth.toFloat(), y + 3.5F, Color.WHITE.rgb)
+            val deleteWidth = x + width - font35.getStringWidth("§lDelete") - 2
+            font35.drawString("§lDelete", deleteWidth.toFloat(), y + 3.5F, Color.WHITE.rgb)
             if (Mouse.isButtonDown(0) && !mouseDown && mouseX in deleteWidth..x + width && mouseY in y..y + 10) HUD.removeElement(
                 element
             )

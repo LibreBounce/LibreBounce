@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -16,7 +14,6 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.renderer.GlStateManager.color
@@ -24,18 +21,15 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
-import java.awt.Color
 
 object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
-    private val espMode by choices("ESP-Mode", arrayOf("Box", "Model", "Wireframe"), "Model", subjective = true)
+    private val espMode by choices("ESP-Mode", arrayOf("Box", "Model", "Wireframe"), "Model").subjective()
     private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..5f) { espMode == "WireFrame" }
 
-    private val espColorMode by choices("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom") { espMode != "Model" }
-    private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false)
-    { espColorMode == "Custom" && espMode != "Model" }.with(0, 255, 0)
+    private val espColor = ColorSettingsInteger(this, "ESPColor") { espMode != "Model" }.with(0, 255, 0)
 
     val color
-        get() = if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
+        get() = espColor.color()
 
     /**
      * Any good anti-cheat will easily detect this module.
@@ -60,9 +54,11 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
                     if (iEntity.truePos) iEntity.interpolatedPosition else positionVector
                 }
+
                 this is EntityLivingBase -> {
                     Vec3(newPosX, newPosY, newPosZ)
                 }
+
                 else -> positionVector
             }
         }
@@ -105,8 +101,6 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                 }
 
                 "wireframe" -> {
-                    val color = if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
-
                     glPushMatrix()
                     glPushAttrib(GL_ALL_ATTRIB_BITS)
 

@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -16,7 +15,6 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
@@ -28,7 +26,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
+object ItemESP : Module("ItemESP", Category.RENDER) {
     private val mode by choices("Mode", arrayOf("Box", "OtherBox", "Glow"), "Box")
 
     private val itemText by boolean("ItemText", false)
@@ -38,15 +36,10 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
     private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
     private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val colorRainbow by boolean("Rainbow", true)
-    private val colorRed by int("R", 0, 0..255) { !colorRainbow }
-    private val colorGreen by int("G", 255, 0..255) { !colorRainbow }
-    private val colorBlue by int("B", 0, 0..255) { !colorRainbow }
+    private val color by color("Color", Color.GREEN)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 50, 1..100) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val scale by float("Scale", 3F, 1F..5F) { itemText }
@@ -63,9 +56,6 @@ object ItemESP : Module("ItemESP", Category.RENDER, hideModule = false) {
     private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
 
     private val thruBlocks by boolean("ThruBlocks", true)
-
-    val color
-        get() = if (colorRainbow) rainbow() else Color(colorRed, colorGreen, colorBlue)
 
     private val itemEntities by EntityLookup<EntityItem>()
         .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }

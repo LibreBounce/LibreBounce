@@ -58,8 +58,8 @@ object MiscUtils : MinecraftInstance {
     }
 
     @JvmStatic
-    fun showErrorPopup(title: String, message: Any) =
-        JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE)
+    fun showMessageDialog(title: String, message: Any, messageType: Int = JOptionPane.ERROR_MESSAGE) =
+        JOptionPane.showMessageDialog(null, message, title, messageType)
 
     @JvmStatic
     fun Throwable.showErrorPopup(
@@ -111,7 +111,7 @@ object MiscUtils : MinecraftInstance {
             add(buttonPanel)
         }
 
-        showErrorPopup(title, mainPanel)
+        showMessageDialog(title, mainPanel)
     }
 
     @JvmStatic
@@ -187,4 +187,8 @@ object FileFilters {
 
     @JvmField
     val ARCHIVE = FileNameExtensionFilter("Archive Files (zip)", "zip")
+    
+    @JvmField
+    val FONT = FileNameExtensionFilter("Font Files (ttf, otf)", "ttf", "otf")
+
 }

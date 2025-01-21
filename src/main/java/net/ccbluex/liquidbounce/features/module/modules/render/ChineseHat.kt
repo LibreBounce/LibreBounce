@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -20,7 +16,6 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCone
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawConesForEntities
@@ -36,8 +31,8 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
 
     private val useChineseHatTexture by boolean("UseChineseHatTexture", false)
 
-    private val colorMode by choices("Color", arrayOf("Custom", "DistanceColor", "Rainbow"), "Custom")
-    private val colors = ColorSettingsInteger(this, zeroAlphaCheck = true, alphaApply = { true }) { colorMode == "Custom" }.with(0, 160, 255, 150)
+    private val colorMode by choices("ColorMode", arrayOf("Custom", "DistanceColor"), "Custom")
+    private val colors = ColorSettingsInteger(this) { colorMode == "Custom" }.with(0, 160, 255, 150)
 
     private val playerHeight by float("PlayerHeight", 0.5f, 0.25f..2f)
 
@@ -105,7 +100,6 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
             teams && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
             colorMode == "Custom" -> colors.color()
             colorMode == "DistanceColor" -> Color(255 - dist, dist, 0)
-            colorMode == "Rainbow" -> ColorUtils.rainbow()
             else -> Color.WHITE
         }.withAlpha(colors.color().alpha)
     }

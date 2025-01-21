@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.utils.extensions
 
 import net.ccbluex.liquidbounce.config.FloatRangeValue
 import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.config.IntegerRangeValue
-import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.IntRangeValue
+import net.ccbluex.liquidbounce.config.IntValue
 import net.ccbluex.liquidbounce.utils.block.toVec
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
@@ -121,6 +121,8 @@ fun Float.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngle
  * Prevents possible NaN / (-) Infinity results.
  */
 infix fun Int.safeDiv(b: Int) = if (b == 0) 0f else this.toFloat() / b.toFloat()
+infix fun Int.safeDivInt(b: Int) = if (b == 0) 0 else this / b
+
 infix fun Float.safeDiv(b: Float) = if (b == 0f) 0f else this / b
 
 fun Double.ceilInt() = MathHelper.ceiling_double_int(this)
@@ -221,10 +223,14 @@ fun ClosedFloatingPointRange<Double>.lerpWith(t: Number) = start + (endInclusive
 
 fun ClosedFloatingPointRange<Float>.lerpWith(t: Number) = start + (endInclusive - start) * t.toFloat()
 
-fun IntegerRangeValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
+fun IntRangeValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
 
 fun FloatRangeValue.lerpWith(t: Float) = minimum + (maximum - minimum) * t
 
-fun IntegerValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
+fun IntValue.lerpWith(t: Float) = (minimum + (maximum - minimum) * t).roundToInt()
 
 fun FloatValue.lerpWith(t: Float) = minimum + (maximum - minimum) * t
+
+fun IntRange.lerpWith(t: Float) = start + (endInclusive - start) * t
+
+fun Int.lerpWith(other: Int, t: Float) = this + (other - this) * t

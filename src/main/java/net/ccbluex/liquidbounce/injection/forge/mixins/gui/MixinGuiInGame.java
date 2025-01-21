@@ -56,7 +56,7 @@ public abstract class MixinGuiInGame extends Gui {
 
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void renderScoreboard(CallbackInfo callbackInfo) {
-        if (HUD.INSTANCE.handleEvents() || AntiBlind.INSTANCE.handleEvents() && AntiBlind.INSTANCE.getScoreboard())
+        if (HUD.INSTANCE.handleEvents())
             callbackInfo.cancel();
     }
 
@@ -125,7 +125,8 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen - 91, height - 22,
                         middleScreen + 91, height,
                         hud.getHbBackgroundColors().color().getRGB(),
-                        hud.getRoundedHotbarRadius()
+                        hud.getRoundedHotbarRadius(),
+                        RenderUtils.RoundedCorners.ALL
                 );
 
                 if (isRainbow) {
@@ -140,7 +141,8 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen - 91 - 1 + slot * 20 + 1, height - 22,
                         middleScreen - 91 - 1 + slot * 20 + 23, height - 23 - 1 + 24,
                         hud.getHbHighlightColors().color().getRGB(),
-                        hud.getRoundedHotbarRadius()
+                        hud.getRoundedHotbarRadius(),
+                        RenderUtils.RoundedCorners.ALL
                 );
 
                 // Border - Background

@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -15,13 +14,10 @@ import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isBlockBBValid
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.extensions.ceilInt
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.onPlayerRightClick
 import net.ccbluex.liquidbounce.utils.extensions.rotation
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
@@ -43,7 +39,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import java.awt.Color
 
-object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
+object Fucker : Module("Fucker", Category.WORLD) {
 
     /**
      * SETTINGS
@@ -71,9 +67,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
     private val font by font("Font", Fonts.font40) { blockProgress }
     private val fontShadow by boolean("Shadow", true) { blockProgress }
 
-    private val colorRed by int("R", 200, 0..255) { blockProgress }
-    private val colorGreen by int("G", 100, 0..255) { blockProgress }
-    private val colorBlue by int("B", 0, 0..255) { blockProgress }
+    private val color by color("Color", Color(200, 100, 0)) { blockProgress }
 
     private val ignoreOwnBed by boolean("IgnoreOwnBed", true)
     private val ownBedDist by int("MaxBedDistance", 16, 1..32) { ignoreOwnBed }
@@ -314,7 +308,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
                 currentDamage,
                 font,
                 fontShadow,
-                ColorUtils.packARGBValue(colorRed, colorGreen, colorBlue),
+                color.rgb,
                 scale,
             )
         }
@@ -363,7 +357,7 @@ object Fucker : Module("Fucker", Category.WORLD, hideModule = false) {
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }
 
-            "around" -> EnumFacing.values().any { !isBlockBBValid(blockPos.offset(it)) }
+            "around" -> EnumFacing.entries.any { !isBlockBBValid(blockPos.offset(it)) }
 
             else -> true
         }

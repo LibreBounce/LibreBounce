@@ -6,54 +6,35 @@
 package net.ccbluex.liquidbounce.ui.client
 
 import net.ccbluex.liquidbounce.LiquidBounce.background
-import net.ccbluex.liquidbounce.LiquidBounce.clientTitle
 import net.ccbluex.liquidbounce.file.FileManager.backgroundImageFile
 import net.ccbluex.liquidbounce.file.FileManager.backgroundShaderFile
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.altsLength
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.altsPrefix
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.clientTitle
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.customBackground
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.overrideLanguage
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.particles
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.stylisedAlts
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.unformattedAlts
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.updateClientWindow
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.io.FileFilters
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.io.MiscUtils.showErrorPopup
-import net.ccbluex.liquidbounce.utils.render.IconUtils
+import net.ccbluex.liquidbounce.utils.io.MiscUtils.showMessageDialog
 import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.GuiTextField
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
-import org.lwjgl.opengl.Display
 
 class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
-
-    companion object {
-        var enabledClientTitle = true
-        var enabledCustomBackground = true
-        var particles = false
-        var stylisedAlts = true
-        var unformattedAlts = false
-        var altsLength = 16
-
-        fun updateClientWindow() {
-            if (enabledClientTitle) {
-                // Set LiquidBounce title
-                Display.setTitle(clientTitle)
-                // Update favicon
-                IconUtils.favicon?.let { icons ->
-                    Display.setIcon(icons)
-                }
-            } else {
-                // Set original title
-                Display.setTitle("Minecraft 1.8.9")
-                // Update favicon
-                mc.setWindowIcon()
-            }
-        }
-
-    }
 
     private lateinit var languageButton: GuiButton
 
@@ -65,18 +46,20 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
 
     private lateinit var titleButton: GuiButton
 
+    private lateinit var altPrefixField: GuiTextField
+
     override fun initGui() {
         // Title button
         // Location > 1st row
         titleButton = +GuiButton(
-            4, width / 2 - 100, height / 4 + 25, "Client title (${if (enabledClientTitle) "On" else "Off"})"
+            4, width / 2 - 100, height / 4 + 25, "Client title (${if (clientTitle) "On" else "Off"})"
         )
 
         languageButton = +GuiButton(
             7,
             width / 2 - 100,
             height / 4 + 50,
-            "Language (${LanguageManager.overrideLanguage.ifBlank { "Game" }})"
+            "Language (${overrideLanguage.ifBlank { "Game" }})"
         )
 
         // Background configuration buttons
@@ -85,7 +68,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             0,
             width / 2 - 100,
             height / 4 + 25 + 75,
-            "Enabled (${if (enabledCustomBackground) "On" else "Off"})"
+            "Enabled (${if (customBackground) "On" else "Off"})"
         )
 
         particlesButton = +GuiButton(
@@ -131,15 +114,18 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             it.enabled = stylisedAlts
         }
 
+        altPrefixField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 260 + 25, 200, 20)
+        altPrefixField.maxStringLength = 16
+
         // Back button
-        +GuiButton(8, width / 2 - 100, height / 4 + 25 + 25 * 11, "Back")
+        +GuiButton(8, width / 2 - 100, height / 4 + 25 + 25 + 25 * 11, "Back")
     }
 
     override fun actionPerformed(button: GuiButton) {
         when (button.id) {
             0 -> {
-                enabledCustomBackground = !enabledCustomBackground
-                backgroundButton.displayString = "Enabled (${if (enabledCustomBackground) "On" else "Off"})"
+                customBackground = !customBackground
+                backgroundButton.displayString = "Enabled (${if (customBackground) "On" else "Off"})"
             }
 
             1 -> {
@@ -148,8 +134,8 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             4 -> {
-                enabledClientTitle = !enabledClientTitle
-                titleButton.displayString = "Client title (${if (enabledClientTitle) "On" else "Off"})"
+                clientTitle = !clientTitle
+                titleButton.displayString = "Client title (${if (clientTitle) "On" else "Off"})"
                 updateClientWindow()
             }
 
@@ -185,7 +171,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
                         "png" -> backgroundImageFile
                         "frag", "glsl", "shader" -> backgroundShaderFile
                         else -> {
-                            showErrorPopup("Error", "Invalid file extension: $fileExtension")
+                            showMessageDialog("Error", "Invalid file extension: $fileExtension")
                             return
                         }
                     }
@@ -209,18 +195,18 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             7 -> {
-                val languageIndex = LanguageManager.knownLanguages.indexOf(LanguageManager.overrideLanguage)
+                val languageIndex = LanguageManager.knownLanguages.indexOf(overrideLanguage)
 
                 // If the language is not found, set it to the first language
                 if (languageIndex == -1) {
-                    LanguageManager.overrideLanguage = LanguageManager.knownLanguages.first()
+                    overrideLanguage = LanguageManager.knownLanguages.first()
                 } else {
                     // If the language is the last one, set it to blank
                     if (languageIndex == LanguageManager.knownLanguages.size - 1) {
-                        LanguageManager.overrideLanguage = ""
+                        overrideLanguage = ""
                     } else {
                         // Otherwise, set it to the next language
-                        LanguageManager.overrideLanguage = LanguageManager.knownLanguages[languageIndex + 1]
+                        overrideLanguage = LanguageManager.knownLanguages[languageIndex + 1]
                     }
                 }
 
@@ -255,6 +241,17 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
         Fonts.font40.drawString(
             translationMenu("altManager"), width / 2F - 98F, height / 4F + 200F, 0xFFFFFF, true
         )
+
+        altPrefixField.drawTextBox()
+        if (altPrefixField.text.isEmpty() && !altPrefixField.isFocused) {
+            Fonts.font35.drawStringWithShadow(
+                altsPrefix.ifEmpty { translationMenu("altManager.typeCustomPrefix") },
+                altPrefixField.xPosition + 4f,
+                altPrefixField.yPosition + (altPrefixField.height - Fonts.font35.FONT_HEIGHT) / 2F,
+                0xffffff
+            )
+        }
+
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -264,7 +261,18 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             return
         }
 
+        if (altPrefixField.isFocused) {
+            altPrefixField.textboxKeyTyped(typedChar, keyCode)
+            altsPrefix = altPrefixField.text
+            saveConfig(valuesConfig)
+        }
+
         super.keyTyped(typedChar, keyCode)
+    }
+
+    public override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
+        altPrefixField.mouseClicked(mouseX, mouseY, mouseButton)
+        super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
     override fun onGuiClosed() {

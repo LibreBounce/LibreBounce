@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.client.settings.GameSettings
 
-object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = false, hideModule = false) {
+object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = false) {
 
     val onUpdate = loopHandler {
         if (mc.thePlayer == null || mc.theWorld == null) return@loopHandler

@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -25,7 +21,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.projectile.EntityFireball
 import net.minecraft.network.play.client.C0APacketAnimation
 
-object AntiFireball : Module("AntiFireball", Category.PLAYER, hideModule = false) {
+object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     private val range by float("Range", 4.5f, 3f..8f)
     private val swing by choices("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
 

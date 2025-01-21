@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.special
 
 import io.netty.buffer.Unpooled
+import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -14,27 +15,34 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.network.PacketBuffer
 import net.minecraft.network.play.client.C17PacketCustomPayload
 
-object ClientFixes : MinecraftInstance, Listenable {
+object ClientFixes : Configurable("Features"), MinecraftInstance, Listenable {
 
-    var fmlFixesEnabled = true
+    var fmlFixesEnabled by boolean("AntiForge", true)
 
-    var blockFML = true
+    var blockFML by boolean("AntiForgeFML", true)
 
-    var blockProxyPacket = true
+    var blockProxyPacket by boolean("AntiForgeProxy", true)
 
-    var blockPayloadPackets = true
+    var blockPayloadPackets by boolean("AntiForgePayloads", true)
 
-    var blockResourcePackExploit = true
-
-    var clientBrand = "Vanilla"
+    var blockResourcePackExploit by boolean("FixResourcePackExploit", true)
 
     val possibleBrands = arrayOf(
         "Vanilla",
         "Forge",
         "LunarClient",
         "CheatBreaker",
+        "LabyMod",
         "Geyser"
     )
+
+    var clientBrand by choices("ClientBrand", possibleBrands, "Vanilla")
+
+    var bungeeSpoofValue = boolean("BungeeSpoof", false)
+
+    var autoReconnectDelayValue = int("AutoReconnectDelay", 5000, AutoReconnect.MIN..AutoReconnect.MAX).onChanged { value ->
+        AutoReconnect.isEnabled = value < AutoReconnect.MAX
+    }
 
     val onPacket = handler<PacketEvent> { event ->
         runCatching {
@@ -58,8 +66,9 @@ object ClientFixes : MinecraftInstance, Listenable {
                         packet.data = PacketBuffer(Unpooled.buffer()).writeString(
                             when (clientBrand) {
                                 "Vanilla" -> "vanilla"
-                                "LunarClient" -> "lunarclient:v2.18.2-2449"
+                                "LunarClient" -> "lunarclient:v2.18.2-2452"
                                 "CheatBreaker" -> "CB"
+                                "LabyMod" -> "labymod"
                                 "Geyser" -> "geyser"
                                 else -> {
                                     // do nothing

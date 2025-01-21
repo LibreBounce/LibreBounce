@@ -11,8 +11,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -27,15 +25,13 @@ import kotlin.math.sqrt
 class SpeedGraph(
     x: Double = 75.0, y: Double = 110.0, scale: Float = 1F,
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)
-) : Element(x, y, scale, side) {
+) : Element("SpeedGraph", x, y, scale, side) {
 
     private val yMultiplier by float("yMultiplier", 7F, 1F..20F)
     private val height by int("Height", 50, 30..150)
     private val width by int("Width", 150, 100..300)
     private val thickness by float("Thickness", 2F, 1F..3F)
-    private val colorRed by int("R", 0, 0..255)
-    private val colorGreen by int("G", 111, 0..255)
-    private val colorBlue by int("B", 255, 0..255)
+    private val color by color("Color", Color(0, 111, 255))
 
     private val speedList = mutableListOf<Double>()
     private var lastTick = -1
@@ -78,7 +74,7 @@ class SpeedGraph(
                 val y = speedList[i] * 10 * yMultiplier
                 val y1 = speedList[i + 1] * 10 * yMultiplier
 
-                glColor(Color(colorRed, colorGreen, colorBlue, 255))
+                glColor(color)
                 glVertex2d(i.toDouble() - start, height + 1 - y.coerceAtMost(height.toDouble()))
                 glVertex2d(i + 1.0 - start, height + 1 - y1.coerceAtMost(height.toDouble()))
             }

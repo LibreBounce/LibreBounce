@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -26,31 +25,25 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
 
-object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
+object PointerESP : Module("PointerESP", Category.RENDER) {
     private val dimension by choices("Dimension", arrayOf("2d", "3d"), "2d")
     private val mode by choices("Mode", arrayOf("Solid", "Line", "LoopLine"), "Solid")
     private val thickness by float("Thickness", 3f, 1f..5f) { mode.contains("Line") }
 
-    private val colorMode by choices("Color-Mode", arrayOf("Custom", "Rainbow"), "Custom")
-    { healthMode == "None" }
-    private val colors = ColorSettingsInteger(this, "Colors", withAlpha = false)
-    { colorMode == "Custom" && healthMode == "None" }.with(255, 111, 255)
+    private val colors = ColorSettingsInteger(this, "Colors") { healthMode == "None" }.with(255, 111, 255)
 
     private val healthMode by choices("Health-Mode", arrayOf("None", "Custom"), "Custom")
-    private val healthColors = ColorSettingsInteger(this, "Health", withAlpha = false)
+    private val healthColors = ColorSettingsInteger(this, "Health")
     { healthMode == "Custom" }.with(255, 255, 0)
 
     private val absorption by boolean("Absorption", true) { healthMode == "Custom" }
     private val healthFromScoreboard by boolean("HealthFromScoreboard", true) { healthMode == "Custom" }
 
-    private val alpha by int("Alpha", 255, 0..255)
     private val distanceAlpha by boolean("DistanceAlpha", true)
     private val alphaMin by int("AlphaMin", 100, -50..255) { distanceAlpha }
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private var maxRenderDistanceSq = 0.0
@@ -142,10 +135,12 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
 
             if (player.getDistanceSqToEntity(entity) > maxRenderDistanceSq) continue
 
+            val colorAlpha = colors.color().alpha
+
             val alpha = if (distanceAlpha) {
-                (alpha - (sqrt((playerPosX - interpolatedPosX).pow(2) + (playerPosZ - interpolatedPosZ).pow(2)) / maxRenderDistance)
-                    .coerceAtMost(1.0) * (alpha - alphaMin)).toInt()
-            } else alpha
+                (colorAlpha - (sqrt((playerPosX - interpolatedPosX).pow(2) + (playerPosZ - interpolatedPosZ).pow(2)) / maxRenderDistance)
+                    .coerceAtMost(1.0) * (colorAlpha - alphaMin)).toInt()
+            } else colorAlpha
 
             val targetHealth = getHealth(entity, healthFromScoreboard, absorption)
             val arrowsColor = when {
@@ -165,7 +160,6 @@ object PointerESP : Module("PointerESP", Category.RENDER, hideModule = false) {
                     )
                 }
 
-                colorMode == "Rainbow" -> ColorUtils.rainbow()
                 else -> colors.color(a = alpha)
             }
 

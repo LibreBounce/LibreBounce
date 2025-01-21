@@ -134,6 +134,12 @@ val Entity.lastTickPos: Vec3
 val EntityLivingBase?.isMoving: Boolean
     get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
 
+val EntityPlayerSP.airTicks
+    get() = MovementUtils.airTicks
+
+val EntityPlayerSP.groundTicks
+    get() = MovementUtils.groundTicks
+
 val Entity.isInLiquid: Boolean
     get() = isInWater || isInLava
 
