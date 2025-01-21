@@ -138,19 +138,19 @@ class SimulatedPlayerCache(internal val simulatedPlayer: SimulatedPlayer) {
     }
 
     fun getSnapshotsBetween(tickRange: IntRange): List<SimulatedPlayerSnapshot> {
-        check(tickRange.endInclusive < 60 * 20) { "tried to simulate a player for more than a minute!" }
+        check(tickRange.last < 60 * 20) { "tried to simulate a player for more than a minute!" }
 
-        simulateUntil(tickRange.endInclusive + 1)
+        simulateUntil(tickRange.last + 1)
 
         return lock.read {
-            ArrayList(simulationSteps.subList(tickRange.start, tickRange.endInclusive + 1))
+            ArrayList(simulationSteps.subList(tickRange.first, tickRange.last + 1))
         }
     }
 
     fun simulateBetween(tickRange: IntRange): Sequence<SimulatedPlayerSnapshot> {
-        check(tickRange.endInclusive < 60 * 20) { "tried to simulate a player for more than a minute!" }
+        check(tickRange.last < 60 * 20) { "tried to simulate a player for more than a minute!" }
 
-        simulateUntil(tickRange.endInclusive + 1)
+        simulateUntil(tickRange.last + 1)
 
         return sequence<SimulatedPlayerSnapshot> {
             for (i in tickRange) {

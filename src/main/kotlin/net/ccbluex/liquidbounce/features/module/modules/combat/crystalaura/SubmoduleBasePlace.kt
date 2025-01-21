@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
+import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -30,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.block.BlockState
 import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
@@ -183,7 +185,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
             down--
         }
 
-        val result = IntOpenHashSet()
+        val result = IntOpenHashSet(down)
         repeat(down) {
             result.add(maxY)
             maxY--
@@ -255,24 +257,24 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
         val yA = ceil(bb.minY)
         val yB = floor(bb.maxX)
 
-        val positions = listOf(
-            Pair(bb.minX, bb.minZ),
-            Pair(bb.minX, bb.maxZ),
-            Pair(bb.maxX, bb.minZ),
-            Pair(bb.maxX, bb.maxZ)
+        val positions = arrayOf(
+            DoubleDoubleImmutablePair(bb.minX, bb.minZ),
+            DoubleDoubleImmutablePair(bb.minX, bb.maxZ),
+            DoubleDoubleImmutablePair(bb.maxX, bb.minZ),
+            DoubleDoubleImmutablePair(bb.maxX, bb.maxZ)
         )
 
         // the block layer below the player, if the player is clipped in the ground block a bit, it doesn't matter
-        val floor = positions.map { BlockPos.ofFloored(it.first, yA - 1.0, it.second) }.toSet()
+        val floor = positions.mapArray { BlockPos.ofFloored(it.keyDouble(), yA - 1.0, it.valueDouble()) }
 
         // the first wall layer
-        val layerA = positions.map { BlockPos.ofFloored(it.first, yA, it.second) }.toSet()
+        val layerA = positions.mapArray { BlockPos.ofFloored(it.keyDouble(), yA, it.valueDouble()) }
 
         // the second wall layer
-        val layerB = positions.map { BlockPos.ofFloored(it.first, yB, it.second) }.toSet()
+        val layerB = positions.mapArray { BlockPos.ofFloored(it.keyDouble(), yB, it.valueDouble()) }
 
         // the blocks above the player
-        val ceiling = positions.map { BlockPos.ofFloored(it.first, yB + 1.0, it.second) }.toSet()
+        val ceiling = positions.mapArray { BlockPos.ofFloored(it.keyDouble(), yB + 1.0, it.valueDouble()) }
 
         val isInFloorOrCeiling = pos in floor || pos in ceiling
         if (isInFloorOrCeiling) {
@@ -289,8 +291,8 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
 
     @Suppress("GrazieInspection")
     private fun canEscapeThroughFloorOrCeiling(
-        ceiling: Set<BlockPos>,
-        floor: Set<BlockPos>
+        ceiling: Array<BlockPos>,
+        floor: Array<BlockPos>
     ): Boolean {
         // Can we escape through the ceiling?
         ceiling.forEach { pos1 ->
@@ -314,7 +316,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
         return false
     }
 
-    private fun canEscapeThroughSides(layerA: Set<BlockPos>, layerB: Set<BlockPos>): Boolean {
+    private fun canEscapeThroughSides(layerA: Array<BlockPos>, layerB: Array<BlockPos>): Boolean {
         // Do we find and escape side?
         layerA.forEachIndexed { index, pos1 ->
             if (!pos1.getState()!!.isSolid && !layerB.elementAt(index).getState()!!.isSolid) {

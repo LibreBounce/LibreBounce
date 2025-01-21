@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.Modul
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.world
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
+import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.BlockPos
@@ -51,15 +52,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
      */
     val terrain by boolean("Terrain", true)
 
-    val cacheMap = object : LinkedHashMap<DamageConstellation, DamageProvider>(
-        64,
-        0.75f,
-        true
-    ) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<DamageConstellation, DamageProvider>): Boolean {
-            return size > 64
-        }
-    }
+    val cacheMap = LruCache<DamageConstellation, DamageProvider>(63)
 
     /**
      * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
