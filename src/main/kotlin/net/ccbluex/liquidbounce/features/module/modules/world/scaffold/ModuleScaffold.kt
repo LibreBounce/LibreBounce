@@ -48,6 +48,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.Sca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerMotion
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerPulldown
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerVulcan
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerWatchdog
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -155,7 +156,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             ScaffoldTowerMotion,
             ScaffoldTowerPulldown,
             ScaffoldTowerKarhu,
-            ScaffoldTowerVulcan
+            ScaffoldTowerVulcan,
+            ScaffoldTowerWatchdog
         )
     }
 
