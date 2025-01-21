@@ -393,6 +393,6 @@
 
         "module.chineseHat.description": "给实体戴上一顶帽子。",
 
-         "module.jumpCircle.description": "跳跃时在玩家底下生成一个圆环。"
+        "module.jumpCircle.description": "跳跃时在玩家底下生成一个圆环。"
     }
 }
