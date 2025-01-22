@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,7 +13,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
 import net.ccbluex.liquidbounce.features.module.modules.world.Nuker
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.*
-import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.attack.CooldownHelper.getAttackCooldownProgress
 import net.ccbluex.liquidbounce.utils.attack.CooldownHelper.resetLastAttackedTicks
@@ -213,6 +211,12 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val useHitDelay by boolean("UseHitDelay", false)
     private val hitDelayTicks by int("HitDelayTicks", 1, 1..5) { useHitDelay }
 
+    private val generateCPSBasedOnDistance by boolean("GenerateCPSBasedOnDistance", false)
+    private val cpsMultiplier by intRange("CPS-Multiplier", 2..5, 1..10)
+    { generateCPSBasedOnDistance }
+    private val distanceDivision by floatRange("Distance-Division", 0.5F..2F, 0.1F..5F)
+    { generateCPSBasedOnDistance }
+
     private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
 
     private val randomization = RandomizationSettings(this) { options.rotationsActive }
@@ -385,7 +389,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
     }
 
-    val onWorldChange = handler<WorldEvent> {
+    val onWorld = handler<WorldEvent> {
         attackTickTimes.clear()
 
         if (blinkAutoBlock && BlinkUtils.isBlinking) BlinkUtils.unblink()
@@ -499,6 +503,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * Render event
      */
     val onRender3D = handler<Render3DEvent> {
+        val player = mc.thePlayer ?: return@handler
+
         handleFailedSwings()
 
         if (cancelRun) {
@@ -519,7 +525,15 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (attackTimer.hasTimePassed(attackDelay)) {
             if (cps.last > 0) clicks++
             attackTimer.reset()
-            attackDelay = randomClickDelay(cps.first, cps.last)
+
+            val generatedCPS = if (generateCPSBasedOnDistance) {
+                val distance = player.getDistanceToEntityBox(target!!)
+                ((distance / distanceDivision.random()) * cpsMultiplier.random()).roundToInt()
+            } else 0
+
+            val (minCPS, maxCPS) = cps.first + generatedCPS to cps.last + generatedCPS
+
+            attackDelay = randomClickDelay(minCPS, maxCPS)
         }
 
         val hittableColor = if (hittable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70)
