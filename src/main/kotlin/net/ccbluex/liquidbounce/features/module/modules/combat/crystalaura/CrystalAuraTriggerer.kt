@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.injection.mixins.minecraft.network.MixinClientPlayNetworkHandler
+import net.ccbluex.liquidbounce.interfaces.EntitiesDestroyS2CPacketAddition
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.EntityType
@@ -34,10 +35,13 @@ import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import kotlin.math.max
 
+// TODO comment
+// TODO no duplicate place and break options per tick in both place and break
 /**
  * Catches events that should start a new place or break action.
  *
@@ -48,31 +52,77 @@ import kotlin.math.max
 object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, MinecraftShortcuts {
 
     // avoids grim multi action flags
-    val notWhileUsingItem by boolean("NotWhileUsingItem", false)
+    private val notWhileUsingItem by boolean("NotWhileUsingItem", false)
 
     /**
      * Options Define when the CA should run. Only tick is the most legit.
      */
 
-    val tick by boolean("Tick", true)
-    val blockChange by boolean("BlockChange", true)
-    val clientBlockBreak by boolean("ClientBlockBreak", true)
-    val crystalSpawn by boolean("CrystalSpawn", true)
-    val crystalDestroy by boolean("CrystalDestroy", true)
-    val entityMove by boolean("EntityMove", true)
-    val selfMove by boolean("SelfMove", false)
+    /**
+     * Runs placing and destroying every tick.
+     */
+    private val tick by boolean("Tick", true)
 
-    val offThread by boolean("Off-Thread", true) // TODO toggle configurable off-thread
+    /**
+     * Runs placing right when a block was broken in the area where the aura operates.
+     * This can help to block the surround of enemies with immediate placements.
+     */
+    private val blockChange by boolean("BlockChange", true)
+
+    /**
+     * Same as block change, but it will run even earlier but just for blocks that are broken client side.
+     * If you use packet mine on normal mode, make sure to enable ClientSideSet in order to make this work properly.
+     */
+    private val clientBlockBreak by boolean("ClientBlockBreak", true)
+
+    /**
+     * Runs destroying when the information, that a crystal is spawned is received.
+     *
+     * When Set-Dead is enabled, this will also run placing.
+     */
+    private val crystalSpawn by boolean("CrystalSpawn", true)
+
+    /**
+     * Runs placing when the information, that a crystal is removed is received.
+     */
+    private val crystalDestroy by boolean("CrystalDestroy", true)
+
+    /**
+     * Runs placing when an explosion sound is received.
+     */
+    private val explodeSound by boolean("ExplodeSound", false)
+
+    /**
+     * Runs placing when an entity moves.
+     */
+    private val entityMove by boolean("EntityMove", true)
+
+    /**
+     * Runs placing when youself moves.
+     */
+    private val selfMove by boolean("SelfMove", false)
+
+    /**
+     * Runs the calculations on a separate thread avoiding overhead on the render thread.
+     */
+    private val offThread by boolean("Off-Thread", true)
 
     private val service = Executors.newSingleThreadExecutor()
 
-    @Volatile
+    /**
+     * The currently executed placement task.
+     */
     private var currentPlaceTask: Future<*>? = null
-    @Volatile
-    private var currentBreakTask: Future<*>? = null
+
+    /**
+     * The currently executed destroy task.
+     */
+    private var currentDestroyTask: Future<*>? = null
 
     @Suppress("unused")
     private val simulatedTickHandler = handler<RotationUpdateEvent> {
+        //chat("Tick " + LocalTime.now().format(formatter))
+
         if (!tick) {
             return@handler
         }
@@ -95,51 +145,41 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
     @Suppress("unused")
     private val packetListener = handler<PacketEvent>(-1) { event ->
         val packet = event.packet
-        /* if (packet is PlaySoundFromEntityS2CPacket && packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE && crystalDestroy) {
-             handling.runPlace { SubmoduleCrystalPlacer.tick(intArrayOf(packet.entityId)) }
-         }*/ /*else if (packet is EntitySpawnS2CPacket && packet.entityType == EntityType.END_CRYSTAL && crystalSpawn) {
-            handling.runDestroy {
-                var entity = world.getEntityById(packet.entityId)
-                entity?.let { entity1 ->
-                    if (entity1 !is EndCrystalEntity) {
-                        return@runDestroy
-                    }
-                } ?: run {
-                    entity = packet.entityType.create(world, SpawnReason.LOAD)
-                    entity!!.onSpawnPacket(packet)
-                }
-
-                SubmoduleCrystalDestroyer.tick(entity as EndCrystalEntity) }
-            if (SubmoduleSetDead.enabled) {
-                handling.runPlace { SubmoduleCrystalPlacer.tick() }
-            }
-        } else */if (packet is PlayerMoveC2SPacket && selfMove) {
+        if (packet is PlayerMoveC2SPacket && selfMove) {
             mc.execute {
                 runDestroy { SubmoduleCrystalDestroyer.tick() }
                 runPlace { SubmoduleCrystalPlacer.tick() }
             }
         } else if (packet is EntitiesDestroyS2CPacket && crystalDestroy) {
-            if (packet.entityIds.any { world.getEntityById(it) is EndCrystalEntity }) { // TODO this needs range checks!
-                runPlace { SubmoduleCrystalPlacer.tick(packet.entityIds.toIntArray()) }
+            val maxRangeSq = SubmoduleCrystalPlacer.getMaxRange().sq()
+            if (packet.entityIds.any {
+                val entity = world.getEntityById(it)
+                entity is EndCrystalEntity && entity.pos.squaredDistanceTo(player.pos) <= maxRangeSq
+            }) {
+                (packet as EntitiesDestroyS2CPacketAddition).`liquid_bounce$setContainsCrystal`()
             }
         }
     }
 
-    fun postDestroyHandler(packet: PlaySoundFromEntityS2CPacket) {
-        if (packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE) {
-            postDestroyHandler()
+    fun postDestroyHandler(packet: EntitiesDestroyS2CPacket) {
+        if (!running || !crystalDestroy || !(packet as EntitiesDestroyS2CPacketAddition).`liquid_bounce$containsCrystal`()) {
+            return
         }
+
+        runPlace { SubmoduleCrystalPlacer.tick() }
     }
 
-/*    fun postDestroyHandler(packet: EntitiesDestroyS2CPacket) {
-        if (packet.entityIds == SoundEvents.ENTITY_GENERIC_EXPLODE) {
-            postDestroyHandler()
-        }
-    }*/
-
-    private fun postDestroyHandler() {
-        if (!running || !crystalDestroy) {
+    fun postSoundHandler(packet: PlaySoundFromEntityS2CPacket) {
+        if (!running || !explodeSound || packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) {
             return
+        }
+
+        world.getEntityById(packet.entityId)?.let {
+            // don't place if the sound is too far away
+            val maxRangeSq = SubmoduleCrystalPlacer.getMaxRange().sq()
+            if (it.pos.squaredDistanceTo(player.pos) > maxRangeSq) {
+                return
+            }
         }
 
         runPlace { SubmoduleCrystalPlacer.tick() }
@@ -227,38 +267,82 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
         runPlace { SubmoduleCrystalPlacer.tick() }
     }
 
+    private var maxId = 0 // TODO TESTING ONLY, REMOVE
+    private val formatter = DateTimeFormatter.ofPattern("HH:mm:ss:SSS")
+
     private fun runPlace(runnable: Runnable) {
+        val id = ++maxId
+
         currentPlaceTask?.let {
             if (!it.isDone) {
+                print("$id canceled because current is not done!")
                 return
             }
         }
 
         if (offThread) {
-            currentPlaceTask = service.submit(runnable)
+            currentPlaceTask = service.submit {
+                //chat("Starting place ($id)..." + LocalTime.now().format(formatter))
+                runnable.run()
+                //chat("Finished place ($id)..." + LocalTime.now().format(formatter))
+            }
         } else {
+            currentPlaceTask?.cancel(true)
             currentPlaceTask = null
-            mc.execute(runnable)
+            mc.execute {
+                //chat("Starting place ($id)..." + LocalTime.now().format(formatter))
+                runnable.run()
+                //chat("Finished place ($id)..." + LocalTime.now().format(formatter))
+            }
         }
     }
 
     private fun runDestroy(runnable: Runnable) {
-        currentBreakTask?.let {
+        val id = ++maxId
+
+        currentDestroyTask?.let {
             if (!it.isDone) {
                 return
             }
         }
 
         if (offThread) {
-            currentBreakTask = service.submit(runnable)
+            currentDestroyTask = service.submit {
+                //chat("Starting break ($id)..." + LocalTime.now().format(formatter))
+                runnable.run()
+                //chat("Finished break ($id)..." + LocalTime.now().format(formatter))
+            }
         } else {
-            currentBreakTask = null
-            mc.execute(runnable)
+            currentDestroyTask?.cancel(true)
+            currentDestroyTask = null
+            mc.execute {
+                //chat("Starting break ($id)..." + LocalTime.now().format(formatter))
+                runnable.run()
+                //chat("Finished break ($id)..." + LocalTime.now().format(formatter))
+            }
         }
     }
 
-    fun canCache() = !offThread && tick && !blockChange && !clientBlockBreak && !crystalSpawn && !crystalDestroy && !entityMove && !selfMove
+    /**
+     * We should not cache if the calculation is done off-tread and the cache gets cleared on tick, but the calculation
+     * which runs on a separate thread could run parallel to the cleaning.
+     *
+     * Additionally, the caching is not needed if the calculation is multithreaded and therefore already has no
+     * performance impact on the render thread.
+     */
+    fun canCache() = !offThread &&
+        tick &&
+        !blockChange &&
+        !clientBlockBreak &&
+        !crystalSpawn &&
+        !crystalDestroy &&
+        !entityMove &&
+        !selfMove
 
+    /**
+     * Also pauses when the combat manager tells combat modules to pause or option
+     * (e.g. [notWhileUsingItem]) require it.
+     */
     override val running: Boolean
         get() = ModuleCrystalAura.running
             && !CombatManager.shouldPauseCombat

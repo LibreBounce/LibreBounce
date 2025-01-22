@@ -97,13 +97,13 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @Inject(method = "onPlaySoundFromEntity", at = @At("RETURN"))
     private void hookOnPlaySoundFromEntity(PlaySoundFromEntityS2CPacket packet, CallbackInfo ci) {
-        CrystalAuraTriggerer.INSTANCE.postDestroyHandler(packet);
+        CrystalAuraTriggerer.INSTANCE.postSoundHandler(packet);
     }
 
-  /*  @Inject(method = "onEntitiesDestroy", at = @At("RETURN"))
+    @Inject(method = "onEntitiesDestroy", at = @At("RETURN"))
     private void hookOnEntitiesDestroy(EntitiesDestroyS2CPacket packet, CallbackInfo ci) {
         CrystalAuraTriggerer.INSTANCE.postDestroyHandler(packet);
-    }*/
+    }
 
     @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
     private void onChunkDeltaUpdateEnd(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {

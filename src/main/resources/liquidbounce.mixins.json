@@ -68,6 +68,7 @@
     "minecraft.network.MixinClientLoginNetworkHandlerMixin",
     "minecraft.network.MixinClientPlayerInteractionManager",
     "minecraft.network.MixinClientPlayNetworkHandler",
+    "minecraft.network.MixinEntitiesDestroyS2CPacket",
     "minecraft.network.MixinHandshakeC2SPacket",
     "minecraft.network.MixinMultiplayerServerListPinger",
     "minecraft.network.MixinPacketByteBuf",

@@ -52,7 +52,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
      */
     val terrain by boolean("Terrain", true)
 
-    val cacheMap = LruCache<DamageConstellation, DamageProvider>(63)
+    val cacheMap = LruCache<DamageConstellation, DamageProvider>(64, 0.75f)
 
     /**
      * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be

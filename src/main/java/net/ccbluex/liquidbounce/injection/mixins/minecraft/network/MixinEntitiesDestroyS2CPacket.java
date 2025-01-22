@@ -16,17 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.kotlin
+package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
-/**
- * @param maxSize Maximum size of the cache. The best values are 2 to the power of [Int] like 64, 128, 256...
- */
-class LruCache<K, V>(maxSize: Int, loadFactor: Float) : LinkedHashMap<K, V>(maxSize, loadFactor, true) {
+import net.ccbluex.liquidbounce.interfaces.EntitiesDestroyS2CPacketAddition;
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
-    private val removeAt = maxSize - 1
+@Mixin(EntitiesDestroyS2CPacket.class)
+public class MixinEntitiesDestroyS2CPacket implements EntitiesDestroyS2CPacketAddition {
 
-    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>): Boolean {
-        return size > removeAt
+    @Unique
+    private boolean liquid_bounce$containsCrystal;
+
+    @Unique
+    @Override
+    public void liquid_bounce$setContainsCrystal() {
+        this.liquid_bounce$containsCrystal = true;
+    }
+
+    @Unique
+    @Override
+    public boolean liquid_bounce$containsCrystal() {
+        return this.liquid_bounce$containsCrystal;
     }
 
 }

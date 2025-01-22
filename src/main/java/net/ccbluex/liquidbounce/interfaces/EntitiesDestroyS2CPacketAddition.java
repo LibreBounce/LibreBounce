@@ -16,17 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.kotlin
+package net.ccbluex.liquidbounce.interfaces;
 
 /**
- * @param maxSize Maximum size of the cache. The best values are 2 to the power of [Int] like 64, 128, 256...
+ * Addition to {@link net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket}
+ *
+ * Exclusively for {@link net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.CrystalAuraTriggerer}.
  */
-class LruCache<K, V>(maxSize: Int, loadFactor: Float) : LinkedHashMap<K, V>(maxSize, loadFactor, true) {
+public interface EntitiesDestroyS2CPacketAddition {
 
-    private val removeAt = maxSize - 1
+    /**
+     * Flags the packet as containing a crystal.
+     */
+    @SuppressWarnings("unused")
+    void liquid_bounce$setContainsCrystal();
 
-    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>): Boolean {
-        return size > removeAt
-    }
+    /**
+     * Checks if the packet contains a crystal.
+     */
+    @SuppressWarnings("unused")
+    boolean liquid_bounce$containsCrystal();
 
 }
