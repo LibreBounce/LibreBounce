@@ -613,9 +613,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         if (!isTowering) {
             sameYMode.getTargetedBlockPos(blockPos)?.let { return it }
-        } else if (towerMode.activeChoice == ScaffoldTowerMotion &&
-            ScaffoldTowerMotion.placeOffOnNoInput && !player.moving
-        ) {
+        } else if (towerMode.activeChoice == ScaffoldTowerWatchdog && !player.moving) {
             // Find the block closest to the player
             val blocks = arrayOf(
                 blockPos.add(0, 0, 1),
