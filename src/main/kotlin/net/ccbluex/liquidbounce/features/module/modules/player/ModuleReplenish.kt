@@ -21,7 +21,7 @@ import net.minecraft.screen.slot.SlotActionType
 object ModuleReplenish : ClientModule("Replenish", Category.PLAYER) {
 
     private val constraints = tree(PlayerInventoryConstraints())
-    private val threshold by int("Threshold", 5, 1..63)
+    private val itemThreshold by int("ItemThreshold", 5, 1..63)
     private val delay by int("Delay", 40, 0..1000, "ms")
     private val usePickupAll by boolean("UsePickupAll", false)
     private val insideOfChests by boolean("InsideOfChests", false)
@@ -39,8 +39,8 @@ object ModuleReplenish : ClientModule("Replenish", Category.PLAYER) {
 
         Slots.Hotbar.slots.forEach { slot ->
             val itemStack = slot.itemStack
-            val unsupportedStackSize = itemStack.item.maxCount <= threshold
-            if (itemStack.isEmpty || unsupportedStackSize || itemStack.count > threshold) {
+            val unsupportedStackSize = itemStack.item.maxCount <= itemThreshold
+            if (itemStack.isEmpty || unsupportedStackSize || itemStack.count > itemThreshold) {
                 return@forEach
             }
 
