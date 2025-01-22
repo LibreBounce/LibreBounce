@@ -16,7 +16,7 @@ import net.minecraft.util.AxisAlignedBB
 
 object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
 
-    private val motion by float("Motion", 1f, 0.21f..1f)
+    private val motion by float("Motion", 1f, 0.21f..4f)
     private var jumped = false
 
     val onUpdate = handler<UpdateEvent>(always = true) {
