@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 
-object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", false) {
+object ScaffoldAccelerationFeature : ToggleableConfigurable(ModuleScaffold, "Acceleration", false) {
     private val speedMultiplier by float("SpeedMultiplier", 0.6f, 0.1f..3f)
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
