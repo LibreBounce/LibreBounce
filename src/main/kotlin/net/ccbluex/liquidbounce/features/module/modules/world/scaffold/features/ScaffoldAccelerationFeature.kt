@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 
 object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", false) {
-    private val slowSpeed by float("SlowSpeed", 0.6f, 0.1f..3f)
+    private val speedMultiplier by float("SpeedMultiplier", 0.6f, 0.1f..3f)
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
     @Suppress("unused")
@@ -32,7 +32,7 @@ object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", fals
             return@tickHandler
         }
 
-        player.velocity.x *= slowSpeed
-        player.velocity.z *= slowSpeed
+        player.velocity.x *= speedMultiplier
+        player.velocity.z *= speedMultiplier
     }
 }
