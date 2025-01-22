@@ -25,6 +25,7 @@ import net.minecraft.util.math.BlockPos
 data class Hole(
     val type: Type,
     val positions: Region,
+    val bedrockOnly: Boolean = false,
     val blockInvalidators: Region = Region(positions.from, positions.to.up(2)),
 ) : Comparable<Hole> {
 
