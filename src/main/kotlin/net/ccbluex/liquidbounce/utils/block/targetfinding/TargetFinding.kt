@@ -49,6 +49,7 @@ enum class AimMode(override val choiceName: String) : NamedChoice {
     REVERSE_YAW("ReverseYaw"),
     DIAGONAL_YAW("DiagonalYaw"),
     ANGLE_YAW("AngleYaw"),
+    EDGE_POINT("EdgePoint"),
 }
 
 /**

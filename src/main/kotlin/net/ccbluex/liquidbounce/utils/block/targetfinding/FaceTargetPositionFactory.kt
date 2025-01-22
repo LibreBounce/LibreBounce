@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.edgePoints
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.any
 import net.ccbluex.liquidbounce.utils.entity.direction
@@ -273,11 +274,15 @@ abstract class BaseYawTargetPositionFactory(
         val highIntersectLine = face.toPlane().intersection(highPlane)
         val lowIntersectLine = face.toPlane().intersection(lowPlane)
 
-        val highLineSegment = highIntersectLine?.let { line -> face.coerceInFace(line) }
-        val lowLineSegment = lowIntersectLine?.let { line -> face.coerceInFace(line) }
+        val highLineSegment = runCatching { highIntersectLine?.let { line -> face.coerceInFace(line) } }.getOrNull()
+        val lowLineSegment = runCatching { lowIntersectLine?.let { line -> face.coerceInFace(line) } }.getOrNull()
 
         ModuleDebug.debugParameter(PositionFactoryDebug, "HighLineSegment", highLineSegment)
         ModuleDebug.debugParameter(PositionFactoryDebug, "LowLineSegment", lowLineSegment)
+
+        if (highLineSegment == null && lowLineSegment == null) {
+            return null
+        }
 
         val highClosestPoint = highLineSegment?.let { segment -> findClosestPointToYaw(segment, highTargetYaw) }
         val lowClosestPoint = lowLineSegment?.let { segment -> findClosestPointToYaw(segment, lowTargetYaw) }
@@ -343,4 +348,58 @@ class DiagonalYawTargetPositionFactory(config: PositionFactoryConfiguration) : B
 
 class AngleYawTargetPositionFactory(config: PositionFactoryConfiguration) : BaseYawTargetPositionFactory(config) {
     override fun getAngle() = 45f // 45 degrees
+}
+
+class EdgePointTargetPositionFactory(
+    val config: PositionFactoryConfiguration,
+) : FaceTargetPositionFactory() {
+
+    override fun producePositionOnFace(face: AlignedFace, targetPos: BlockPos): Vec3d {
+        val trimmedFace = trimFace(face)
+
+        // If the player is not moving, we can just aim at the nearest point
+        return if (!player.input.playerInput.any) {
+            return aimAtNearestPointToRotationLine(targetPos, trimmedFace)
+        } else {
+            aimAtFurthestPointToPlayerPosition(targetPos, trimmedFace)
+                ?: aimAtNearestPointToRotationLine(targetPos, trimmedFace)
+        }
+    }
+
+    private fun aimAtNearestPointToRotationLine(
+        targetPos: BlockPos,
+        face: AlignedFace
+    ) = NearestRotationTargetPositionFactory(config).aimAtNearestPointToRotationLine(targetPos, face)
+
+    private fun aimAtFurthestPointToPlayerPosition(
+        targetPos: BlockPos,
+        face: AlignedFace
+    ): Vec3d? {
+        val box = Box(face.from, face.to)
+        val edge = box.edgePoints.maxByOrNull { edge ->
+            edge.squaredDistanceTo(player.pos.subtract(Vec3d.of(player.blockPos)))
+        } ?: return null
+
+        ModuleDebug.debugGeometry(
+            ModuleScaffold,
+            "Face",
+            ModuleDebug.DebuggedBox(Box(
+                face.from,
+                face.to
+            ).offset(Vec3d.of(targetPos)), Color4b(255, 0, 0, 255))
+        )
+
+        ModuleDebug.debugGeometry(
+            ModuleScaffold,
+            "Edge",
+            ModuleDebug.DebuggedPoint(
+                edge.add(Vec3d.of(targetPos)),
+                Color4b(0, 0, 255, 255),
+                size = 0.05
+            )
+        )
+
+        return edge
+    }
+
 }

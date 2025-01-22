@@ -134,6 +134,7 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
             AimMode.REVERSE_YAW -> ReverseYawTargetPositionFactory(config)
             AimMode.DIAGONAL_YAW -> DiagonalYawTargetPositionFactory(config)
             AimMode.ANGLE_YAW -> AngleYawTargetPositionFactory(config)
+            AimMode.EDGE_POINT -> EdgePointTargetPositionFactory(config)
         }
     }
 
