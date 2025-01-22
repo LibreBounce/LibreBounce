@@ -28,14 +28,11 @@ object ScaffoldSlowFeature : ToggleableConfigurable(ModuleScaffold, "Slow", fals
 
     @Suppress("unused")
     val stateUpdateHandler = tickHandler {
-        if (onlyOnGround) {
-            if (player.isOnGround) {
-                player.velocity.x *= slowSpeed
-                player.velocity.z *= slowSpeed
-            }
-        } else {
-            player.velocity.x *= slowSpeed
-            player.velocity.z *= slowSpeed
+        if (onlyOnGround && !player.isOnGround) {
+            return@tickHandler
         }
+
+        player.velocity.x *= slowSpeed
+        player.velocity.z *= slowSpeed
     }
 }
