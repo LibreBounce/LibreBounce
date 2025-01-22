@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -61,25 +62,25 @@ object FlyWatchdog : Choice("Watchdog") {
         }
 
         flyTicks++
-        
+
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
 
         when (flyTicks) {
             1 -> {
-                player.velocity.y = 1.0
+                player.velocity.y = 0.8
             }
             2 -> {
-                player.velocity = player.velocity.withStrafe(speed = 1.94)
-                player.velocity.y += 0.24
+                player.velocity = player.velocity.withStrafe(speed = 1.9)
+                player.velocity.y = 1.0
             }
-            4 -> {
-                player.velocity = player.velocity.withStrafe(speed = 1.6)
+            3 -> {
+                player.velocity = player.velocity.multiply(
+                    1.05,
+                    1.0,
+                    1.05
+                )
             }
-            25, 26, 27 -> player.velocity.y += 0.24
-        }
-
-        if (flyTicks >= 27) {
-            ModuleFly.enabled = false
+            26 -> player.velocity.y += 0.42
         }
 
         player.velocity = player.velocity.withStrafe()
