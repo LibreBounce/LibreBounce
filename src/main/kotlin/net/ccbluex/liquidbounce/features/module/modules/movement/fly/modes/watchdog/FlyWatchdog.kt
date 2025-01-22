@@ -80,7 +80,7 @@ object FlyWatchdog : Choice("Watchdog") {
                     1.05
                 )
             }
-            26 -> player.velocity.y += 0.42
+            22 -> player.velocity.y += 0.42
         }
 
         player.velocity = player.velocity.withStrafe()
