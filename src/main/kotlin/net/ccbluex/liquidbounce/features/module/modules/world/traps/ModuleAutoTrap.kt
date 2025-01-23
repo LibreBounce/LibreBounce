@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.IgnitionTrapPlanner
+import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.WebTrapPlanner
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.raycast
@@ -38,13 +39,16 @@ import net.minecraft.util.Hand
  *
  * Automatically sets targets around you on fire.
  */
-object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = arrayOf("Ignite")) {
+
+// TODO: add toggle options for "Ignite" and "AutoWeb" in module settings
+object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = arrayOf("Ignite", "AutoWeb")) {
 
     val range by floatRange("Range", 3.0f..4.5f, 2f..6f)
     private val delay by int("Delay", 20, 0..400, "ticks")
     private val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
 
     private val ignitionTrapPlanner = IgnitionTrapPlanner(this)
+    private val webTrapPlanner = WebTrapPlanner(this)
 
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
 
@@ -67,6 +71,7 @@ object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = array
         }
 
         this.currentPlan = ignitionTrapPlanner.plan()
+        this.currentPlan = webTrapPlanner.plan()
 
         this.currentPlan?.let {
             RotationManager.aimAt(
