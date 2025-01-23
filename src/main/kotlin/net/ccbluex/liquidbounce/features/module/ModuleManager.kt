@@ -195,6 +195,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAutoLeave,
             ModuleAutoBuff,
             ModuleAutoWeapon,
+            ModuleAutoRod,
             ModuleFakeLag,
             ModuleCriticals,
             ModuleHitbox,
@@ -276,6 +277,8 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAvoidHazards,
             ModuleBlockBounce,
             ModuleBlockWalk,
+
+            
             ModuleElytraRecast,
             ModuleElytraFly,
             ModuleFly,
