@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.utils.entity.withStrafe
 
 object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", false) {
     private val speed by float("Speed", 0.247f, 0.0f..5.0f)
+    private val hypixel by boolean("Hypixel", false)
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
     @Suppress("unused")
@@ -33,6 +34,11 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
         if (onlyOnGround && !player.isOnGround) {
             return@tickHandler
         }
+        if (hypixel) {
+            player.velocity = player.velocity.withStrafe(speed = 0.2055)
+            return@tickHandler
+        }
+
         player.velocity = player.velocity.withStrafe(speed = speed.toDouble())
     }
 
