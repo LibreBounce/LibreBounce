@@ -1,5 +1,22 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.features.module.modules.combat
-
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -8,10 +25,11 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoRod.facingEnemy.ignoreOnEnemyLowHealth
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
-import net.ccbluex.liquidbounce.utils.MSTimer
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -24,8 +42,6 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     object facingEnemy : ToggleableConfigurable(this, "FacingEnemy", true) {
 
         object ignoreOnEnemyLowHealth : ToggleableConfigurable(this, "IgnoreOnEnemyLowHealth", true) {
-            private val healthFromScoreboard by boolean("HealthFromScoreboard", false)
-            private val absorption by boolean("Absorption", false)
             val enemyHealthThreshold by int(
                 "EnemyHealthThreshold", 5, 1..20
             )
@@ -34,38 +50,25 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     }
 
     init {
-
-
         tree(facingEnemy)
         tree(ignoreOnEnemyLowHealth)
     }
 
-
     private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
-
-
-
     private val targetTracker = tree(TargetTracker(PriorityEnum.DIRECTION))
-
-
     private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
     private val pushDelay by int("PushDelay", 100, 50..1000)
     private val pullbackDelay by int("PullbackDelay", 500, 50..1000)
-
     private val onUsingItem by boolean("OnUsingItem", false)
-
-    private val pushTimer = MSTimer()
-    private val rodPullTimer = MSTimer()
-
+    private val pushTimer = Chronometer()
+    private val rodPullTimer = Chronometer()
     private var rodInUse = false
     private var switchBack: Int? = -1
-
     private var range by float("Range", 5f, 1f..10f)
 
     override fun disable() {
         KeyBinding.setKeyPressed(mc.options.useKey.boundKey, false)
     }
-
 
     val tickHandler = tickHandler {
         // Check if player is using rod
@@ -76,7 +79,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
             // Check if rod pull timer has reached delay
             // mc.player.fishEntity?.caughtEntity != null is always null
 
-            if (rodPullTimer.hasTimePassed(pullbackDelay)) {
+            if (rodPullTimer.hasElapsed(pullbackDelay.toLong())) {
                 if (switchBack != -1 && mc.player?.inventory?.selectedSlot != switchBack) {
                     // Switch back to previous item
                     mc.player?.inventory?.selectedSlot = switchBack!!
@@ -98,19 +101,10 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
             if (facingEnemy.enabled && mc.player?.getActualHealth()!! >= ignoreOnEnemyLowHealth.playerHealthThreshold) {
                 var facingEntity = mc.targetedEntity
-                val nearbyEnemies = getAllNearbyEnemies()
-
-
                 if (facingEntity == null) {
-
-
                     var lowestrange = range
                     var finaltarget: Entity? = null
                     var i = 0
-
-
-
-
                     for (target in targetTracker.enemies()) {
                         if (target.distanceTo(player) < lowestrange) {
                             lowestrange = target.distanceTo(player)
@@ -129,27 +123,29 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                             facingEntity = finaltarget
                         }
                     }
-
-
-
-
                 }
 
                 // Check whether player is using items/blocking.
                 if (!onUsingItem) {
-                    if (mc.player?.mainHandStack != Items.FISHING_ROD && (mc.player?.isUsingItem == true) || KillAuraAutoBlock.blockVisual) {
+                    if (mc.player?.mainHandStack != Items.FISHING_ROD &&
+                        (mc.player?.isUsingItem == true) ||
+                        KillAuraAutoBlock.blockVisual
+                    ) {
                         return@tickHandler
                     }
                 }
 
                 if (facingEntity?.isAttackable == true) {
                     // Checks how many enemy is nearby, if <= then should rod.
-                    getAllNearbyEnemies()?.size?.let { it1 ->
+                    var enemieslist =
+                        targetTracker.enemies().filter { it.isAttackable && player.distanceTo(it) < range }
+                    enemieslist.size.let { it1 ->
                         if (it1 <= enemiesNearby) {
-
                             // Check if the enemy's health is below the threshold.
                             if (ignoreOnEnemyLowHealth.enabled) {
-                                if ((facingEntity is LivingEntity) && facingEntity.getActualHealth() >= ignoreOnEnemyLowHealth.enemyHealthThreshold) {
+                                if ((facingEntity is LivingEntity) &&
+                                    facingEntity.getActualHealth() >= ignoreOnEnemyLowHealth.enemyHealthThreshold
+                                ) {
                                     rod = true
                                 }
                             } else {
@@ -169,27 +165,20 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                 }
             }
 
-            if (rod && pushTimer.hasTimePassed(pushDelay)) {
+            if (rod && pushTimer.hasElapsed(pushDelay.toLong())) {
                 // Check if player has rod in hand
                 if (mc.player?.mainHandStack != Items.FISHING_ROD) {
                     // Check if player has rod in hotbar
-                    val rod = findRod(0, 9)
-
-                    if (rod == -1) {
+                    val rod = Slots.Hotbar.findSlot(Items.FISHING_ROD)?.hotbarSlot
+                    if (rod == null) {
                         // There is no rod in hotbar
                         return@tickHandler
                     }
-
                     // Switch to rod
-
                     switchBack = mc.player?.inventory?.getSlotWithStack(mc.player?.inventory?.mainHandStack)
-
                     mc.player?.inventory?.selectedSlot = rod
                     interaction.syncSelectedSlot()
-
-
                 }
-
                 rod()
             }
         }
@@ -199,34 +188,14 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
      * Use rod
      */
     private fun rod() {
-        val rod = findRod(0, 9)
+        val rod = Slots.Hotbar.findSlot(Items.FISHING_ROD)?.hotbarSlot
+        if (rod == null) {
+            return
+        }
         mc.player?.inventory?.selectedSlot = rod
         // We do not need to send our own packet, because sendUseItem will handle it for us.
         KeyBinding.setKeyPressed(mc.options.useKey.boundKey, true)
-
-
         rodInUse = true
         rodPullTimer.reset()
-    }
-
-    /**
-     * Find rod in inventory
-     */
-    private fun findRod(startSlot: Int, endSlot: Int): Int {
-        for (i in startSlot until endSlot) {
-            val stack = mc.player?.inventory?.getStack(i)
-            if (stack != null && stack.item == Items.FISHING_ROD) {
-                return i
-            }
-        }
-        return -1
-    }
-
-    private fun getAllNearbyEnemies(): List<Entity?>? {
-        val player = mc.player ?: return emptyList()
-
-        return mc.world?.entities?.filter {
-            it.isAttackable && player.distanceTo(it) < range
-        }
     }
 }
