@@ -102,21 +102,13 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
             if (facingEnemy.enabled && mc.player?.getActualHealth()!! >= ignoreOnEnemyLowHealth.playerHealthThreshold) {
                 var facingEntity = mc.targetedEntity
                 if (facingEntity == null) {
-                    var lowestrange = range
+                    
                     var finaltarget: Entity? = null
-                    var i = 0
-                    for (target in targetTracker.enemies()) {
-                        if (target.distanceTo(player) < lowestrange) {
-                            lowestrange = target.distanceTo(player)
-                            finaltarget = target
-                        }
-
-                        if (i >= targetTracker.enemies().size && finaltarget != null) {
-                            break
-                        }
-                        i++
+                    finaltarget = targetTracker.lockedOnTarget
+                    if(finaltarget == null){
+                        return@tickHandler
                     }
-                    finaltarget?.distanceTo(player)?.let { it1 ->
+                    finaltarget.distanceTo(player).let { it1 ->
                         if (it1 > range) {
                             return@tickHandler
                         } else {
