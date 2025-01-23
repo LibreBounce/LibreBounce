@@ -106,7 +106,8 @@
     "truffle.MixinHostClassDesc",
     "truffle.MixinHostClassLoader",
     "truffle.MixinHostContext",
-    "truffle.MixinTruffleLanguage"
+    "truffle.MixinTruffleLanguage",
+    "minecraft.entity.MixinLivingEntityCompatibility"
   ],
   "server": [],
   "injectors": {
