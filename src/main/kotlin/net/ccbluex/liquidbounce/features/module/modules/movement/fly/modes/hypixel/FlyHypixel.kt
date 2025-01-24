@@ -19,7 +19,7 @@
  *
  */
 
-package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.watchdog
+package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.hypixel
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
