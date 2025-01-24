@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 
-object ScaffoldTowerWatchdog : Choice("Watchdog") {
+object ScaffoldTowerHypixel : Choice("Hypixel") {
 
     override val parent: ChoiceConfigurable<Choice>
         get() = towerMode

@@ -39,8 +39,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulca
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286MC18
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.vulcan.FlyVulcan286Teleport
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.watchdog.FlyWatchdogFlat
-import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.watchdog.FlyWatchdog
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.hypixel.FlyHypixelFlat
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.hypixel.FlyHypixel
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -85,8 +85,8 @@ object ModuleFly : ClientModule("Fly", Category.MOVEMENT, aliases = arrayOf("Gli
             FlyVerusB3869Flat,
             FlyNcpClip,
             
-            FlyWatchdog,
-            FlyWatchdogFlat,
+            FlyHypixel,
+            FlyHypixelFlat,
 
             FlyHycraftDamage
         )

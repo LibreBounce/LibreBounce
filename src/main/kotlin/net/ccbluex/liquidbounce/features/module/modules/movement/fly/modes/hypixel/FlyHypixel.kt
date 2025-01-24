@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -39,13 +39,12 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
  * @testedOn hypixel.net
  * @author @liquidsquid1
  */
-object FlyWatchdogFlat : Choice("WatchdogFlat") {
+object FlyHypixel : Choice("Hypixel") {
 
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
     private val timer by float("Timer", 1.0f, 0.1f..1.0f)
-    private val flySpeed by float("Speed", 1.66f, 0.8f..2.0f)
 
     private var flyTicks = 0
     private var isFlying = false
@@ -64,18 +63,27 @@ object FlyWatchdogFlat : Choice("WatchdogFlat") {
 
         flyTicks++
 
-        when (flyTicks) {
-            1 -> player.velocity = player.velocity.withStrafe(speed = 0.8)
-            2 -> player.velocity = player.velocity.withStrafe(speed = flySpeed.toDouble())
-        }
-
-        if (flyTicks > 30) {
-            return@tickHandler
-        }
-
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
-        player.velocity.y = 0.0314 + (Math.random() / 1000f)
-        player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed)
+
+        when (flyTicks) {
+            1 -> {
+                player.velocity.y = 0.8
+            }
+            2 -> {
+                player.velocity = player.velocity.withStrafe(speed = 1.9)
+                player.velocity.y = 1.0
+            }
+            3 -> {
+                player.velocity = player.velocity.multiply(
+                    1.05,
+                    1.0,
+                    1.05
+                )
+            }
+            22 -> player.velocity.y += 0.42
+        }
+
+        player.velocity = player.velocity.withStrafe()
 
     }
 
