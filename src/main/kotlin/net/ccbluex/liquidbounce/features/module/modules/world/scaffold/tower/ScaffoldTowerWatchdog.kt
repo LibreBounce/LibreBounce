@@ -32,7 +32,8 @@ object ScaffoldTowerWatchdog : Choice("Watchdog") {
     override val parent: ChoiceConfigurable<Choice>
         get() = towerMode
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (!mc.options.jumpKey.isPressed || ModuleScaffold.blockCount <= 0 || !isBlockBelow) {
             return@tickHandler
         }
