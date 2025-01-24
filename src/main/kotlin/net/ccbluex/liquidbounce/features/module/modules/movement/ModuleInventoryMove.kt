@@ -27,13 +27,11 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.NORMAL
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.SAFE
-import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
-import net.ccbluex.liquidbounce.utils.client.formatAsTime
-import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
 import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -69,7 +67,20 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     val cancelClicks
         get() = behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
 
-    object Blink : ToggleableConfigurable(this,"Blink", false) {
+    private object TimerFeature : ToggleableConfigurable(this, "Timer", false) {
+
+        private val speed by float("Speed", 1.0f, 0.1f..2.0f)
+
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
+            if (mc.currentScreen is HandledScreen<*>) {
+                Timer.requestTimerSpeed(speed, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
+            }
+        }
+
+    }
+
+    private object BlinkFeature : ToggleableConfigurable(this,"Blink", false) {
 
         /**
          * After reaching this time, we will close the inventory and blink.
@@ -115,7 +126,8 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     }
 
     init {
-        tree(Blink)
+        tree(TimerFeature)
+        tree(BlinkFeature)
     }
 
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {

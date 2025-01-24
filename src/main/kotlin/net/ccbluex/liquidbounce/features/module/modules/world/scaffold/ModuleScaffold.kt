@@ -137,7 +137,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
          * 2 jumps
          */
         HYPIXEL("Hypixel", { blockPos ->
-            if (ModuleScaffold.player.velocity.y == -0.15233518685055708 && jumps >= 2) {
+            if (player.velocity.y == -0.15233518685055708 && jumps >= 2) {
                 jumps = 0
 
                 blockPos.copy(y = startY)
@@ -149,11 +149,17 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     @Suppress("UnusedPrivateProperty")
-    val towerMode = choices("Tower", 0) {
-        arrayOf(NoneChoice(it), ScaffoldTowerMotion, ScaffoldTowerPulldown, ScaffoldTowerKarhu, ScaffoldTowerVulcan)
+    val towerMode = choices("Tower", 0) { choices ->
+        arrayOf(
+            NoneChoice(choices),
+            ScaffoldTowerMotion,
+            ScaffoldTowerPulldown,
+            ScaffoldTowerKarhu,
+            ScaffoldTowerVulcan
+        )
     }
 
-    val isTowering: Boolean
+    internal val isTowering: Boolean
         get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && mc.options.jumpKey.isPressed
 
     // SafeWalk feature - uses the SafeWalk module as a base

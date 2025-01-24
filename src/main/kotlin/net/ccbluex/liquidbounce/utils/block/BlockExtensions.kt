@@ -42,7 +42,6 @@ import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
-import net.minecraft.registry.tag.BlockTags
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -66,7 +65,7 @@ fun BlockPos.getCenterDistanceSquared() = player.squaredDistanceTo(this.x + 0.5,
 fun BlockPos.getCenterDistanceSquaredEyes() = player.eyePos.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
 
 val BlockState.isBed: Boolean
-    get() = isIn(BlockTags.BEDS)
+    get() = block is BedBlock
 
 /**
  * Returns the block box outline of the block at the position. If the block is air, it will return an empty box.

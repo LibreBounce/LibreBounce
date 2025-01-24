@@ -42,7 +42,10 @@ import net.ccbluex.liquidbounce.utils.entity.moving
 object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "Telly", false) {
 
     val doNotAim: Boolean
-        get() = player.airTicks <= straightTicks && ticksUntilJump >= jumpTicks
+        get() = player.airTicks <= straightTicks && 
+                ticksUntilJump >= jumpTicks &&
+                !(ModuleScaffold.isTowering && aimOnTower)
+                
 
     // New val to determine if the player is telly bridging
     val isTellyBridging: Boolean
@@ -53,6 +56,7 @@ object ScaffoldTellyFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "T
     val resetMode by enumChoice("ResetMode", Mode.RESET)
     private val straightTicks by int("Straight", 0, 0..5, "ticks")
     private val jumpTicksOpt by intRange("Jump", 0..0, 0..10, "ticks")
+    private val aimOnTower by boolean("AimOnTower", true)
     private var jumpTicks = jumpTicksOpt.random()
 
     @Suppress("unused")

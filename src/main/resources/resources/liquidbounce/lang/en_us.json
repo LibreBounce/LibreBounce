@@ -627,5 +627,6 @@
   "liquidbounce.module.itemChams.description": "Applies visual effects to your held items.",
   "liquidbounce.module.betterTab.description": "Multiple improvements to the tab list.",
   "liquidbounce.module.autoPearl.description": "Aims and throws a pearl at an enemies pearl trajectory.",
+  "liquidbounce.module.replenish.description": "Automatically refills your hotbar with items from your inventory when the count drops to a certain threshold.",
   "liquidbounce.module.anchor.description": "Pulls you into safe holes for crystal PvP."
 }

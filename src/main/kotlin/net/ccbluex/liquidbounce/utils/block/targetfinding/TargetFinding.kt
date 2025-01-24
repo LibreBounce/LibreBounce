@@ -47,7 +47,9 @@ enum class AimMode(override val choiceName: String) : NamedChoice {
     STABILIZED("Stabilized"),
     NEAREST_ROTATION("NearestRotation"),
     REVERSE_YAW("ReverseYaw"),
-    DIAGONAL_YAW("DiagonalYaw")
+    DIAGONAL_YAW("DiagonalYaw"),
+    ANGLE_YAW("AngleYaw"),
+    EDGE_POINT("EdgePoint"),
 }
 
 /**
@@ -293,6 +295,7 @@ private fun findTargetPointOnFace(
         }
 
         val targetPos = options.faceHandlingOptions.facePositionFactory.producePositionOnFace(searchFace, currPos)
+            ?: return@mapNotNull null
 
         PointOnFace(
             face,

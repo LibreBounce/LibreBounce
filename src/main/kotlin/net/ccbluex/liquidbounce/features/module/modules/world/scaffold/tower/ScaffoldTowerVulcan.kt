@@ -28,32 +28,35 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.towerMode
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.stat.Stats
 
 object ScaffoldTowerVulcan : Choice("Vulcan") {
 
     override val parent: ChoiceConfigurable<Choice>
         get() = towerMode
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
         if (!mc.options.jumpKey.isPressed || ModuleScaffold.blockCount <= 0 || !isBlockBelow) {
             return@tickHandler
         }
 
-        if(player.age % 2 == 0) {
+        if (player.age % 2 == 0) {
             player.velocity.y = 0.7
         } else {
             player.velocity.y = if(player.moving) 0.42f.toDouble() else 0.6
+            player.incrementStat(Stats.JUMP)
         }
     }
 
-    val packetHandler = handler<PacketEvent> { event ->
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
-        if(packet is PlayerMoveC2SPacket) {
-            if(!player.moving) {
-                if(player.age % 2 == 0) {
-                    packet.x += 0.1
-                    packet.z += 0.1
-                }
+
+        if(packet is PlayerMoveC2SPacket && !player.moving) {
+            if (player.age % 2 == 0) {
+                packet.x += 0.1
+                packet.z += 0.1
             }
         }
     }

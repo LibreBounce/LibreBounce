@@ -115,4 +115,7 @@ open class Line(val position: Vec3d, val direction: Vec3d) {
 
         return t2
     }
+
+    override fun toString() = "Line(position=$position, direction=$direction)"
+
 }

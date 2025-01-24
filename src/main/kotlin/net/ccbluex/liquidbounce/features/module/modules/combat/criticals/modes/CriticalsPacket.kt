@@ -74,12 +74,15 @@ object CriticalsPacket : Choice("Packet") {
                 showCriticals(event.entity)
             }
 
-            Mode.BLOCKSMC -> {
-                if (player.age % 4 == 0) {
-                    p(0.0011, true)
-                    p(0.0)
-                    showCriticals(event.entity)
-                }
+            Mode.LOW -> {
+                p(1e-9)
+                p(0.0)
+                showCriticals(event.entity)
+            }
+
+            Mode.DOWN -> {
+                p(-1e-9)
+                showCriticals(event.entity)
             }
 
             Mode.GRIM -> {
@@ -91,6 +94,14 @@ object CriticalsPacket : Choice("Packet") {
                     // Requires packet type to be .FULL
                     p(-0.000001)
 
+                    showCriticals(event.entity)
+                }
+            }
+
+            Mode.BLOCKSMC -> {
+                if (player.age % 4 == 0) {
+                    p(0.0011, true)
+                    p(0.0)
                     showCriticals(event.entity)
                 }
             }
@@ -108,8 +119,9 @@ object CriticalsPacket : Choice("Packet") {
         VANILLA("Vanilla"),
         NO_CHEAT_PLUS("NoCheatPlus"),
         FALLING("Falling"),
+        LOW("Low"),
+        DOWN("Down"),
         GRIM("Grim"),
-        BLOCKSMC("BlocksMC")
+        BLOCKSMC("BlocksMC"),
     }
-
 }

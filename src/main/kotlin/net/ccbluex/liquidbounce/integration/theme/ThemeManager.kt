@@ -247,7 +247,7 @@ class Theme(val name: String) : Closeable {
         }
 
         val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = Identifier.of("liquidbounce-theme-bg-$name")
+        loadedBackgroundImage = Identifier.of("liquidbounce-theme-bg-${name.lowercase()}")
         mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true

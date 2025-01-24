@@ -18,12 +18,38 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes
 
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 
 internal object ElytraFlyModeStatic : ElytraFlyMode("Static") {
+
+    /**
+     * Only runs the exploit while the player isn't moving.
+     * This might save some durability points
+     * while not moving as some anti-cheats just detect this exploit when you move.
+     */
+    val durabilityExploitNotWhileMove by boolean("DurabilityExploitNotWhileNoMove", false)
+
+    /**
+     * Allows you to add a glide effect when you're not moving.
+     * This can prevent you from getting kicked for "flying is not enabled on this server" when you're not moving.
+     */
+    object Glide : ToggleableConfigurable(this, "Glide", false) {
+
+        /**
+         * How fast the static glide should be.
+         */
+        val verticalGlide by float("Vertical", 0.01f, 0f..1f)
+        val horizontalGlide by float("Horizontal", 0f, 0f..1f)
+
+    }
+
+    init {
+        tree(Glide)
+    }
 
     @Suppress("unused")
     private val moveHandler = handler<PlayerMoveEvent> { event ->
@@ -32,17 +58,27 @@ internal object ElytraFlyModeStatic : ElytraFlyMode("Static") {
         }
 
         val speed = ModuleElytraFly.Speed.enabled
-        if (speed) {
+        val input = player.input.playerInput
+        val isMoving = input.forward || input.backward || input.left || input.right
+        if (speed && isMoving) {
             event.movement = event.movement.withStrafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
         } else {
-            event.movement.x = 0.0
-            event.movement.z = 0.0
+            var glideX = 0.0
+            var glideZ = 0.0
+            if (Glide.running) {
+                val normalized = event.movement.normalize()
+                glideX = normalized.x * Glide.horizontalGlide.toDouble()
+                glideZ = normalized.z * Glide.horizontalGlide.toDouble()
+            }
+
+            event.movement.x = glideX
+            event.movement.z = glideZ
         }
 
         event.movement.y = when {
             mc.options.jumpKey.isPressed && speed -> ModuleElytraFly.Speed.vertical.toDouble()
             mc.options.sneakKey.isPressed && speed -> -ModuleElytraFly.Speed.vertical.toDouble()
-            else -> 0.0
+            else -> if (Glide.running) -Glide.verticalGlide.toDouble() else 0.0
         }
     }
 
