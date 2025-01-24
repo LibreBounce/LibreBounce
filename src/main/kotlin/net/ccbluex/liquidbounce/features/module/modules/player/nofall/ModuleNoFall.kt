@@ -37,6 +37,7 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             NoFallSpoofGround,
             NoFallNoGround,
             NoFallPacket,
+            NoFallPacketJump,
             NoFallMLG,
             NoFallRettungsplatform,
             NoFallSpartan524Flag,
@@ -45,7 +46,6 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             NoFallVerus,
             NoFallForceJump,
             NoFallBlink,
-            NoFallHoplite,
             NoFallHypixelPacket,
             NoFallHypixel,
         )
