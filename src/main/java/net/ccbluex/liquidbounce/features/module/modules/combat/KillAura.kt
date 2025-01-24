@@ -211,11 +211,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val useHitDelay by boolean("UseHitDelay", false)
     private val hitDelayTicks by int("HitDelayTicks", 1, 1..5) { useHitDelay }
 
-    private val generateCPSBasedOnDistance by boolean("GenerateCPSBasedOnDistance", false)
-    private val cpsMultiplier by intRange("CPS-Multiplier", 2..5, 1..10)
-    { generateCPSBasedOnDistance }
-    private val distanceDivision by floatRange("Distance-Division", 0.5F..2F, 0.1F..5F)
-    { generateCPSBasedOnDistance }
+    private val generateClicksBasedOnDist by boolean("GenerateClicksBasedOnDistance", false)
+    private val cpsMultiplier by intRange("CPS-Multiplier", 1..2, 1..10)
+    { generateClicksBasedOnDist }
+    private val distanceFactor by floatRange("DistanceFactor", 5F..10F, 1F..10F)
+    { generateClicksBasedOnDist }
 
     private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
 
@@ -482,7 +482,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             // Sometimes you also do not click. The positives outweigh the negatives, however.
             val extraClicks = if (simulateDoubleClicking && !simulateCooldown) nextInt(-1, 1) else 0
 
-            val maxClicks = clicks + extraClicks
+            // Generate clicks based on distance from us to target.
+            val generatedClicks = if (generateClicksBasedOnDist) {
+                val distance = player.getDistanceToEntityBox(target!!)
+                ((distance / distanceFactor.random()) * cpsMultiplier.random()).roundToInt()
+            } else 0
+
+            val maxClicks = clicks + extraClicks + generatedClicks
 
             repeat(maxClicks) {
                 val wasBlocking = blockStatus
@@ -526,14 +532,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (cps.last > 0) clicks++
             attackTimer.reset()
 
-            val generatedCPS = if (generateCPSBasedOnDistance) {
-                val distance = player.getDistanceToEntityBox(target!!)
-                ((distance / distanceDivision.random()) * cpsMultiplier.random()).roundToInt()
-            } else 0
-
-            val (minCPS, maxCPS) = cps.first + generatedCPS to cps.last + generatedCPS
-
-            attackDelay = randomClickDelay(minCPS, maxCPS)
+            attackDelay = randomClickDelay(cps.first, cps.last)
         }
 
         val hittableColor = if (hittable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70)
