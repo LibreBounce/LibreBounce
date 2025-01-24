@@ -124,10 +124,11 @@ class ArmorComparator(
             itemStack.get(DataComponentTypes.EQUIPPABLE)!!.slot
         )
 
+        val material = item.material()
         return getDamageFactor(
             damage = expectedDamage,
-            defensePoints = parameters.defensePoints + item.material().defense.getOrDefault(item.type(), 0),
-            toughness = parameters.toughness + item.material().toughness
+            defensePoints = parameters.defensePoints + material.defense.getOrDefault(item.type(), 0),
+            toughness = parameters.toughness + material.toughness
         ) * (1 - getThresholdedEnchantmentDamageReduction(itemStack))
     }
 

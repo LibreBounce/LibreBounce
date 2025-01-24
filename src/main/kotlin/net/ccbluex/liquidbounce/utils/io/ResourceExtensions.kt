@@ -37,4 +37,4 @@ fun resource(path: String): InputStream {
  * @param path The *absolute* resource path
  * @throws IllegalArgumentException If the path is invalid
  */
-fun resourceToString(path: String) = resource(path).use { it.reader().readText() }
+fun resourceToString(path: String) = resource(path).use { it.bufferedReader().readText() }

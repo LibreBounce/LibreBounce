@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.utils.block.isBlockedByEntities
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.BlockState
 import net.minecraft.item.Items
@@ -114,7 +114,7 @@ object SubmoduleBasePlace : ToggleableConfigurable(ModuleCrystalAura, "BasePlace
         "Placing",
         ModuleCrystalAura,
         Priority.IMPORTANT_FOR_USAGE_2,
-        slotFinder = { _ -> findHotbarItemSlot(Items.OBSIDIAN) ?: findHotbarItemSlot(Items.BEDROCK) }
+        slotFinder = { _ -> Slots.Hotbar.findSlot(Items.OBSIDIAN) ?: Slots.Hotbar.findSlot(Items.BEDROCK) }
     ))
 
     var currentTarget: PlacementPositionCandidate? = null

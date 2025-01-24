@@ -24,10 +24,10 @@ import net.minecraft.text.MutableText
 /**
  * Allows [MutableText] to execute anything on click.
  */
-class RunnableClickEvent(private val action: () -> Unit) : ClickEvent(null, "run") {
+class RunnableClickEvent(private val action: Runnable) : ClickEvent(null, "run") {
 
     fun run() {
-        action.invoke()
+        action.run()
     }
 
 }

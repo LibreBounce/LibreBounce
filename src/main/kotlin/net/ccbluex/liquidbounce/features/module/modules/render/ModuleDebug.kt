@@ -247,7 +247,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any)
+    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any?)
 
     private val debugParameters = hashMapOf<DebuggedParameter, ParameterCapture>()
 
@@ -259,7 +259,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         debugParameter(owner, name, lazyValue.invoke())
     }
 
-    fun debugParameter(owner: Any, name: String, value: Any) {
+    fun debugParameter(owner: Any, name: String, value: Any?) {
         if (!running) {
             return
         }

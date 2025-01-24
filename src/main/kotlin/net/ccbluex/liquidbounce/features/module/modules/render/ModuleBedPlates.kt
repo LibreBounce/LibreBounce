@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.*
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.*
@@ -153,9 +154,8 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
 
                             val defaultState = it.block.defaultState
                             val color =
-                                if (highlightUnbreakable && defaultState.isToolRequired && findHotbarSlot { stack ->
-                                        stack.isSuitableFor(defaultState)
-                                    } == null) {
+                                if (highlightUnbreakable && defaultState.isToolRequired
+                                    && Slots.Hotbar.findSlotIndex { s -> s.isSuitableFor(defaultState) } == null) {
                                     Color4b.RED
                                 } else {
                                     Color4b.WHITE

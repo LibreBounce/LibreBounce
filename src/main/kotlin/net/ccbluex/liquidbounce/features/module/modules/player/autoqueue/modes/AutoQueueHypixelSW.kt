@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.item.Items
 
 object AutoQueueHypixelSW : Choice("HypixelSW") {
@@ -37,7 +37,7 @@ object AutoQueueHypixelSW : Choice("HypixelSW") {
     private val gameMode by enumChoice("GameMode", SkyWarsGameMode.NORMAL, SkyWarsGameMode.values())
 
     private val hasPaper
-        get() = (findHotbarSlot { it.item == Items.PAPER } ?: -1) != -1
+        get() = Slots.Hotbar.findSlot(Items.PAPER) != null
 
     val repeatable = tickHandler {
         // Check if we have paper in our hotbar

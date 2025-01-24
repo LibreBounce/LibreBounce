@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -36,7 +35,8 @@ import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.Blocks
 import net.minecraft.item.Items
@@ -61,9 +61,11 @@ internal object NoFallMLG : Choice("MLG") {
     private var currentTarget: PlacementPlan? = null
     private var lastPlacements = mutableListOf<Pair<BlockPos, Chronometer>>()
 
-    private val itemsForMLG = arrayOf(
-        Items.WATER_BUCKET, Items.COBWEB, Items.POWDER_SNOW_BUCKET, Items.HAY_BLOCK, Items.SLIME_BLOCK
-    )
+    private val netherItems = arrayOf(Items.COBWEB, Items.POWDER_SNOW_BUCKET, Items.HAY_BLOCK, Items.SLIME_BLOCK)
+    private val normalItems = arrayOf(Items.WATER_BUCKET) + netherItems
+
+    private val itemsForMLG
+        get() = if (world.dimension.ultrawarm) netherItems else normalItems
 
     init {
         tree(PickupWater)
@@ -91,7 +93,7 @@ internal object NoFallMLG : Choice("MLG") {
     private val tickHandler = tickHandler {
         val target = currentTarget ?: return@tickHandler
 
-        val rayTraceResult = raycast() ?: return@tickHandler
+        val rayTraceResult = raycast()
 
         if (!target.doesCorrespondTo(rayTraceResult)) {
             return@tickHandler
@@ -131,7 +133,7 @@ internal object NoFallMLG : Choice("MLG") {
      * Finds a position to pickup placed water from
      */
     private fun getCurrentPickupTarget(): PlacementPlan? {
-        val bestPickupItem = Hotbar.findClosestItem(Items.BUCKET) ?: return null
+        val bestPickupItem = Slots.Hotbar.findClosestItem(Items.BUCKET) ?: return null
 
         // Remove all time outed/invalid pickup targets from the list
         this.lastPlacements.removeIf {
@@ -157,7 +159,7 @@ internal object NoFallMLG : Choice("MLG") {
      * Find a way to prevent fall damage if we are falling.
      */
     private fun getCurrentMLGPlacementPlan(): PlacementPlan? {
-        val itemForMLG = Hotbar.findClosestItem(items = itemsForMLG)
+        val itemForMLG = Slots.Hotbar.findClosestItem(items = itemsForMLG)
 
         if (player.fallDistance <= minFallDist || itemForMLG == null) {
             return null

@@ -35,7 +35,7 @@ def getContributors(repoOwner, repoName) {
     if (200 <= connection.responseCode && connection.responseCode <= 299) {
         def response = connection.inputStream.text
         def json = new JsonSlurper().parseText(response)
-        return json
+        return json[]
                 .collect { it['author']['login'] }
                 .findAll { !(it as String).contains("dependabot") }
                 .reversed()

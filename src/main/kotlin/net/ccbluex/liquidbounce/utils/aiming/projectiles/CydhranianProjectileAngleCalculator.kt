@@ -4,12 +4,12 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProj
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.entity.PositionExtrapolation
+import net.ccbluex.liquidbounce.utils.kotlin.component1
+import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.math.findFunctionMinimumByBisect
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.entity.EntityDimensions
-import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.*
 
@@ -97,7 +97,7 @@ object CydhranianProjectileAngleCalculator: ProjectileAngleCalculator() {
         val maxTravelTime = distance / trajectoryInfo.initialVelocity * 1.75
 
         // Calculate how long the arrow would need to travel to hit the entity with the given position function.
-        val (ticks, delta) = findFunctionMinimumByBisect(0.0..maxTravelTime) { ticks ->
+        val (ticks, delta) = findFunctionMinimumByBisect(0.0, maxTravelTime) { ticks ->
             val newLimit = getDirectionByTime(
                 trajectoryInfo,
                 enemyPosition = positionFunction.getPositionInTicks(ticks).add(defaultBoxOffset),

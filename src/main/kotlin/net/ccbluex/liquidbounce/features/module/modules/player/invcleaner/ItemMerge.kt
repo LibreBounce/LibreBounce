@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import kotlin.math.ceil
 
 object ItemMerge {

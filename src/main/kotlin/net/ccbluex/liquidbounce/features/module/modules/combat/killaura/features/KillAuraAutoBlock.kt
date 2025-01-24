@@ -21,6 +21,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
@@ -32,6 +34,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.aiming.raytraceEntity
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEquals1_7_10
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
@@ -39,8 +42,8 @@ import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.minecraft.item.ItemStack
 import net.minecraft.item.consume.UseAction
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
-import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 import java.security.SecureRandom
@@ -53,6 +56,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     val tickOff by int("TickOff", 0, 0..2, "ticks")
     val tickOn by int("TickOn", 0, 0..2, "ticks")
     val chance by float("Chance", 100f, 0f..100f, "%")
+    val blink by boolean("Blink", false)
 
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
@@ -154,6 +158,25 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         }
     }
 
+    @Suppress("unused")
+    private val blinkHandler = handler<QueuePacketEvent> { event ->
+        if (!blink || event.origin != TransferOrigin.SEND) {
+            return@handler
+        }
+
+        if (!blockVisual) {
+            return@handler
+        }
+
+        when (event.packet) {
+            is PlayerInteractItemC2SPacket,
+            is UpdateSelectedSlotC2SPacket -> {
+                // DO NOTHING - this should flush, if no other module interferes
+            }
+            else -> event.action = PacketQueueManager.Action.QUEUE
+        }
+    }
+
     fun stopBlocking(pauses: Boolean = false): Boolean {
         if (!pauses) {
             blockVisual = false
@@ -195,8 +218,8 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     }
 
     @Suppress("unused")
-    private val changeSlot = handler<PacketEvent> {
-        val packet = it.packet
+    private val changeSlot = handler<PacketEvent> { event ->
+        val packet = event.packet
 
         if (packet is UpdateSelectedSlotC2SPacket) {
             blockVisual = false

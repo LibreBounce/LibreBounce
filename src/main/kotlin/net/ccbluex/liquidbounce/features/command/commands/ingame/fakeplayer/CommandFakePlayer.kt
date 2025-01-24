@@ -326,7 +326,7 @@ object CommandFakePlayer : CommandFactory, EventListener {
             return@handler
         }
 
-        val contains = fakePlayers.none { player ->
+        val contains = fakePlayers.any { player ->
             player.id == event.entity.id
         }
 

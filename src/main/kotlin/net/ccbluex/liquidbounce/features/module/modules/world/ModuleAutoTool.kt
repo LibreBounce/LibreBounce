@@ -18,18 +18,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
-import net.ccbluex.liquidbounce.utils.inventory.findBestToolToMineBlock
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 
 /**
@@ -46,7 +45,7 @@ object ModuleAutoTool : ClientModule("AutoTool", Category.WORLD) {
         )
 
     sealed class ToolSelectorMode(name: String) : Choice(name) {
-        abstract fun getTool(inventory: PlayerInventory, blockState: BlockState?): IntObjectImmutablePair<ItemStack>?
+        abstract fun getTool(blockState: BlockState): HotbarItemSlot?
     }
 
     private object DynamicSelectMode : ToolSelectorMode("Dynamic") {
@@ -55,8 +54,8 @@ object ModuleAutoTool : ClientModule("AutoTool", Category.WORLD) {
 
         private val ignoreDurability by boolean("IgnoreDurability", false)
 
-        override fun getTool(inventory: PlayerInventory, blockState: BlockState?) =
-            inventory.findBestToolToMineBlock(blockState, ignoreDurability)
+        override fun getTool(blockState: BlockState) =
+            Slots.Hotbar.findBestToolToMineBlock(blockState, ignoreDurability)
     }
 
     private object StaticSelectMode : ToolSelectorMode("Static") {
@@ -65,9 +64,7 @@ object ModuleAutoTool : ClientModule("AutoTool", Category.WORLD) {
 
         private val slot by int("Slot", 0, 0..8)
 
-        override fun getTool(inventory: PlayerInventory, blockState: BlockState?): IntObjectImmutablePair<ItemStack> {
-            return IntObjectImmutablePair(slot, inventory.getStack(slot))
-        }
+        override fun getTool(blockState: BlockState) = Slots.Hotbar[slot]
     }
 
     private val swapPreviousDelay by int("SwapPreviousDelay", 20, 1..100, "ticks")
@@ -84,9 +81,8 @@ object ModuleAutoTool : ClientModule("AutoTool", Category.WORLD) {
             return
         }
 
-        val blockState = world.getBlockState(pos)
-        val inventory = player.inventory
-        val index = toolSelector.activeChoice.getTool(inventory, blockState)?.firstInt() ?: return
+        val blockState = pos.getState()!!
+        val index = toolSelector.activeChoice.getTool(blockState)?.hotbarSlot ?: return
         SilentHotbar.selectSlotSilently(this, index, swapPreviousDelay)
     }
 
