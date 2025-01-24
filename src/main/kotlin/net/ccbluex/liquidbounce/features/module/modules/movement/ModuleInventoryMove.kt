@@ -50,7 +50,6 @@ import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
     private val behavior by enumChoice("Behavior", NORMAL)
-    private val timer by float("Timer", 1.0f, 0.1f..2.0f)
 
     enum class Behaviour(override val choiceName: String) : NamedChoice {
         NORMAL("Normal"),
@@ -68,14 +67,20 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     val cancelClicks
         get() = behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
 
-    @Suppress("unused")
-    private val tickHandler = tickHandler {
-        if (mc.currentScreen is InventoryScreen) {
-            Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
+    private object TimerFeature : ToggleableConfigurable(this, "Timer", false) {
+
+        private val timer by float("Timer", 1.0f, 0.1f..2.0f)
+
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
+            if (mc.currentScreen is HandledScreen<*>) {
+                Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
+            }
         }
+
     }
 
-    object Blink : ToggleableConfigurable(this,"Blink", false) {
+    private object BlinkFeature : ToggleableConfigurable(this,"Blink", false) {
 
         /**
          * After reaching this time, we will close the inventory and blink.
@@ -121,7 +126,8 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     }
 
     init {
-        tree(Blink)
+        tree(TimerFeature)
+        tree(BlinkFeature)
     }
 
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {
