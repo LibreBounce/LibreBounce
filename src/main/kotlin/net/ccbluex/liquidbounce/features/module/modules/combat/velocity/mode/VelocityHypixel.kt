@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 
-internal object VelocityWatchdog : VelocityMode("Watchdog") {
+internal object VelocityHypixel : VelocityMode("Hypixel") {
 
     private var absorbedVelocity = false
 
