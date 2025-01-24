@@ -102,10 +102,19 @@ open class Module(
 
             // Play sound and add notification
             if (!isStarting) {
-                mc.playSound("random.click".asResourceLocation())
-                addNotification(
-                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
-                )
+                try {
+                    mc.playSound("random.click".asResourceLocation())
+                    addNotification(
+                        Notification(
+                            translation(
+                                "notification.module" + if (value) "Enabled" else "Disabled",
+                                getName()
+                            )
+                        )
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             // Call on enabled or disabled

@@ -18,11 +18,14 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.extensions.safeDiv
 import net.ccbluex.liquidbounce.utils.render.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
@@ -32,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.client.renderer.GlStateManager.resetColor
+import net.minecraft.util.ResourceLocation
 import java.awt.Color
 
 /**
@@ -101,7 +105,32 @@ class Arraylist(
         this, "Background-Gradient"
     ) { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
-    private fun isColorModeUsed(value: String) = textColorMode == value || rectMode == value || backgroundMode == value
+    // Icons
+    private val displayIcons by boolean("DisplayIcons", true)
+    private val iconShadows by boolean("IconShadows", true) { displayIcons }
+    private val xDistance by float("ShadowXDistance", 1.0F, -2F..2F) { iconShadows }
+    private val yDistance by float("ShadowYDistance", 1.0F, -2F..2F) { iconShadows }
+    private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128)) { iconShadows }
+
+    // TODO: The images seem to be overlapped when either Rainbow or Gradient mode is active.
+    private val iconColorMode by choices(
+        "IconColorMode", arrayOf("Custom", "Fade"/*, "Rainbow", "Gradient"*/), "Custom"
+    ) { displayIcons }
+    private val iconColor by color("IconColor", Color.WHITE) { iconColorMode == "Custom" && displayIcons }
+    private val iconFadeColor by color("IconFadeColor", Color.WHITE) { iconColorMode == "Fade" && displayIcons }
+    private val iconFadeDistance by int("IconFadeDistance", 50, 0..100) { iconColorMode == "Fade" && displayIcons }
+    /*private val maxIconGradientColors by int(
+        "MaxIconGradientColors", 4, 1..MAX_GRADIENT_COLORS
+    ) { iconColorMode == "Gradient" && displayIcons }
+    private val iconGradientSpeed by float(
+        "IconGradientSpeed",
+        1f,
+        0f..10f
+    ) { iconColorMode == "Gradient" && displayIcons }
+    private val iconGradColors =
+        ColorSettingsFloat.create(this, "Icon-Gradient") { iconColorMode == "Gradient" && displayIcons }*/
+
+    private fun isColorModeUsed(value: String) = value in listOf(textColorMode, rectMode, backgroundMode, iconColorMode)
 
     private val saturation by float("Random-Saturation", 0.9f, 0f..1f) { isColorModeUsed("Random") }
     private val brightness by float("Random-Brightness", 1f, 0f..1f) { isColorModeUsed("Random") }
@@ -196,6 +225,8 @@ class Arraylist(
             // Slide animation - update every render
             val delta = deltaTime
 
+            val padding = if (displayIcons) 15 else 0
+
             for (module in moduleManager) {
                 val shouldShow = (!module.isHidden && module.state && (inactiveStyle != "Hide" || module.isActive))
 
@@ -203,7 +234,7 @@ class Arraylist(
 
                 val displayString = getDisplayString(module)
 
-                val width = font.getStringWidth(displayString)
+                val width = font.getStringWidth(displayString) + padding
 
                 when (animation) {
                     "Slide" -> {
@@ -235,12 +266,12 @@ class Arraylist(
             val textSpacer = textHeight + space
 
             val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
-            val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
-            val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
+            val rainbowX = 1f safeDiv rainbowX
+            val rainbowY = 1f safeDiv rainbowY
 
             val gradientOffset = System.currentTimeMillis() % 10000 / 10000F
-            val gradientX = if (gradientX == 0f) 0f else 1f / gradientX
-            val gradientY = if (gradientY == 0f) 0f else 1f / gradientY
+            val gradientX = 1f safeDiv gradientX
+            val gradientY = 1f safeDiv gradientY
 
             modules.forEachIndexed { index, module ->
                 var yPos =
@@ -254,6 +285,7 @@ class Arraylist(
                 val textFadeColor = fade(textFadeColors, index * textFadeDistance, 100).rgb
                 val bgFadeColor = fade(bgFadeColors, index * bgFadeDistance, 100).rgb
                 val rectFadeColor = fade(rectFadeColors, index * rectFadeDistance, 100).rgb
+                val iconFadeColor = fade(iconFadeColor, index * iconFadeDistance, 100).rgb
 
                 val markAsInactive = inactiveStyle == "Color" && !module.isActive
 
@@ -513,6 +545,34 @@ class Arraylist(
                             }
                         }
                     }
+                }
+
+                if (displayIcons) {
+                    val width = font.getStringWidth(displayString)
+
+                    val side = if (side.horizontal == Side.Horizontal.LEFT) {
+                        (-width + module.slide) / 6
+                    } else {
+                        -module.slide - 2 + width + 2
+                    }
+
+                    val resource =
+                        ResourceLocation("liquidbounce/tabgui/${module.category.displayName.lowercase()}.png")
+
+                    if (iconShadows) {
+                        drawImage(resource, side + xDistance, yPos + yDistance, 12, 12, shadowColor)
+                    }
+
+                    val iconColor = if (markAsInactive) {
+                        inactiveColor
+                    } else when (iconColorMode) {
+                        "Gradient" -> 0
+                        "Rainbow" -> 0
+                        "Fade" -> iconFadeColor
+                        else -> this.iconColor.rgb
+                    }
+
+                    drawImage(resource, side, yPos, 12, 12, Color(iconColor, true))
                 }
             }
 

@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.File
 import java.util.*
 import javax.imageio.ImageIO
@@ -42,8 +43,21 @@ class Image : Element("Image") {
         fun default(): Image {
             val image = Image()
 
-            image.x = 0.0
-            image.y = 0.0
+            image.x = 1.0
+            image.y = 1.0
+
+            val defaultImagePath = "assets/minecraft/liquidbounce/logo_large.png"
+            val resourceStream = Image::class.java.classLoader.getResourceAsStream(defaultImagePath)
+
+            if (resourceStream != null) {
+                try {
+                    image.setImage(ImageIO.read(resourceStream))
+                } catch (e: Exception) {
+                    println("Failed to load default image: ${e.message}")
+                }
+            } else {
+                println("Default image not found at path: $defaultImagePath")
+            }
 
             return image
         }
@@ -51,8 +65,7 @@ class Image : Element("Image") {
     }
 
     private val image = text("Image", "").onChanged { value ->
-        if (value.isBlank())
-            return@onChanged
+        if (value.isBlank()) return@onChanged
 
         setImage(value)
     }
@@ -111,6 +124,14 @@ class Image : Element("Image") {
 
     private fun setImage(image: File): Image {
         setImage(Base64.getEncoder().encodeToString(image.readBytes()))
+        return this
+    }
+
+    private fun setImage(bufferedImage: BufferedImage): Image {
+        width = bufferedImage.width
+        height = bufferedImage.height
+
+        mc.textureManager.loadTexture(resourceLocation, DynamicTexture(bufferedImage))
         return this
     }
 
