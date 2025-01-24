@@ -68,11 +68,11 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
             }
 
             if (isGroundExempt()) {
-                player.velocity = player.velocity.withStrafe(strength = 0.7)
+                player.velocity = player.velocity.withStrafe()
             }
 
-            if (player.hurtTime >= 4) {
-                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed / 1.5)
+            if (player.hurtTime >= 7) {
+                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed / 1.2)
             }
 
             if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) == 2) {
