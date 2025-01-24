@@ -69,12 +69,12 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
     private object TimerFeature : ToggleableConfigurable(this, "Timer", false) {
 
-        private val timer by float("Timer", 1.0f, 0.1f..2.0f)
+        private val speed by float("Speed", 1.0f, 0.1f..2.0f)
 
         @Suppress("unused")
         private val tickHandler = tickHandler {
             if (mc.currentScreen is HandledScreen<*>) {
-                Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
+                Timer.requestTimerSpeed(speed, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
             }
         }
 
