@@ -22,7 +22,6 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
-import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
@@ -40,8 +39,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -145,37 +142,41 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         }
     }
 
-    @Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/player/PlayerPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z", shift = At.Shift.AFTER))
-    private void injectNoRotateSet(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
-        float j = packet.change().yaw();
-        float k = packet.change().pitch();
+    private ThreadLocal<Rotation> rotationThreadLocal = ThreadLocal.withInitial(() -> null);
 
+    @Inject(method = "onPlayerPositionLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/player/PlayerPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z"))
+    private void injectPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
+        rotationThreadLocal.set(new Rotation(playerEntity.getYaw(), playerEntity.getPitch(), true));
+    }
+
+    @Inject(method = "onPlayerPositionLook", at = @At("RETURN"))
+    private void injectNoRotateSet(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
         if (!ModuleNoRotateSet.INSTANCE.getRunning() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
             return;
         }
 
-        // Confirm teleport
-        this.connection.send(new TeleportConfirmC2SPacket(packet.teleportId()));
-        // Silently accept yaw and pitch values requested by the server.
-        this.connection.send(new PlayerMoveC2SPacket.Full(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), j, k, false, playerEntity.horizontalCollision));
-        Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
-        if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
+        var prevRotation = this.rotationThreadLocal.get();
+        if (prevRotation == null) {
+            return;
+        }
+        this.rotationThreadLocal.remove();
+
+        if (ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice() == ModuleNoRotateSet.ResetRotation.INSTANCE) {
             // Changes your server side rotation and then resets it with provided settings
             var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(
-                    new Rotation(j, k, true),
+                    new Rotation(playerEntity.getYaw(), playerEntity.getPitch(), true),
                     null,
                     null,
                     true,
                     null
             );
             RotationManager.INSTANCE.aimAt(aimPlan, Priority.NOT_IMPORTANT, ModuleNoRotateSet.INSTANCE);
-        } else {
-            // Increase yaw and pitch by a value so small that the difference cannot be seen, just to update the rotation server-side.
-            playerEntity.setYaw(playerEntity.prevYaw + 0.000001f);
-            playerEntity.setPitch(playerEntity.prevPitch + 0.000001f);
         }
 
-        ci.cancel();
+        // Increase yaw and pitch by a value so small that the difference cannot be seen,
+        // just to update the rotation server-side.
+        playerEntity.setYaw(prevRotation.getYaw() + 0.000001f);
+        playerEntity.setPitch(prevRotation.getPitch() + 0.000001f);
     }
 
     @ModifyVariable(method = "sendChatMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
