@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.minecraft.entity.effect.StatusEffects
 
 object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", false) {
     private val speed by float("Speed", 0.247f, 0.0f..5.0f)
@@ -35,7 +36,14 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
             return@tickHandler
         }
         if (hypixel) {
-            player.velocity = player.velocity.withStrafe(speed = 0.2055)
+            when ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1)) {
+                -1 -> {
+                    player.velocity = player.velocity.withStrafe(speed = 0.2055)
+                }
+                0, 1 -> {
+                    player.velocity = player.velocity.withStrafe(speed = 0.31)
+                }
+            }
             return@tickHandler
         }
 
