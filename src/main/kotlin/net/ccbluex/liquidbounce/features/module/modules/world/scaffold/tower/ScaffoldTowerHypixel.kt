@@ -32,26 +32,29 @@ object ScaffoldTowerHypixel : Choice("Hypixel") {
     override val parent: ChoiceConfigurable<Choice>
         get() = towerMode
 
-    @Suppress("unused")
-    private val tickHandler = tickHandler {
+    val repeatable = tickHandler {
         if (!mc.options.jumpKey.isPressed || ModuleScaffold.blockCount <= 0 || !isBlockBelow) {
             return@tickHandler
         }
 
-        if (player.airTicks > 14) {
-            player.velocity.y -= 0.08
-            player.velocity = player.velocity.multiply(
-                0.75,
-                1.0,
-                0.75
-            )
+        if (player.x % 1.0 > 0.247 && !player.moving) {
+            player.velocity.x = (Math.round(player.x).toDouble() - player.x).coerceAtMost(0.247)
             return@tickHandler
         }
 
+        if (player.airTicks > 14) {
+            player.velocity.y -= 0.09
+            player.velocity = player.velocity.multiply(
+                0.8,
+                1.0,
+                0.8
+            )
+            return@tickHandler
+        }
         when (player.airTicks % 3) {
             0 -> {
                 player.velocity.y = 0.42
-                player.velocity = player.velocity.withStrafe(speed = 0.247)
+                player.velocity = player.velocity.withStrafe(speed = 0.247 + (Math.random() / 250f))
             }
             2 -> player.velocity.y = 1 - (player.y % 1.0)
         }
