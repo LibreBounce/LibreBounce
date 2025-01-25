@@ -86,12 +86,9 @@ object FlyHypixelFlat : Choice("HypixelFlat") {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
-        val packet = event.packet
-
-        if (packet !is ExplosionS2CPacket) {
-            return@handler
+        if (event.packet is ExplosionS2CPacket) {
+            isFlying = true
         }
-        isFlying = true
     }
 
 }
