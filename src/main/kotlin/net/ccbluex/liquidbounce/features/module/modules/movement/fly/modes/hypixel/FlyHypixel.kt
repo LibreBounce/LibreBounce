@@ -24,11 +24,11 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.hypi
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -46,55 +46,48 @@ object FlyHypixel : Choice("Hypixel") {
 
     private val timer by float("Timer", 1.0f, 0.1f..1.0f)
 
-    private var flyTicks = 0
     private var isFlying = false
 
-    override fun enable() {
-        flyTicks = 0
+    override fun disable() {
         isFlying = false
-        super.enable()
+        super.disable()
     }
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (!isFlying) {
-            return@tickHandler
-        }
+        waitUntil { isFlying }
 
-        flyTicks++
+        player.velocity.y = 0.8
+        waitTicks(1)
+        player.velocity = player.velocity.withStrafe(speed = 1.9)
+        player.velocity.y = 1.0
+        waitTicks(1)
+        player.velocity = player.velocity.multiply(
+            1.05,
+            1.0,
+            1.05
+        )
+        waitTicks(19)
+        player.velocity.y += 0.42
 
+        isFlying = false
+    }
+
+    @Suppress("unused")
+    private val timerHandler = tickHandler {
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
+    }
 
-        when (flyTicks) {
-            1 -> {
-                player.velocity.y = 0.8
-            }
-            2 -> {
-                player.velocity = player.velocity.withStrafe(speed = 1.9)
-                player.velocity.y = 1.0
-            }
-            3 -> {
-                player.velocity = player.velocity.multiply(
-                    1.05,
-                    1.0,
-                    1.05
-                )
-            }
-            22 -> player.velocity.y += 0.42
-        }
-
-        player.velocity = player.velocity.withStrafe()
-
+    @Suppress("unused")
+    private val strafeHandler = handler<PlayerMoveEvent> { event ->
+        event.movement = event.movement.withStrafe()
     }
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
-        val packet = event.packet
-
-        if (packet !is ExplosionS2CPacket) {
-            return@handler
+        if (event.packet is ExplosionS2CPacket) {
+            isFlying = true
         }
-        isFlying = true
     }
 
 }

@@ -50,23 +50,22 @@ object FlyHypixelFlat : Choice("HypixelFlat") {
     private var flyTicks = 0
     private var isFlying = false
 
-    override fun enable() {
+    override fun disable() {
         flyTicks = 0
         isFlying = false
-        super.enable()
+        super.disable()
     }
 
     @Suppress("unused")
     private val speedHandler = tickHandler {
-
         waitUntil { isFlying }
 
         player.velocity = player.velocity.withStrafe(speed = 0.8)
         waitTicks(1)
         player.velocity = player.velocity.withStrafe(speed = flySpeed.toDouble())
 
+        // Block execution until module is disabled
         waitUntil { !isFlying }
-
     }
 
     @Suppress("unused")
