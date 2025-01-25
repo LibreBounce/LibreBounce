@@ -41,7 +41,7 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
                     player.velocity = player.velocity.withStrafe(speed = 0.2055)
                 }
                 0, 1 -> {
-                    player.velocity = player.velocity.withStrafe(speed = 0.31)
+                    player.velocity = player.velocity.withStrafe(speed = 0.292)
                 }
             }
             return@tickHandler
