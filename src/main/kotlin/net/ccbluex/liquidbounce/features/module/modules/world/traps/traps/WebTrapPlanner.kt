@@ -111,7 +111,7 @@ class WebTrapPlanner(parent: EventListener) : TrapPlanner<WebTrapPlanner.WebInte
             targetPos,
             target.getDimensions(EntityPose.STANDING),
             target.pos.subtract(target.prevPos),
-            slot.itemStack.item == Items.FLINT_AND_STEEL
+            slot.itemStack.item == Items.COBWEB
         )
 
         val options = BlockPlacementTargetFindingOptions(
