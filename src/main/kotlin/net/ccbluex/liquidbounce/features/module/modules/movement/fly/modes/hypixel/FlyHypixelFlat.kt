@@ -57,18 +57,25 @@ object FlyHypixelFlat : Choice("HypixelFlat") {
     }
 
     @Suppress("unused")
-    private val tickHandler = tickHandler {
+    private val speedHandler = tickHandler {
+
+        waitUntil { isFlying }
+
+        player.velocity = player.velocity.withStrafe(speed = 0.8)
+        waitTicks(1)
+        player.velocity = player.velocity.withStrafe(speed = flySpeed.toDouble())
+
+        waitUntil { !isFlying }
+
+    }
+
+    @Suppress("unused")
+    private val velocityHandler = tickHandler {
         if (!isFlying) {
             return@tickHandler
         }
 
         flyTicks++
-
-        when (flyTicks) {
-            1 -> player.velocity = player.velocity.withStrafe(speed = 0.8)
-            2 -> player.velocity = player.velocity.withStrafe(speed = flySpeed.toDouble())
-        }
-
         if (flyTicks > 30) {
             return@tickHandler
         }
@@ -76,7 +83,6 @@ object FlyHypixelFlat : Choice("HypixelFlat") {
         Timer.requestTimerSpeed(timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFly)
         player.velocity.y = 0.0314 + (Math.random() / 1000f)
         player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed)
-
     }
 
     @Suppress("unused")
