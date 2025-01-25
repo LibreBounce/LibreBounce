@@ -451,6 +451,7 @@ fun raytraceUpperBlockSide(
     wallsRange: Double,
     expectedTarget: BlockPos,
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
+    rotationNotToMatch: Rotation? = null
 ): VecRotation? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
@@ -459,7 +460,8 @@ fun raytraceUpperBlockSide(
 
     val bestRotationTracker = BestRotationTracker(rotationPreference)
 
-    range(0.1..0.9 step 0.1, 0.1..0.9 step 0.1) { x, z ->
+    val stepSize = rotationNotToMatch?.let { 0.05 } ?: 0.1
+    range(0.1..0.9 step stepSize, 0.1..0.9 step stepSize) { x, z ->
         val vec3 = vec3d.add(x, 0.0, z)
 
         // skip because of out of range
@@ -478,6 +480,9 @@ fun raytraceUpperBlockSide(
         }
 
         val rotation = Rotation.lookingAt(point = vec3, from = eyes)
+        if (rotation == rotationNotToMatch) {
+            return@range
+        }
 
         bestRotationTracker.considerRotation(VecRotation(rotation, vec3), visible)
     }
@@ -491,7 +496,8 @@ fun findClosestPointOnBlockInLineWithCrystal(
     range: Double,
     wallsRange: Double,
     expectedTarget: BlockPos,
-    notFacingAway: Boolean
+    notFacingAway: Boolean,
+    rotationNotToMatch: Rotation? = null
 ): Pair<VecRotation, Direction>? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
@@ -527,9 +533,9 @@ fun findClosestPointOnBlockInLineWithCrystal(
             return@forEach
         }
 
-        for (x in 0.05..0.95 step 0.1) {
-            for (y in 0.05..0.95 step 0.1) {
-                val vec3 = pointOnSide(it, x, y, vec3d).add(vec3d)
+        for (x in 0.05..0.95 step 0.05) {
+            for (y in 0.05..0.95 step 0.05) {
+                val vec3 = pointOnSide(it, x, y, vec3d)
 
                 val intersects = predictedCrystal.hits(eyes, vec3)
                 if (bestIntersects && !intersects) {
@@ -548,7 +554,12 @@ fun findClosestPointOnBlockInLineWithCrystal(
                     continue
                 }
 
-                best = VecRotation(Rotation.lookingAt(point = vec3, from = eyes), vec3) to it
+                val rotation = Rotation.lookingAt(point = vec3, from = eyes) // TODO inverted pitch when looking down?
+                if (rotation == rotationNotToMatch) {
+                    continue
+                }
+
+                best = VecRotation(rotation, vec3) to it
                 bestDistance = distance
                 bestIntersects = intersects
             }
@@ -601,8 +612,8 @@ private fun Box.hits(start: Vec3d, p: Vec3d): Boolean {
 private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {
     return when (side) {
         Direction.DOWN, Direction.UP -> vec.add(x, 0.0, y)
-        Direction.NORTH, Direction.SOUTH -> Vec3d(x, y, 0.0)
-        Direction.WEST, Direction.EAST -> Vec3d(0.0, x, y)
+        Direction.NORTH, Direction.SOUTH -> vec.add(x, y, 0.0)
+        Direction.WEST, Direction.EAST -> vec.add(0.0, x, y)
     }
 }
 

@@ -51,12 +51,20 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         updateSphere()
     }
 
+    /**
+     * Only place crystals above the block.
+     * Outdated setting.
+     * Using this is normally not recommended.
+     */
     private val onlyAbove by boolean("OnlyAbove", false)
 
     private val sequenced by boolean("Sequenced", false)
 
     // only applies without OnlyAbove
     private val notFacingAway by boolean("NotFacingAway", false)
+
+    // only applies without OnlyAbove
+    private val jitter by boolean("Jitter", false)
 
     val placementRenderer = tree(PlacementRenderer( // TODO slide
         "TargetRendering",
@@ -71,6 +79,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     private var placementTarget: BlockPos? = null
     private var previousTarget: BlockPos? = null
     private var blockHitResult: BlockHitResult? = null
+    private var previousRotation: Rotation? = null
 
     private fun updateSphere() {
         sphere = BlockPos.ORIGIN.getSortedSphere(max(range, wallsRange))
@@ -93,6 +102,12 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         val targetPos = placementTarget ?: return
 
+        val rotationNotToMatch = if (RotationManager.serverRotation != previousRotation && jitter) {
+            previousRotation
+        } else {
+            null
+        }
+
         var side = Direction.UP
         val rotation = if (onlyAbove) {
             raytraceUpperBlockSide(
@@ -100,6 +115,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 range.toDouble(),
                 wallsRange.toDouble(),
                 targetPos,
+                rotationNotToMatch = rotationNotToMatch
             )
         } else {
             val data = findClosestPointOnBlockInLineWithCrystal(
@@ -107,7 +123,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 range.toDouble(),
                 wallsRange.toDouble(),
                 targetPos,
-                notFacingAway
+                notFacingAway,
+                rotationNotToMatch
             ) ?: return
             side = data.second
 
@@ -128,6 +145,8 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 mc.execute { placementRenderer.addBlock(it) }
             }
         }
+
+        previousRotation = rotation.rotation.copy()
 
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
             blockHitResult = raytraceBlock(

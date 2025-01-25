@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.utils.kotlin
 /**
  * @param maxSize Maximum size of the cache. The best values are 2 to the power of [Int] like 64, 128, 256...
  */
-class LruCache<K, V>(maxSize: Int, loadFactor: Float) : LinkedHashMap<K, V>(maxSize, loadFactor, true) {
+class LruCache<K, V>(maxSize: Int) : LinkedHashMap<K, V>(maxSize, 1f, true) {
 
     private val removeAt = maxSize - 1
 
