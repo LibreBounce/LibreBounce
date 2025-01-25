@@ -55,6 +55,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
     private val sequenced by boolean("Sequenced", false)
 
+    // only applies without OnlyAbove
+    private val notFacingAway by boolean("NotFacingAway", false)
+
     val placementRenderer = tree(PlacementRenderer( // TODO slide
         "TargetRendering",
         true,
@@ -83,7 +86,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         updateTarget(excludeIds)
         if (placementTarget != previousTarget) {
-            previousTarget?.let { placementRenderer.removeBlock(it) }
+            previousTarget?.let {
+                mc.execute { placementRenderer.removeBlock(it) }
+            }
         }
 
         val targetPos = placementTarget ?: return
@@ -97,11 +102,12 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 targetPos,
             )
         } else {
-            val data = findClosestPointOnBlock(
+            val data = findClosestPointOnBlockInLineWithCrystal(
                 player.eyePos,
                 range.toDouble(),
                 wallsRange.toDouble(),
                 targetPos,
+                notFacingAway
             ) ?: return
             side = data.second
 
@@ -118,7 +124,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         }
 
         if (placementTarget != previousTarget) {
-            placementTarget?.let { placementRenderer.addBlock(it) }
+            placementTarget?.let {
+                mc.execute { placementRenderer.addBlock(it) }
+            }
         }
 
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {

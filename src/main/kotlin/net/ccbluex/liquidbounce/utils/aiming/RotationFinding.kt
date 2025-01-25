@@ -20,10 +20,13 @@
 
 package net.ccbluex.liquidbounce.utils.aiming
 
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
+import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.block.getState
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
@@ -37,6 +40,8 @@ import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.max
+import kotlin.math.min
 
 fun raytraceBlock(
     eyes: Vec3d,
@@ -106,24 +111,22 @@ fun canSeeUpperBlockSide(
     return false
 }
 
-private class BestRotationTracker(val comparator: Comparator<Rotation>) {
+private open class BestRotationTracker(val comparator: Comparator<Rotation>, val ignoreVisibility: Boolean = false) {
+
     var bestInvisible: VecRotation? = null
         private set
     var bestVisible: VecRotation? = null
         private set
 
-    fun considerRotation(
-        rotation: VecRotation,
-        visible: Boolean = true,
-    ) {
-        if (visible) {
-            val isRotationBetter = getIsRotationBetter(base = this.bestVisible, rotation)
+    fun considerRotation(rotation: VecRotation, visible: Boolean = true) {
+        if (visible || ignoreVisibility) {
+            val isRotationBetter = getIsRotationBetter(base = this.bestVisible, rotation, true)
 
             if (isRotationBetter) {
                 bestVisible = rotation
             }
         } else {
-            val isRotationBetter = getIsRotationBetter(base = this.bestInvisible, rotation)
+            val isRotationBetter = getIsRotationBetter(base = this.bestInvisible, rotation, false)
 
             if (isRotationBetter) {
                 bestInvisible = rotation
@@ -131,14 +134,38 @@ private class BestRotationTracker(val comparator: Comparator<Rotation>) {
         }
     }
 
-    private fun getIsRotationBetter(
-        base: VecRotation?,
-        newRotation: VecRotation,
-    ): Boolean {
+    protected open fun getIsRotationBetter(base: VecRotation?, newRotation: VecRotation, visible: Boolean): Boolean {
         return base?.let { currentlyBest ->
             this.comparator.compare(currentlyBest.rotation, newRotation.rotation) > 0
         } ?: true
     }
+
+}
+
+/**
+ * This should not be reused, as it caches the current player eye position!
+ */
+private class PrePlaningTracker(
+    comparator: Comparator<Rotation>,
+    private val futureTarget: Box,
+    ignoreVisibility: Boolean = false
+) : BestRotationTracker(comparator, ignoreVisibility) {
+
+    private val eyes = player.eyePos
+    private val bestVisibleIntersects = false
+    private val bestInvisibleIntersects = false
+
+    override fun getIsRotationBetter(base: VecRotation?, newRotation: VecRotation, visible: Boolean): Boolean {
+        val intersects = futureTarget.hits(eyes, newRotation.vec)
+        if (intersects && (visible && !bestVisibleIntersects || !visible && !bestInvisibleIntersects)) {
+            return true
+        } else if (!intersects && (visible && bestVisibleIntersects || !visible && bestInvisibleIntersects)) {
+            return false
+        }
+
+        return super.getIsRotationBetter(base, newRotation, visible)
+    }
+
 }
 
 interface VisibilityPredicate {
@@ -259,6 +286,8 @@ fun raytraceBox(
     wallsRange: Double,
     visibilityPredicate: VisibilityPredicate = BoxVisibilityPredicate(),
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
+    futureTarget: Box? = null,
+    prioritizeVisible: Boolean = true
 ): VecRotation? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
@@ -280,7 +309,9 @@ fun raytraceBox(
         }
     }
 
-    val bestRotationTracker = BestRotationTracker(rotationPreference)
+    val bestRotationTracker = futureTarget?.let {
+        PrePlaningTracker(rotationPreference, it, !prioritizeVisible)
+    } ?: BestRotationTracker(rotationPreference, !prioritizeVisible)
 
     // There are some spots that loops cannot detect, therefore this is used
     // since it finds the nearest spot within the requested range.
@@ -309,6 +340,7 @@ fun raytraceBox(
             bestRotationTracker,
         )
     }
+
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
 
@@ -321,7 +353,7 @@ private fun considerSpot(
     rangeSquared: Double,
     wallsRangeSquared: Double,
     spot: Vec3d,
-    bestRotationTracker: BestRotationTracker,
+    bestRotationTracker: BestRotationTracker
 ) {
     // Elongate the line so we have no issues with fp-precision
     val raycastTarget = (preferredSpot - eyes) * 2.0 + eyes
@@ -454,25 +486,55 @@ fun raytraceUpperBlockSide(
 }
 
 @Suppress("NestedBlockDepth", "CognitiveComplexMethod")
-fun findClosestPointOnBlock(
+fun findClosestPointOnBlockInLineWithCrystal(
     eyes: Vec3d,
     range: Double,
     wallsRange: Double,
-    expectedTarget: BlockPos
+    expectedTarget: BlockPos,
+    notFacingAway: Boolean
 ): Pair<VecRotation, Direction>? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
     var best: Pair<VecRotation, Direction>? = null
+    var bestIntersects = false
     var bestDistance = Double.MAX_VALUE
 
-    val vec = Vec3d.of(expectedTarget)
-    Direction.entries.forEach {
-        val vec3d = vec.offset(it, 0.9)
+    val predictedCrystal = Box(
+        expectedTarget.x.toDouble() - 0.5,
+        expectedTarget.y.toDouble() + 1.0,
+        expectedTarget.z.toDouble() - 0.5,
+        expectedTarget.x.toDouble() + 1.5,
+        expectedTarget.y.toDouble() + 3.0,
+        expectedTarget.z.toDouble() + 1.5
+    )
 
-        for (x in 0.1..0.9 step 0.1) { // TODO does 0.05/0.95 or perhaps 0.0/1.0 also work?
-            for (y in 0.1..0.9 step 0.1) {
-                val vec3 = pointOnSide(it, x, y, vec3d)
+    mc.execute {
+        ModuleDebug.debugGeometry(ModuleCrystalAura, "predictedCrystal", ModuleDebug.DebuggedBox(predictedCrystal, Color4b.RED.fade(0.4f)))
+    }
+
+    val blockBB = FULL_BOX.offset(expectedTarget)
+
+    val vec = expectedTarget.toVec3d()
+    Direction.entries.forEach {
+        val vec3d = vec.offset(it, 1.0)
+
+        val coordinate = it.axis.choose(eyes.x, eyes.y, eyes.z)
+        if (notFacingAway && !blockBB.contains(eyes) && when (it) {
+            Direction.NORTH, Direction.WEST, Direction.DOWN -> coordinate > blockBB.getMin(it.axis)
+            Direction.SOUTH, Direction.EAST, Direction.UP -> coordinate < blockBB.getMax(it.axis)
+        }) {
+            return@forEach
+        }
+
+        for (x in 0.05..0.95 step 0.1) {
+            for (y in 0.05..0.95 step 0.1) {
+                val vec3 = pointOnSide(it, x, y, vec3d).add(vec3d)
+
+                val intersects = predictedCrystal.hits(eyes, vec3)
+                if (bestIntersects && !intersects) {
+                    continue
+                }
 
                 val distance = eyes.squaredDistanceTo(vec3)
 
@@ -488,11 +550,52 @@ fun findClosestPointOnBlock(
 
                 best = VecRotation(Rotation.lookingAt(point = vec3, from = eyes), vec3) to it
                 bestDistance = distance
+                bestIntersects = intersects
             }
         }
     }
 
     return best
+}
+
+/**
+ * Tests if the line resulting from [start] and the point [p] will intersect this box.
+ */
+private fun Box.hits(start: Vec3d, p: Vec3d): Boolean {
+    val d = p.subtract(start)
+
+    var tEntry = Double.NEGATIVE_INFINITY
+    var tExit = Double.POSITIVE_INFINITY
+
+    fun Box.checkSide(axis: Direction.Axis, start: Vec3d, d: Vec3d): Boolean {
+        val d1 = axis.choose(d.x, d.y, d.z)
+        val min = getMin(axis)
+        val max = getMax(axis)
+        val p0 = axis.choose(start.x, start.y, start.z)
+
+        // parallel and outside, no need to check anything else
+        if (d1 == 0.0 && (p0 < min || p0 > max)) {
+            return true
+        }
+
+        val t1 = (min - p0) / d1
+        val t2 = (max - p0) / d1
+        val tMin = min(t1, t2)
+        val tMax = max(t1, t2)
+
+        tEntry = maxOf(tEntry, tMin)
+        tExit = minOf(tExit, tMax)
+
+        return tEntry > tExit
+    }
+
+    if (checkSide(Direction.Axis.X, start, d) ||
+        checkSide(Direction.Axis.Y, start, d) ||
+        checkSide(Direction.Axis.Z, start, d)) {
+        return false
+    }
+
+    return tEntry <= tExit
 }
 
 private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {

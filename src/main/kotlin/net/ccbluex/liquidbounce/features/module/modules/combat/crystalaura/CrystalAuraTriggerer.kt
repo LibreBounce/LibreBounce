@@ -275,7 +275,7 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
 
         currentPlaceTask?.let {
             if (!it.isDone) {
-                print("$id canceled because current is not done!")
+//                print("$id canceled because current is not done!")
                 return
             }
         }

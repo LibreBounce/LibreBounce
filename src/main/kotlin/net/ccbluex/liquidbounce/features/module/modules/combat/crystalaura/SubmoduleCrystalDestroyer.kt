@@ -20,10 +20,14 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import it.unimi.dsi.fastutil.objects.ObjectFloatImmutablePair
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.FULL_BOX
+import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.canSeeBox
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.raytraceBox
+import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
@@ -33,10 +37,13 @@ import kotlin.math.max
 
 object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "Destroy", true) {
 
-    val swing by boolean("Swing", true)
+    val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
     private val delay by int("Delay", 0, 0..1000, "ms")
     val range by float("Range", 4.5F, 1.0F..5.0F)
     val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F)
+
+    // prioritizes faces that are visible, might make the crystal aura slower
+    private val prioritizeVisibleFaces by boolean("PrioritizeVisibleFaces", false)
 
     var postAttackHandlers = arrayOf(CrystalAuraSpeedDebugger, SubmoduleSetDead.CrystalTracker)
     val chronometer = Chronometer()
@@ -59,6 +66,11 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
 
         val target = currentTarget ?: return
 
+        val blockPosDown = target.blockPos.down()
+        mc.execute {
+            ModuleDebug.debugGeometry(ModuleCrystalAura, "predictedBlock", ModuleDebug.DebuggedBox(FULL_BOX.offset(blockPosDown), Color4b.GREEN.fade(0.4f)))
+        }
+
         // find the best spot (and skip if no spot was found)
         val (rotation, _) =
             raytraceBox(
@@ -66,6 +78,8 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                 target.boundingBox,
                 range = range,
                 wallsRange = wallsRange,
+                futureTarget = FULL_BOX.offset(blockPosDown),
+                prioritizeVisible = prioritizeVisibleFaces
             ) ?: return
 
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation, isFinished = {
@@ -82,7 +96,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
 
             val target1 = currentTarget ?: return@rotate
 
-            target1.attack(swing)
+            target1.attack(swingMode)
             postAttackHandlers.forEach { it.attacked(target1.id) }
             chronometer.reset()
         })

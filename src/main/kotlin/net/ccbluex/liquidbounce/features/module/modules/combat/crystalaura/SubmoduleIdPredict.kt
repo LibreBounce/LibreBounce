@@ -51,7 +51,7 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
     /**
      * Swings before every attack. Otherwise, it will only swing once.
      *
-     * Only works when [SubmoduleCrystalDestroyer.swing] is enabled.
+     * Only works when [SubmoduleCrystalDestroyer.swingMode] is enabled.
      */
     private val swingAlways by boolean("SwingAlways", false)
 
@@ -128,9 +128,9 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
 
         Rotate.sendRotation(rotation.normalize())
 
-        val swing = SubmoduleCrystalDestroyer.swing
-        if (swing && !swingAlways) {
-            player.swingHand(Hand.MAIN_HAND)
+        val swingMode = SubmoduleCrystalDestroyer.swingMode
+        if (!swingAlways) {
+            swingMode.swing(Hand.MAIN_HAND)
         }
 
         offsetRange.forEach { idOffset ->
@@ -142,8 +142,8 @@ object SubmoduleIdPredict : ToggleableConfigurable(ModuleCrystalAura, "IDPredict
                 return@forEach
             }
 
-            if (swing && swingAlways) {
-                player.swingHand(Hand.MAIN_HAND)
+            if (swingAlways) {
+                swingMode.swing(Hand.MAIN_HAND)
             }
 
             val packet = PlayerInteractEntityC2SPacket(id, player.isSneaking, PlayerInteractEntityC2SPacket.ATTACK)
