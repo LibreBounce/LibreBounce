@@ -64,8 +64,8 @@ object FlyHypixelFlat : Choice("HypixelFlat") {
         waitTicks(1)
         player.velocity = player.velocity.withStrafe(speed = flySpeed.toDouble())
 
-        // Block execution until module is disabled
-        waitUntil { !isFlying }
+        waitUntil { player.isOnGround }
+        ModuleFly.enabled = false
     }
 
     @Suppress("unused")

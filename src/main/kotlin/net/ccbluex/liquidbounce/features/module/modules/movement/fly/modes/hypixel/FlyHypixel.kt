@@ -71,6 +71,9 @@ object FlyHypixel : Choice("Hypixel") {
         player.velocity.y += 0.42
 
         isFlying = false
+
+        waitUntil { player.isOnGround }
+        ModuleFly.enabled = false
     }
 
     @Suppress("unused")
