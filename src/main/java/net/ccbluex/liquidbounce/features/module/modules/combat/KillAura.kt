@@ -220,7 +220,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
 
     private val randomization = RandomizationSettings(this) { options.rotationsActive }
-    private val outborder by boolean("Outborder", false) { options.rotationsActive }
+    private val outBorder by boolean("outBorder", false) { options.rotationsActive }
 
     private val highestBodyPointToTargetValue = choices(
         "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
@@ -509,8 +509,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * Render event
      */
     val onRender3D = handler<Render3DEvent> {
-        val player = mc.thePlayer ?: return@handler
-
         handleFailedSwings()
 
         if (cancelRun) {
@@ -743,8 +741,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val switchMode = targetMode == "Switch"
 
-        val theWorld = mc.theWorld
-        val thePlayer = mc.thePlayer
+        val theWorld = mc.theWorld ?: return
+        val thePlayer = mc.thePlayer ?: return
 
         var bestTarget: EntityLivingBase? = null
         var bestValue: Double? = null
@@ -897,7 +895,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val rotation = searchCenter(
             boundingBox,
             generateSpotBasedOnDistance,
-            outborder && !attackTimer.hasTimePassed(attackDelay / 2),
+            outBorder && !attackTimer.hasTimePassed(attackDelay / 2),
             randomization,
             predict = false,
             lookRange = range + scanRange,
