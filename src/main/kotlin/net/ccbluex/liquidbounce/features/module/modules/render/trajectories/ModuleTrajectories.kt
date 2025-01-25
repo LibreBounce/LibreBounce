@@ -101,6 +101,7 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
         } else {
             otherPlayer.rotation
         }
+
         val renderer = TrajectoryInfoRenderer.getHypotheticalTrajectory(
             entity = otherPlayer,
             trajectoryInfo = trajectoryInfo,
