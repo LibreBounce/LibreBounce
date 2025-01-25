@@ -70,8 +70,6 @@ object FlyHypixel : Choice("Hypixel") {
         waitTicks(19)
         player.velocity.y += 0.42
 
-        isFlying = false
-
         waitUntil { player.isOnGround }
         ModuleFly.enabled = false
     }
