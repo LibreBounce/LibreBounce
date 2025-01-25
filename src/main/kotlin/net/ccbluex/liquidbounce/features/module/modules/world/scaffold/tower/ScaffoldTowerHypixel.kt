@@ -38,9 +38,8 @@ object ScaffoldTowerHypixel : Choice("Hypixel") {
             return@tickHandler
         }
 
-        if (player.x % 1.0 > 0.247 && !player.moving) {
-            player.velocity.x = (Math.round(player.x).toDouble() - player.x).coerceAtMost(0.247)
-            return@tickHandler
+        if (player.x % 1.0 > 0.281 && !player.moving) {
+            player.velocity.x = (Math.round(player.x).toDouble() - player.x).coerceAtMost(0.281)
         }
 
         if (player.airTicks > 14) {
@@ -60,5 +59,6 @@ object ScaffoldTowerHypixel : Choice("Hypixel") {
             2 -> player.velocity.y = 1 - (player.y % 1.0)
         }
     }
+
 
 }
