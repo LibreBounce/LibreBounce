@@ -507,7 +507,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val wasBlocking = player.isBlockAction
 
         if (wasBlocking) {
-            if (!KillAuraAutoBlock.enabled && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
+            if (!KillAuraAutoBlock.enabled && !ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
                 return
             }
 
@@ -518,7 +518,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
+        } else if (player.isUsingItem && !ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 
