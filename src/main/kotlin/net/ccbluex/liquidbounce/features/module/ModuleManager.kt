@@ -326,6 +326,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleReach,
             ModuleAutoQueue,
             ModuleSmartEat,
+            ModuleReplenish,
 
             // Render
             ModuleAnimations,

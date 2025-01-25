@@ -30,7 +30,6 @@ import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.formatBytesAsSize
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
-import net.ccbluex.liquidbounce.utils.validation.HashValidator
 import kotlin.concurrent.thread
 
 /**
@@ -68,7 +67,7 @@ class JcefBrowser : IBrowser, EventListener {
             }
 
             val resourceManager = MCEF.INSTANCE.newResourceManager()
-            HashValidator.validateFolder(resourceManager.commitDirectory)
+            //HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
                 thread(name = "mcef-downloader") {
