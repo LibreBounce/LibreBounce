@@ -82,7 +82,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         get() = unblockMode != UnblockMode.NONE
 
     val blockImmediate
-        get() = tickOn == 0 || blockMode == BlockMode.WATCHDOG
+        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL
 
     /**
      * Make it seem like the player is blocking.
@@ -101,7 +101,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
         if (SecureRandom().nextFloat() * 100 <= chance) {
-            if (!enabled || (player.isBlockAction && blockMode != BlockMode.WATCHDOG)) {
+            if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL)) {
                 return
             }
 
@@ -129,7 +129,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
                 return
             }
 
-            if (blockMode == BlockMode.WATCHDOG) {
+            if (blockMode == BlockMode.HYPIXEL) {
                 val currentSlot = player.inventory.selectedSlot
                 val nextSlot = (currentSlot + 1) % 8
 
@@ -140,7 +140,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
                 interactWithFront()
             }
 
-            if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.WATCHDOG) {
+            if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL) {
                 interactWithFront()
             }
 
@@ -285,7 +285,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     enum class BlockMode(override val choiceName: String) : NamedChoice {
         BASIC("Basic"),
         INTERACT("Interact"),
-        WATCHDOG("Watchdog117"),
+        HYPIXEL("Hypixel117"),
         FAKE("Fake"),
     }
 
