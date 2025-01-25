@@ -35,9 +35,10 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.util.Hand
 
 /**
- * Ignite module
+ * Ignite & AutoWeb module
  *
- * Automatically sets targets around you on fire.
+ * Ignite: Automatically sets targets around you on fire.
+ * AutoWeb: Automatically places cobwebs at targets around you.
  */
 
 // TODO: add toggle options for "Ignite" and "AutoWeb" in module settings
