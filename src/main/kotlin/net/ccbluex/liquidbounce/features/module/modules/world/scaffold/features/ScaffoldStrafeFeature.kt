@@ -20,9 +20,11 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.MODEL_STATE
 import net.minecraft.entity.effect.StatusEffects
 
 object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", false) {
@@ -32,21 +34,21 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
     @Suppress("unused")
-    private val strafeHandler = tickHandler {
+    private val movementHandler = handler<PlayerMoveEvent> { event ->
         if (onlyOnGround && !player.isOnGround) {
-            return@tickHandler
+            return@handler
         }
 
-        player.velocity = if (hypixel) {
+        event.movement = if (hypixel) {
             val speedEffect = player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1
 
             when (speedEffect) {
-                -1 -> player.velocity.withStrafe(speed = 0.2055)
-                0, 1 -> player.velocity.withStrafe(speed = 0.292)
-                else -> return@tickHandler
+                -1 -> event.movement.withStrafe(speed = 0.2055)
+                0, 1 -> event.movement.withStrafe(speed = 0.292)
+                else -> return@handler
             }
         } else {
-            player.velocity.withStrafe(speed = speed.toDouble())
+            event.movement.withStrafe(speed = speed.toDouble())
         }
     }
 
@@ -56,15 +58,16 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
         private val pauseAfter by int("PauseEvery", 4, 2..40)
 
         @Suppress("unused")
-        private val tickHandler = tickHandler {
+        private val movementHandler = handler<PlayerMoveEvent>(priority = MODEL_STATE) { event ->
             if (onlyOnGround && !player.isOnGround) {
-                return@tickHandler
+                return@handler
             }
 
             if (player.age % pauseAfter == 0) {
-                player.velocity = player.velocity.withStrafe(speed = pauseSpeed.toDouble())
+                event.movement = event.movement.withStrafe(speed = pauseSpeed.toDouble())
             }
         }
+
     }
 
     init {
