@@ -50,7 +50,7 @@ object Animations : Module("Animations", Category.RENDER, gameDetecting = false)
         SulfurAnimation()
     )
 
-    private val animationMode by choices("Mode", animations.map { it.name }.toTypedArray(), "Pushdown")
+    private val animationMode by choices("Mode", animations.map { it.name }.toTypedArray(), "NewPushdown")
     val oddSwing by boolean("OddSwing", false)
     val swingSpeed by int("SwingSpeed", 15, 0..20)
 
