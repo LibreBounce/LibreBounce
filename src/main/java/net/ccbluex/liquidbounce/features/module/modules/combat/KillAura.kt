@@ -220,7 +220,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
 
     private val randomization = RandomizationSettings(this) { options.rotationsActive }
-    private val outBorder by boolean("outBorder", false) { options.rotationsActive }
+    private val outBorder by boolean("OutBorder", false) { options.rotationsActive }
 
     private val highestBodyPointToTargetValue = choices(
         "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
