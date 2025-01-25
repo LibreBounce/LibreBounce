@@ -72,7 +72,7 @@ public abstract class MixinGuiNewChat {
 
     @Redirect(method = "setChatLine", at = @At(value = "INVOKE", target = "Ljava/util/List;size()I", ordinal = 0))
     private int hookNoLengthLimit(List<ChatLine> list) {
-        ChatControl chatControl = ChatControl.INSTANCE;
+        final ChatControl chatControl = ChatControl.INSTANCE;
 
         if (chatControl.handleEvents() && chatControl.getNoLengthLimit()) {
             return -1;
