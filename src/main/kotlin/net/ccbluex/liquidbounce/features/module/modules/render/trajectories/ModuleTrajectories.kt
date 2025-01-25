@@ -92,12 +92,13 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
         } ?: return
 
         val rotation = when {
-            otherPlayer == player -> when (ModuleFreeCam.running) {
-                true -> RotationManager.serverRotation
-                false ->
+            otherPlayer == player ->
+                if (ModuleFreeCam.running) {
+                    RotationManager.serverRotation
+                } else {
                     RotationManager.workingAimPlan?.rotation
-                    ?: RotationManager.currentRotation ?: otherPlayer.rotation
-            }
+                        ?: RotationManager.currentRotation ?: otherPlayer.rotation
+                }
             else -> otherPlayer.rotation
         }
         val renderer = TrajectoryInfoRenderer.getHypotheticalTrajectory(
