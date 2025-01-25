@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.entity.effect.StatusEffects
 
 object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", false) {
+
     private val speed by float("Speed", 0.247f, 0.0f..5.0f)
     private val hypixel by boolean("Hypixel", false)
     private val onlyOnGround by boolean("OnlyOnGround", false)
@@ -35,25 +36,21 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
         if (onlyOnGround && !player.isOnGround) {
             return@tickHandler
         }
-        if (hypixel) {
-            when ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1)) {
-                -1 -> {
-                    player.velocity = player.velocity.withStrafe(speed = 0.2055)
-                }
-                0, 1 -> {
-                    player.velocity = player.velocity.withStrafe(speed = 0.292)
-                }
-            }
-            return@tickHandler
-        }
 
-        player.velocity = player.velocity.withStrafe(speed = speed.toDouble())
+        player.velocity = if (hypixel) {
+            val speedEffect = player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1
+
+            when (speedEffect) {
+                -1 -> player.velocity.withStrafe(speed = 0.2055)
+                0, 1 -> player.velocity.withStrafe(speed = 0.292)
+                else -> return@tickHandler
+            }
+        } else {
+            player.velocity.withStrafe(speed = speed.toDouble())
+        }
     }
 
-    private class Pause(parent: EventListener?) : ToggleableConfigurable(
-        parent, "Pause",
-        false
-    ) {
+    private class Pause(parent: EventListener?) : ToggleableConfigurable(parent, "Pause", false) {
 
         private val pauseSpeed by float("PauseSpeed", 0.1f, 0.0f..5.0f)
         private val pauseAfter by int("PauseEvery", 4, 2..40)
