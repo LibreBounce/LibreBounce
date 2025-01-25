@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -15,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.coerceBodyPoint
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performAngleChange
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
@@ -27,7 +26,7 @@ import net.minecraft.entity.Entity
 import java.util.*
 import kotlin.math.atan
 
-object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
+object Aimbot : Module("Aimbot", Category.COMBAT) {
 
     private val range by float("Range", 4.4F, 1F..8F)
     private val horizontalAim by boolean("HorizontalAim", true)
@@ -35,46 +34,40 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
     private val legitimize by boolean("Legitimize", true) { horizontalAim || verticalAim }
     private val maxAngleChange by float("MaxAngleChange", 10f, 1F..180F) { horizontalAim || verticalAim }
     private val inViewMaxAngleChange by float("InViewMaxAngleChange", 35f, 1f..180f) { horizontalAim || verticalAim }
+    private val generateSpotBasedOnDistance by boolean(
+        "GenerateSpotBasedOnDistance",
+        false
+    ) { horizontalAim || verticalAim }
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
-    private val highestBodyPointToTargetValue: ListValue =
-        object : ListValue("HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head") {
-            override fun isSupported() = verticalAim
 
-            override fun onChange(oldValue: String, newValue: String): String {
-                val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-                val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
-                val coercedPoint = coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
-                return coercedPoint.name
-            }
-        }
-    private val highestBodyPointToTarget by highestBodyPointToTargetValue
-
-    private val lowestBodyPointToTargetValue: ListValue =
-        object : ListValue("LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet") {
-            override fun isSupported() = verticalAim
-
-            override fun onChange(oldValue: String, newValue: String): String {
-                val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-                val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
-                val coercedPoint = coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-                return coercedPoint.name
-            }
-        }
-
-    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
-
-    private val maxHorizontalBodySearch: FloatValue = object : FloatValue("MaxHorizontalBodySearch", 1f, 0f..1f) {
-        override fun isSupported() = horizontalAim
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalBodySearch.get())
+    private val highestBodyPointToTargetValue = choices(
+        "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
+    ) {
+        verticalAim
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
+        coercedPoint.name
     }
 
-    private val minHorizontalBodySearch: FloatValue = object : FloatValue("MinHorizontalBodySearch", 0f, 0f..1f) {
-        override fun isSupported() = horizontalAim
+    private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
+    private val lowestBodyPointToTargetValue = choices(
+        "LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet"
+    ) {
+        verticalAim
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+        coercedPoint.name
     }
+
+    private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
+
+    private val horizontalBodySearchRange by floatRange("HorizontalBodySearchRange", 0f..1f, 0f..1f) { horizontalAim }
 
     private val minRotationDifference by float("MinRotationDifference", 0f, 0f..2f) { verticalAim || horizontalAim }
 
@@ -101,19 +94,16 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
 
         if (onClick && (clickTimer.hasTimePassed(150) ||
-                !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())
+                    !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())
         ) {
             return@handler
         }
 
         // Search for the best enemy to target
-        val entity = world.loadedEntityList.asSequence().mapNotNull { entity ->
-            entity.takeIf {
-                Backtrack.runWithNearestTrackedDistance(it) {
-                    isSelected(it, true) && player.canEntityBeSeen(it) && player.getDistanceToEntityBox(
-                        it
-                    ) <= range && rotationDifference(it) <= fov
-                }
+        val entity = world.loadedEntityList.filter {
+            Backtrack.runWithNearestTrackedDistance(it) {
+                isSelected(it, true) && player.canEntityBeSeen(it)
+                        && player.getDistanceToEntityBox(it) <= range && rotationDifference(it) <= fov
             }
         }.minByOrNull { player.getDistanceToEntityBox(it) } ?: return@handler
 
@@ -149,9 +139,12 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+        val simPlayer =
+            SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-        repeat(predictClientMovement + 1) {
+        simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
+
+        repeat(predictClientMovement) {
             simPlayer.tick()
         }
 
@@ -164,12 +157,13 @@ object Aimbot : Module("Aimbot", Category.COMBAT, hideModule = false) {
         } else {
             searchCenter(
                 boundingBox,
+                generateSpotBasedOnDistance,
                 outborder = false,
                 predict = true,
                 lookRange = range,
                 attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
                 bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
-                horizontalSearch = minHorizontalBodySearch.get()..maxHorizontalBodySearch.get(),
+                horizontalSearch = horizontalBodySearchRange
             )
         }
 

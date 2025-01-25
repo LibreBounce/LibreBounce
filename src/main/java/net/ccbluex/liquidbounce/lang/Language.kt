@@ -5,11 +5,14 @@
  */
 package net.ccbluex.liquidbounce.lang
 
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.overrideLanguage
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.io.decodeJson
 
 fun translationMenu(key: String, vararg args: Any) = LanguageManager.getTranslation("menu.$key", *args)
+fun translationButton(key: String, vararg args: Any) = LanguageManager.getTranslation("button.$key", *args)
+fun translationText(key: String, vararg args: Any) = LanguageManager.getTranslation("text.$key", *args)
 fun translation(key: String, vararg args: Any) = LanguageManager.getTranslation(key, *args)
 
 object LanguageManager : MinecraftInstance {
@@ -17,9 +20,6 @@ object LanguageManager : MinecraftInstance {
     // Current language
     private val language: String
         get() = overrideLanguage.ifBlank { mc.gameSettings.language }
-    
-    // The game language can be overridden by the user
-    var overrideLanguage = ""
 
     // Common language
     private const val COMMON_UNDERSTOOD_LANGUAGE = "en_US"

@@ -8,14 +8,10 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeRepairedWithOther
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.autoArmorCurrentSlot
@@ -28,38 +24,34 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInvento
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.awaitTicked
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
-object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
-    private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-    }
-    private val minDelay by object : IntegerValue("MinDelay", 50, 0..500) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-
-        override fun isSupported() = maxDelay > 0
-    }
+object AutoArmor : Module("AutoArmor", Category.COMBAT) {
+    private val delay by intRange("Delay", 50..50, 0..1000)
     private val minItemAge by int("MinItemAge", 0, 0..2000)
 
-    private val invOpen by InventoryManager.invOpenValue
-    private val simulateInventory by InventoryManager.simulateInventoryValue
+    private val invOpen by +InventoryManager.invOpenValue
+    private val simulateInventory by +InventoryManager.simulateInventoryValue
 
-    private val postInventoryCloseDelay by InventoryManager.postInventoryCloseDelayValue
-    private val autoClose by InventoryManager.autoCloseValue
-    private val startDelay by InventoryManager.startDelayValue
-    private val closeDelay by InventoryManager.closeDelayValue
+    private val postInventoryCloseDelay by +InventoryManager.postInventoryCloseDelayValue
+    private val autoClose by +InventoryManager.autoCloseValue
+    private val startDelay by +InventoryManager.startDelayValue
+    private val closeDelay by +InventoryManager.closeDelayValue
 
     // When swapping armor pieces, it grabs the better one, drags and swaps it with equipped one and drops the equipped one (no time of having no armor piece equipped)
     // Has to make more clicks, works slower
     val smartSwap by boolean("SmartSwap", true)
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    private val noMove by +InventoryManager.noMoveValue
+    private val noMoveAir by +InventoryManager.noMoveAirValue
+    private val noMoveGround by +InventoryManager.noMoveGroundValue
 
     private val hotbar by boolean("Hotbar", true)
 
@@ -69,18 +61,11 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
     // Prevents AutoArmor from hotbar equipping while any screen is open
     private val notInContainers by boolean("NotInContainers", false) { hotbar }
 
-    val highlightSlot by InventoryManager.highlightSlotValue
+    val highlightSlot by +InventoryManager.highlightSlotValue
+    val backgroundColor by +InventoryManager.borderColor
 
-    val backgroundRed by InventoryManager.backgroundRedValue
-    val backgroundGreen by InventoryManager.backgroundGreenValue
-    val backgroundBlue by InventoryManager.backgroundBlueValue
-    val backgroundAlpha by InventoryManager.backgroundAlphaValue
-
-    val borderStrength by InventoryManager.borderStrength
-    val borderRed by InventoryManager.borderRed
-    val borderGreen by InventoryManager.borderGreen
-    val borderBlue by InventoryManager.borderBlue
-    val borderAlpha by InventoryManager.borderAlpha
+    val borderStrength by +InventoryManager.borderStrength
+    val borderColor by +InventoryManager.borderColor
 
     suspend fun equipFromHotbar() {
         if (!shouldOperate(onlyHotbar = true)) {
@@ -105,7 +90,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
             // Check if the armor piece is in the hotbar
             val hotbarIndex = index?.toHotbarIndex(stacks.size) ?: continue
 
-            if (index in TickScheduler || armorType + 5 in TickScheduler)
+            if (isTicked(index) || isTicked(armorType + 5))
                 continue
 
             if (!stack.hasItemAgePassed(minItemAge))
@@ -140,21 +125,20 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
             }
 
             // Schedule hotbar click
-            TickScheduler += equippingAction
+            nextTick(action = equippingAction)
 
             if (delayedSlotSwitch) {
-                delay(randomDelay(minDelay, maxDelay).toLong())
+                delay(delay.random().toLong())
             }
         }
 
-        // Not really needed to bypass
-        delay(randomDelay(minDelay, maxDelay).toLong())
+        delay(delay.random().toLong())
 
-        waitUntil { TickScheduler.isEmpty() }
+        awaitTicked()
 
         // Sync selected slot next tick
         if (hasClickedHotbar)
-            TickScheduler += { SilentHotbar.resetSlot(this) }
+            nextTick { SilentHotbar.resetSlot(this) }
     }
 
     suspend fun equipFromInventory() {
@@ -186,7 +170,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
             index ?: continue
 
             // Check if best item is already scheduled to be equipped next tick
-            if (index in TickScheduler || (armorType + 5) in TickScheduler)
+            if (isTicked(index) || isTicked(armorType + 5))
                 continue
 
             if (!stack.hasItemAgePassed(minItemAge))
@@ -240,7 +224,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
         }
 
         // Wait till all scheduled clicks were sent
-        waitUntil { TickScheduler.isEmpty() }
+        awaitTicked()
     }
 
     fun equipFromHotbarInChest(hotbarIndex: Int?, stack: ItemStack) {
@@ -308,10 +292,10 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT, hideModule = false) {
             delay(startDelay.toLong())
         }
 
-        TickScheduler.scheduleClick(slot, button, mode, allowDuplicates)
+        clickNextTick(slot, button, mode, allowDuplicates)
 
         hasScheduledInLastLoop = true
 
-        delay(randomDelay(minDelay, maxDelay).toLong())
+        delay(delay.random().toLong())
     }
 }

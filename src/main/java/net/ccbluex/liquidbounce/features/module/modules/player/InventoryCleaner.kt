@@ -6,17 +6,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.IntegerValue
 import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isFullBlock
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.shuffled
-import net.ccbluex.liquidbounce.utils.kotlin.waitUntil
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
@@ -27,7 +23,9 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.passedPostInven
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.awaitTicked
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.BlockFalling
 import net.minecraft.block.BlockWorkbench
@@ -39,80 +37,66 @@ import net.minecraft.init.Items
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
 
-object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule = false) {
-    private val drop by boolean("Drop", true, subjective = true)
-    val sort by boolean("Sort", true, subjective = true)
+object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
+    private val drop by boolean("Drop", true).subjective()
+    val sort by boolean("Sort", true).subjective()
 
-    private val maxDelay: Int by object : IntegerValue("MaxDelay", 50, 0..500) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-    }
-    private val minDelay by object : IntegerValue("MinDelay", 50, 0..500) {
-        override fun isSupported() = maxDelay > 0
+    private val delay by intRange("Delay", 50..50, 0..1000)
 
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-    }
     private val minItemAge by int("MinItemAge", 0, 0..2000)
 
-    private val limitStackCounts by boolean("LimitStackCounts", true, subjective = true)
-    private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36, subjective = true) { limitStackCounts }
-    private val maxFoodStacks by int("MaxFoodStacks", 5, 0..36, subjective = true) { limitStackCounts }
+    private val limitStackCounts by boolean("LimitStackCounts", true).subjective()
+    private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36) { limitStackCounts }.subjective()
+    private val maxFoodStacks by int("MaxFoodStacks", 5, 0..36) { limitStackCounts }.subjective()
     private val maxThrowableStacks by int(
         "MaxThrowableStacks",
         5,
         0..36,
-        subjective = true
-    ) { limitStackCounts }
+    ) { limitStackCounts }.subjective()
     // TODO: max potion, vehicle, ..., stacks?
 
-    private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10, subjective = true)
+    private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10).subjective()
 
-    private val mergeStacks by boolean("MergeStacks", true, subjective = true)
+    private val mergeStacks by boolean("MergeStacks", true).subjective()
 
-    private val repairEquipment by boolean("RepairEquipment", true, subjective = true)
+    private val repairEquipment by boolean("RepairEquipment", true).subjective()
 
-    private val invOpen by InventoryManager.invOpenValue
-    private val simulateInventory by InventoryManager.simulateInventoryValue
+    private val invOpen by +InventoryManager.invOpenValue
+    private val simulateInventory by +InventoryManager.simulateInventoryValue
 
-    private val postInventoryCloseDelay by InventoryManager.postInventoryCloseDelayValue
-    private val autoClose by InventoryManager.autoCloseValue
-    private val startDelay by InventoryManager.startDelayValue
-    private val closeDelay by InventoryManager.closeDelayValue
+    private val postInventoryCloseDelay by +InventoryManager.postInventoryCloseDelayValue
+    private val autoClose by +InventoryManager.autoCloseValue
+    private val startDelay by +InventoryManager.startDelayValue
+    private val closeDelay by +InventoryManager.closeDelayValue
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    private val noMove by +InventoryManager.noMoveValue
+    private val noMoveAir by +InventoryManager.noMoveAirValue
+    private val noMoveGround by +InventoryManager.noMoveGroundValue
 
     private val randomSlot by boolean("RandomSlot", false)
-    private val ignoreVehicles by boolean("IgnoreVehicles", false, subjective = true)
+    private val ignoreVehicles by boolean("IgnoreVehicles", false).subjective()
 
-    private val onlyGoodPotions by boolean("OnlyGoodPotions", false, subjective = true)
+    private val onlyGoodPotions by boolean("OnlyGoodPotions", false).subjective()
 
-    val highlightSlot by InventoryManager.highlightSlotValue
+    val highlightSlot by +InventoryManager.highlightSlotValue
+    val backgroundColor by +InventoryManager.borderColor
 
-    val backgroundRed by InventoryManager.backgroundRedValue
-    val backgroundGreen by InventoryManager.backgroundGreenValue
-    val backgroundBlue by InventoryManager.backgroundBlueValue
-    val backgroundAlpha by InventoryManager.backgroundAlphaValue
+    val borderStrength by +InventoryManager.borderStrength
+    val borderColor by +InventoryManager.borderColor
 
-    val borderStrength by InventoryManager.borderStrength
-    val borderRed by InventoryManager.borderRed
-    val borderGreen by InventoryManager.borderGreen
-    val borderBlue by InventoryManager.borderBlue
-    val borderAlpha by InventoryManager.borderAlpha
+    val highlightUseful by boolean("HighlightUseful", true).subjective()
 
-    val highlightUseful by boolean("HighlightUseful", true, subjective = true)
+    private val slot1Value = sortChoice("Slot1", "Sword")
+    private val slot2Value = sortChoice("Slot2", "Bow")
+    private val slot3Value = sortChoice("Slot3", "Pickaxe")
+    private val slot4Value = sortChoice("Slot4", "Axe")
+    private val slot5Value = sortChoice("Slot5", "Shovel")
+    private val slot6Value = sortChoice("Slot6", "Food")
+    private val slot7Value = sortChoice("Slot7", "Throwable")
+    private val slot8Value = sortChoice("Slot8", "FishingRod")
+    private val slot9Value = sortChoice("Slot9", "Block")
 
-    private val slot1Value = SortValue("Slot1", "Sword")
-    private val slot2Value = SortValue("Slot2", "Bow")
-    private val slot3Value = SortValue("Slot3", "Pickaxe")
-    private val slot4Value = SortValue("Slot4", "Axe")
-    private val slot5Value = SortValue("Slot5", "Shovel")
-    private val slot6Value = SortValue("Slot6", "Food")
-    private val slot7Value = SortValue("Slot7", "Throwable")
-    private val slot8Value = SortValue("Slot8", "FishingRod")
-    private val slot9Value = SortValue("Slot9", "Block")
-
-    private val SORTING_VALUES = arrayOf(
+    private val SORTING_VALUES: Array<ListValue> = arrayOf(
         slot1Value, slot2Value, slot3Value, slot4Value, slot5Value, slot6Value, slot7Value, slot8Value, slot9Value
     )
 
@@ -192,7 +176,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             for (index in indicesToDoubleClick) {
                 if (!shouldOperate()) return
 
-                if (index in TickScheduler) continue
+                if (isTicked(index)) continue
 
                 // TODO: Perhaps add a slider for merge delay?
 
@@ -208,9 +192,11 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
 
             // This part isn't fully instant because of the complex vanilla merging behaviour, stack size changes and so on
             // Waits a tick to see how the stacks got merged
-            waitUntil { TickScheduler.isEmpty() }
+            awaitTicked()
         }
     }
+
+    private data class RepairTriple(val index1: Int, val index2: Int, val durability: Int)
 
     // Repair tools by merging them in the crafting grid
     suspend fun repairEquipment() {
@@ -230,39 +216,34 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                     // Check if stack is damageable and either has no enchantments or just unbreaking.
                     stack.hasItemAgePassed(minItemAge) && shouldBeRepaired(stack)
                 }
-                .groupBy { it.value.item }
-                .filter { (_, stackGroup) ->
+                .groupBy { it.value.item }.values
+                .filter { stackGroup ->
                     // Only try to repair groups of items when they contain a useful item that can be repaired
                     // Prevents repairing of items that would get thrown out
                     stackGroup.any { isStackUseful(it.value, stacks, noLimits = true) && it.value.isItemDamaged }
                 }
-                .mapValues { (_, groupStacks) ->
+                .mapNotNull { groupStacks ->
                     // Get all pairs of stacks that can be merged
-                    val bestCombination = groupStacks.withIndex()
-                        .flatMap { (index, indexedStack) ->
-                            groupStacks.drop(index + 1).map { indexedStack to it }
+                    groupStacks.withIndex().flatMap { (index, indexedStack) ->
+                        groupStacks.drop(index + 1).map { indexedStack to it }
+                    }.mapNotNull {
+                        val (index1, stack1) = it.first
+                        val (index2, stack2) = it.second
+
+                        // Get combined durability of both stacks (with vanilla repair bonus) coerced to max durability
+                        getCombinedDurabilityIfBeneficial(stack1, stack2)?.let { durability ->
+                            RepairTriple(index1, index2, durability)
                         }
-                        .mapNotNull {
-                            val (index1, stack1) = it.first
-                            val (index2, stack2) = it.second
-
-                            // Get combined durability of both stacks (with vanilla repair bonus) coerced to max durability
-                            val durability = getCombinedDurabilityIfBeneficial(stack1, stack2) ?: return@mapNotNull null
-
-                            Triple(index1, index2, durability)
-                        }
-                        .maxByOrNull { it.third } ?: return@mapValues null
-
-                    // If there is a stack with higher or equal durability than the best combination, don't repair
-                    if (bestCombination.third <= groupStacks.maxOf { it.value.totalDurability }) return@mapValues null
-                    else bestCombination
+                    }.maxByOrNull { it.durability }?.takeIf { bestCombination ->
+                        // If there is a stack with higher or equal durability than the best combination, don't repair
+                        bestCombination.durability >= groupStacks.maxOf { it.value.totalDurability }
+                    }
                 }
-                .mapNotNull { it.value }
 
             repair@ for ((index1, index2) in pairsToRepair) {
                 if (!shouldOperate()) return
 
-                if (index1 in TickScheduler || index2 in TickScheduler)
+                if (isTicked(index1) || isTicked(index2))
                     continue
 
                 // Drag and drop stack1 to crafting grid
@@ -343,7 +324,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                 break
 
             // Waits a tick to see how the stacks got repaired
-            waitUntil { TickScheduler.isEmpty() }
+            awaitTicked()
         }
     }
 
@@ -374,7 +355,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                     return true
 
                 for ((otherIndex, otherStack) in stacks.withIndex()) {
-                    if (otherIndex in TickScheduler)
+                    if (isTicked(otherIndex))
                         continue
 
                     val otherItem = otherStack?.item
@@ -402,7 +383,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                 searchAndSort()
         }
 
-        waitUntil { TickScheduler.isEmpty() }
+        awaitTicked()
     }
 
     // Drop bad items to free up inventory space
@@ -415,7 +396,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             // Stop if player violates invopen or nomove checks
             if (!shouldOperate()) return
 
-            if (index in TickScheduler)
+            if (isTicked(index))
                 continue
 
             val stacks = thePlayer.openContainer.inventory
@@ -429,7 +410,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
                 click(index, 1, 4)
         }
 
-        waitUntil { TickScheduler.isEmpty() }
+        awaitTicked()
     }
 
     private suspend fun click(
@@ -456,11 +437,11 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
             delay(startDelay.toLong())
         }
 
-        TickScheduler.scheduleClick(slot, button, mode, allowDuplicates)
+        clickNextTick(slot, button, mode, allowDuplicates)
 
         hasScheduledInLastLoop = true
 
-        delay(randomDelay(minDelay, maxDelay).coerceAtMost(coerceTo).toLong())
+        delay(delay.random().coerceAtMost(coerceTo).toLong())
     }
 
     fun canBeSortedTo(index: Int, item: Item?, stacksSize: Int? = null): Boolean {
@@ -982,18 +963,20 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER, hideModule
         }
     }
 
-    private class SortValue(name: String, value: String) : ListValue(name, SORTING_KEYS, value, subjective = true) {
-        override fun isSupported() = sort
-        override fun onChanged(oldValue: String, newValue: String) =
-            SORTING_VALUES.forEach { value ->
-                if (value != this && newValue == value.get() && SORTING_TARGETS.keys.indexOf(value.get()) < 5) {
-                    value.set(oldValue)
-                    value.openList = true
+    private fun sortChoice(name: String, value: String) = choices(name, SORTING_KEYS, value) {
+        sort
+    }.onChange { old, new ->
+        if (new in SINGLE_KEYS) {
+            SORTING_VALUES.find { it.get() == new }?.let { another ->
+                another.set(old)
+                another.openList = true
 
-                    chat("§8[§9§lInventoryCleaner§8] §3Value §a${value.name}§3 was changed to §a$oldValue§3 to prevent conflicts.")
-                }
+                chat("§8[§9§lInventoryCleaner§8] §3Value §a${another.name}§3 was changed to §a$old§3 to prevent conflicts.")
             }
-    }
+        }
+
+        new
+    }.subjective() as ListValue
 }
 
 private val ITEMS_WHITELIST = arrayOf(
@@ -1026,3 +1009,5 @@ private val SORTING_TARGETS: Map<String, ((Item?) -> Boolean)?> = mapOf(
 )
 
 private val SORTING_KEYS = SORTING_TARGETS.keys.toTypedArray()
+
+private val SINGLE_KEYS = SORTING_KEYS.copyOfRange(0, 5)

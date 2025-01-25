@@ -5,7 +5,9 @@
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.api.ClientApi
@@ -28,11 +30,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetDead
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.targetPlayer
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.client.asResourceLocation
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -63,6 +61,8 @@ object ClickGui : GuiScreen() {
             field = value.coerceAtLeast(0)
         }
 
+    private var autoScrollY: Int? = null
+
     // Used when closing ClickGui using its key bind, prevents it from getting closed instantly after getting opened.
     // Caused by keyTyped being called along with onKey that opens the ClickGui.
     private var ignoreClosing = false
@@ -74,7 +74,7 @@ object ClickGui : GuiScreen() {
         val height = 18
         var yPos = 5
 
-        for (category in Category.values()) {
+        for (category in Category.entries) {
             panels += object : Panel(category.displayName, 100, yPos, width, height, false) {
                 override val elements = moduleManager.mapNotNull {
                     it.takeIf { module -> module.category == category }?.let(::ModuleElement)
@@ -97,20 +97,20 @@ object ClickGui : GuiScreen() {
         object : Panel("Targets", xPos, yPos, width, height, false) {
 
             override val elements = listOf(
-                ButtonElement("Players", { if (targetPlayer) guiColor else Int.MAX_VALUE }) {
-                    targetPlayer = !targetPlayer
+                ButtonElement("Players", { if (Targets.player) guiColor else Int.MAX_VALUE }) {
+                    Targets.player = !Targets.player
                 },
-                ButtonElement("Mobs", { if (targetMobs) guiColor else Int.MAX_VALUE }) {
-                    targetMobs = !targetMobs
+                ButtonElement("Mobs", { if (Targets.mob) guiColor else Int.MAX_VALUE }) {
+                    Targets.mob = !Targets.mob
                 },
-                ButtonElement("Animals", { if (targetAnimals) guiColor else Int.MAX_VALUE }) {
-                    targetAnimals = !targetAnimals
+                ButtonElement("Animals", { if (Targets.animal) guiColor else Int.MAX_VALUE }) {
+                    Targets.animal = !Targets.animal
                 },
-                ButtonElement("Invisible", { if (targetInvisible) guiColor else Int.MAX_VALUE }) {
-                    targetInvisible = !targetInvisible
+                ButtonElement("Invisible", { if (Targets.invisible) guiColor else Int.MAX_VALUE }) {
+                    Targets.invisible = !Targets.invisible
                 },
-                ButtonElement("Dead", { if (targetDead) guiColor else Int.MAX_VALUE }) {
-                    targetDead = !targetDead
+                ButtonElement("Dead", { if (Targets.dead) guiColor else Int.MAX_VALUE }) {
+                    Targets.dead = !Targets.dead
                 },
             )
 
@@ -194,7 +194,8 @@ object ClickGui : GuiScreen() {
             }
 
             if (Mouse.hasWheel()) {
-                val wheel = Mouse.getDWheel()
+                val wheel = autoScrollY?.let { it - y } ?: Mouse.getDWheel()
+
                 if (wheel != 0) {
                     var handledScroll = false
 
@@ -238,6 +239,10 @@ object ClickGui : GuiScreen() {
             return
         }
 
+        if (mouseButton == 2) {
+            autoScrollY = y
+        }
+
         mouseX = (x / scale).roundToInt()
         mouseY = (y / scale).roundToInt()
 
@@ -260,11 +265,15 @@ object ClickGui : GuiScreen() {
         }
     }
 
-    public override fun mouseReleased(x: Int, y: Int, state: Int) {
+    public override fun mouseReleased(x: Int, y: Int, button: Int) {
         mouseX = (x / scale).roundToInt()
         mouseY = (y / scale).roundToInt()
 
-        for (panel in panels) panel.mouseReleased(mouseX, mouseY, state)
+        if (button == 2) {
+            autoScrollY = null
+        }
+
+        for (panel in panels) panel.mouseReleased(mouseX, mouseY, button)
     }
 
     override fun updateScreen() {
@@ -294,6 +303,7 @@ object ClickGui : GuiScreen() {
     }
 
     override fun onGuiClosed() {
+        autoScrollY = null
         saveConfig(clickGuiConfig)
         for (panel in panels) panel.fade = 0
     }

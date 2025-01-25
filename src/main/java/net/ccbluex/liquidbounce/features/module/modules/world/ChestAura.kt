@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -56,32 +52,26 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     private val chest by boolean("Chest", true)
     private val enderChest by boolean("EnderChest", false)
 
-    private val range: Float by object : FloatValue("Range", 5F, 1F..5F) {
-        override fun onUpdate(value: Float) {
-            rangeSq = value.pow(2)
-            searchRadiusSq = (value + 1).pow(2)
-        }
+    private val range by float("Range", 5F, 1F..5F).onChanged { value ->
+        rangeSq = value.pow(2)
+        searchRadiusSq = (value + 1).pow(2)
     }
     private val delay by int("Delay", 200, 50..500)
 
     private val throughWalls by boolean("ThroughWalls", true)
-    private val wallsRange: Float by object : FloatValue("ThroughWallsRange", 3F, 1F..5F) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(this@ChestAura.range)
-
-        override fun onUpdate(value: Float) {
-            wallsRangeSq = value.pow(2)
-        }
-
-        override fun isSupported() = throughWalls
+    private val wallsRange by float("ThroughWallsRange", 3F, 1F..5F) {
+        throughWalls
+    }.onChange { _, new ->
+        new.coerceAtMost(this@ChestAura.range)
+    }.onChanged { value ->
+        wallsRangeSq = value.pow(2)
     }
 
-    private val minDistanceFromOpponent: Float by object : FloatValue("MinDistanceFromOpponent", 10F, 0F..30F) {
-        override fun onUpdate(value: Float) {
-            minDistanceFromOpponentSq = value.pow(2)
-        }
+    private val minDistanceFromOpponent by float("MinDistanceFromOpponent", 10F, 0F..30F).onChanged { value ->
+        minDistanceFromOpponentSq = value.pow(2)
     }
 
-    private val visualSwing by boolean("VisualSwing", true, subjective = true)
+    private val visualSwing by boolean("VisualSwing", true).subjective()
 
     private val ignoreLooted by boolean("IgnoreLootedChests", true)
     private val detectRefill by boolean("DetectChestRefill", true)
@@ -90,7 +80,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
     private val openInfo by choices("OpenInfo", arrayOf("Off", "Self", "Other", "Everyone"), "Off")
 
-    var tileTarget: Triple<Vec3, TileEntity, Double>? = null
+    var tileTarget: TileTarget? = null
     private val timer = MSTimer()
 
     // Squared distances, they get updated when values initiate or get changed
@@ -105,6 +95,12 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     // Substrings that indicate that chests have been refilled, broadcasted via title packet
     private val refillSubstrings = arrayOf("refill", "reabastecidos")
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
+
+    data class TileTarget(
+        val clickPoint: Vec3,
+        val entity: TileEntity,
+        val distanceSq: Double
+    )
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
         if (Blink.handleEvents() || KillAura.isBlockingChestAura || !timer.hasTimePassed(delay))
@@ -124,40 +120,22 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         }
 
         val eyes = thePlayer.eyes
+        val (eyeX, eyeY, eyeZ) = eyes
 
         mc.theWorld.tickableTileEntities
             .asSequence()
             // Check if tile entity is correct type, not already clicked, not blocked by a block and in range
             .filter {
-                shouldClickTileEntity(it) && it.getDistanceSq(
-                    thePlayer.posX,
-                    thePlayer.posY,
-                    thePlayer.posZ
-                ) <= searchRadiusSq
+                shouldClickTileEntity(it) && it.pos.distanceSqToCenter(eyeX, eyeY, eyeZ) <= searchRadiusSq
             }.flatMap { entity ->
                 val box = entity.blockType.getSelectedBoundingBox(mc.theWorld, entity.pos)
 
-                val points = mutableListOf(getNearestPointBB(eyes, box))
-
-                for (x in 0.0..1.0) {
-                    for (y in 0.0..1.0) {
-                        for (z in 0.0..1.0) {
-                            points += Vec3(
-                                box.minX + (box.maxX - box.minX) * x,
-                                box.minY + (box.maxY - box.minY) * y,
-                                box.minZ + (box.maxZ - box.minZ) * z
-                            )
-                        }
-                    }
-                }
-
-                points.mapNotNull { point ->
+                (sequenceOf(getNearestPointBB(eyes, box)) + box.getPointSequence(step = 0.1)).mapNotNull { point ->
                     val distanceSq = point.squareDistanceTo(eyes)
 
-                    Triple(point, entity, distanceSq).takeIf { distanceSq <= rangeSq }
+                    if (distanceSq <= rangeSq) TileTarget(point, entity, distanceSq) else null
                 }
-
-            }.sortedBy { it.third }
+            }.sortedBy { it.distanceSq }
             // Vecs are already sorted by distance
             .firstOrNull { (vec, entity) ->
                 // If through walls is enabled and its range is same as normal, just return the first one
@@ -175,7 +153,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 tileTarget = it
 
                 if (options.rotationsActive) {
-                    setTargetRotation(toRotation(it.first), options = options)
+                    setTargetRotation(toRotation(it.clickPoint), options = options)
                 }
             }
     }
@@ -206,10 +184,12 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 if (!ignoreLooted || (packet.blockType !is BlockChest && packet.blockType !is BlockEnderChest))
                     return@handler
 
-                clickedTileEntities += mc.theWorld.getTileEntity(packet.blockPosition)
+                val packetBlockPos = packet.blockPosition
+
+                clickedTileEntities += mc.theWorld.getTileEntity(packetBlockPos)
 
                 if (openInfo != "Off") {
-                    val (prevState, prevTime) = chestOpenMap[packet.blockPosition] ?: (null to null)
+                    val (prevState, prevTime) = chestOpenMap[packetBlockPos] ?: (null to null)
 
                     // Prevent repetitive packet spamming
                     if (prevState == packet.data2)
@@ -223,30 +203,26 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                     val distance: String
 
                     // If chest is not last clicked chest, find a player that might have opened it
-                    if (packet.blockPosition != tileTarget?.second?.pos) {
-                        val nearPlayers = mc.theWorld?.playerEntities
-                            ?.asSequence()
-                            ?.mapNotNull {
-                                val distanceSq = it.getDistanceSqToCenter(packet.blockPosition)
+                    if (packetBlockPos != tileTarget?.entity?.pos) {
+                        val nearPlayers = (mc.theWorld.playerEntities ?: return@handler)
+                            .mapNotNull {
+                                val distanceSq = it.getDistanceSqToCenter(packetBlockPos)
 
                                 if (distanceSq <= 36) it to distanceSq
                                 else null
-                            }?.sortedBy { it.second }
-
-                        if (nearPlayers == null)
-                            return@handler
+                            }.sortedBy { it.second }
 
                         // Find the closest player that is looking at the chest or else just the closest
                         player = (nearPlayers.firstOrNull { (player) ->
-                            player.rayTrace(5.0, 1f)?.blockPos == packet.blockPosition
+                            player.rayTrace(5.0, 1f)?.blockPos == packetBlockPos
                         } ?: nearPlayers.first()).first
 
-                        val entity = mc.theWorld.getTileEntity(packet.blockPosition)
-                        val box = entity.blockType.getSelectedBoundingBox(mc.theWorld, packet.blockPosition)
+                        val entity = mc.theWorld.getTileEntity(packetBlockPos)
+                        val box = entity.blockType.getSelectedBoundingBox(mc.theWorld, packetBlockPos)
                         distance = decimalFormat.format(player.getDistanceToBox(box))
                     } else {
                         player = mc.thePlayer
-                        distance = decimalFormat.format(sqrt(tileTarget!!.third))
+                        distance = decimalFormat.format(sqrt(tileTarget!!.distanceSq))
                     }
 
                     when (player) {
@@ -263,7 +239,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
                     chat("§8[§9§lChestAura§8] $playerMsg chest from §b$distance m§3$timeTakenMsg.")
 
-                    chestOpenMap[packet.blockPosition] = packet.data2 to System.currentTimeMillis()
+                    chestOpenMap[packetBlockPos] = packet.data2 to System.currentTimeMillis()
                 }
             }
 
@@ -299,27 +275,19 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
         val rotationToUse = if (options.rotationsActive) {
             currentRotation ?: return@handler
-        } else toRotation(target.first)
+        } else toRotation(target.clickPoint)
 
-        val distance = sqrt(target.third)
+        val distance = sqrt(target.distanceSq)
 
         if (distance <= range) {
-            val pos = target.second.pos
+            val pos = target.entity.pos
 
             val rotationVec = getVectorForRotation(rotationToUse) * mc.playerController.blockReachDistance.toDouble()
 
-            val visibleResult = performRayTrace(pos, rotationVec)
-            val invisibleResult = performRaytrace(pos, rotationToUse)
+            val visibleResult = performRayTrace(pos, rotationVec)?.takeIf { it.blockPos == pos }
+            val invisibleResult = performRaytrace(pos, rotationToUse)?.takeIf { it.blockPos == pos }
 
-            val resultToUse = if (visibleResult?.blockPos == pos) {
-                visibleResult
-            } else {
-                if (invisibleResult?.blockPos == pos) {
-                    invisibleResult
-                } else null
-            }
-
-            resultToUse?.run {
+            (visibleResult ?: invisibleResult)?.run {
                 if (player.onPlayerRightClick(blockPos, sideHit, hitVec)) {
                     if (visualSwing) player.swingItem()
                     else sendPacket(C0APacketAnimation())

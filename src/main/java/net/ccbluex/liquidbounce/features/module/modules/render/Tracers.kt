@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -14,8 +13,8 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
+import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.entity.Entity
@@ -26,19 +25,15 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
+object Tracers : Module("Tracers", Category.RENDER) {
 
-    private val colorMode by choices("Color", arrayOf("Custom", "DistanceColor", "Rainbow"), "Custom")
-    private val colorRed by int("R", 0, 0..255) { colorMode == "Custom" }
-    private val colorGreen by int("G", 160, 0..255) { colorMode == "Custom" }
-    private val colorBlue by int("B", 255, 0..255) { colorMode == "Custom" }
+    private val colorMode by choices("ColorMode", arrayOf("Custom", "DistanceColor"), "Custom")
+    private val color by color("Color", Color(0, 160, 255, 150)) { colorMode == "Custom" }
 
     private val thickness by float("Thickness", 2F, 1F..5F)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..200).onChanged {
+        maxRenderDistanceSq = (it * it).toDouble()
     }
 
     private var maxRenderDistanceSq = 0.0
@@ -54,8 +49,17 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
     private val thruBlocks by boolean("ThruBlocks", true)
 
-    val onRender3D = handler<Render3DEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+    private val entities by EntityLookup<EntityLivingBase>()
+        .filter { isSelected(it, false) }
+        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { bot || !isBot(it) }
+        .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
+        .filter { thruBlocks || isEntityHeightVisible(it) }
+
+    // Priority must be set lower than every other Listenable class that also listens to this event.
+    // We re-apply camera transformation, which would affect NameTags if the priority was normal.
+    val onRender3D = handler<Render3DEvent>(priority = -5) {
+        mc.thePlayer ?: return@handler
 
         val originalViewBobbing = mc.gameSettings.viewBobbing
 
@@ -74,30 +78,19 @@ object Tracers : Module("Tracers", Category.RENDER, hideModule = false) {
 
             glBegin(GL_LINES)
 
-            for (entity in mc.theWorld.loadedEntityList) {
-                val distanceSquared = thePlayer.getDistanceSqToEntity(entity)
+            for (entity in entities) {
+                val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
-                if (distanceSquared <= maxRenderDistanceSq) {
-                    if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble())) continue
-                    if (entity !is EntityLivingBase || !bot && isBot(entity)) continue
-                    if (!thruBlocks && !isEntityHeightVisible(entity)) continue
-
-                    if (entity != thePlayer && isSelected(entity, false)) {
-                        val dist = (thePlayer.getDistanceToEntity(entity) * 2).toInt().coerceAtMost(255)
-
-                        val colorMode = colorMode.lowercase()
-                        val color = when {
-                            entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
-                            teams && state && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
-                            colorMode == "custom" -> Color(colorRed, colorGreen, colorBlue, 150)
-                            colorMode == "distancecolor" -> Color(255 - dist, dist, 0, 150)
-                            colorMode == "rainbow" -> ColorUtils.rainbow()
-                            else -> Color(255, 255, 255, 150)
-                        }
-
-                        drawTraces(entity, color)
-                    }
+                val colorMode = colorMode.lowercase()
+                val color = when {
+                    entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
+                    teams && Teams.handleEvents() && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
+                    colorMode == "custom" -> color
+                    colorMode == "distancecolor" -> Color(255 - dist, dist, 0, 150)
+                    else -> Color(255, 255, 255, 150)
                 }
+
+                drawTraces(entity, color)
             }
 
             glEnd()

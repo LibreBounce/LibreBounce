@@ -28,6 +28,7 @@ object MovementUtils : MinecraftInstance, Listenable {
         get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } == true
 
     var airTicks = 0
+    var groundTicks = 0
 
     @JvmOverloads
     fun strafe(

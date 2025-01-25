@@ -6,10 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
-import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -19,15 +15,17 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.NullStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBeEnabled = false) {
-    private val style by
-    object : ListValue("Style", arrayOf("LiquidBounce", "Null", "Slowly", "Black"), "LiquidBounce") {
-        override fun onChanged(oldValue: String, newValue: String) = updateStyle()
+    private val style by choices(
+        "Style",
+        arrayOf("LiquidBounce", "Null", "Slowly", "Black"),
+        "LiquidBounce"
+    ).onChanged {
+        updateStyle()
     }
     var scale by float("Scale", 0.8f, 0.5f..1.5f)
     val maxElements by int("MaxElements", 15, 1..30)
@@ -36,14 +34,10 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     val spacedModules by boolean("SpacedModules", false)
     val panelsForcedInBoundaries by boolean("PanelsForcedInBoundaries", false)
 
-    private val colorRainbowValue = boolean("Rainbow", false) { style !in arrayOf("Slowly", "Black") }
-    private val colorRed by int("R", 0, 0..255) { colorRainbowValue.isSupported() && !colorRainbowValue.get() }
-    private val colorGreen by int("G", 160, 0..255) { colorRainbowValue.isSupported() && !colorRainbowValue.get() }
-    private val colorBlue by int("B", 255, 0..255) { colorRainbowValue.isSupported() && !colorRainbowValue.get() }
+    private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black") }
 
     val guiColor
-        get() = if (colorRainbowValue.get()) ColorUtils.rainbow().rgb
-        else Color(colorRed, colorGreen, colorBlue).rgb
+        get() = color.rgb
 
     override fun onEnable() {
         updateStyle()
@@ -61,8 +55,8 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     }
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
-        val packet = event.packet
-        if (packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui)
+        if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui) {
             event.cancelEvent()
+        }
     }
 }

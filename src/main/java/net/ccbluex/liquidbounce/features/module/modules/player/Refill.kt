@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -23,7 +20,7 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0EPacketClickWindow
 
-object Refill : Module("Refill", Category.PLAYER, hideModule = false) {
+object Refill : Module("Refill", Category.PLAYER) {
     private val delay by int("Delay", 400, 10..1000)
 
     private val minItemAge by int("MinItemAge", 400, 0..1000)
@@ -33,9 +30,9 @@ object Refill : Module("Refill", Category.PLAYER, hideModule = false) {
     private val invOpen by boolean("InvOpen", false)
     private val simulateInventory by boolean("SimulateInventory", false) { !invOpen }
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    private val noMove by +InventoryManager.noMoveValue
+    private val noMoveAir by +InventoryManager.noMoveAirValue
+    private val noMoveGround by +InventoryManager.noMoveGroundValue
 
     val onTick = handler<GameTickEvent> {
         if (!CLICK_TIMER.hasTimePassed(delay))

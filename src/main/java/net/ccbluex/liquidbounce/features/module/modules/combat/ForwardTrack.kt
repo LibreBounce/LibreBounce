@@ -5,17 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
+import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.renderer.GlStateManager.color
@@ -23,18 +21,15 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
-import java.awt.Color
 
 object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
-    private val espMode by choices("ESP-Mode", arrayOf("Box", "Model", "Wireframe"), "Model", subjective = true)
+    private val espMode by choices("ESP-Mode", arrayOf("Box", "Model", "Wireframe"), "Model").subjective()
     private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..5f) { espMode == "WireFrame" }
 
-    private val espColorMode by choices("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom") { espMode != "Model" }
-    private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false)
-    { espColorMode == "Custom" && espMode != "Model" }.with(0, 255, 0)
+    private val espColor = ColorSettingsInteger(this, "ESPColor") { espMode != "Model" }.with(0, 255, 0)
 
     val color
-        get() = if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
+        get() = espColor.color()
 
     /**
      * Any good anti-cheat will easily detect this module.
@@ -53,90 +48,92 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
     private fun usePosition(entity: Entity): Vec3 {
         entity.run {
-            return if (!mc.isSingleplayer) {
-                val iEntity = entity as IMixinEntity
+            return when {
+                !mc.isSingleplayer -> {
+                    val iEntity = entity as IMixinEntity
 
-                if (iEntity.truePos) iEntity.interpolatedPosition else positionVector
-            } else if (this is EntityLivingBase) {
-                Vec3(newPosX, newPosY, newPosZ)
-            } else positionVector
+                    if (iEntity.truePos) iEntity.interpolatedPosition else positionVector
+                }
+
+                this is EntityLivingBase -> {
+                    Vec3(newPosX, newPosY, newPosZ)
+                }
+
+                else -> positionVector
+            }
         }
     }
 
-    val onRender3D = handler<Render3DEvent> { event ->
-        val world = mc.theWorld ?: return@handler
+    private val entities by EntityLookup<EntityLivingBase> {
+        isSelected(it, true)
+    }
 
+    val onRender3D = handler<Render3DEvent> { event ->
         val renderManager = mc.renderManager
 
-        world.loadedEntityList.asSequence()
-            .filter { isSelected(it, true) }
-            .forEach { target ->
-            target?.run {
-                val vec = usePosition(this)
+        for (target in entities) {
+            val vec = usePosition(target)
 
-                val (x, y, z) = vec - renderManager.renderPos
+            val (x, y, z) = vec - renderManager.renderPos
 
-                when (espMode.lowercase()) {
-                    "box" -> {
-                        val axisAlignedBB = entityBoundingBox.offset(-currPos + Vec3(x, y, z))
+            when (espMode.lowercase()) {
+                "box" -> {
+                    val axisAlignedBB = target.entityBoundingBox.offset(Vec3(x, y, z) - target.currPos)
 
-                        drawBacktrackBox(axisAlignedBB, color)
-                    }
+                    drawBacktrackBox(axisAlignedBB, color)
+                }
 
-                    "model" -> {
-                        glPushMatrix()
-                        glPushAttrib(GL_ALL_ATTRIB_BITS)
+                "model" -> {
+                    glPushMatrix()
+                    glPushAttrib(GL_ALL_ATTRIB_BITS)
 
-                        color(0.6f, 0.6f, 0.6f, 1f)
-                        renderManager.doRenderEntity(
-                            this,
-                            x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
-                            event.partialTicks,
-                            true
-                        )
+                    color(0.6f, 0.6f, 0.6f, 1f)
+                    renderManager.doRenderEntity(
+                        target,
+                        x, y, z,
+                        (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
+                        event.partialTicks,
+                        true
+                    )
 
-                        glPopAttrib()
-                        glPopMatrix()
-                    }
+                    glPopAttrib()
+                    glPopMatrix()
+                }
 
-                    "wireframe" -> {
-                        val color = if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
+                "wireframe" -> {
+                    glPushMatrix()
+                    glPushAttrib(GL_ALL_ATTRIB_BITS)
 
-                        glPushMatrix()
-                        glPushAttrib(GL_ALL_ATTRIB_BITS)
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+                    glDisable(GL_TEXTURE_2D)
+                    glDisable(GL_LIGHTING)
+                    glDisable(GL_DEPTH_TEST)
+                    glEnable(GL_LINE_SMOOTH)
 
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-                        glDisable(GL_TEXTURE_2D)
-                        glDisable(GL_LIGHTING)
-                        glDisable(GL_DEPTH_TEST)
-                        glEnable(GL_LINE_SMOOTH)
+                    glEnable(GL_BLEND)
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-                        glEnable(GL_BLEND)
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+                    glLineWidth(wireframeWidth)
 
-                        glLineWidth(wireframeWidth)
+                    glColor(color)
+                    renderManager.doRenderEntity(
+                        target,
+                        x, y, z,
+                        (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
+                        event.partialTicks,
+                        true
+                    )
+                    glColor(color)
+                    renderManager.doRenderEntity(
+                        target,
+                        x, y, z,
+                        (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
+                        event.partialTicks,
+                        true
+                    )
 
-                        glColor(color)
-                        renderManager.doRenderEntity(
-                            this,
-                            x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
-                            event.partialTicks,
-                            true
-                        )
-                        glColor(color)
-                        renderManager.doRenderEntity(
-                            this,
-                            x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
-                            event.partialTicks,
-                            true
-                        )
-
-                        glPopAttrib()
-                        glPopMatrix()
-                    }
+                    glPopAttrib()
+                    glPopMatrix()
                 }
             }
         }

@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.isStarting
 import net.ccbluex.liquidbounce.file.configs.*
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.io.zipFilesTo
 import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -42,6 +43,8 @@ object FileManager : MinecraftInstance, Iterable<FileConfig> by FILE_CONFIGS {
     val backgroundShaderFile = File(dir, "userbackground.frag")
 
     var firstStart = false
+
+    var backedup = false
 
     val PRETTY_GSON: Gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -73,6 +76,20 @@ object FileManager : MinecraftInstance, Iterable<FileConfig> by FILE_CONFIGS {
         if (!fontsDir.exists()) fontsDir.mkdir()
         if (!settingsDir.exists()) settingsDir.mkdir()
         if (!themesDir.exists()) themesDir.mkdir()
+    }
+
+    /**
+     * Backup all configs as a ZIP file.
+     * @author MukjepScarlet
+     */
+    fun backupAllConfigs(previousVersion: String, currentVersion: String) {
+        try {
+            FILE_CONFIGS.mapNotNull { it.file.takeIf(File::isFile) }.zipFilesTo(File(dir, "backup_${previousVersion}_${currentVersion}.zip"))
+            backedup = true
+            LOGGER.info("[FileManager] Successfully backed up all configs.")
+        } catch (e: Exception) {
+            LOGGER.error("[FileManager] Failed backup configs!", e)
+        }
     }
 
     /**

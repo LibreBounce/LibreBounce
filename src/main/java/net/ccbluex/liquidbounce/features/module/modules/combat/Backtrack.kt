@@ -5,20 +5,23 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.*
+import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.client.PacketUtils
+import net.ccbluex.liquidbounce.utils.client.realX
+import net.ccbluex.liquidbounce.utils.client.realY
+import net.ccbluex.liquidbounce.utils.client.realZ
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.contains
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
+import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.renderer.GlStateManager.color
@@ -38,22 +41,21 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
-object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
+object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
-    private val maxDelay: IntegerValue = object : IntegerValue("MaxDelay", 80, 0..700) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay.get())
+    private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..700).onChange { _, new ->
+        new.coerceAtLeast(minDelay.get())
     }
-    private val minDelay: IntegerValue = object : IntegerValue("MinDelay", 80, 0..700) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay.get())
-        override fun isSupported() = mode == "Modern"
+    private val minDelay: Value<Int> = int("MinDelay", 80, 0..700) {
+        mode == "Modern"
+    }.onChange { _, new ->
+        new.coerceAtMost(maxDelay.get())
     }
 
-    val mode by object : ListValue("Mode", arrayOf("Legacy", "Modern"), "Modern") {
-        override fun onChanged(oldValue: String, newValue: String) {
-            clearPackets()
-            backtrackedPlayer.clear()
-        }
+    val mode by choices("Mode", arrayOf("Legacy", "Modern"), "Modern").onChanged {
+        clearPackets()
+        backtrackedPlayer.clear()
     }
 
     // Legacy
@@ -63,30 +65,19 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
 
     // Modern
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
-
-    private val maxDistanceValue: FloatValue = object : FloatValue("MaxDistance", 3.0f, 0.0f..3.5f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minDistance)
-        override fun isSupported() = mode == "Modern"
-    }
-    private val maxDistance by maxDistanceValue
-    private val minDistance by object : FloatValue("MinDistance", 2.0f, 0.0f..3.0f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceIn(minimum, maxDistance)
-        override fun isSupported() = mode == "Modern"
-    }
+    private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }
 
     // ESP
     private val espMode by choices(
-        "ESP-Mode", arrayOf("None", "Box", "Model", "Wireframe"), "Box", subjective = true
-    ) { mode == "Modern" }
+        "ESP-Mode",
+        arrayOf("None", "Box", "Model", "Wireframe"),
+        "Box"
+    ) { mode == "Modern" }.subjective()
     private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..5f) { espMode == "WireFrame" }
 
-    private val espColorMode by choices(
-        "ESP-Color", arrayOf("Custom", "Rainbow"), "Custom"
-    ) { espMode != "Model" && mode == "Modern" }
-    private val espColor = ColorSettingsInteger(
-        this, "ESP", withAlpha = false
-    ) { espColorMode == "Custom" && espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
+    private val espColor =
+        ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = mutableListOf<Pair<Vec3, Long>>()
@@ -140,22 +131,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
                         )
                     }
 
-                    is S14PacketEntity -> if (legacyPos == "ServerPos") {
-                        val entity = mc.theWorld?.getEntityByID(packet.entityId)
-                        val entityMixin = entity as? IMixinEntity
-                        if (entityMixin != null) {
-                            addBacktrackData(
-                                entity.uniqueID,
-                                entityMixin.trueX,
-                                entityMixin.trueY,
-                                entityMixin.trueZ,
-                                System.currentTimeMillis()
-                            )
+                    is S14PacketEntity, is S18PacketEntityTeleport -> if (legacyPos == "ServerPos") {
+                        val id = if (packet is S14PacketEntity) {
+                            packet.entityId
+                        } else {
+                            (packet as S18PacketEntityTeleport).entityId
                         }
-                    }
 
-                    is S18PacketEntityTeleport -> if (legacyPos == "ServerPos") {
-                        val entity = mc.theWorld?.getEntityByID(packet.entityId)
+                        val entity = mc.theWorld?.getEntityByID(id)
                         val entityMixin = entity as? IMixinEntity
                         if (entityMixin != null) {
                             addBacktrackData(
@@ -261,8 +244,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         val targetMixin = target as? IMixinEntity
 
         if (mode == "Modern") {
-            if (targetMixin != null) {
-                if (!Blink.blinkingReceive() && shouldBacktrack() && targetMixin.truePos) {
+            if (shouldBacktrack() && targetMixin != null) {
+                if (!Blink.blinkingReceive() && targetMixin.truePos) {
                     val trueDist = mc.thePlayer.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
                     val dist = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
@@ -272,20 +255,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
                     ) {
                         shouldRender = true
 
-                        if (mc.thePlayer.getDistanceToEntityBox(target) in minDistance..maxDistance) {
+                        if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                             handlePackets()
                         } else {
                             handlePacketsRange()
                         }
-                    } else {
-                        clearPackets()
-                        globalTimer.reset()
-                    }
+                    } else clear()
                 }
-            } else {
-                clearPackets()
-                globalTimer.reset()
-            }
+            } else clear()
         }
 
         ignoreWholeTick = false
@@ -394,8 +371,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
                             }
 
                             "wireframe" -> {
-                                val color = if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
-
                                 glPushMatrix()
                                 glPushAttrib(GL_ALL_ATTRIB_BITS)
 
@@ -520,7 +495,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
 
                 val targetBox = target.hitBox.offset(data.first - targetPos)
 
-                if (mc.thePlayer.getDistanceToBox(targetBox) in minDistance..maxDistance) {
+                if (mc.thePlayer.getDistanceToBox(targetBox) in distance) {
                     found = true
                     break
                 }
@@ -646,8 +621,42 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
         return result
     }
 
+    fun <T> runWithModifiedRotation(
+        entity: EntityPlayer, rotation: Rotation, body: Pair<Float, Float>? = null,
+        f: (Rotation) -> T?
+    ): T? {
+        val currRotation = entity.rotation
+        val prevRotation = entity.prevRotation
+        val bodyYaw = entity.prevRenderYawOffset to entity.renderYawOffset
+        val headRotation = entity.prevRotationYawHead to entity.rotationYawHead
+
+        entity.prevRotation = rotation
+        entity.rotation = rotation
+        entity.prevRotationYawHead = rotation.yaw
+        entity.rotationYawHead = rotation.yaw
+
+        body?.let {
+            entity.prevRenderYawOffset = it.first
+            entity.renderYawOffset = it.second
+        }
+
+        val result = f(rotation)
+
+        entity.rotation = currRotation
+        entity.prevRotation = prevRotation
+        entity.rotationYawHead = headRotation.second
+        entity.prevRotationYawHead = headRotation.first
+
+        body?.let {
+            entity.prevRenderYawOffset = bodyYaw.first
+            entity.renderYawOffset = bodyYaw.second
+        }
+
+        return result
+    }
+
     val color
-        get() = if (espColorMode == "Rainbow") rainbow() else Color(espColor.color().rgb)
+        get() = espColor.color()
 
     private fun shouldBacktrack() =
         mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
@@ -656,6 +665,11 @@ object Backtrack : Module("Backtrack", Category.COMBAT, hideModule = false) {
 
     private fun reset() {
         target = null
+        globalTimer.reset()
+    }
+
+    private fun clear() {
+        clearPackets()
         globalTimer.reset()
     }
 

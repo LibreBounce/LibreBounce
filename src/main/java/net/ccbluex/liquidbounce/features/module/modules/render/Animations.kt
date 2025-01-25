@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animations
@@ -38,7 +34,7 @@ import org.lwjgl.opengl.GL11.glTranslatef
  *
  * @author CCBlueX
  */
-object Animations : Module("Animations", Category.RENDER, gameDetecting = false, hideModule = false) {
+object Animations : Module("Animations", Category.RENDER, gameDetecting = false) {
 
     // Default animation
     val defaultAnimation = OneSevenAnimation()
@@ -54,7 +50,7 @@ object Animations : Module("Animations", Category.RENDER, gameDetecting = false,
         SulfurAnimation()
     )
 
-    private val animationMode by choices("Mode", animations.map { it.name }.toTypedArray(), "Pushdown")
+    private val animationMode by choices("Mode", animations.map { it.name }.toTypedArray(), "NewPushdown")
     val oddSwing by boolean("OddSwing", false)
     val swingSpeed by int("SwingSpeed", 15, 0..20)
 

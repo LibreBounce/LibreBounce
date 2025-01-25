@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -27,11 +23,12 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemPotion
 import net.minecraft.potion.Potion
 
-object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
+object AutoPot : Module("AutoPot", Category.COMBAT) {
 
     private val health by float("Health", 15F, 1F..20F) { healPotion || regenerationPotion }
     private val delay by int("Delay", 500, 500..1000)
@@ -51,7 +48,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
     private val mode by choices("Mode", arrayOf("Normal", "Jump", "Port"), "Normal")
 
     private val options = RotationSettings(this).withoutKeepRotation().apply {
-        resetTicksValue.hideWithState()
+        resetTicksValue.excludeWithState()
 
         immediate = true
     }
@@ -90,7 +87,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
                 setTargetRotation(Rotation(player.rotationYaw, nextFloat(80F, 90F)).fixedSensitivity(), options)
             }
 
-            TickScheduler += {
+            nextTick {
                 SilentHotbar.selectSlotSilently(
                     this,
                     potion - 36,
@@ -117,7 +114,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT, hideModule = false) {
             if (openInventory && mc.currentScreen !is GuiInventory)
                 return@handler
 
-            TickScheduler += {
+            nextTick {
                 if (simulateInventory)
                     serverOpenInventory = true
 

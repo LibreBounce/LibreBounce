@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -20,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryC
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -27,7 +24,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.DROP_ITEM
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
-object AutoSoup : Module("AutoSoup", Category.COMBAT, hideModule = false) {
+object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
     private val health by float("Health", 15f, 0f..20f)
     private val delay by int("Delay", 150, 0..500)
@@ -65,7 +62,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT, hideModule = false) {
             thePlayer.sendUseItem(thePlayer.inventory.mainInventory[SilentHotbar.currentSlot])
 
             // Schedule slot switch the next tick as we violate vanilla logic if we do it now.
-            TickScheduler += {
+            nextTick {
                 if (bowl == "Drop") {
                     if (!SilentHotbar.isSlotModified(this)) {
                         SilentHotbar.selectSlotSilently(this, soupInHotbar, 0, true)

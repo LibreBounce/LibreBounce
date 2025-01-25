@@ -12,6 +12,8 @@
 
         "menu.discordRPC.typeBox": "在此輸入..",
 
+        "menu.altManager.typeCustomPrefix": "UNTRANSLATED: Type Custom Alt Prefix Here..",
+
         "notification.moduleEnabled": "已啟用 %s",
         "notification.moduleDisabled": "已停用 %s",
 

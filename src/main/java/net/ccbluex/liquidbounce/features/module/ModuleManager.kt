@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.Derp
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.SkinDerp
+import net.ccbluex.liquidbounce.features.module.modules.`fun`.SnakeGame
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.player.*
@@ -124,6 +125,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             ItemESP,
             ItemPhysics,
             ItemTeleport,
+            JumpCircle,
             KeepAlive,
             KeepContainer,
             KeepTabList,
@@ -210,7 +212,9 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             ForwardTrack,
             FreeLook,
             SilentHotbarModule,
-            ClickRecorder
+            ClickRecorder,
+            ChineseHat,
+            SnakeGame
         )
 
         registerModules(modules = modules)

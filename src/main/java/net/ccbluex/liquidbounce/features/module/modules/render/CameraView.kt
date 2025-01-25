@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.CameraPositionEvent
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
@@ -15,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 
-object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false, hideModule = false) {
+object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false) {
 
     private val customY by float("CustomY", 0f, -10f..10f)
     private val saveLastGroundY by boolean("SaveLastGroundY", true)

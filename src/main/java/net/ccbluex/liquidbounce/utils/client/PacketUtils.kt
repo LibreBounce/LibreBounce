@@ -23,7 +23,6 @@ import net.minecraft.network.play.server.*
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.collections.ArrayDeque
 import kotlin.concurrent.withLock
 import kotlin.concurrent.write
 import kotlin.math.roundToInt
@@ -164,7 +163,7 @@ fun IMixinEntity.updateSpawnPosition(target: Vec3, ignoreInterpolation: Boolean 
 }
 
 fun interpolatePosition(entity: IMixinEntity) = entity.run {
-    val delta = RenderUtils.deltaTimeNormalized(150)
+    val delta = RenderUtils.deltaTimeNormalized(3)
 
     lerpX += (trueX - lerpX) * delta
     lerpY += (trueY - lerpY) * delta

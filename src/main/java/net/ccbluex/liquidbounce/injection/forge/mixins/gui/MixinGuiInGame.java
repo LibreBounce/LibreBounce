@@ -56,7 +56,7 @@ public abstract class MixinGuiInGame extends Gui {
 
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void renderScoreboard(CallbackInfo callbackInfo) {
-        if (HUD.INSTANCE.handleEvents() || AntiBlind.INSTANCE.handleEvents() && AntiBlind.INSTANCE.getScoreboard())
+        if (HUD.INSTANCE.handleEvents())
             callbackInfo.cancel();
     }
 
@@ -98,7 +98,7 @@ public abstract class MixinGuiInGame extends Gui {
                 List<float[]> gradientColors = ColorSettingsKt.toColorArray(hud.getBgGradColors(), hud.getMaxHotbarGradientColors());
 
                 GL11.glPushMatrix();
-                resetColor();
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
 
                 boolean isGradient = hud.getHotbarMode().equals("Gradient");
                 boolean isRainbow = hud.getHotbarMode().equals("Rainbow");
@@ -125,7 +125,8 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen - 91, height - 22,
                         middleScreen + 91, height,
                         hud.getHbBackgroundColors().color().getRGB(),
-                        hud.getRoundedHotbarRadius()
+                        hud.getRoundedHotbarRadius(),
+                        RenderUtils.RoundedCorners.ALL
                 );
 
                 if (isRainbow) {
@@ -140,7 +141,8 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen - 91 - 1 + slot * 20 + 1, height - 22,
                         middleScreen - 91 - 1 + slot * 20 + 23, height - 23 - 1 + 24,
                         hud.getHbHighlightColors().color().getRGB(),
-                        hud.getRoundedHotbarRadius()
+                        hud.getRoundedHotbarRadius(),
+                        RenderUtils.RoundedCorners.ALL
                 );
 
                 // Border - Background
@@ -161,6 +163,9 @@ public abstract class MixinGuiInGame extends Gui {
                         hud.getRoundedHotbarRadius()
                 );
 
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GL11.glPopMatrix();
+
                 enableRescaleNormal();
                 glEnable(GL_BLEND);
                 tryBlendFuncSeparate(770, 771, 1, 0);
@@ -175,8 +180,6 @@ public abstract class MixinGuiInGame extends Gui {
                 RenderHelper.disableStandardItemLighting();
                 disableRescaleNormal();
                 disableBlend();
-
-                GL11.glPopMatrix();
 
                 AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 

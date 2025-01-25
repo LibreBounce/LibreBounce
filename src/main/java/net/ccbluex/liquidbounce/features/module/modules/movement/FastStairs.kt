@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -32,11 +30,10 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
         if (!thePlayer.isMoving || Speed.handleEvents())
             return@handler
 
-
-        if (thePlayer.fallDistance > 0 && !walkingDown)
-            walkingDown = true
-        else if (thePlayer.posY > thePlayer.prevChasingPosY)
-            walkingDown = false
+        when {
+            thePlayer.fallDistance > 0 && !walkingDown -> walkingDown = true
+            thePlayer.posY > thePlayer.prevChasingPosY -> walkingDown = false
+        }
 
         val mode = mode
 

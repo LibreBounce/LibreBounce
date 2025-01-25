@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
@@ -15,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.syncSpecialModuleRotations
 
-object Derp : Module("Derp", Category.FUN, subjective = true, hideModule = false) {
+object Derp : Module("Derp", Category.FUN, subjective = true) {
 
     private val headless by boolean("Headless", false)
     private val spinny by boolean("Spinny", false)

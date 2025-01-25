@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -23,7 +20,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Items
 
-object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
+object AutoRod : Module("AutoRod", Category.COMBAT) {
 
     private val facingEnemy by boolean("FacingEnemy", true)
 
@@ -141,7 +138,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT, hideModule = false) {
                     // Switch to rod
                     switchBack = mc.thePlayer.inventory.currentItem
 
-                    mc.thePlayer.inventory.currentItem = rod - 36
+                    mc.thePlayer.inventory.currentItem = rod
                     mc.playerController.syncCurrentPlayItem()
                 }
 

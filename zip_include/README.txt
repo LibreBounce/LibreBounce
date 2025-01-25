@@ -44,4 +44,4 @@ Our guilded: https://www.guilded.gg/CCBlueX
 ➔ License
 This project is subject to the GNU General Public License v3.0. This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
 
-Copyright © 2021 | CCBlueX | All rights reserved.
+Copyright © 2015 - 2025 | CCBlueX | All rights reserved.

@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -15,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.SuperKnockback
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.setSprintSafely
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.activeSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
@@ -23,7 +21,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.MovementInput
 import kotlin.math.abs
 
-object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideModule = false) {
+object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
     val mode by choices("Mode", arrayOf("Legit", "Vanilla"), "Vanilla")
 
     val onlyOnSprintPress by boolean("OnlyOnSprintPress", false)
@@ -56,7 +54,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideM
         val player = mc.thePlayer ?: return
 
         if (SuperKnockback.breakSprint()) {
-            player.isSprinting = false
+            player setSprintSafely false
             return
         }
 
@@ -65,19 +63,20 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false, hideM
 
         if (Scaffold.handleEvents()) {
             if (!Scaffold.sprint) {
-                player.isSprinting = false
+                player setSprintSafely false
                 isSprinting = false
                 return
             } else if (Scaffold.sprint && Scaffold.eagle == "Normal" && player.isMoving && player.onGround && Scaffold.eagleSneaking && Scaffold.eagleSprint) {
-                player.isSprinting = true
+                player setSprintSafely true
                 isSprinting = true
                 return
             }
         }
 
         if (handleEvents() || alwaysCorrect) {
-            player.isSprinting = !shouldStopSprinting(movementInput, isUsingItem)
+            player setSprintSafely !shouldStopSprinting(movementInput, isUsingItem)
             isSprinting = player.isSprinting
+
             if (player.isSprinting && allDirections && mode != "Legit") {
                 if (!allDirectionsLimitSpeedGround || player.onGround) {
                     player.motionX *= allDirectionsLimitSpeed

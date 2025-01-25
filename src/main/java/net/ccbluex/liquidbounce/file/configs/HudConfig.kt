@@ -7,11 +7,11 @@ package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.config.FontValue
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
-import net.ccbluex.liquidbounce.config.FontValue
 import net.ccbluex.liquidbounce.utils.io.json
 import net.ccbluex.liquidbounce.utils.io.jsonArray
 import net.ccbluex.liquidbounce.utils.io.readJson
@@ -30,7 +30,7 @@ class HudConfig(file: File) : FileConfig(file) {
      */
     @Throws(IOException::class)
     override fun loadConfig() {
-        val jsonArray = file.readJson().takeIf { it is JsonArray } as? JsonArray ?: return
+        val jsonArray = file.readJson() as? JsonArray ?: return
 
         HUD.clearElements()
 

@@ -42,7 +42,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
+object Velocity : Module("Velocity", Category.COMBAT) {
 
     /**
      * OPTIONS
@@ -57,8 +57,8 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
         ), "Simple"
     )
 
-    private val horizontal by float("Horizontal", 0F, 0F..1F) { mode in arrayOf("Simple", "AAC", "Legit") }
-    private val vertical by float("Vertical", 0F, 0F..1F) { mode in arrayOf("Simple", "Legit") }
+    private val horizontal by float("Horizontal", 0F, -1F..1F) { mode in arrayOf("Simple", "AAC", "Legit") }
+    private val vertical by float("Vertical", 0F, -1F..1F) { mode in arrayOf("Simple", "Legit") }
 
     // Reverse
     private val reverseStrength by float("ReverseStrength", 1F, 0.1F..1F) { mode == "Reverse" }
@@ -94,14 +94,8 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     { jumpCooldownMode == "ReceivedHits" && mode == "Jump" }
 
     // Ghost Block
-    private val maxHurtTime: IntegerValue = object : IntegerValue("MaxHurtTime", 9, 1..10) {
-        override fun isSupported() = mode == "GhostBlock"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minHurtTime.get())
-    }
-
-    private val minHurtTime: IntegerValue = object : IntegerValue("MinHurtTime", 1, 1..10) {
-        override fun isSupported() = mode == "GhostBlock" && !maxHurtTime.isMinimal()
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceIn(0, maxHurtTime.get())
+    private val hurtTimeRange by intRange("HurtTime", 1..9, 1..10) {
+        mode == "GhostBlock"
     }
 
     // Delay
@@ -743,7 +737,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
 
         if (mode == "GhostBlock") {
             if (hasReceivedVelocity) {
-                if (player.hurtTime in minHurtTime.get()..maxHurtTime.get()) {
+                if (player.hurtTime in hurtTimeRange) {
                     // Check if there is air exactly 1 level above the player's Y position
                     if (event.block is BlockAir && event.y == mc.thePlayer.posY.toInt() + 1) {
                         event.boundingBox = AxisAlignedBB(
@@ -846,7 +840,7 @@ object Velocity : Module("Velocity", Category.COMBAT, hideModule = false) {
     private fun getNearestEntityInRange(range: Float = this.range): Entity? {
         val player = mc.thePlayer ?: return null
 
-        return mc.theWorld.loadedEntityList.asSequence().filter {
+        return mc.theWorld.loadedEntityList.filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) <= range
         }.minByOrNull { player.getDistanceToEntityBox(it) }
     }

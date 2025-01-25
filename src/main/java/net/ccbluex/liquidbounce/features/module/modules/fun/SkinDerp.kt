@@ -6,15 +6,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.entity.player.EnumPlayerModelParts
 import kotlin.random.Random.Default.nextBoolean
 
-object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true, hideModule = false) {
+object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
 
     private val delay by int("Delay", 0, 0..1000)
     private val hat by boolean("Hat", true)

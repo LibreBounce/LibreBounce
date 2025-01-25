@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.altmanager.menus
 
 import me.liuli.elixir.account.MinecraftAccount
+import net.ccbluex.liquidbounce.lang.translationText
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.login
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
@@ -26,7 +27,8 @@ class GuiLoginProgress(
         assumeNonVolatile {
             drawDefaultBackground()
             drawLoadingCircle(width / 2f, height / 4f + 70)
-            drawCenteredString(fontRendererObj, "Logging into account...", width / 2, height / 2 - 60, 16777215)
+            drawCenteredString(fontRendererObj, translationText(
+                "Loggingintoaccount"), width / 2, height / 2 - 60, 16777215)
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks)

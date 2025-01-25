@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
@@ -25,7 +23,7 @@ import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.REMOVE_P
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
-object Notifier : Module("Notifier", Category.MISC, hideModule = false) {
+object Notifier : Module("Notifier", Category.MISC) {
 
     private val onPlayerJoin by boolean("Join", true)
     private val onPlayerLeft by boolean("Left", true)

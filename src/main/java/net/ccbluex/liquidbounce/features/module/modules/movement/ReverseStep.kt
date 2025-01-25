@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -17,7 +16,7 @@ import net.minecraft.util.AxisAlignedBB
 
 object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
 
-    private val motion by float("Motion", 1f, 0.21f..1f)
+    private val motion by float("Motion", 1f, 0.21f..4f)
     private var jumped = false
 
     val onUpdate = handler<UpdateEvent>(always = true) {

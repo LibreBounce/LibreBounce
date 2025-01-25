@@ -1,10 +1,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.liuli.elixir.account.CrackedAccount
-import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.config.TextValue
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.features.module.Category
@@ -15,48 +15,49 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S40PacketDisconnect
 import net.minecraft.network.play.server.S45PacketTitle
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.Session
-import java.util.*
-import kotlin.concurrent.schedule
 
 object AutoAccount :
-    Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+    Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false) {
 
     private val register by boolean("AutoRegister", true)
     private val login by boolean("AutoLogin", true)
 
+    private const val DEFAULT_PASSWORD = "axolotlaxolotl"
+
     // Gamster requires 8 chars+
-    private val passwordValue = object : TextValue("Password", "axolotlaxolotl") {
-        override fun onChange(oldValue: String, newValue: String) =
-            when {
-                " " in newValue -> {
-                    chat("§7[§a§lAutoAccount§7] §cPassword cannot contain a space!")
-                    oldValue
-                }
-
-                newValue.equals("reset", true) -> {
-                    chat("§7[§a§lAutoAccount§7] §3Password reset to its default value.")
-                    "axolotlaxolotl"
-                }
-
-                newValue.length < 4 -> {
-                    chat("§7[§a§lAutoAccount§7] §cPassword must be longer than 4 characters!")
-                    oldValue
-                }
-
-                else -> super.onChange(oldValue, newValue)
+    private val passwordValue = text("Password", DEFAULT_PASSWORD) {
+        register || login
+    }.onChange { old, new ->
+        when {
+            new.any { it.isWhitespace() } -> {
+                chat("§7[§a§lAutoAccount§7] §cPassword cannot contain a space!")
+                old
             }
 
-        override fun isSupported() = register || login
-    }
+            new.lowercase() == "reset" -> {
+                chat("§7[§a§lAutoAccount§7] §3Password reset to its default value.")
+                DEFAULT_PASSWORD
+            }
+
+            new.length < 4 -> {
+                chat("§7[§a§lAutoAccount§7] §cPassword must be longer than 4 characters!")
+                old
+            }
+
+            else -> new
+        }
+    }.subjective()
+
     private val password by passwordValue
 
     // Needed for Gamster
-    private val sendDelay by int("SendDelay", 250, 0..500) { passwordValue.isSupported() }
+    private val sendDelay by intRange("SendDelay", 150..300, 0..500) { passwordValue.isSupported() }
 
     private val autoSession by boolean("AutoSession", false)
     private val startupValue = boolean("RandomAccountOnStart", false) { autoSession }
@@ -67,16 +68,14 @@ object AutoAccount :
     { relogInvalidValue.isActive() || relogKickedValue.isActive() }
     private val reconnectDelay by reconnectDelayValue
 
-    private val accountModeValue = object : ListValue("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
-        override fun isSupported() = reconnectDelayValue.isSupported() || startupValue.isActive()
-
-        override fun onChange(oldValue: String, newValue: String): String {
-            if (newValue == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
-                chat("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
-                return oldValue
-            }
-
-            return super.onChange(oldValue, newValue)
+    private val accountModeValue = choices("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
+        reconnectDelayValue.isSupported() || startupValue.isActive()
+    }.onChange { old, new ->
+        if (new == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
+            chat("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
+            old
+        } else {
+            new
         }
     }
     private val accountMode by accountModeValue
@@ -97,19 +96,20 @@ object AutoAccount :
         // Log in to account with a random name, optionally save it
         changeAccount()
 
-        // Reconnect normally with OpenGL context
-        if (reconnectDelayValue.isMinimal()) return ServerUtils.connectToLastServer()
-
-        // Delay the reconnect, connectToLastServer gets called from a TimerThread with no OpenGL context
-        Timer().schedule(reconnectDelay.toLong()) {
-            ServerUtils.connectToLastServer(true)
+        SharedScopes.IO.launch {
+            delay(sendDelay.random().toLong())
+            withContext(Dispatchers.Main) {
+                // connectToLastServer needs thread with OpenGL context
+                ServerUtils.connectToLastServer()
+            }
         }
     }
 
     private fun respond(msg: String) = when {
         register && "/reg" in msg -> {
             addNotification(Notification("Trying to register."))
-            Timer().schedule(sendDelay.toLong()) {
+            SharedScopes.IO.launch {
+                delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/register $password $password")
             }
             true
@@ -117,7 +117,8 @@ object AutoAccount :
 
         login && "/log" in msg -> {
             addNotification(Notification("Trying to log in."))
-            Timer().schedule(sendDelay.toLong()) {
+            SharedScopes.IO.launch {
+                delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/login $password")
             }
             true
@@ -140,7 +141,8 @@ object AutoAccount :
 
                 if (status == Status.WAITING) {
                     // Try to register / log in, return if invalid message
-                    if (!respond(msg)) return@handler
+                    if (!respond(msg))
+                        return@handler
 
                     event.cancelEvent()
                     status = Status.SENT_COMMAND

@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.special.ClientRichPresence.showRPCValue
 import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.FileManager.loadAllConfigs
 import net.ccbluex.liquidbounce.file.FileManager.saveAllConfigs
+import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration.updateClientWindow
 import net.ccbluex.liquidbounce.lang.LanguageManager.loadLanguages
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.script.ScriptManager.enableScripts
@@ -36,7 +37,6 @@ import net.ccbluex.liquidbounce.script.remapper.Remapper.loadSrg
 import net.ccbluex.liquidbounce.tabs.BlocksTab
 import net.ccbluex.liquidbounce.tabs.ExploitsTab
 import net.ccbluex.liquidbounce.tabs.HeadsTab
-import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration.Companion.updateClientWindow
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.loadActiveGenerators
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
@@ -46,10 +46,11 @@ import net.ccbluex.liquidbounce.utils.client.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
-import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.movement.BPSUtils
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.movement.TimerBalanceUtils
@@ -238,18 +239,20 @@ object LiquidBounce {
 
             // Login into known token if not empty
             if (CapeService.knownToken.isNotBlank()) {
-                runCatching {
-                    CapeService.login(CapeService.knownToken)
-                }.onFailure {
-                    LOGGER.error("Failed to login into known cape token.", it)
-                }.onSuccess {
-                    LOGGER.info("Successfully logged in into known cape token.")
+                SharedScopes.IO.launch {
+                    runCatching {
+                        CapeService.login(CapeService.knownToken)
+                    }.onFailure {
+                        LOGGER.error("Failed to login into known cape token.", it)
+                    }.onSuccess {
+                        LOGGER.info("Successfully logged in into known cape token.")
+                    }
                 }
             }
 
             // Refresh cape service
             CapeService.refreshCapeCarriers {
-                LOGGER.info("Successfully loaded ${CapeService.capeCarriers.size} cape carriers.")
+                LOGGER.info("Successfully loaded ${it.size} cape carriers.")
             }
 
             // Load background
@@ -259,6 +262,12 @@ object LiquidBounce {
         } finally {
             // Set is starting status
             isStarting = false
+
+            if (!FileManager.firstStart && FileManager.backedup) {
+                SharedScopes.IO.launch {
+                    MiscUtils.showMessageDialog("Warning: backup triggered", "Client update detected! Please check the config folder.")
+                }
+            }
 
             EventManager.call(StartupEvent)
             LOGGER.info("Successfully started client")
@@ -277,9 +286,6 @@ object LiquidBounce {
 
         // Save all available configs
         saveAllConfigs()
-
-        // Shutdown discord rpc
-        clientRichPresence.shutdown()
     }
 
 }

@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -31,7 +29,7 @@ import java.awt.Color
 object CivBreak : Module("CivBreak", Category.WORLD) {
 
     private val range by float("Range", 5F, 1F..6F)
-    private val visualSwing by boolean("VisualSwing", true, subjective = false)
+    private val visualSwing by boolean("VisualSwing", true).subjective()
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
@@ -39,11 +37,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
     private var enumFacing: EnumFacing? = null
 
     val onBlockClick = handler<ClickBlockEvent> { event ->
-        if (event.clickedBlock?.block == bedrock) {
-            return@handler
-        }
-
-        blockPos = event.clickedBlock ?: return@handler
+        blockPos = event.clickedBlock?.takeIf { it.block != bedrock } ?: return@handler
         enumFacing = event.enumFacing ?: return@handler
 
         // Break

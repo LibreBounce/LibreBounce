@@ -168,10 +168,14 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             serverSneakState = sneaking;
         }
 
+        final MovementUtils movementUtils = MovementUtils.INSTANCE;
+
         if (motionEvent.getOnGround()) {
-            MovementUtils.INSTANCE.setAirTicks(0);
+            movementUtils.setGroundTicks(movementUtils.getGroundTicks() + 1);
+            movementUtils.setAirTicks(0);
         } else {
-            MovementUtils.INSTANCE.setAirTicks(MovementUtils.INSTANCE.getAirTicks() + 1);
+            movementUtils.setGroundTicks(0);
+            movementUtils.setAirTicks(movementUtils.getAirTicks() + 1);
         }
 
         if (isCurrentViewEntity()) {
@@ -358,8 +362,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         }
 
         // Calculate and apply the movement input based on rotation
-        float moveForward = currentRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveForward;
-        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.moveForward * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveStrafe;
+        float moveForward = currentRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.moveForward;
+        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.moveForward * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.moveStrafe;
 
         modifiedInput.moveForward = moveForward;
         modifiedInput.moveStrafe = moveStrafe;

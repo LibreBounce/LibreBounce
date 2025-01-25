@@ -6,24 +6,23 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.script.remapper.Remapper
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 
-object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = false, hideModule = false) {
+object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = false) {
 
     private val notify by choices("Notify", arrayOf("Chat", "Notification"), "Chat")
     val packetType by choices("PacketType", arrayOf("Both", "Server", "Client", "Custom"), "Both")
     private val delay by int("Delay", 100, 0..1000)
 
     private val timer = MSTimer()
-    val selectedPackets = mutableListOf<String>()
+    val selectedPackets = mutableSetOf<String>()
 
     val onPacket = handler<PacketEvent> { event ->
         if (mc.thePlayer == null || mc.theWorld == null) {
@@ -49,13 +48,23 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
     private fun logPacket(event: PacketEvent) {
         val packet = event.packet
 
+        val packetEvent = if (event.isCancelled) "§7(§cCancelled§7)" else ""
+
         val packetInfo = buildString {
             append("\n")
-            append("§aPacket: §b${packet.javaClass.simpleName}\n")
+            append("§aPacket: §b${packet.javaClass.simpleName} $packetEvent\n")
             append("§aEventType: §b${event.eventType}\n")
-            packet.javaClass.declaredFields.forEach { field ->
-                field.isAccessible = true
-                append("§a${field.name}: §b${field.get(packet)}\n")
+
+            var clazz: Class<*>? = packet.javaClass
+
+            while (clazz != null) {
+                clazz.declaredFields.forEach { field ->
+                    field.isAccessible = true
+
+                    append("§a${Remapper.remapField(clazz!!, field.name)}: §b${field.get(packet)}\n")
+                }
+
+                clazz = clazz.superclass
             }
         }
 

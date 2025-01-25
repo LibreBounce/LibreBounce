@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.IntegerValue
-import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -19,18 +17,9 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 object AtAllProvider :
-    Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+    Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false) {
 
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0..20000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
-    }
-    private val maxDelay by maxDelayValue
-
-    private val minDelay by object : IntegerValue("MinDelay", 500, 0..20000) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxDelay)
-
-        override fun isSupported() = !maxDelayValue.isMinimal()
-    }
+    private val delay by intRange("Delay", 500..1000, 0..20000)
 
     private val retry by boolean("Retry", false)
     private val sendQueue = ArrayDeque<String>()
@@ -59,7 +48,7 @@ object AtAllProvider :
             mc.thePlayer.sendChatMessage(sendQueue.removeFirst())
         }
 
-        delay(randomDelay(minDelay, maxDelay).toLong())
+        delay(delay.random().toLong())
     }
 
     val onPacket = handler<PacketEvent> { event ->

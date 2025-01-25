@@ -5,9 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -25,7 +22,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
-object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false) {
+object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val speedLimit by boolean("SpeedLimit", true)
     private val maxSpeed by float("MaxSpeed", 2f, 1f..5f) { speedLimit }
 
@@ -163,7 +160,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
                 return@handler
             }
 
-            if (ice && (blockPos.down().block == Blocks.ice || blockPos.down().block == Blocks.packed_ice)) {
+            if (ice && blockPos.down().block.let { it == Blocks.ice || it == Blocks.packed_ice }) {
                 boost(iceBoost)
                 return@handler
             }
@@ -250,11 +247,13 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT, hideModule = false
         get() {
             val thePlayer = mc.thePlayer
             val theWorld = mc.theWorld
-            val blocks = mutableListOf<BlockPos>()
-            blocks += BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ - 0.7)
-            blocks += BlockPos(thePlayer.posX + 0.7, thePlayer.posY + 1, thePlayer.posZ)
-            blocks += BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ + 0.7)
-            blocks += BlockPos(thePlayer.posX - 0.7, thePlayer.posY + 1, thePlayer.posZ)
+            val blocks = arrayOf(
+                BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ - 0.7),
+                BlockPos(thePlayer.posX + 0.7, thePlayer.posY + 1, thePlayer.posZ),
+                BlockPos(thePlayer.posX, thePlayer.posY + 1, thePlayer.posZ + 0.7),
+                BlockPos(thePlayer.posX - 0.7, thePlayer.posY + 1, thePlayer.posZ)
+            )
+
             for (blockPos in blocks) {
                 val blockState = theWorld.getBlockState(blockPos)
 

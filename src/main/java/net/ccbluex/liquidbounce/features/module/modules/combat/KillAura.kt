@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,7 +13,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
 import net.ccbluex.liquidbounce.features.module.modules.world.Nuker
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.*
-import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.attack.CooldownHelper.getAttackCooldownProgress
 import net.ccbluex.liquidbounce.utils.attack.CooldownHelper.resetLastAttackedTicks
@@ -52,6 +50,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.enchantment.EnchantmentHelper
@@ -73,7 +72,7 @@ import java.awt.Color
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule = false) {
+object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     /**
      * OPTIONS
      */
@@ -82,38 +81,21 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { !simulateCooldown }
 
     // CPS - Attack speed
-    private val maxCPSValue = object : IntegerValue("MaxCPS", 8, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minCPS)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            attackDelay = randomClickDelay(minCPS, newValue)
-        }
-
-        override fun isSupported() = !simulateCooldown
-    }
-
-    private val maxCPS by maxCPSValue
-
-    private val minCPS: Int by object : IntegerValue("MinCPS", 5, 1..20) {
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxCPS)
-
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            attackDelay = randomClickDelay(newValue, maxCPS)
-        }
-
-        override fun isSupported() = !maxCPSValue.isMinimal() && !simulateCooldown
+    private val cps by intRange("CPS", 5..8, 1..50) { !simulateCooldown }.onChanged {
+        attackDelay = randomClickDelay(it.first, it.last)
     }
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
+
+    private val activationSlot by boolean("ActivationSlot", false)
+    private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
 
     private val clickOnly by boolean("ClickOnly", false)
 
     // Range
     // TODO: Make block range independent from attack range
-    private val range: Float by object : FloatValue("Range", 3.7f, 1f..8f) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            blockRange = blockRange.coerceAtMost(newValue)
-        }
+    private val range: Float by float("Range", 3.7f, 1f..8f).onChanged {
+        blockRange = blockRange.coerceAtMost(it)
     }
     private val scanRange by float("ScanRange", 2f, 0f..10f)
     private val throughWallsRange by float("ThroughWallsRange", 3f, 0f..8f)
@@ -148,7 +130,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val keepSprint by boolean("KeepSprint", true)
 
     // Settings
-    private val autoF5 by boolean("AutoF5", false, subjective = true)
+    private val autoF5 by boolean("AutoF5", false)
     private val onScaffold by boolean("OnScaffold", false)
     private val onDestroyBlock by boolean("OnDestroyBlock", false)
 
@@ -199,10 +181,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val checkWeapon by boolean("CheckEnemyWeapon", true) { smartAutoBlock }
 
     // TODO: Make block range independent from attack range
-    private var blockRange by object : FloatValue("BlockRange", range, 1f..8f) {
-        override fun isSupported() = smartAutoBlock
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(this@KillAura.range)
+    private var blockRange: Float by float("BlockRange", range, 1f..8f) {
+        smartAutoBlock
+    }.onChange { _, new ->
+        new.coerceAtMost(this@KillAura.range)
     }
 
     // Don't block when you can't get damaged
@@ -229,49 +211,44 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val useHitDelay by boolean("UseHitDelay", false)
     private val hitDelayTicks by int("HitDelayTicks", 1, 1..5) { useHitDelay }
 
-    private val randomization = RandomizationSettings(this) { options.rotationsActive }
-    private val outborder by boolean("Outborder", false) { options.rotationsActive }
+    private val generateClicksBasedOnDist by boolean("GenerateClicksBasedOnDistance", false)
+    private val cpsMultiplier by intRange("CPS-Multiplier", 1..2, 1..10)
+    { generateClicksBasedOnDist }
+    private val distanceFactor by floatRange("DistanceFactor", 5F..10F, 1F..10F)
+    { generateClicksBasedOnDist }
 
-    private val highestBodyPointToTargetValue: ListValue = object : ListValue(
+    private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
+
+    private val randomization = RandomizationSettings(this) { options.rotationsActive }
+    private val outBorder by boolean("OutBorder", false) { options.rotationsActive }
+
+    private val highestBodyPointToTargetValue = choices(
         "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
     ) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: String, newValue: String): String {
-            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-            val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
-            val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
-            return coercedPoint.name
-        }
+        options.rotationsActive
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
+        coercedPoint.name
     }
-    private val highestBodyPointToTarget by highestBodyPointToTargetValue
+    private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
-    private val lowestBodyPointToTargetValue: ListValue = object : ListValue(
+    private val lowestBodyPointToTargetValue = choices(
         "LowestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Feet"
     ) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: String, newValue: String): String {
-            val newPoint = RotationUtils.BodyPoint.fromString(newValue)
-            val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
-            val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-            return coercedPoint.name
-        }
+        options.rotationsActive
+    }.onChange { _, new ->
+        val newPoint = RotationUtils.BodyPoint.fromString(new)
+        val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
+        val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
+        coercedPoint.name
     }
 
-    private val lowestBodyPointToTarget by lowestBodyPointToTargetValue
+    private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
 
-    private val maxHorizontalBodySearch: FloatValue = object : FloatValue("MaxHorizontalBodySearch", 1f, 0f..1f) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalBodySearch.get())
-    }
-
-    private val minHorizontalBodySearch: FloatValue = object : FloatValue("MinHorizontalBodySearch", 0f, 0f..1f) {
-        override fun isSupported() = options.rotationsActive
-
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalBodySearch.get())
-    }
+    private val horizontalBodySearchRange by floatRange("HorizontalBodySearchRange", 0f..1f, 0f..1f)
+    { options.rotationsActive }
 
     private val fov by float("FOV", 180f, 0f..180f)
 
@@ -291,9 +268,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val maxRotationDifferenceToSwing by float(
         "MaxRotationDifferenceToSwing", 180f, 0f..180f
     ) { swing && failSwing && options.rotationsActive }
-    private val swingWhenTicksLate = object : BoolValue("SwingWhenTicksLate", false) {
-        override fun isSupported() =
-            swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
+    private val swingWhenTicksLate = boolean("SwingWhenTicksLate", false) {
+        swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
     }
     private val ticksLateToSwing by int(
         "TicksLateToSwing", 4, 0..20
@@ -307,36 +283,37 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
     private val noInventoryAttack by boolean("NoInvAttack", false)
     private val noInventoryDelay by int("NoInvDelay", 200, 0..500) { noInventoryAttack }
     private val noConsumeAttack by choices(
-        "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off", subjective = true
-    )
+        "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off"
+    ).subjective()
 
     // Visuals
-    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle", subjective = true)
-    private val fakeSharp by boolean("FakeSharp", true, subjective = true)
+    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
+    private val fakeSharp by boolean("FakeSharp", true).subjective()
 
     // Circle options
-    private val circleRainbow by boolean("CircleRainbow", false, subjective = true) { mark == "Circle" }
+    private val circleRainbow by boolean("CircleRainbow", false) { mark == "Circle" }.subjective()
+
+    // TODO: replace this with color value
     private val colors = ColorSettingsInteger(
         this,
-        "Circle",
-        alphaApply = { mark == "Circle" }) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)
-    private val fillInnerCircle by boolean("FillInnerCircle", false, subjective = true) { mark == "Circle" }
-    private val withHeight by boolean("WithHeight", true, subjective = true) { mark == "Circle" }
-    private val animateHeight by boolean("AnimateHeight", false, subjective = true) { withHeight }
-    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f, subjective = true) { withHeight }
-    private val extraWidth by float("ExtraWidth", 0F, 0F..2F, subjective = true) { mark == "Circle" }
-    private val animateCircleY by boolean("AnimateCircleY", true, subjective = true) { fillInnerCircle || withHeight }
-    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F, subjective = true) { animateCircleY }
+        "CircleColor"
+    ) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)//.subjective()
+    private val fillInnerCircle by boolean("FillInnerCircle", false) { mark == "Circle" }.subjective()
+    private val withHeight by boolean("WithHeight", true) { mark == "Circle" }.subjective()
+    private val animateHeight by boolean("AnimateHeight", false) { withHeight }.subjective()
+    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f) { withHeight }.subjective()
+    private val extraWidth by float("ExtraWidth", 0F, 0F..2F) { mark == "Circle" }.subjective()
+    private val animateCircleY by boolean("AnimateCircleY", true) { fillInnerCircle || withHeight }.subjective()
+    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F) { animateCircleY }.subjective()
     private val duration by float(
         "Duration",
         1.5F,
         0.5F..3F,
-        suffix = "Seconds",
-        subjective = true
-    ) { animateCircleY || animateHeight }
+        suffix = "Seconds"
+    ) { animateCircleY || animateHeight }.subjective()
 
     // Box option
-    private val boxOutline by boolean("Outline", true, subjective = true) { mark == "Box" }
+    private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
 
     /**
      * MODULE
@@ -412,7 +389,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         }
     }
 
-    val onWorldChange = handler<WorldEvent> {
+    val onWorld = handler<WorldEvent> {
         attackTickTimes.clear()
 
         if (blinkAutoBlock && BlinkUtils.isBlinking) BlinkUtils.unblink()
@@ -505,7 +482,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
             // Sometimes you also do not click. The positives outweigh the negatives, however.
             val extraClicks = if (simulateDoubleClicking && !simulateCooldown) nextInt(-1, 1) else 0
 
-            val maxClicks = clicks + extraClicks
+            // Generate clicks based on distance from us to target.
+            val generatedClicks = if (generateClicksBasedOnDist) {
+                val distance = player.getDistanceToEntityBox(target!!)
+                ((distance / distanceFactor.random()) * cpsMultiplier.random()).roundToInt()
+            } else 0
+
+            val maxClicks = clicks + extraClicks + generatedClicks
 
             repeat(maxClicks) {
                 val wasBlocking = blockStatus
@@ -544,9 +527,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         target ?: return@handler
 
         if (attackTimer.hasTimePassed(attackDelay)) {
-            if (maxCPS > 0) clicks++
+            if (cps.last > 0) clicks++
             attackTimer.reset()
-            attackDelay = randomClickDelay(minCPS, maxCPS)
+
+            attackDelay = randomClickDelay(cps.first, cps.last)
         }
 
         val hittableColor = if (hittable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70)
@@ -686,7 +670,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                          * Since we want to simulate proper clicking behavior, we schedule the block break progress stop
                          * in the next tick, since that is a doable action by the average player.
                          */
-                        TickScheduler += {
+                        nextTick {
                             mc.sendClickBlockToController(false)
 
                             // Swings are sent a tick after stopping the block break progress.
@@ -720,7 +704,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
             for (entity in world.loadedEntityList) {
                 val distance = player.getDistanceToEntityBox(entity)
 
-                if (entity is EntityLivingBase && isEnemy(entity) && distance <= getRange(entity)) {
+                if (entity is EntityLivingBase && isSelected(entity, true) && distance <= getRange(entity)) {
                     attackEntity(entity, isLastClick)
 
                     targets += 1
@@ -757,14 +741,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
         val switchMode = targetMode == "Switch"
 
-        val theWorld = mc.theWorld
-        val thePlayer = mc.thePlayer
+        val theWorld = mc.theWorld ?: return
+        val thePlayer = mc.thePlayer ?: return
 
         var bestTarget: EntityLivingBase? = null
         var bestValue: Double? = null
 
         for (entity in theWorld.loadedEntityList) {
-            if (entity !is EntityLivingBase || !isEnemy(entity) || switchMode && entity.entityId in prevTargetEntities) continue
+            if (entity !is EntityLivingBase || !isSelected(entity, true) || switchMode && entity.entityId in prevTargetEntities) continue
 
             val distance = Backtrack.runWithNearestTrackedDistance(entity) { thePlayer.getDistanceToEntityBox(entity) }
 
@@ -812,13 +796,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
             prevTargetEntities.clear()
             updateTarget()
         }
-    }
-
-    /**
-     * Check if [entity] is selected as enemy with current target options and other modules
-     */
-    private fun isEnemy(entity: Entity?): Boolean {
-        return isSelected(entity, true)
     }
 
     /**
@@ -881,11 +858,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+        val simPlayer =
+            SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+        simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
 
         var pos = currPos
 
-        (0..predictClientMovement + 1).forEach { i ->
+        repeat(predictClientMovement) {
             val previousPos = simPlayer.pos
 
             simPlayer.tick()
@@ -903,7 +883,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
                 pos = simPlayer.pos
 
                 if (currDist <= range && currDist <= prevDist) {
-                    return@forEach
+                    return@repeat
                 }
             }
 
@@ -914,14 +894,15 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
 
         val rotation = searchCenter(
             boundingBox,
-            outborder && !attackTimer.hasTimePassed(attackDelay / 2),
+            generateSpotBasedOnDistance,
+            outBorder && !attackTimer.hasTimePassed(attackDelay / 2),
             randomization,
             predict = false,
             lookRange = range + scanRange,
             attackRange = range,
             throughWallsRange = throughWallsRange,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
-            horizontalSearch = minHorizontalBodySearch.get()..maxHorizontalBodySearch.get()
+            horizontalSearch = horizontalBodySearchRange
         )
 
         if (rotation == null) {
@@ -1194,6 +1175,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R, hideModule
         !onScaffold && (Scaffold.handleEvents() && (Scaffold.placeRotation != null || currentRotation != null) || Tower.handleEvents() && Tower.isTowering) -> true
 
         !onDestroyBlock && (Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null || Nuker.handleEvents()) -> true
+
+        activationSlot && SilentHotbar.currentSlot != preferredSlot - 1 -> true
+
         else -> false
     }
 

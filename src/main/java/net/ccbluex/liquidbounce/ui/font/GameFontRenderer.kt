@@ -23,7 +23,7 @@ import java.awt.Font
 /**
  * Extends Minecraft's [FontRenderer] for potential fallback usage.
  *
- *  * @author opZywl
+ * @author opZywl
  */
 class GameFontRenderer(
     font: Font
@@ -163,7 +163,7 @@ class GameFontRenderer(
                 currentText,
                 x + 1f,
                 baseY + 1f,
-                Color(0, 0, 0, 150).rgb,
+                Color(0, 0, 0, minOf(150, color shr 24 and 0xFF)).rgb,
                 ignoreColor = true
             )
         }
@@ -311,6 +311,7 @@ class GameFontRenderer(
         disableBlend()
         glTranslated(-(x - 1.5), -(y + 0.5), 0.0)
         glColor4f(1f, 1f, 1f, 1f)
+        resetColor()
         return (x + getStringWidth(text)).toInt()
     }
 

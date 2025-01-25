@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
@@ -19,10 +20,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.ccbluex.liquidbounce.utils.render.SafeVertexBuffer
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.choices
-import net.ccbluex.liquidbounce.config.float
-import net.ccbluex.liquidbounce.config.int
 import net.minecraft.client.renderer.GlStateManager.bindTexture
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -33,7 +30,7 @@ import java.awt.Color
 import kotlin.math.*
 
 @ElementInfo(name = "Radar", disableScale = true, priority = 2)
-class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
+class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
 
     companion object {
         private val SQRT_OF_TWO = sqrt(2f)
@@ -50,21 +47,17 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
     private val minimap by boolean("Minimap", true)
 
-    private val backgroundRed by int("Background Red", 0, 0..255)
-    private val backgroundGreen by int("Background Green", 0, 0..255)
-    private val backgroundBlue by int("Background Blue", 0, 0..255)
-    private val backgroundAlpha by int("Background Alpha", 50, 0..255)
+    private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(50))
 
-    private val borderStrength by float("Border Strength", 2F, 1F..5F)
+    private val borderStrength by float("Border-Strength", 2F, 1F..5F)
 
-    private val borderRainbow by boolean("Border Rainbow", false)
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { borderRainbow }
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { borderRainbow }
 
-    private val borderRed by int("Border Red", 0, 0..255) { !borderRainbow }
-    private val borderGreen by int("Border Green", 0, 0..255) { !borderRainbow }
-    private val borderBlue by int("Border Blue", 0, 0..255) { !borderRainbow }
-    private val borderAlpha by int("Border Alpha", 150, 0..255) { !borderRainbow }
+    private val borderColor = color("BorderColor", Color.BLACK.withAlpha(150))
+
+    private val borderRainbow
+        get() = borderColor.rainbow
 
     private var fovMarkerVertexBuffer: VertexBuffer? = null
     private var lastFov = 0f
@@ -83,7 +76,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
         val size = size
 
         if (!minimap) {
-            drawRect(0F, 0F, size, size, Color(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha).rgb)
+            drawRect(0F, 0F, size, size, bgColor.rgb)
         }
 
         val viewDistance = viewDistance * 16f
@@ -277,19 +270,16 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
             borderRainbow, if (rainbowX == 0f) 0f else 1f / rainbowX,
             if (rainbowY == 0f) 0f else 1f / rainbowY, System.currentTimeMillis() % 10000 / 10000F
         ).use {
-            drawBorder(
-                0F, 0F, size, size, borderStrength, Color(
-                    borderRed,
-                    borderGreen, borderBlue, borderAlpha
-                ).rgb
-            )
+            val borderColor = borderColor.selectedColor()
+
+            drawBorder(0F, 0F, size, size, borderStrength, borderColor.rgb)
 
             glEnable(GL_BLEND)
             glDisable(GL_TEXTURE_2D)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             glEnable(GL_LINE_SMOOTH)
 
-            glColor(borderRed, borderGreen, borderBlue, borderAlpha)
+            glColor(borderColor)
             glLineWidth(borderStrength)
 
             glBegin(GL_LINES)

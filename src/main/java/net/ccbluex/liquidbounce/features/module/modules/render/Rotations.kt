@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -17,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 
-object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false, hideModule = false) {
+object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false) {
 
     private val realistic by boolean("Realistic", true)
     private val body by boolean("Body", true) { !realistic }

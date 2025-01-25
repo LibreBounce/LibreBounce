@@ -1,7 +1,5 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.config.boolean
-import net.ccbluex.liquidbounce.config.int
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -14,7 +12,7 @@ import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.potion.Potion
 
-object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = false, hideModule = false) {
+object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = false) {
     // Check if player's gamemode is Survival or Adventure
     private val gameMode by boolean("GameModeCheck", true)
 

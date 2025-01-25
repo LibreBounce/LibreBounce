@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.extensions.airTicks
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
@@ -47,7 +48,6 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
     private var isFlying = false
     private var isNotUnder = false
     private var isTeleported = false
-    private var airborneTicks = 0
     private var jumped = false
 
     override fun onUpdate() {
@@ -67,8 +67,6 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
                 Fly.state = false
             }
         }
-
-        updateOffGroundTicks(player)
 
         if (shouldFly(player, world)) {
             if (isTeleported) {
@@ -100,10 +98,6 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
         Fly.state = false
     }
 
-    private fun updateOffGroundTicks(player: EntityPlayerSP) {
-        airborneTicks = if (player.onGround) 0 else airborneTicks + 1
-    }
-
     private fun handleTimerSlow(player: EntityPlayerSP) {
         if (!player.onGround && timerSlowed) {
             if (player.ticksExisted % 7 == 0) {
@@ -122,7 +116,7 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
     }
 
     private fun handlePlayerFlying(player: EntityPlayerSP) {
-        when (airborneTicks) {
+        when (player.airTicks) {
             0 -> {
                 if (isNotUnder && isTeleported) {
                     strafe(boostSpeed + extraBoost)

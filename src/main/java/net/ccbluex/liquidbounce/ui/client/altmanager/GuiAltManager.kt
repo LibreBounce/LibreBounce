@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager
 
-import com.google.gson.JsonParser
 import com.thealtening.AltService
 import kotlinx.coroutines.launch
 import me.liuli.elixir.account.CrackedAccount
@@ -17,7 +16,9 @@ import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
+import net.ccbluex.liquidbounce.lang.translationButton
 import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.lang.translationText
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiDonatorCape
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginIntoAccount
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiSessionLogin
@@ -27,7 +28,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.io.FileFilters
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
+import net.ccbluex.liquidbounce.utils.io.HttpUtils
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
@@ -72,27 +73,26 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             scrollBy(mightBeTheCurrentAccount * altsList.getSlotHeight())
         }
 
-
         // Setup buttons
 
         val startPositionY = 22
-        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, "Add")
-        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, "Remove")
-        +GuiButton(7, width - 80, startPositionY + 24 * 3, 70, 20, "Import")
-        +GuiButton(12, width - 80, startPositionY + 24 * 4, 70, 20, "Export")
-        copyButton = +GuiButton(8, width - 80, startPositionY + 24 * 5, 70, 20, "Copy")
-        +GuiButton(0, width - 80, height - 65, 70, 20, "Back")
-        loginButton = +GuiButton(3, 5, startPositionY + 24, 90, 20, "Login")
-        randomAltButton = +GuiButton(4, 5, startPositionY + 24 * 2, 90, 20, "Random Alt")
-        randomNameButton = +GuiButton(5, 5, startPositionY + 24 * 3, 90, 20, "Random Name")
-        +GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, "Direct Login")
-        +GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, "Session Login")
+        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, translationButton("add"))
+        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
+        +GuiButton(7, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("import"))
+        +GuiButton(12, width - 80, startPositionY + 24 * 4, 70, 20, translationButton("export"))
+        copyButton = +GuiButton(8, width - 80, startPositionY + 24 * 5, 70, 20, translationButton("copy"))
+        +GuiButton(0, width - 80, height - 65, 70, 20, translationButton("back"))
+        loginButton = +GuiButton(3, 5, startPositionY + 24, 90, 20, translationButton("login"))
+        randomAltButton = +GuiButton(4, 5, startPositionY + 24 * 2, 90, 20, translationButton("randomAlt"))
+        randomNameButton = +GuiButton(5, 5, startPositionY + 24 * 3, 90, 20, translationButton("randomName"))
+        +GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("directLogin"))
+        +GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("sessionLogin"))
 
         if (activeGenerators.getOrDefault("thealtening", true)) {
-            +GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, "TheAltening")
+            +GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("theAltening"))
         }
 
-        +GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, "Cape")
+        +GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("cape"))
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -120,7 +120,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             )
             searchField.drawTextBox()
             if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
-                "§7Search...", searchField.xPosition + 4f, 17f, 0xffffff
+                translationText("Search"), searchField.xPosition + 4f, 17f, 0xffffff
             )
         }
 
@@ -423,16 +423,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         fun loadActiveGenerators() {
             try {
                 // Read versions json from cloud
-                val (response, _) = get("$CLIENT_CLOUD/generators.json")
-                val jsonElement = JsonParser().parse(response)
-
-                // Check json is valid object
-                if (jsonElement.isJsonObject) {
-                    // Get json object of element
-                    jsonElement.asJsonObject.entrySet().forEach { (key, value) ->
-                        activeGenerators[key] = value.asBoolean
-                    }
-                }
+                activeGenerators += HttpUtils.getJson<Map<String, Boolean>>("$CLIENT_CLOUD/generators.json")!!
             } catch (throwable: Throwable) {
                 // Print throwable to console
                 LOGGER.error("Failed to load enabled generators.", throwable)

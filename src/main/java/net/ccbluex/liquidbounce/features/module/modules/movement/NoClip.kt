@@ -5,14 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.float
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
-object NoClip : Module("NoClip", Category.MOVEMENT, hideModule = false) {
+object NoClip : Module("NoClip", Category.MOVEMENT) {
     val speed by float("Speed", 0.5f, 0f..10f)
 
     override fun onDisable() {

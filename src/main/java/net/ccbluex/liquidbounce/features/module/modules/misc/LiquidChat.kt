@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
-import net.ccbluex.liquidbounce.config.BoolValue
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.loopHandler
@@ -27,19 +27,14 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.util.regex.Pattern
 
-object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameDetecting = false) {
+object LiquidChat : Module(
+    "LiquidChat", Category.MISC, subjective = true, gameDetecting = false, defaultState = true, defaultHidden = true
+) {
 
-    init {
-        state = true
-        inArray = false
-    }
-
-    var jwt by object : BoolValue("JWT", false) {
-        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (state) {
-                state = false
-                state = true
-            }
+    var jwt by boolean("JWT", false).onChanged {
+        if (state) {
+            state = false
+            state = true
         }
     }
 
@@ -166,7 +161,7 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
         connect()
     }
 
-    val onUpdate = loopHandler {
+    val onUpdate = loopHandler(dispatcher = Dispatchers.IO) {
         if (client.isConnected()) return@loopHandler
 
         connect()
@@ -185,23 +180,21 @@ object LiquidChat : Module("LiquidChat", Category.MISC, subjective = true, gameD
 
         loggedIn = false
 
-        withContext(Dispatchers.IO) {
-            try {
-                loginMutex.withLock {
-                    if (client.isConnected())
-                        return@withLock
+        try {
+            loginMutex.withLock {
+                if (client.isConnected())
+                    return@withLock
 
-                    client.connect()
+                client.connect()
 
-                    when {
-                        jwt -> client.loginJWT(jwtToken)
-                        UserUtils.isValidTokenOffline(mc.session.token) -> client.loginMojang()
-                    }
+                when {
+                    jwt -> client.loginJWT(jwtToken)
+                    UserUtils.isValidTokenOffline(mc.session.token) -> client.loginMojang()
                 }
-            } catch (cause: Exception) {
-                LOGGER.error("LiquidChat error", cause)
-                chat("§7[§a§lChat§7] §cError: §7${cause.javaClass.name}: ${cause.message}")
             }
+        } catch (cause: Exception) {
+            LOGGER.error("LiquidChat error", cause)
+            chat("§7[§a§lChat§7] §cError: §7${cause.javaClass.name}: ${cause.message}")
         }
     }
 

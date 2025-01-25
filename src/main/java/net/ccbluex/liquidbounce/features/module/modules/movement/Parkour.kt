@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 
-object Parkour : Module("Parkour", Category.MOVEMENT, subjective = true, gameDetecting = false, hideModule = false) {
+object Parkour : Module("Parkour", Category.MOVEMENT, subjective = true, gameDetecting = false) {
 
     val onMovementInput = handler<MovementInputEvent> { event ->
         val thePlayer = mc.thePlayer ?: return@handler

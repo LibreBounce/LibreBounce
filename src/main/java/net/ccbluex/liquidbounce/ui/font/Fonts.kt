@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.file.FileManager.fontsDir
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.download
+import net.ccbluex.liquidbounce.utils.io.HttpUtils.Downloader
 import net.ccbluex.liquidbounce.utils.io.extractZipTo
 import net.ccbluex.liquidbounce.utils.io.jsonArray
 import net.ccbluex.liquidbounce.utils.io.readJson
@@ -90,7 +90,7 @@ object Fonts : MinecraftInstance {
         val outputFile = File(fontsDir, "roboto.zip")
         if (!outputFile.exists()) {
             LOGGER.info("Downloading fonts...")
-            download("$CLIENT_CLOUD/fonts/Roboto.zip", outputFile)
+            Downloader.downloadWholeFile("$CLIENT_CLOUD/fonts/Roboto.zip", outputFile)
             LOGGER.info("Extracting fonts...")
             outputFile.extractZipTo(fontsDir)
         }

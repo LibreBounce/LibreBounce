@@ -5,35 +5,32 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.minecraft.entity.item.EntityTNTPrimed
 import org.lwjgl.opengl.GL11.*
+import java.awt.Color
 import kotlin.math.pow
 
-object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", hideModule = false) {
+object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer") {
 
     private val scale by float("Scale", 3F, 1F..4F)
     private val font by font("Font", Fonts.font40)
     private val fontShadow by boolean("Shadow", true)
 
-    private val colorRed by int("R", 255, 0..255)
-    private val colorGreen by int("G", 255, 0..255)
-    private val colorBlue by int("B", 255, 0..255)
+    private val color by color("Color", Color.WHITE)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
-        override fun onUpdate(value: Int) {
-            maxRenderDistanceSq = value.toDouble().pow(2.0)
-        }
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+        maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)
@@ -41,21 +38,17 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
 
     private var maxRenderDistanceSq = 0.0
         set(value) {
-            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
+            field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2) else value
         }
 
+    private val tntEntities by EntityLookup<EntityTNTPrimed>()
+        .filter { it.fuse > 0 }
+        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
+
     val onRender3D = handler<Render3DEvent> {
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
-
-        for (entity in world.loadedEntityList) {
-            if (entity is EntityTNTPrimed && player.getDistanceSqToEntity(entity) <= maxRenderDistanceSq) {
-                val explosionTime = entity.fuse / 5
-
-                if (explosionTime > 0 && (isLookingOnEntities(entity, maxAngleDifference.toDouble()) || !onLook)) {
-                    renderTNTTimer(entity, explosionTime)
-                }
-            }
+        for (entity in tntEntities) {
+            renderTNTTimer(entity, entity.fuse / 5)
         }
     }
 
@@ -81,8 +74,6 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
         enableGlCap(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        val color = ((colorRed and 0xFF) shl 16) or ((colorGreen and 0xFF) shl 8) or (colorBlue and 0xFF)
-
         val text = "TNT Explodes in: $timeRemaining"
 
         val fontRenderer = font
@@ -94,7 +85,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer", 
         // Draw text
         val width = fontRenderer.getStringWidth(text) * 0.5f
         fontRenderer.drawString(
-            text, 1F + -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, color, fontShadow
+            text, 1F + -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, color.rgb, fontShadow
         )
 
         resetCaps()
