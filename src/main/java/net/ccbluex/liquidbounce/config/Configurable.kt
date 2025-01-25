@@ -25,12 +25,12 @@ open class Configurable(
 
     fun addValue(value: Value<*>) = apply {
         get().add(value)
-        value.parent = this
+        value.owner = this
     }
 
     fun addValues(values: Collection<Value<*>>) = apply {
         get().addAll(values)
-        values.forEach { it.parent = this }
+        values.forEach { it.owner = this }
     }
 
     operator fun <T, V : Value<T>> V.unaryPlus() = apply(::addValue)
