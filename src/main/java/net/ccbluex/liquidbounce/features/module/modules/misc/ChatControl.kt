@@ -5,14 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.config.boolean
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 
-object ChatControl : Module("ChatControl", Category.MISC, gameDetecting = false, hideModule = false) {
+object ChatControl : Module("ChatControl", Category.MISC, gameDetecting = false) {
 
     val noChatClear by boolean("NoChatClear", true)
-    // TODO: Add stackMessage
+    // TODO: Add StackMessage Counter (Done)
+    // TODO: Combined duplicated messages (On-Progress)
     val stackMessage by boolean("StackMessage", true)
     val noLengthLimit by boolean("NoLengthLimit", true)
     val forceUnicodeChat by boolean("ForceUnicodeChat", false)
