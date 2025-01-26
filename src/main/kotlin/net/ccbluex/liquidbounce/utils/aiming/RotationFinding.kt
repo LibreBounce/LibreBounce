@@ -20,6 +20,7 @@
 
 package net.ccbluex.liquidbounce.utils.aiming
 
+import com.nimbusds.oauth2.sdk.util.CollectionUtils
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
@@ -40,8 +41,6 @@ import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.max
-import kotlin.math.min
 
 fun raytraceBlock(
     eyes: Vec3d,
@@ -155,8 +154,9 @@ private class PrePlaningTracker(
     private val bestVisibleIntersects = false
     private val bestInvisibleIntersects = false
 
+    @Suppress("ComplexCondition")
     override fun getIsRotationBetter(base: VecRotation?, newRotation: VecRotation, visible: Boolean): Boolean {
-        val intersects = futureTarget.hits(eyes, newRotation.vec)
+        val intersects = futureTarget.isHitByLine(eyes, newRotation.vec)
         if (intersects && (visible && !bestVisibleIntersects || !visible && !bestInvisibleIntersects)) {
             return true
         } else if (!intersects && (visible && bestVisibleIntersects || !visible && bestInvisibleIntersects)) {
@@ -445,13 +445,14 @@ private inline fun scanBoxPoints3D(
 /**
  * Find the best spot of the upper block side
  */
+@Suppress("LongParameterList")
 fun raytraceUpperBlockSide(
     eyes: Vec3d,
     range: Double,
     wallsRange: Double,
     expectedTarget: BlockPos,
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
-    rotationNotToMatch: Rotation? = null
+    rotationsNotToMatch: List<Rotation>? = null
 ): VecRotation? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
@@ -460,7 +461,7 @@ fun raytraceUpperBlockSide(
 
     val bestRotationTracker = BestRotationTracker(rotationPreference)
 
-    val stepSize = rotationNotToMatch?.let { 0.05 } ?: 0.1
+    val stepSize = rotationsNotToMatch?.let { 0.05 } ?: 0.1
     range(0.1..0.9 step stepSize, 0.1..0.9 step stepSize) { x, z ->
         val vec3 = vec3d.add(x, 0.0, z)
 
@@ -480,7 +481,7 @@ fun raytraceUpperBlockSide(
         }
 
         val rotation = Rotation.lookingAt(point = vec3, from = eyes)
-        if (rotation == rotationNotToMatch) {
+        if (CollectionUtils.contains(rotationsNotToMatch, rotation)) {
             return@range
         }
 
@@ -490,14 +491,14 @@ fun raytraceUpperBlockSide(
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
 
-@Suppress("NestedBlockDepth", "CognitiveComplexMethod")
+@Suppress("NestedBlockDepth", "CognitiveComplexMethod", "LongParameterList", "LoopWithTooManyJumpStatements")
 fun findClosestPointOnBlockInLineWithCrystal(
     eyes: Vec3d,
     range: Double,
     wallsRange: Double,
     expectedTarget: BlockPos,
     notFacingAway: Boolean,
-    rotationNotToMatch: Rotation? = null
+    rotationsNotToMatch: List<Rotation>? = null
 ): Pair<VecRotation, Direction>? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
@@ -516,7 +517,11 @@ fun findClosestPointOnBlockInLineWithCrystal(
     )
 
     mc.execute {
-        ModuleDebug.debugGeometry(ModuleCrystalAura, "predictedCrystal", ModuleDebug.DebuggedBox(predictedCrystal, Color4b.RED.fade(0.4f)))
+        ModuleDebug.debugGeometry(
+            ModuleCrystalAura,
+            "predictedCrystal",
+            ModuleDebug.DebuggedBox(predictedCrystal, Color4b.RED.fade(0.4f))
+        )
     }
 
     val blockBB = FULL_BOX.offset(expectedTarget)
@@ -537,7 +542,7 @@ fun findClosestPointOnBlockInLineWithCrystal(
             for (y in 0.05..0.95 step 0.05) {
                 val vec3 = pointOnSide(it, x, y, vec3d)
 
-                val intersects = predictedCrystal.hits(eyes, vec3)
+                val intersects = predictedCrystal.isHitByLine(eyes, vec3)
                 if (bestIntersects && !intersects) {
                     continue
                 }
@@ -554,8 +559,8 @@ fun findClosestPointOnBlockInLineWithCrystal(
                     continue
                 }
 
-                val rotation = Rotation.lookingAt(point = vec3, from = eyes) // TODO inverted pitch when looking down?
-                if (rotation == rotationNotToMatch) {
+                val rotation = Rotation.lookingAt(point = vec3, from = eyes)
+                if (CollectionUtils.contains(rotationsNotToMatch, rotation)) {
                     continue
                 }
 
@@ -569,46 +574,6 @@ fun findClosestPointOnBlockInLineWithCrystal(
     return best
 }
 
-/**
- * Tests if the line resulting from [start] and the point [p] will intersect this box.
- */
-private fun Box.hits(start: Vec3d, p: Vec3d): Boolean {
-    val d = p.subtract(start)
-
-    var tEntry = Double.NEGATIVE_INFINITY
-    var tExit = Double.POSITIVE_INFINITY
-
-    fun Box.checkSide(axis: Direction.Axis, start: Vec3d, d: Vec3d): Boolean {
-        val d1 = axis.choose(d.x, d.y, d.z)
-        val min = getMin(axis)
-        val max = getMax(axis)
-        val p0 = axis.choose(start.x, start.y, start.z)
-
-        // parallel and outside, no need to check anything else
-        if (d1 == 0.0 && (p0 < min || p0 > max)) {
-            return true
-        }
-
-        val t1 = (min - p0) / d1
-        val t2 = (max - p0) / d1
-        val tMin = min(t1, t2)
-        val tMax = max(t1, t2)
-
-        tEntry = maxOf(tEntry, tMin)
-        tExit = minOf(tExit, tMax)
-
-        return tEntry > tExit
-    }
-
-    if (checkSide(Direction.Axis.X, start, d) ||
-        checkSide(Direction.Axis.Y, start, d) ||
-        checkSide(Direction.Axis.Z, start, d)) {
-        return false
-    }
-
-    return tEntry <= tExit
-}
-
 private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {
     return when (side) {
         Direction.DOWN, Direction.UP -> vec.add(x, 0.0, y)
@@ -616,4 +581,3 @@ private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3
         Direction.WEST, Direction.EAST -> vec.add(0.0, x, y)
     }
 }
-

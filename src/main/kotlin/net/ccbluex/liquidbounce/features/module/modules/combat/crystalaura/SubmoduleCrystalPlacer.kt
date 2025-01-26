@@ -79,7 +79,11 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     private var placementTarget: BlockPos? = null
     private var previousTarget: BlockPos? = null
     private var blockHitResult: BlockHitResult? = null
-    private var previousRotation: Rotation? = null
+
+    // this is shit, but i can't think of a better way right now
+    // the problem with only one rotation is
+    // that when the ca switched between two player very fast and one place is invalid it would fail
+    private var previousRotations = ArrayDeque<Pair<Rotation, Rotation>>(2)
 
     private fun updateSphere() {
         sphere = BlockPos.ORIGIN.getSortedSphere(max(range, wallsRange))
@@ -102,8 +106,9 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         val targetPos = placementTarget ?: return
 
-        val rotationNotToMatch = if (RotationManager.serverRotation != previousRotation && jitter) {
-            previousRotation
+        val notSameRotation = RotationManager.serverRotation != previousRotations.lastOrNull()?.first
+        val rotationsNotToMatch = if (notSameRotation && jitter) {
+            previousRotations.map { it.second }
         } else {
             null
         }
@@ -115,7 +120,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 range.toDouble(),
                 wallsRange.toDouble(),
                 targetPos,
-                rotationNotToMatch = rotationNotToMatch
+                rotationsNotToMatch = rotationsNotToMatch
             )
         } else {
             val data = findClosestPointOnBlockInLineWithCrystal(
@@ -124,7 +129,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
                 wallsRange.toDouble(),
                 targetPos,
                 notFacingAway,
-                rotationNotToMatch
+                rotationsNotToMatch
             ) ?: return
             side = data.second
 
@@ -146,7 +151,12 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
             }
         }
 
-        previousRotation = rotation.rotation.copy()
+        if (previousRotations.size == 2) {
+            previousRotations.removeFirst()
+        }
+
+        // stores the mutable rotation and a copy to compare with the produced rotations
+        previousRotations.addLast(rotation.rotation to rotation.rotation.copy())
 
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
             blockHitResult = raytraceBlock(

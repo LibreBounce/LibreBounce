@@ -436,13 +436,14 @@ fun BlockState.canBeReplacedWith(
 @Suppress("unused")
 enum class SwingMode(
     override val choiceName: String,
+    val serverSwing: Boolean,
     val swing: (Hand) -> Unit = { }
 ): NamedChoice {
 
-    DO_NOT_HIDE("DoNotHide", { player.swingHand(it) }),
-    HIDE_BOTH("HideForBoth"),
-    HIDE_CLIENT("HideForClient", { network.sendPacket(HandSwingC2SPacket(it)) }),
-    HIDE_SERVER("HideForServer", { player.swingHand(it, false) });
+    DO_NOT_HIDE("DoNotHide", true, { player.swingHand(it) }),
+    HIDE_BOTH("HideForBoth", false),
+    HIDE_CLIENT("HideForClient", true, { network.sendPacket(HandSwingC2SPacket(it)) }),
+    HIDE_SERVER("HideForServer", false, { player.swingHand(it, false) });
 
 }
 

@@ -62,7 +62,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
         override fun timedOut(id: Int) {
             val entity = entities.remove(id) ?: return
             entity.unsetRemoved()
-            mc.execute { world.addEntity(entity) } // TODO on frame, not send (tick) and this shouldn't run off thread at all
+            mc.execute { world.addEntity(entity) }
         }
 
         override fun cleared() {

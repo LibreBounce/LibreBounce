@@ -210,6 +210,7 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
     attack(if (swing) SwingMode.DO_NOT_HIDE else SwingMode.HIDE_BOTH, keepSprint)
 }
 
+@Suppress("CognitiveComplexMethod", "NestedBlockDepth")
 fun Entity.attack(swing: SwingMode, keepSprint: Boolean = false) {
     if (EventManager.callEvent(AttackEntityEvent(this) {
         attack(swing, keepSprint)

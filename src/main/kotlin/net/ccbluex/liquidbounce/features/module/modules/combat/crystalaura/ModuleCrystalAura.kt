@@ -88,7 +88,7 @@ object ModuleCrystalAura : ClientModule(
     }
 
     @Suppress("unused")
-    private val simulatedTickHandler = handler<RotationUpdateEvent> {
+    private val simulatedTickHandler = handler<RotationUpdateEvent>(1) {
         CrystalAuraDamageOptions.cacheMap.clear()
         if (CombatManager.shouldPauseCombat) {
             return@handler

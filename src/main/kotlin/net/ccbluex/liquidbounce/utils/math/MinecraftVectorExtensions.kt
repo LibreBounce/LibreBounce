@@ -23,7 +23,6 @@ package net.ccbluex.liquidbounce.utils.math
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.utils.block.Region
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 
@@ -126,6 +125,3 @@ fun Vec3d.toVec3() = Vec3(this.x, this.y, this.z)
 fun Vec3d.toVec3i() = Vec3i(this.x.toInt(), this.y.toInt(), this.z.toInt())
 
 fun Vec3d.toBlockPos() = BlockPos.ofFloored(x, y, z)!!
-
-val Box.size: Double
-    get() = this.lengthX * this.lengthY * this.lengthZ

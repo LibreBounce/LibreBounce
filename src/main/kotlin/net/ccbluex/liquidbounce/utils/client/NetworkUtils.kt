@@ -46,6 +46,7 @@ import net.minecraft.world.GameMode
 import org.apache.commons.lang3.mutable.MutableObject
 import java.util.*
 
+@Suppress("LongParameterList")
 fun clickBlockWithSlot(
     player: ClientPlayerEntity,
     rayTraceResult: BlockHitResult,

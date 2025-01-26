@@ -35,12 +35,10 @@ import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import kotlin.math.max
 
-// TODO comment
 // TODO no duplicate place and break options per tick in both place and break
 /**
  * Catches events that should start a new place or break action.
@@ -49,6 +47,7 @@ import kotlin.math.max
  *
  * Mixins: [MixinClientPlayNetworkHandler]
  */
+@Suppress("TooManyFunctions")
 object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, MinecraftShortcuts {
 
     // avoids grim multi action flags
@@ -121,8 +120,6 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
 
     @Suppress("unused")
     private val simulatedTickHandler = handler<RotationUpdateEvent> {
-        //chat("Tick " + LocalTime.now().format(formatter))
-
         if (!tick) {
             return@handler
         }
@@ -162,7 +159,9 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
     }
 
     fun postDestroyHandler(packet: EntitiesDestroyS2CPacket) {
-        if (!running || !crystalDestroy || !(packet as EntitiesDestroyS2CPacketAddition).`liquid_bounce$containsCrystal`()) {
+        if (!running ||
+            !crystalDestroy ||
+            !(packet as EntitiesDestroyS2CPacketAddition).`liquid_bounce$containsCrystal`()) {
             return
         }
 
@@ -267,39 +266,23 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
         runPlace { SubmoduleCrystalPlacer.tick() }
     }
 
-    private var maxId = 0 // TODO TESTING ONLY, REMOVE
-    private val formatter = DateTimeFormatter.ofPattern("HH:mm:ss:SSS")
-
     private fun runPlace(runnable: Runnable) {
-        val id = ++maxId
-
         currentPlaceTask?.let {
             if (!it.isDone) {
-//                print("$id canceled because current is not done!")
                 return
             }
         }
 
         if (offThread) {
-            currentPlaceTask = service.submit {
-                //chat("Starting place ($id)..." + LocalTime.now().format(formatter))
-                runnable.run()
-                //chat("Finished place ($id)..." + LocalTime.now().format(formatter))
-            }
+            currentPlaceTask = service.submit(runnable)
         } else {
             currentPlaceTask?.cancel(true)
             currentPlaceTask = null
-            mc.execute {
-                //chat("Starting place ($id)..." + LocalTime.now().format(formatter))
-                runnable.run()
-                //chat("Finished place ($id)..." + LocalTime.now().format(formatter))
-            }
+            mc.execute(runnable)
         }
     }
 
     private fun runDestroy(runnable: Runnable) {
-        val id = ++maxId
-
         currentDestroyTask?.let {
             if (!it.isDone) {
                 return
@@ -307,19 +290,11 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
         }
 
         if (offThread) {
-            currentDestroyTask = service.submit {
-                //chat("Starting break ($id)..." + LocalTime.now().format(formatter))
-                runnable.run()
-                //chat("Finished break ($id)..." + LocalTime.now().format(formatter))
-            }
+            currentDestroyTask = service.submit(runnable)
         } else {
             currentDestroyTask?.cancel(true)
             currentDestroyTask = null
-            mc.execute {
-                //chat("Starting break ($id)..." + LocalTime.now().format(formatter))
-                runnable.run()
-                //chat("Finished break ($id)..." + LocalTime.now().format(formatter))
-            }
+            mc.execute(runnable)
         }
     }
 

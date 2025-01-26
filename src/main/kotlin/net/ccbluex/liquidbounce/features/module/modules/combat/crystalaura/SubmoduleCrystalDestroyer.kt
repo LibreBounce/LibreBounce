@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
+import net.ccbluex.liquidbounce.utils.math.isHitByLine
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.decoration.EndCrystalEntity
 import kotlin.math.max
@@ -66,40 +67,55 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
 
         val target = currentTarget ?: return
 
-        val blockPosDown = target.blockPos.down()
+        val base = FULL_BOX.offset(target.blockPos.down())
         mc.execute {
-            ModuleDebug.debugGeometry(ModuleCrystalAura, "predictedBlock", ModuleDebug.DebuggedBox(FULL_BOX.offset(blockPosDown), Color4b.GREEN.fade(0.4f)))
+            ModuleDebug.debugGeometry(
+                ModuleCrystalAura,
+                "predictedBlock",
+                ModuleDebug.DebuggedBox(base, Color4b.GREEN.fade(0.4f))
+            )
         }
 
+        val eyePos = player.eyePos
+
         // find the best spot (and skip if no spot was found)
-        val (rotation, _) =
+        val (rotation, vec3d) =
             raytraceBox(
-                player.eyePos,
+                eyePos,
                 target.boundingBox,
                 range = range,
                 wallsRange = wallsRange,
-                futureTarget = FULL_BOX.offset(blockPosDown),
+                futureTarget = base,
                 prioritizeVisible = prioritizeVisibleFaces
             ) ?: return
 
-        ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation, isFinished = {
-            facingEnemy(
-                toEntity = target,
-                rotation = RotationManager.serverRotation,
-                range = range,
-                wallsRange = wallsRange
-            )
-        }, onFinished = {
-            if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
-                return@rotate
-            }
+        val action = {
+            ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation, isFinished = {
+                facingEnemy(
+                    toEntity = target,
+                    rotation = RotationManager.serverRotation,
+                    range = range,
+                    wallsRange = wallsRange
+                )
+            }, onFinished = {
+                if (!chronometer.hasAtLeastElapsed(delay.toLong())) {
+                    return@rotate
+                }
 
-            val target1 = currentTarget ?: return@rotate
+                val target1 = currentTarget ?: return@rotate
 
-            target1.attack(swingMode)
-            postAttackHandlers.forEach { it.attacked(target1.id) }
-            chronometer.reset()
-        })
+                target1.attack(swingMode)
+                postAttackHandlers.forEach { it.attacked(target1.id) }
+                chronometer.reset()
+            })
+        }
+
+        // fixes swinging off thread as other packets might interrupt
+        if (swingMode.serverSwing && !base.isHitByLine(eyePos, vec3d)) {
+            mc.execute(action)
+        } else {
+            action()
+        }
     }
 
     private fun updateTarget() {
