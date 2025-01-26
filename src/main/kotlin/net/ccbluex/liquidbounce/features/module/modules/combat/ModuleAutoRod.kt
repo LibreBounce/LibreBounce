@@ -81,7 +81,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
             if (rodPullTimer.hasElapsed(pullbackDelay.toLong())) {
                 if (switchBack != -1 && player.inventory?.selectedSlot != switchBack) {
                     // Switch back to previous item
-                    player.inventory?.selectedSlot = switchBack!!
+                    player.inventory?.selectedSlot = switchBack
                     interaction.syncSelectedSlot()
 
                 } else {
@@ -119,7 +119,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                 // Check whether player is using items/blocking.
                 if (!onUsingItem) {
                     if (player.mainHandStack != Items.FISHING_ROD &&
-                        (player.isUsingItem) ||
+                        player.isUsingItem ||
                         KillAuraAutoBlock.blockVisual
                     ) {
                         return@tickHandler
