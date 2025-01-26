@@ -21,9 +21,7 @@ package net.ccbluex.liquidbounce.script.bindings.api
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
-import net.ccbluex.liquidbounce.utils.client.chat
 import org.graalvm.polyglot.Value
-import java.util.concurrent.atomic.AtomicInteger
 
 @Suppress("unused")
 object ScriptAsyncApi : MinecraftShortcuts {
@@ -32,36 +30,30 @@ object ScriptAsyncApi : MinecraftShortcuts {
 
     private val scope = CoroutineScope(MainDispatcher + SupervisorJob())
 
-    private var idCounter = AtomicInteger(0)
+    private var idCounter = 0
 
     private val timeoutMap = Int2ObjectOpenHashMap<Job>()
     private val intervalMap = Int2ObjectOpenHashMap<Job>()
 
     @JvmName("setTimeout")
-    @Synchronized
     fun setTimeout(callback: Value, delay: Long, vararg arguments: Any?): Int {
-        val id = idCounter.incrementAndGet()
+        val id = ++idCounter
         timeoutMap.put(id, scope.launch {
             delay(delay)
             callback.executeVoid(*arguments)
             timeoutMap.remove(id)
         })
-        chat("Debug: setTimeout id=$id")
         return id
     }
 
     @JvmName("clearTimeout")
-    @Synchronized
     fun clearTimeout(id: Int) {
-        timeoutMap[id]?.cancel()
-        timeoutMap.remove(id)
-        chat("Debug: clearTimeout id=$id")
+        timeoutMap.remove(id)?.cancel()
     }
 
     @JvmName("setInterval")
-    @Synchronized
     fun setInterval(callback: Value, delay: Long, vararg arguments: Any?): Int {
-        val id = idCounter.incrementAndGet()
+        val id = ++idCounter
         intervalMap.put(id, scope.launch {
             while (isActive) {
                 delay(delay)
@@ -69,16 +61,12 @@ object ScriptAsyncApi : MinecraftShortcuts {
                 intervalMap.remove(id)
             }
         })
-        chat("Debug: setInterval id=$id")
         return id
     }
 
     @JvmName("clearInterval")
-    @Synchronized
     fun clearInterval(id: Int) {
-        intervalMap[id]?.cancel()
-        intervalMap.remove(id)
-        chat("Debug: clearInterval id=$id")
+        intervalMap.remove(id)?.cancel()
     }
 
 }

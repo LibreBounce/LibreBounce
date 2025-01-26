@@ -58,10 +58,7 @@ object ScriptContextProvider {
         putMember("UnsafeThread", ScriptUnsafeThread)
 
         // timeout and interval functions
-        putMember("setTimeout", ScriptAsyncApi::setTimeout)
-        putMember("clearTimeout", ScriptAsyncApi::clearTimeout)
-        putMember("setInterval", ScriptAsyncApi::setInterval)
-        putMember("clearInterval", ScriptAsyncApi::clearInterval)
+        putMember("AsyncApi", ScriptAsyncApi)
     }
 
 }
