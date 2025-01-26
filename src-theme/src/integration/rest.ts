@@ -603,3 +603,13 @@ export async function randomUsername(): Promise<string> {
 
     return data.name;
 }
+
+export async function setTyping(typing: boolean) {
+    await fetch(`${API_BASE}/client/typing`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({typing})
+    });
+}
