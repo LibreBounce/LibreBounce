@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import org.graalvm.polyglot.Value
 import java.util.function.IntConsumer
 
-@Suppress("unused")
+@Suppress("SpreadOperator", "unused")
 object ScriptAsyncApi : MinecraftShortcuts {
 
     private val MainDispatcher = mc.asCoroutineDispatcher()
