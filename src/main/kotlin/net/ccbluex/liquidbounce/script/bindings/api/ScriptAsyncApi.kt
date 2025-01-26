@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import org.graalvm.polyglot.Value
+import java.util.function.IntConsumer
 
 @Suppress("unused")
 object ScriptAsyncApi : MinecraftShortcuts {
@@ -35,24 +36,26 @@ object ScriptAsyncApi : MinecraftShortcuts {
     private val timeoutMap = Int2ObjectOpenHashMap<Job>()
     private val intervalMap = Int2ObjectOpenHashMap<Job>()
 
-    @JvmName("setTimeout")
-    fun setTimeout(callback: Value, delay: Long, vararg arguments: Any?): Int {
+    @FunctionalInterface // this is needed for Polyglot script functions
+    internal fun interface SetFunction {
+        operator fun invoke(callback: Value, delay: Long, vararg arguments: Any?): Int
+    }
+
+    internal val setTimeout = SetFunction { callback, delay, arguments ->
         val id = ++idCounter
         timeoutMap.put(id, scope.launch {
             delay(delay)
             callback.executeVoid(*arguments)
             timeoutMap.remove(id)
         })
-        return id
+        id
     }
 
-    @JvmName("clearTimeout")
-    fun clearTimeout(id: Int) {
+    internal val clearTimeout = IntConsumer { id ->
         timeoutMap.remove(id)?.cancel()
     }
 
-    @JvmName("setInterval")
-    fun setInterval(callback: Value, delay: Long, vararg arguments: Any?): Int {
+    internal val setInterval = SetFunction { callback, delay, arguments ->
         val id = ++idCounter
         intervalMap.put(id, scope.launch {
             while (isActive) {
@@ -61,11 +64,10 @@ object ScriptAsyncApi : MinecraftShortcuts {
                 intervalMap.remove(id)
             }
         })
-        return id
+        id
     }
 
-    @JvmName("clearInterval")
-    fun clearInterval(id: Int) {
+    internal val clearInterval = IntConsumer { id ->
         intervalMap.remove(id)?.cancel()
     }
 
