@@ -91,6 +91,7 @@ fun putScreen(requestObject: RequestObject): FullHttpResponse {
 }
 
 // DELETE /api/v1/client/screen
+@Suppress("UNUSED_PARAMETER")
 fun deleteScreen(requestObject: RequestObject): FullHttpResponse {
     val screen = mc.currentScreen ?: return httpForbidden("No screen")
 
