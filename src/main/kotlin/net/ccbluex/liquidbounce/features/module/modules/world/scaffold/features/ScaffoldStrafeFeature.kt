@@ -19,7 +19,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
@@ -38,36 +37,21 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
         }
 
         player.velocity = if (hypixel) {
+
+            if (player.age % 10 == 0) {
+                player.velocity = player.velocity.withStrafe(speed = 0.12)
+                return@tickHandler
+            }
+
             val speedEffect = player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1
 
             when (speedEffect) {
                 -1 -> player.velocity.withStrafe(speed = 0.2055)
-                0, 1 -> player.velocity.withStrafe(speed = 0.292)
+                0, 1 -> player.velocity.withStrafe(speed = 0.292 - (Math.random() / 360f))
                 else -> return@tickHandler
             }
         } else {
             player.velocity.withStrafe(speed = speed.toDouble())
         }
-    }
-
-    private class Pause(parent: EventListener?) : ToggleableConfigurable(parent, "Pause", false) {
-
-        private val pauseSpeed by float("PauseSpeed", 0.1f, 0.0f..5.0f)
-        private val pauseAfter by int("PauseEvery", 4, 2..40)
-
-        @Suppress("unused")
-        private val tickHandler = tickHandler {
-            if (onlyOnGround && !player.isOnGround) {
-                return@tickHandler
-            }
-
-            if (player.age % pauseAfter == 0) {
-                player.velocity = player.velocity.withStrafe(speed = pauseSpeed.toDouble())
-            }
-        }
-    }
-
-    init {
-        tree(Pause(this))
     }
 }
