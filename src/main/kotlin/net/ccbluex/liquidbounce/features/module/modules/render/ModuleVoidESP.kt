@@ -61,8 +61,8 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         renderer.clearSilently()
     }
 
-    private val mutable = BlockPos.Mutable()
-    private val mutable1 = BlockPos.Mutable()
+    private val posStart = BlockPos.Mutable()
+    private val posEnd = BlockPos.Mutable()
 
     private fun Chunk.canBlockStandOn(pos: BlockPos): Boolean {
         return this.getBlockState(pos).isSideSolid(this, pos, Direction.UP, SideShapeType.CENTER)
@@ -75,7 +75,7 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         val positions = LongOpenHashSet()
 
         // Find the first place where the player can stand
-        val startPos = mutable1.set(player.blockPos, Direction.DOWN)
+        val startPos = posEnd.set(player.blockPos, Direction.DOWN)
         val yThreshold = yThreshold
         var chunk = world.getChunk(startPos)
         var flag = false
@@ -96,9 +96,9 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         val facing = player.horizontalFacing
         val side = facing.rotateYClockwise()
 
-        val from = mutable.set(startPos)
+        val from = posStart.set(startPos)
             .move(facing, rangeFacing).move(side.opposite, rangeSide)
-        val to = mutable1.set(startPos)
+        val to = posEnd.set(startPos)
             .move(facing.opposite, rangeFacing).move(side, rangeSide)
 
         Region(from, to).forEach {
@@ -108,17 +108,17 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
                 return@forEach
             }
 
-            mutable.set(it)
+            posStart.set(it)
 
             repeat(yThreshold) { _ ->
-                mutable.y--
+                posStart.y--
 
-                if (chunk.canBlockStandOn(mutable)) {
+                if (chunk.canBlockStandOn(posStart)) {
                     return@forEach
                 }
 
                 // Reach the bottom(void)
-                if (mutable.y <= chunk.bottomY) {
+                if (posStart.y <= chunk.bottomY) {
                     positions.add(it.asLong())
                     return@forEach
                 }
@@ -138,7 +138,7 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
             while (hasNext()) {
                 val longValue = nextLong()
                 if (longValue !in positions) {
-                    renderer.removeBlock(mutable.set(longValue))
+                    renderer.removeBlock(posStart.set(longValue))
                 }
             }
         }
@@ -147,7 +147,7 @@ object ModuleVoidESP : ClientModule("VoidESP", Category.RENDER) {
         with(positions.longIterator()) {
             while (hasNext()) {
                 val longValue = nextLong()
-                renderer.addBlock(mutable.set(longValue))
+                renderer.addBlock(posStart.set(longValue))
             }
         }
 
