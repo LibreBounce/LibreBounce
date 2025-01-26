@@ -35,12 +35,12 @@ import net.minecraft.util.math.BlockPos
 object Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
 
     /**
-     * The offhand might have a lower switch delay than other items.
+     * The totem mode might have a lower switch delay than other items.
      */
     val switchDelay by int("SwitchDelay", 0, 0..500, "ms")
 
     /**
-     * The offhand might have a higher switch back delay than other items.
+     * The totem mode might have a higher and separate switch back delay than other items.
      */
     val switchBackDelay by int("SwitchBackDelay", 40, 0..500, "ms")
 
