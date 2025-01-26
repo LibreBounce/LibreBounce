@@ -38,8 +38,9 @@ class RequestHandler<T> {
         this.activeRequests.add(request)
     }
 
+    @Suppress("UNNECESSARY_SAFE_CALL", "USELESS_ELVIS")
     fun getActiveRequestValue(): T? {
-        if (mc.isOnThread) {
+        if (mc?.isOnThread ?: true) {
             // we remove all outdated requests here
             while ((this.activeRequests.peek() ?: return null).expiresIn <= currentTick ||
                 !this.activeRequests.peek().provider.running
