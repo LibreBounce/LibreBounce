@@ -119,14 +119,14 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                 // Check whether player is using items/blocking.
                 if (!onUsingItem) {
                     if (player.mainHandStack != Items.FISHING_ROD &&
-                        (player.isUsingItem == true) ||
+                        (player.isUsingItem) ||
                         KillAuraAutoBlock.blockVisual
                     ) {
                         return@tickHandler
                     }
                 }
 
-                if (facingEntity.isAttackable == true) {
+                if (facingEntity.isAttackable) {
                     // Checks how many enemy is nearby, if <= then should rod.
                     var enemieslist =
                         targetTracker.enemies().filter { it.isAttackable && player.distanceTo(it) < range }
