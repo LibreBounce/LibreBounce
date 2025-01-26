@@ -56,6 +56,8 @@ import kotlin.math.ceil
  * Surround module
  *
  * Builds safe holes.
+ *
+ * @author ccetl
  */
 object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit = true) {
 
