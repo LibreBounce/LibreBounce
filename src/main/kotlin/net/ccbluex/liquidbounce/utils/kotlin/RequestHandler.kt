@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.kotlin
 
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.mc
+import net.minecraft.client.MinecraftClient
 import java.util.*
 
 class RequestHandler<T> {
@@ -38,9 +38,8 @@ class RequestHandler<T> {
         this.activeRequests.add(request)
     }
 
-    @Suppress("UNNECESSARY_SAFE_CALL", "USELESS_ELVIS")
     fun getActiveRequestValue(): T? {
-        if (mc?.isOnThread ?: true) {
+        if (MinecraftClient.getInstance()?.isOnThread != false) {
             // we remove all outdated requests here
             while ((this.activeRequests.peek() ?: return null).expiresIn <= currentTick ||
                 !this.activeRequests.peek().provider.running
