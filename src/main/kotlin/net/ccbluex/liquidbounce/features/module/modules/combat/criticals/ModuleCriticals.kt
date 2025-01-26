@@ -26,10 +26,7 @@ import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsBlink
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsNoGround
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsPacket
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
@@ -59,7 +56,8 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
             CriticalsPacket,
             CriticalsNoGround,
             CriticalsJump,
-            CriticalsBlink
+            CriticalsBlink,
+            CriticalsTimer
         )
     }.apply(::tagBy)
 
