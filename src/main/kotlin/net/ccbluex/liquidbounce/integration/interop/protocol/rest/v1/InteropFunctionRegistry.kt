@@ -131,6 +131,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     get("/input", ::getInputInfo)
     get("/keybinds", ::getKeybinds)
     post("/typing", ::isTyping)
+    get("/typing", ::isTyping)
 
     // Player Functions
     get("/player", ::getPlayerData)
