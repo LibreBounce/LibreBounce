@@ -56,6 +56,12 @@ object ScriptContextProvider {
         putMember("ReflectionUtil", ScriptReflectionUtil())
         putMember("ParameterValidator", ScriptParameterValidator(bindings))
         putMember("UnsafeThread", ScriptUnsafeThread)
+
+        // timeout and interval functions
+        putMember("setTimeout", ScriptAsyncApi::setTimeout)
+        putMember("clearTimeout", ScriptAsyncApi::clearTimeout)
+        putMember("setInterval", ScriptAsyncApi::setInterval)
+        putMember("clearInterval", ScriptAsyncApi::clearInterval)
     }
 
 }
