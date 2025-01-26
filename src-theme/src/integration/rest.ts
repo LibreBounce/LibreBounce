@@ -170,6 +170,12 @@ export async function openScreen(name: string) {
     });
 }
 
+export async function deleteScreen() {
+    await fetch(`${API_BASE}/client/screen`, {
+        method: "DELETE"
+    });
+}
+
 export async function getServers(): Promise<Server[]> {
     const response = await fetch(`${API_BASE}/client/servers`);
     const data: Server[] = await response.json();

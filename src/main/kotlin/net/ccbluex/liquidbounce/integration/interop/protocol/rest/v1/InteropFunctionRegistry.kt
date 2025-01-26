@@ -51,6 +51,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     get("/screen", ::getScreenInfo)
     get("/screen/size", ::getScreenSize)
     put("/screen", ::putScreen)
+    delete("/screen", ::deleteScreen)
 
     // Module Functions
     get("/modules", ::getModules).apply {
