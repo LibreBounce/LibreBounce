@@ -526,9 +526,9 @@ fun findClosestPointOnBlockInLineWithCrystal(
 
     val blockBB = FULL_BOX.offset(expectedTarget)
 
-    val vec = expectedTarget.toVec3d()
+    val vec = expectedTarget.toCenterPos()
     Direction.entries.forEach {
-        val vec3d = vec.offset(it, 1.0)
+        val vec3d = vec.offset(it, 0.5)
 
         val coordinate = it.axis.choose(eyes.x, eyes.y, eyes.z)
         if (notFacingAway && !blockBB.contains(eyes) && when (it) {
