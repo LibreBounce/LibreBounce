@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.minecraft.entity.Entity
 import net.minecraft.entity.decoration.EndCrystalEntity
 
-// TODO CAUSES DESYNC!!!!!
 /**
  * Removes hit crystals instantly from the world instead of waiting for the actual remove packet
  * what might allow faster placement.
