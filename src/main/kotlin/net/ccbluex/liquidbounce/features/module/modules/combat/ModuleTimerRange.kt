@@ -64,8 +64,6 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
 
     val repeatable = tickHandler {
         if (onlyOnGround && !player.isOnGround) return@tickHandler
-        if (chance != 100 && Random.nextInt(100) > chance) return@tickHandler
-
         if (requiresKillAura && (!ModuleKillAura.running || ModuleKillAura.targetTracker.lockedOnTarget == null)) {
             return@tickHandler
         }
@@ -95,7 +93,9 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
             return 1.0f
         }
 
-        if (world.findEnemy(0f..distanceToStartWorking) == null) {
+        if (world.findEnemy(0f..distanceToStartWorking) == null
+            || chance != 100 && Random.nextInt(100) > chance)
+        {
             return null
         }
 
