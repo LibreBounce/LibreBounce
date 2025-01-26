@@ -47,6 +47,9 @@ internal object VelocityJumpReset : VelocityMode("JumpReset") {
     private var limitUntilJump = 0
     private var isFallDamage = false
 
+    private var hitsUntilJump = JumpByReceivedHits.hitsUntilJump.random()
+    private var ticksUntilJump = JumpByDelay.ticksUntilJump.random()
+
     @Suppress("unused")
     private val movementInputHandler = handler<MovementInputEvent> { event ->
         // To be able to alter velocity when receiving knockback, player must be sprinting.
@@ -57,6 +60,9 @@ internal object VelocityJumpReset : VelocityMode("JumpReset") {
 
         event.jump = true
         limitUntilJump = 0
+
+        hitsUntilJump = JumpByReceivedHits.hitsUntilJump.random()
+        ticksUntilJump = JumpByDelay.ticksUntilJump.random()
     }
 
     @Suppress("unused")
@@ -77,9 +83,6 @@ internal object VelocityJumpReset : VelocityMode("JumpReset") {
     }
 
     private fun isCooldownOver(): Boolean {
-        val hitsUntilJump = JumpByReceivedHits.hitsUntilJump.random()
-        val ticksUntilJump = JumpByDelay.ticksUntilJump.random()
-
         ModuleDebug.debugParameter(this, "HitsUntilJump", hitsUntilJump)
         ModuleDebug.debugParameter(this, "UntilJump", ticksUntilJump)
 
