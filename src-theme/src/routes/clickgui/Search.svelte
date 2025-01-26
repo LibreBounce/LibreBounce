@@ -113,8 +113,6 @@
 
         if (autoFocus) {
             searchInputElement.focus();
-        } else {
-            await setTyping(false);
         }
     });
 
