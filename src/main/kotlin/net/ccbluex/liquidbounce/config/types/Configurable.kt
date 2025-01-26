@@ -28,6 +28,7 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import org.lwjgl.glfw.GLFW
 
 @Suppress("TooManyFunctions")
 open class Configurable(
@@ -199,7 +200,7 @@ open class Configurable(
     fun int(name: String, default: Int, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT)
 
-    fun bind(name: String, default: Int) = bind(
+    fun bind(name: String, default: Int = GLFW.GLFW_KEY_UNKNOWN) = bind(
         name,
         InputBind(InputUtil.Type.KEYSYM, default, InputBind.BindAction.TOGGLE)
     )
