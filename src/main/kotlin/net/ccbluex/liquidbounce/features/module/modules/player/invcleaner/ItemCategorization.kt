@@ -128,6 +128,24 @@ enum class ItemSortChoice(
 class ItemCategorization(
     availableItems: List<ItemSlot>,
 ) {
+    companion object {
+        @JvmStatic
+        private fun constructArmorPiece(item: Item, id: Int): ArmorPiece {
+            return ArmorPiece(VirtualItemSlot(ItemStack(item, 1), ItemSlotType.ARMOR, id))
+        }
+
+        /**
+         * We expect to be full armor to be diamond armor.
+         */
+        @JvmStatic
+        private val diamondArmorPieces = mapOf(
+            EquipmentSlot.HEAD to constructArmorPiece(Items.DIAMOND_HELMET, 0),
+            EquipmentSlot.CHEST to constructArmorPiece(Items.DIAMOND_CHESTPLATE, 1),
+            EquipmentSlot.LEGS to constructArmorPiece(Items.DIAMOND_LEGGINGS, 2),
+            EquipmentSlot.FEET to constructArmorPiece(Items.DIAMOND_BOOTS, 3),
+        )
+    }
+
     private val bestPiecesIfFullArmor: List<ItemSlot>
     private val armorComparator: ArmorComparator
 
@@ -136,17 +154,7 @@ class ItemCategorization(
 
         this.armorComparator = ArmorEvaluation.getArmorComparatorFor(findBestArmorPieces)
 
-        fun constructArmorPiece(item: Item, id: Int): ArmorPiece {
-            return ArmorPiece(VirtualItemSlot(ItemStack(item, 1), ItemSlotType.ARMOR, id))
-        }
-
-        // We expect to be full armor to be diamond armor.
-        val armorParameterForSlot = ArmorKitParameters.getParametersForSlots(mapOf(
-            EquipmentSlot.HEAD to constructArmorPiece(Items.DIAMOND_HELMET, 0),
-            EquipmentSlot.CHEST to constructArmorPiece(Items.DIAMOND_CHESTPLATE, 1),
-            EquipmentSlot.LEGS to constructArmorPiece(Items.DIAMOND_LEGGINGS, 2),
-            EquipmentSlot.FEET to constructArmorPiece(Items.DIAMOND_BOOTS, 3),
-        ))
+        val armorParameterForSlot = ArmorKitParameters.getParametersForSlots(diamondArmorPieces)
 
         val armorComparatorForFullArmor = ArmorEvaluation.getArmorComparatorForParameters(armorParameterForSlot)
 
@@ -168,14 +176,9 @@ class ItemCategorization(
         }
 
         val specificItemFacets: Array<ItemFacet> = when (val item = slot.itemStack.item) {
-            is ArmorItem -> {
-                // Treat animal armor as a normal item
-                if (item is AnimalArmorItem) {
-                    return arrayOf(ItemFacet(slot))
-                }
-
-                arrayOf(ArmorItemFacet(slot, this.bestPiecesIfFullArmor, this.armorComparator))
-            }
+            // Treat animal armor as a normal item
+            is AnimalArmorItem -> arrayOf(ItemFacet(slot))
+            is ArmorItem -> arrayOf(ArmorItemFacet(slot, this.bestPiecesIfFullArmor, this.armorComparator))
             is SwordItem -> arrayOf(SwordItemFacet(slot))
             is BowItem -> arrayOf(BowItemFacet(slot))
             is CrossbowItem -> arrayOf(CrossbowItemFacet(slot))
@@ -235,6 +238,6 @@ class ItemCategorization(
         }
 
         // Everything could be a weapon (i.e. a stick with Knochback II should be considered a weapon)
-        return specificItemFacets + arrayOf(WeaponItemFacet(slot))
+        return specificItemFacets + WeaponItemFacet(slot)
     }
 }
