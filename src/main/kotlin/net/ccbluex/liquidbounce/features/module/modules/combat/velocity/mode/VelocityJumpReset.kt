@@ -32,11 +32,11 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 internal object VelocityJumpReset : VelocityMode("JumpReset") {
 
     private object JumpByReceivedHits : ToggleableConfigurable(ModuleVelocity, "JumpByReceivedHits", false) {
-        val hitsUntilJump by int("HitsUntilJump", 2, 0..10)
+        val hitsUntilJump by intRange("HitsUntilJump", 2..2, 0..10)
     }
 
     private object JumpByDelay : ToggleableConfigurable(ModuleVelocity, "JumpByDelay", true) {
-        val ticksUntilJump by int("UntilJump", 2, 0..20, "ticks")
+        val ticksUntilJump by intRange("UntilJump", 2..2, 0..20, "ticks")
     }
 
     init {
@@ -77,9 +77,15 @@ internal object VelocityJumpReset : VelocityMode("JumpReset") {
     }
 
     private fun isCooldownOver(): Boolean {
+        val hitsUntilJump = JumpByReceivedHits.hitsUntilJump.random()
+        val ticksUntilJump = JumpByDelay.ticksUntilJump.random()
+
+        ModuleDebug.debugParameter(this, "HitsUntilJump", hitsUntilJump)
+        ModuleDebug.debugParameter(this, "UntilJump", ticksUntilJump)
+
         return when {
-            JumpByReceivedHits.enabled -> limitUntilJump >= JumpByReceivedHits.hitsUntilJump
-            JumpByDelay.enabled -> limitUntilJump >= JumpByDelay.ticksUntilJump
+            JumpByReceivedHits.enabled -> limitUntilJump >= hitsUntilJump
+            JumpByDelay.enabled -> limitUntilJump >= ticksUntilJump
             else -> true // If none of the options are enabled, it will go automatic
         }
     }
