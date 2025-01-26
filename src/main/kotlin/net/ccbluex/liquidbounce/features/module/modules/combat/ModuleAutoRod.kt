@@ -23,12 +23,12 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoRod.FacingEnemy.IgnoreOnEnemyLowHealth
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.Entity
@@ -72,7 +72,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     val tickHandler = tickHandler {
         // Check if player is using rod
         val usingRod =
-            (player.isUsingItem == true && player.mainHandStack?.item == Items.FISHING_ROD) || rodInUse
+            (player.isUsingItem && player.mainHandStack?.item == Items.FISHING_ROD) || rodInUse
 
         if (usingRod) {
             // Check if rod pull timer has reached delay
@@ -98,7 +98,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
         } else {
             var rod = false
 
-            if (FacingEnemy.enabled && player.getActualHealth()!! >= IgnoreOnEnemyLowHealth.playerHealthThreshold) {
+            if (FacingEnemy.enabled && player.health >= IgnoreOnEnemyLowHealth.playerHealthThreshold) {
                 var facingEntity = mc.targetedEntity
                 if (facingEntity == null) {
 
@@ -108,7 +108,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                         return@tickHandler
                     }
                     finalTarget.distanceTo(player).let { it1 ->
-                        if (it1 > range) {
+                        if (it1 > range || it1 < ModuleKillAura.range && ModuleKillAura.enabled) {
                             return@tickHandler
                         } else {
                             facingEntity = finalTarget
@@ -135,7 +135,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                             // Check if the enemy's health is below the threshold.
                             if (IgnoreOnEnemyLowHealth.enabled) {
                                 if ((facingEntity is LivingEntity) &&
-                                    facingEntity.getActualHealth() >= IgnoreOnEnemyLowHealth.enemyHealthThreshold
+                                    facingEntity.health >= IgnoreOnEnemyLowHealth.enemyHealthThreshold
                                 ) {
                                     rod = true
                                 }
@@ -166,8 +166,6 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
                         return@tickHandler
                     }
                     // Switch to rod
-
-
                     switchBack = player.inventory.getSlotWithStack(player.inventory?.mainHandStack)
                     SilentHotbar.selectSlotSilently(this,rod)
                     interaction.syncSelectedSlot()
