@@ -105,9 +105,9 @@ fun deleteScreen(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
         mc.setScreen(
             if (inGame) {
-                TitleScreen()
-            } else {
                 null
+            } else {
+                TitleScreen()
             }
         )
     }
