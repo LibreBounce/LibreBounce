@@ -49,7 +49,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
             val entity = world.getEntityById(id)
             if (entity is EndCrystalEntity) {
                 super.attacked(id)
-                mc.execute { world.removeEntity(id, Entity.RemovalReason.DISCARDED) } // KILLED?
+                mc.execute { world.removeEntity(id, Entity.RemovalReason.DISCARDED) }
                 entities.put(id, entity)
             }
         }
