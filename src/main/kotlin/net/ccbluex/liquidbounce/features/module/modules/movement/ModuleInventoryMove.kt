@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.NORMAL
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.SAFE
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui.isInSearchBar
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
@@ -133,7 +134,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {
         val screen = mc.currentScreen ?: return true
 
-        if (!running || screen is ChatScreen || isInCreativeSearchField()) {
+        if (!running || screen is ChatScreen || isInCreativeSearchField() || isInSearchBar) {
             return false
         }
 

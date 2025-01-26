@@ -30,7 +30,7 @@ def getContributors(repoOwner, repoName) {
     connection.connectTimeout = 5000
     connection.readTimeout = 5000
 
-    connection.setRequestProperty("User-Agent", "LiquiudBounce-App")
+    connection.setRequestProperty("User-Agent", "LiquidBounce-App")
 
     if (200 <= connection.responseCode && connection.responseCode <= 299) {
         def response = connection.inputStream.text

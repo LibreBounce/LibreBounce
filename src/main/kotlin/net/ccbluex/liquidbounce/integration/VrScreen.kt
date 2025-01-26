@@ -28,7 +28,9 @@ import net.minecraft.client.gui.screen.Screen
 class VrScreen(
     private val screenType: VirtualScreenType,
     private val theme: Theme = ThemeManager.route(screenType).theme,
-    val originalScreen: Screen? = null) : Screen("VS-${screenType.routeName.uppercase()}".asText()) {
+    val originalScreen: Screen? = null,
+    val parentScreen: Screen? = mc.currentScreen
+) : Screen("VS-${screenType.routeName.uppercase()}".asText()) {
 
     override fun init() {
         IntegrationListener.virtualOpen(theme, screenType)

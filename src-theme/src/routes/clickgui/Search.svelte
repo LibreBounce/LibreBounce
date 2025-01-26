@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {ConfigurableSetting, Module} from "../../integration/types";
-    import {getModuleSettings, setModuleEnabled} from "../../integration/rest";
+    import {getModuleSettings, setModuleEnabled, setTyping} from "../../integration/rest";
     import {listen} from "../../integration/ws";
     import type {ClickGuiValueChangeEvent, KeyboardKeyEvent, ModuleToggleEvent} from "../../integration/events";
     import {highlightModuleName} from "./clickgui_store";
@@ -110,6 +110,7 @@
     onMount(async () => {
         const clickGuiSettings = await getModuleSettings("ClickGUI");
         applyValues(clickGuiSettings);
+
         if (autoFocus) {
             searchInputElement.focus();
         }
@@ -147,6 +148,8 @@
             bind:this={searchInputElement}
             on:input={filterModules}
             on:keydown={handleBrowserKeyDown}
+            on:focusin={async () => await setTyping(true)}
+            on:focusout={async () => await setTyping(false)}
     />
 
     {#if query}

@@ -170,6 +170,12 @@ export async function openScreen(name: string) {
     });
 }
 
+export async function deleteScreen() {
+    await fetch(`${API_BASE}/client/screen`, {
+        method: "DELETE"
+    });
+}
+
 export async function getServers(): Promise<Server[]> {
     const response = await fetch(`${API_BASE}/client/servers`);
     const data: Server[] = await response.json();
@@ -602,4 +608,14 @@ export async function randomUsername(): Promise<string> {
     let data: GeneratorResult = await response.json();
 
     return data.name;
+}
+
+export async function setTyping(typing: boolean) {
+    await fetch(`${API_BASE}/client/typing`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({typing})
+    });
 }
