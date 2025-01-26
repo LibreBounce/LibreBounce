@@ -38,7 +38,7 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
 
         player.velocity = if (hypixel) {
             if (player.age % 10 == 0) {
-                player.velocity = player.velocity.withStrafe(speed = 0.12)
+                player.velocity = player.velocity.withStrafe(speed = 0.16)
                 return@tickHandler
             }
 
