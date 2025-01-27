@@ -86,7 +86,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     private var previousRotations = ArrayDeque<Pair<Rotation, Rotation>>(2)
 
     private fun updateSphere() {
-        sphere = BlockPos.ORIGIN.getSortedSphere(max(range, wallsRange))
+        sphere = BlockPos.ORIGIN.getSortedSphere(getMaxRange())
     }
 
     @Suppress("LongMethod", "CognitiveComplexMethod")
@@ -138,7 +138,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         if (ModuleCrystalAura.rotationMode.activeChoice is NoRotationMode) {
             blockHitResult = raytraceBlock(
-                max(range, wallsRange).toDouble(),
+                getMaxRange().toDouble(),
                 rotation.rotation,
                 targetPos,
                 targetPos.getState()!!
@@ -160,7 +160,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
             blockHitResult = raytraceBlock(
-                max(range, wallsRange).toDouble(),
+                getMaxRange().toDouble(),
                 RotationManager.serverRotation,
                 targetPos,
                 targetPos.getState()!!

@@ -142,9 +142,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
     }
 
     private fun validateAndUpdateTarget(entity: EndCrystalEntity) {
-        val range = range.toDouble()
-        val wallsRange = wallsRange.toDouble()
-        val maxRange = max(wallsRange, range) + entity.boundingBox.maxX - entity.boundingBox.minX
+        val maxRange = getMaxRange().toDouble() + entity.boundingBox.maxX - entity.boundingBox.minX
         currentTarget = null
         if (player.eyePos.squaredDistanceTo(entity.pos) > maxRange.sq()) {
             return
@@ -153,8 +151,8 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
         if (!canSeeBox(
                 player.eyePos,
                 entity.boundingBox,
-                range = range,
-                wallsRange = wallsRange,
+                range = range.toDouble(),
+                wallsRange = wallsRange.toDouble(),
             )
         ) {
             return
