@@ -36,7 +36,6 @@ import java.util.concurrent.Future
  *
  * Mixins: [MixinClientPlayNetworkHandler], [MixinClientPlayerInteractionManager]
  */
-@Suppress("TooManyFunctions")
 object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, MinecraftShortcuts {
 
     // avoids grim multi action flags
