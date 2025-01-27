@@ -11,13 +11,14 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.bindTexture
 import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.lwjgl.opengl.GL11.*
-import java.awt.*
+import java.awt.Color
+import java.awt.Font
+import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -172,7 +173,6 @@ class AWTFontRenderer(
             if (loc == null) {
                 // Fallback => break quads, draw with MC font
                 glEnd()
-                GlStateManager.resetColor()
 
                 glPushMatrix()
 

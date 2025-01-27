@@ -50,7 +50,7 @@ object LocalThemesCommand : Command("localthemes", "localtheme") {
                     themeFile.copyTo(hudFile, true)
                     loadConfig(hudConfig)
                     chat("§6Theme applied successfully.")
-                    addNotification(Notification("Updated Theme"))
+                    addNotification(Notification("Local Themes Command", "Updated Theme"))
                     playEdit()
                 } catch (e: IOException) {
                     e.printStackTrace()

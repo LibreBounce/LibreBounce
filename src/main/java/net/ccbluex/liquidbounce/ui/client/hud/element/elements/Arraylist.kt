@@ -553,7 +553,7 @@ class Arraylist(
                     val side = if (side.horizontal == Side.Horizontal.LEFT) {
                         (-width + module.slide) / 6
                     } else {
-                        -module.slide - 2 + width + 2
+                        -module.slide - 2 + width + if (rectMode == "Right") 0 else 2
                     }
 
                     val resource =

@@ -101,9 +101,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private val chatDebug by boolean("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
     private val notificationDebug by boolean("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
 
-    private val entities by EntityLookup<EntityLivingBase>()
-        .filter { isSelected(it, true) }
-        .filter { entity ->
+    private val entities by EntityLookup<EntityLivingBase>().filter { isSelected(it, true) }.filter { entity ->
             Backtrack.runWithNearestTrackedDistance(entity) {
                 val distance = mc.thePlayer.getDistanceToEntityBox(entity)
 
@@ -433,7 +431,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                     chat("Lagback Received | Timer Reset")
                 }
                 if (notificationDebug) {
-                    hud.addNotification(Notification("Lagback Received | Timer Reset", 1000F))
+                    hud.addNotification(Notification.informative(this, "Lagback Received - Resetting Timer", 1000F))
                 }
 
                 shouldReset = false
@@ -449,7 +447,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                     chat("Knockback Received | Timer Reset")
                 }
                 if (notificationDebug) {
-                    hud.addNotification(Notification("Knockback Received | Timer Reset", 1000F))
+                    hud.addNotification(Notification.informative(this, "Knockback Received - Resetting Timer", 1000F))
                 }
 
                 shouldReset = false

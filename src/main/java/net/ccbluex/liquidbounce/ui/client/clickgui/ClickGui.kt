@@ -137,7 +137,7 @@ object ClickGui : GuiScreen() {
                                     SettingsUtils.applyScript(settings)
 
                                     chat("§6Settings applied successfully")
-                                    HUD.addNotification(Notification("Updated Settings"))
+                                    HUD.addNotification(Notification.informative("ClickGUI","Updated Settings"))
                                     mc.playSound("random.anvil_use".asResourceLocation())
                                 } catch (e: Exception) {
                                     ClientUtils.LOGGER.error("Failed to load settings", e)

@@ -190,11 +190,6 @@ public abstract class MixinGuiInGame extends Gui {
         liquidBounce$injectRender2DEvent(delta);
     }
 
-    @Inject(method = "renderTooltip", at = @At("RETURN"))
-    private void renderTooltipPost(ScaledResolution sr, float delta, CallbackInfo callbackInfo) {
-        liquidBounce$injectRender2DEvent(delta);
-    }
-
     @Inject(method = "renderPumpkinOverlay", at = @At("HEAD"), cancellable = true)
     private void renderPumpkinOverlay(final CallbackInfo callbackInfo) {
         final AntiBlind antiBlind = AntiBlind.INSTANCE;

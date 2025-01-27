@@ -20,6 +20,9 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
     private val notify by choices("Notify", arrayOf("Chat", "Notification"), "Chat")
     val packetType by choices("PacketType", arrayOf("Both", "Server", "Client", "Custom"), "Both")
     private val delay by int("Delay", 100, 0..1000)
+    private val notificationStayTime by float(
+        "NotificationStayTime", 3f, 0.5f..60f, suffix = "Seconds"
+    ) { notify == "Notification" }
 
     private val timer = MSTimer()
     val selectedPackets = mutableSetOf<String>()
@@ -71,7 +74,8 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
         if (notify == "Chat") {
             chat(packetInfo)
         } else {
-            hud.addNotification(Notification(packetInfo, 3000F))
+            // Not a good idea...
+            hud.addNotification(Notification.informative(this, packetInfo, notificationStayTime * 20))
         }
     }
 }

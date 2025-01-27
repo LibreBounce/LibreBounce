@@ -10,7 +10,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.*
+import net.ccbluex.liquidbounce.api.ClientApi
+import net.ccbluex.liquidbounce.api.Status
+import net.ccbluex.liquidbounce.api.autoSettingsList
+import net.ccbluex.liquidbounce.api.loadSettings
 import net.ccbluex.liquidbounce.config.SettingsUtils
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
@@ -80,7 +83,7 @@ object SettingsCommand : Command("autosettings", "autosetting", "settings", "set
             chat("Applying settings...")
             SettingsUtils.applyScript(settings)
             chat("§6Settings applied successfully")
-            addNotification(Notification("Updated Settings"))
+            addNotification(Notification("Settings Command", "Successfully updated settings!"))
             playEdit()
         } catch (e: Exception) {
             LOGGER.error("Failed to load settings", e)
