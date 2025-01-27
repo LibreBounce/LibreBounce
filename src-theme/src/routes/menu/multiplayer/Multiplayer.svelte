@@ -37,6 +37,7 @@
     import Divider from "../common/optionbar/Divider.svelte";
     import GenericSelect from "../common/setting/select/GenericSelect.svelte";
     import GenericSetting from "../../clickgui/setting/common/GenericSetting.svelte";
+    import WrappedSetting from "../common/setting/WrappedSetting.svelte";
 
     let onlineOnly = false;
     let searchQuery = "";
@@ -137,7 +138,6 @@
         await refreshServers();
         renderedServers = servers;
         timesSorted++; // See declaration
-        console.log("sorted")
     }
 
     function handleSearch(e: CustomEvent<{ query: string }>) {
@@ -171,21 +171,9 @@
         <Search on:search={handleSearch}/>
 
         {#if configurable}
-            <div class="settings-wrapper">
-                <GenericSelect closeOnInternalClick={false}>
-                    <svelte:fragment slot="title">
-                        Settings
-                    </svelte:fragment>
-
-                    <svelte:fragment slot="options">
-                        <div class="settings">
-                            {#each configurable.value as setting (setting.name)}
-                                <GenericSetting skipAnimationDelay={true} path={setting.name} bind:setting on:change={updateSettings}/>
-                            {/each}
-                        </div>
-                    </svelte:fragment>
-                </GenericSelect>
-            </div>
+            {#each configurable.value as s (s.name)}
+                <WrappedSetting setting={s} />
+            {/each}
         {/if}
 
         <!--<SwitchSetting title="Online only" bind:value={onlineOnly}/>-->
@@ -210,7 +198,8 @@
                             :`data:image/png;base64,${server.icon}`}
                               title={server.name}
                               on:dblclick={() => connectToServer(server.address)}>
-                    <TextComponent allowPreformatting={true} preFormattingMonospace={false} slot="subtitle" fontSize={18}
+                    <TextComponent allowPreformatting={true} preFormattingMonospace={false} slot="subtitle"
+                                   fontSize={18}
                                    textComponent={server.ping <= 0 ? "§CCan't connect to server" : server.label}/>
 
                     <svelte:fragment slot="tag">
