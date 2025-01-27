@@ -7,7 +7,8 @@
     import {convertToSpacedString} from "../../../../theme/theme_config";
 
     interface Props {
-        setting: ModuleSetting
+        setting: ModuleSetting,
+        path: string
     }
 
     interface NesterSetting {
@@ -16,7 +17,7 @@
         value: ModuleSetting[];
     }
 
-    const {setting}: Props = $props();
+    const {setting, path}: Props = $props();
     const nester = setting as NesterSetting;
 
     const enabledSetting = nester.value[0] as TBooleanSetting;
@@ -68,7 +69,7 @@
     {#if expanded && nestedSettings.length > 0}
         <div class="nested-settings" transition:fade|global={{ duration: 200, easing: quintOut }}>
             {#each nestedSettings as setting (setting.name)}
-                <GenericSetting skipAnimationDelay={true} path="menu" {setting} on:change />
+                <GenericSetting skipAnimationDelay={true} {path} {setting} on:change />
             {/each}
         </div>
     {/if}
