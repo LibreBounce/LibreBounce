@@ -36,11 +36,13 @@ import net.ccbluex.liquidbounce.utils.kotlin.step
 import net.ccbluex.liquidbounce.utils.math.*
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
+import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.max
 
 fun raytraceBlock(
     eyes: Vec3d,
@@ -373,7 +375,7 @@ private fun considerSpot(
 }
 
 /**
- * Determines if the player is able to see a [box].
+ * Determines if the player is able to see a [Box].
  *
  * Will return `true` if the player is inside the [box].
  */
@@ -526,6 +528,25 @@ fun findClosestPointOnBlockInLineWithCrystal(
 
     val blockBB = FULL_BOX.offset(expectedTarget)
 
+    val currentHit = raytraceBlock(
+        max(range, wallsRange),
+        RotationManager.serverRotation,
+        expectedTarget,
+        expectedTarget.getState()!!
+    )
+
+    if (currentHit != null && currentHit.type == HitResult.Type.BLOCK && currentHit.blockPos == expectedTarget) {
+        val pos = currentHit.pos
+        val intersects = predictedCrystal.isHitByLine(eyes, pos)
+        val distance = eyes.squaredDistanceTo(pos)
+        val visibleThroughWalls = distance <= wallsRangeSquared ||
+            facingBlock(eyes, pos, expectedTarget, currentHit.side)
+        if (intersects && distance <= rangeSquared && visibleThroughWalls) {
+            val rotation = Rotation.lookingAt(point = pos, from = eyes)
+            return VecRotation(rotation, pos) to currentHit.side
+        }
+    }
+
     val vec = expectedTarget.toCenterPos()
     Direction.entries.forEach {
         val vec3d = vec.offset(it, 0.5)
@@ -550,7 +571,7 @@ fun findClosestPointOnBlockInLineWithCrystal(
                 val distance = eyes.squaredDistanceTo(vec3)
 
                 // skip if out of range or the current best is closer
-                if (distance > rangeSquared || bestDistance <= distance) {
+                if (distance > rangeSquared || bestDistance <= distance && (!intersects || bestIntersects)) {
                     continue
                 }
 
