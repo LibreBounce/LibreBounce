@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
+import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.entity.effect.StatusEffects
 
@@ -30,25 +31,40 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
     private val hypixel by boolean("Hypixel", false)
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
+    private var moveTicks = 0
+
+    override fun enable() {
+        moveTicks = 0
+        super.enable()
+    }
+
+    @Suppress("unused")
+    private val moveTickHandler = tickHandler {
+        if (player.moving) {
+            moveTicks++
+            return@tickHandler
+        }
+        moveTicks = 0
+    }
+
     @Suppress("unused")
     private val strafeHandler = tickHandler {
         if (onlyOnGround && !player.isOnGround) {
             return@tickHandler
         }
 
-        player.velocity = if (hypixel) {
-            if (player.age % 10 == 0) {
-                player.velocity = player.velocity.withStrafe(speed = 0.16)
-                return@tickHandler
+        if (hypixel) {
+            var speed = 0.207
+
+            if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1) >= 0) {
+                speed = 0.295
             }
 
-            val speedEffect = player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: -1
-
-            when (speedEffect) {
-                -1 -> player.velocity.withStrafe(speed = 0.2055)
-                0, 1 -> player.velocity.withStrafe(speed = 0.292 - (Math.random() / 360f))
-                else -> return@tickHandler
+            if (player.age % 20 == 0 || moveTicks <= 5) {
+                speed = 0.1
             }
+
+            player.velocity = player.velocity.withStrafe(speed = speed)
         } else {
             player.velocity.withStrafe(speed = speed.toDouble())
         }

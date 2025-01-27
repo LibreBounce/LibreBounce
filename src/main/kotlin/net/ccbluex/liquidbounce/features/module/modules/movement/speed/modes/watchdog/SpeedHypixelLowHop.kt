@@ -58,7 +58,11 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
                     shouldStrafe = true
                     player.velocity.y += 0.0568
                 }
-                3 -> player.velocity.y -= 0.13
+                3 -> {
+                    player.velocity.x *= 0.95
+                    player.velocity.y -= 0.13
+                    player.velocity.z *= 0.95
+                }
                 4 -> player.velocity.y -= 0.2
                 7 -> {
                     if (glide && isGroundExempt()) {
@@ -71,8 +75,8 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
                 player.velocity = player.velocity.withStrafe()
             }
 
-            if (player.hurtTime >= 5) {
-                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed * 0.9, strength = 0.9)
+            if (player.hurtTime == 9) {
+                player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(0.281))
             }
 
             if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) == 2) {
@@ -85,7 +89,7 @@ class SpeedHypixelLowHop(override val parent: ChoiceConfigurable<*>) : SpeedBHop
 
     @Suppress("unused")
     private val jumpHandler = handler<PlayerJumpEvent> {
-        val atLeast = 0.247 + 0.16 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
+        val atLeast = 0.247 + 0.15 * (player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0)
 
         player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast))
         shouldStrafe = true
