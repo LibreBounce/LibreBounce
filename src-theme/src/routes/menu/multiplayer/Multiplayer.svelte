@@ -38,6 +38,7 @@
     import GenericSelect from "../common/setting/select/GenericSelect.svelte";
     import GenericSetting from "../../clickgui/setting/common/GenericSetting.svelte";
     import WrappedSetting from "../common/setting/WrappedSetting.svelte";
+    import SwitchSetting from "../common/setting/SwitchSetting.svelte";
 
     let onlineOnly = false;
     let searchQuery = "";
@@ -170,12 +171,11 @@
     <OptionBar>
         <Search on:search={handleSearch}/>
 
+        <SwitchSetting title="Online only" bind:value={onlineOnly}/>
+        <Divider/>
         {#if configurable}
             <WrappedSetting setting={configurable}/>
         {/if}
-
-        <!--<SwitchSetting title="Online only" bind:value={onlineOnly}/>-->
-        <Divider/>
         {#if clientInfo && clientInfo.viaFabricPlus}
             <SingleSelect title="Version" value={selectedProtocol.name} options={protocols.map(p => p.name)}
                           on:change={changeProtocolVersion}/>
