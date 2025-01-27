@@ -234,15 +234,3 @@
         </ButtonContainer>
     </BottomButtonWrapper>
 </Menu>
-
-<style lang="scss">
-  .settings {
-    max-height: 250px;
-    overflow: auto;
-    padding: 15px;
-  }
-
-  .settings-wrapper {
-    min-width: 250px;
-  }
-</style>
