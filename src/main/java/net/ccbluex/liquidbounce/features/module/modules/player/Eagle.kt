@@ -21,7 +21,6 @@ object Eagle : Module("Eagle", Category.PLAYER) {
     private val lookDownThreshold by float("LookDownThreshold", 45f, 0f..90f) { onlyWhenLookingDown }
 
     private val sneakTimer = TickTimer()
-    private var sneakOn = false
 
     val onUpdate = loopHandler {
         val thePlayer = mc.thePlayer ?: return@loopHandler
@@ -41,10 +40,6 @@ object Eagle : Module("Eagle", Category.PLAYER) {
     }
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
-            return
-
-        sneakOn = false
         sneakTimer.reset()
 
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak))
