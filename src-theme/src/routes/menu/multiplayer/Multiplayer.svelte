@@ -179,9 +179,9 @@
 
         <SwitchSetting title="Online only" bind:value={onlineOnly}/>
         <Divider/>
-        <SwitchSetting title="AutoConfig" bind:value={autoConfig} on:change={updateAutoConfigState}/>
+        <SwitchSetting title="Auto Config" bind:value={autoConfig} on:change={updateAutoConfigState}/>
         {#if spooferConfigurable}
-            <WrappedSetting setting={spooferConfigurable} on:change={updateSpooferSettings} />
+            <WrappedSetting setting={spooferConfigurable} on:change={updateSpooferSettings}/>
         {/if}
         {#if clientInfo && clientInfo.viaFabricPlus}
             <SingleSelect title="Version" value={selectedProtocol.name} options={protocols.map(p => p.name)}
