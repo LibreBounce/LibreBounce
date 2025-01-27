@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleResourceSp
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleSpoofer
 
 // todo: this is just a placeholder for testing, do it properly later
-object MultiplayerConfigurable : Configurable("multiplayer") {
+object SpooferConfigurable : Configurable("Spoofer") {
     init {
         // tree all modules (features)
         tree(ModuleSpoofer)
