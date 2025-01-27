@@ -56,7 +56,7 @@
 
 <div class="wrapped-setting" class:expanded class:has-nested-settings={nestedSettings.length > 0}
      onclick={handleWrapperClick} bind:this={wrappedSettingElement}
-style="width: {rulerElement?.getBoundingClientRect()?.width ?? 0}px">
+style="min-width: {rulerElement?.getBoundingClientRect()?.width ?? 0}px">
     <div class="header" bind:this={headerElement}>
         {#if nester.valueType === "TOGGLEABLE"}
             <SwitchSetting title={convertToSpacedString(nester.name)} bind:value={enabledSetting.value}/>
