@@ -38,6 +38,18 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
         super.enable()
     }
 
+    override fun disable() {
+        if (!hypixel) {
+            return
+        }
+        player.velocity = player.velocity.multiply(
+            0.5,
+            1.0,
+            0.5
+        )
+        super.disable()
+    }
+
     @Suppress("unused")
     private val moveTickHandler = tickHandler {
         if (player.moving) {
