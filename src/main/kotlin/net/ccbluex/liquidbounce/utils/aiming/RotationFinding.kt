@@ -493,7 +493,13 @@ fun raytraceUpperBlockSide(
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
 
-@Suppress("NestedBlockDepth", "CognitiveComplexMethod", "LongParameterList", "LoopWithTooManyJumpStatements")
+@Suppress(
+    "NestedBlockDepth",
+    "CognitiveComplexMethod",
+    "LongParameterList",
+    "LoopWithTooManyJumpStatements",
+    "LongMethod"
+)
 fun findClosestPointOnBlockInLineWithCrystal(
     eyes: Vec3d,
     range: Double,
