@@ -21,16 +21,20 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.client
 
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.client.dropPort
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.utils.client.rootDomain
+import net.minecraft.text.Text
 
 object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {
 
@@ -40,7 +44,7 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         "loyisa.cn",
         "anticheat-test.com"
     )
-    private var requiresConfigLoad = false
+    private var isScheduled = false
 
     init {
         doNotIncludeAlways()
@@ -58,7 +62,9 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         }
 
         try {
-            loadServerConfig(currentServerEntry.address.dropPort().rootDomain())
+            loadServerConfig(currentServerEntry.address.dropPort().rootDomain()) { message ->
+                notification("Auto Config", message, NotificationEvent.Severity.INFO)
+            }
         } catch (exception: Exception) {
             notification(
                 "AutoConfig", "Failed to load config for ${currentServerEntry.address}.",
@@ -69,32 +75,43 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         super.enable()
     }
 
-    override fun disable() {
-        requiresConfigLoad = false
-        super.disable()
-    }
-
-    val repeatable = tickHandler {
-        if (requiresConfigLoad && inGame && mc.currentScreen == null) {
-            requiresConfigLoad = false
-            enable()
-        }
-    }
-
     @Suppress("unused")
-    val handleServerConnect = handler<ServerConnectEvent> {
-        requiresConfigLoad = true
+    private val handleServerConnect = handler<ServerConnectEvent> { event ->
+        if (isScheduled) {
+            return@handler
+        }
+
+        // This will stop us from connecting to the server right away
+        event.cancelEvent()
+
+        withScope {
+            try {
+                isScheduled = true
+
+                val address = event.serverInfo.address.dropPort().rootDomain()
+
+                event.connectScreen.setStatus(Text.of("Checking for auto config for $address..."))
+                loadServerConfig(address) { message ->
+                    event.connectScreen.setStatus(Text.of(message))
+                }
+
+                // Proceed to connect to the server
+                event.connectScreen.connect(mc, event.address, event.serverInfo, event.cookieStorage)
+            } finally {
+                isScheduled = false
+            }
+        }
     }
 
     /**
      * Loads the config for the given server address
      */
-    private fun loadServerConfig(address: String) {
+    private fun loadServerConfig(
+        address: String,
+        status: (String) -> Unit
+    ) {
         if (blacklistedServer.any { address.endsWith(it, true) }) {
-            notification(
-                "Auto Config", "This server is blacklisted.",
-                NotificationEvent.Severity.INFO
-            )
+            status("This server is blacklisted.")
             return
         }
 
@@ -108,14 +125,12 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         }.minByOrNull { it.name.length }
 
         if (autoConfig == null) {
-            notification(
-                "Auto Config", "There is no known config for $address.",
-                NotificationEvent.Severity.ERROR
-            )
+            status("There is no known config for $address.")
             return
         }
 
         AutoConfig.loadAutoConfig(autoConfig)
+        status("Loaded config for $address.")
     }
 
     /**

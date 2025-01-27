@@ -204,7 +204,7 @@ object AutoConfig {
         }
     }
 
-    private fun formatAutoConfigProtocolInfo(pVersion: Int?, pName: String?) {
+    private fun formatAutoConfigProtocolInfo(pVersion: Int, pName: String) {
         // Check if the protocol is identical
         val (protocolName, protocolVersion) = protocolVersion
 
@@ -234,6 +234,16 @@ object AutoConfig {
                     "but your current protocol is $protocolName",
                 NotificationEvent.Severity.ERROR
             )
+
+            if (usesViaFabricPlus) {
+                if (inGame) {
+                    chat(markAsError("Please reconnect to the server to apply the correct protocol."))
+                } else {
+                    selectProtocolVersion(pVersion)
+                }
+            } else {
+                chat(markAsError("Please install ViaFabricPlus to apply the correct protocol."))
+            }
         }
     }
 
