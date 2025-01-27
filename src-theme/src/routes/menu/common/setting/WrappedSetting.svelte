@@ -43,7 +43,10 @@
     function handleWindowClick(e: MouseEvent) {
         if (!wrappedSettingElement) return;
 
-        if (!wrappedSettingElement.contains(e.target as Node)) {
+        const node = e.target as HTMLElement;
+
+        if (!wrappedSettingElement.contains(node)
+            && !node.classList.contains("option")) { // Don't close when a select option is pressed
             expanded = false;
         }
     }
@@ -69,7 +72,7 @@
     {#if expanded && nestedSettings.length > 0}
         <div class="nested-settings" transition:fade|global={{ duration: 200, easing: quintOut }}>
             {#each nestedSettings as setting (setting.name)}
-                <GenericSetting skipAnimationDelay={true} {path} {setting} on:change />
+                <GenericSetting skipAnimationDelay={true} {path} {setting} on:change/>
             {/each}
         </div>
     {/if}
