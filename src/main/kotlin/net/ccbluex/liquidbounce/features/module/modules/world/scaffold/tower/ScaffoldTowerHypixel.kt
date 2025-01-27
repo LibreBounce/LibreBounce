@@ -38,23 +38,23 @@ object ScaffoldTowerHypixel : Choice("Hypixel") {
             return@tickHandler
         }
 
-        if (player.x % 1.0 > 0.281 && !player.moving) {
+        if (player.x % 1.0 != 0.0 && !player.moving) {
             player.velocity.x = (Math.round(player.x).toDouble() - player.x).coerceAtMost(0.281)
         }
 
         if (player.airTicks > 14) {
             player.velocity.y -= 0.09
             player.velocity = player.velocity.multiply(
-                0.8,
+                0.6,
                 1.0,
-                0.8
+                0.6
             )
             return@tickHandler
         }
         when (player.airTicks % 3) {
             0 -> {
                 player.velocity.y = 0.42
-                player.velocity = player.velocity.withStrafe(speed = 0.247 + (Math.random() / 250f))
+                player.velocity = player.velocity.withStrafe(speed = 0.247 - (Math.random() / 100f))
             }
             2 -> player.velocity.y = 1 - (player.y % 1.0)
         }
