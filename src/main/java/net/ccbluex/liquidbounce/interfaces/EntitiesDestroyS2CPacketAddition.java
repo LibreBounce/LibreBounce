@@ -18,10 +18,12 @@
  */
 package net.ccbluex.liquidbounce.interfaces;
 
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer;
+
 /**
  * Addition to {@link net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket}
  *
- * Exclusively for {@link net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.CrystalAuraTriggerer}.
+ * Exclusively for {@link CrystalAuraTriggerer}.
  */
 public interface EntitiesDestroyS2CPacketAddition {
 

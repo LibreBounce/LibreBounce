@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow;
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.CrystalAuraTriggerer;
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.impl.ClientBlockBreakTrigger;
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
@@ -130,7 +130,7 @@ public abstract class MixinClientPlayerInteractionManager {
 
     @Inject(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onBroken(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", shift = At.Shift.AFTER))
     private void hookBreakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        CrystalAuraTriggerer.INSTANCE.clientBreakHandler();
+        ClientBlockBreakTrigger.INSTANCE.clientBreakHandler();
     }
 
 }
