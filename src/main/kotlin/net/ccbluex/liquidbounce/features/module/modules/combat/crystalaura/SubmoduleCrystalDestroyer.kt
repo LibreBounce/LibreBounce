@@ -119,30 +119,26 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
     }
 
     private fun updateTarget() {
-        val range = range.toDouble()
-        val wallsRange = wallsRange.toDouble()
-        val maxRange = max(wallsRange, range)
         currentTarget =
-            world.getEntitiesBoxInRange(player.getCameraPosVec(1.0F), maxRange) { it is EndCrystalEntity }
-                .mapNotNull {
-                    if (!canSeeBox(
-                            player.eyePos,
-                            it.boundingBox,
-                            range = range,
-                            wallsRange = wallsRange,
-                        )
-                    ) {
-                        return@mapNotNull null
-                    }
-
-                    val damage = CrystalAuraDamageOptions.approximateExplosionDamage(
-                        it.pos,
-                        CrystalAuraDamageOptions.RequestingSubmodule.DESTROY
-                    ) ?: return@mapNotNull null
-
-                    ObjectFloatImmutablePair(it as EndCrystalEntity, damage)
+            world.getEntitiesBoxInRange(player.getCameraPosVec(1.0F), getMaxRange().toDouble()) {
+                it is EndCrystalEntity
+            }.mapNotNull {
+                if (!canSeeBox(
+                        player.eyePos,
+                        it.boundingBox,
+                        range = range.toDouble(),
+                        wallsRange = wallsRange.toDouble()
+                )) {
+                    return@mapNotNull null
                 }
-                .maxByOrNull { it.secondFloat() }?.first()
+
+                val damage = CrystalAuraDamageOptions.approximateExplosionDamage(
+                    it.pos,
+                    CrystalAuraDamageOptions.RequestingSubmodule.DESTROY
+                ) ?: return@mapNotNull null
+
+                ObjectFloatImmutablePair(it as EndCrystalEntity, damage)
+            }.maxByOrNull { it.secondFloat() }?.first()
     }
 
     private fun validateAndUpdateTarget(entity: EndCrystalEntity) {

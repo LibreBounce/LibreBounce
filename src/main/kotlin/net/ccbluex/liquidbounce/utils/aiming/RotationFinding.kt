@@ -373,15 +373,15 @@ private fun considerSpot(
 }
 
 /**
- * Determines if the player is able to see a box
+ * Determines if the player is able to see a [box].
+ *
+ * Will return `true` if the player is inside the [box].
  */
-fun canSeeBox(
-    eyes: Vec3d,
-    box: Box,
-    range: Double,
-    wallsRange: Double,
-    expectedTarget: BlockPos? = null,
-): Boolean {
+fun canSeeBox(eyes: Vec3d, box: Box, range: Double, wallsRange: Double, expectedTarget: BlockPos? = null, ): Boolean {
+    if (box.contains(eyes)) {
+        return true
+    }
+
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
@@ -538,8 +538,8 @@ fun findClosestPointOnBlockInLineWithCrystal(
             return@forEach
         }
 
-        for (x in 0.05..0.95 step 0.05) {
-            for (y in 0.05..0.95 step 0.05) {
+        for (x in -0.45..0.45 step 0.05) {
+            for (y in -0.45..0.45 step 0.05) {
                 val vec3 = pointOnSide(it, x, y, vec3d)
 
                 val intersects = predictedCrystal.isHitByLine(eyes, vec3)

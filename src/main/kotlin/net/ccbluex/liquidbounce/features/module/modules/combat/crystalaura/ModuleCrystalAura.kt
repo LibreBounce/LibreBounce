@@ -71,7 +71,10 @@ object ModuleCrystalAura : ClientModule(
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
     val rotationMode = choices(this, "RotationMode") {
-        arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
+        arrayOf(
+            NormalRotationMode(it, this, Priority.IMPORTANT_FOR_USAGE_2, true),
+            NoRotationMode(it, this)
+        )
     }
 
     var currentTarget: LivingEntity? = null

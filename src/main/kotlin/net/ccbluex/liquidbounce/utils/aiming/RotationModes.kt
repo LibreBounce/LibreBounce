@@ -58,7 +58,11 @@ abstract class RotationMode(
 class NormalRotationMode(
     configurable: ChoiceConfigurable<RotationMode>,
     module: ClientModule,
-    val priority: Priority = Priority.IMPORTANT_FOR_USAGE_2
+    val priority: Priority = Priority.IMPORTANT_FOR_USAGE_2,
+
+    // some modules might want to aim even tho it was instantly executed because the player's rotation should not
+    // snap back as the same rotation might be needed for the next action
+    private val aimAfterInstantAction: Boolean = false
 ) : RotationMode("Normal", configurable, module) {
 
     val rotations = tree(RotationsConfigurable(this))
@@ -67,6 +71,10 @@ class NormalRotationMode(
     override fun rotate(rotation: Rotation, isFinished: () -> Boolean, onFinished: () -> Unit) {
         if (instant && isFinished()) {
             onFinished()
+            if (aimAfterInstantAction) {
+                RotationManager.aimAt(rotation, !ignoreOpenInventory, rotations, priority, module)
+            }
+
             return
         }
 
