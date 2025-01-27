@@ -7,7 +7,7 @@
     import {convertToSpacedString} from "../../../../theme/theme_config";
 
     interface Props {
-        setting: ModuleSetting,
+        value: NesterSetting,
         path: string
     }
 
@@ -17,16 +17,9 @@
         value: ModuleSetting[];
     }
 
-    const {setting = $bindable(), path}: Props = $props();
-    const nester = setting as NesterSetting;
+    const {value = $bindable(), path}: Props = $props();
 
-    const enabledSetting = nester.value[0] as TBooleanSetting;
-    let nestedSettings: ModuleSetting[] = [];
-    if (nester.valueType === "TOGGLEABLE") {
-        nestedSettings = nester.value.slice(1);
-    } else if (nester.valueType === "CONFIGURABLE") {
-        nestedSettings = nester.value;
-    }
+    const enabledSetting = value.value[0] as TBooleanSetting;
 
     let expanded = $state(false);
     let wrappedSettingElement: HTMLElement;
@@ -54,25 +47,25 @@
 
 <svelte:window on:click={handleWindowClick}/>
 
-<div class="wrapped-setting" class:expanded class:has-nested-settings={nestedSettings.length > 0}
+<div class="wrapped-setting" class:expanded class:has-nested-settings={value.value.length > 0}
      onclick={handleWrapperClick} bind:this={wrappedSettingElement}>
     <div class="header" bind:this={headerElement}>
-        {#if nester.valueType === "TOGGLEABLE"}
-            <SwitchSetting title={convertToSpacedString(nester.name)} bind:value={enabledSetting.value}/>
-        {:else if nester.valueType === "CONFIGURABLE"}
-            <span class="configurable-title">{convertToSpacedString(nester.name)}</span>
+        {#if value.valueType === "TOGGLEABLE"}
+            <SwitchSetting title={convertToSpacedString(value.name)} bind:value={enabledSetting.value}/>
+        {:else if value.valueType === "CONFIGURABLE"}
+            <span class="configurable-title">{convertToSpacedString(value.name)}</span>
         {:else }
-            Unsupported value type {nester.valueType}
+            Unsupported value type {value.valueType}
         {/if}
-        {#if nestedSettings.length > 0}
+        {#if value.value.length > 0}
             <img src="img/menu/icon-select-arrow.svg" alt="expand">
         {/if}
     </div>
 
-    {#if expanded && nestedSettings.length > 0}
+    {#if expanded && value.value.length > 0}
         <div class="nested-settings" transition:fade|global={{ duration: 200, easing: quintOut }}>
-            {#each nestedSettings as setting, i (setting.name)}
-                <GenericSetting skipAnimationDelay={true} {path} bind:setting={nestedSettings[i]} on:change/>
+            {#each value.value as setting, i (setting.name)}
+                <GenericSetting skipAnimationDelay={true} {path} bind:setting={value.value[i]} on:change/>
             {/each}
         </div>
     {/if}
