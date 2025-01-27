@@ -24,7 +24,7 @@ object SpooferBungeeCord : ToggleableConfigurable(name = "BungeecordSpoofer", en
 
     val host by text("Host", "127.0.0.1")
 
-    private object CustomUuid : ToggleableConfigurable(this, "CustomUuid", false) {
+    private object CustomUuid : ToggleableConfigurable(this, "CustomUUID", false) {
         val uuid by text("UUID", "85ac9d5ec3204e94933b3b0b8f6c512b")
     }
 
