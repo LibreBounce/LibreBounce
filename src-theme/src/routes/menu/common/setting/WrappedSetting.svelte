@@ -2,7 +2,6 @@
     import type {
         BooleanSetting as TBooleanSetting, ConfigurableSetting,
         ModuleSetting,
-        TogglableSetting
     } from "../../../../integration/types";
     import {fade, slide} from "svelte/transition";
     import SwitchSetting from "./SwitchSetting.svelte";
@@ -34,6 +33,7 @@
     let expanded = $state(false);
     let wrappedSettingElement: HTMLElement;
     let headerElement: HTMLElement;
+    let rulerElement: HTMLElement | null = $state(null);
 
     function handleWrapperClick(e: MouseEvent) {
         if (!expanded) {
@@ -55,7 +55,8 @@
 <svelte:window on:click={handleWindowClick}/>
 
 <div class="wrapped-setting" class:expanded class:has-nested-settings={nestedSettings.length > 0}
-     onclick={handleWrapperClick} bind:this={wrappedSettingElement}>
+     onclick={handleWrapperClick} bind:this={wrappedSettingElement}
+style="width: {rulerElement?.getBoundingClientRect()?.width ?? 0}px">
     <div class="header" bind:this={headerElement}>
         {#if nester.valueType === "TOGGLEABLE"}
             <SwitchSetting title={convertToSpacedString(nester.name)} bind:value={enabledSetting.value}/>
@@ -78,6 +79,12 @@
             {/each}
         </div>
     {/if}
+
+    <div class="ruler" bind:this={rulerElement}>
+        {#each nestedSettings as setting (setting.name)}
+            <GenericSetting skipAnimationDelay={true} path="menu" {setting}/>
+        {/each}
+    </div>
 </div>
 
 <style lang="scss">
@@ -115,15 +122,19 @@
     }
   }
 
+  .ruler,
   .nested-settings {
     position: absolute;
     z-index: 1000;
-    width: 100%;
     border-radius: 0 0 5px 5px;
     max-height: 250px;
     background-color: rgba($menu-base-color, 0.9);
     padding: 10px 13px;
     zoom: 1.5;
+  }
+
+  .ruler {
+    visibility: hidden;
   }
 </style>
 

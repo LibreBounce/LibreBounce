@@ -171,9 +171,7 @@
         <Search on:search={handleSearch}/>
 
         {#if configurable}
-            {#each configurable.value as s (s.name)}
-                <WrappedSetting setting={s} />
-            {/each}
+            <WrappedSetting setting={configurable}/>
         {/if}
 
         <!--<SwitchSetting title="Online only" bind:value={onlineOnly}/>-->
