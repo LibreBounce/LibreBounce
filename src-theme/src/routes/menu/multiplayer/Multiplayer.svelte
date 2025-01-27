@@ -181,7 +181,7 @@
         <Divider/>
         <SwitchSetting title="Auto Config" bind:value={autoConfig} on:change={updateAutoConfigState}/>
         {#if spooferConfigurable}
-            <WrappedSetting setting={spooferConfigurable} on:change={updateSpooferSettings} path="multiplayer.spoofer"/>
+            <WrappedSetting bind:setting={spooferConfigurable} on:change={updateSpooferSettings} path="multiplayer.spoofer"/>
         {/if}
         {#if clientInfo && clientInfo.viaFabricPlus}
             <SingleSelect title="Version" value={selectedProtocol.name} options={protocols.map(p => p.name)}

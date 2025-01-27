@@ -17,7 +17,7 @@
         value: ModuleSetting[];
     }
 
-    const {setting, path}: Props = $props();
+    const {setting = $bindable(), path}: Props = $props();
     const nester = setting as NesterSetting;
 
     const enabledSetting = nester.value[0] as TBooleanSetting;
@@ -71,8 +71,8 @@
 
     {#if expanded && nestedSettings.length > 0}
         <div class="nested-settings" transition:fade|global={{ duration: 200, easing: quintOut }}>
-            {#each nestedSettings as setting (setting.name)}
-                <GenericSetting skipAnimationDelay={true} {path} {setting} on:change/>
+            {#each nestedSettings as setting, i (setting.name)}
+                <GenericSetting skipAnimationDelay={true} {path} bind:setting={nestedSettings[i]} on:change/>
             {/each}
         </div>
     {/if}
