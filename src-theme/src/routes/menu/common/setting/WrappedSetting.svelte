@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {
-        BooleanSetting as TBooleanSetting,
+        BooleanSetting as TBooleanSetting, ConfigurableSetting,
         ModuleSetting,
         TogglableSetting
     } from "../../../../integration/types";
@@ -14,11 +14,22 @@
         setting: ModuleSetting
     }
 
-    const {setting}: Props = $props();
-    const toggleable = setting as TogglableSetting;
+    interface NesterSetting {
+        name: string;
+        valueType: string;
+        value: ModuleSetting[];
+    }
 
-    const enabledSetting = toggleable.value[0] as TBooleanSetting;
-    let nestedSettings = toggleable.value.slice(1);
+    const {setting}: Props = $props();
+    const nester = setting as NesterSetting;
+
+    const enabledSetting = nester.value[0] as TBooleanSetting;
+    let nestedSettings: ModuleSetting[] = [];
+    if (nester.valueType === "TOGGLEABLE") {
+        nestedSettings = nester.value.slice(1);
+    } else if (nester.valueType === "CONFIGURABLE") {
+        nestedSettings = nester.value;
+    }
 
     let expanded = $state(false);
     let wrappedSettingElement: HTMLElement;
@@ -46,9 +57,13 @@
 <div class="wrapped-setting" class:expanded class:has-nested-settings={nestedSettings.length > 0}
      onclick={handleWrapperClick} bind:this={wrappedSettingElement}>
     <div class="header" bind:this={headerElement}>
-        <div class="setting">
-            <SwitchSetting title={convertToSpacedString(toggleable.name)} bind:value={enabledSetting.value}/>
-        </div>
+        {#if nester.valueType === "TOGGLEABLE"}
+            <SwitchSetting title={convertToSpacedString(nester.name)} bind:value={enabledSetting.value}/>
+        {:else if nester.valueType === "CONFIGURABLE"}
+            <span class="configurable-title">{convertToSpacedString(nester.name)}</span>
+        {:else }
+            Unsupported value type {nester.valueType}
+        {/if}
         {#if nestedSettings.length > 0}
             <img src="img/menu/icon-select-arrow.svg" alt="expand">
         {/if}
@@ -68,8 +83,15 @@
 <style lang="scss">
   @use "../../../../colors.scss" as *;
 
+  .configurable-title {
+    color: $menu-text-color;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
   .wrapped-setting {
     position: relative;
+    min-width: 250px;
 
     &.expanded {
       .header {
