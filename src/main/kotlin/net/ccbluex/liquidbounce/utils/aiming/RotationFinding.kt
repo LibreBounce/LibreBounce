@@ -289,13 +289,17 @@ fun raytraceBox(
     visibilityPredicate: VisibilityPredicate = BoxVisibilityPredicate(),
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
     futureTarget: Box? = null,
-    prioritizeVisible: Boolean = true
+    prioritizeVisible: Boolean = true,
+    allowInside: Boolean = false
 ): VecRotation? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
     val preferredSpot = rotationPreference.getPreferredSpot(eyes, range)
-    val preferredSpotOnBox = box.raycast(eyes, preferredSpot).getOrNull()
+    var preferredSpotOnBox = box.raycast(eyes, preferredSpot).getOrNull()
+    if (preferredSpotOnBox == null && box.contains(eyes) && allowInside) {
+        preferredSpotOnBox = eyes
+    }
 
     if (preferredSpotOnBox != null) {
         val preferredSpotDistance = eyes.squaredDistanceTo(preferredSpotOnBox)

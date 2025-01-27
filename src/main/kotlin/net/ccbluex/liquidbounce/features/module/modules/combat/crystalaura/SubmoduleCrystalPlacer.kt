@@ -82,7 +82,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
 
     // this is shit, but i can't think of a better way right now
     // the problem with only one rotation is
-    // that when the ca switched between two player very fast and one place is invalid it would fail
+    // that when the ca switches between two players very fast and one place is invalid it would fail
     private var previousRotations = ArrayDeque<Pair<Rotation, Rotation>>(2)
 
     private fun updateSphere() {

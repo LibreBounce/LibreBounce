@@ -86,7 +86,8 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                 range = range,
                 wallsRange = wallsRange,
                 futureTarget = base,
-                prioritizeVisible = prioritizeVisibleFaces
+                prioritizeVisible = prioritizeVisibleFaces,
+                allowInside = true
             ) ?: return
 
         val action = {
