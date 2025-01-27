@@ -6,7 +6,6 @@
     import IconTextButton from "../common/buttons/IconTextButton.svelte";
     import Menu from "../common/Menu.svelte";
     import Search from "../common/Search.svelte";
-    import SwitchSetting from "../common/setting/SwitchSetting.svelte";
     import MenuListItem from "../common/menulist/MenuListItem.svelte";
     import MenuListItemButton from "../common/menulist/MenuListItemButton.svelte";
     import {onMount} from "svelte";
@@ -14,15 +13,17 @@
         browse,
         connectToServer,
         getClientInfo,
+        getMultiplayerSettings,
         getProtocols,
         getSelectedProtocol,
         getServers,
         openScreen,
         orderServers,
         removeServer as removeServerRest,
+        setMultiplayerSettings,
         setSelectedProtocol
     } from "../../../integration/rest";
-    import type {ClientInfo, Protocol, Server} from "../../../integration/types";
+    import type {ClientInfo, ConfigurableSetting, Protocol, Server} from "../../../integration/types";
     import {listen} from "../../../integration/ws";
     import TextComponent from "../common/TextComponent.svelte";
     import MenuListItemTag from "../common/menulist/MenuListItemTag.svelte";
@@ -34,6 +35,7 @@
     import type {ServerPingedEvent} from "../../../integration/events";
     import ButtonSetting from "../common/setting/ButtonSetting.svelte";
     import Divider from "../common/optionbar/Divider.svelte";
+    import GenericSelect from "../common/setting/select/GenericSelect.svelte";
 
     let onlineOnly = false;
     let searchQuery = "";
@@ -55,6 +57,7 @@
     }
 
     let clientInfo: ClientInfo | null = null;
+    let configurable: ConfigurableSetting | null = null;
     let servers: Server[] = [];
     let renderedServers: Server[] = [];
     let protocols: Protocol[] = [];
@@ -73,6 +76,7 @@
 
     onMount(async () => {
         clientInfo = await getClientInfo();
+        configurable = await getMultiplayerSettings();
         await refreshServers();
         renderedServers = servers;
         protocols = await getProtocols();
@@ -143,6 +147,15 @@
         currentEditServer = server;
         editServerModalVisible = true;
     }
+
+    async function updateSettings() {
+        if (!configurable) {
+            return;
+        }
+
+        await setMultiplayerSettings(configurable);
+        configurable = await getMultiplayerSettings();
+    }
 </script>
 
 <AddServerModal bind:visible={addServerModalVisible} on:serverAdd={refreshServers}/>
@@ -155,7 +168,22 @@
 <Menu>
     <OptionBar>
         <Search on:search={handleSearch}/>
-        <SwitchSetting title="Online only" bind:value={onlineOnly}/>
+
+        {#if configurable}
+            <div class="settings-wrapper">
+                <GenericSelect closeOnInternalClick={false}>
+                    <svelte:fragment slot="title">
+                        Settings
+                    </svelte:fragment>
+
+                    <svelte:fragment slot="options">
+
+                    </svelte:fragment>
+                </GenericSelect>
+            </div>
+        {/if}
+
+        <!--<SwitchSetting title="Online only" bind:value={onlineOnly}/>-->
         <Divider/>
         {#if clientInfo && clientInfo.viaFabricPlus}
             <SingleSelect title="Version" value={selectedProtocol.name} options={protocols.map(p => p.name)}
@@ -212,3 +240,15 @@
         </ButtonContainer>
     </BottomButtonWrapper>
 </Menu>
+
+<style lang="scss">
+  .settings {
+    max-height: 250px;
+    overflow: auto;
+    padding: 15px;
+  }
+
+  .settings-wrapper {
+    min-width: 250px;
+  }
+</style>

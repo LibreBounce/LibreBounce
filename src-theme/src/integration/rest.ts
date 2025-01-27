@@ -53,6 +53,23 @@ export async function setModuleSettings(name: string, settings: ConfigurableSett
     });
 }
 
+export async function getMultiplayerSettings(): Promise<ConfigurableSetting> {
+    const response = await fetch(`${API_BASE}/client/multiplayer`);
+    const data = await response.json();
+
+    return data;
+}
+
+export async function setMultiplayerSettings(settings: ConfigurableSetting) {
+    await fetch(`${API_BASE}/client/multiplayer`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(settings)
+    });
+}
+
 export async function setModuleEnabled(name: string, enabled: boolean) {
     await fetch(`${API_BASE}/client/modules/toggle`, {
         method: "POST",

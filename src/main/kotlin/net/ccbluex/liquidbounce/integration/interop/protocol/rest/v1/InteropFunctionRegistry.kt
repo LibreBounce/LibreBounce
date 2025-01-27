@@ -128,6 +128,10 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     // Reconnect Functions
     post("/reconnect", ::postReconnect)
 
+    // Multiplayer Functions
+    get("/multiplayer", ::getMultiplayerConfigurable)
+    put("/multiplayer", ::putMultiplayerConfigurable)
+
     // Input Functions
     get("/input", ::getInputInfo)
     get("/keybinds", ::getKeybinds)

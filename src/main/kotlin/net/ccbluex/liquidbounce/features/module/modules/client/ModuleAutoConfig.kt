@@ -23,16 +23,15 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.ServerConnectEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.*
 
-object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {
+object ModuleAutoConfig : ToggleableConfigurable(name = "AutoConfig", enabled = false) {
 
     private val blacklistedServer = mutableListOf(
         // Common anticheat test server
