@@ -467,6 +467,7 @@
   "liquidbounce.module.flagCheck.messages.alert": "Detected %s (%sx)",
   "liquidbounce.module.flagCheck.messages.alertWithExtra": "Detected %s %s (%sx)",
   "liquidbounce.module.flagCheck.messages.lagback": "LagBack",
+  "liquidbounce.module.flagCheck.messages.forceRotate": "Force-Rotate",
   "liquidbounce.module.flagCheck.messages.invalid": "Invalid",
   "liquidbounce.module.freeCam.description": "Allows you to move the camera out of your body.",
   "liquidbounce.module.freeLook.description": "Allows you to move the camera freely around your character.",
