@@ -16,21 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.exploit
+package net.ccbluex.liquidbounce.features.spoofer
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 
-// TODO: add this to configure page, whenever it is finished
 @Suppress("SpellCheckingInspection")
-object ModuleSpoofer : ToggleableConfigurable(name = "ClientSpoofer", enabled = false) {
+object SpooferClient : ToggleableConfigurable(name = "ClientSpoofer", enabled = false) {
 
     val mode = choices(
         this,
         "Mode",
         Lunar,
-        arrayOf(Vanilla, Lunar, Cheatbreaker, Custom)
+        arrayOf(Vanilla, Geyser, Lunar, Cheatbreaker, Custom)
     )
 
     override val running: Boolean
@@ -40,6 +39,10 @@ object ModuleSpoofer : ToggleableConfigurable(name = "ClientSpoofer", enabled = 
 
     private object Vanilla : SpoofMode("Vanilla") {
         override fun getBrand(): String = "vanilla"
+    }
+
+    private object Geyser : SpoofMode("Geyser") {
+        override fun getBrand(): String = "geyser"
     }
 
     private object Lunar : SpoofMode("Lunar") {

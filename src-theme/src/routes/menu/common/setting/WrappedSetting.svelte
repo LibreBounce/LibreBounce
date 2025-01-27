@@ -1,8 +1,5 @@
 <script lang="ts">
-    import type {
-        BooleanSetting as TBooleanSetting,
-        ModuleSetting,
-    } from "../../../../integration/types";
+    import type {BooleanSetting as TBooleanSetting, ModuleSetting,} from "../../../../integration/types";
     import {fade} from "svelte/transition";
     import SwitchSetting from "./SwitchSetting.svelte";
     import GenericSetting from "../../../clickgui/setting/common/GenericSetting.svelte";
@@ -71,7 +68,7 @@
     {#if expanded && nestedSettings.length > 0}
         <div class="nested-settings" transition:fade|global={{ duration: 200, easing: quintOut }}>
             {#each nestedSettings as setting (setting.name)}
-                <GenericSetting skipAnimationDelay={true} path="menu" {setting}/>
+                <GenericSetting skipAnimationDelay={true} path="menu" {setting} on:change />
             {/each}
         </div>
     {/if}

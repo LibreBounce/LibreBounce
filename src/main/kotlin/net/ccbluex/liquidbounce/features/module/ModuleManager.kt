@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.events.MouseButtonEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleAutoConfig
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleLiquidChat
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleRichPresence
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
@@ -227,16 +228,12 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModulePingSpoof,
             ModulePlugins,
             ModulePortalMenu,
-//            ModuleResourceSpoof,
             ModuleSleepWalker,
-//            ModuleSpoofer,
-//            ModuleBungeeSpoofer,
             ModuleVehicleOneHit,
             ModuleServerCrasher,
             ModuleDupe,
             ModuleClickTp,
             ModuleConsoleSpammer,
-            ModuleTranslationFix,
             ModuleTimeShift,
             ModuleTeleport,
 
@@ -396,7 +393,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleHoleFiller,
 
             // Client
-//            ModuleAutoConfig,
+            ModuleAutoConfig,
             ModuleRichPresence,
             ModuleTargets,
             ModuleLiquidChat

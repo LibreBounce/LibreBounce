@@ -62,6 +62,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
         put("/settings", ::putSettings)
         post("/panic", ::postPanic)
     }
+    get("/module/:name", ::getModule)
 
 
     // Component Functions
@@ -128,9 +129,9 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     // Reconnect Functions
     post("/reconnect", ::postReconnect)
 
-    // Multiplayer Functions
-    get("/multiplayer", ::getMultiplayerConfigurable)
-    put("/multiplayer", ::putMultiplayerConfigurable)
+    // Spoofer Functions
+    get("/spoofer", ::getSpooferConfigurable)
+    put("/spoofer", ::putSpooferConfigurable)
 
     // Input Functions
     get("/input", ::getInputInfo)

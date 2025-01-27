@@ -24,23 +24,23 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.interopGson
-import net.ccbluex.liquidbounce.features.misc.SpooferConfigurable
+import net.ccbluex.liquidbounce.features.spoofer.SpooferManager
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpNoContent
 import net.ccbluex.netty.http.util.httpOk
 import java.io.StringReader
 
 @Suppress("UNUSED_PARAMETER")
-fun getMultiplayerConfigurable(request: RequestObject): FullHttpResponse {
+fun getSpooferConfigurable(request: RequestObject): FullHttpResponse {
     // Serialize MultiplayerConfigurable to JSON
-    return httpOk(ConfigSystem.serializeConfigurable(SpooferConfigurable, gson = interopGson))
+    return httpOk(ConfigSystem.serializeConfigurable(SpooferManager, gson = interopGson))
 }
 
-fun putMultiplayerConfigurable(request: RequestObject): FullHttpResponse {
+fun putSpooferConfigurable(request: RequestObject): FullHttpResponse {
     StringReader(request.body).use { reader ->
-        ConfigSystem.deserializeConfigurable(SpooferConfigurable, reader)
+        ConfigSystem.deserializeConfigurable(SpooferManager, reader)
     }
 
-    ConfigSystem.storeConfigurable(SpooferConfigurable)
+    ConfigSystem.storeConfigurable(SpooferManager)
     return httpNoContent()
 }

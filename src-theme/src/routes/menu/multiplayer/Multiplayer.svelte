@@ -13,15 +13,17 @@
         browse,
         connectToServer,
         getClientInfo,
-        getMultiplayerSettings,
+        getModule,
         getProtocols,
         getSelectedProtocol,
         getServers,
+        getSpooferSettings,
         openScreen,
         orderServers,
         removeServer as removeServerRest,
-        setMultiplayerSettings,
-        setSelectedProtocol
+        setModuleEnabled,
+        setSelectedProtocol,
+        setSpooferSettings
     } from "../../../integration/rest";
     import type {ClientInfo, ConfigurableSetting, Protocol, Server} from "../../../integration/types";
     import {listen} from "../../../integration/ws";
@@ -35,8 +37,6 @@
     import type {ServerPingedEvent} from "../../../integration/events";
     import ButtonSetting from "../common/setting/ButtonSetting.svelte";
     import Divider from "../common/optionbar/Divider.svelte";
-    import GenericSelect from "../common/setting/select/GenericSelect.svelte";
-    import GenericSetting from "../../clickgui/setting/common/GenericSetting.svelte";
     import WrappedSetting from "../common/setting/WrappedSetting.svelte";
     import SwitchSetting from "../common/setting/SwitchSetting.svelte";
 
@@ -60,7 +60,8 @@
     }
 
     let clientInfo: ClientInfo | null = null;
-    let configurable: ConfigurableSetting | null = null;
+    let autoConfig = false;
+    let spooferConfigurable: ConfigurableSetting | null = null;
     let servers: Server[] = [];
     let renderedServers: Server[] = [];
     let protocols: Protocol[] = [];
@@ -79,7 +80,8 @@
 
     onMount(async () => {
         clientInfo = await getClientInfo();
-        configurable = await getMultiplayerSettings();
+        spooferConfigurable = await getSpooferSettings();
+        autoConfig = (await getModule("AutoConfig")).enabled;
         await refreshServers();
         renderedServers = servers;
         protocols = await getProtocols();
@@ -150,13 +152,17 @@
         editServerModalVisible = true;
     }
 
-    async function updateSettings() {
-        if (!configurable) {
+    async function updateSpooferSettings() {
+        if (!spooferConfigurable) {
             return;
         }
 
-        await setMultiplayerSettings(configurable);
-        configurable = await getMultiplayerSettings();
+        await setSpooferSettings(spooferConfigurable);
+        spooferConfigurable = await getSpooferSettings();
+    }
+
+    async function updateAutoConfigState() {
+        await setModuleEnabled("AutoConfig", autoConfig);
     }
 </script>
 
@@ -173,8 +179,9 @@
 
         <SwitchSetting title="Online only" bind:value={onlineOnly}/>
         <Divider/>
-        {#if configurable}
-            <WrappedSetting setting={configurable}/>
+        <SwitchSetting title="AutoConfig" bind:value={autoConfig} on:change={updateAutoConfigState}/>
+        {#if spooferConfigurable}
+            <WrappedSetting setting={spooferConfigurable} on:change={updateSpooferSettings} />
         {/if}
         {#if clientInfo && clientInfo.viaFabricPlus}
             <SingleSelect title="Version" value={selectedProtocol.name} options={protocols.map(p => p.name)}
