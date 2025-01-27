@@ -30,11 +30,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.dropPort
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.client.rootDomain
-import net.minecraft.text.Text
+import net.ccbluex.liquidbounce.utils.client.*
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen
 
 object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {
 
@@ -61,16 +58,8 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
             return
         }
 
-        try {
-            loadServerConfig(currentServerEntry.address.dropPort().rootDomain()) { message ->
-                notification("Auto Config", message, NotificationEvent.Severity.INFO)
-            }
-        } catch (exception: Exception) {
-            notification(
-                "AutoConfig", "Failed to load config for ${currentServerEntry.address}.",
-                NotificationEvent.Severity.ERROR
-            )
-            logger.error("Failed to load config for ${currentServerEntry.address}.", exception)
+        withScope {
+            loadServerConfig(currentServerEntry.address.dropPort().rootDomain(), null)
         }
         super.enable()
     }
@@ -87,17 +76,12 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         withScope {
             try {
                 isScheduled = true
-
                 val address = event.serverInfo.address.dropPort().rootDomain()
 
-                event.connectScreen.setStatus(Text.of("Checking for auto config for $address..."))
-                loadServerConfig(address) { message ->
-                    event.connectScreen.setStatus(Text.of(message))
-                }
-
+                loadServerConfig(address, event.connectScreen)
+            } finally {
                 // Proceed to connect to the server
                 event.connectScreen.connect(mc, event.address, event.serverInfo, event.cookieStorage)
-            } finally {
                 isScheduled = false
             }
         }
@@ -106,12 +90,15 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
     /**
      * Loads the config for the given server address
      */
-    private fun loadServerConfig(
+    private suspend fun loadServerConfig(
         address: String,
-        status: (String) -> Unit
+        connectScreen: ConnectScreen? = null
     ) {
         if (blacklistedServer.any { address.endsWith(it, true) }) {
-            status("This server is blacklisted.")
+            notification(
+                "Auto Config", "This server is blacklisted.",
+                NotificationEvent.Severity.INFO
+            )
             return
         }
 
@@ -122,15 +109,29 @@ object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = tr
         val autoConfig = (configs ?: return).filter { config ->
             config.serverAddress?.rootDomain().equals(address, true) ||
                     config.serverAddress.equals(address, true)
-        }.minByOrNull { it.name.length }
+        }.minByOrNull { config -> config.name.length }
 
         if (autoConfig == null) {
-            status("There is no known config for $address.")
+            notification(
+                "Auto Config", "There is no known config for $address.",
+                NotificationEvent.Severity.ERROR
+            )
             return
         }
 
-        AutoConfig.loadAutoConfig(autoConfig)
-        status("Loaded config for $address.")
+        connectScreen?.setStatus(regular(message("loading", address)))
+        runCatching {
+            AutoConfig.loadAutoConfig(autoConfig)
+        }.onFailure { error ->
+            logger.error("Failed to load config ${autoConfig.name} for $address.", error)
+            connectScreen?.setStatus(markAsError(message("failed", address)))
+            notification("Auto Config", "Failed to load config ${autoConfig.name}.",
+                NotificationEvent.Severity.ERROR)
+        }.onSuccess {
+            connectScreen?.setStatus(regular(message("loaded", address)))
+            notification("Auto Config", "Successfully loaded config ${autoConfig.name}.",
+                NotificationEvent.Severity.SUCCESS)
+        }
     }
 
     /**

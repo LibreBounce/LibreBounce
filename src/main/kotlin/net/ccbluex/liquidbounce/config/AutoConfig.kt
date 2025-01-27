@@ -22,7 +22,6 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.core.AsyncLazy
-import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.client.AutoSettings
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.api.types.enums.AutoSettingsStatusType
@@ -87,19 +86,9 @@ object AutoConfig {
         }
     }
 
-    fun loadAutoConfig(autoConfig: AutoSettings) = withScope {
-        withLoading {
-            runCatching {
-                ClientApi.requestSettingsScript(autoConfig.settingId).apply {
-                    loadAutoConfig(reader())
-                }
-            }.onFailure {
-                notification("Auto Config", "Failed to load config ${autoConfig.name}.",
-                    NotificationEvent.Severity.ERROR)
-            }.onSuccess {
-                notification("Auto Config", "Successfully loaded config ${autoConfig.name}.",
-                    NotificationEvent.Severity.SUCCESS)
-            }
+    suspend fun loadAutoConfig(autoConfig: AutoSettings) = withLoading {
+        ClientApi.requestSettingsScript(autoConfig.settingId).apply {
+            loadAutoConfig(reader())
         }
     }
 
@@ -130,7 +119,6 @@ object AutoConfig {
         chat(regular("Auto Config").styled { it.withFormatting(Formatting.LIGHT_PURPLE).withBold(true) })
 
         val name = jsonObject.string("name") ?: throw IllegalArgumentException("Auto Config has no name")
-
         when (name) {
             "autoconfig" -> {
                 // Deserialize Module Configurable
@@ -143,15 +131,18 @@ object AutoConfig {
                     deserializeConfigurable(SpooferManager, spooferObject)
                 }
             }
-
-            "modules" -> {
-                deserializeModuleConfigurable(jsonObject, modules)
-            }
-
+            "modules" -> deserializeModuleConfigurable(jsonObject, modules)
             else -> error("Unknown auto config type: $name")
         }
 
         // Auto Config
+        printOutInformation(jsonObject)
+    }
+
+    /**
+     * Print out information from the auto config
+     */
+    private fun printOutInformation(jsonObject: JsonObject) {
         val serverAddress = jsonObject.string("serverAddress")
         if (serverAddress != null) {
             chat(
