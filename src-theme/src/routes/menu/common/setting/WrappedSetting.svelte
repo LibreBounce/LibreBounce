@@ -127,7 +127,6 @@ style="min-width: {rulerElement?.getBoundingClientRect()?.width ?? 0}px">
     position: absolute;
     z-index: 1000;
     border-radius: 0 0 5px 5px;
-    max-height: 250px;
     background-color: rgba($menu-base-color, 0.9);
     padding: 10px 13px;
     zoom: 1.5;
