@@ -100,7 +100,8 @@
     border-radius: 0 0 5px 5px;
     max-height: 250px;
     background-color: rgba($menu-base-color, 0.9);
-    padding: 15px 20px;
+    padding: 10px 13px;
+    zoom: 1.5;
   }
 </style>
 
