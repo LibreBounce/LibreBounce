@@ -36,6 +36,7 @@
     import ButtonSetting from "../common/setting/ButtonSetting.svelte";
     import Divider from "../common/optionbar/Divider.svelte";
     import GenericSelect from "../common/setting/select/GenericSelect.svelte";
+    import GenericSetting from "../../clickgui/setting/common/GenericSetting.svelte";
 
     let onlineOnly = false;
     let searchQuery = "";
@@ -177,7 +178,11 @@
                     </svelte:fragment>
 
                     <svelte:fragment slot="options">
-
+                        <div class="settings">
+                            {#each configurable.value as setting (setting.name)}
+                                <GenericSetting skipAnimationDelay={true} path={setting.name} bind:setting on:change={updateSettings}/>
+                            {/each}
+                        </div>
                     </svelte:fragment>
                 </GenericSelect>
             </div>
