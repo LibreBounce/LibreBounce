@@ -39,6 +39,7 @@ class StabilizedPattern : ClickPattern {
 
         var currentIndex = 0
 
+        @Suppress("UnusedPrivateProperty")
         for (i in 0 until clicks) {
             clickArray[currentIndex % clickArray.size]++
             currentIndex += if (interval > 0) interval else 1

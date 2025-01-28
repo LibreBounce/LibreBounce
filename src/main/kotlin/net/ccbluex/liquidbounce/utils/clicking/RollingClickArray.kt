@@ -60,7 +60,7 @@ class RollingClickArray(private val cycleLength: Int, val iterations: Int) {
         } else if (head == cycleLength) {
             System.arraycopy(cycleArray, 0, array, 0, cycleLength)
         } else {
-            throw IllegalStateException("Head must be at 0 or cycle length")
+            error("Head must be at 0 or cycle length")
         }
     }
 
