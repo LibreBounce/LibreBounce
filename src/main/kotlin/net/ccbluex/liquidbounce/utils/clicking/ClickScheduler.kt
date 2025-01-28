@@ -139,6 +139,7 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         clickArray.clear()
         val cycleArray = IntArray(DEFAULT_CYCLE_LENGTH)
         repeat(clickArray.iterations) {
+            Arrays.fill(cycleArray, 0)
             pattern.pattern.fill(cycleArray, cps, this)
             clickArray.push(cycleArray)
             clickArray.advance(DEFAULT_CYCLE_LENGTH)
