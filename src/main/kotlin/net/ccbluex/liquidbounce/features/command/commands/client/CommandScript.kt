@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
 import net.minecraft.util.Util
 import java.io.File
-import java.util.*
 
 object CommandScript : CommandFactory {
 
@@ -150,7 +149,8 @@ object CommandScript : CommandFactory {
         command: Command,
         name: String
     ) {
-        val protocol = args.getOrNull(1) as DebugProtocol? ?: DebugProtocol.INSPECT
+        val protocol =
+            args.getOrNull(1)?.let { DebugProtocol.valueOf((it as String).uppercase()) } ?: DebugProtocol.INSPECT
 
         runCatching {
             ScriptManager.loadScript(
