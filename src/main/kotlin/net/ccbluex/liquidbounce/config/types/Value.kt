@@ -37,8 +37,10 @@ import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.HumanInputDeserializer
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.minecraft.client.util.InputUtil
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -66,7 +68,8 @@ open class Value<T : Any>(
     @Exclude @ProtocolExclude var independentDescription: Boolean = false
 ) {
 
-    @SerializedName("value") internal var inner: T = defaultValue
+    @SerializedName("value")
+    internal var inner: T = defaultValue
 
     internal val loweredName
         get() = name.lowercase()
@@ -170,6 +173,10 @@ open class Value<T : Any>(
                     (a.first().toFloat()..a.last().toFloat()) as T
                 }
 
+                is InputUtil.Key -> {
+                    inputByName(t.asString()) as T
+                }
+
                 is IntRange -> {
                     val a = t.`as`(Array<Int>::class.java)
                     require(a.size == 2)
@@ -185,7 +192,7 @@ open class Value<T : Any>(
             }
         )
     }.onFailure {
-        logger.error("Could not set value ${this.inner}")
+        logger.error("Could not set value, old value: ${this.inner}, throwable: $it")
     }
 
     fun get() = inner
@@ -259,41 +266,42 @@ open class Value<T : Any>(
     open fun deserializeFrom(gson: Gson, element: JsonElement) {
         val currValue = this.inner
 
-        set(when (currValue) {
-            is List<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    mutableListOf()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            is HashSet<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    HashSet()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            is Set<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    TreeSet()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            else -> {
-                var clazz: Class<*>? = currValue.javaClass
-                var r: T? = null
-
-                while (clazz != null && clazz != Any::class.java) {
-                    try {
-                        r = gson.fromJson(element, clazz) as T?
-                        break
-                    } catch (@Suppress("SwallowedException") e: ClassCastException) {
-                        clazz = clazz.superclass
-                    }
+        set(
+            when (currValue) {
+                is List<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        mutableListOf()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
                 }
 
-                r ?: error("Failed to deserialize value")
-            }
-        })
+                is HashSet<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        HashSet()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
+                }
+
+                is Set<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        TreeSet()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
+                }
+
+                else -> {
+                    var clazz: Class<*>? = currValue.javaClass
+                    var r: T? = null
+
+                    while (clazz != null && clazz != Any::class.java) {
+                        try {
+                            r = gson.fromJson(element, clazz) as T?
+                            break
+                        } catch (@Suppress("SwallowedException") e: ClassCastException) {
+                            clazz = clazz.superclass
+                        }
+                    }
+
+                    r ?: error("Failed to deserialize value")
+                }
+            })
     }
 
     open fun setByString(string: String) {
