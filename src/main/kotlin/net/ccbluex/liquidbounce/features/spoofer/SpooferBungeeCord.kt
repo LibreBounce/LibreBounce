@@ -16,18 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.exploit
+package net.ccbluex.liquidbounce.features.spoofer
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
 
-// TODO: add this to configure page, whenever it is finished
-object ModuleBungeeSpoofer : ClientModule("BungeeSpoofer", Category.EXPLOIT) {
+object SpooferBungeeCord : ToggleableConfigurable(name = "BungeecordSpoofer", enabled = false) {
 
     val host by text("Host", "127.0.0.1")
 
-    private object CustomUuid : ToggleableConfigurable(this, "CustomUuid", false) {
+    private object CustomUuid : ToggleableConfigurable(this, "CustomUUID", false) {
         val uuid by text("UUID", "85ac9d5ec3204e94933b3b0b8f6c512b")
     }
 
@@ -36,7 +33,7 @@ object ModuleBungeeSpoofer : ClientModule("BungeeSpoofer", Category.EXPLOIT) {
     }
 
     fun modifyHandshakeAddress(original: String): String {
-        val uuidStr = CustomUuid.uuid.takeIf { CustomUuid.enabled }
+        val uuidStr = CustomUuid.uuid.takeIf { enabled }
             ?: mc.session.uuidOrNull.toString().replace("-", "")
 
         // Format: "<originalAddress>\u0000<host>\u0000<uuid>"

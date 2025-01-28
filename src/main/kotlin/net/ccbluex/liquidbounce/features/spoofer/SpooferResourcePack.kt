@@ -16,39 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
+package net.ccbluex.liquidbounce.features.spoofer
 
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.tickHandler
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
+import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
+import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket.Status.*
+import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket
 
-internal object VelocityWatchdog : VelocityMode("Watchdog") {
-
-    private var absorbedVelocity = false
+/**
+ * ResourcePack Spoof
+ *
+ * Prevents servers from forcing you to download their resource pack.
+ */
+object SpooferResourcePack : ToggleableConfigurable(name = "ResourceSpoofer", enabled = false) {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        // Check if this is a regular velocity update
-        if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
-            if (!player.isOnGround) {
-                if (!absorbedVelocity) {
-                    event.cancelEvent()
-                    absorbedVelocity = true
-                    return@handler
-                }
-            }
-            packet.velocityX = (player.velocity.x * 8000).toInt()
-            packet.velocityZ = (player.velocity.z * 8000).toInt()
-        }
-    }
-
-    @Suppress("unused")
-    private val gameHandler = tickHandler {
-        if (player.isOnGround) {
-            absorbedVelocity = false
+        if (packet is ResourcePackSendS2CPacket) {
+            val id = packet.id
+            network.sendPacket(ResourcePackStatusC2SPacket(id, ACCEPTED))
+            network.sendPacket(ResourcePackStatusC2SPacket(id, SUCCESSFULLY_LOADED))
+            event.cancelEvent()
+        } else if (packet is ResourcePackStatusC2SPacket && (packet.status == DECLINED ||
+                packet.status == FAILED_DOWNLOAD)) {
+            event.cancelEvent()
         }
     }
 

@@ -16,14 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.exploit
+package net.ccbluex.liquidbounce.features.spoofer
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 
 /**
- * TranslationFix module
+ * Translation Spoofer
  *
- * Can be used to switch the translation fix on or off
+ * Spoofs non-vanilla translations as unknown.
  */
-object ModuleTranslationFix : ClientModule("TranslationFix", Category.EXPLOIT, state = true, hide = true)
+object SpooferTranslation : ToggleableConfigurable(name = "TranslationSpoofer", enabled = false)

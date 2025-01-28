@@ -19,22 +19,27 @@
 package net.ccbluex.liquidbounce.config
 
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.core.AsyncLazy
-import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.client.AutoSettings
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.api.types.enums.AutoSettingsStatusType
 import net.ccbluex.liquidbounce.api.types.enums.AutoSettingsType
 import net.ccbluex.liquidbounce.authlib.utils.array
 import net.ccbluex.liquidbounce.authlib.utils.int
+import net.ccbluex.liquidbounce.authlib.utils.obj
 import net.ccbluex.liquidbounce.authlib.utils.string
+import net.ccbluex.liquidbounce.config.ConfigSystem.deserializeConfigurable
 import net.ccbluex.liquidbounce.config.gson.publicGson
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
+import net.ccbluex.liquidbounce.features.spoofer.SpooferManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.util.Formatting
+import java.io.Reader
 import java.io.Writer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -81,19 +86,21 @@ object AutoConfig {
         }
     }
 
-    fun loadAutoConfig(autoConfig: AutoSettings) = withScope {
-        withLoading {
-            runCatching {
-                ClientApi.requestSettingsScript(autoConfig.settingId).apply {
-                    ConfigSystem.deserializeConfigurable(ModuleManager.modulesConfigurable, reader(), publicGson)
-                }
-            }.onFailure {
-                notification("Auto Config", "Failed to load config ${autoConfig.name}.",
-                    NotificationEvent.Severity.ERROR)
-            }.onSuccess {
-                notification("Auto Config", "Successfully loaded config ${autoConfig.name}.",
-                    NotificationEvent.Severity.SUCCESS)
-            }
+    suspend fun loadAutoConfig(autoConfig: AutoSettings) = withLoading {
+        ClientApi.requestSettingsScript(autoConfig.settingId).apply {
+            loadAutoConfig(reader())
+        }
+    }
+
+    /**
+     * Deserialize module configurable from a reader
+     */
+    fun loadAutoConfig(
+        reader: Reader,
+        modules: List<Configurable> = emptyList<Configurable>()
+    ) {
+        JsonParser.parseReader(publicGson.newJsonReader(reader))?.let { jsonElement ->
+            loadAutoConfig(jsonElement.asJsonObject, modules)
         }
     }
 
@@ -104,16 +111,38 @@ object AutoConfig {
      * @param jsonObject The JSON object of the configurable
      * @see ConfigSystem.deserializeConfigurable
      */
-    fun handlePossibleAutoConfig(jsonObject: JsonObject) {
-        // If the name is not modules, it cannot be an auto config
-        if (jsonObject.string("name") != "modules") {
-            return
-        }
-
+    fun loadAutoConfig(
+        jsonObject: JsonObject,
+        modules: List<Configurable> = emptyList<Configurable>()
+    ) {
         chat(metadata = MessageMetadata(prefix = false))
         chat(regular("Auto Config").styled { it.withFormatting(Formatting.LIGHT_PURPLE).withBold(true) })
 
+        val name = jsonObject.string("name") ?: throw IllegalArgumentException("Auto Config has no name")
+        when (name) {
+            "autoconfig" -> {
+                // Deserialize Module Configurable
+                jsonObject.obj("modules")?.let { moduleObject ->
+                    deserializeModuleConfigurable(moduleObject, modules)
+                }
+
+                // Deserialize Spoofer Configurable
+                jsonObject.obj("spoofers")?.let { spooferObject ->
+                    deserializeConfigurable(SpooferManager, spooferObject)
+                }
+            }
+            "modules" -> deserializeModuleConfigurable(jsonObject, modules)
+            else -> error("Unknown auto config type: $name")
+        }
+
         // Auto Config
+        printOutInformation(jsonObject)
+    }
+
+    /**
+     * Print out information from the auto config
+     */
+    private fun printOutInformation(jsonObject: JsonObject) {
         val serverAddress = jsonObject.string("serverAddress")
         if (serverAddress != null) {
             chat(
@@ -166,7 +195,7 @@ object AutoConfig {
         }
     }
 
-    private fun formatAutoConfigProtocolInfo(pVersion: Int?, pName: String?) {
+    private fun formatAutoConfigProtocolInfo(pVersion: Int, pName: String) {
         // Check if the protocol is identical
         val (protocolName, protocolVersion) = protocolVersion
 
@@ -196,6 +225,16 @@ object AutoConfig {
                     "but your current protocol is $protocolName",
                 NotificationEvent.Severity.ERROR
             )
+
+            if (usesViaFabricPlus) {
+                if (inGame) {
+                    chat(markAsError("Please reconnect to the server to apply the correct protocol."))
+                } else {
+                    selectProtocolVersion(pVersion)
+                }
+            } else {
+                chat(markAsError("Please install ViaFabricPlus to apply the correct protocol."))
+            }
         }
     }
 
@@ -211,13 +250,18 @@ object AutoConfig {
         this.includeConfiguration = includeConfiguration
 
         // Store the config
-        val jsonTree = ConfigSystem.serializeConfigurable(ModuleManager.modulesConfigurable, publicGson)
+        val moduleTree = ConfigSystem.serializeConfigurable(ModuleManager.modulesConfigurable, publicGson)
+        val spooferTree = ConfigSystem.serializeConfigurable(SpooferManager, publicGson)
 
-        if (!jsonTree.isJsonObject) {
+        if (!moduleTree.isJsonObject || !spooferTree.isJsonObject) {
             error("Root element is not a json object")
         }
 
-        val jsonObject = jsonTree.asJsonObject
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("name", "autoconfig")
+
+        jsonObject.add("modules", moduleTree.asJsonObject)
+        jsonObject.add("spoofers", spooferTree.asJsonObject)
 
         val author = mc.session.username
 
@@ -247,6 +291,32 @@ object AutoConfig {
         }
 
         this.includeConfiguration = IncludeConfiguration.DEFAULT
+    }
+
+    /**
+     * Deserialize module configurable from a JSON object
+     */
+    private fun deserializeModuleConfigurable(
+        jsonObject: JsonObject,
+        modules: List<Configurable> = emptyList<Configurable>()
+    ) {
+        // Deserialize full module configurable
+        if (modules.isEmpty()) {
+            deserializeConfigurable(ModuleManager.modulesConfigurable, jsonObject)
+            return
+        }
+
+        modules.forEach { module ->
+            val moduleConfigurable = ModuleManager.modulesConfigurable.inner.find { value ->
+                value.name == module.name
+            } as? Configurable ?: return@forEach
+
+            val moduleElement = jsonObject.asJsonObject["value"].asJsonArray.find { jsonElement ->
+                jsonElement.asJsonObject["name"].asString == module.name
+            } ?: return@forEach
+
+            deserializeConfigurable(moduleConfigurable, moduleElement)
+        }
     }
 
 }

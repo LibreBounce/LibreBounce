@@ -48,6 +48,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.Sca
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerMotion
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerPulldown
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerVulcan
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerHypixel
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -155,7 +156,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             ScaffoldTowerMotion,
             ScaffoldTowerPulldown,
             ScaffoldTowerKarhu,
-            ScaffoldTowerVulcan
+            ScaffoldTowerVulcan,
+            ScaffoldTowerHypixel
         )
     }
 
@@ -206,7 +208,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         tree(ScaffoldRotationConfigurable)
         tree(ScaffoldSprintControlFeature)
         tree(SimulatePlacementAttempts)
-        tree(ScaffoldSlowFeature)
+        tree(ScaffoldAccelerationFeature)
+        tree(ScaffoldStrafeFeature)
         tree(ScaffoldJumpStrafe)
         tree(ScaffoldSpeedLimiterFeature)
         tree(ScaffoldBlinkFeature)
@@ -610,9 +613,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         if (!isTowering) {
             sameYMode.getTargetedBlockPos(blockPos)?.let { return it }
-        } else if (towerMode.activeChoice == ScaffoldTowerMotion &&
-            ScaffoldTowerMotion.placeOffOnNoInput && !player.moving
-        ) {
+        } else if (towerMode.activeChoice == ScaffoldTowerHypixel && !player.moving) {
             // Find the block closest to the player
             val blocks = arrayOf(
                 blockPos.add(0, 0, 1),
