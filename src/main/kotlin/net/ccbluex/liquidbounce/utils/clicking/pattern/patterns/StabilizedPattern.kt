@@ -34,25 +34,18 @@ class StabilizedPattern : ClickPattern {
         val clicks = cps.random()
 
         // Calculate the interval and distribute the remainder to spread evenly
-        val interval = clickArray.size / clicks
-        var remainder = clickArray.size % clicks
+        val interval = if (clicks > 0) clickArray.size / clicks else 0
+        var remainder = if (clicks > 0) clickArray.size % clicks else 0
 
         var currentIndex = 0
 
-        @Suppress("UnusedPrivateProperty")
         for (i in 0 until clicks) {
+            clickArray[currentIndex % clickArray.size]++
+            currentIndex += if (interval > 0) interval else 1
             if (remainder > 0) {
-                clickArray[currentIndex]++
-                currentIndex += interval
                 currentIndex++
                 remainder--
-                continue
             }
-
-            // Choose random index
-            val indexWithLeastClicks = clickArray.withIndex().shuffled().minByOrNull { it.value }?.index
-                ?: clickArray.indices.random()
-            clickArray[indexWithLeastClicks]++
         }
     }
 

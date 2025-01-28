@@ -26,7 +26,6 @@ import kotlin.random.nextInt
  * Butterfly clicking is a method that is used to bypass the CPS limit of 20.
  *
  * It will often result in double click (very similar to the double click technique - but randomized).
- *
  */
 class ButterflyPattern : ClickPattern {
     override fun fill(
