@@ -46,6 +46,7 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
+import net.ccbluex.liquidbounce.features.spoofer.SpooferManager
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
@@ -59,10 +60,7 @@ import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.InteractionTracker
-import net.ccbluex.liquidbounce.utils.client.TpsObserver
-import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
@@ -146,6 +144,7 @@ object LiquidBounce : EventListener {
             CommandManager
             ScriptManager
             RotationManager
+            PacketQueueManager
             InteractionTracker
             CombatManager
             FriendManager
@@ -158,6 +157,7 @@ object LiquidBounce : EventListener {
             ConfigSystem.root(ClientItemGroups)
             ConfigSystem.root(LanguageManager)
             ConfigSystem.root(ClientAccountManager)
+            ConfigSystem.root(SpooferManager)
             BrowserManager
             FontManager
             PostRotationExecutor
