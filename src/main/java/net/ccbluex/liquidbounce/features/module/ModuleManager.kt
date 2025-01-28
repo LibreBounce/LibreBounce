@@ -46,6 +46,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             AntiBot,
             AntiBounce,
             AntiCactus,
+            AnticheatDetector,
             AntiExploit,
             AntiHunger,
             AntiFireball,
