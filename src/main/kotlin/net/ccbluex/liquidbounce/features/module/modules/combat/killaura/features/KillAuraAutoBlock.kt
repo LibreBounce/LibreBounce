@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
@@ -30,6 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.raycast
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.targetTracker
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.wallRange
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.raycast
@@ -46,7 +48,7 @@ import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
-import java.security.SecureRandom
+import kotlin.random.Random
 
 object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking", false) {
 
@@ -56,7 +58,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     val tickOff by int("TickOff", 0, 0..2, "ticks")
     val tickOn by int("TickOn", 0, 0..2, "ticks")
     val chance by float("Chance", 100f, 0f..100f, "%")
-    val blink by boolean("Blink", false)
+    val blink by int("Blink", 0, 0..10, "ticks")
 
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
@@ -68,6 +70,10 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
      * @see net.minecraft.client.MinecraftClient handleInputEvents
      */
     var blockingStateEnforced = false
+        set(value) {
+            ModuleDebug.debugParameter(this, "BlockingStateEnforced", value)
+            field = value
+        }
 
     /**
      * Visual blocking shows a blocking state, while not actually blocking.
@@ -82,7 +88,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         get() = unblockMode != UnblockMode.NONE
 
     val blockImmediate
-        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL
+        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL117
 
     /**
      * Make it seem like the player is blocking.
@@ -100,81 +106,85 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
      */
     @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
-        if (SecureRandom().nextFloat() * 100 <= chance) {
-            if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL)) {
-                return
-            }
+        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL117)) {
+            return
+        }
 
-            if (onlyWhenInDanger && !isInDanger()) {
-                stopBlocking()
-                return
-            }
+        if (Random.nextInt(100) > chance) {
+            return
+        }
 
-            val blockHand = when {
-                canBlock(player.mainHandStack) -> Hand.MAIN_HAND
-                canBlock(player.offHandStack) -> Hand.OFF_HAND
-                else -> return  // We cannot block with any item.
-            }
+        if (onlyWhenInDanger && !isInDanger()) {
+            stopBlocking()
+            return
+        }
 
-            val itemStack = player.getStackInHand(blockHand)
+        val blockHand = when {
+            canBlock(player.mainHandStack) -> Hand.MAIN_HAND
+            canBlock(player.offHandStack) -> Hand.OFF_HAND
+            else -> return  // We cannot block with any item.
+        }
 
-            // We do not want to block if the item is disabled.
-            if (itemStack.isEmpty || !itemStack.isItemEnabled(world.enabledFeatures)) {
-                return
-            }
+        val itemStack = player.getStackInHand(blockHand)
 
-            // Since we fake the blocking state, we simply set the visual blocking state to true.
-            if (blockMode == BlockMode.FAKE) {
-                blockVisual = true
-                return
-            }
+        // We do not want to block if the item is disabled.
+        if (itemStack.isEmpty || !itemStack.isItemEnabled(world.enabledFeatures)) {
+            return
+        }
 
-            if (blockMode == BlockMode.HYPIXEL) {
+        when (blockMode) {
+            BlockMode.HYPIXEL117 -> {
                 val currentSlot = player.inventory.selectedSlot
                 val nextSlot = (currentSlot + 1) % 8
 
                 network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
                 network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
-
-                // We interact below as well. I am not sure if this is part of the magic bypass or an oversight.
-                interactWithFront()
             }
-
-            if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL) {
-                interactWithFront()
+            BlockMode.FAKE -> {
+                blockVisual = true
+                return
             }
-
-            // Interact with the item in the block hand
-            val actionResult = interaction.interactItem(player, blockHand)
-
-            if (actionResult.isAccepted) {
-                if (actionResult.shouldSwingHand()) {
-                    player.swingHand(blockHand)
-                }
-            }
-
-            blockVisual = true
-            blockingStateEnforced = true
+            else -> { }
         }
+
+        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL117) {
+            interactWithFront()
+        }
+
+        // Interact with the item in the block hand
+        val actionResult = interaction.interactItem(player, blockHand)
+
+        if (actionResult.isAccepted) {
+            if (actionResult.shouldSwingHand()) {
+                player.swingHand(blockHand)
+            }
+        }
+
+        blockVisual = true
+        blockingStateEnforced = true
+    }
+
+    private var flushTicks = 0
+
+    @Suppress("unused")
+    private val gameTickHandler = handler<GameTickEvent> {
+        flushTicks++
     }
 
     @Suppress("unused")
     private val blinkHandler = handler<QueuePacketEvent> { event ->
-        if (!blink || event.origin != TransferOrigin.SEND) {
+        if (!blockVisual || event.origin != TransferOrigin.SEND) {
             return@handler
         }
 
-        if (!blockVisual) {
+        val packet = event.packet
+        if (flushTicks >= blink || packet is PlayerInteractItemC2SPacket || packet is UpdateSelectedSlotC2SPacket) {
+            ModuleDebug.debugParameter(this, "Flush", flushTicks)
+            flushTicks = 0
             return@handler
         }
 
-        when (event.packet) {
-            is PlayerInteractItemC2SPacket,
-            is UpdateSelectedSlotC2SPacket -> {
-                // DO NOTHING - this should flush, if no other module interferes
-            }
-            else -> event.action = PacketQueueManager.Action.QUEUE
-        }
+        event.action = PacketQueueManager.Action.QUEUE
     }
 
     fun stopBlocking(pauses: Boolean = false): Boolean {
@@ -285,7 +295,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     enum class BlockMode(override val choiceName: String) : NamedChoice {
         BASIC("Basic"),
         INTERACT("Interact"),
-        HYPIXEL("Hypixel117"),
+        HYPIXEL117("Hypixel117"),
         FAKE("Fake"),
     }
 
