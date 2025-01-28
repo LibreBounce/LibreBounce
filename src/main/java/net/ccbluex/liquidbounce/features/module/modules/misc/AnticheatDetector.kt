@@ -41,7 +41,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     val onTick = handler<GameTickEvent> {
         if (check) ticksPassed++
         if (ticksPassed > 40 && check) {
-            hud.addNotification(Notification("§3Anticheat detection timed out."))
+            hud.addNotification(Notification("§3Anticheat detection timed out.", 3000F))
             check = false
             actionNumbers.clear()
         }
@@ -54,7 +54,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
 
     override fun onEnable() {
         reset()
-        // if (mc.theWorld != null) hud.addNotification(Notification("§3Anticheat detection started..."))
+        // if (mc.theWorld != null) hud.addNotification(Notification("§3Anticheat detection started...", 3000F))
     }
 
     private fun analyzeActionNumbers() {
@@ -87,7 +87,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             }
 
             detectedAC?.let {
-                hud.addNotification(Notification("§3Anticheat detected: §a${it}"))
+                hud.addNotification(Notification("§3Anticheat detected: §a${it}", 3000F))
                 actionNumbers.clear()
                 return
             }
@@ -100,13 +100,13 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             val remainingDiffs = differences.drop(2)
 
             if (firstDiff >= 100 && secondDiff == -1 && remainingDiffs.all { it == -1 }) {
-                hud.addNotification(Notification("§3Anticheat detected: §aPolar"))
+                hud.addNotification(Notification("§3Anticheat detected: §aPolar", 3000F))
                 actionNumbers.clear()
                 return
             }
         }
 
-        hud.addNotification(Notification("§3No known anticheat detected."))
+        hud.addNotification(Notification("§3No known anticheat detected.", 3000F))
         if (debug) {
             chat("§3Action Numbers: ${actionNumbers.joinToString()}")
             chat("§3Differences: ${differences.joinToString()}")
