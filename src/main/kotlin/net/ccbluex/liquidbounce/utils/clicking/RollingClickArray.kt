@@ -6,10 +6,11 @@ import java.util.*
  * A circular buffer that maintains double the cycle length and regenerates the second half
  * when reaching the midpoint
  */
-class RollingClickArray(private val cycleLength: Int) {
+class RollingClickArray(private val cycleLength: Int, val iterations: Int) {
 
-    val array = IntArray(cycleLength * 2) // Double the size
+    val array = IntArray(cycleLength * iterations)
     var head = 0
+        private set
     private val size get() = array.size
 
     /**
@@ -31,9 +32,17 @@ class RollingClickArray(private val cycleLength: Int) {
     /**
      * Advances the head position and returns true if halfway point reached
      */
-    fun advance(): Boolean {
-        head = (head + 1) % size
+    fun advance(amount: Int = 1): Boolean {
+        head = (head + amount) % size
         return head % cycleLength == 0
+    }
+
+    /**
+     * Clears the array
+     */
+    fun clear() {
+        Arrays.fill(array, 0)
+        head = 0
     }
 
     /**
@@ -53,11 +62,6 @@ class RollingClickArray(private val cycleLength: Int) {
         } else {
             throw IllegalStateException("Head must be at 0 or cycle length")
         }
-    }
-
-    fun reset() {
-        Arrays.fill(array, 0)
-        head = 0
     }
 
 }

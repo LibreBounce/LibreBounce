@@ -56,13 +56,11 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
     // Options
     private val cps by intRange("CPS", 5..8, 1..maxCps, "clicks")
         .onChanged {
-            clickArray.reset()
-            updatePattern()
+            fill()
         }
     private val pattern by enumChoice("Technique", ClickPatterns.STABILIZED)
         .onChanged {
-            clickArray.reset()
-            updatePattern()
+            fill()
         }
     val cooldown: ClickCooldown<T>? = if (showCooldown) {
         tree(ClickCooldown(parent))
@@ -70,13 +68,13 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         null
     }
 
-    private val clickArray = RollingClickArray(DEFAULT_CYCLE_LENGTH)
+    private val clickArray = RollingClickArray(DEFAULT_CYCLE_LENGTH, 2)
 
     val isGoingToClick: Boolean
         get() = isClickOnNextTick(0)
 
     init {
-        updatePattern()
+        fill()
     }
 
     /**
@@ -122,27 +120,34 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         priority = EventPriorityConvention.FIRST_PRIORITY
     ) {
         if (clickArray.advance()) {
-            updatePattern()
+            val cycleArray = IntArray(DEFAULT_CYCLE_LENGTH)
+            pattern.pattern.fill(cycleArray, cps, this)
+            clickArray.push(cycleArray)
         }
 
         ModuleDebug.debugParameter(this@ClickScheduler, "Click Technique", pattern.choiceName)
-        ModuleDebug.debugParameter(this@ClickScheduler, "Click Array", clickArray.array.withIndex().joinToString { (i, v) ->
-            if (i == clickArray.head) {
-                "*$v"
-            } else {
-                v.toString()
+        ModuleDebug.debugParameter(
+            this@ClickScheduler,
+            "Click Array",
+            clickArray.array.withIndex().joinToString { (i, v) ->
+                if (i == clickArray.head) "*$v" else v.toString()
             }
-        })
+        )
     }
 
-    private fun updatePattern() {
+    private fun fill() {
+        clickArray.clear()
         val cycleArray = IntArray(DEFAULT_CYCLE_LENGTH)
-        pattern.pattern.fill(cycleArray, cps, this)
-        clickArray.push(cycleArray)
+        repeat(clickArray.iterations) {
+            pattern.pattern.fill(cycleArray, cps, this)
+            clickArray.push(cycleArray)
+            clickArray.advance(DEFAULT_CYCLE_LENGTH)
+        }
     }
 
     override fun parent() = parent
 
+    @Suppress("unused")
     enum class ClickPatterns(
         override val choiceName: String,
         val pattern: ClickPattern
