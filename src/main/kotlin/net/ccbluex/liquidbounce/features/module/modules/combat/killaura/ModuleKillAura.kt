@@ -310,12 +310,11 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     true
                 }
             }
+        } else if (KillAuraAutoBlock.tickOff > 0 && clickScheduler.isClickOnNextTick(KillAuraAutoBlock.tickOff)
+            && KillAuraAutoBlock.shouldUnblockToHit) {
+            KillAuraAutoBlock.stopBlocking(pauses = true)
         } else {
-            if (clickScheduler.isClickOnNextTick(KillAuraAutoBlock.tickOff) && KillAuraAutoBlock.shouldUnblockToHit) {
-                KillAuraAutoBlock.stopBlocking(pauses = true)
-            } else {
-                KillAuraAutoBlock.startBlocking()
-            }
+            KillAuraAutoBlock.startBlocking()
         }
     }
 
@@ -508,9 +507,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             network.sendPacket(CloseHandledScreenC2SPacket(0))
         }
 
-        val wasBlocking = player.isBlockAction
-
-        if (wasBlocking) {
+        if (player.isBlockAction) {
             if (!KillAuraAutoBlock.enabled && !ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
                 return
             }
@@ -545,7 +542,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // If the player was blocking before, we start blocking again after the attack if the tick on is 0
-        if (wasBlocking && KillAuraAutoBlock.blockImmediate) {
+        if (KillAuraAutoBlock.blockImmediate) {
             KillAuraAutoBlock.startBlocking()
         }
     }

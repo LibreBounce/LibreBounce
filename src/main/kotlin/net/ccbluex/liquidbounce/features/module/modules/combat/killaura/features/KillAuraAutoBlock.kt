@@ -72,6 +72,12 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     var blockingStateEnforced = false
         set(value) {
             ModuleDebug.debugParameter(this, "BlockingStateEnforced", value)
+            ModuleDebug.debugParameter(this, if (value) {
+                "Block Age"
+            } else {
+                "Unblock Age"
+            }, player.age)
+
             field = value
         }
 
@@ -204,7 +210,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         }
 
         // We do not want the player to stop eating or else. Only when he blocks.
-        if (!player.isBlockAction || mc.options.useKey.isPressed) {
+        if (!player.isBlockAction) {
             return false
         }
 
@@ -219,11 +225,8 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
             unblockMode == UnblockMode.CHANGE_SLOT -> {
                 val currentSlot = player.inventory.selectedSlot
                 val nextSlot = (currentSlot + 1) % 8
-
-                // todo: add support for tick-off delay, since this is a bit too fast
                 network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
                 network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
-
                 blockingStateEnforced = false
                 true
             }
