@@ -173,12 +173,13 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
     @Suppress("unused")
     private val blinkHandler = handler<QueuePacketEvent> { event ->
-        if (!blockVisual || event.origin != TransferOrigin.SEND) {
+        if (event.origin != TransferOrigin.SEND) {
             return@handler
         }
 
         val packet = event.packet
-        if (flushTicks >= blink || packet is PlayerInteractItemC2SPacket || packet is UpdateSelectedSlotC2SPacket) {
+        if (!blockVisual || flushTicks >= blink || packet is PlayerInteractItemC2SPacket
+            || packet is UpdateSelectedSlotC2SPacket) {
             ModuleDebug.debugParameter(this, "Flush", flushTicks)
             flushTicks = 0
             return@handler
