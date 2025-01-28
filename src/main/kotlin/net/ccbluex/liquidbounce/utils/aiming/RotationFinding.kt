@@ -561,24 +561,24 @@ fun findClosestPointOnBlockInLineWithCrystal(
 
             val intersects = predictedCrystal.isHitByLine(eyes, vec3)
             if (bestIntersects && !intersects) {
-                return@forEach
+                return@range
             }
 
             val distance = eyes.squaredDistanceTo(vec3)
 
             // skip if out of range or the current best is closer
             if (distance > rangeSquared || bestDistance <= distance && (!intersects || bestIntersects)) {
-                return@forEach
+                return@range
             }
 
             // skip because not visible in range
             if (distance > wallsRangeSquared && !facingBlock(eyes, vec3, expectedTarget, it)) {
-                return@forEach
+                return@range
             }
 
             val rotation = Rotation.lookingAt(point = vec3, from = eyes)
             if (CollectionUtils.contains(rotationsNotToMatch, rotation)) {
-                return@forEach
+                return@range
             }
 
             best = VecRotation(rotation, vec3) to it
