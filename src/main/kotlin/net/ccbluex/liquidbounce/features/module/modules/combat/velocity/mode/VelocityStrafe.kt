@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -51,6 +52,26 @@ internal object VelocityStrafe : VelocityMode("Strafe") {
     private val untilGround by boolean("UntilGround", false)
 
     private var applyStrafe = false
+    private var shouldStrafe = false
+
+    @Suppress("unused")
+    private val tickHandler = handler<GameTickEvent> {
+        if (!OnlyFacing.enabled) return@handler
+        val target = world.findEnemy(0f..OnlyFacing.range) ?: return@handler
+
+        val isFacingEnemy = facingEnemy(
+            target,
+            OnlyFacing.range.toDouble(),
+            RotationManager.currentRotation ?: player.rotation
+        )
+
+        if (!isFacingEnemy) {
+            shouldStrafe = false
+            return@handler
+        }
+
+        shouldStrafe = true
+    }
 
     @Suppress("unused")
     private val packetHandler = sequenceHandler<PacketEvent> { event ->
@@ -58,14 +79,7 @@ internal object VelocityStrafe : VelocityMode("Strafe") {
 
         // Check if this is a regular velocity update
         if ((packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) || packet is ExplosionS2CPacket) {
-            val target = world.findEnemy(0f..OnlyFacing.range)
-            val isFacingEnemy = facingEnemy(
-                target!!,
-                OnlyFacing.range.toDouble(),
-                RotationManager.currentRotation ?: player.rotation
-            )
-
-            if (OnlyFacing.enabled && !isFacingEnemy) {
+            if (OnlyFacing.enabled && !shouldStrafe) {
                 return@sequenceHandler
             }
 
