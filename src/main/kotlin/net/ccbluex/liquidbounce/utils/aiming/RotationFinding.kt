@@ -503,6 +503,16 @@ fun raytraceUpperBlockSide(
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
 
+/**
+ * Finds the rotation to the closest point on the [expectedTarget], that if possible also points to the crystal that
+ * will that could be above the position.
+ *
+ * [notFacingAway] will make the function not return any rotation to a face that is pointing away from the player.
+ *
+ * The function also takes [rotationsNotToMatch].
+ * Those rotations will be skipped, except if the current rotation equals one of them, then the list is simply ignored,
+ * and the current list is returned.
+ */
 @Suppress("CognitiveComplexMethod", "LongParameterList")
 fun findClosestPointOnBlockInLineWithCrystal(
     eyes: Vec3d,

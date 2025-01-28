@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.injection.mixins.minecraft.network.MixinClientPl
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.function.BooleanSupplier
 
 // TODO no duplicate place and break options per tick in both place and break
 /**
@@ -59,6 +60,8 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
      */
     private var currentDestroyTask: Future<*>? = null
 
+    private var canCache: BooleanSupplier
+
     init {
         // register all triggers
         val triggers = arrayOf(
@@ -71,6 +74,10 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
             EntityMoveTrigger,
             SelfMoveTrigger
         )
+
+        canCache = BooleanSupplier {
+            triggers.filter { it.enabled }.all { it.allowsCaching }
+        }
 
         triggers.forEach {
             it.apply {
@@ -117,20 +124,13 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
     }
 
     /**
-     * We should not cache if the calculation is done off-tread and the cache gets cleared on tick, but the calculation
-     * which runs on a separate thread could run parallel to the cleaning.
+     * We should not cache if the calculation is done off-tread because the cache gets cleared on tick,
+     * that means calculation which runs on a separate thread could run parallel to the clearing.
      *
      * Additionally, the caching is not needed if the calculation is multithreaded and therefore already has no
      * performance impact on the render thread.
      */
-    fun canCache() = !offThread &&
-        TickTrigger.enabled &&
-        !BlockChangeTrigger.enabled &&
-        !ClientBlockBreakTrigger.enabled &&
-        !CrystalSpawnTrigger.enabled &&
-        !CrystalDestroyTrigger.enabled &&
-        !EntityMoveTrigger.enabled &&
-        !SelfMoveTrigger.enabled
+    fun canCache() = !offThread && canCache.asBoolean
 
     /**
      * Also pauses when the combat manager tells combat modules to pause or option

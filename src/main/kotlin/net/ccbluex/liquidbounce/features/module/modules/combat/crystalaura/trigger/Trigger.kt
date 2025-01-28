@@ -32,6 +32,9 @@ abstract class Trigger(val name: String, val default: Boolean) : EventListener {
     val enabled
         get() = option.get()
 
+    open val allowsCaching
+        get() = false
+
     override val running: Boolean
         get() = CrystalAuraTriggerer.running && enabled
 

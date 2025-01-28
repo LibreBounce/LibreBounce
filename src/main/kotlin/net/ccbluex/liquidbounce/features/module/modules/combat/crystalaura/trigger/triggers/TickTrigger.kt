@@ -50,4 +50,7 @@ object TickTrigger : Trigger("Tick", true) {
         }
     }
 
+    override val allowsCaching
+        get() = true
+
 }
