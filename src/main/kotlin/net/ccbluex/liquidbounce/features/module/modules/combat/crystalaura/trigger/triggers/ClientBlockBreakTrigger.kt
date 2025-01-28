@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.impl
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.triggers
 
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleCrystalPlacer
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer.runPlace
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.Trigger
 
 /**
  * Same as block change, but it will run even earlier but just for blocks that are broken client side.
- * If you use packet mine on normal mode, make sure to enable ClientSideSet in order to make this work properly.
+ * If you use packet mine in normal mode, make sure to enable ClientSideSet in order to make this work properly.
  */
 object ClientBlockBreakTrigger : Trigger("ClientBlockBreak", true) {
 

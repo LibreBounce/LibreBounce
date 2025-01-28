@@ -21,10 +21,11 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trig
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.impl.*
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.triggers.*
+import net.ccbluex.liquidbounce.injection.mixins.minecraft.network.MixinClientPlayNetworkHandler
+import net.ccbluex.liquidbounce.injection.mixins.minecraft.network.MixinClientPlayerInteractionManager
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.minecraft.network.packet.s2c.play.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 

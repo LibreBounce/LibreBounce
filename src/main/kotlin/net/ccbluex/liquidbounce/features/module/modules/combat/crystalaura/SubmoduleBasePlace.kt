@@ -22,6 +22,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.PlacementPositionCandidate
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState

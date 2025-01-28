@@ -497,13 +497,7 @@ fun raytraceUpperBlockSide(
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
 }
 
-@Suppress(
-    "NestedBlockDepth",
-    "CognitiveComplexMethod",
-    "LongParameterList",
-    "LoopWithTooManyJumpStatements",
-    "LongMethod"
-)
+@Suppress("CognitiveComplexMethod", "LongParameterList")
 fun findClosestPointOnBlockInLineWithCrystal(
     eyes: Vec3d,
     range: Double,
@@ -536,26 +530,19 @@ fun findClosestPointOnBlockInLineWithCrystal(
         )
     }
 
-    val blockBB = FULL_BOX.offset(expectedTarget)
-
-    val currentHit = raytraceBlock(
-        max(range, wallsRange),
-        RotationManager.serverRotation,
+    checkCurrentRotation(
+        range,
+        wallsRange,
         expectedTarget,
-        expectedTarget.getState()!!
-    )
-
-    if (currentHit != null && currentHit.type == HitResult.Type.BLOCK && currentHit.blockPos == expectedTarget) {
-        val pos = currentHit.pos
-        val intersects = predictedCrystal.isHitByLine(eyes, pos)
-        val distance = eyes.squaredDistanceTo(pos)
-        val visibleThroughWalls = distance <= wallsRangeSquared ||
-            facingBlock(eyes, pos, expectedTarget, currentHit.side)
-        if (intersects && distance <= rangeSquared && visibleThroughWalls) {
-            val rotation = Rotation.lookingAt(point = pos, from = eyes)
-            return VecRotation(rotation, pos) to currentHit.side
-        }
+        predictedCrystal,
+        eyes,
+        wallsRangeSquared,
+        rangeSquared
+    )?.let {
+        return it
     }
+
+    val blockBB = FULL_BOX.offset(expectedTarget)
 
     val vec = expectedTarget.toCenterPos()
     Direction.entries.forEach {
@@ -569,40 +556,73 @@ fun findClosestPointOnBlockInLineWithCrystal(
             return@forEach
         }
 
-        for (x in -0.45..0.45 step 0.05) {
-            for (y in -0.45..0.45 step 0.05) {
-                val vec3 = pointOnSide(it, x, y, vec3d)
+        range(-0.45..0.45 step 0.05, -0.45..0.45 step 0.05) { x, y ->
+            val vec3 = pointOnSide(it, x, y, vec3d)
 
-                val intersects = predictedCrystal.isHitByLine(eyes, vec3)
-                if (bestIntersects && !intersects) {
-                    continue
-                }
-
-                val distance = eyes.squaredDistanceTo(vec3)
-
-                // skip if out of range or the current best is closer
-                if (distance > rangeSquared || bestDistance <= distance && (!intersects || bestIntersects)) {
-                    continue
-                }
-
-                // skip because not visible in range
-                if (distance > wallsRangeSquared && !facingBlock(eyes, vec3, expectedTarget, it)) {
-                    continue
-                }
-
-                val rotation = Rotation.lookingAt(point = vec3, from = eyes)
-                if (CollectionUtils.contains(rotationsNotToMatch, rotation)) {
-                    continue
-                }
-
-                best = VecRotation(rotation, vec3) to it
-                bestDistance = distance
-                bestIntersects = intersects
+            val intersects = predictedCrystal.isHitByLine(eyes, vec3)
+            if (bestIntersects && !intersects) {
+                return@forEach
             }
+
+            val distance = eyes.squaredDistanceTo(vec3)
+
+            // skip if out of range or the current best is closer
+            if (distance > rangeSquared || bestDistance <= distance && (!intersects || bestIntersects)) {
+                return@forEach
+            }
+
+            // skip because not visible in range
+            if (distance > wallsRangeSquared && !facingBlock(eyes, vec3, expectedTarget, it)) {
+                return@forEach
+            }
+
+            val rotation = Rotation.lookingAt(point = vec3, from = eyes)
+            if (CollectionUtils.contains(rotationsNotToMatch, rotation)) {
+                return@forEach
+            }
+
+            best = VecRotation(rotation, vec3) to it
+            bestDistance = distance
+            bestIntersects = intersects
         }
     }
 
     return best
+}
+
+private fun checkCurrentRotation(
+    range: Double,
+    wallsRange: Double,
+    expectedTarget: BlockPos,
+    predictedCrystal: Box,
+    eyes: Vec3d,
+    wallsRangeSquared: Double,
+    rangeSquared: Double
+): Pair<VecRotation, Direction>? {
+    val currentHit = raytraceBlock(
+        max(range, wallsRange),
+        RotationManager.serverRotation,
+        expectedTarget,
+        expectedTarget.getState()!!
+    )
+
+    if (currentHit == null || currentHit.type != HitResult.Type.BLOCK || currentHit.blockPos != expectedTarget) {
+        return null
+    }
+
+    val pos = currentHit.pos
+    val intersects = predictedCrystal.isHitByLine(eyes, pos)
+    val distance = eyes.squaredDistanceTo(pos)
+
+    val visibleThroughWalls = distance <= wallsRangeSquared ||
+        facingBlock(eyes, pos, expectedTarget, currentHit.side)
+
+    if (intersects && distance <= rangeSquared && visibleThroughWalls) {
+        val rotation = Rotation.lookingAt(point = pos, from = eyes)
+        return VecRotation(rotation, pos) to currentHit.side
+    }
+
+    return null
 }
 
 private fun pointOnSide(side: Direction, x: Double, y: Double, vec: Vec3d): Vec3d {

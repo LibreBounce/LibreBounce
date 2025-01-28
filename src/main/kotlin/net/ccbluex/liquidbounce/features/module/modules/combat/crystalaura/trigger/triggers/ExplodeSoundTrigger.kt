@@ -16,31 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.impl
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.triggers
 
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleCrystalDestroyer
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleCrystalPlacer
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer.player
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer.runDestroy
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer.runPlace
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer.world
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.PostPacketTrigger
 import net.ccbluex.liquidbounce.utils.math.sq
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket
+import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket
+import net.minecraft.sound.SoundEvents
 
 /**
- * Runs placing when an entity moves.
+ * Runs placing when an explosion sound is received.
  */
-object EntityMoveTrigger : PostPacketTrigger<EntityPositionS2CPacket>("EntityMove", true) {
+object ExplodeSoundTrigger : PostPacketTrigger<PlaySoundFromEntityS2CPacket>("ExplodeSound", true) {
 
-    override fun postPacketHandler(packet: EntityPositionS2CPacket) {
-        val entity = world.getEntityById(packet.entityId) ?: return
-        if (player.eyePos.squaredDistanceTo(entity.pos) > ModuleCrystalAura.targetTracker.range.sq()) {
+    override fun postPacketHandler(packet: PlaySoundFromEntityS2CPacket) {
+        if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) {
             return
         }
 
-        runDestroy { SubmoduleCrystalDestroyer.tick() }
+        world.getEntityById(packet.entityId)?.let {
+            // don't place if the sound is too far away
+            val maxRangeSq = SubmoduleCrystalPlacer.getMaxRange().sq()
+            if (it.pos.squaredDistanceTo(player.pos) > maxRangeSq) {
+                return
+            }
+        }
+
         runPlace { SubmoduleCrystalPlacer.tick() }
     }
 

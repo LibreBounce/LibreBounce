@@ -23,7 +23,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.impl.*;
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.triggers.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
