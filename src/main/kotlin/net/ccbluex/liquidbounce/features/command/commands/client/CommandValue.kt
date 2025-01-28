@@ -82,14 +82,12 @@ object CommandValue : CommandFactory {
 
                         @Suppress("USELESS_IS_CHECK")
                         return@autocompletedWith when (value) {
-                            is ChoiceConfigurable<*> -> value.choices
-                                .asSequence()
-                                .map { it.choiceName }
-                                .filter { it.startsWith(begin, true) }
-                                .toList()
+                            is ChoiceConfigurable<*> -> value.choices.mapNotNull {
+                                it.choiceName.takeIf { n -> n.startsWith(begin, true) }
+                            }
                             is Value -> {
                                 if (value.getValue() is Boolean) {
-                                    listOf("true", "false").filter { it.startsWith(begin, true) }
+                                    arrayOf("true", "false").filter { it.startsWith(begin, true) }
                                 } else {
                                     emptyList()
                                 }
