@@ -188,9 +188,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
             !blockVisual -> flush("N")
 
             // Start blocking
-            blockingStateEnforced || event.packet.run {
-                this is PlayerInteractItemC2SPacket || this is UpdateSelectedSlotC2SPacket
-            } -> flush("B")
+            blockingStateEnforced || event.packet is PlayerInteractItemC2SPacket -> flush("B")
 
             // Timeout reached
             flushTicks >= blink -> flush("T")
