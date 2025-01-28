@@ -85,6 +85,7 @@ object ModuleCrystalAura : ClientModule(
     var currentTarget: LivingEntity? = null
 
     override fun disable() {
+        CrystalAuraTriggerer.terminateRunningTasks()
         SubmoduleCrystalPlacer.placementRenderer.clearSilently()
         SubmoduleCrystalDestroyer.postAttackHandlers.forEach(CrystalPostAttackTracker::onToggle)
         SubmoduleBasePlace.disable()

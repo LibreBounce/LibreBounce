@@ -72,22 +72,26 @@ class NormalRotationMode(
         if (instant && isFinished()) {
             onFinished()
             if (aimAfterInstantAction) {
-                RotationManager.aimAt(rotation, !ignoreOpenInventory, rotations, priority, module)
+                mc.execute {
+                    RotationManager.aimAt(rotation, !ignoreOpenInventory, rotations, priority, module)
+                }
             }
 
             return
         }
 
-        RotationManager.aimAt(
-            rotation,
-            considerInventory = !ignoreOpenInventory,
-            configurable = rotations,
-            provider = module,
-            priority = priority,
-            whenReached = RestrictedSingleUseAction(canExecute = isFinished, action = {
-                PostRotationExecutor.addTask(module, postMove, task = onFinished, priority = true)
-            })
-        )
+        mc.execute {
+            RotationManager.aimAt(
+                rotation,
+                considerInventory = !ignoreOpenInventory,
+                configurable = rotations,
+                provider = module,
+                priority = priority,
+                whenReached = RestrictedSingleUseAction(canExecute = isFinished, action = {
+                    PostRotationExecutor.addTask(module, postMove, task = onFinished, priority = true)
+                })
+            )
+        }
     }
 
 }

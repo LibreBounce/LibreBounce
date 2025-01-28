@@ -79,6 +79,11 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
         }
     }
 
+    fun terminateRunningTasks() {
+        currentPlaceTask?.cancel(true)
+        currentDestroyTask?.cancel(true)
+    }
+
     fun runPlace(runnable: Runnable) {
         currentPlaceTask?.let {
             if (!it.isDone) {
