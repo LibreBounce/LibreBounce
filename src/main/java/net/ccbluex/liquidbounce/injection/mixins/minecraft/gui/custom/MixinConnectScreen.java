@@ -54,7 +54,10 @@ import static net.ccbluex.liquidbounce.utils.client.TextExtensionsKt.hideSensiti
 public abstract class MixinConnectScreen extends MixinScreen {
 
     @Shadow
-    private volatile @Nullable ClientConnection connection;
+    volatile @Nullable ClientConnection connection;
+
+    @Shadow
+    public abstract void connect(MinecraftClient client, ServerAddress address, ServerInfo info, @Nullable CookieStorage cookieStorage);
 
     @Unique
     private ServerAddress serverAddress = null;
@@ -85,10 +88,14 @@ public abstract class MixinConnectScreen extends MixinScreen {
     }
 
 
-    @Inject(method = "connect(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V", at = @At("HEAD"))
+    @Inject(method = "connect(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V", at = @At("HEAD"), cancellable = true)
     private void injectConnect(MinecraftClient client, ServerAddress address, ServerInfo info, CookieStorage cookieStorage, CallbackInfo ci) {
         this.serverAddress = address;
-        EventManager.INSTANCE.callEvent(new ServerConnectEvent(info));
+        var event = EventManager.INSTANCE.callEvent(new ServerConnectEvent((ConnectScreen) (Object) this, address, info, cookieStorage));
+
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
     }
 
     @ModifyConstant(method = "render", constant = @Constant(intValue = 50))

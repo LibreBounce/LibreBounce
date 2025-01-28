@@ -28,8 +28,6 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.DynamicConfigurable
 import net.ccbluex.liquidbounce.config.types.Value
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import java.io.File
@@ -177,27 +175,6 @@ object ConfigSystem {
         gson.toJsonTree(configurable, Configurable::class.javaObjectType)
 
     /**
-     * Deserialize module configurable from a reader
-     */
-    fun deserializeModuleConfigurable(
-        modules: List<ClientModule>,
-        reader: Reader,
-        gson: Gson = fileGson
-    ) {
-        JsonParser.parseReader(gson.newJsonReader(reader))?.let { jsonElement ->
-            modules.forEach { module ->
-                val moduleConfigurable = ModuleManager.modulesConfigurable.inner.find {
-                    it.name == module.name
-                } as? Configurable ?: return@forEach
-                val moduleElement = jsonElement.asJsonObject["value"].asJsonArray.find {
-                    it.asJsonObject["name"].asString == module.name
-                } ?: return@forEach
-                deserializeConfigurable(moduleConfigurable, moduleElement)
-            }
-        }
-    }
-
-    /**
      * Deserialize a configurable from a reader
      */
     fun deserializeConfigurable(configurable: Configurable, reader: Reader, gson: Gson = fileGson) {
@@ -211,9 +188,6 @@ object ConfigSystem {
      */
     fun deserializeConfigurable(configurable: Configurable, jsonElement: JsonElement) {
         val jsonObject = jsonElement.asJsonObject
-
-        // Handle auto config
-        AutoConfig.handlePossibleAutoConfig(jsonObject)
 
         // Check if the name is the same as the configurable name
         check(jsonObject.getAsJsonPrimitive("name").asString == configurable.name) {

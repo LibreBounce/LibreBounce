@@ -55,6 +55,23 @@ fun getModules(requestObject: RequestObject): FullHttpResponse {
     return httpOk(mods)
 }
 
+// GET /api/v1/client/module/:name
+fun getModule(requestObject: RequestObject): FullHttpResponse {
+    val name = requestObject.params["name"] ?: return httpForbidden("Module not found")
+    val module = ModuleManager[name] ?: return httpForbidden("Module not found")
+
+    return httpOk(JsonObject().apply {
+        addProperty("name", module.name)
+        addProperty("category", module.category.readableName)
+        add("keyBind", interopGson.toJsonTree(module.bind))
+        addProperty("enabled", module.enabled)
+        addProperty("description", module.description.get())
+        addProperty("tag", module.tag)
+        addProperty("hidden", module.hidden)
+        add("aliases", interopGson.toJsonTree(module.aliases))
+    })
+}
+
 // PUT /api/v1/client/modules/toggle
 // DELETE /api/v1/client/modules/toggle
 // POST /api/v1/client/modules/toggle
