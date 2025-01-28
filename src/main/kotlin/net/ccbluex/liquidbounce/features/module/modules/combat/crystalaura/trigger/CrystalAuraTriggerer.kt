@@ -129,6 +129,9 @@ object CrystalAuraTriggerer : Configurable("Triggers"), EventListener, Minecraft
      *
      * Additionally, the caching is not needed if the calculation is multithreaded and therefore already has no
      * performance impact on the render thread.
+     *
+     * Event triggers don't normally allow caching either because between clearing and the next execution could be
+     * almost a whole tick leading to wrong data when, for example, entities moved.
      */
     fun canCache() = !offThread && canCache.asBoolean
 
