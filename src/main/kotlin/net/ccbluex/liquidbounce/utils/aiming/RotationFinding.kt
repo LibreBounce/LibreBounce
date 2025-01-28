@@ -537,8 +537,8 @@ fun findClosestPointOnBlockInLineWithCrystal(
         return it
     }
 
-    val rangeSquared = range * range
-    val wallsRangeSquared = wallsRange * wallsRange
+    val rangeSquared = range.sq()
+    val wallsRangeSquared = wallsRange.sq()
     val blockBB = FULL_BOX.offset(expectedTarget)
 
     val vec = expectedTarget.toCenterPos()
