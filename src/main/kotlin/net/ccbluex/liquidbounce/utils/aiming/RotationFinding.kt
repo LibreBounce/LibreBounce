@@ -156,16 +156,22 @@ private class PrePlaningTracker(
     private val bestVisibleIntersects = false
     private val bestInvisibleIntersects = false
 
-    @Suppress("ComplexCondition")
     override fun getIsRotationBetter(base: VecRotation?, newRotation: VecRotation, visible: Boolean): Boolean {
         val intersects = futureTarget.isHitByLine(eyes, newRotation.vec)
-        if (intersects && (visible && !bestVisibleIntersects || !visible && !bestInvisibleIntersects)) {
-            return true
-        } else if (!intersects && (visible && bestVisibleIntersects || !visible && bestInvisibleIntersects)) {
-            return false
-        }
 
-        return super.getIsRotationBetter(base, newRotation, visible)
+        val isBetterWhenVisible = visible && !bestVisibleIntersects
+        val isBetterWhenInvisible = !visible && !bestInvisibleIntersects
+        val shouldPreferNewRotation = intersects && (isBetterWhenVisible || isBetterWhenInvisible)
+
+        val isWorseWhenVisible = visible && bestVisibleIntersects
+        val isWorseWhenInvisible = !visible && bestInvisibleIntersects
+        val shouldPreferCurrentRotation = !intersects && (isWorseWhenVisible || isWorseWhenInvisible)
+
+        return when {
+            shouldPreferNewRotation -> true
+            shouldPreferCurrentRotation -> false
+            else -> super.getIsRotationBetter(base, newRotation, visible)
+        }
     }
 
 }
@@ -527,15 +533,7 @@ fun findClosestPointOnBlockInLineWithCrystal(
         )
     }
 
-    checkCurrentRotation(
-        range,
-        wallsRange,
-        expectedTarget,
-        predictedCrystal,
-        eyes
-    )?.let {
-        return it
-    }
+    checkCurrentRotation(range, wallsRange, expectedTarget, predictedCrystal, eyes)?.let { return it }
 
     val rangeSquared = range.sq()
     val wallsRangeSquared = wallsRange.sq()
