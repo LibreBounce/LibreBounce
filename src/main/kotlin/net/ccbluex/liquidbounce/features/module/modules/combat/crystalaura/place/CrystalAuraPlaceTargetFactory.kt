@@ -24,8 +24,6 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.Modul
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleBasePlace
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer.getMaxRange
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer.oldVersion
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer.range
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer.wallsRange
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.conditions.*
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.block.getSortedSphere
@@ -101,15 +99,8 @@ object CrystalAuraPlaceTargetFactory : MinecraftShortcuts {
         val expectedCrystal = if (oldVersion) FULL_BOX.withMaxX(2.0) else FULL_BOX
         val basePlaceLayers = if (basePlace) SubmoduleBasePlace.getBasePlaceLayers(target.y) else IntOpenHashSet()
 
-        val context = PlacementContext(
-            range.toDouble(),
-            wallsRange.toDouble(),
-            player.eyePos,
-            basePlace,
-            basePlaceLayers,
-            expectedCrystal,
-            target
-        )
+        // create the context
+        val context = PlacementContext(basePlace, basePlaceLayers, expectedCrystal, target)
 
         val playerPos = player.blockPos
         val pos = BlockPos.Mutable()

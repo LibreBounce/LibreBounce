@@ -506,9 +506,6 @@ fun findClosestPointOnBlockInLineWithCrystal(
     notFacingAway: Boolean,
     rotationsNotToMatch: List<Rotation>? = null
 ): Pair<VecRotation, Direction>? {
-    val rangeSquared = range * range
-    val wallsRangeSquared = wallsRange * wallsRange
-
     var best: Pair<VecRotation, Direction>? = null
     var bestIntersects = false
     var bestDistance = Double.MAX_VALUE
@@ -535,13 +532,13 @@ fun findClosestPointOnBlockInLineWithCrystal(
         wallsRange,
         expectedTarget,
         predictedCrystal,
-        eyes,
-        wallsRangeSquared,
-        rangeSquared
+        eyes
     )?.let {
         return it
     }
 
+    val rangeSquared = range * range
+    val wallsRangeSquared = wallsRange * wallsRange
     val blockBB = FULL_BOX.offset(expectedTarget)
 
     val vec = expectedTarget.toCenterPos()
@@ -595,9 +592,7 @@ private fun checkCurrentRotation(
     wallsRange: Double,
     expectedTarget: BlockPos,
     predictedCrystal: Box,
-    eyes: Vec3d,
-    wallsRangeSquared: Double,
-    rangeSquared: Double
+    eyes: Vec3d
 ): Pair<VecRotation, Direction>? {
     val currentHit = raytraceBlock(
         max(range, wallsRange),
@@ -614,10 +609,10 @@ private fun checkCurrentRotation(
     val intersects = predictedCrystal.isHitByLine(eyes, pos)
     val distance = eyes.squaredDistanceTo(pos)
 
-    val visibleThroughWalls = distance <= wallsRangeSquared ||
+    val visibleThroughWalls = distance <= wallsRange.sq() ||
         facingBlock(eyes, pos, expectedTarget, currentHit.side)
 
-    if (intersects && distance <= rangeSquared && visibleThroughWalls) {
+    if (intersects && distance <= range.sq() && visibleThroughWalls) {
         val rotation = Rotation.lookingAt(point = pos, from = eyes)
         return VecRotation(rotation, pos) to currentHit.side
     }
