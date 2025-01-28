@@ -9,6 +9,8 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.LiquidBounce.hud
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 
 object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
@@ -39,7 +41,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     val onTick = handler<GameTickEvent> {
         if (check) ticksPassed++
         if (ticksPassed > 40 && check) {
-            chat("§3Anticheat detection timed out.")
+            hud.addNotification(Notification("§3Anticheat detection timed out."))
             check = false
             actionNumbers.clear()
         }
@@ -52,11 +54,11 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
 
     override fun onEnable() {
         reset()
-        // if (mc.theWorld != null) chat("§3Anticheat detection started...")
+        // if (mc.theWorld != null) hud.addNotification(Notification("§3Anticheat detection started..."))
     }
 
     private fun analyzeActionNumbers() {
-        if (actionNumbers.size < 3) { // Minimum 3 packets for detection
+        if (actionNumbers.size < 3) {
             return
         }
 
@@ -79,19 +81,32 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
                 -1 -> when {
                     first in -5..0 -> "Grim"       
                     first in -3005..-2995 -> "Karhu"        
-                    else -> null
+                    else -> "Polar"
                 }
                 else -> null
             }
 
             detectedAC?.let {
-                chat("§3Anticheat detected: §a$it")
+                hud.addNotification(Notification("§3Anticheat detected: §a${it}"))
                 actionNumbers.clear()
                 return
             }
         }
 
-        chat("§3No known anticheat detected.")
+        // Polar 
+        if (differences.size >= 2) {
+            val firstDiff = differences[0]
+            val secondDiff = differences[1]
+            val remainingDiffs = differences.drop(2)
+
+            if (firstDiff >= 100 && secondDiff == -1 && remainingDiffs.all { it == -1 }) {
+                hud.addNotification(Notification("§3Anticheat detected: §aPolar"))
+                actionNumbers.clear()
+                return
+            }
+        }
+
+        hud.addNotification(Notification("§3No known anticheat detected."))
         if (debug) {
             chat("§3Action Numbers: ${actionNumbers.joinToString()}")
             chat("§3Differences: ${differences.joinToString()}")
