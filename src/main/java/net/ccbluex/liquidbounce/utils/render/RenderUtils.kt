@@ -44,7 +44,7 @@ object RenderUtils : MinecraftInstance {
     }
     var deltaTime = 0
 
-    fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime / (ticks.toDouble() * 50)).coerceAtMost(1.0)
+    fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime safeDivD ticks * 50.0).coerceAtMost(1.0)
 
     private const val CIRCLE_STEPS = 40
 
@@ -1058,7 +1058,7 @@ object RenderUtils : MinecraftInstance {
                 val (cx, cy, startAngle, ox, oy) = directionData
 
                 if (corner in cornersToRound.corners) {
-                    for (i in 0..90 step 1) {
+                    for (i in 0..90 step 10) {
                         val angle = Math.toRadians(startAngle + i)
                         val x = cx + radiusD * sin(angle)
                         val y = cy + radiusD * cos(angle)
@@ -1183,7 +1183,7 @@ object RenderUtils : MinecraftInstance {
 
                 for (corner in corners) {
                     val (cx, cy, startAngle) = corner
-                    for (i in 0..90 step 1) {
+                    for (i in 0..90 step 10) {
                         val angle = Math.toRadians(startAngle + i)
                         val px = cx + radiusD * sin(angle)
                         val py = cy + radiusD * cos(angle)
