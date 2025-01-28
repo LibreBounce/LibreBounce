@@ -90,7 +90,9 @@ object CommandValue : CommandFactory {
                             is Value -> {
                                 if (value.getValue() is Boolean) {
                                     listOf("true", "false").filter { it.startsWith(begin, true) }
-                                } else emptyList()
+                                } else {
+                                    emptyList()
+                                }
                             }
                         }
                     }
