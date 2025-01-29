@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.kotlin.removeEach
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
@@ -43,6 +44,14 @@ class Notifications(
 
     private val exampleNotification = Notification("Example Title", "Example Description")
 
+    private var index = 0
+
+    override fun updateElement() {
+        if (mc.currentScreen is GuiHudDesigner && ClientUtils.runTimeTicks % 60 == 0) {
+            exampleNotification.severityType = SeverityType.entries[++index % SeverityType.entries.size]
+        }
+    }
+
     override fun drawElement(): Border? {
         var verticalOffset = 0f
 
@@ -57,7 +66,10 @@ class Notifications(
         }
 
         if (mc.currentScreen is GuiHudDesigner) {
-            if (exampleNotification !in HUD.notifications) addNotification(exampleNotification)
+            if (exampleNotification !in HUD.notifications) {
+                index = 0
+                addNotification(exampleNotification)
+            }
 
             exampleNotification.fadeState = Notification.FadeState.STAY
             exampleNotification.textLength = Fonts.font35.getStringWidth(exampleNotification.longestString)
@@ -86,7 +98,7 @@ class Notification(
     var title: String,
     var description: String,
     private val delay: Float = 60F,
-    private var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
+    var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
 
