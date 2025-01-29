@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.minecraft.network.play.server.S32PacketConfirmTransaction
 
 object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     private val debug by boolean("Debug", true)
@@ -19,11 +20,12 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     private val actionNumbers = mutableListOf<Int>()
     private var check = false
     private var ticksPassed = 0
+    private var lastWorld: Any? = null
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (packet is net.minecraft.network.play.server.S32PacketConfirmTransaction && check) {
+        if (packet is S32PacketConfirmTransaction && check) {
             actionNumbers.add(packet.actionNumber.toInt())
 
             if (debug) {
@@ -41,7 +43,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     val onTick = handler<GameTickEvent> {
         if (check) ticksPassed++
         if (ticksPassed > 40 && check) {
-            hud.addNotification(Notification("§3Anticheat detection timed out.", 3000F))
+            hud.addNotification(Notification("§3No Anticheat present.", 3000F))
             check = false
             actionNumbers.clear()
         }
@@ -79,6 +81,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
                     else -> "Verus"
                 }
                 -1 -> when {
+                    first < -3000 -> "Intave"
                     first in -5..0 -> "Grim"       
                     first in -3005..-2995 -> "Karhu"        
                     else -> "Polar"
@@ -93,7 +96,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             }
         }
 
-        // Polar 
+        // Polar
         if (differences.size >= 2) {
             val firstDiff = differences[0]
             val secondDiff = differences[1]
@@ -106,7 +109,15 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             }
         }
 
-        hud.addNotification(Notification("§3No known anticheat detected.", 3000F))
+        // Intave zero handling
+        val firstAction = actionNumbers.firstOrNull()
+        if (firstAction != null && firstAction < -3000 && actionNumbers.any { it == 0 }) {
+            hud.addNotification(Notification("§3Anticheat detected: §aIntave", 3000F))
+            actionNumbers.clear()
+            return
+        }
+
+        hud.addNotification(Notification("§3Anticheat detected: §aUnknown", 3000F))
         if (debug) {
             chat("§3Action Numbers: ${actionNumbers.joinToString()}")
             chat("§3Differences: ${differences.joinToString()}")
@@ -118,5 +129,6 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
         actionNumbers.clear()
         ticksPassed = 0
         check = false
+        lastWorld = null
     }
 }
