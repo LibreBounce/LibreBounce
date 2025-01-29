@@ -65,12 +65,7 @@ internal object VelocityStrafe : VelocityMode("Strafe") {
             RotationManager.currentRotation ?: player.rotation
         )
 
-        if (!isFacingEnemy) {
-            shouldStrafe = false
-            return@handler
-        }
-
-        shouldStrafe = true
+        shouldStrafe = isFacingEnemy
     }
 
     @Suppress("unused")
