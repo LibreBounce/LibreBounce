@@ -57,8 +57,8 @@ class Target : Element("Target") {
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
 
-    private val titleFont by font("TitleFont", Fonts.font40)
-    private val bodyFont by font("BodyFont", Fonts.font35)
+    private val titleFont by font("TitleFont", Fonts.fontSemibold40)
+    private val bodyFont by font("BodyFont", Fonts.fontSemibold35)
     private val textShadow by boolean("TextShadow", false)
 
     private val fadeSpeed by float("FadeSpeed", 2F, 1F..9F)

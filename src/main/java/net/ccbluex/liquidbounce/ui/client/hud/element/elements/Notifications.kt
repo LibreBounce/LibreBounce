@@ -72,7 +72,7 @@ class Notifications(
             }
 
             exampleNotification.fadeState = Notification.FadeState.STAY
-            exampleNotification.textLength = Fonts.font35.getStringWidth(exampleNotification.longestString)
+            exampleNotification.textLength = Fonts.fontSemibold35.getStringWidth(exampleNotification.longestString)
 
             val notificationHeight = Notification.MAX_HEIGHT
 
@@ -107,7 +107,7 @@ class Notification(
     var textLength = 0
 
     val longestString
-        get() = arrayOf(title to Fonts.font40, description to Fonts.font35).maxBy {
+        get() = arrayOf(title to Fonts.fontSemibold40, description to Fonts.fontSemibold35).maxBy {
             it.second.getStringWidth(it.first)
         }.first
 
@@ -129,7 +129,7 @@ class Notification(
         this.title = title
         this.description = description
 
-        textLength = Fonts.font35.getStringWidth(longestString)
+        textLength = Fonts.fontSemibold35.getStringWidth(longestString)
         maxTextLength = maxOf(textLength, maxTextLength)
 
         HUD.notifications.sortBy { it.stay }
@@ -158,7 +158,7 @@ class Notification(
     }
 
     init {
-        textLength = Fonts.font35.getStringWidth(longestString)
+        textLength = Fonts.fontSemibold35.getStringWidth(longestString)
         maxTextLength = maxOf(textLength, maxTextLength)
     }
 
@@ -188,9 +188,9 @@ class Notification(
 
         val nearTopSpot = -y - MAX_HEIGHT + 10
 
-        Fonts.font40.drawString(title, ICON_SIZE + 8F - currentX, nearTopSpot - 5, Color.WHITE.rgb)
-        Fonts.font35.drawString(
-            description, ICON_SIZE + 8F - currentX, nearTopSpot + Fonts.font40.fontHeight - 2, Int.MAX_VALUE
+        Fonts.fontSemibold40.drawString(title, ICON_SIZE + 8F - currentX, nearTopSpot - 5, Color.WHITE.rgb)
+        Fonts.fontSemibold35.drawString(
+            description, ICON_SIZE + 8F - currentX, nearTopSpot + Fonts.fontSemibold40.fontHeight - 2, Int.MAX_VALUE
         )
 
         RenderUtils.drawImage(

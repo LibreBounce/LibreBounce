@@ -116,7 +116,7 @@ public abstract class MixinGuiButton extends Gui {
 
             AWTFontRenderer.Companion.setAssumeNonVolatile(true);
 
-            final FontRenderer fontRenderer = Fonts.font35;
+            final FontRenderer fontRenderer = Fonts.fontSemibold35;
             fontRenderer.drawStringWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getStringWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
 
             AWTFontRenderer.Companion.setAssumeNonVolatile(false);

@@ -23,7 +23,7 @@ class GuiWelcome : AbstractScreen() {
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) = assumeNonVolatile {
         drawBackground(0)
 
-        Fonts.font35.run {
+        Fonts.fontSemibold35.run {
             drawCenteredString("Thank you for downloading and installing our client!", width / 2F, 70f, 0xffffff, true)
             drawCenteredString(
                 "Here is some information you might find useful if you are using LiquidBounce for the first time.",
@@ -100,7 +100,7 @@ class GuiWelcome : AbstractScreen() {
 
         // Title
         glScalef(2F, 2F, 2F)
-        Fonts.font40.drawCenteredString("Welcome!", width / 2 / 2F, 20.0f, Color(0, 140, 255).rgb, true)
+        Fonts.fontSemibold40.drawCenteredString("Welcome!", width / 2 / 2F, 20.0f, Color(0, 140, 255).rgb, true)
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {

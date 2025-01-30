@@ -89,8 +89,8 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
 
-        Fonts.font40.drawCenteredString("Port Scanner", (width / 2).toFloat(), 34f, 0xffffff)
-        Fonts.font35.drawCenteredString(
+        Fonts.fontSemibold40.drawCenteredString("Port Scanner", (width / 2).toFloat(), 34f, 0xffffff)
+        Fonts.fontSemibold35.drawCenteredString(
             if (running) "§7$checkedPort §8/ §7$maxPort" else status, (width / 2).toFloat(), (height / 4 + 80).toFloat(), 0xffffff
         )
 
@@ -101,7 +101,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
         maxPortField.drawTextBox()
         parallelismField.drawTextBox()
 
-        Fonts.font40.drawString("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
+        Fonts.fontSemibold40.drawString("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
 
         var yOffset = 12
         for (port in ports) {

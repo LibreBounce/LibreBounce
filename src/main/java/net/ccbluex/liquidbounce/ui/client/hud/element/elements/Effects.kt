@@ -26,7 +26,7 @@ class Effects(
     side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
 ) : Element("Effects", x, y, scale, side) {
 
-    private val font by font("Font", Fonts.font35)
+    private val font by font("Font", Fonts.fontSemibold35)
     private val shadow by boolean("Shadow", true)
 
     /**

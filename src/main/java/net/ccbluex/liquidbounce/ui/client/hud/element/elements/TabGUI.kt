@@ -68,7 +68,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128)) { iconShadows }
 
     private val arrows by boolean("Arrows", false)
-    private val font by font("Font", Fonts.font35)
+    private val font by font("Font", Fonts.fontSemibold35)
     private val textShadow by boolean("TextShadow", false)
     private val textFade by boolean("TextFade", true)
     private val textPositionY by float("TextPosition-Y", 2F, 0F..5F)
@@ -100,10 +100,10 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private var itemY = 0F
 
     init {
-        for (category in Category.entries) {
+        for (category in Category.entries.sortedBy { it.displayName }) {
             val tab = Tab(category, category.displayName)
 
-            moduleManager.forEach { module ->
+            moduleManager.sortedBy { it.spacedName }.forEach { module ->
                 if (category == module.category) {
                     tab.modules += module
                 }

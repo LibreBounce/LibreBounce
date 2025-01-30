@@ -145,7 +145,7 @@ class Arraylist(
         tags
     }.onChanged { updateTagDetails() }
 
-    private val font by font("Font", Fonts.font40)
+    private val font by font("Font", Fonts.fontSemibold40)
     private val textShadow by boolean("ShadowText", true)
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val space by float("Space", 0F, 0F..5F)

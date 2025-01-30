@@ -47,7 +47,7 @@ class GuiModsMenu(private val prevGui: GuiScreen) : AbstractScreen() {
         )
         +GuiButton(5, width / 2 - 100, height / 4 + 48 + 255, "Back")
 
-        customTextField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 48 + 190, 200, 20)
+        customTextField = GuiTextField(2, Fonts.fontSemibold35, width / 2 - 100, height / 4 + 48 + 190, 200, 20)
         customTextField.maxStringLength = Int.MAX_VALUE
     }
 
@@ -147,15 +147,15 @@ class GuiModsMenu(private val prevGui: GuiScreen) : AbstractScreen() {
 
         Fonts.fontBold180.drawCenteredString(translationMenu("mods"), width / 2F, height / 8F + 5F, 4673984, true)
 
-        Fonts.font40.drawCenteredString("Rich Presence Settings:", width / 2F, height / 4 + 48 + 70F, 0xffffff, true)
-        Fonts.font40.drawCenteredString("Rich Presence Text:", width / 2F, height / 4 + 48 + 175F, 0xffffff, true)
+        Fonts.fontSemibold40.drawCenteredString("Rich Presence Settings:", width / 2F, height / 4 + 48 + 70F, 0xffffff, true)
+        Fonts.fontSemibold40.drawCenteredString("Rich Presence Text:", width / 2F, height / 4 + 48 + 175F, 0xffffff, true)
 
         customTextField.drawTextBox()
         if (customTextField.text.isEmpty() && !customTextField.isFocused) {
-            Fonts.font35.drawStringWithShadow(
+            Fonts.fontSemibold35.drawStringWithShadow(
                 clientRichPresence.customRPCText.ifEmpty { translationMenu("discordRPC.typeBox") },
                 customTextField.xPosition + 4f,
-                customTextField.yPosition + (customTextField.height - Fonts.font35.FONT_HEIGHT) / 2F,
+                customTextField.yPosition + (customTextField.height - Fonts.fontSemibold35.FONT_HEIGHT) / 2F,
                 0xffffff
             )
         }

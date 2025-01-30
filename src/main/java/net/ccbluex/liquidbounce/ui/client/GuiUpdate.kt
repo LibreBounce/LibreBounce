@@ -29,20 +29,20 @@ class GuiUpdate : AbstractScreen() {
         drawBackground(0)
 
         if (!IN_DEV) {
-            Fonts.font35.drawCenteredString(
+            Fonts.fontSemibold35.drawCenteredString(
                 "${ClientUpdate.newestVersion?.lbVersion} got released!",
                 width / 2f,
                 height / 8f + 80,
                 0xffffff
             )
         } else {
-            Fonts.font35.drawCenteredString("New build available!", width / 2f, height / 8f + 80, 0xffffff)
+            Fonts.fontSemibold35.drawCenteredString("New build available!", width / 2f, height / 8f + 80, 0xffffff)
         }
 
-        Fonts.font35.drawCenteredString(
+        Fonts.fontSemibold35.drawCenteredString(
             "Press \"Download\" to visit our website or dismiss this message by pressing \"OK\".",
             width / 2f,
-            height / 8f + 80 + Fonts.font35.fontHeight,
+            height / 8f + 80 + Fonts.fontSemibold35.fontHeight,
             0xffffff
         )
 
@@ -50,7 +50,7 @@ class GuiUpdate : AbstractScreen() {
 
         // Title
         glScalef(2F, 2F, 2F)
-        Fonts.font35.drawCenteredString("New update available!", width / 4f, height / 16f + 20, Color(255, 0, 0).rgb)
+        Fonts.fontSemibold35.drawCenteredString("New update available!", width / 4f, height / 16f + 20, Color(255, 0, 0).rgb)
     }
 
     override fun actionPerformed(button: GuiButton) {

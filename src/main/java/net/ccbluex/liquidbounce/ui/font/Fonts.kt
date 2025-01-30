@@ -31,10 +31,13 @@ object Fonts : MinecraftInstance {
         mc.fontRendererObj
     }
 
-    lateinit var font35: GameFontRenderer
-
-    lateinit var font40: GameFontRenderer
-
+    lateinit var fontExtraBold30: GameFontRenderer
+    lateinit var fontExtraBold40: GameFontRenderer
+    lateinit var fontSemibold35: GameFontRenderer
+    lateinit var fontSemibold40: GameFontRenderer
+    lateinit var fontRegular40: GameFontRenderer
+    lateinit var fontRegular45: GameFontRenderer
+    lateinit var fontRegular35: GameFontRenderer
     lateinit var fontBold180: GameFontRenderer
 
     private fun <T : FontRenderer> register(fontInfo: FontInfo, fontRenderer: T): T {
@@ -49,14 +52,55 @@ object Fonts : MinecraftInstance {
 
             register(FontInfo(name = "Minecraft Font"), minecraftFont)
 
-            font35 = register(FontInfo(name = "Roboto Medium", size = 35),
-                getFontFromFile("Roboto-Medium.ttf", 35).asGameFontRenderer())
+            fontSemibold35 = register(
+                FontInfo(name = "Roboto Semibold", size = 35),
+                getFontFromFile("Outfit-Semibold.ttf", 35).asGameFontRenderer()
+            )
 
-            font40 = register(FontInfo(name = "Roboto Medium", size = 40),
-                getFontFromFile("Roboto-Medium.ttf", 40).asGameFontRenderer())
+            fontRegular35 = register(
+                FontInfo(name = "Outfit Regular", size = 35),
+                getFontFromFile("Outfit-Regular.ttf", 35).asGameFontRenderer()
+            )
 
-            fontBold180 = register(FontInfo(name = "Roboto Bold", size = 180),
-                getFontFromFile("Roboto-Bold.ttf", 180).asGameFontRenderer())
+            fontRegular40 = register(
+                FontInfo(name = "Outfit Regular", size = 40),
+                getFontFromFile("Outfit-Regular.ttf", 40).asGameFontRenderer()
+            )
+
+            fontSemibold40 = register(
+                FontInfo(name = "Outfit Semibold", size = 40),
+                getFontFromFile("Outfit-Semibold.ttf", 40).asGameFontRenderer()
+            )
+
+            fontSemibold35 = register(
+                FontInfo(name = "Outfit Semibold", size = 35),
+                getFontFromFile("Outfit-Semibold.ttf", 35).asGameFontRenderer()
+            )
+
+            fontRegular45 = register(
+                FontInfo(name = "Outfit Regular", size = 45),
+                getFontFromFile("Outfit-Regular.ttf", 45).asGameFontRenderer()
+            )
+
+            fontSemibold40 = register(
+                FontInfo(name = "Outfit Semibold", size = 40),
+                getFontFromFile("Outfit-Semibold.ttf", 40).asGameFontRenderer()
+            )
+
+            fontExtraBold30 = register(
+                FontInfo(name = "Outfit Extrabold", size = 30),
+                getFontFromFile("Outfit-Extrabold.ttf", 30).asGameFontRenderer()
+            )
+
+            fontExtraBold40 = register(
+                FontInfo(name = "Outfit Extrabold", size = 40),
+                getFontFromFile("Outfit-Extrabold.ttf", 40).asGameFontRenderer()
+            )
+
+            fontBold180 = register(
+                FontInfo(name = "Outfit Bold", size = 180),
+                getFontFromFile("Outfit-Bold.ttf", 180).asGameFontRenderer()
+            )
 
             loadCustomFonts()
         }
