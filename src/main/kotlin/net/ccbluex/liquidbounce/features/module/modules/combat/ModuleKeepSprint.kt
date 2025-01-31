@@ -24,14 +24,20 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.kotlin.random
+import kotlin.random.Random
 
 /**
  * When hitting an entity, the player will keep sprinting
  */
 object ModuleKeepSprint : ClientModule("KeepSprint", Category.COMBAT) {
     private val motion by floatRange("Motion", 100f..100f, 0f..100f, "%")
+    private val chance by float("Chance", 100f, 0f..100f, "%")
 
     fun getMotion(): Double {
+        if (Random.nextFloat() * 100 > chance) {
+            return 0.6
+        }
+
         return motion.random() / 100.0
     }
 }

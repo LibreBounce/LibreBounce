@@ -25,10 +25,11 @@ import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.entity.lastRotation
+import net.ccbluex.liquidbounce.utils.entity.prevPos
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
@@ -76,7 +77,7 @@ object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Aim") {
                     addProperty("z", velocity.z)
                 })
                 addProperty("distance", player.distanceTo(it))
-                val rotation = Rotation.lookingAt(point = it.box.center, from = player.eyes)
+                val rotation = Rotation.lookingAt(point = it.box.center, from = player.eyePos)
 
                 val delta = rotation.rotationDeltaTo(playerRotation)
 

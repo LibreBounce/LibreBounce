@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -53,14 +54,22 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
         )
     }
 
-    private val friendColor by color("Friends", Color4b(0, 0, 255))
+    private val friendColor by color("Friends", Color4b.GREEN)
 
-    abstract class EspMode(
+    sealed class EspMode(
         name: String,
         val requiresTrueSight: Boolean = false
     ) : Choice(name) {
         override val parent
             get() = modes
+    }
+
+    override fun enable() {
+        RenderedEntities.subscribe(this)
+    }
+
+    override fun disable() {
+        RenderedEntities.unsubscribe(this)
     }
 
     private object BoxMode : EspMode("Box") {
@@ -71,7 +80,7 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
         val renderHandler = handler<WorldRenderEvent> { event ->
             val matrixStack = event.matrixStack
 
-            val entitiesWithBoxes = findRenderedEntities().map { entity ->
+            val entitiesWithBoxes = RenderedEntities.map { entity ->
                 val dimensions = entity.getDimensions(entity.pose)
 
                 val d = dimensions.width.toDouble() / 2.0
@@ -105,8 +114,6 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
     object GlowMode : EspMode("Glow", requiresTrueSight = true)
 
     object OutlineMode : EspMode("Outline", requiresTrueSight = true)
-
-    fun findRenderedEntities() = world.entities.filterIsInstance<LivingEntity>().filter { it.shouldBeShown() }
 
     private fun getBaseColor(entity: LivingEntity): Color4b {
         if (entity is PlayerEntity) {

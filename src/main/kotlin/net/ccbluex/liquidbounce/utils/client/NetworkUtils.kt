@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.ModulePacketLogger
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
-import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
+import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.network.ClientPlayerInteractionManager
 import net.minecraft.client.network.SequencedPacketCreator
@@ -53,7 +53,7 @@ fun clickBlockWithSlot(
     swingMode: SwingMode,
     switchMode: SwitchMode = SwitchMode.SILENT
 ) {
-    val hand = if (slot == OFFHAND_SLOT.hotbarSlotForServer) {
+    val hand = if (slot == OffHandSlot.hotbarSlotForServer) {
         Hand.OFF_HAND
     } else {
         Hand.MAIN_HAND

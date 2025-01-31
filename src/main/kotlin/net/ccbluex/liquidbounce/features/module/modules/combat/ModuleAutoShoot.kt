@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -35,28 +35,23 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
+import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.interactItem
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
-import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryData
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
-import kotlin.math.atan
-import kotlin.math.atan2
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 /**
  * A module that automatically shoots at the nearest enemy.
@@ -115,7 +110,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      * as fast possible. This means we already pre-aim before we peek around the corner.
      */
     @Suppress("unused")
-    val simulatedTickHandler = handler<SimulatedTickEvent> {
+    val simulatedTickHandler = handler<RotationUpdateEvent> {
         targetTracker.cleanup()
 
         // Find the recommended target
@@ -269,7 +264,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         // If both is false, we have to find the item in the hotbar
         return if (!mainHand && !offHand) {
-            val throwableSlot = findHotbarSlot(item) ?: return null
+            val throwableSlot = Slots.Hotbar.findSlotIndex(item) ?: return null
             Hand.MAIN_HAND to throwableSlot
         } else if (offHand) {
             Hand.OFF_HAND to -1

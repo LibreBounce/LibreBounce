@@ -25,13 +25,14 @@ import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.RenderEnvironment
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities.iterator
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.Entity
 import kotlin.math.abs
@@ -78,15 +79,17 @@ object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
     }
 
     override fun disable() {
+        RenderedEntities.unsubscribe(this)
         nametagsToRender = null
     }
 
     override fun enable() {
+        RenderedEntities.subscribe(this)
         nametagsToRender = null
     }
 
     @Suppress("unused")
-    val overlayRenderHandler = handler<OverlayRenderEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+    val overlayRenderHandler = handler<OverlayRenderEvent>(priority = FIRST_PRIORITY) { event ->
         renderEnvironmentForGUI {
             val nametagRenderer = NametagRenderer()
 
@@ -123,7 +126,7 @@ object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
 
         val maximumDistanceSquared = maximumDistance.sq()
 
-        for (entity in ModuleESP.findRenderedEntities()) {
+        for (entity in RenderedEntities) {
             if (entity.squaredDistanceTo(mc.cameraEntity) > maximumDistanceSquared) {
                 continue
             }

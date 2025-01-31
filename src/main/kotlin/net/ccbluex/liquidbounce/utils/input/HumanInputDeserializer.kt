@@ -15,12 +15,11 @@ object HumanInputDeserializer {
     val textDeserializer = StringDeserializer { it }
     val booleanDeserializer = StringDeserializer { str ->
         when (str.lowercase(Locale.ROOT)) {
-            "true", "on" -> true
-            "false", "off" -> false
-            else -> require(false) { "Unknown boolean value '$str' (allowed are true/on or false/off)" }
+            "true", "on", "yes" -> true
+            "false", "off", "no" -> false
+            else -> require(false) { "Unknown boolean value '$str' (allowed are true/on/yes or false/off/no)" }
         }
     }
-
 
     val floatDeserializer = StringDeserializer(String::toFloat)
     val floatRangeDeserializer = StringDeserializer { str ->
@@ -34,7 +33,7 @@ object HumanInputDeserializer {
     val textArrayDeserializer = StringDeserializer { parseArray(it, textDeserializer) }
 
     val colorDeserializer = StringDeserializer {
-        if (it.startsWith("#")) {
+        if (it.startsWith('#')) {
             Color4b.fromHex(it)
         } else {
             Color4b(Color(it.toInt()))

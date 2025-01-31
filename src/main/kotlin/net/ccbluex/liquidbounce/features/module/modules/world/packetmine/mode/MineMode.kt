@@ -16,17 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
+package net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.MineTarget
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.utils.block.isBreakable
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
 import net.minecraft.block.BlockState
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
 
 abstract class MineMode(
     name: String,
@@ -35,23 +36,22 @@ abstract class MineMode(
     val stopOnStateChange: Boolean = true
 ) : Choice(name) {
 
-    open fun isInvalid(blockPos: BlockPos, state: BlockState): Boolean {
-        return state.isNotBreakable(blockPos) && !player.isCreative || state.isAir
+    open fun isInvalid(mineTarget: MineTarget, state: BlockState): Boolean {
+        return state.isNotBreakable(mineTarget.targetPos) && !player.isCreative || state.isAir
     }
 
     open fun shouldTarget(blockPos: BlockPos, state: BlockState): Boolean {
         return state.isBreakable(blockPos)
     }
 
-    open fun onCannotLookAtTarget(blockPos: BlockPos) {}
+    open fun onCannotLookAtTarget(mineTarget: MineTarget) {}
 
-    abstract fun start(blockPos: BlockPos, direction: Direction?)
+    abstract fun start(mineTarget: MineTarget)
 
-    abstract fun finish(blockPos: BlockPos, direction: Direction)
+    abstract fun finish(mineTarget: MineTarget)
 
     abstract fun shouldUpdate(
-        blockPos: BlockPos,
-        direction: Direction,
+        mineTarget: MineTarget,
         slot: IntObjectImmutablePair<ItemStack>?
     ): Boolean
 

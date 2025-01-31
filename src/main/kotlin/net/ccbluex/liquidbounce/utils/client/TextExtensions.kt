@@ -121,7 +121,7 @@ fun String.translateColorCodes(): String {
 
     val chars = toCharArray()
     for (i in 0 until chars.size - 1) {
-        if (chars[i] == '&' && charset.contains(chars[i + 1], true)) {
+        if (chars[i] == '&' && charset.contains(chars[i + 1])) {
             chars[i] = '§'
             chars[i + 1] = chars[i + 1].lowercaseChar()
         }
@@ -130,11 +130,10 @@ fun String.translateColorCodes(): String {
     return String(chars)
 }
 
-fun String.toLowerCamelCase() = this.replaceFirst(this.toCharArray()[0], this.toCharArray()[0].lowercaseChar())
+fun String.toLowerCamelCase() = this.replaceFirst(this[0], this[0].lowercaseChar())
 
 fun String.dropPort(): String {
-    val parts = this.split(":")
-    return parts[0]
+    return this.substringBefore(':')
 }
 
 /**
@@ -157,11 +156,11 @@ fun String.rootDomain(): String {
     }
 
     // Check if domain ends with dot, if so, remove it
-    if (domain.endsWith(".")) {
+    if (domain.endsWith('.')) {
         domain = domain.dropLast(1)
     }
 
-    val parts = domain.split(".")
+    val parts = domain.split('.')
     if (parts.size <= 2) {
         // Already a root domain
         return domain

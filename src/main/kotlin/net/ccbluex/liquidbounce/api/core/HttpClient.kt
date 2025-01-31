@@ -18,10 +18,7 @@
  */
 package net.ccbluex.liquidbounce.api.core
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.minecraft.client.texture.NativeImage
@@ -31,12 +28,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSource
 import java.io.File
-import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -78,28 +71,17 @@ object HttpClient {
         agent: String = DEFAULT_AGENT,
         headers: Headers.Builder.() -> Unit = {},
         body: RequestBody? = null
-    ): Response = suspendCoroutine { continuation ->
+    ): Response = withContext(Dispatchers.IO) {
         val request = createRequest(url, method, agent, Headers.Builder().apply(headers).build(), body)
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    continuation.resumeWithException(
-                        HttpException(method, url, response.code, response.body.string())
-                    )
-                    return
-                }
-
-                continuation.resume(response)
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                continuation.resumeWithException(e)
-            }
-        })
+        val response = client.newCall(request).execute()
+        if (!response.isSuccessful) {
+            throw HttpException(method, url, response.code, response.body.string())
+        }
+        response
     }
 
-    suspend fun download(url: String, file: File, agent: String = DEFAULT_AGENT) {
+    suspend fun download(url: String, file: File, agent: String = DEFAULT_AGENT) = withContext(Dispatchers.IO) {
         val request = createRequest(url, HttpMethod.GET, agent)
 
         client.newCall(request).execute().use { response ->
@@ -108,7 +90,7 @@ object HttpClient {
             }
 
             file.outputStream().use { output ->
-                response.parse<InputStream>().use { input ->
+                response.body.byteStream().use { input ->
                     input.copyTo(output)
                 }
             }
@@ -121,17 +103,17 @@ enum class HttpMethod {
     GET, POST, PUT, DELETE, PATCH
 }
 
-suspend inline fun <reified T> Response.parse(): T {
+inline fun <reified T> Response.parse(): T {
     return use {
-        when (T::class) {
-            String::class -> body.string() as T
-            Unit::class -> Unit as T
-            InputStream::class -> body.byteStream() as T
-            BufferedSource::class -> body.source() as T
-            NativeImageBackedTexture::class -> body.byteStream().use { stream ->
+        when (T::class.java) {
+            String::class.java -> body.string() as T
+            Unit::class.java -> Unit as T
+            InputStream::class.java -> body.byteStream() as T
+            BufferedSource::class.java -> body.source() as T
+            NativeImageBackedTexture::class.java -> body.byteStream().use { stream ->
                 NativeImageBackedTexture(NativeImage.read(stream)) as T
             }
-            else -> decode<T>(body.string())
+            else -> decode<T>(body.charStream())
         }
     }
 }

@@ -18,6 +18,9 @@
  */
 package net.ccbluex.liquidbounce.utils.kotlin
 
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING
+
+
 enum class Priority(val priority: Int) {
     NOT_IMPORTANT(-20),
     NORMAL(0),
@@ -42,6 +45,12 @@ object EventPriorityConvention {
      * The event should be called first.
      */
     const val FIRST_PRIORITY: Short = 1000
+
+    /**
+     * Priority for critical modifications that need to happen early in the event chain,
+     * after input preparation but before model state processing
+     */
+    const val CRITICAL_MODIFICATION: Short = 500
 
     /**
      * At the stage of modeling what the player is actually going to do after other events added their suggestions

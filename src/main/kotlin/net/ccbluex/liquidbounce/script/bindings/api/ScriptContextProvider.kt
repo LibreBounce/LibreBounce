@@ -53,7 +53,7 @@ object ScriptContextProvider {
         putMember("InteractionUtil", ScriptInteractionUtil)
         putMember("BlockUtil", ScriptBlockUtil)
         putMember("MovementUtil", ScriptMovementUtil)
-        putMember("ReflectionUtil", ScriptReflectionUtil)
+        putMember("ReflectionUtil", ScriptReflectionUtil())
         putMember("ParameterValidator", ScriptParameterValidator(bindings))
         putMember("UnsafeThread", ScriptUnsafeThread)
     }

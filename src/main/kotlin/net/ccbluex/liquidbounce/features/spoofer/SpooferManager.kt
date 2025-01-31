@@ -16,4 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.render
+package net.ccbluex.liquidbounce.features.spoofer
+
+import net.ccbluex.liquidbounce.config.types.Configurable
+
+/**
+ * Spoofer Manager
+ *
+ * Includes all spoofer features shown in the Multiplayer GUI.
+ * Spoofers will usually allow fixes or spoof data sent to the server
+ * to e.g. trick the server into thinking you are connecting from
+ * another client brand.
+ */
+object SpooferManager : Configurable("Spoofer") {
+    init {
+        tree(SpooferClient)
+        tree(SpooferResourcePack)
+        tree(SpooferBungeeCord)
+        tree(SpooferTranslation)
+    }
+}

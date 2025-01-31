@@ -19,10 +19,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
-import net.ccbluex.liquidbounce.utils.item.EnchantmentValueEstimator
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.ccbluex.liquidbounce.utils.sorting.compareByCondition
-import net.minecraft.enchantment.Enchantments
 import net.minecraft.item.FishingRodItem
 
 class ThrowableItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {

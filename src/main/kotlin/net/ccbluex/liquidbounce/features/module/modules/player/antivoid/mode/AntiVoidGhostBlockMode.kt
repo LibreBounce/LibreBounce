@@ -25,7 +25,10 @@ import net.ccbluex.liquidbounce.event.events.BlockShapeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid.isLikelyFalling
+import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid.nonFallingPosition
+import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.mode.AntiVoidGhostBlockMode.handleBlockShape
 import net.minecraft.util.shape.VoxelShapes
+import kotlin.math.floor
 
 object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
 
@@ -39,7 +42,7 @@ object AntiVoidGhostBlockMode : AntiVoidMode("GhostBlock") {
         }
 
         // We only want to place a fake-block collision below the player if the collision shape is empty.
-        if (event.shape != VoxelShapes.empty() || event.pos.y >= player.blockY) {
+        if (event.shape != VoxelShapes.empty() || event.pos.y >= floor(nonFallingPosition.y)) {
             return@handler
         }
 

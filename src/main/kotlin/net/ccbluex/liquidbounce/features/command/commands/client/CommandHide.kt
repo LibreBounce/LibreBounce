@@ -136,7 +136,7 @@ object CommandHide : CommandFactory {
 
             module.hidden = true
             chat(
-                command.result("moduleHidden"), variable(module.name),
+                command.result("moduleHidden", variable(module.name)),
                 metadata = MessageMetadata(id = "CHide#info")
             )
         }

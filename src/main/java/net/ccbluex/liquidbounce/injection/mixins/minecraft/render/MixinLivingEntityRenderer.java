@@ -57,7 +57,7 @@ public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingE
             }
         }
 
-        if (ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableRotations()) {
+        if (ModuleFreeCam.INSTANCE.getRunning()) {
             var serverRotation = RotationManager.INSTANCE.getServerRotation();
             return new Pair<>(serverRotation, serverRotation);
         }

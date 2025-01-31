@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.minecraft.entity.EntityPose
 import net.minecraft.item.ItemStack
+import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.Vec3d
 
 abstract class ScaffoldTechnique(name: String) : Choice(name) {
@@ -44,6 +45,7 @@ abstract class ScaffoldTechnique(name: String) : Choice(name) {
 
     open fun getRotations(target: BlockPlacementTarget?) = target?.rotation
 
-    open fun getCrosshairTarget(target: BlockPlacementTarget?, rotation: Rotation) = raycast(rotation)
+    open fun getCrosshairTarget(target: BlockPlacementTarget?, rotation: Rotation): BlockHitResult? =
+        raycast(rotation)
 
 }

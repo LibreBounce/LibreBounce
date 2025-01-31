@@ -32,6 +32,13 @@ export async function getModules(): Promise<Module[]> {
     return data;
 }
 
+export async function getModule(name: string): Promise<Module> {
+    const response = await fetch(`${API_BASE}/client/module/${name}`);
+    const data = await response.json();
+
+    return data;
+}
+
 export async function getModuleSettings(name: string): Promise<ConfigurableSetting> {
     const searchParams = new URLSearchParams({name});
 
@@ -45,6 +52,23 @@ export async function setModuleSettings(name: string, settings: ConfigurableSett
     const searchParams = new URLSearchParams({name});
 
     await fetch(`${API_BASE}/client/modules/settings?${searchParams.toString()}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(settings)
+    });
+}
+
+export async function getSpooferSettings(): Promise<ConfigurableSetting> {
+    const response = await fetch(`${API_BASE}/client/spoofer`);
+    const data = await response.json();
+
+    return data;
+}
+
+export async function setSpooferSettings(settings: ConfigurableSetting) {
+    await fetch(`${API_BASE}/client/spoofer`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
@@ -167,6 +191,12 @@ export async function openScreen(name: string) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({name})
+    });
+}
+
+export async function deleteScreen() {
+    await fetch(`${API_BASE}/client/screen`, {
+        method: "DELETE"
     });
 }
 
@@ -602,4 +632,14 @@ export async function randomUsername(): Promise<string> {
     let data: GeneratorResult = await response.json();
 
     return data.name;
+}
+
+export async function setTyping(typing: boolean) {
+    await fetch(`${API_BASE}/client/typing`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({typing})
+    });
 }

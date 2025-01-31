@@ -22,16 +22,14 @@ import com.oracle.truffle.runtime.collection.ArrayQueue
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
-import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
@@ -39,10 +37,12 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
+import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
-import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
@@ -86,9 +86,11 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     private val queue = ArrayQueue<Rotation>()
 
     private val enderPearlSlot: HotbarItemSlot?
-        get() = if (OFFHAND_SLOT.itemStack.item == Items.ENDER_PEARL) {
-            OFFHAND_SLOT
-        } else { findHotbarItemSlot(Items.ENDER_PEARL) }
+        get() = if (OffHandSlot.itemStack.item == Items.ENDER_PEARL) {
+            OffHandSlot
+        } else {
+            Slots.Hotbar.findSlot(Items.ENDER_PEARL)
+        }
 
     @Suppress("unused")
     private val pearlSpawnHandler = handler<PacketEvent> { event ->
@@ -111,7 +113,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     }
 
     @Suppress("unused")
-    private val simulatedTickHandler = sequenceHandler<SimulatedTickEvent> {
+    private val simulatedTickHandler = sequenceHandler<RotationUpdateEvent> {
         val rotation = queue.peek() ?: return@sequenceHandler
 
         CombatManager.pauseCombatForAtLeast(combatPauseTime)

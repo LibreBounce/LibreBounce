@@ -20,7 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import it.unimi.dsi.fastutil.booleans.BooleanDoubleImmutablePair
 import it.unimi.dsi.fastutil.objects.ObjectDoubleImmutablePair
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.getBlock
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -123,7 +123,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
     }
 
     @Suppress("unused")
-    private val targetUpdater = handler<SimulatedTickEvent> {
+    private val targetUpdater = handler<RotationUpdateEvent> {
         // all holes, if required 1x1 holes filtered out
         val holes = HoleTracker.holes.filter { !only1by1 || it.type == Hole.Type.ONE_ONE }
 
@@ -156,7 +156,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
 
     private fun getAvailableItemsCount(): Int {
         var itemCount = 0
-        HOTBAR_SLOTS.forEach { slot ->
+        Slots.Hotbar.forEach { slot ->
             val block = slot.itemStack.getBlock() ?: return@forEach
             if (filter(block, blocks)) {
                 itemCount += slot.itemStack.count

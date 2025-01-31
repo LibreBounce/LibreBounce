@@ -22,9 +22,9 @@ package net.ccbluex.liquidbounce.utils.kotlin
 
 import it.unimi.dsi.fastutil.doubles.DoubleIterable
 import it.unimi.dsi.fastutil.doubles.DoubleIterator
-import it.unimi.dsi.fastutil.doubles.DoubleIterators
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntList
+import java.util.stream.Stream
 
 inline infix operator fun IntRange.contains(range: IntRange): Boolean {
     return this.first <= range.first && this.last >= range.last
@@ -180,3 +180,5 @@ inline fun <T> Collection<T>.mapString(transform: (T) -> Char) = with(iterator()
         transform(next())
     })
 }
+
+inline fun <reified T> Stream<T>.toTypedArray(): Array<T> = toArray(::arrayOfNulls)

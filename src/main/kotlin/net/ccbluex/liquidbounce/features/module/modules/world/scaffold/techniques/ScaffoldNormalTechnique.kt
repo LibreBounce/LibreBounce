@@ -132,6 +132,9 @@ object ScaffoldNormalTechnique : ScaffoldTechnique("Normal") {
             AimMode.STABILIZED -> StabilizedRotationTargetPositionFactory(config, optimalLine)
             AimMode.NEAREST_ROTATION -> NearestRotationTargetPositionFactory(config)
             AimMode.REVERSE_YAW -> ReverseYawTargetPositionFactory(config)
+            AimMode.DIAGONAL_YAW -> DiagonalYawTargetPositionFactory(config)
+            AimMode.ANGLE_YAW -> AngleYawTargetPositionFactory(config)
+            AimMode.EDGE_POINT -> EdgePointTargetPositionFactory(config)
         }
     }
 

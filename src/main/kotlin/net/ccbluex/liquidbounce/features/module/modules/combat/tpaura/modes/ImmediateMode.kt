@@ -27,7 +27,7 @@ import kotlin.math.floor
 object ImmediateMode : TpAuraChoice("Immediate") {
 
     val repeatable = tickHandler {
-        if (!clickScheduler.goingToClick) {
+        if (!clickScheduler.isGoingToClick) {
             return@tickHandler
         }
 

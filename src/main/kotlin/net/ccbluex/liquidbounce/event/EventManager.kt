@@ -49,6 +49,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     KeyboardCharEvent::class,
     InputHandleEvent::class,
     MovementInputEvent::class,
+    SprintEvent::class,
     KeyEvent::class,
     MouseRotationEvent::class,
     KeybindChangeEvent::class,
@@ -72,7 +73,6 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerNetworkMovementTickEvent::class,
     PlayerPushOutEvent::class,
     PlayerMoveEvent::class,
-    RotatedMovementInputEvent::class,
     PlayerJumpEvent::class,
     PlayerAfterJumpEvent::class,
     PlayerUseMultiplier::class,
@@ -104,7 +104,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     VirtualScreenEvent::class,
     FpsChangeEvent::class,
     ClientPlayerDataEvent::class,
-    SimulatedTickEvent::class,
+    RotationUpdateEvent::class,
     SplashOverlayEvent::class,
     SplashProgressEvent::class,
     RefreshArrayListEvent::class,
@@ -135,7 +135,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerEquipmentChangeEvent::class,
     ClickGuiValueChangeEvent::class,
     BlockAttackEvent::class,
-    QueuePacketEvent::class
+    QueuePacketEvent::class,
+    MinecraftAutoJumpEvent::class
 )
 
 /**

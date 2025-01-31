@@ -20,6 +20,8 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleNoPitchLimit;
@@ -46,11 +48,6 @@ public abstract class MixinEntity {
 
     @Shadow
     public boolean noClip;
-
-    @Shadow
-    public static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw) {
-        return null;
-    }
 
     @Shadow
     public abstract boolean isOnGround();
@@ -109,26 +106,26 @@ public abstract class MixinEntity {
         return MathHelper.clamp(value, min, max);
     }
 
-    @Redirect(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))
-    public Vec3d hookVelocity(Vec3d movementInput, float speed, float yaw) {
-        if ((Object) this == MinecraftClient.getInstance().player) {
-            PlayerVelocityStrafe event = new PlayerVelocityStrafe(movementInput, speed, yaw, MixinEntity.movementInputToVelocity(movementInput, speed, yaw));
-            EventManager.INSTANCE.callEvent(event);
-            return event.getVelocity();
+    @ModifyExpressionValue(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))
+    public Vec3d hookVelocity(Vec3d original, @Local(argsOnly = true) Vec3d movementInput, @Local(argsOnly = true) float speed, @Local(argsOnly = true) float yaw) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return original;
         }
 
-        return MixinEntity.movementInputToVelocity(movementInput, speed, yaw);
+        var event = new PlayerVelocityStrafe(movementInput, speed, yaw, original);
+        EventManager.INSTANCE.callEvent(event);
+        return event.getVelocity();
     }
 
-    @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getStepHeight()F"))
-    private float hookStepHeight(Entity instance) {
-        if ((Object) this == MinecraftClient.getInstance().player) {
-            PlayerStepEvent stepEvent = new PlayerStepEvent(instance.getStepHeight());
-            EventManager.INSTANCE.callEvent(stepEvent);
-            return stepEvent.getHeight();
+    @ModifyExpressionValue(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getStepHeight()F"))
+    private float hookStepHeight(float original) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return original;
         }
 
-        return instance.getStepHeight();
+        var stepEvent = new PlayerStepEvent(original);
+        EventManager.INSTANCE.callEvent(stepEvent);
+        return stepEvent.getHeight();
     }
 
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",
@@ -141,9 +138,9 @@ public abstract class MixinEntity {
         }
     }
 
-    @Inject(method = "getCameraPosVec", at = @At("RETURN"), cancellable = true)
-    private void hookFreeCamModifiedRaycast(float tickDelta, CallbackInfoReturnable<Vec3d> cir) {
-        cir.setReturnValue(ModuleFreeCam.INSTANCE.modifyRaycast(cir.getReturnValue(), (Entity) (Object) this, tickDelta));
+    @ModifyReturnValue(method = "getCameraPosVec", at = @At("RETURN"))
+    private Vec3d hookFreeCamModifiedRaycast(Vec3d original, float tickDelta) {
+        return ModuleFreeCam.INSTANCE.modifyRaycast(original, (Entity) (Object) this, tickDelta);
     }
 
     /**

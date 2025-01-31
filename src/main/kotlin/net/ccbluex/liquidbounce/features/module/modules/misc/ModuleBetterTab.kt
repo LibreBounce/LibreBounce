@@ -1,3 +1,21 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.config.types.Configurable
@@ -16,16 +34,6 @@ import net.minecraft.text.Text
  * @since 12/28/2024
  **/
 object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
-
-    init {
-        treeAll(
-            Limits,
-            Visibility,
-            Highlight,
-            AccurateLatency,
-            PlayerHider
-        )
-    }
 
     val sorting by enumChoice("Sorting", Sorting.VANILLA)
 
@@ -64,6 +72,17 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
     object PlayerHider : ToggleableConfigurable(ModuleBetterTab, "PlayerHider", false) {
         val filter = tree(PlayerFilter())
     }
+
+    init {
+        treeAll(
+            Limits,
+            Visibility,
+            Highlight,
+            AccurateLatency,
+            PlayerHider
+        )
+    }
+
 }
 
 class PlayerFilter: Configurable("Filter") {

@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.block.isBlockAtPosition
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.block.Block
@@ -63,7 +63,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
     }
 
     val repeatable = tickHandler {
-        val slot = findHotbarSlot(Items.ENDER_PEARL)
+        val slot = Slots.Hotbar.findSlotIndex(Items.ENDER_PEARL)
 
         if (player.isDead || player.isSpectator || player.abilities.creativeMode) {
             return@tickHandler
@@ -96,7 +96,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
                 threwPearl = true
             }
         } else if (!threwPearl && canFly) {
-            player.strafe(speed = speed.toDouble())
+            player.velocity = player.velocity.withStrafe(speed = speed.toDouble())
             player.velocity.y = when {
                 mc.options.jumpKey.isPressed -> speed.toDouble()
                 mc.options.sneakKey.isPressed -> -speed.toDouble()

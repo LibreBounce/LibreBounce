@@ -26,13 +26,14 @@ import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
+import java.util.function.Supplier
 
 /**
  * An item group from the client
  */
 open class ClientItemGroup(
     val plainName: String,
-    val icon: () -> ItemStack,
+    val icon: Supplier<ItemStack>,
     val items: (items: ItemGroup.Entries) -> Unit
 ) {
 

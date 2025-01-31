@@ -1,6 +1,8 @@
 package net.ccbluex.liquidbounce.utils.movement
 
+import net.ccbluex.liquidbounce.utils.entity.untransformed
 import net.minecraft.client.input.Input
+import net.minecraft.util.PlayerInput
 
 data class DirectionalInput(
     val forwards: Boolean,
@@ -8,11 +10,23 @@ data class DirectionalInput(
     val left: Boolean,
     val right: Boolean,
 ) {
+
     constructor(input: Input) : this(
-        input.playerInput.forward,
-        input.playerInput.backward,
-        input.playerInput.left,
-        input.playerInput.right
+        input.untransformed
+    )
+
+    constructor(input: PlayerInput) : this(
+        input.forward,
+        input.backward,
+        input.left,
+        input.right
+    )
+
+    constructor(movementForward: Float, movementSideways: Float) : this(
+        forwards = movementForward > 0.0,
+        backwards = movementForward < 0.0,
+        left = movementSideways > 0.0,
+        right = movementSideways < 0.0
     )
 
     override fun equals(other: Any?): Boolean {

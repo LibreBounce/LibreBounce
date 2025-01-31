@@ -105,7 +105,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
     private void hookFreeCamRenderCrosshairInThirdPerson(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if ((ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableCrosshair())
+        if ((ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableCameraInteract())
                 || ComponentOverlay.isTweakEnabled(FeatureTweak.DISABLE_CROSSHAIR)) {
             ci.cancel();
         }
