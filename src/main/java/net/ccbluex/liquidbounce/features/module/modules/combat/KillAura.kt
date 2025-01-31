@@ -230,7 +230,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val newPoint = RotationUtils.BodyPoint.fromString(new)
         val lowestPoint = RotationUtils.BodyPoint.fromString(lowestBodyPointToTarget)
         val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, lowestPoint, RotationUtils.BodyPoint.HEAD)
-        coercedPoint.name
+        coercedPoint.displayName
     }
     private val highestBodyPointToTarget: String by highestBodyPointToTargetValue
 
@@ -242,7 +242,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val newPoint = RotationUtils.BodyPoint.fromString(new)
         val highestPoint = RotationUtils.BodyPoint.fromString(highestBodyPointToTarget)
         val coercedPoint = RotationUtils.coerceBodyPoint(newPoint, RotationUtils.BodyPoint.FEET, highestPoint)
-        coercedPoint.name
+        coercedPoint.displayName
     }
 
     private val lowestBodyPointToTarget: String by lowestBodyPointToTargetValue
