@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.safeDiv
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import java.awt.Color
+import kotlin.math.nextDown
 
 @ElementInfo(name = "Keystrokes")
 class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
@@ -53,7 +54,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
         var color: Color = keystrokes.rectColor
     ) {
         fun updateState(isPressed: Boolean) {
-            val min = keystrokes.shrinkPercentage / 100f
+            val min = (keystrokes.shrinkPercentage / 100f).nextDown()
             val targetScale = if (isPressed && keystrokes.shrinkOnPress) min else 1f
             val deltaTime = RenderUtils.deltaTimeNormalized(keystrokes.shrinkSpeed).takeIf { it != 0.0 } ?: 1F
 
