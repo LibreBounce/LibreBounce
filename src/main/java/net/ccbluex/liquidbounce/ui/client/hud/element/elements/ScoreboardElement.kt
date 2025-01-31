@@ -36,7 +36,7 @@ import kotlin.math.max
  */
 @ElementInfo(name = "Scoreboard")
 class ScoreboardElement(
-    x: Double = 5.0, y: Double = 0.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.LEFT, Side.Vertical.MIDDLE)
+    x: Double = 7.0, y: Double = 100.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.LEFT, Side.Vertical.MIDDLE)
 ) : Element("Scoreboard", x, y, scale, side) {
 
     private val corners = RenderUtils.RoundedCorners.entries

@@ -98,7 +98,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
             text.displayString = "%clientversion%"
             text.shadow = true
             text.color = Color.WHITE
-            text.font.set(Fonts.fontSemibold40)
+            text.font.set(Fonts.fontExtraBold35)
 
             return text
         }

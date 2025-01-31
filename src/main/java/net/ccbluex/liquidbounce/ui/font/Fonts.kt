@@ -31,7 +31,7 @@ object Fonts : MinecraftInstance {
         mc.fontRendererObj
     }
 
-    lateinit var fontExtraBold30: GameFontRenderer
+    lateinit var fontExtraBold35: GameFontRenderer
     lateinit var fontExtraBold40: GameFontRenderer
     lateinit var fontSemibold35: GameFontRenderer
     lateinit var fontSemibold40: GameFontRenderer
@@ -87,9 +87,9 @@ object Fonts : MinecraftInstance {
                 getFontFromFile("Outfit-Semibold.ttf", 40).asGameFontRenderer()
             )
 
-            fontExtraBold30 = register(
-                FontInfo(name = "Outfit Extrabold", size = 30),
-                getFontFromFile("Outfit-Extrabold.ttf", 30).asGameFontRenderer()
+            fontExtraBold35 = register(
+                FontInfo(name = "Outfit Extrabold", size = 35),
+                getFontFromFile("Outfit-Extrabold.ttf", 35).asGameFontRenderer()
             )
 
             fontExtraBold40 = register(
