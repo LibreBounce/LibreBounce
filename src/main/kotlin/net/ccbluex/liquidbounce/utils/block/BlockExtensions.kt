@@ -436,13 +436,14 @@ fun BlockState.canBeReplacedWith(
 @Suppress("unused")
 enum class SwingMode(
     override val choiceName: String,
+    val serverSwing: Boolean,
     val swing: (Hand) -> Unit = { }
 ): NamedChoice {
 
-    DO_NOT_HIDE("DoNotHide", { player.swingHand(it) }),
-    HIDE_BOTH("HideForBoth"),
-    HIDE_CLIENT("HideForClient", { network.sendPacket(HandSwingC2SPacket(it)) }),
-    HIDE_SERVER("HideForServer", { player.swingHand(it, false) });
+    DO_NOT_HIDE("DoNotHide", true, { player.swingHand(it) }),
+    HIDE_BOTH("HideForBoth", false),
+    HIDE_CLIENT("HideForClient", true, { network.sendPacket(HandSwingC2SPacket(it)) }),
+    HIDE_SERVER("HideForServer", false, { player.swingHand(it, false) });
 
 }
 
@@ -657,12 +658,15 @@ inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true })
 /**
  * Like [isBlockedByEntities] but it returns a blocking end crystal if present.
  */
-fun BlockPos.isBlockedByEntitiesReturnCrystal(box: Box = FULL_BOX): BooleanObjectPair<EndCrystalEntity?> {
+fun BlockPos.isBlockedByEntitiesReturnCrystal(
+    box: Box = FULL_BOX,
+    excludeIds : IntArray? = null
+): BooleanObjectPair<EndCrystalEntity?> {
     var blocked = false
 
     val posBox = box.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
     world.entities.forEach {
-        if (it.boundingBox.intersects(posBox)) {
+        if (it.boundingBox.intersects(posBox) && (excludeIds == null || it.id !in excludeIds)) {
             if (it is EndCrystalEntity) {
                 return BooleanObjectPair.of(true, it)
             }

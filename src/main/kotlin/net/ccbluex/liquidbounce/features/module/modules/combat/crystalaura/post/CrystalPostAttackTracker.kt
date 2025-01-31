@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.post
 
 import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap
 import it.unimi.dsi.fastutil.ints.Int2LongMap
@@ -37,28 +37,29 @@ abstract class CrystalPostAttackTracker : EventListener {
 
     protected val attackedIds: Int2LongMap = Int2LongMaps.synchronize(Int2LongLinkedOpenHashMap())
 
-    val repeatable = tickHandler {
+    @Suppress("unused")
+    private val repeatable = tickHandler {
         val currentTime = System.currentTimeMillis()
         val attackTime = currentTime - timeOutAfter()
         attackedIds.int2LongEntrySet().iterator().apply {
             while (hasNext()) {
                 val entry = next()
                 if (entry.longValue < attackTime) {
-                    remove()
                     timedOut(entry.intKey)
+                    remove()
                 }
             }
         }
     }
 
     @Suppress("unused")
-    val worldChangeHandler = handler<WorldChangeEvent> {
+    private val worldChangeHandler = handler<WorldChangeEvent> {
         attackedIds.clear()
         cleared()
     }
 
     @Suppress("unused")
-    val explodeListener = handler<PacketEvent> { event ->
+    private val explodeListener = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
             is PlaySoundFromEntityS2CPacket -> {
                 if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) {

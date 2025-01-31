@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.post
 
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -42,7 +43,11 @@ object CrystalAuraSpeedDebugger : CrystalPostAttackTracker() {
             cps.removeFirst()
         }
 
-        ModuleDebug.debugParameter(ModuleCrystalAura, "CPS", cps.size)
+        ModuleDebug.debugParameter(
+            ModuleCrystalAura,
+            "CPS",
+            cps.size
+        )
     }
 
     override fun confirmed(id: Int) {

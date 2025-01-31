@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place
 
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.CrystalAuraDamageOptions
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 

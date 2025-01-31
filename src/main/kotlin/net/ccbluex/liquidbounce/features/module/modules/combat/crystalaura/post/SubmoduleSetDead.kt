@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
+package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.post
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.minecraft.entity.Entity
 import net.minecraft.entity.decoration.EndCrystalEntity
 
@@ -49,7 +50,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
             val entity = world.getEntityById(id)
             if (entity is EndCrystalEntity) {
                 super.attacked(id)
-                world.removeEntity(id, Entity.RemovalReason.DISCARDED)
+                mc.execute { world.removeEntity(id, Entity.RemovalReason.DISCARDED) }
                 entities.put(id, entity)
             }
         }
@@ -61,7 +62,7 @@ object SubmoduleSetDead : ToggleableConfigurable(ModuleCrystalAura, "SetDead", t
         override fun timedOut(id: Int) {
             val entity = entities.remove(id) ?: return
             entity.unsetRemoved()
-            world.addEntity(entity)
+            mc.execute { world.addEntity(entity) }
         }
 
         override fun cleared() {
