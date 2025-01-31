@@ -74,23 +74,26 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         // Setup buttons
 
         val startPositionY = 22
-        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, translationButton("add"))
-        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
-        +GuiButton(7, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("import"))
-        +GuiButton(12, width - 80, startPositionY + 24 * 4, 70, 20, translationButton("export"))
-        copyButton = +GuiButton(8, width - 80, startPositionY + 24 * 5, 70, 20, translationButton("copy"))
+        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, translationButton("altManager.add"))
+        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("altManager.remove"))
+        +GuiButton(13, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("moveUp"))
+        +GuiButton(14, width - 80, startPositionY + 24 * 4, 70, 20, translationButton("moveDown"))
+        +GuiButton(7, width - 80, startPositionY + 24 * 5, 70, 20, translationButton("import"))
+        +GuiButton(12, width - 80, startPositionY + 24 * 6, 70, 20, translationButton("export"))
+        copyButton = +GuiButton(8, width - 80, startPositionY + 24 * 7, 70, 20, translationButton("altManager.copy"))
+
         +GuiButton(0, width - 80, height - 65, 70, 20, translationButton("back"))
-        loginButton = +GuiButton(3, 5, startPositionY + 24, 90, 20, translationButton("login"))
-        randomAltButton = +GuiButton(4, 5, startPositionY + 24 * 2, 90, 20, translationButton("randomAlt"))
-        randomNameButton = +GuiButton(5, 5, startPositionY + 24 * 3, 90, 20, translationButton("randomName"))
-        +GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("directLogin"))
-        +GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("sessionLogin"))
+        loginButton = +GuiButton(3, 5, startPositionY + 24, 90, 20, translationButton("altManager.login"))
+        randomAltButton = +GuiButton(4, 5, startPositionY + 24 * 2, 90, 20, translationButton("altManager.randomAlt"))
+        randomNameButton = +GuiButton(5, 5, startPositionY + 24 * 3, 90, 20, translationButton("altManager.randomName"))
+        +GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("altManager.directLogin"))
+        +GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("altManager.sessionLogin"))
 
         if (activeGenerators.getOrDefault("thealtening", true)) {
-            +GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("theAltening"))
+            +GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("altManager.theAltening"))
         }
 
-        +GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("cape"))
+        +GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("altManager.cape"))
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -274,6 +277,50 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
             11 -> { // Donator Cape Button
                 mc.displayGuiScreen(GuiDonatorCape(this))
+            }
+
+            13 -> { // Move Up Button
+                val currentAccount = altsList.selectedAccount
+
+                if (currentAccount == null) {
+                    status = "§cSelect an account."
+                    return
+                }
+
+                val currentIndex = altsList.accounts.indexOf(currentAccount)
+                if (currentIndex == 0) {
+                    return
+                }
+                val prevElement = altsList.accounts[currentIndex - 1]
+                val insertIndex = accountsConfig.accounts.indexOf(prevElement)
+
+                // Move currentAccount
+                accountsConfig.accounts.remove(currentAccount)
+                accountsConfig.accounts.add(insertIndex, currentAccount)
+                altsList.selectedSlot--
+                accountsConfig.saveConfig()
+            }
+
+            14 -> { // Move Down Button
+                val currentAccount = altsList.selectedAccount
+
+                if (currentAccount == null) {
+                    status = "§cSelect an account."
+                    return
+                }
+
+                val currentIndex = altsList.accounts.indexOf(currentAccount)
+                if (currentIndex == altsList.accounts.lastIndex) {
+                    return
+                }
+                val nextElement = altsList.accounts[currentIndex + 1]
+                val insertIndex = accountsConfig.accounts.indexOf(nextElement)
+
+                // Move currentAccount
+                accountsConfig.accounts.remove(currentAccount)
+                accountsConfig.accounts.add(insertIndex, currentAccount)
+                altsList.selectedSlot++
+                accountsConfig.saveConfig()
             }
         }
     }

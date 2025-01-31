@@ -58,13 +58,13 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
         Keyboard.enableRepeatEvents(true)
 
         // Login button
-        loginButton = +GuiButton(2, width / 2 - 100, height / 2 - 90, translationButton("login"))
+        loginButton = +GuiButton(2, width / 2 - 100, height / 2 - 90, translationButton("altManager.login"))
 
         // Generate button
         generateButton = +GuiButton(1, width / 2 - 100, height / 2, "Generate")
 
         // Buy & Back buttons
-        +GuiButton(3, width / 2 - 100, height / 2 + 70, 98, 20, translationButton("buy"))
+        +GuiButton(3, width / 2 - 100, height / 2 + 70, 98, 20, translationButton("altManager.buy"))
         +GuiButton(0, width / 2 + 2, height / 2 + 70, 98, 20, translationButton("back"))
 
         // Token text field
