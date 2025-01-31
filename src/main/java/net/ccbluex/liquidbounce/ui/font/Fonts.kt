@@ -131,10 +131,10 @@ object Fonts : MinecraftInstance {
     }
 
     fun downloadFonts() {
-        val outputFile = File(fontsDir, "roboto.zip")
+        val outputFile = File(fontsDir, "outfit.zip")
         if (!outputFile.exists()) {
             LOGGER.info("Downloading fonts...")
-            Downloader.downloadWholeFile("$CLIENT_CLOUD/fonts/Roboto.zip", outputFile)
+            Downloader.downloadWholeFile("$CLIENT_CLOUD/fonts/Outfit.zip", outputFile)
             LOGGER.info("Extracting fonts...")
             outputFile.extractZipTo(fontsDir)
         }
