@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.offhand
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -31,12 +32,17 @@ import net.minecraft.block.RespawnAnchorBlock
 import net.minecraft.entity.EntityPose
 import net.minecraft.util.math.BlockPos
 
-class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
+object Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
 
     /**
-     * The offhand might have a lower switch delay than other items.
+     * The totem mode might have a lower switch delay than other items.
      */
     val switchDelay by int("SwitchDelay", 0, 0..500, "ms")
+
+    /**
+     * The totem mode might have a higher and separate switch back delay than other items.
+     */
+    val switchBackDelay by int("SwitchBackDelay", 40, 0..500, "ms")
 
     /**
      * Switch to a totem on low health and back to the original item when the health goes up again.
@@ -124,7 +130,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
 
         private var sphere: Array<BlockPos>? = null
 
-        fun healthBellowThreshold(): Boolean {
+        fun healthBelowThreshold(): Boolean {
             if (!enabled) {
                 return true
             }
@@ -142,7 +148,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
                 healthThreshold.toFloat()
             }
 
-            // the health is bellow or at the threshold
+            // the health is below or at the threshold
             if (allowedDamage <= 0f) {
                 return true
             }
@@ -243,6 +249,9 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
      */
     private val sendDirectly by boolean("SendDirectly", false)
 
+    val switchBack = Chronometer()
+    var switchBackStarted = false
+
     fun shouldEquip(): Boolean {
         if (!enabled) {
             return false
@@ -252,7 +261,7 @@ class Totem : ToggleableConfigurable(ModuleOffhand, "Totem", true) {
             return false
         }
 
-        return Health.healthBellowThreshold()
+        return Health.healthBelowThreshold()
     }
 
     /**

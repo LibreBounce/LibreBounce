@@ -22,21 +22,15 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.client.toRadians
-import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.rotation
-import net.ccbluex.liquidbounce.utils.math.minus
-import net.ccbluex.liquidbounce.utils.math.plus
-import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryData
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.Vec3d
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * Trajectories module
@@ -97,7 +91,17 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
             TrajectoryData.getRenderedTrajectoryInfo(otherPlayer, it.item, this.alwaysShowBow)
         } ?: return
 
-        val rotation = RotationManager.workingAimPlan?.rotation ?: otherPlayer.rotation
+        val rotation = if (otherPlayer == player) {
+            if (ModuleFreeCam.running) {
+                RotationManager.serverRotation
+            } else {
+                RotationManager.workingAimPlan?.rotation
+                    ?: RotationManager.currentRotation ?: otherPlayer.rotation
+            }
+        } else {
+            otherPlayer.rotation
+        }
+
         val renderer = TrajectoryInfoRenderer.getHypotheticalTrajectory(
             entity = otherPlayer,
             trajectoryInfo = trajectoryInfo,

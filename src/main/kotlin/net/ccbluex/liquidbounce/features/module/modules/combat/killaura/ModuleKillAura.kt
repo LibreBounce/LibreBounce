@@ -47,7 +47,11 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.combat.*
+import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
+import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.combat.attack
+import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.ccbluex.liquidbounce.utils.entity.rotation
@@ -286,7 +290,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         ModuleDebug.debugParameter(ModuleKillAura, "Good-Rotation", rotation)
 
         // Attack enemy according to the attack scheduler
-        if (clickScheduler.goingToClick && checkIfReadyToAttack(chosenEntity)) {
+        if (clickScheduler.isGoingToClick && checkIfReadyToAttack(chosenEntity)) {
             prepareAttackEnvironment(rotation) {
                 clickScheduler.clicks {
                     // On each click, we check if we are still ready to attack
@@ -306,12 +310,11 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     true
                 }
             }
+        } else if (KillAuraAutoBlock.tickOff > 0 && clickScheduler.isClickOnNextTick(KillAuraAutoBlock.tickOff)
+            && KillAuraAutoBlock.shouldUnblockToHit) {
+            KillAuraAutoBlock.stopBlocking(pauses = true)
         } else {
-            if (clickScheduler.isClickOnNextTick(KillAuraAutoBlock.tickOff) && KillAuraAutoBlock.shouldUnblockToHit) {
-                KillAuraAutoBlock.stopBlocking(pauses = true)
-            } else {
-                KillAuraAutoBlock.startBlocking()
-            }
+            KillAuraAutoBlock.startBlocking()
         }
     }
 
@@ -355,7 +358,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             }
 
             val situation = when {
-                clickScheduler.goingToClick ||
+                clickScheduler.isGoingToClick ||
                     clickScheduler.isClickOnNextTick(1) -> PointTracker.AimSituation.FOR_NEXT_TICK
 
                 else -> PointTracker.AimSituation.FOR_THE_FUTURE
@@ -504,10 +507,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             network.sendPacket(CloseHandledScreenC2SPacket(0))
         }
 
-        val wasBlocking = player.isBlockAction
-
-        if (wasBlocking) {
-            if (!KillAuraAutoBlock.enabled && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
+        if (player.isBlockAction) {
+            if (!KillAuraAutoBlock.enabled && !ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
                 return
             }
 
@@ -518,7 +519,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
             }
-        } else if (player.isUsingItem && ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
+        } else if (player.isUsingItem && !ModuleMultiActions.mayCurrentlyAttackWhileUsing()) {
             return // return if it's not allowed to attack while the player is using another item that's not a shield
         }
 
@@ -541,7 +542,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // If the player was blocking before, we start blocking again after the attack if the tick on is 0
-        if (wasBlocking && KillAuraAutoBlock.blockImmediate) {
+        if (KillAuraAutoBlock.blockImmediate) {
             KillAuraAutoBlock.startBlocking()
         }
     }

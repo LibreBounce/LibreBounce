@@ -80,6 +80,8 @@
     "minecraft.render.MixinBlockEntityRenderDispatcher",
     "minecraft.render.MixinCamera",
     "minecraft.render.MixinChunkOcclusionDataBuilder",
+    "minecraft.render.MixinEndCrystalEntityModel",
+    "minecraft.render.MixinEndCrystalEntityRenderer",
     "minecraft.render.MixinEntityRenderDispatcher",
     "minecraft.render.MixinEntityRenderer",
     "minecraft.render.MixinGameRenderer",

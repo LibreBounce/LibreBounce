@@ -48,7 +48,7 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
     val modes = choices(
         "Mode", VelocityModify, arrayOf(
             VelocityModify,
-            VelocityWatchdog,
+            VelocityHypixel,
             VelocityStrafe,
             VelocityAAC442,
             VelocityExemptGrim117,
