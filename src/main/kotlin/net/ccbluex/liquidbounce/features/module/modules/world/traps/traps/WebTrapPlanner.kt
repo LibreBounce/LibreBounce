@@ -21,18 +21,17 @@ package net.ccbluex.liquidbounce.features.module.modules.world.traps.traps
 import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
 import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeInfo
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeIntent
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.IntentTiming
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap
+import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap.targetTracker
 import net.ccbluex.liquidbounce.utils.block.collidingRegion
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.prevPos
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.math.size
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
@@ -52,20 +51,12 @@ class WebTrapPlanner(parent: EventListener) : TrapPlanner<WebTrapPlanner.WebInte
     "AutoWeb",
     true
 ) {
-    private val targetTracker = tree(TargetTracker())
 
     private val trapItems = arrayOf(Items.COBWEB)
     private val trapWorthyBlocks = arrayOf(Blocks.COBWEB)
 
-
-    override fun plan(): BlockChangeIntent<WebIntentData>? {
-        targetTracker.validateLock { it.shouldBeAttacked() && it.boxedDistanceTo(player) in ModuleAutoTrap.range }
-
+    override fun plan(enemies: List<LivingEntity>): BlockChangeIntent<WebIntentData>? {
         val slot = findItemToWeb() ?: return null
-
-        val enemies = targetTracker.enemies()
-
-        TrapPlayerSimulation.runSimulations(enemies)
 
         for (target in enemies) {
             if (!shouldTarget(target)) {
@@ -73,7 +64,7 @@ class WebTrapPlanner(parent: EventListener) : TrapPlanner<WebTrapPlanner.WebInte
             }
             val targetPos = TrapPlayerSimulation.findPosForTrap(
                 target,
-                isTargetLocked = this.targetTracker.lockedOnTarget == target
+                isTargetLocked = targetTracker.lockedOnTarget == target
             ) ?: continue
 
             val placementTarget = generatePlacementInfo(targetPos, target, slot) ?: continue
@@ -206,7 +197,7 @@ class WebTrapPlanner(parent: EventListener) : TrapPlanner<WebTrapPlanner.WebInte
     }
 
     override fun onIntentFullfilled(intent: BlockChangeIntent<WebIntentData>) {
-        this.targetTracker.lock(intent.planningInfo.target, reportToUI = false)
+        targetTracker.lock(intent.planningInfo.target, reportToUI = false)
     }
 
     private fun findItemToWeb(): HotbarItemSlot? {
