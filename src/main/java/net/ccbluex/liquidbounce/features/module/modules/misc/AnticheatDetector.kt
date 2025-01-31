@@ -52,7 +52,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     val onTick = handler<GameTickEvent> {
         if (check) ticksPassed++
         if (ticksPassed > 40 && check) {
-            hud.addNotification(Notification("§3No Anticheat present.", 3000F))
+            hud.addNotification(Notification.informative(this, "§3No Anticheat present.", 3000F))
             check = false
             actionNumbers.clear()
         }
@@ -93,7 +93,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             }
 
             detectedAC?.let {
-                hud.addNotification(Notification("§3Anticheat detected: §a${it}", 3000F))
+                hud.addNotification(Notification.informative(this, "§3Anticheat detected: §a${it}", 3000F))
                 actionNumbers.clear()
                 return
             }
@@ -106,7 +106,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             val remainingDiffs = differences.drop(2)
 
             if (firstDiff >= 100 && secondDiff == -1 && remainingDiffs.all { it == -1 }) {
-                hud.addNotification(Notification("§3Anticheat detected: §aPolar", 3000F))
+                hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aPolar", 3000F))
                 actionNumbers.clear()
                 return
             }
@@ -115,12 +115,12 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
         // Intave zero handling
         val firstAction = actionNumbers.firstOrNull()
         if (firstAction != null && firstAction < -3000 && actionNumbers.any { it == 0 }) {
-            hud.addNotification(Notification("§3Anticheat detected: §aIntave", 3000F))
+            hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aIntave", 3000F))
             actionNumbers.clear()
             return
         }
 
-        hud.addNotification(Notification("§3Anticheat detected: §aUnknown", 3000F))
+        hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aUnknown", 3000F))
         if (debug) {
             chat("§3Action Numbers: ${actionNumbers.joinToString()}")
             chat("§3Differences: ${differences.joinToString()}")
