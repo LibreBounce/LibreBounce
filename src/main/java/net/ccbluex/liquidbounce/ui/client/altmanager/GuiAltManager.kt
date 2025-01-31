@@ -41,8 +41,6 @@ import net.minecraft.client.gui.GuiTextField
 import net.minecraft.util.Session
 import org.lwjgl.input.Keyboard
 import java.awt.Color
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
 import java.util.*
 
 class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
@@ -259,7 +257,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
                     }
 
                     // Copy to clipboard
-                    Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(formattedData), null)
+                    MiscUtils.copy(formattedData)
                     status = "§aCopied account into your clipboard."
                 } catch (any: Exception) {
                     any.printStackTrace()

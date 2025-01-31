@@ -4,9 +4,8 @@ import net.ccbluex.liquidbounce.LiquidBounce.commandManager
 import net.ccbluex.liquidbounce.chat.packet.packets.ServerRequestJWTPacket
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.modules.misc.LiquidChat
+import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
 
 object ChatTokenCommand : Command("chattoken") {
 
@@ -49,8 +48,7 @@ object ChatTokenCommand : Command("chattoken") {
                     return
                 }
 
-                val stringSelection = StringSelection(LiquidChat.jwtToken)
-                Toolkit.getDefaultToolkit().systemClipboard.setContents(stringSelection, stringSelection)
+                MiscUtils.copy(LiquidChat.jwtToken)
                 chat("§aCopied to clipboard!")
             }
         }
