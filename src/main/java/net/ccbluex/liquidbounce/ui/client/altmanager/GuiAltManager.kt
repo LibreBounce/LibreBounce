@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.io.HttpUtils
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
+import net.ccbluex.liquidbounce.utils.kotlin.swap
 import net.ccbluex.liquidbounce.utils.login.UserUtils.isValidTokenOffline
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
@@ -292,13 +293,13 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
                     return
                 }
                 val prevElement = altsList.accounts[currentIndex - 1]
-                val insertIndex = accountsConfig.accounts.indexOf(prevElement)
+                val prevIndex = accountsConfig.accounts.indexOf(prevElement)
+                val currentOriginalIndex = accountsConfig.accounts.indexOf(currentAccount)
 
                 // Move currentAccount
-                accountsConfig.accounts.remove(currentAccount)
-                accountsConfig.accounts.add(insertIndex, currentAccount)
-                altsList.selectedSlot--
+                accountsConfig.accounts.swap(prevIndex, currentOriginalIndex)
                 accountsConfig.saveConfig()
+                altsList.selectedSlot--
             }
 
             14 -> { // Move Down Button
@@ -314,13 +315,13 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
                     return
                 }
                 val nextElement = altsList.accounts[currentIndex + 1]
-                val insertIndex = accountsConfig.accounts.indexOf(nextElement)
+                val nextIndex = accountsConfig.accounts.indexOf(nextElement)
+                val currentOriginalIndex = accountsConfig.accounts.indexOf(currentAccount)
 
                 // Move currentAccount
-                accountsConfig.accounts.remove(currentAccount)
-                accountsConfig.accounts.add(insertIndex, currentAccount)
-                altsList.selectedSlot++
+                accountsConfig.accounts.swap(nextIndex, currentOriginalIndex)
                 accountsConfig.saveConfig()
+                altsList.selectedSlot++
             }
         }
     }
