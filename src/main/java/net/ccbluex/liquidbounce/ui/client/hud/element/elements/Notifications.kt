@@ -56,7 +56,9 @@ class Notifications(
         var verticalOffset = 0f
 
         HUD.notifications.removeEach { notification ->
-            notification.y = (notification.y..verticalOffset).lerpWith(RenderUtils.deltaTimeNormalized())
+            if (notification != exampleNotification) {
+                notification.y = (notification.y..verticalOffset).lerpWith(RenderUtils.deltaTimeNormalized())
+            }
 
             notification.drawNotification(this).also { if (!it) verticalOffset += Notification.MAX_HEIGHT + padding }
         }
@@ -97,7 +99,7 @@ class Notifications(
 class Notification(
     var title: String,
     var description: String,
-    private val delay: Float = 60F,
+    private val delay: Long = 2000L,
     var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
@@ -136,16 +138,16 @@ class Notification(
     }
 
     companion object {
-        fun informative(title: String, message: String, delay: Float = 60F) =
+        fun informative(title: String, message: String, delay: Long = 2000L) =
             Notification(title, message, delay, Notifications.SeverityType.INFO)
 
-        fun informative(title: Module, message: String, delay: Float = 60F) =
+        fun informative(title: Module, message: String, delay: Long = 2000L) =
             Notification(title.spacedName, message, delay, Notifications.SeverityType.INFO)
 
-        fun error(title: Module, message: String, delay: Float = 60F) =
+        fun error(title: Module, message: String, delay: Long = 2000L) =
             Notification(title.spacedName, message, delay, Notifications.SeverityType.ERROR)
 
-        fun warning(title: Module, message: String, delay: Float = 60F) =
+        fun warning(title: Module, message: String, delay: Long = 2000L) =
             Notification(title.spacedName, message, delay, Notifications.SeverityType.WARNING)
 
         var maxTextLength = 0
@@ -218,7 +220,7 @@ class Notification(
                     x = maxTextLength + ICON_SIZE + 16F
                     fadeStep = x
                 }
-                stay -= delta / 20F
+                stay -= delta
                 if (stay <= 0) {
                     fadeState = FadeState.OUT
                 }

@@ -82,7 +82,7 @@ public abstract class MixinNetHandlerPlayClient {
                 if (module.getWarn().equals("Chat")) {
                     chat("Cancelled too strong TNT explosion motion");
                 } else if (module.getWarn().equals("Notification")) {
-                    HUD.INSTANCE.addNotification(Notification.Companion.informative(module,"Cancelled too strong TNT explosion motion", 1000F));
+                    HUD.INSTANCE.addNotification(Notification.Companion.informative(module,"Cancelled too strong TNT explosion motion", 1000L));
                 }
                 ci.cancel();
             }
@@ -101,7 +101,7 @@ public abstract class MixinNetHandlerPlayClient {
                 if (module.getWarn().equals("Chat")) {
                     chat("Cancelled too strong TNT explosion strength");
                 } else if (module.getWarn().equals("Notification")) {
-                    HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Cancelled too strong TNT explosion strength", 1000F));
+                    HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Cancelled too strong TNT explosion strength", 1000L));
                 }
                 ci.cancel();
             }
@@ -120,7 +120,7 @@ public abstract class MixinNetHandlerPlayClient {
                 if (module.getWarn().equals("Chat")) {
                     chat("Cancelled too big TNT explosion radius");
                 } else if (module.getWarn().equals("Notification")) {
-                    HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Cancelled too big TNT explosion radius", 1000F));
+                    HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Cancelled too big TNT explosion radius", 1000L));
                 }
                 ci.cancel();
             }
@@ -135,7 +135,7 @@ public abstract class MixinNetHandlerPlayClient {
             if (module.getWarn().equals("Chat")) {
                 chat("Limited too many particles");
             } else if (module.getWarn().equals("Notification")) {
-                HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Limited too many particles", 1000F));
+                HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Limited too many particles", 1000L));
             }
             return 100;
         }
@@ -150,7 +150,7 @@ public abstract class MixinNetHandlerPlayClient {
             if (module.getWarn().equals("Chat")) {
                 chat("Limited too fast particles speed");
             } else if (module.getWarn().equals("Notification")) {
-                HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Limited too fast particles speed", 1000F));
+                HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Limited too fast particles speed", 1000L));
             }
             return 5f;
         }
@@ -170,7 +170,7 @@ public abstract class MixinNetHandlerPlayClient {
                     if (module.getWarn().equals("Chat")) {
                         chat("Limited too many arrows spawned");
                     } else if (module.getWarn().equals("Notification")) {
-                        HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Limited too many arrows spawned", 1000F));
+                        HUD.INSTANCE.addNotification(Notification.Companion.informative(module, "Limited too many arrows spawned", 1000L));
                     }
                     return -1;
                 }
@@ -183,7 +183,7 @@ public abstract class MixinNetHandlerPlayClient {
                     if (module.getWarn().equals("Chat")) {
                         chat("Limited too many items dropped");
                     } else if (module.getWarn().equals("Notification")) {
-                        HUD.INSTANCE.addNotification(Notification.Companion.informative(module,"Limited too many items dropped", 1000F));
+                        HUD.INSTANCE.addNotification(Notification.Companion.informative(module,"Limited too many items dropped", 1000L));
                     }
                     return -1;
                 }

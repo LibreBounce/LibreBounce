@@ -429,7 +429,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         when (chestDebug.lowercase()) {
             "text" -> chat(message)
-            "notification" -> hud.addNotification(Notification.informative(this, message, 500F))
+            "notification" -> hud.addNotification(Notification.informative(this, message, 500L))
         }
     }
 }
