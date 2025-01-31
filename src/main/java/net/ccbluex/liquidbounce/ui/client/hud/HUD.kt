@@ -53,8 +53,8 @@ object HUD : MinecraftInstance {
         elements.clear()
 
         addElement(Text.defaultClientTitle())
+        addElement(Text.defaultClientVersion())
         addElement(Text.defaultBlockCount())
-        addElement(TabGUI())
         addElement(Arraylist())
         addElement(ScoreboardElement())
         addElement(Armor())

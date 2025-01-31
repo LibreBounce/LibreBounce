@@ -23,11 +23,12 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.*
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE
-import org.lwjgl.opengl.GL14
+import org.lwjgl.opengl.GL14.glBlendFuncSeparate
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
+import javax.vecmath.Point3d
 import kotlin.math.*
 
 object RenderUtils : MinecraftInstance {
@@ -43,14 +44,14 @@ object RenderUtils : MinecraftInstance {
     }
     var deltaTime = 0
 
-    fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime / (ticks.toDouble() * 50)).coerceAtMost(1.0)
+    fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime safeDivD ticks * 50.0).coerceAtMost(1.0)
 
     private const val CIRCLE_STEPS = 40
 
     private val circlePoints = Array(CIRCLE_STEPS + 1) {
         val theta = 2 * PI * it / CIRCLE_STEPS
 
-        Vec3(-sin(theta), 0.0, cos(theta))
+        Point3d(-sin(theta), 0.0, cos(theta))
     }
 
     init {
@@ -234,7 +235,7 @@ object RenderUtils : MinecraftInstance {
 
         entity.interpolatedPosition(entity.prevPos).let { pos ->
             circlePoints.forEach {
-                val p = pos + Vec3(it.xCoord * width, it.yCoord + animatedCircleY, it.zCoord * width)
+                val p = pos + Vec3(it.x * width, it.y + animatedCircleY, it.z * width)
 
                 positions += doubleArrayOf(p.xCoord, p.yCoord, p.zCoord)
 
@@ -299,23 +300,31 @@ object RenderUtils : MinecraftInstance {
 
         glBegin(GL_TRIANGLE_FAN)
         circlePoints.forEachIndexed { index, pos ->
-            val innerX = pos.xCoord * radius
-            val innerZ = pos.zCoord * radius
+            val innerX = pos.x * radius
+            val innerZ = pos.z * radius
 
             val innerHue = ColorUtils.shiftHue(innerColor, (index / CIRCLE_STEPS).toInt())
             glColor4f(innerHue.red / 255f, innerHue.green / 255f, innerHue.blue / 255f, innerColor.alpha / 255f)
-            glVertex3d(position.xCoord - renderX + innerX, position.yCoord - renderY, position.zCoord - renderZ + innerZ)
+            glVertex3d(
+                position.xCoord - renderX + innerX,
+                position.yCoord - renderY,
+                position.zCoord - renderZ + innerZ
+            )
         }
         glEnd()
 
         glBegin(GL_LINE_LOOP)
         circlePoints.forEachIndexed { index, pos ->
-            val outerX = pos.xCoord * radius
-            val outerZ = pos.zCoord * radius
+            val outerX = pos.x * radius
+            val outerZ = pos.z * radius
 
             val outerHue = ColorUtils.shiftHue(outerColor, (index / CIRCLE_STEPS).toInt())
             glColor4f(outerHue.red / 255f, outerHue.green / 255f, outerHue.alpha / 255f, outerColor.alpha / 255f)
-            glVertex3d(position.xCoord - renderX + outerX, position.yCoord - renderY, position.zCoord - renderZ + outerZ)
+            glVertex3d(
+                position.xCoord - renderX + outerX,
+                position.yCoord - renderY,
+                position.zCoord - renderZ + outerZ
+            )
         }
         glEnd()
 
@@ -360,51 +369,51 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_ALPHA_TEST)
         glAlphaFunc(GL_GREATER, 0.0f)
         glTranslated(-renderX, -renderY, -renderZ)
-
-        glBegin(renderMode)
         glColor(color)
 
-        val min = if (renderMode != GL_TRIANGLES) 0 to 0 else -1 to 1
+        drawWithTessellatorWorldRenderer {
+            begin(renderMode, DefaultVertexFormats.POSITION)
 
-        for (i in min.first until CIRCLE_STEPS / 2) {
-            val vAngle1 = i * vStep
-            val vAngle2 = (i + 1) * vStep
+            val min = if (renderMode != GL_TRIANGLES) 0 to 0 else -1 to 1
 
-            for (j in min.second until CIRCLE_STEPS) {
-                val hAngle1 = j * hStep
-                val hAngle2 = (j + 1) * hStep
+            for (i in min.first until CIRCLE_STEPS / 2) {
+                val vAngle1 = i * vStep
+                val vAngle2 = (i + 1) * vStep
 
-                val p1 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle1, hRadius, vRadius)
-                val p2 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle1, hRadius, vRadius)
-                val p3 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle2, hRadius, vRadius)
-                val p4 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle2, hRadius, vRadius)
+                for (j in min.second until CIRCLE_STEPS) {
+                    val hAngle1 = j * hStep
+                    val hAngle2 = (j + 1) * hStep
 
-                when (renderMode) {
-                    GL_QUADS -> {
-                        glVertex3d(p1[0], p1[1], p1[2])
-                        glVertex3d(p2[0], p2[1], p2[2])
-                        glVertex3d(p3[0], p3[1], p3[2])
-                        glVertex3d(p4[0], p4[1], p4[2])
-                    }
+                    val p1 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle1, hRadius, vRadius)
+                    val p2 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle1, hRadius, vRadius)
+                    val p3 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle2, hRadius, vRadius)
+                    val p4 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle2, hRadius, vRadius)
 
-                    GL_TRIANGLES, GL_LINES -> {
-                        glVertex3d(p1[0], p1[1], p1[2])
-                        glVertex3d(p2[0], p2[1], p2[2])
+                    when (renderMode) {
+                        GL_QUADS -> {
+                            pos(p1[0], p1[1], p1[2]).endVertex()
+                            pos(p2[0], p2[1], p2[2]).endVertex()
+                            pos(p3[0], p3[1], p3[2]).endVertex()
+                            pos(p4[0], p4[1], p4[2]).endVertex()
+                        }
 
-                        glVertex3d(p2[0], p2[1], p2[2])
-                        glVertex3d(p3[0], p3[1], p3[2])
+                        GL_TRIANGLES, GL_LINES -> {
+                            pos(p1[0], p1[1], p1[2]).endVertex()
+                            pos(p2[0], p2[1], p2[2]).endVertex()
 
-                        glVertex3d(p3[0], p3[1], p3[2])
-                        glVertex3d(p4[0], p4[1], p4[2])
+                            pos(p2[0], p2[1], p2[2]).endVertex()
+                            pos(p3[0], p3[1], p3[2]).endVertex()
 
-                        glVertex3d(p4[0], p4[1], p4[2])
-                        glVertex3d(p1[0], p1[1], p1[2])
+                            pos(p3[0], p3[1], p3[2]).endVertex()
+                            pos(p4[0], p4[1], p4[2]).endVertex()
+
+                            pos(p4[0], p4[1], p4[2]).endVertex()
+                            pos(p1[0], p1[1], p1[2]).endVertex()
+                        }
                     }
                 }
             }
         }
-
-        glEnd()
 
         glEnable(GL_CULL_FACE)
         glEnable(GL_DEPTH_TEST)
@@ -441,7 +450,7 @@ object RenderUtils : MinecraftInstance {
         disableCull()
 
         enableBlend()
-        enableDepth()
+        glEnable(GL_DEPTH_TEST)
         depthMask(false)
         blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -454,7 +463,7 @@ object RenderUtils : MinecraftInstance {
         enableCull()
 
         disableBlend()
-        disableDepth()
+        glDisable(GL_DEPTH_TEST)
 
         popMatrix()
         popAttrib()
@@ -462,33 +471,30 @@ object RenderUtils : MinecraftInstance {
 
     fun drawCone(width: Float, height: Float, useTexture: Boolean = false) {
         if (useTexture) {
-            // TODO: Maybe image option support to allow many different type of hats.
             mc.textureManager.bindTexture(ResourceLocation("liquidbounce/textures/hat.png"))
             enableTexture2D()
             depthMask(true)
         }
 
-        glBegin(GL_TRIANGLE_FAN)
+        drawWithTessellatorWorldRenderer {
+            begin(GL_TRIANGLE_FAN, if (useTexture) DefaultVertexFormats.POSITION_TEX else DefaultVertexFormats.POSITION)
 
-        if (useTexture) {
-            // Place texture in the middle, on the tip
-            glTexCoord2d(0.5, 0.5)
-        }
-
-        // The tip of the cone
-        glVertex3d(0.0, height.toDouble(), 0.0)
-
-        for (point in circlePoints) {
             if (useTexture) {
-                val u = 0.5 + 0.5 * point.xCoord
-                val v = 0.5 + 0.5 * point.zCoord
-                glTexCoord2d(u, v)
+                pos(0.0, height.toDouble(), 0.0).tex(0.5, 0.5).endVertex()
+            } else {
+                pos(0.0, height.toDouble(), 0.0).endVertex()
             }
 
-            glVertex3d(point.xCoord * width, 0.0, point.zCoord * width)
+            for (point in circlePoints) {
+                if (useTexture) {
+                    val u = 0.5 + 0.5 * point.x
+                    val v = 0.5 + 0.5 * point.z
+                    pos(point.x * width, 0.0, point.z * width).tex(u, v).endVertex()
+                } else {
+                    pos(point.x * width, 0.0, point.z * width).endVertex()
+                }
+            }
         }
-
-        glEnd()
     }
 
     fun drawEntityBox(entity: Entity, color: Color, outline: Boolean) {
@@ -694,15 +700,19 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_LINE_SMOOTH)
         glColor(color)
         glLineWidth(width)
-        glBegin(GL_LINE_LOOP)
-        glVertex2d(x2.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y2.toDouble())
-        glVertex2d(x2.toDouble(), y2.toDouble())
-        glEnd()
+
+        drawWithTessellatorWorldRenderer {
+            begin(GL_LINE_LOOP, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
+
+        glColor(Color.WHITE)
+        glDisable(GL_LINE_SMOOTH)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
-        glDisable(GL_LINE_SMOOTH)
     }
 
     fun drawBorder(x: Int, y: Int, x2: Int, y2: Int, width: Number, color: Int) {
@@ -713,15 +723,19 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_LINE_SMOOTH)
         glColor(color)
         glLineWidth(width.toFloat())
-        glBegin(GL_LINE_LOOP)
-        glVertex2i(x2, y)
-        glVertex2i(x, y)
-        glVertex2i(x, y2)
-        glVertex2i(x2, y2)
-        glEnd()
+
+        drawWithTessellatorWorldRenderer {
+            begin(GL_LINE_LOOP, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
+
+        glColor(Color.WHITE)
+        glDisable(GL_LINE_SMOOTH)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
-        glDisable(GL_LINE_SMOOTH)
         glPopMatrix()
     }
 
@@ -737,7 +751,6 @@ object RenderUtils : MinecraftInstance {
         x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, radius: Float, bottom: Boolean = true
     ) {
         val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
-
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
 
         glEnable(GL_BLEND)
@@ -770,7 +783,7 @@ object RenderUtils : MinecraftInstance {
 
         glEnd()
 
-        resetColor()
+        glColor(Color.WHITE)
 
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)
@@ -782,12 +795,13 @@ object RenderUtils : MinecraftInstance {
     ) = renderRoundedBorder(x1, y1, x2, y2, color, width, radius, false)
 
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float) {
-        glBegin(GL_QUADS)
-        glVertex2d(x2.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y2.toDouble())
-        glVertex2d(x2.toDouble(), y2.toDouble())
-        glEnd()
+        drawWithTessellatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
     }
 
     fun drawRect(x: Float, y: Float, x2: Float, y2: Float, color: Int) {
@@ -797,13 +811,15 @@ object RenderUtils : MinecraftInstance {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_LINE_SMOOTH)
         glColor(color)
-        glBegin(GL_QUADS)
-        glVertex2f(x2, y)
-        glVertex2f(x, y)
-        glVertex2f(x, y2)
-        glVertex2f(x2, y2)
-        glEnd()
-        glColor4f(1f, 1f, 1f, 1f)
+        drawWithTessellatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
+        glColor(Color.WHITE)
+
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_LINE_SMOOTH)
@@ -817,32 +833,34 @@ object RenderUtils : MinecraftInstance {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_LINE_SMOOTH)
         glColor(color)
-        glBegin(GL_QUADS)
-        glVertex2i(x2, y)
-        glVertex2i(x, y)
-        glVertex2i(x, y2)
-        glVertex2i(x2, y2)
-        glEnd()
-        glColor4f(1f, 1f, 1f, 1f)
+
+        drawWithTessellatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
+
+        glColor(Color.WHITE)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glDisable(GL_LINE_SMOOTH)
         glPopMatrix()
     }
 
-    /**
-     * Like [.drawRect], but without setup
-     */
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float, color: Int) {
         glPushMatrix()
         glColor(color)
-        glBegin(GL_QUADS)
-        glVertex2d(x2.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y2.toDouble())
-        glVertex2d(x2.toDouble(), y2.toDouble())
-        glEnd()
-        glColor4f(1f, 1f, 1f, 1f)
+
+        drawWithTessellatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
+        glColor(Color.WHITE)
         glPopMatrix()
     }
 
@@ -850,12 +868,14 @@ object RenderUtils : MinecraftInstance {
         quickDrawRect(x, y, x2, y2, color2)
         glColor(color1)
         glLineWidth(width)
-        glBegin(GL_LINE_LOOP)
-        glVertex2d(x2.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y.toDouble())
-        glVertex2d(x.toDouble(), y2.toDouble())
-        glVertex2d(x2.toDouble(), y2.toDouble())
-        glEnd()
+
+        drawWithTessellatorWorldRenderer {
+            begin(GL_LINE_LOOP, DefaultVertexFormats.POSITION)
+            pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
+            pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
+            pos(x2.toDouble(), y2.toDouble(), 0.0).endVertex()
+        }
     }
 
     /**
@@ -911,7 +931,15 @@ object RenderUtils : MinecraftInstance {
         }
     }
 
-    fun drawRoundedRect(x1: Float, y1: Float, x2: Float, y2: Float, color: Int, radius: Float, cornersToRound: RoundedCorners = RoundedCorners.ALL) {
+    fun drawRoundedRect(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        color: Int,
+        radius: Float,
+        cornersToRound: RoundedCorners = RoundedCorners.ALL
+    ) {
         val (alpha, red, green, blue) = ColorUtils.unpackARGBFloatValue(color)
 
         val (newX1, newY1, newX2, newY2) = orderPoints(x1, y1, x2, y2)
@@ -919,7 +947,15 @@ object RenderUtils : MinecraftInstance {
         drawRoundedRectangle(newX1, newY1, newX2, newY2, red, green, blue, alpha, radius, cornersToRound)
     }
 
-    fun drawRoundedRect2(x1: Float, y1: Float, x2: Float, y2: Float, color: Color, radius: Float, cornersToRound: RoundedCorners = RoundedCorners.ALL) {
+    fun drawRoundedRect2(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        color: Color,
+        radius: Float,
+        cornersToRound: RoundedCorners = RoundedCorners.ALL
+    ) {
         val alpha = color.alpha / 255.0f
         val red = color.red / 255.0f
         val green = color.green / 255.0f
@@ -931,7 +967,13 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawRoundedRect3(
-        x1: Float, y1: Float, x2: Float, y2: Float, rgba: Int, radius: Float, cornersToRound: RoundedCorners = RoundedCorners.ALL
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        rgba: Int,
+        radius: Float,
+        cornersToRound: RoundedCorners = RoundedCorners.ALL
     ) {
         val alpha = (rgba ushr 24 and 0xFF) / 255.0f
         val red = (rgba ushr 16 and 0xFF) / 255.0f
@@ -963,17 +1005,17 @@ object RenderUtils : MinecraftInstance {
         TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
     }
 
-    enum class RoundedCorners(val corners: Set<Corner>) {
-        NONE(emptySet()),
-        TOP_LEFT_ONLY(setOf(Corner.TOP_LEFT)),
-        TOP_RIGHT_ONLY(setOf(Corner.TOP_RIGHT)),
-        BOTTOM_LEFT_ONLY(setOf(Corner.BOTTOM_LEFT)),
-        BOTTOM_RIGHT_ONLY(setOf(Corner.BOTTOM_RIGHT)),
-        TOP_ONLY(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT)),
-        BOTTOM_ONLY(setOf(Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT)),
-        LEFT_ONLY(setOf(Corner.TOP_LEFT, Corner.BOTTOM_LEFT)),
-        RIGHT_ONLY(setOf(Corner.TOP_RIGHT, Corner.BOTTOM_RIGHT)),
-        ALL(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT, Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT))
+    enum class RoundedCorners(val corners: Set<Corner>, val displayName: String) {
+        NONE(emptySet(), "None"),
+        TOP_LEFT_ONLY(setOf(Corner.TOP_LEFT), "Top-Left-Only"),
+        TOP_RIGHT_ONLY(setOf(Corner.TOP_RIGHT), "Top-Right-Only"),
+        BOTTOM_LEFT_ONLY(setOf(Corner.BOTTOM_LEFT), "Bottom-Left-Only"),
+        BOTTOM_RIGHT_ONLY(setOf(Corner.BOTTOM_RIGHT), "Bottom-Right-Only"),
+        TOP_ONLY(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT), "Top-Only"),
+        BOTTOM_ONLY(setOf(Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT), "Bottom-Only"),
+        LEFT_ONLY(setOf(Corner.TOP_LEFT, Corner.BOTTOM_LEFT), "Left-Only"),
+        RIGHT_ONLY(setOf(Corner.TOP_RIGHT, Corner.BOTTOM_RIGHT), "Right-Only"),
+        ALL(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT, Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT), "All")
     }
 
     private fun drawRoundedRectangle(
@@ -997,7 +1039,6 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_LINE_SMOOTH)
 
         glColor4f(red, green, blue, alpha)
-        glBegin(GL_TRIANGLE_FAN)
 
         val radiusD = min(radius.toDouble(), min(newX2 - newX1, newY2 - newY1) / 2.0)
 
@@ -1013,25 +1054,26 @@ object RenderUtils : MinecraftInstance {
             )
         )
 
-        for ((corner, directionData) in corners) {
-            val (cx, cy, startAngle, ox, oy) = directionData
+        drawWithTessellatorWorldRenderer {
+            begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION)
 
-            if (corner in cornersToRound.corners) {
-                for (i in 0..90 step 10) {
-                    val angle = Math.toRadians(startAngle + i)
-                    val x = cx + radiusD * sin(angle)
-                    val y = cy + radiusD * cos(angle)
-                    glVertex2d(x, y)
+            for ((corner, directionData) in corners) {
+                val (cx, cy, startAngle, ox, oy) = directionData
+
+                if (corner in cornersToRound.corners) {
+                    for (i in 0..90 step 10) {
+                        val angle = Math.toRadians(startAngle + i)
+                        val x = cx + radiusD * sin(angle)
+                        val y = cy + radiusD * cos(angle)
+                        pos(x, y, 0.0).endVertex()
+                    }
+                } else {
+                    pos(ox, oy, 0.0).endVertex()
                 }
-            } else {
-                glVertex2d(ox, oy)
             }
         }
 
-        glEnd()
-
-        resetColor()
-
+        glColor(Color.WHITE)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)
         glDisable(GL_BLEND)
@@ -1068,7 +1110,6 @@ object RenderUtils : MinecraftInstance {
         disableBlend()
     }
 
-    // TODO: Use caching to save performance
     fun drawFilledCircle(xx: Int, yy: Int, radius: Float, color: Color) {
         val sections = 50
         val dAngle = 2 * Math.PI / sections
@@ -1111,17 +1152,59 @@ object RenderUtils : MinecraftInstance {
         drawScaledCustomSizeModalRect(x, y, u, v, uWidth, vHeight, width, height, tileWidth, tileHeight)
     }
 
-    fun drawImage(image: ResourceLocation?, x: Number, y: Number, width: Int, height: Int, color: Color = Color.WHITE) {
+    fun drawImage(
+        image: ResourceLocation?,
+        x: Number,
+        y: Number,
+        width: Int,
+        height: Int,
+        color: Color = Color.WHITE,
+        radius: Float = 0f
+    ) {
         glPushMatrix()
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glDepthMask(false)
-        GL14.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
         glColor(color)
+
         mc.textureManager.bindTexture(image)
-        drawModalRectWithCustomSizedTexture(
-            x.toFloat(), y.toFloat(), 0f, 0f, width.toFloat(), height.toFloat(), width.toFloat(), height.toFloat()
-        )
+
+        if (radius > 0) {
+            val x1 = x.toFloat()
+            val y1 = y.toFloat()
+            val x2 = x1 + width
+            val y2 = y1 + height
+            val radiusD = min(radius.toDouble(), min(width, height) / 2.0)
+
+            drawWithTessellatorWorldRenderer {
+                begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX)
+
+                val corners = arrayOf(
+                    doubleArrayOf(x2 - radiusD, y2 - radiusD, 0.0),
+                    doubleArrayOf(x2 - radiusD, y1 + radiusD, 90.0),
+                    doubleArrayOf(x1 + radiusD, y1 + radiusD, 180.0),
+                    doubleArrayOf(x1 + radiusD, y2 - radiusD, 270.0),
+                )
+
+                for (corner in corners) {
+                    val (cx, cy, startAngle) = corner
+                    for (i in 0..90 step 10) {
+                        val angle = Math.toRadians(startAngle + i)
+                        val px = cx + radiusD * sin(angle)
+                        val py = cy + radiusD * cos(angle)
+                        val texX = (px - x1) / width
+                        val texY = (py - y1) / height
+                        pos(px, py, 0.0).tex(texX, texY).endVertex()
+                    }
+                }
+            }
+        } else {
+            drawModalRectWithCustomSizedTexture(
+                x.toFloat(), y.toFloat(), 0f, 0f, width.toFloat(), height.toFloat(), width.toFloat(), height.toFloat()
+            )
+        }
+        glColor(Color.WHITE)
         glDepthMask(true)
         glDisable(GL_BLEND)
         glEnable(GL_DEPTH_TEST)
@@ -1253,9 +1336,9 @@ object RenderUtils : MinecraftInstance {
         setGlCap(GL_DEPTH_TEST, false)
         setGlCap(GL_BLEND, true)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        val width = Fonts.font35.getStringWidth(string) / 2
-        drawRect(-width - 1, -1, width + 1, Fonts.font35.FONT_HEIGHT, Int.MIN_VALUE)
-        Fonts.font35.drawString(string, -width.toFloat(), 1.5f, Color.WHITE.rgb, true)
+        val width = Fonts.fontSemibold35.getStringWidth(string) / 2
+        drawRect(-width - 1, -1, width + 1, Fonts.fontSemibold35.FONT_HEIGHT, Int.MIN_VALUE)
+        Fonts.fontSemibold35.drawString(string, -width.toFloat(), 1.5f, Color.WHITE.rgb, true)
         resetCaps()
         resetColor()
         glPopMatrix()

@@ -54,10 +54,10 @@ class GuiMainMenu : AbstractScreen() {
         )
 
         Fonts.fontBold180.drawCenteredString(CLIENT_NAME, width / 2F, height / 8F, 4673984, true)
-        Fonts.font35.drawCenteredString(
+        Fonts.fontSemibold35.drawCenteredString(
             clientVersionText,
             width / 2F + 148,
-            height / 8F + Fonts.font35.fontHeight,
+            height / 8F + Fonts.fontSemibold35.fontHeight,
             0xffffff,
             true
         )
@@ -70,7 +70,7 @@ class GuiMainMenu : AbstractScreen() {
                 width / 2f - 115,
                 height / 4f + 190,
                 width / 2f + 115,
-                height / 4f + 200 + (Fonts.font35.fontHeight * lines.size),
+                height / 4f + 200 + (Fonts.fontSemibold35.fontHeight * lines.size),
                 2f,
                 Integer.MIN_VALUE,
                 Integer.MIN_VALUE,
@@ -79,9 +79,9 @@ class GuiMainMenu : AbstractScreen() {
 
             // Draw rect below main rect and within draw MOTD text
             for ((index, line) in lines.withIndex()) {
-                Fonts.font35.drawCenteredString(
+                Fonts.fontSemibold35.drawCenteredString(
                     line, width / 2F, height / 4f + 197.5f
-                            + (Fonts.font35.fontHeight * index), 0xffffff, true
+                            + (Fonts.fontSemibold35.fontHeight * index), 0xffffff, true
                 )
             }
         }
@@ -96,7 +96,7 @@ class GuiMainMenu : AbstractScreen() {
             val lines = messageOfTheDay.lines()
             val motdHeight = height / 4f + 198
             val motdWidth = width / 2f - 115
-            val motdHeightEnd = motdHeight + 2 + (Fonts.font35.fontHeight * lines.size)
+            val motdHeightEnd = motdHeight + 2 + (Fonts.fontSemibold35.fontHeight * lines.size)
 
             if (mouseX >= motdWidth && mouseX <= width / 2f + 115 && mouseY >= motdHeight && mouseY <= motdHeightEnd) {
                 // Open liquidbounce website

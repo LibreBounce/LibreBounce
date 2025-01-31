@@ -54,7 +54,7 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
         +GuiButton(0, width / 2 - 100, height / 2 + 30, "Back")
 
         // Add fields to screen
-        transferCodeField = GuiPasswordField(666, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
+        transferCodeField = GuiPasswordField(666, Fonts.fontSemibold40, width / 2 - 100, height / 2 - 90, 200, 20)
         transferCodeField.isFocused = false
         transferCodeField.maxStringLength = Integer.MAX_VALUE
         transferCodeField.text = CapeService.clientCapeUser?.token ?: ""
@@ -73,27 +73,27 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
             drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
 
             // Draw title and status
-            Fonts.font40.drawCenteredString("Donator Cape", width / 2f, 45f, 0xffffff)
+            Fonts.fontSemibold40.drawCenteredString("Donator Cape", width / 2f, 45f, 0xffffff)
             if (loggedIntoAccount) {
                 CapeService.clientCapeUser?.run {
-                    Fonts.font40.drawCenteredString("§cCape: §f$capeName", width / 2f, height / 2 - 100f, 0xffffff)
-                    Fonts.font40.drawCenteredString(
+                    Fonts.fontSemibold40.drawCenteredString("§cCape: §f$capeName", width / 2f, height / 2 - 100f, 0xffffff)
+                    Fonts.fontSemibold40.drawCenteredString(
                         "§cVisible to others: §f${if (enabled) "Yes" else "No"}",
                         width / 2f,
                         height / 2 - 90f,
                         0xffffff
                     )
-                    Fonts.font40.drawCenteredString("§cOn account: §f$uuid", width / 2f, height / 2 - 80f, 0xffffff)
+                    Fonts.fontSemibold40.drawCenteredString("§cOn account: §f$uuid", width / 2f, height / 2 - 80f, 0xffffff)
                 }
             }
-            Fonts.font35.drawCenteredString(status, width / 2f, height / 2f - 5, 0xffffff)
+            Fonts.fontSemibold35.drawCenteredString(status, width / 2f, height / 2f - 5, 0xffffff)
 
             // Draw fields
             if (!loggedIntoAccount) {
                 transferCodeField.drawTextBox()
 
                 if (transferCodeField.text.isEmpty() && !transferCodeField.isFocused) {
-                    Fonts.font40.drawCenteredString("§7Transfer Code", width / 2f - 60f, height / 2 - 84f, 0xffffff)
+                    Fonts.fontSemibold40.drawCenteredString("§7Transfer Code", width / 2f - 60f, height / 2 - 84f, 0xffffff)
                 }
             }
 

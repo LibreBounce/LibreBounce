@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -86,7 +85,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
     private val bgGradColors = ColorSettingsFloat.create(this, "Background-Gradient")
     { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
-    private val textFont by font("Font", Fonts.font35)
+    private val textFont by font("Font", Fonts.fontSemibold35)
     private val textShadow by boolean("ShadowText", true)
 
     private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }

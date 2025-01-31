@@ -52,7 +52,7 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
 
             list.drawScreen(mouseX, mouseY, partialTicks)
 
-            Fonts.font40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
+            Fonts.fontSemibold40.drawCenteredString("§9§lScripts", width / 2f, 28f, 0xffffff)
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks)
@@ -168,14 +168,14 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
         override fun drawSlot(id: Int, x: Int, y: Int, var4: Int, var5: Int, var6: Int) {
             val script = ScriptManager[id]
 
-            Fonts.font40.drawCenteredString(
+            Fonts.fontSemibold40.drawCenteredString(
                 "§9" + script.scriptName + " §7v" + script.scriptVersion,
                 width / 2f,
                 y + 2f,
                 Color.LIGHT_GRAY.rgb
             )
 
-            Fonts.font40.drawCenteredString(
+            Fonts.fontSemibold40.drawCenteredString(
                 "by §c" + script.scriptAuthors.joinToString(", "),
                 width / 2f,
                 y + 15f,

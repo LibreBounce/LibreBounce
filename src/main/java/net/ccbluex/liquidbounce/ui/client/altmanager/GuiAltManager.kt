@@ -60,7 +60,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun initGui() {
         val textFieldWidth = (width / 8).coerceAtLeast(70)
-        searchField = GuiTextField(2, Fonts.font40, width - textFieldWidth - 10, 10, textFieldWidth, 20)
+        searchField = GuiTextField(2, Fonts.fontSemibold40, width - textFieldWidth - 10, 10, textFieldWidth, 20)
         searchField.maxStringLength = Int.MAX_VALUE
 
         altsList = GuiList(this)
@@ -99,18 +99,18 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         assumeNonVolatile {
             drawBackground(0)
             altsList.drawScreen(mouseX, mouseY, partialTicks)
-            Fonts.font40.drawCenteredString(translationMenu("altManager"), width / 2f, 6f, 0xffffff)
-            Fonts.font35.drawCenteredString(
+            Fonts.fontSemibold40.drawCenteredString(translationMenu("altManager"), width / 2f, 6f, 0xffffff)
+            Fonts.fontSemibold35.drawCenteredString(
                 if (searchField.text.isEmpty()) "${accountsConfig.accounts.size} Alts" else altsList.accounts.size.toString() + " Search Results",
                 width / 2f,
                 18f,
                 0xffffff
             )
-            Fonts.font35.drawCenteredString(status, width / 2f, 32f, 0xffffff)
-            Fonts.font35.drawStringWithShadow(
+            Fonts.fontSemibold35.drawCenteredString(status, width / 2f, 32f, 0xffffff)
+            Fonts.fontSemibold35.drawStringWithShadow(
                 "§7User: §a${mc.getSession().username}", 6f, 6f, 0xffffff
             )
-            Fonts.font35.drawStringWithShadow(
+            Fonts.fontSemibold35.drawStringWithShadow(
                 "§7Type: §a${
                     if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
                             mc.getSession().token
@@ -119,7 +119,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
                 }", 6f, 15f, 0xffffff
             )
             searchField.drawTextBox()
-            if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
+            if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
                 translationText("Search"), searchField.xPosition + 4f, 17f, 0xffffff
             )
         }
@@ -402,8 +402,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
                 minecraftAccount.name
             }
 
-            Fonts.font40.drawCenteredString(accountName, width / 2f, y + 2f, Color.WHITE.rgb, true)
-            Fonts.font40.drawCenteredString(
+            Fonts.fontSemibold40.drawCenteredString(accountName, width / 2f, y + 2f, Color.WHITE.rgb, true)
+            Fonts.fontSemibold40.drawCenteredString(
                 if (minecraftAccount is CrackedAccount) "Cracked" else if (minecraftAccount is MicrosoftAccount) "Microsoft" else if (minecraftAccount is MojangAccount) "Mojang" else "Something else",
                 width / 2f,
                 y + 15f,

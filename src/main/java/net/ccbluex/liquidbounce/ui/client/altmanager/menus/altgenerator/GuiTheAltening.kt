@@ -68,12 +68,12 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
         +GuiButton(0, width / 2 + 2, height / 2 + 70, 98, 20, translationButton("back"))
 
         // Token text field
-        tokenField = GuiTextField(666, Fonts.font40, width / 2 - 100, height / 2 - 120, 200, 20)
+        tokenField = GuiTextField(666, Fonts.fontSemibold40, width / 2 - 100, height / 2 - 120, 200, 20)
         tokenField.isFocused = false
         tokenField.maxStringLength = 64
 
         // Api key password field
-        apiKeyField = GuiPasswordField(1337, Fonts.font40, width / 2 - 100, height / 2 - 30, 200, 20)
+        apiKeyField = GuiPasswordField(1337, Fonts.fontSemibold40, width / 2 - 100, height / 2 - 30, 200, 20)
         apiKeyField.maxStringLength = 18
         apiKeyField.text = apiKey
         super.initGui()
@@ -89,8 +89,8 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
             drawRect(30f, 30f, width - 30f, height - 30f, Integer.MIN_VALUE)
 
             // Draw title and status
-            Fonts.font40.drawCenteredString("TheAltening", width / 2f, height / 2 - 180f, 0xffffff)
-            Fonts.font35.drawCenteredString(status, width / 2f, height / 2 + 30f, 0xffffff)
+            Fonts.fontSemibold40.drawCenteredString("TheAltening", width / 2f, height / 2 - 180f, 0xffffff)
+            Fonts.fontSemibold35.drawCenteredString(status, width / 2f, height / 2 + 30f, 0xffffff)
 
             // Draw fields
             apiKeyField.drawTextBox()
@@ -98,10 +98,10 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
 
             // Draw text
             if (tokenField.text.isEmpty() && !tokenField.isFocused)
-                Fonts.font40.drawCenteredString("§7Token", width / 2f - 82, height / 2 - 114f, 0xffffff)
+                Fonts.fontSemibold40.drawCenteredString("§7Token", width / 2f - 82, height / 2 - 114f, 0xffffff)
             if (apiKeyField.text.isEmpty() && !apiKeyField.isFocused)
-                Fonts.font40.drawCenteredString("§7API-Key", width / 2f - 78, height / 2 - 24f, 0xffffff)
-            Fonts.font40.drawCenteredString(
+                Fonts.fontSemibold40.drawCenteredString("§7API-Key", width / 2f - 78, height / 2 - 24f, 0xffffff)
+            Fonts.fontSemibold40.drawCenteredString(
                 "§7Use coupon code 'liquidbounce' for 20% off!",
                 width / 2f,
                 height / 2 + 55f,

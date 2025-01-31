@@ -13,9 +13,11 @@ import net.ccbluex.liquidbounce.file.FileManager.modulesConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.lang.translation
+import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.asResourceLocation
@@ -77,7 +79,7 @@ open class Module(
             LOGGER.error("Failed to reset all values", any)
             chat("Failed to reset all values: ${any.message}")
         } finally {
-            addNotification(Notification("Successfully reset all settings from ${this@Module.name}"))
+            addNotification(Notification(this.spacedName, "Successfully reset settings"))
             saveConfig(valuesConfig)
         }
         return@onChange false
@@ -91,8 +93,7 @@ open class Module(
     // Current state of module
     var state = defaultState
         set(value) {
-            if (field == value)
-                return
+            if (field == value) return
 
             // Call toggle
             onToggle(value)
@@ -102,18 +103,35 @@ open class Module(
 
             // Play sound and add notification
             if (!isStarting) {
-                mc.playSound("random.click".asResourceLocation())
-                addNotification(
-                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
-                )
+                try {
+                    val state = if (value) {
+                        "Enabled" to Notifications.SeverityType.SUCCESS
+                    } else {
+                        "Disabled" to Notifications.SeverityType.RED_SUCCESS
+                    }
+
+                    val texts = translation("notification.module${state.first}", getName()).split(" ")
+                    val (title, description) = texts[0] to texts[1]
+
+                    mc.playSound("random.click".asResourceLocation())
+                    HUD.notifications.find { it.title != title && it.description == description }.let {
+                        if (it == null || it.fadeState.ordinal > 1) {
+                            addNotification(Notification(title, description, severityType = state.second))
+                            return@let
+                        }
+
+                        it.replaceModuleNotification(title, description, state.second)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             // Call on enabled or disabled
             if (value) {
                 onEnable()
 
-                if (canBeEnabled)
-                    field = true
+                if (canBeEnabled) field = true
             } else {
                 onDisable()
                 field = false

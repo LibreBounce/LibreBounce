@@ -107,7 +107,7 @@ object AutoAccount :
 
     private fun respond(msg: String) = when {
         register && "/reg" in msg -> {
-            addNotification(Notification("Trying to register."))
+            addNotification(Notification.informative(this, "Trying to register."))
             SharedScopes.IO.launch {
                 delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/register $password $password")
@@ -116,7 +116,7 @@ object AutoAccount :
         }
 
         login && "/log" in msg -> {
-            addNotification(Notification("Trying to log in."))
+            addNotification(Notification.informative(this, "Trying to log in."))
             SharedScopes.IO.launch {
                 delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/login $password")
@@ -202,7 +202,7 @@ object AutoAccount :
     // Login succeeded
     private fun success() {
         if (status == Status.SENT_COMMAND) {
-            addNotification(Notification("Logged in as ${mc.session.username}"))
+            addNotification(Notification.informative(this, "Logged in as ${mc.session.username}"))
 
             // Stop waiting for response
             status = Status.STOPPED
@@ -212,7 +212,7 @@ object AutoAccount :
     // Login failed
     private fun fail() {
         if (status == Status.SENT_COMMAND) {
-            addNotification(Notification("Failed to log in as ${mc.session.username}"))
+            addNotification(Notification.error(this, "Failed to log in as ${mc.session.username}"))
 
             // Stop waiting for response
             status = Status.STOPPED
@@ -242,7 +242,7 @@ object AutoAccount :
             accountsConfig.addAccount(account)
             accountsConfig.saveConfig()
 
-            addNotification(Notification("Saved alt ${account.name}"))
+            addNotification(Notification.informative(this, "Saved alt ${account.name}"))
         }
     }
 

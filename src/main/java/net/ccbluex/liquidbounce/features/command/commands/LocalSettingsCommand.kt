@@ -65,7 +65,7 @@ object LocalSettingsCommand : Command("localsettings", "localsetting", "localcon
                 chat("§9Set settings...")
                 SettingsUtils.applyScript(settings)
                 chat("§6Settings applied successfully.")
-                addNotification(Notification("Updated Settings"))
+                addNotification(Notification.informative("Local Settings Command","Updated Settings"))
                 playEdit()
             } catch (e: IOException) {
                 e.printStackTrace()

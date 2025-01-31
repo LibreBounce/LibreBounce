@@ -187,7 +187,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     if (warn == "Chat") {
                         chat("§3Staff is Watching")
                     } else {
-                        hud.addNotification(Notification("§3Staff is Watching", 3000F))
+                        hud.addNotification(Notification.warning(this, "§3Staff is Watching", 3000F))
                     }
                 }
             }
@@ -205,9 +205,9 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (isStaff && spectator) {
             if (warn == "Chat") {
-                chat("§c[STAFF] §d${player} §3is a spectators")
+                chat("§c[STAFF] §d${player} §3is a spectator")
             } else {
-                hud.addNotification(Notification("§c[STAFF] §d${player} §3is a spectators", 3000F))
+                hud.addNotification(Notification.warning(this, "§c[STAFF] §d${player} §3is a spectator", 3000F))
             }
         }
 
@@ -215,7 +215,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             if (warn == "Chat") {
                 chat("§d${player} §3is a spectators")
             } else {
-                hud.addNotification(Notification("§d${player} §3is a spectators", 3000F))
+                hud.addNotification(Notification.warning(this, "§d${player} §3is a spectators", 3000F))
             }
         }
 
@@ -265,7 +265,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                 if (warn == "Chat") {
                     chat(warnings)
                 } else {
-                    hud.addNotification(Notification(warnings, 3000F))
+                    hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000F))
                 }
 
                 attemptLeave = false
@@ -318,7 +318,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             if (warn == "Chat") {
                 chat(warnings)
             } else {
-                hud.addNotification(Notification(warnings, 3000F))
+                hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000F))
             }
 
             attemptLeave = false
@@ -358,7 +358,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                 if (warn == "Chat") {
                     chat("§aA player might be vanished.")
                 } else {
-                    hud.addNotification(Notification("§aA player might be vanished.", 3000F))
+                    hud.addNotification(Notification.warning(this, "§aA player might be vanished.", 3000F))
                 }
 
                 alertClearVanish = false
@@ -369,7 +369,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                 if (warn == "Chat") {
                     chat("§cNo players are vanished")
                 } else {
-                    hud.addNotification(Notification("§cNo players are vanished", 3000F))
+                    hud.addNotification(Notification.warning(this, "§cNo players are vanished", 3000F))
                 }
 
                 alertClearVanish = true

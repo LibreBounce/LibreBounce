@@ -28,10 +28,7 @@ import java.awt.Font
 class GameFontRenderer(
     font: Font
 ) : FontRenderer(
-    mc.gameSettings,
-    ResourceLocation("textures/font/ascii.png"),
-    mc.textureManager,
-    false
+    mc.gameSettings, ResourceLocation("textures/font/ascii.png"), mc.textureManager, false
 ) {
 
     val defaultFont = AWTFontRenderer(font)
@@ -58,10 +55,7 @@ class GameFontRenderer(
      * Regular text draw (no shadow).
      */
     fun drawString(
-        text: String,
-        x: Float,
-        y: Float,
-        color: Int
+        text: String, x: Float, y: Float, color: Int
     ): Int = drawString(text, x, y, color, shadow = false)
 
     /**
@@ -70,10 +64,7 @@ class GameFontRenderer(
      * - Main text in [color]
      */
     fun drawStringFade(
-        text: String,
-        x: Float,
-        y: Float,
-        color: Color
+        text: String, x: Float, y: Float, color: Color
     ) {
         val blackWithAlpha = Color(0, 0, 0, color.alpha).rgb
         drawString(text, x + 0.7f, y + 0.7f, blackWithAlpha, shadow = false)
@@ -84,18 +75,11 @@ class GameFontRenderer(
      * Overrides vanilla's drawStringWithShadow for compatibility.
      */
     override fun drawStringWithShadow(
-        text: String,
-        x: Float,
-        y: Float,
-        color: Int
+        text: String, x: Float, y: Float, color: Int
     ): Int = drawString(text, x, y, color, shadow = true)
 
     fun drawCenteredString(
-        text: String,
-        x: Float,
-        y: Float,
-        color: Int,
-        shadow: Boolean
+        text: String, x: Float, y: Float, color: Int, shadow: Boolean
     ) {
         val drawX = x - getStringWidth(text) / 2f
         if (shadow) {
@@ -106,10 +90,7 @@ class GameFontRenderer(
     }
 
     fun drawCenteredString(
-        text: String,
-        x: Float,
-        y: Float,
-        color: Int
+        text: String, x: Float, y: Float, color: Int
     ) {
         val drawX = x - getStringWidth(text) / 2f
         drawString(text, drawX, y, color)
@@ -120,11 +101,7 @@ class GameFontRenderer(
      * Good for larger titles or smaller disclaimers.
      */
     fun drawCenteredTextScaled(
-        text: String?,
-        givenX: Int,
-        givenY: Int,
-        color: Int,
-        givenScale: Double
+        text: String?, givenX: Int, givenY: Int, color: Int, givenScale: Double
     ) {
         if (text.isNullOrEmpty()) return
 
@@ -140,11 +117,7 @@ class GameFontRenderer(
      * the text. Then we draw the real text with optional rainbow/gradient.
      */
     override fun drawString(
-        text: String,
-        x: Float,
-        y: Float,
-        color: Int,
-        shadow: Boolean
+        text: String, x: Float, y: Float, color: Int, shadow: Boolean
     ): Int {
         // Basic blend
         glEnable(GL_BLEND)
@@ -174,13 +147,7 @@ class GameFontRenderer(
         val rainbowActive = RainbowFontShader.isInUse
         val gradientActive = GradientFontShader.isInUse
         return drawText(
-            currentText,
-            x,
-            baseY,
-            color,
-            ignoreColor = false,
-            rainbow = rainbowActive,
-            gradient = gradientActive
+            currentText, x, baseY, color, ignoreColor = false, rainbow = rainbowActive, gradient = gradientActive
         )
     }
 
@@ -355,6 +322,7 @@ class GameFontRenderer(
                         bold = false
                         italic = false
                     }
+
                     colorIndex == 17 -> bold = true
                     colorIndex == 20 -> italic = true
                     colorIndex == 21 -> {

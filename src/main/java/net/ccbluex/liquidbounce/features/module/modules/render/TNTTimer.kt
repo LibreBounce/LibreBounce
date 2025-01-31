@@ -24,7 +24,7 @@ import kotlin.math.pow
 object TNTTimer : Module("TNTTimer", Category.RENDER, spacedName = "TNT Timer") {
 
     private val scale by float("Scale", 3F, 1F..4F)
-    private val font by font("Font", Fonts.font40)
+    private val font by font("Font", Fonts.fontSemibold40)
     private val fontShadow by boolean("Shadow", true)
 
     private val color by color("Color", Color.WHITE)
