@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.minecraft.client.gui.ScaledResolution
+import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
 
@@ -21,6 +22,8 @@ abstract class Element(
     name: String,
     var x: Double = 2.0, var y: Double = 2.0, scale: Float = 1F, var side: Side = Side.default(),
 ) : Configurable(name), MinecraftInstance {
+
+    val blueRibbon = Color(41, 75, 255)
 
     val info = javaClass.getAnnotation(ElementInfo::class.java)
         ?: throw IllegalArgumentException("Passed element with missing element info")

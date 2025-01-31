@@ -53,7 +53,7 @@ object Fonts : MinecraftInstance {
             register(FontInfo(name = "Minecraft Font"), minecraftFont)
 
             fontSemibold35 = register(
-                FontInfo(name = "Roboto Semibold", size = 35),
+                FontInfo(name = "Outfit Semibold", size = 35),
                 getFontFromFile("Outfit-Semibold.ttf", 35).asGameFontRenderer()
             )
 

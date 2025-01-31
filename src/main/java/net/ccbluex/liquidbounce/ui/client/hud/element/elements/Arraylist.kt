@@ -42,14 +42,14 @@ import java.awt.Color
  */
 @ElementInfo(name = "Arraylist", single = true)
 class Arraylist(
-    x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
+    x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP),
 ) : Element("Arraylist", x, y, scale, side) {
 
     private val textColorMode by choices(
         "Text-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
-    private val textColors = ColorSettingsInteger(this, "TextColor") { textColorMode == "Custom" }.with(0, 111, 255)
+    private val textColors = ColorSettingsInteger(this, "TextColor") { textColorMode == "Custom" }.with(blueRibbon)
     private val textFadeColors = ColorSettingsInteger(this, "Text-Fade") { textColorMode == "Fade" }.with(0, 111, 255)
 
     private val textFadeDistance by int("Text-Fade-Distance", 50, 0..100) { textColorMode == "Fade" }
@@ -62,12 +62,12 @@ class Arraylist(
     private val textGradColors =
         ColorSettingsFloat.create(this, "Text-Gradient") { textColorMode == "Gradient" && it <= maxTextGradientColors }
 
-    private val rectMode by choices("Rect-Mode", arrayOf("None", "Left", "Right", "Outline"), "None")
+    private val rectMode by choices("Rect-Mode", arrayOf("None", "Left", "Right", "Outline"), "Right")
     private val roundedRectRadius by float("RoundedRect-Radius", 0F, 0F..2F) { rectMode !in setOf("None", "Outline") }
     private val rectColorMode by choices(
-        "Rect-ColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Rainbow"
+        "Rect-ColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     ) { rectMode != "None" }
-    private val rectColors = ColorSettingsInteger(this, "RectColor", applyMax = true) { isCustomRectSupported }
+    private val rectColors = ColorSettingsInteger(this, "RectColor", applyMax = true) { isCustomRectSupported }.with(blueRibbon)
     private val rectFadeColors = ColorSettingsInteger(this, "Rect-Fade", applyMax = true) { rectColorMode == "Fade" }
 
     private val rectFadeDistance by int("Rect-Fade-Distance", 50, 0..100) { rectColorMode == "Fade" }
@@ -81,12 +81,12 @@ class Arraylist(
         this, "Rect-Gradient"
     ) { isCustomRectGradientSupported && it <= maxRectGradientColors }
 
-    private val roundedBackgroundRadius by float("RoundedBackGround-Radius", 0F, 0F..5F) { bgColors.color().alpha > 0 }
+    private val roundedBackgroundRadius by float("RoundedBackGround-Radius", 1F, 0F..5F) { bgColors.color().alpha > 0 }
 
     private val backgroundMode by choices(
         "Background-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
-    private val bgColors = ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(a = 0)
+    private val bgColors = ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(Color.BLACK.withAlpha(150))
     private val bgFadeColors = ColorSettingsInteger(this, "Background-Fade") { backgroundMode == "Fade" }
 
     private val bgFadeDistance by int("Background-Fade-Distance", 50, 0..100) { backgroundMode == "Fade" }
@@ -105,9 +105,9 @@ class Arraylist(
     // Icons
     private val displayIcons by boolean("DisplayIcons", true)
     private val iconShadows by boolean("IconShadows", true) { displayIcons }
-    private val xDistance by float("ShadowXDistance", 1.0F, -2F..2F) { iconShadows }
-    private val yDistance by float("ShadowYDistance", 1.0F, -2F..2F) { iconShadows }
-    private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128)) { iconShadows }
+    private val xDistance by float("ShadowXDistance", 0F, -2F..2F) { iconShadows }
+    private val yDistance by float("ShadowYDistance", 0F, -2F..2F) { iconShadows }
+    private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128), rainbow = true) { iconShadows }
 
     // The images seem to be overlapped when either Rainbow or Gradient mode is active.
     private val iconColorMode by choices(
@@ -145,12 +145,12 @@ class Arraylist(
         tags
     }.onChanged { updateTagDetails() }
 
-    private val font by font("Font", Fonts.fontSemibold40)
+    private val font by font("Font", Fonts.fontSemibold35)
     private val textShadow by boolean("ShadowText", true)
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
-    private val space by float("Space", 0F, 0F..5F)
+    private val space by float("Space", 1F, 0F..5F)
     private val textHeight by float("TextHeight", 11F, 1F..20F)
-    private val textY by float("TextY", 1.5F, 0F..20F)
+    private val textY by float("TextY", 3.25F, 0F..20F)
 
     private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth") { tags }
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }

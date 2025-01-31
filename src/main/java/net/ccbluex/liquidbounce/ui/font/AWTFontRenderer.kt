@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.bindTexture
 import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraftforge.fml.relauncher.Side
@@ -173,6 +174,7 @@ class AWTFontRenderer(
             if (loc == null) {
                 // Fallback => break quads, draw with MC font
                 glEnd()
+                GlStateManager.resetColor()
 
                 glPushMatrix()
 
