@@ -68,7 +68,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             val mightBeTheCurrentAccount = accountsConfig.accounts.indexOfFirst { it.name == mc.session.username }
             elementClicked(mightBeTheCurrentAccount, false, 0, 0)
 
-            scrollBy(mightBeTheCurrentAccount * altsList.getSlotHeight())
+            scrollBy(mightBeTheCurrentAccount * this.getSlotHeight())
         }
 
         // Setup buttons
