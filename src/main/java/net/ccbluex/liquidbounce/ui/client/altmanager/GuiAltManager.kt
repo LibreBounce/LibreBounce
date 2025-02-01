@@ -62,8 +62,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         searchField = GuiTextField(2, Fonts.fontSemibold40, width - textFieldWidth - 10, 10, textFieldWidth, 20)
         searchField.maxStringLength = Int.MAX_VALUE
 
-        altsList = GuiList(this)
-        altsList.run {
+        altsList = GuiList(this).apply {
             registerScrollButtons(7, 8)
 
             val mightBeTheCurrentAccount = accountsConfig.accounts.indexOfFirst { it.name == mc.session.username }
