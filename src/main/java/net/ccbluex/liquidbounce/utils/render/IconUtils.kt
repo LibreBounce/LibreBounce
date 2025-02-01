@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.utils.render
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
+import net.ccbluex.liquidbounce.utils.io.flipSafely
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.io.IOException
@@ -40,7 +41,7 @@ object IconUtils {
         for (i in rgb)
             byteBuffer.putInt(i shl 8 or (i ushr 24 and 255))
 
-        byteBuffer.flip()
+        byteBuffer.flipSafely()
         return byteBuffer
     }
 }

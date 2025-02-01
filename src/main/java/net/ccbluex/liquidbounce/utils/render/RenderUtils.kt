@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.center
 import net.ccbluex.liquidbounce.utils.block.toVec
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.io.flipSafely
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.gui.ScaledResolution
@@ -1472,7 +1473,7 @@ object RenderUtils : MinecraftInstance {
             buffer.put(((pixel shr 24) and 0xFF).toByte())
         }
 
-        buffer.flip()
+        buffer.flipSafely()
 
         val textureID = glGenTextures()
 
