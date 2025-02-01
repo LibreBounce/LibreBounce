@@ -21,7 +21,7 @@ open class Configurable(
 ) {
 
     val values: List<Value<*>>
-        get() = this.get()
+        get() = this.get().filter { !it.excluded }
 
     fun addValue(value: Value<*>) = apply {
         get().add(value)
@@ -51,7 +51,9 @@ open class Configurable(
         val values = get()
         // Set all sub values from the JSON object
         for ((valueName, value) in element.entrySet()) {
-            values.find { it.name.equals(valueName, true) }?.fromJson(value)
+            values.find {
+                !it.excluded && it.name.equals(valueName, true)
+            }?.fromJson(value)
         }
 
         return values
