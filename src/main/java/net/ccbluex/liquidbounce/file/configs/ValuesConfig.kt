@@ -141,7 +141,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
                 }
             }
 
-            if (jsonModule.isEmpty()) continue
+            if (jsonModule.entrySet().isEmpty()) continue
             jsonObject.add(module.name, jsonModule)
         }
 
