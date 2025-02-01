@@ -25,6 +25,12 @@ jobs:
       - name: Grant permissions to src-theme
         run: sudo chmod -R 777 src-theme
 
+      - name: Stop any existing Gradle daemons
+        run: ./gradlew --stop || true
+        
+      - name: Clear stale Gradle lock files
+        run: find ~/.gradle -type f -name "*.lock" -delete || true
+
       - name: Setup and build
         uses: gradle/gradle-build-action@v3
         env:
