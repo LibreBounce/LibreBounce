@@ -201,6 +201,7 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
 inline fun WorldRenderEnvironment.longLines(draw: RenderEnvironment.() -> Unit) {
     if (!HAS_AMD_VEGA_APU) {
         draw()
+        return
     }
 
     GL11C.glDisable(GL11C.GL_LINE_SMOOTH)
