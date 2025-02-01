@@ -37,7 +37,9 @@ sealed class Value<T>(
 
     var excluded: Boolean = false
         private set(value) {
-            owner?.get()?.remove(this)
+            if (value) {
+                owner?.get()?.remove(this)
+            }
             field = value
         }
 
