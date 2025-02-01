@@ -21,7 +21,7 @@ open class Configurable(
 ) {
 
     val values: List<Value<*>>
-        get() = this.get().filter { !it.excluded }
+        get() = this.get()
 
     fun addValue(value: Value<*>) = apply {
         get().add(value)
