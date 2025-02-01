@@ -5,23 +5,29 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.loopHandler
-import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.Category
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 import net.minecraft.network.play.server.S2BPacketChangeGameState
+import java.awt.Color
 
 object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
-    private val timeMode by choices("Mode", arrayOf("None", "Normal", "Custom"), "Custom")
-    private val customWorldTime by int("Time", 19000, 0..24000) { timeMode == "Custom" }
+    private val timeMode by choices("Mode", arrayOf("None", "Normal", "Custom", "Day", "Dusk", "Night", "Dynamic"), "Custom")
+    private val customWorldTime by int("Time", 6, 0..24) { timeMode == "Custom" }
     private val changeWorldTimeSpeed by int("TimeSpeed", 150, 10..500) { timeMode == "Normal" }
+    private val dynamicSpeed by int("DynamicSpeed", 20, 1.. 50) { timeMode =="Dynamic" }
 
     private val weatherMode by choices("WeatherMode", arrayOf("None", "Sun", "Rain", "Thunder"), "None")
-    private val weatherStrength by float("WeatherStrength", 1f, 0f..1f)
-    { weatherMode == "Rain" || weatherMode == "Thunder" }
+    private val weatherStrength by FloatValue("WeatherStrength", 1f, 0f..1f)
+
+    // world color
+    val worldColor by boolean("WorldColor", false)
+    val color by color("Color", Color(0, 90, 255))
 
     private var i = 0L
 
@@ -29,16 +35,33 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
         i = 0
     }
 
-    val onUpdate = loopHandler {
+
+    val onUpdate = handler<UpdateEvent> {
         when (timeMode.lowercase()) {
             "normal" -> {
                 i += changeWorldTimeSpeed
                 i %= 24000
                 mc.theWorld.worldTime = i
             }
-
             "custom" -> {
-                mc.theWorld.worldTime = customWorldTime.toLong()
+                mc.theWorld.worldTime = customWorldTime.toLong() * 1000
+            }
+            "day" -> {
+                mc.theWorld.worldTime = 2000
+            }
+            "dusk" -> {
+                mc.theWorld.worldTime = 13050
+            }
+            "night" -> {
+                mc.theWorld.worldTime = 16000
+            }
+            "dynamic" -> {
+                if (i < 24000) {
+                    i += dynamicSpeed
+                } else {
+                    i = 0
+                }
+                mc.theWorld.worldTime = i
             }
         }
 
@@ -49,18 +72,17 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
                 mc.theWorld.setRainStrength(0f)
                 mc.theWorld.setThunderStrength(0f)
             }
-
             "rain" -> {
                 mc.theWorld.setRainStrength(strength)
                 mc.theWorld.setThunderStrength(0f)
             }
-
             "thunder" -> {
                 mc.theWorld.setRainStrength(strength)
                 mc.theWorld.setThunderStrength(strength)
             }
         }
     }
+
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet

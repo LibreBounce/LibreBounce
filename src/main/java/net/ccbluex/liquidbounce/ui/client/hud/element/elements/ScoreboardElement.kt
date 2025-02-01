@@ -63,7 +63,7 @@ class ScoreboardElement(
     private val serverIp by choices("ServerIP", arrayOf("Normal", "None", "Client", "Website"), "Normal")
     private val number by boolean("Number", false)
     private val shadow by boolean("Shadow", false)
-    private val font by font("Font", Fonts.fontRegular35)
+    private val font by font("Font", Fonts.fontSemibold35)
 
     /**
      * Draw element

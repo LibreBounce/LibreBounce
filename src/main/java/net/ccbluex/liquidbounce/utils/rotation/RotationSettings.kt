@@ -15,6 +15,7 @@ import kotlin.math.abs
 // TODO: refactor them all
 
 class AlwaysRotationSettings(owner: Module, generalApply: () -> Boolean = { true }) : RotationSettings(owner, generalApply) {
+    override val rotationsValue = super.rotationsValue.apply { excludeWithState(true) }
     override val rotationsActive: Boolean = true
 }
 

@@ -431,7 +431,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                     chat("Lagback Received | Timer Reset")
                 }
                 if (notificationDebug) {
-                    hud.addNotification(Notification.informative(this, "Lagback Received - Resetting Timer", 1000F))
+                    hud.addNotification(Notification.informative(this, "Lagback Received - Resetting Timer", 1000L))
                 }
 
                 shouldReset = false
@@ -447,7 +447,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                     chat("Knockback Received | Timer Reset")
                 }
                 if (notificationDebug) {
-                    hud.addNotification(Notification.informative(this, "Knockback Received - Resetting Timer", 1000F))
+                    hud.addNotification(Notification.informative(this, "Knockback Received - Resetting Timer", 1000L))
                 }
 
                 shouldReset = false

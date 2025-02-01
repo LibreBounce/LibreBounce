@@ -31,7 +31,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
     private val shrinkSpeed by int("ShrinkSpeed", 2, 0..5, suffix = "Ticks") { shrinkOnPress }
 
     private var shadow by boolean("Text-Shadow", true)
-    private val font by font("Font", Fonts.fontRegular35)
+    private val font by font("Font", Fonts.fontSemibold35)
 
     private val textColor
         get() = textColors.color()
