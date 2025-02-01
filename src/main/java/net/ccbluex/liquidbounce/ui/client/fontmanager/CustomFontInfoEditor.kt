@@ -26,7 +26,7 @@ class CustomFontInfoEditor(
     }
     private var formData = default
 
-    private val border = EmptyBorder(5, 5, 5, 5)
+    private val border = EmptyBorder(10, 10, 10, 10)
 
     private fun addGridItem(item: JComponent) {
         add(JPanel(BorderLayout()).apply {
