@@ -8,6 +8,7 @@
     ],
     "translations": {
         "menu.altManager": "Alt Manager",
+        "menu.fontManager": "Font Manager",
         "menu.mods": "Mods",
         "menu.serverStatus": "Server Status",
         "menu.configuration": "Configuration",
@@ -18,9 +19,9 @@
         "button.moveDown": "Move Down",
         "button.import": "Import",
         "button.export": "Export",
+        "button.add": "Add",
+        "button.remove": "Remove",
 
-        "button.altManager.add": "Add",
-        "button.altManager.remove": "Remove",
         "button.altManager.copy": "Copy",
         "button.altManager.login": "Login",
         "button.altManager.randomAlt": "Random Alt",
@@ -29,8 +30,9 @@
         "button.altManager.theAltening": "TheAltening",
         "button.altManager.cape": "Cape",
         "button.altManager.sessionLogin": "Session Login",
-
         "button.altManager.buy": "Buy",
+
+        "button.fontManager.edit": "Edit",
 
         "button.openURL": "Open URL",
         "button.cancel": "Cancel",

@@ -75,8 +75,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         // Setup buttons
 
         val startPositionY = 22
-        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, translationButton("altManager.add"))
-        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("altManager.remove"))
+        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, translationButton("add"))
+        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
         +GuiButton(13, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("moveUp"))
         +GuiButton(14, width - 80, startPositionY + 24 * 4, 70, 20, translationButton("moveDown"))
         +GuiButton(7, width - 80, startPositionY + 24 * 5, 70, 20, translationButton("import"))
