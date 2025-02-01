@@ -134,10 +134,14 @@ class ValuesConfig(file: File) : FileConfig(file) {
         jsonObject.add(ClientConfiguration.name, ClientConfiguration.toJson())
 
         for (module in moduleManager) {
-            if (module.values.isEmpty()) continue
-
             val jsonModule = JsonObject()
-            for (value in module.values) jsonModule.add(value.name, value.toJson())
+            for (value in module.values) {
+                if (!value.excluded) {
+                    jsonModule.add(value.name, value.toJson())
+                }
+            }
+
+            if (jsonModule.isEmpty()) continue
             jsonObject.add(module.name, jsonModule)
         }
 
