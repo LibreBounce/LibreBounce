@@ -18,8 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
 import net.ccbluex.liquidbounce.features.command.CommandFactory
@@ -71,28 +69,18 @@ object CommandValue : CommandFactory {
                     .begin<String>("value")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
                     .autocompletedWith { begin, args ->
-                        val module = args.getOrNull(1)
-                            ?.let { moduleName -> ModuleManager.find { it.name.equals(moduleName, true) } }
-                            ?: return@autocompletedWith emptyList()
+                        val moduleName = args.getOrNull(1) ?: return@autocompletedWith emptyList()
+                        val module = ModuleManager.find {
+                            it.name.equals(moduleName, true)
+                        } ?: return@autocompletedWith emptyList()
 
-                        val value = args.getOrNull(2)
-                            ?.let { valueName -> module.getContainedValuesRecursively()
-                                .firstOrNull { it.name.equals(valueName, true) }
-                            } ?: return@autocompletedWith emptyList()
+                        val valueName = args.getOrNull(2) ?: return@autocompletedWith emptyList()
+                        val value = module.getContainedValuesRecursively().firstOrNull {
+                            it.name.equals(valueName, true)
+                        } ?: return@autocompletedWith emptyList()
 
-                        @Suppress("USELESS_IS_CHECK")
-                        return@autocompletedWith when (value) {
-                            is ChoiceConfigurable<*> -> value.choices.mapNotNull {
-                                it.choiceName.takeIf { n -> n.startsWith(begin, true) }
-                            }
-                            is Value -> {
-                                if (value.getValue() is Boolean) {
-                                    arrayOf("true", "false").filter { it.startsWith(begin, true) }
-                                } else {
-                                    emptyList()
-                                }
-                            }
-                        }
+                        val options = value.valueType.completer.possible(value)
+                        options.filter { it.startsWith(begin, true) }
                     }
                     .required()
                     .build()
@@ -120,4 +108,5 @@ object CommandValue : CommandFactory {
             }
             .build()
     }
+
 }

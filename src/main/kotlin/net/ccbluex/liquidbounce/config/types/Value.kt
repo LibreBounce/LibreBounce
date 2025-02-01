@@ -16,13 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
-import com.mojang.brigadier.StringReader
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
@@ -30,18 +28,13 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.HumanInputDeserializer
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
-import net.minecraft.registry.Registries
-import net.minecraft.util.Identifier
-import java.awt.Color
 import java.util.*
 import java.util.function.Supplier
 import kotlin.reflect.KProperty
@@ -392,8 +385,11 @@ interface NamedChoice {
     val choiceName: String
 }
 
-enum class ValueType(val deserializer: HumanInputDeserializer.StringDeserializer<*>? = null) {
-    BOOLEAN(HumanInputDeserializer.booleanDeserializer),
+enum class ValueType(
+    val deserializer: HumanInputDeserializer.StringDeserializer<*>? = null,
+    val completer: AutoCompletionProvider.CompletionHandler = AutoCompletionProvider.defaultCompleter
+) {
+    BOOLEAN(HumanInputDeserializer.booleanDeserializer, AutoCompletionProvider.booleanCompleter),
     FLOAT(HumanInputDeserializer.floatDeserializer), FLOAT_RANGE(HumanInputDeserializer.floatRangeDeserializer),
     INT(HumanInputDeserializer.intDeserializer), INT_RANGE(HumanInputDeserializer.intRangeDeserializer),
     TEXT(HumanInputDeserializer.textDeserializer), TEXT_ARRAY(HumanInputDeserializer.textArrayDeserializer),
@@ -404,7 +400,8 @@ enum class ValueType(val deserializer: HumanInputDeserializer.StringDeserializer
     BIND,
     VECTOR_I,
     VECTOR_D,
-    CHOICE, CHOOSE,
+    CHOICE(completer = AutoCompletionProvider.choiceCompleter),
+    CHOOSE(completer = AutoCompletionProvider.chooseCompleter),
     INVALID,
     PROXY,
     CONFIGURABLE,
