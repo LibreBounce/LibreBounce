@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.fontmanager
 import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.lang.translationButton
 import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.lang.translationText
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.CustomFontInfo
 import net.ccbluex.liquidbounce.ui.font.FontInfo
@@ -121,8 +122,13 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
             fontListView.drawScreen(mouseX, mouseY, partialTicks)
             Fonts.fontSemibold40.drawCenteredString(translationMenu("fontManager"), width / 2f, 6f, 0xffffff)
             val count = Fonts.customFonts.size
+            val text = if (count == 1) {
+                translationText("fontManager.customFonts", count)
+            } else {
+                translationText("fontManager.customFonts.plural", count)
+            }
             Fonts.fontSemibold35.drawCenteredString(
-                "$count Custom Font${if (count > 1) "s" else ""}",
+                text,
                 width / 2f,
                 18f,
                 0xffffff
@@ -131,13 +137,13 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
             this.textFields.forEach { it.drawTextBox() }
             if (nameField.text.isEmpty() && !nameField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
-                "Name...", nameField.xPosition + 4f, nameField.yPosition + 7f, Color.GRAY.rgb
+                translationText("fontManager.name") + "...", nameField.xPosition + 4f, nameField.yPosition + 7f, Color.GRAY.rgb
             )
             if (sizeField.text.isEmpty() && !sizeField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
-                "Size...", sizeField.xPosition + 4f, sizeField.yPosition + 7f, Color.GRAY.rgb
+                translationText("fontManager.size") + "...", sizeField.xPosition + 4f, sizeField.yPosition + 7f, Color.GRAY.rgb
             )
             if (textField.text.isEmpty() && !textField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
-                "Preview...", textField.xPosition + 4f, 17f, Color.GRAY.rgb
+                translationText("fontManager.preview") + "...", textField.xPosition + 4f, 17f, Color.GRAY.rgb
             ) else {
                 val font = fontListView.selectedEntry.value
                 font.drawCenteredString(
@@ -158,7 +164,7 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private fun editFontInfo(fontInfo: FontInfo) {
         val newName = nameField.text.takeIf { it.isNotBlank() }
-        val newSize = sizeField.text.toIntOrNull()?.takeIf { it in 1..500 }
+        val newSize = sizeField.text.toIntOrNull()?.coerceIn(1, 500)
 
         if (newName == null && newSize == null) {
             return

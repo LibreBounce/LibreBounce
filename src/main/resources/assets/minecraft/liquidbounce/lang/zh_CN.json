@@ -39,6 +39,12 @@
         "button.openURL": "打开网址",
         "button.cancel": "取消",
 
+        "text.fontManager.name": "名称",
+        "text.fontManager.size": "大小",
+        "text.fontManager.preview": "预览文本",
+        "text.fontManager.customFonts": "%d 自定义字体",
+        "text.fontManager.customFonts.plural": "%d 自定义字体",
+
         "text.Search": "§7账号搜索",
         "text.Loggingintoaccount": "正在登录账号",
 
