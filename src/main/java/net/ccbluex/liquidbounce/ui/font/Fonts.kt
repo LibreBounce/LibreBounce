@@ -18,7 +18,7 @@ import kotlin.system.measureTimeMillis
 
 data class FontInfo(val name: String, val size: Int = -1, val isCustom: Boolean = false)
 
-data class CustomFontInfo @JvmOverloads constructor(val fontFile: String, val fontSize: Int, val name: String = fontFile)
+data class CustomFontInfo(val name: String, val fontFile: String, val fontSize: Int)
 
 private val FONT_REGISTRY = LinkedHashMap<FontInfo, FontRenderer>()
 

@@ -38,18 +38,33 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
     private lateinit var addButton: GuiButton
     private lateinit var removeButton: GuiButton
     private lateinit var textField: GuiTextField
+    private lateinit var nameField: GuiTextField
+    private lateinit var sizeField: GuiTextField
 
     override fun initGui() {
-        val textFieldWidth = (width / 8).coerceAtLeast(70)
-        textField = GuiTextField(2, mc.fontRendererObj, width - textFieldWidth - 10, 10, textFieldWidth, 20)
-        textField.maxStringLength = Int.MAX_VALUE
-
         val startPositionY = 22
-        addButton = +GuiButton(ADD_BTN_ID, width - 80, startPositionY + 24 * 1, 70, 20, translationButton("add"))
-        removeButton = +GuiButton(REMOVE_BTN_ID, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
-        +GuiButton(EDIT_BTN_ID, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("fontManager.edit"))
+        val leftStartX = 5
+        val rightStartX = width - 80
 
-        +GuiButton(BACK_BTN_ID, width - 80, height - 65, 70, 20, translationButton("back"))
+        val textFieldWidth = (width / 8).coerceAtLeast(70)
+        textField = textField(2, mc.fontRendererObj, width - textFieldWidth - 10, 10, textFieldWidth, 20) {
+            maxStringLength = Int.MAX_VALUE
+        }
+        nameField = textField(3, mc.fontRendererObj, leftStartX, startPositionY + 24 * 1, textFieldWidth, 20) {
+            maxStringLength = Int.MAX_VALUE
+        }
+        sizeField = textField(4, mc.fontRendererObj, leftStartX, startPositionY + 24 * 2, textFieldWidth, 20) {
+            setValidator {
+                it.isNullOrBlank() || it.toIntOrNull()?.takeIf { i -> i in 1..500 } != null
+            }
+            maxStringLength = 3
+        }
+        +GuiButton(EDIT_BTN_ID, leftStartX, startPositionY + 24 * 3, 70, 20, translationButton("fontManager.edit"))
+
+        addButton = +GuiButton(ADD_BTN_ID, rightStartX, startPositionY + 24 * 1, 70, 20, translationButton("add"))
+        removeButton = +GuiButton(REMOVE_BTN_ID, rightStartX, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
+
+        +GuiButton(BACK_BTN_ID, rightStartX, height - 65, 70, 20, translationButton("back"))
 
         fontListView = GuiList(this).apply {
             registerScrollButtons(7, 8)
@@ -61,14 +76,11 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         fontListView.handleMouseInput()
     }
 
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        textField.mouseClicked(mouseX, mouseY, mouseButton)
-        super.mouseClicked(mouseX, mouseY, mouseButton)
-    }
-
     public override fun keyTyped(typedChar: Char, keyCode: Int) {
-        if (textField.isFocused) {
-            textField.textboxKeyTyped(typedChar, keyCode)
+        this.textFields.forEach {
+            if (it.isFocused) {
+                it.textboxKeyTyped(typedChar, keyCode)
+            }
         }
 
         when (keyCode) {
@@ -116,7 +128,14 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
                 0xffffff
             )
             Fonts.fontSemibold35.drawCenteredString(status.text, width / 2f, 32f, 0xffffff)
-            textField.drawTextBox()
+
+            this.textFields.forEach { it.drawTextBox() }
+            if (nameField.text.isEmpty() && !nameField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
+                "Name...", nameField.xPosition + 4f, nameField.yPosition + 7f, Color.GRAY.rgb
+            )
+            if (sizeField.text.isEmpty() && !sizeField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
+                "Size...", sizeField.xPosition + 4f, sizeField.yPosition + 7f, Color.GRAY.rgb
+            )
             if (textField.text.isEmpty() && !textField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
                 "Preview...", textField.xPosition + 4f, 17f, Color.GRAY.rgb
             ) else {
@@ -133,12 +152,32 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    private fun editFontInfo(origin: CustomFontInfo) {
-        val edited = CustomFontInfoEditor("Edit: ${origin.name ?: "New font"}", origin).showDialog()
+    private fun CustomFontInfo.save() = Fonts.registerCustomAWTFont(this, save = true) ?: run {
+        status = Status.FAILED_TO_LOAD
+    }
 
-        Fonts.registerCustomAWTFont(edited, save = true) ?: run {
-            status = Status.FAILED_TO_LOAD
+    private fun editFontInfo(fontInfo: FontInfo) {
+        val newName = nameField.text.takeIf { it.isNotBlank() }
+        val newSize = sizeField.text.toIntOrNull()?.takeIf { it in 1..500 }
+
+        if (newName == null && newSize == null) {
+            return
         }
+
+        val origin = Fonts.removeCustomFont(fontInfo) ?: run {
+            status = Status.FAILED_TO_REMOVE
+            return
+        }
+
+        var edited = origin
+        if (newName != null) {
+            edited = edited.copy(name = newName)
+        }
+        if (newSize != null) {
+            edited = edited.copy(fontSize = newSize)
+        }
+
+        edited.save()
     }
 
     public override fun actionPerformed(button: GuiButton) {
@@ -163,8 +202,7 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
                 val fontFile = targetFile.relativeTo(directory).path
                 val defaultInfo = CustomFontInfo(name = file.name, fontFile = fontFile, fontSize = 20)
-
-                editFontInfo(defaultInfo)
+                defaultInfo.save()
             }
             REMOVE_BTN_ID -> {
                 val fontInfo = fontListView.selectedEntry.key.takeIf { it.isCustom } ?: return
@@ -172,11 +210,7 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
             }
             EDIT_BTN_ID -> {
                 val fontInfo = fontListView.selectedEntry.key.takeIf { it.isCustom } ?: return
-                val customFontInfo = Fonts.removeCustomFont(fontInfo) ?: run {
-                    status = Status.FAILED_TO_REMOVE
-                    return
-                }
-                editFontInfo(customFontInfo)
+                editFontInfo(fontInfo)
             }
         }
     }
