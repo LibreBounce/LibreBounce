@@ -16,6 +16,7 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.io.File
 
+private const val BACK_BTN_ID = 0
 private const val ADD_BTN_ID = 10
 private const val REMOVE_BTN_ID = 11
 private const val EDIT_BTN_ID = 12
@@ -47,6 +48,8 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         addButton = +GuiButton(ADD_BTN_ID, width - 80, startPositionY + 24 * 1, 70, 20, translationButton("add"))
         removeButton = +GuiButton(REMOVE_BTN_ID, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
         +GuiButton(EDIT_BTN_ID, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("fontManager.edit"))
+
+        +GuiButton(BACK_BTN_ID, width - 80, height - 65, 70, 20, translationButton("back"))
 
         fontListView = GuiList(this).apply {
             registerScrollButtons(7, 8)
@@ -143,6 +146,7 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         if (!button.enabled) return
 
         when (button.id) {
+            BACK_BTN_ID -> mc.displayGuiScreen(prevGui)
             ADD_BTN_ID -> {
                 val file = MiscUtils.openFileChooser(FileFilters.FONT, acceptAll = false)?.takeIf { it.isFile } ?: run {
                     status = Status.FAILED_TO_LOAD
