@@ -80,7 +80,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
     override fun createNavigationContext(): CombatContext {
         val playerPosition = player.pos
 
-        val combatTarget = targetTracker.lockedOnTarget?.let { entity ->
+        val combatTarget = targetTracker.target?.let { entity ->
             val distance = playerPosition.distanceTo(entity.pos)
             val range = min(ModuleKillAura.range, distance.toFloat())
             val outOfDistance = distance > opponentRange
@@ -146,7 +146,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
      */
     override fun getMovementRotation(): Rotation {
         val movementRotation = super.getMovementRotation()
-        val movementPitch = targetTracker.lockedOnTarget?.let { entity ->
+        val movementPitch = targetTracker.target?.let { entity ->
             Rotation.lookingAt(point = entity.box.center, from = player.eyePos).pitch
         } ?: return movementRotation
 

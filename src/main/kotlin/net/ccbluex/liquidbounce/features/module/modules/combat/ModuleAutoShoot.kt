@@ -74,7 +74,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     /**
      * The target tracker to find the best enemy to attack.
      */
-    internal val targetTracker = tree(TargetTracker(defaultPriority = PriorityEnum.DISTANCE))
+    internal val targetTracker = tree(TargetTracker(PriorityEnum.DISTANCE))
     private val pointTracker = tree(
         PointTracker(
             lowestPointDefault = PointTracker.PreferredBoxPart.HEAD,
@@ -111,7 +111,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val simulatedTickHandler = handler<RotationUpdateEvent> {
-        targetTracker.cleanup()
+        targetTracker.reset()
 
         // Find the recommended target
         val target = targetTracker.enemies().firstOrNull {
@@ -149,7 +149,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
             rotationConfigurable.toAimPlan(rotation ?: return@handler, considerInventory = considerInventory),
             Priority.IMPORTANT_FOR_USAGE_2, this
         )
-        targetTracker.lock(target)
+        targetTracker.select(target)
     }
 
     /**
@@ -157,7 +157,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val handleAutoShoot = tickHandler {
-        val target = targetTracker.lockedOnTarget ?: return@tickHandler
+        val target = targetTracker.target ?: return@tickHandler
 
         // Cannot happen but we want to smart-cast
         @Suppress("USELESS_IS_CHECK")
@@ -218,7 +218,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
     val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
-        val target = targetTracker.lockedOnTarget ?: return@handler
+        val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, event.partialTicks)

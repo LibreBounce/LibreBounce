@@ -49,7 +49,6 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -105,7 +104,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     // Target
-    val targetTracker = tree(TargetTracker())
+    val targetTracker = tree(CombatManager.targetTracker)
 
     // Rotation
     private val rotations = tree(object : RotationsConfigurable(this, combatSpecific = true) {
@@ -136,7 +135,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     override fun disable() {
-        targetTracker.cleanup()
+        targetTracker.reset()
         failedHits.clear()
         KillAuraAutoBlock.stopBlocking()
         KillAuraNotifyWhenFail.failedHitsIncrement = 0
@@ -154,7 +153,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     private fun renderTarget(matrixStack: MatrixStack, partialTicks: Float) {
         if (!targetRenderer.enabled) return
-        val target = targetTracker.lockedOnTarget ?: return
+        val target = targetTracker.target ?: return
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, partialTicks)
@@ -171,7 +170,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         if (isInInventoryScreen && !ignoreOpenInventory || shouldCleanUpTracker) {
             // Cleanup current target tracker
-            targetTracker.cleanup()
+            targetTracker.reset()
             return@handler
         }
 
@@ -179,7 +178,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         updateEnemySelection()
 
         // Update Auto Weapon
-        ModuleAutoWeapon.prepare(targetTracker.lockedOnTarget)
+        ModuleAutoWeapon.prepare(targetTracker.target)
     }
 
     @Suppress("unused")
@@ -189,7 +188,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Check if there is target to attack
-        val target = targetTracker.lockedOnTarget
+        val target = targetTracker.target
 
         if (CombatManager.shouldPauseCombat) {
             KillAuraAutoBlock.stopBlocking()
@@ -240,7 +239,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
             // Swap enemy if there is a better enemy (closer to the player crosshair)
             if (chosenEntity is LivingEntity && chosenEntity.shouldBeAttacked() && chosenEntity != target) {
-                targetTracker.lock(chosenEntity)
+                targetTracker.select(chosenEntity)
             }
         } else {
             chosenEntity = target
@@ -333,7 +332,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      * Update enemy on target tracker
      */
     private fun updateEnemySelection() {
-        targetTracker.validateLock { it.shouldBeAttacked() && it.boxedDistanceTo(player) <= range }
+        targetTracker.validate { it.boxedDistanceTo(player) <= range }
 
         // Update target tracker, since we want to access
         // the maximumDistance in the next step
@@ -341,7 +340,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Maximum range can be higher than the normal range, since we want to scan for enemies
         // which are in our [scanExtraRange] as well
-        val maximumRange = if (targetTracker.maximumDistance > range) {
+        val maximumRange = if (targetTracker.maximumSquaredDistance > range * range) {
             range + scanExtraRange
         } else {
             range
@@ -367,7 +366,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val spot = getSpot(target, range.toDouble(), situation) ?: continue
 
             // lock on target tracker
-            targetTracker.lock(target)
+            targetTracker.select(target)
 
             // aim at target
             val ticks = rotations.howLongToReach(spot.rotation)
@@ -400,7 +399,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         if (KillAuraFightBot.enabled) {
             val target = targetTracker.enemies().firstOrNull()
             if (target != null) {
-                targetTracker.lock(target)
+                targetTracker.select(target)
             }
 
             RotationManager.aimAt(
@@ -550,7 +549,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     val shouldBlockSprinting
         get() = !player.isOnGround &&
             criticalsMode != CriticalsMode.IGNORE &&
-            targetTracker.lockedOnTarget != null &&
+            targetTracker.target != null &&
             clickScheduler.isClickOnNextTick(1)
 
     @Suppress("unused")

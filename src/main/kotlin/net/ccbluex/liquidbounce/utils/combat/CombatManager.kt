@@ -22,12 +22,14 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
+import net.minecraft.entity.LivingEntity
 
 /**
  * A rotation manager
  */
 object CombatManager : EventListener {
+
+    val targetTracker = TargetTracker()
 
     // useful for something like autoSoup
     private var pauseCombat: Int = 0
@@ -61,7 +63,9 @@ object CombatManager : EventListener {
     private fun updateDuringCombat() {
         if (duringCombat <= 0) return
 
-        duringCombat--
+        if (--duringCombat == 0) {
+            targetTracker.reset()
+        }
     }
 
     /**
@@ -81,8 +85,11 @@ object CombatManager : EventListener {
 
     @Suppress("unused")
     val attackHandler = handler<AttackEntityEvent> {
-        // 40 ticks = 2 seconds
-        duringCombat = 40
+        if (it.entity is LivingEntity && it.entity.shouldBeAttacked()) {
+            // 40 ticks = 2 seconds
+            duringCombat = 40
+            targetTracker.select(it.entity)
+        }
     }
 
     val shouldPauseCombat: Boolean
@@ -92,8 +99,7 @@ object CombatManager : EventListener {
     val shouldPauseBlocking: Boolean
         get() = this.pauseBlocking > 0
     val isInCombat: Boolean
-        get() = this.duringCombat > 0 ||
-            (ModuleKillAura.running && ModuleKillAura.targetTracker.lockedOnTarget != null)
+        get() = this.duringCombat > 0 || targetTracker.target != null
 
     fun pauseCombatForAtLeast(pauseTime: Int) {
         this.pauseCombat = this.pauseCombat.coerceAtLeast(pauseTime)

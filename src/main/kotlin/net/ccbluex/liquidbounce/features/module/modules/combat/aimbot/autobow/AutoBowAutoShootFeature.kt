@@ -81,7 +81,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
                 return@handler
             }
         } else if (AutoBowAimbotFeature.enabled) {
-            if (AutoBowAimbotFeature.targetTracker.lockedOnTarget == null) {
+            if (AutoBowAimbotFeature.targetTracker.target == null) {
                 return@handler
             }
 

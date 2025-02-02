@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
@@ -40,7 +39,7 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
 
     @Suppress("unused")
     val tickRepeatable = tickHandler {
-        targetTracker.cleanup()
+        targetTracker.reset()
 
         // Should check if player is using bow
         val activeItem = player.activeItem?.item
@@ -54,20 +53,12 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
             true
         ) ?: return@tickHandler
 
-        var rotation: Rotation? = null
+        val target = targetTracker.enemies().firstOrNull() ?: return@tickHandler
+        val rotation = SituationalProjectileAngleCalculator.calculateAngleForEntity(
+            projectileInfo, target
+        ) ?: return@tickHandler
 
-        for (enemy in targetTracker.enemies()) {
-            val rot = SituationalProjectileAngleCalculator.calculateAngleForEntity(projectileInfo, enemy) ?: continue
-
-            targetTracker.lock(enemy)
-            rotation = rot
-            break
-        }
-
-        if (rotation == null) {
-            return@tickHandler
-        }
-
+        targetTracker.select(target)
         RotationManager.aimAt(
             rotation,
             priority = Priority.IMPORTANT_FOR_USAGE_1,
@@ -78,7 +69,7 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
 
     @Suppress("unused")
     val renderHandler = handler<OverlayRenderEvent> { event ->
-        val target = targetTracker.lockedOnTarget ?: return@handler
+        val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForGUI {
             targetRenderer.render(this, target, event.tickDelta)

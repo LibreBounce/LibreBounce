@@ -18,19 +18,15 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.*
+import net.ccbluex.liquidbounce.config.types.ValueType.*
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
-import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
-import net.ccbluex.liquidbounce.utils.entity.getActualHealth
-import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
-import net.minecraft.entity.Entity
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -38,26 +34,47 @@ import net.minecraft.entity.player.PlayerEntity
 /**
  * A target tracker to choose the best enemy to attack
  */
-open class TargetTracker(
+class TargetTracker(
     defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
-    maxRange: Float? = null
+    range: RangedValue<*>? = null
+) : TargetSelector(defaultPriority, range) {
+
+    var target: LivingEntity? = null
+        private set
+
+    fun select(entity: LivingEntity, reportToUI: Boolean = true) {
+        target = entity
+
+        if (entity is PlayerEntity && reportToUI) {
+            EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))
+        }
+    }
+
+    fun selectFirst() = enemies().firstOrNull()?.let { select(it) }
+
+    fun reset() {
+        target = null
+    }
+
+    fun validate(validator: ((LivingEntity) -> Boolean)? = null) {
+        val target = target ?: return
+
+        if (!validate(target) || validator != null && !validator(target)) {
+            reset()
+        }
+    }
+}
+
+open class TargetSelector(
+    defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
+    val range: RangedValue<*>? = null
 ) : Configurable("Target") {
 
-    var range = Double.MAX_VALUE
-    var lockedOnTarget: LivingEntity? = null
-        private set
-    var maximumDistance: Double = 0.0
+    var maximumSquaredDistance: Double = 0.0
 
     private val fov by float("FOV", 180f, 0f..180f)
     private val hurtTime by int("HurtTime", 10, 0..10)
     private val priority by enumChoice("Priority", defaultPriority)
-
-    init {
-        if (maxRange != null) {
-            float("Range", 4.5f, 1f..maxRange).onChanged { range = it.toDouble() }
-            range = 4.5
-        }
-    }
 
     /**
      * Update should be called to always pick the best target out of the current world context
@@ -66,12 +83,10 @@ open class TargetTracker(
         val entities = world.entities
             .asSequence()
             .filterIsInstance<LivingEntity>()
-            .filter(this::validate)
-            .map { it to it.boxedDistanceTo(player) }
-            .filter { it.second <= range }
+            .filter(::validate)
             // Sort by distance (closest first) - in case of tie at priority level
-            .sortedBy { it.second }
-            .mapTo(mutableListOf()) { it.first }
+            .sortedBy { it.boxedDistanceTo(player) }
+            .toMutableList()
 
         if (entities.isEmpty()) {
             return entities
@@ -100,41 +115,46 @@ open class TargetTracker(
         }
 
         // Update max distance squared
-        maximumDistance = entities.minOf { it.squaredBoxedDistanceTo(player) }
+        maximumSquaredDistance = entities.minOf { it.squaredBoxedDistanceTo(player) }
 
         return entities
     }
 
-    fun cleanup() {
-        unlock()
-    }
+    open fun validate(entity: LivingEntity) =
+        entity != player
+        && !entity.isRemoved
+        && entity.shouldBeAttacked()
+        && fov >= RotationUtil.crosshairAngleToEntity(entity)
+        && entity.hurtTime <= hurtTime
+        && validateRange(entity)
 
-    fun lock(entity: LivingEntity, reportToUI: Boolean = true) {
-        lockedOnTarget = entity
+    private fun validateRange(entity: LivingEntity): Boolean {
+        if (range == null) return true
 
-        if (entity is PlayerEntity && reportToUI) {
-            EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))
+        val distance = entity.boxedDistanceTo(player)
+        val range = range.get()
+        return when (this.range.valueType) {
+            FLOAT -> distance <= range as Float
+            FLOAT_RANGE -> distance in range as ClosedFloatingPointRange<Float>
+            INT -> distance <= range as Int
+            INT_RANGE -> distance >= (range as IntRange).first && distance <= range.last
+            else -> true
         }
     }
 
-    private fun unlock() {
-        lockedOnTarget = null
-    }
+    val maxRange: Number
+        get() {
+            if (range == null) return Float.MAX_VALUE
 
-    fun validateLock(validator: (Entity) -> Boolean) {
-        val lockedOnTarget = lockedOnTarget ?: return
-
-        if (!validate(lockedOnTarget) || !validator(lockedOnTarget)) {
-            this.lockedOnTarget = null
+            val value = range.get()
+            return when (range.valueType) {
+                FLOAT -> value as Float
+                FLOAT_RANGE -> (value as ClosedFloatingPointRange<Float>).endInclusive
+                INT -> value as Int
+                INT_RANGE -> (value as IntRange).last
+                else -> Float.MAX_VALUE
+            }
         }
-    }
-
-    open fun validate(entity: LivingEntity)
-            = entity != player
-            && !entity.isRemoved
-            && entity.shouldBeAttacked()
-            && fov >= RotationUtil.crosshairAngleToEntity(entity)
-            && entity.hurtTime <= hurtTime
 
 }
 
