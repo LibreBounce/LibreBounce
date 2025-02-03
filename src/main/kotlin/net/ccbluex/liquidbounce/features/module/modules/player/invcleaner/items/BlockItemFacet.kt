@@ -27,6 +27,7 @@ class BlockItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
     companion object {
         private val COMPARATOR =
             ComparatorChain<BlockItemFacet>(
+                compareBy { it.itemStack.count },
                 compareBy(ModuleScaffold.BLOCK_COMPARATOR_FOR_INVENTORY) { it.itemStack },
                 PREFER_ITEMS_IN_HOTBAR,
                 STABILIZE_COMPARISON,
