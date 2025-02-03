@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -50,7 +51,7 @@ class TargetTracker(
         }
     }
 
-    fun selectFirst() = enemies().firstOrNull()?.let { select(it) }
+    fun selectFirst() = enemies().firstOrNull()?.let { select(it) } ?: reset()
 
     fun reset() {
         target = null
@@ -131,13 +132,15 @@ open class TargetSelector(
     private fun validateRange(entity: LivingEntity): Boolean {
         if (range == null) return true
 
-        val distance = entity.boxedDistanceTo(player)
+        val distanceSq = entity.squaredBoxedDistanceTo(player)
         val range = range.get()
         return when (this.range.valueType) {
-            FLOAT -> distance <= range as Float
-            FLOAT_RANGE -> distance in range as ClosedFloatingPointRange<Float>
-            INT -> distance <= range as Int
-            INT_RANGE -> distance >= (range as IntRange).first && distance <= range.last
+            FLOAT -> distanceSq <= (range as Float).sq()
+            FLOAT_RANGE ->
+                distanceSq >= (range as ClosedFloatingPointRange<Float>).start.sq()
+                && distanceSq <= range.endInclusive.sq()
+            INT -> distanceSq <= (range as Int).sq()
+            INT_RANGE -> distanceSq >= (range as IntRange).first.sq() && distanceSq <= range.last.sq()
             else -> true
         }
     }
