@@ -19,8 +19,8 @@
 package net.ccbluex.liquidbounce.utils.collection
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.getBlock
 import net.minecraft.block.Block
 
@@ -39,7 +39,7 @@ enum class Filter(override val choiceName: String) : NamedChoice {
 }
 
 fun Filter.getSlot(blocks: Set<Block>): HotbarItemSlot? {
-    HOTBAR_SLOTS.forEach {
+    Slots.Hotbar.forEach {
         val block = it.itemStack.getBlock() ?: return@forEach
         if (this(block, blocks)) {
             return it

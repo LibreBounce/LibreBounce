@@ -28,11 +28,12 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.utils.entity.airTicks
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.sqrtSpeed
-import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
-import net.ccbluex.liquidbounce.utils.movement.zeroXZ
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
+import net.ccbluex.liquidbounce.utils.movement.stopXZVelocity
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -50,7 +51,6 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     private val damageLowHop by boolean("DamageLowHop", false)
     private val safeY by boolean("SafeY", true)
 
-    private var airTicks = 0
     private var canSpeed = false
 
     private var lastVelocity = 0
@@ -61,32 +61,29 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     }
 
     override fun disable() {
-        airTicks = 0
-        player.strafe(speed = 0.0)
+        player.velocity = player.velocity.withStrafe(speed = 0.0)
     }
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
         if (player.isOnGround) {
-            airTicks = 0
             canSpeed = true
         } else {
-            airTicks++
 
             if (!canSpeed) {
                 return@tickHandler
             }
             if (fullStrafe) {
                 if (player.moving) {
-                    player.strafe(speed = player.sqrtSpeed - 0.004)
+                    player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed - 0.004)
                 }
             } else {
-                if (airTicks >= 6 && player.moving) {
-                    player.strafe()
+                if (player.airTicks >= 6 && player.moving) {
+                    player.velocity = player.velocity.withStrafe()
                 }
             }
 
-            if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) > 0 && airTicks == 3) {
+            if ((player.getStatusEffect(StatusEffects.SPEED)?.amplifier ?: 0) > 0 && player.airTicks == 3) {
                 player.velocity = player.velocity.multiply(
                     1.12,
                     1.0,
@@ -94,7 +91,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
                 )
             }
 
-            if (lowHop && airTicks == 4) {
+            if (lowHop && player.airTicks == 4) {
                 if (safeY) {
                     if (player.y % 1.0 == 0.16610926093821377) {
                         player.velocity.y = -0.09800000190734863
@@ -107,16 +104,16 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             if (damageBoost && player.moving) {
                 when (lastVelocity) {
                     1, 2 -> {
-                        player.strafe(speed = 1.1)
+                        player.velocity = player.velocity.withStrafe(speed = 1.1)
                     }
                     3, 4, 5, 6, 7, 8, 9 -> {
-                        player.strafe(speed = 1.0)
+                        player.velocity = player.velocity.withStrafe(speed = 1.0)
                     }
                     10, 11, 12, 13, 14 -> {
-                        player.strafe(speed = 0.75)
+                        player.velocity = player.velocity.withStrafe(speed = 0.75)
                     }
                     15, 16, 17, 18, 19, 20 -> {
-                        player.strafe(speed = 0.5)
+                        player.velocity = player.velocity.withStrafe(speed = 0.5)
                     }
                 }
             }
@@ -144,7 +141,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
             return@handler
         }
 
-        player.strafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast) - 0.01)
+        player.velocity = player.velocity.withStrafe(speed = player.sqrtSpeed.coerceAtLeast(atLeast) - 0.01)
     }
 
     @Suppress("unused")
@@ -155,7 +152,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
     }
 
     @Suppress("unused")
-    val packetHandler = sequenceHandler<PacketEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+    val packetHandler = sequenceHandler<PacketEvent>(priority = CRITICAL_MODIFICATION) { event ->
         val packet = event.packet
 
         if (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) {
@@ -176,7 +173,7 @@ class SpeedBlocksMC(override val parent: ChoiceConfigurable<*>) : Choice("Blocks
 
         if (packet is PlayerPositionLookS2CPacket) {
             lastVelocity = 9999
-            player.zeroXZ()
+            player.stopXZVelocity()
         }
     }
 

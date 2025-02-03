@@ -19,12 +19,13 @@
 package net.ccbluex.liquidbounce.utils.kotlin
 
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import java.util.*
+import net.minecraft.client.MinecraftClient
+import java.util.concurrent.PriorityBlockingQueue
 
 class RequestHandler<T> {
     private var currentTick = 0
 
-    private val activeRequests = PriorityQueue<Request<T>>(compareBy { -it.priority })
+    private val activeRequests = PriorityBlockingQueue<Request<T>>(11, compareBy { -it.priority })
 
     fun tick(deltaTime: Int = 1) {
         currentTick += deltaTime
@@ -38,12 +39,15 @@ class RequestHandler<T> {
     }
 
     fun getActiveRequestValue(): T? {
-        // we remove all outdated requests here
-        while ((this.activeRequests.peek() ?: return null).expiresIn <= currentTick ||
-            !this.activeRequests.peek().provider.running
-        ) {
-            this.activeRequests.remove()
+        if (MinecraftClient.getInstance()?.isOnThread != false) {
+            // we remove all outdated requests here
+            while ((this.activeRequests.peek() ?: return null).expiresIn <= currentTick ||
+                !this.activeRequests.peek().provider.running
+            ) {
+                this.activeRequests.remove()
+            }
         }
+
         return this.activeRequests.peek().value
     }
 

@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.LineSegment
@@ -122,7 +121,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
             DebuggedBox(Box(face.from, face.to), Color4b(255, 0, 0, 64))
         )
 
-        val line = LineSegment(player.eyes, player.rotationVector, 0.0..10.0)
+        val line = LineSegment(player.eyePos, player.rotationVector, 0.0..10.0)
 
         debugGeometry(
             ModuleScaffold,
@@ -248,7 +247,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
     private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any)
+    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any?)
 
     private val debugParameters = hashMapOf<DebuggedParameter, ParameterCapture>()
 
@@ -260,7 +259,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         debugParameter(owner, name, lazyValue.invoke())
     }
 
-    fun debugParameter(owner: Any, name: String, value: Any) {
+    fun debugParameter(owner: Any, name: String, value: Any?) {
         if (!running) {
             return
         }

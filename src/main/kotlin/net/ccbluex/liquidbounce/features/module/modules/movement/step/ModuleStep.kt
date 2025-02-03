@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.canStep
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.stat.Stats
 
@@ -56,6 +56,12 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
     object Legit : Choice("Legit") {
         override val parent: ChoiceConfigurable<Choice>
             get() = modes
+
+        @Suppress("unused")
+        private val autoJumpHandler = handler<MinecraftAutoJumpEvent> { event ->
+            event.autoJump = true
+        }
+
     }
 
     object Instant : Choice("Instant") {
@@ -183,7 +189,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                 waitTicks(2)
                 if (stepCounter % 2 == 0) {
                     player.velocity.y = 0.24680001947880004
-                    player.strafe(speed = 0.2)
+                    player.velocity = player.velocity.withStrafe(speed = 0.2)
                 }
                 waitTicks(1)
                 if (stepCounter % 2 == 0) {
@@ -233,7 +239,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                 waitTicks(1)
                 player.velocity.y = 0.25
                 waitTicks(2)
-                player.strafe(speed = 0.281)
+                player.velocity = player.velocity.withStrafe(speed = 0.281)
                 player.velocity.y -= player.y % 1.0
                 Timer.requestTimerSpeed(recoveryTimer, Priority.IMPORTANT_FOR_USAGE_1, ModuleStep, 2)
                 stepping = false

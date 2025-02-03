@@ -23,11 +23,13 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.Timer.timerSpeed
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
+import kotlin.random.Random
 
 /**
  * TimerRange module
@@ -37,6 +39,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 
 object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
 
+    private val chance by int("Chance", 100, 0..100, "%")
     private val timerBalanceLimit by float("TimerBalanceLimit", 20f, 0f..50f)
     private val normalSpeed by float("NormalSpeed", 0.9F, 0.1F..10F)
     private val inRangeSpeed by float("InRangeSpeed", 0.95F, 0.1F..10F)
@@ -49,6 +52,8 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
     private val pauseOnFlag by boolean("PauseOnFlag", true)
     private val onlyOnGround by boolean("OnlyOnGround", false)
 
+    private val requiresKillAura by boolean("RequiresKillAura", true)
+
     private var reachedTheLimit = false
     private var balanceTimer = 0f
 
@@ -58,7 +63,8 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
     }
 
     val repeatable = tickHandler {
-        if (onlyOnGround && !player.isOnGround) {
+        if (onlyOnGround && !player.isOnGround) return@tickHandler
+        if (requiresKillAura && (!ModuleKillAura.running || ModuleKillAura.targetTracker.lockedOnTarget == null)) {
             return@tickHandler
         }
 
@@ -87,7 +93,9 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
             return 1.0f
         }
 
-        if (world.findEnemy(0f..distanceToStartWorking) == null) {
+        if (world.findEnemy(0f..distanceToStartWorking) == null
+            || chance != 100 && Random.nextInt(100) > chance)
+        {
             return null
         }
 

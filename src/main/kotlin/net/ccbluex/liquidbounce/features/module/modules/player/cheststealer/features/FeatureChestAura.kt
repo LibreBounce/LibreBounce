@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.searchBlocksInCuboid
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -96,7 +95,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
     private val simulatedTickHandler = handler<RotationUpdateEvent> {
         val searchRadius = interactionRange + 1
         val searchRadiusSquared = searchRadius * searchRadius
-        val playerEyesPosition = player.eyes
+        val playerEyesPosition = player.eyePos
 
         if (notDuringCombat && CombatManager.isInCombat) {
             currentTargetBlock = null
@@ -115,7 +114,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
         // Find the next block to interact with
         for ((blockPos, state) in nearbyStorageBlocks) {
             val (rotation, _) = raytraceBlock(
-                player.eyes,
+                player.eyePos,
                 blockPos,
                 state,
                 range = interactionRange.toDouble(),

@@ -18,7 +18,9 @@
  */
 package net.ccbluex.liquidbounce.script
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.logger
 import org.graalvm.polyglot.Engine
 import org.graalvm.polyglot.Source
@@ -48,12 +50,16 @@ object ScriptManager {
     }
 
     init {
-        // Initialize the script engine and log its version and supported languages.
-        val engine = Engine.create()
-        logger.info(
-            "[ScriptAPI] Engine Version: ${engine.version}, " +
-                "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
-        )
+        try {
+            // Initialize the script engine and log its version and supported languages.
+            val engine = Engine.create()
+            logger.info(
+                "[ScriptAPI] Engine Version: ${engine.version}, " +
+                    "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to initialize the script engine.", e)
+        }
     }
 
     /**
@@ -142,6 +148,11 @@ object ScriptManager {
      */
     fun enableAll() {
         scripts.forEach(PolyglotScript::enable)
+
+        // Reload the ClickGUI to update the module list.
+        RenderSystem.recordRenderCall {
+            ModuleClickGui.reloadView()
+        }
     }
 
     /**
@@ -156,7 +167,15 @@ object ScriptManager {
      * directory, and then enables them. It logs a message upon successful completion.
      */
     fun reload() {
-        unloadAll()
+        // Unload
+        try {
+            disableAll()
+            unloadAll()
+        } catch (e: Exception) {
+            logger.error("Failed to unload scripts.", e)
+        }
+
+        // Load
         loadAll()
         enableAll()
 

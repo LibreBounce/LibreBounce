@@ -20,7 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -32,6 +34,7 @@ import net.ccbluex.liquidbounce.render.engine.font.FontRendererBuffers
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
 import net.ccbluex.liquidbounce.utils.kotlin.proportionOfValue
 import net.ccbluex.liquidbounce.utils.kotlin.valueAtProportion
@@ -41,7 +44,6 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.Vec3d
-import org.joml.Vector3f
 
 private const val ITEM_SIZE: Int = 16
 private const val ITEM_SCALE: Float = 1.0F
@@ -89,28 +91,40 @@ object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
     private val fontRenderer
         get() = FontManager.FONT_RENDERER
 
-    @Suppress("unused")
-    val renderHandler = handler<OverlayRenderEvent> {
-        val maxDistSquared = maximumDistance * maximumDistance
+    private var itemEntities: Map<Vec3d, List<ItemStack>> = emptyMap()
 
+    override fun disable() {
+        itemEntities = emptyMap()
+    }
+
+    @Suppress("unused", "UNCHECKED_CAST")
+    private val tickHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
+        val maxDistSquared = maximumDistance.sq()
+
+        itemEntities = (world.entities.filter {
+            it is ItemEntity && it.squaredDistanceTo(player) < maxDistSquared
+        } as List<ItemEntity>).cluster()
+    }
+
+    @Suppress("unused")
+    private val worldHandler = handler<WorldChangeEvent> {
+        itemEntities = emptyMap()
+    }
+
+    @Suppress("unused")
+    private val renderHandler = handler<OverlayRenderEvent> {
         renderEnvironmentForGUI {
             fontRenderer.withBuffers { buf ->
-                world.entities
-                    .filterIsInstance<ItemEntity>()
-                    .filter {
-                        it.squaredDistanceTo(player) < maxDistSquared
+                itemEntities.mapNotNull { (center, items) ->
+                    val renderPos = WorldToScreen.calculateScreenPos(center.add(0.0, renderY.toDouble(), 0.0))
+                        ?: return@mapNotNull null
+                    renderPos to items
+                }.forEachWithSelf { (center, items), i, self ->
+                    withMatrixStack {
+                        val z = 1000.0F * i / self.size
+                        drawItemTags(items, Vec3(center.x, center.y, z), buf)
                     }
-                    .cluster()
-                    .mapNotNull { (center, items) ->
-                        val renderPos = WorldToScreen.calculateScreenPos(center.add(0.0, renderY.toDouble(), 0.0))
-                            ?: return@mapNotNull null
-                        renderPos to items
-                    }.forEachWithSelf { (center, items), i, self ->
-                        withMatrixStack {
-                            val z = 1000.0F * i / self.size
-                            drawItemTags(items, Vec3(center.x, center.y, z), buf)
-                        }
-                    }
+                }
             }
         }
     }
@@ -181,6 +195,10 @@ object ModuleItemTags : ClientModule("ItemTags", Category.RENDER) {
 
     @JvmStatic
     private fun List<ItemEntity>.cluster(): Map<Vec3d, List<ItemStack>> {
+        if (isEmpty()) {
+            return emptyMap()
+        }
+
         val groups = arrayListOf<Set<ItemEntity>>()
         val visited = hashSetOf<ItemEntity>()
 

@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 
 /**
  * The short stop mechanism temporarily halts aiming at the target based on a specified rate.
@@ -25,7 +25,7 @@ class ShortStop(owner: EventListener? = null)
         get() = enabled && ticksElapsed < currentTransitionInDuration
 
     @Suppress("unused")
-    private val gameHandler = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
+    private val gameHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
         if (stopRate > (0..100).random()) {
             currentTransitionInDuration = stopDuration.random()
             ticksElapsed = 0

@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.getBlock
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -156,7 +156,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
 
     private fun getAvailableItemsCount(): Int {
         var itemCount = 0
-        HOTBAR_SLOTS.forEach { slot ->
+        Slots.Hotbar.forEach { slot ->
             val block = slot.itemStack.getBlock() ?: return@forEach
             if (filter(block, blocks)) {
                 itemCount += slot.itemStack.count

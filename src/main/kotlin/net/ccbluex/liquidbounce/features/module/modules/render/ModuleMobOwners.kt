@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import kotlinx.coroutines.CancellationException
 import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.thirdparty.MojangApi
 import net.ccbluex.liquidbounce.features.module.Category
@@ -61,33 +62,41 @@ object ModuleMobOwners : ClientModule("MobOwners", Category.RENDER) {
             ?: getFromMojangApi(ownerId)
     }
 
+    private val LOADING_TEXT = OrderedText.styledForwardsVisitedString(
+        "Loading...",
+        Style.EMPTY.withItalic(true)
+    )
+
+    private val FAILED_TEXT = OrderedText.styledForwardsVisitedString(
+        "Failed to query Mojang API",
+        Style.EMPTY.withItalic(true).withColor(Formatting.RED)
+    )
+
+    private val CANCELED_TEXT = OrderedText.styledForwardsVisitedString(
+        "Query is canceled",
+        Style.EMPTY.withItalic(true).withColor(Formatting.YELLOW)
+    )
+
     @Suppress("SwallowedException")
     private fun getFromMojangApi(ownerId: UUID): OrderedText {
-        return uuidNameCache.computeIfAbsent(ownerId) { uuid ->
-            val loadingText = OrderedText.styledForwardsVisitedString("Loading", Style.EMPTY.withItalic(true))
-            uuidNameCache[uuid] = loadingText
-
+        return uuidNameCache.putIfAbsent(ownerId, LOADING_TEXT) ?: run {
             withScope {
-                try {
-                    val uuidAsString = uuid.toString().replace("-", "")
+                uuidNameCache[ownerId] = try {
+                    val uuidAsString = ownerId.toString().replace("-", "")
                     val response = MojangApi.getNames(uuidAsString)
 
                     val entityName = response.first { it.changedToAt == null }.name
 
-                    uuidNameCache[uuid] = OrderedText.styledForwardsVisitedString(entityName, Style.EMPTY)
-                } catch (_: InterruptedException) {
+                    OrderedText.styledForwardsVisitedString(entityName, Style.EMPTY)
+                } catch (e: CancellationException) {
+                    CANCELED_TEXT
                 } catch (e: Exception) {
-                    uuidNameCache[uuid] = OrderedText.styledForwardsVisitedString(
-                        "Failed to query Mojang API",
-                        Style.EMPTY.withItalic(true).withColor(Formatting.RED)
-                    )
+                    FAILED_TEXT
                 }
             }
 
-            loadingText
+            LOADING_TEXT
         }
     }
-
-
 
 }

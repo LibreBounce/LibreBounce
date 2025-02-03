@@ -29,8 +29,8 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.ASta
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.ImmediateMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.entity.rotation

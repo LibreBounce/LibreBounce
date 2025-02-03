@@ -20,13 +20,13 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.mode
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 
 internal object ElytraFlyModeVanilla : ElytraFlyMode("Vanilla") {
 
     override fun onTick() {
         if (player.moving) {
-            player.strafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
+            player.velocity = player.velocity.withStrafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
         }
 
         player.velocity.y = when {

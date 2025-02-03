@@ -22,7 +22,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.toRadians
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.ccbluex.liquidbounce.utils.math.toVec3d
@@ -69,7 +68,7 @@ object ScaffoldExpandTechnique : ScaffoldTechnique("Expand") {
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
         val blockCenter = target?.placedBlock?.toCenterPos() ?: return null
 
-        return Rotation.lookingAt(point = blockCenter, from = player.eyes)
+        return Rotation.lookingAt(point = blockCenter, from = player.eyePos)
     }
 
     override fun getCrosshairTarget(target: BlockPlacementTarget?, rotation: Rotation): BlockHitResult? {

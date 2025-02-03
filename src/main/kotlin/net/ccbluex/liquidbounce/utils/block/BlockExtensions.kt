@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.rangeTo
 import net.minecraft.block.*
@@ -43,7 +42,6 @@ import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
-import net.minecraft.registry.tag.BlockTags
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -64,10 +62,10 @@ fun BlockPos.getBlock() = getState()?.block
 
 fun BlockPos.getCenterDistanceSquared() = player.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
 
-fun BlockPos.getCenterDistanceSquaredEyes() = player.eyes.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
+fun BlockPos.getCenterDistanceSquaredEyes() = player.eyePos.squaredDistanceTo(this.x + 0.5, this.y + 0.5, this.z + 0.5)
 
 val BlockState.isBed: Boolean
-    get() = isIn(BlockTags.BEDS)
+    get() = block is BedBlock
 
 /**
  * Returns the block box outline of the block at the position. If the block is air, it will return an empty box.
@@ -438,13 +436,14 @@ fun BlockState.canBeReplacedWith(
 @Suppress("unused")
 enum class SwingMode(
     override val choiceName: String,
+    val serverSwing: Boolean,
     val swing: (Hand) -> Unit = { }
 ): NamedChoice {
 
-    DO_NOT_HIDE("DoNotHide", { player.swingHand(it) }),
-    HIDE_BOTH("HideForBoth"),
-    HIDE_CLIENT("HideForClient", { network.sendPacket(HandSwingC2SPacket(it)) }),
-    HIDE_SERVER("HideForServer", { player.swingHand(it, false) });
+    DO_NOT_HIDE("DoNotHide", true, { player.swingHand(it) }),
+    HIDE_BOTH("HideForBoth", false),
+    HIDE_CLIENT("HideForClient", true, { network.sendPacket(HandSwingC2SPacket(it)) }),
+    HIDE_SERVER("HideForServer", false, { player.swingHand(it, false) });
 
 }
 
@@ -659,12 +658,15 @@ inline fun BlockPos.getBlockingEntities(include: (Entity) -> Boolean = { true })
 /**
  * Like [isBlockedByEntities] but it returns a blocking end crystal if present.
  */
-fun BlockPos.isBlockedByEntitiesReturnCrystal(box: Box = FULL_BOX): BooleanObjectPair<EndCrystalEntity?> {
+fun BlockPos.isBlockedByEntitiesReturnCrystal(
+    box: Box = FULL_BOX,
+    excludeIds : IntArray? = null
+): BooleanObjectPair<EndCrystalEntity?> {
     var blocked = false
 
     val posBox = box.offset(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
     world.entities.forEach {
-        if (it.boundingBox.intersects(posBox)) {
+        if (it.boundingBox.intersects(posBox) && (excludeIds == null || it.id !in excludeIds)) {
             if (it is EndCrystalEntity) {
                 return BooleanObjectPair.of(true, it)
             }

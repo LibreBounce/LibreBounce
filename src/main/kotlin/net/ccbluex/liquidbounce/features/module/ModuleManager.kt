@@ -228,16 +228,12 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModulePingSpoof,
             ModulePlugins,
             ModulePortalMenu,
-            ModuleResourceSpoof,
             ModuleSleepWalker,
-            ModuleSpoofer,
-            ModuleBungeeSpoofer,
             ModuleVehicleOneHit,
             ModuleServerCrasher,
             ModuleDupe,
             ModuleClickTp,
             ModuleConsoleSpammer,
-            ModuleTranslationFix,
             ModuleTimeShift,
             ModuleTeleport,
 
@@ -326,6 +322,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleReach,
             ModuleAutoQueue,
             ModuleSmartEat,
+            ModuleReplenish,
 
             // Render
             ModuleAnimations,
@@ -368,10 +365,12 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTracers,
             ModuleTrajectories,
             ModuleTrueSight,
+            ModuleVoidESP,
             ModuleXRay,
             ModuleDebug,
             ModuleZoom,
             ModuleItemChams,
+            ModuleCrystalView,
 
             // World
             ModuleAutoBuild,

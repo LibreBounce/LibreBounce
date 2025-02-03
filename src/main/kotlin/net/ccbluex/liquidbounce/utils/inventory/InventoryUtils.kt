@@ -39,14 +39,11 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Blocks
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.component.type.DyedColorComponent
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.ItemTags
-import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import kotlin.math.abs
 
 /**
  * Constraints for inventory actions.
@@ -90,57 +87,27 @@ class PlayerInventoryConstraints : InventoryConstraints() {
      *
      * Closing will still be required to be done for any version. Sad. :(
      */
-    private val requiresOpenInvenotory by boolean("RequiresInventoryOpen", false)
+    private val requiresOpenInventory by boolean("RequiresInventoryOpen", false)
 
     override fun passesRequirements(action: InventoryAction) =
         super.passesRequirements(action) &&
-            (!action.requiresPlayerInventoryOpen() || !requiresOpenInvenotory ||
+            (!action.requiresPlayerInventoryOpen() || !requiresOpenInventory ||
                 InventoryManager.isInventoryOpen)
-
-}
-
-val HOTBAR_SLOTS = (0 until 9).map { HotbarItemSlot(it) }
-val INVENTORY_SLOTS: List<ItemSlot> =
-    (0 until 27).map { InventoryItemSlot(it) }
-val OFFHAND_SLOT = OffHandSlot
-val ARMOR_SLOTS = (0 until 4).map { ArmorItemSlot(it) }
-
-/**
- * Contains all container slots in inventory. (hotbar, offhand, inventory, armor)
- */
-val ALL_SLOTS_IN_INVENTORY: List<ItemSlot> =
-    HOTBAR_SLOTS + OFFHAND_SLOT + INVENTORY_SLOTS + ARMOR_SLOTS
-
-object Hotbar {
-
-    fun findClosestItem(vararg items: Item): HotbarItemSlot? {
-        return HOTBAR_SLOTS.filter { it.itemStack.item in items }
-            .minByOrNull { abs(player.inventory.selectedSlot - it.hotbarSlotForServer) }
-    }
-
-    val items
-        get() = (0..8).map { player.inventory.getStack(it).item }
-
-    fun findBestItem(min: Int, sort: (Int, ItemStack) -> Int) =
-        HOTBAR_SLOTS
-            .map {slot -> Pair (slot.hotbarSlotForServer, slot.itemStack) }
-            .maxByOrNull { (slot, itemStack) -> sort(slot, itemStack) }
-            ?.takeIf {  (slot, itemStack) -> sort(slot, itemStack) >= min }
 
 }
 
 fun hasInventorySpace() = player.inventory.main.any { it.isEmpty }
 
 fun findEmptyStorageSlotsInInventory(): List<ItemSlot> {
-    return (INVENTORY_SLOTS + HOTBAR_SLOTS).filter { it.itemStack.isEmpty }
+    return (Slots.Inventory + Slots.Hotbar).filter { it.itemStack.isEmpty }
 }
 
 fun findNonEmptyStorageSlotsInInventory(): List<ItemSlot> {
-    return (INVENTORY_SLOTS + HOTBAR_SLOTS).filter { !it.itemStack.isEmpty }
+    return (Slots.Inventory + Slots.Hotbar).filter { !it.itemStack.isEmpty }
 }
 
 fun findNonEmptySlotsInInventory(): List<ItemSlot> {
-    return ALL_SLOTS_IN_INVENTORY.filter { !it.itemStack.isEmpty }
+    return Slots.All.filter { !it.itemStack.isEmpty }
 }
 
 /**
@@ -204,7 +171,7 @@ fun useHotbarSlotOrOffhand(
     }
 }
 
-fun interactItem(
+inline fun interactItem(
     hand: Hand,
     yaw: Float = RotationManager.currentRotation?.yaw ?: player.yaw,
     pitch: Float = RotationManager.currentRotation?.yaw ?: player.pitch,
@@ -227,7 +194,7 @@ fun findBlocksEndingWith(vararg targets: String) =
 /**
  * Get the color of the armor on the player
  */
-fun getArmorColor() = ARMOR_SLOTS.firstNotNullOfOrNull { slot ->
+fun getArmorColor() = Slots.Armor.firstNotNullOfOrNull { slot ->
     val itemStack = slot.itemStack
     val color = itemStack.getArmorColor() ?: return@firstNotNullOfOrNull null
 
@@ -251,7 +218,7 @@ fun ItemStack.getArmorColor(): Int? {
  * A list of blocks which may not be placed (apart from the usual checks), so inv cleaner and scaffold
  * won't count them as blocks
  */
-var DISALLOWED_BLOCKS_TO_PLACE = hashSetOf(
+val DISALLOWED_BLOCKS_TO_PLACE = hashSetOf(
     Blocks.TNT,
     Blocks.COBWEB,
     Blocks.NETHER_PORTAL,

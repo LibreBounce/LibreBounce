@@ -34,6 +34,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
+import net.minecraft.util.math.Vec3d
 import net.minecraft.util.shape.VoxelShapes
 
 /**
@@ -53,6 +54,7 @@ object ModuleAntiVoid : ClientModule("AntiVoid", Category.PLAYER) {
 
     // Flags indicating if an action has been already taken or needs to be taken.
     var isLikelyFalling = false
+    var nonFallingPosition: Vec3d = Vec3d.ZERO
 
     // How many future ticks to simulate to ensure safety.
     private const val SAFE_TICKS_THRESHOLD = 10
@@ -75,6 +77,9 @@ object ModuleAntiVoid : ClientModule("AntiVoid", Category.PLAYER) {
         try {
             ShapeFlag.noShapeChange = true
             isLikelyFalling = isLikelyFalling(simulatedPlayer)
+            if (!isLikelyFalling) {
+                nonFallingPosition = player.pos
+            }
         } finally {
             ShapeFlag.noShapeChange = false
         }
