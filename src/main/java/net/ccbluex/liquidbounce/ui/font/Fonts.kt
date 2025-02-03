@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.ui.font
 
+import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.file.FileManager.fontsDir
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -31,7 +33,15 @@ object Fonts : MinecraftInstance {
     private var customFontInfoList: List<CustomFontInfo>
         get() = with(configFile) {
             if (exists()) {
-                readJson().decode<List<CustomFontInfo>>()
+//                readJson().decode<List<CustomFontInfo>>()
+                // For old versions
+                readJson().asJsonArray.map {
+                    it as JsonObject
+                    val fontFile = it["fontFile"].asString
+                    val fontSize = it["fontSize"].asInt
+                    val name = if (it.has("name")) it["name"].asString else fontFile
+                    CustomFontInfo(name, fontFile, fontSize)
+                }
             } else {
                 createNewFile()
                 writeText("[]") // empty list
