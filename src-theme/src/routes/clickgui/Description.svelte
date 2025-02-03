@@ -10,9 +10,11 @@
 
     let element: HTMLElement | null = null;
     let left = 0;
+    let anchor: "right" | "left" = "right";
 
     $: {
         if (data?.x !== undefined && element !== null) {
+            anchor = data.anchor;
             if (data.anchor === "left") {
                 left = data.x - element.clientWidth - 20;
             } else {
@@ -24,9 +26,9 @@
 
 {#key data}
     {#if data !== null}
-        <div transition:fly|global={{duration: 200, x: -15}} class="description-wrapper"
+        <div transition:fly|global={{duration: 200, x: anchor === "right" ? -15 : 15}} class="description-wrapper"
              style="top: {data.y}px; left: {left}px;" bind:this={element}>
-            <div class="description" class:right={data?.anchor === "left"}>
+            <div class="description" class:right={anchor === "left"}>
                 <div class="text">{data.description}</div>
             </div>
         </div>
