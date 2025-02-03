@@ -394,6 +394,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSurround,
             ModulePacketMine,
             ModuleHoleFiller,
+            ModuleBlockIn,
 
             // Client
             ModuleAutoConfig,
