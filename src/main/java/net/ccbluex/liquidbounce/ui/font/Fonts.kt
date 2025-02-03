@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.ui.font
 
 import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.file.FileManager.fontsDir
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
