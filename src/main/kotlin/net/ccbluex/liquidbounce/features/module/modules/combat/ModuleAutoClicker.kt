@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
+import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.AxeItem

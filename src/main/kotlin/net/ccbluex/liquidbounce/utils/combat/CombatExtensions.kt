@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.kotlin.component1
@@ -206,6 +207,11 @@ inline fun ClientWorld.getEntitiesBoxInRange(
 }
 
 fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
+    attack(if (swing) SwingMode.DO_NOT_HIDE else SwingMode.HIDE_BOTH, keepSprint)
+}
+
+@Suppress("CognitiveComplexMethod", "NestedBlockDepth")
+fun Entity.attack(swing: SwingMode, keepSprint: Boolean = false) {
     if (EventManager.callEvent(AttackEntityEvent(this) {
         attack(swing, keepSprint)
     }).isCancelled) {
@@ -214,8 +220,8 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
 
     with(player) {
         // Swing before attacking (on 1.8)
-        if (swing && isOlderThanOrEqual1_8) {
-            swingHand(Hand.MAIN_HAND)
+        if (isOlderThanOrEqual1_8) {
+            swing.swing(Hand.MAIN_HAND)
         }
 
         network.sendPacket(PlayerInteractEntityC2SPacket.attack(this@attack, isSneaking))
@@ -258,8 +264,8 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
         resetLastAttackedTicks()
 
         // Swing after attacking (on 1.9+)
-        if (swing && !isOlderThanOrEqual1_8) {
-            swingHand(Hand.MAIN_HAND)
+        if (!isOlderThanOrEqual1_8) {
+            swing.swing(Hand.MAIN_HAND)
         }
     }
 }

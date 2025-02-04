@@ -25,8 +25,6 @@ import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
-import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
@@ -163,19 +161,7 @@ object CommandConfig : CommandFactory {
                 }.onSuccess { sourceReader ->
                     AutoConfig.withLoading {
                         runCatching {
-                            sourceReader.apply {
-                                if (modules.isEmpty()) {
-                                    ConfigSystem.deserializeConfigurable(
-                                        ModuleManager.modulesConfigurable, this,
-                                        publicGson
-                                    )
-                                } else {
-                                    ConfigSystem.deserializeModuleConfigurable(
-                                        modules, this,
-                                        publicGson
-                                    )
-                                }
-                            }
+                            AutoConfig.loadAutoConfig(sourceReader, modules)
                         }.onFailure {
                             chat(markAsError(command.result("failedToLoad", variable(name))))
                         }.onSuccess {

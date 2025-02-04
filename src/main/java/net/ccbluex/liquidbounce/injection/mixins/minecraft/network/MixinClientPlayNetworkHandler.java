@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -24,6 +23,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.triggers.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
@@ -70,6 +70,36 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     @Inject(method = "onChunkDeltaUpdate", at = @At("HEAD"))
     private void onChunkDeltaUpdateStart(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
         ChunkUpdateFlag.chunkUpdate = true;
+    }
+
+    @Inject(method = "onEntityPosition", at = @At("RETURN"))
+    private void hookOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+        EntityMoveTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onBlockUpdate", at = @At("RETURN"))
+    private void hookOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+        BlockChangeTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
+    private void hookOnChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+        BlockChangeTrigger.INSTANCE.postChunkUpdateHandler(packet);
+    }
+
+    @Inject(method = "onEntitySpawn", at = @At("RETURN"))
+    private void hookOnEntitySpawn(EntitySpawnS2CPacket packet, CallbackInfo ci) {
+        CrystalSpawnTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onPlaySoundFromEntity", at = @At("RETURN"))
+    private void hookOnPlaySoundFromEntity(PlaySoundFromEntityS2CPacket packet, CallbackInfo ci) {
+        ExplodeSoundTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onEntitiesDestroy", at = @At("RETURN"))
+    private void hookOnEntitiesDestroy(EntitiesDestroyS2CPacket packet, CallbackInfo ci) {
+        CrystalDestroyTrigger.INSTANCE.notify(packet);
     }
 
     @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))

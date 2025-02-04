@@ -26,6 +26,9 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen
+import net.minecraft.client.network.CookieStorage
+import net.minecraft.client.network.ServerAddress
 import net.minecraft.client.network.ServerInfo
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.option.Perspective
@@ -129,8 +132,12 @@ class SplashOverlayEvent(val showingSplash: Boolean) : Event()
 class SplashProgressEvent(val progress: Float, val isComplete: Boolean) : Event()
 
 @Nameable("serverConnect")
-@WebSocketEvent
-class ServerConnectEvent(val serverInfo: ServerInfo) : Event()
+class ServerConnectEvent(
+    val connectScreen: ConnectScreen,
+    val address: ServerAddress,
+    val serverInfo: ServerInfo,
+    val cookieStorage: CookieStorage?
+) : CancellableEvent()
 
 @Nameable("disconnect")
 @WebSocketEvent

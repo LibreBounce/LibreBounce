@@ -46,6 +46,7 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
+import net.ccbluex.liquidbounce.features.spoofer.SpooferManager
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
@@ -54,15 +55,13 @@ import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.render.FontManager
+import net.ccbluex.liquidbounce.render.HAS_AMD_VEGA_APU
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.InteractionTracker
-import net.ccbluex.liquidbounce.utils.client.TpsObserver
-import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
@@ -105,7 +104,7 @@ object LiquidBounce : EventListener {
      *
      * TODO: Replace this approach with full semantic versioning.
      */
-    const val IN_DEVELOPMENT = false
+    const val IN_DEVELOPMENT = true
 
     val isIntegrationTesting = !System.getenv("TENACC_TEST_PROVIDER").isNullOrBlank()
 
@@ -146,6 +145,7 @@ object LiquidBounce : EventListener {
             CommandManager
             ScriptManager
             RotationManager
+            PacketQueueManager
             InteractionTracker
             CombatManager
             FriendManager
@@ -158,6 +158,7 @@ object LiquidBounce : EventListener {
             ConfigSystem.root(ClientItemGroups)
             ConfigSystem.root(LanguageManager)
             ConfigSystem.root(ClientAccountManager)
+            ConfigSystem.root(SpooferManager)
             BrowserManager
             FontManager
             PostRotationExecutor
@@ -231,6 +232,12 @@ object LiquidBounce : EventListener {
             }
 
             ItemImageAtlas
+
+            if (HAS_AMD_VEGA_APU) {
+                logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
+                    "If you believe this is a mistake, please create an issue at " +
+                    "https://github.com/CCBlueX/LiquidBounce/issues.")
+            }
         }.onSuccess {
             logger.info("Successfully loaded client!")
         }.onFailure(ErrorHandler::fatal)

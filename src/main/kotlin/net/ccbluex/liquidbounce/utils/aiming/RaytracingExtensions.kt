@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.block.BlockState
 import net.minecraft.block.ShapeContext
 import net.minecraft.entity.Entity
@@ -168,8 +169,8 @@ fun facingEnemy(
     val cameraVec = fromEntity.eyePos
     val rotationVec = rotation.rotationVec
 
-    val rangeSquared = range * range
-    val wallsRangeSquared = wallsRange * wallsRange
+    val rangeSquared = range.sq()
+    val wallsRangeSquared = wallsRange.sq()
 
     val vec3d3 = cameraVec.add(rotationVec.x * range, rotationVec.y * range, rotationVec.z * range)
     val box = fromEntity.boundingBox.stretch(rotationVec.multiply(range)).expand(1.0, 1.0, 1.0)

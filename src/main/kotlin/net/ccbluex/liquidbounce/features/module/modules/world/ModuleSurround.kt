@@ -49,7 +49,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3i
 import org.joml.Vector2d
-import org.lwjgl.glfw.GLFW
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -57,6 +56,8 @@ import kotlin.math.ceil
  * Surround module
  *
  * Builds safe holes.
+ *
+ * @author ccetl
  */
 object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit = true) {
 
@@ -85,7 +86,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     private val noWaste by boolean("NoWaste", false)
 
     /**
-     * Places blocks bellow the surround so that enemies can't mine the block bellow you making you fall down.
+     * Places blocks below the surround so that enemies can't mine the block bellow you making you fall down.
      */
     private val down by boolean("Down", true)
 
@@ -222,7 +223,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     /**
      * Manually triggers the protection mechanism [Protect.ExtraLayer].
      */
-    private val addExtraLayer by bind("AddExtraLayer", GLFW.GLFW_KEY_UNKNOWN)
+    private val addExtraLayer by bind("AddExtraLayer")
 
     init {
         tree(Protect)
@@ -230,7 +231,12 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
     private val filter by enumChoice("Filter", Filter.WHITELIST)
     private val blocks by blocks("Blocks", DEFAULT_BLOCKS)
-    private val placer = tree(BlockPlacer("Placing", this, Priority.NORMAL, { filter.getSlot(blocks) }))
+    private val placer = tree(BlockPlacer(
+        "Placing",
+        this,
+        Priority.IMPORTANT_FOR_PLAYER_LIFE,
+        { filter.getSlot(blocks) }
+    ))
 
     private var addExtraLayerBlocks = false
     private var startY = 0.0
@@ -384,10 +390,9 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
         if (rotationMode.send) {
             val rotation = placementTarget.rotation.normalize()
-            network.connection!!.send(
+            network.sendPacket(
                 PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
-                    player.horizontalCollision),
-                null
+                    player.horizontalCollision)
             )
         }
 

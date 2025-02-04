@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.utils.client
 
-import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleTranslationFix
+import net.ccbluex.liquidbounce.features.spoofer.SpooferTranslation
 import net.minecraft.resource.AbstractFileResourcePack
 import net.minecraft.resource.DefaultResourcePack
 import net.minecraft.resource.ResourcePack
@@ -25,7 +25,7 @@ object VanillaTranslationRecognizer {
 }
 
 fun filterNonVanillaText(text: Text): Text {
-    if (!ModuleTranslationFix.running) {
+    if (!SpooferTranslation.running) {
         return text
     }
 

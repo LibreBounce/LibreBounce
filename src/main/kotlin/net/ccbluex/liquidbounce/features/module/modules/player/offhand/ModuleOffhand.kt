@@ -61,7 +61,6 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
     private var switchMode = enumChoice("SwitchMode", SwitchMode.AUTOMATIC)
     private val switchDelay by int("SwitchDelay", 0, 0..500, "ms")
     private val cycleSlots by key("Cycle", GLFW.GLFW_KEY_H)
-    private val totem = tree(Totem())
 
     private object Gapple : ToggleableConfigurable(this, "Gapple", true) {
         object WhileHoldingSword : ToggleableConfigurable(this, "WhileHoldingSword", true) {
@@ -88,9 +87,12 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
     }
 
     init {
-        tree(Crystal)
-        tree(Gapple)
-        tree(Strength)
+        treeAll(
+            Totem,
+            Crystal,
+            Gapple,
+            Strength
+        )
 
         if (!usesViaFabricPlus) {
             switchMode = enumChoice("SwitchMode", SwitchMode.SWITCH)
@@ -113,7 +115,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         staticMode = when {
             Crystal.enabled && Mode.CRYSTAL.canCycleTo() -> Mode.CRYSTAL
             Gapple.enabled -> Mode.GAPPLE
-            totem.enabled && !Totem.Health.enabled -> Mode.TOTEM
+            Totem.enabled && !Totem.Health.enabled -> Mode.TOTEM
             else -> Mode.NONE
         }
     }
@@ -164,6 +166,19 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
             lastTagMode = activeMode
         }
 
+        if (activeMode != lastMode && lastMode == Mode.TOTEM) {
+            if (!Totem.switchBackStarted) {
+                Totem.switchBack.reset()
+            }
+
+            Totem.switchBackStarted = true
+            if (!Totem.switchBack.hasElapsed(Totem.switchBackDelay.toLong())) {
+                return@handler
+            }
+        }
+
+        Totem.switchBackStarted = false
+
         if (!chronometer.hasElapsed(activeMode.getDelay().toLong())) {
             return@handler
         }
@@ -186,7 +201,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
             return@handler
         }
 
-        if (activeMode != Mode.TOTEM || !totem.send(actions)) {
+        if (activeMode != Mode.TOTEM || !Totem.send(actions)) {
             it.schedule(inventoryConstraints, actions)
         }
 
@@ -227,9 +242,9 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
 
     private enum class Mode(val modeName: String, private val item: Item, private val fallBackItem: Item? = null) {
         TOTEM("Totem", Items.TOTEM_OF_UNDYING) {
-            override fun shouldEquip() = totem.shouldEquip()
+            override fun shouldEquip() = Totem.shouldEquip()
 
-            override fun getDelay() = totem.switchDelay
+            override fun getDelay() = Totem.switchDelay
 
             override fun getPrioritizedInventoryPart() = 1
 
@@ -242,7 +257,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
                 return slot
             }
 
-            override fun canCycleTo() = totem.enabled
+            override fun canCycleTo() = Totem.enabled
         },
         STRENGTH("Strength", Items.POTION) {
             val isStrengthPotion = Predicate<ItemStack> { stack ->

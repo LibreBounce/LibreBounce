@@ -84,7 +84,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     inner class Ghost : WorldTargetRenderAppearance("Ghost") {
 
         private val glow by lazy {
-            Identifier.of("liquiudbounce", "glow").also { identifier ->
+            Identifier.of("liquidbounce", "glow").also { identifier ->
                 val texture = with(LiquidBounce.javaClass.getResourceAsStream("/resources/liquidbounce/glow.png")) {
                     NativeImageBackedTexture(NativeImage.read(this))
                 }
@@ -113,7 +113,6 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 GlStateManager.SrcFactor.ZERO,
                 GlStateManager.DstFactor.ONE
             )
-
 
             with(mc.gameRenderer.camera.pos) {
                 env.matrixStack.translate(-this.x, -this.y, -this.z)
@@ -149,7 +148,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 )
             }
 
-            RenderSystem.depthMask(false)
+            RenderSystem.depthMask(true)
             RenderSystem.defaultBlendFunc()
             mc.gameRenderer.lightmapTextureManager.enable()
             RenderSystem.enableCull()

@@ -22,6 +22,7 @@ import com.mojang.authlib.GameProfile
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
@@ -41,7 +42,7 @@ open class FakePlayer(
 ) : OtherClientPlayerEntity(
     clientWorld,
     gameProfile
-) {
+), MinecraftShortcuts {
 
     lateinit var onRemoval: () -> Unit
 
@@ -82,7 +83,7 @@ open class FakePlayer(
             val event = PacketEvent(TransferOrigin.RECEIVE, packet, true)
             callEvent(event)
             if (!event.isCancelled) {
-                packet.apply(MinecraftClient.getInstance().networkHandler)
+                mc.execute { packet.apply(MinecraftClient.getInstance().networkHandler) }
             }
         }
     }

@@ -131,10 +131,9 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
 
     private fun determineWeaponSlot(target: LivingEntity?): Int? {
         val itemCategorization = ItemCategorization(Slots.Hotbar)
-        val itemMap = Slots.Hotbar
-            .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>().toList() }
 
-        val bestSlot = itemMap
+        val bestSlot = Slots.Hotbar
+            .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>() }
             .filter(
                 when {
                     !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true

@@ -37,7 +37,7 @@ import net.ccbluex.liquidbounce.utils.client.regular
  */
 object CommandValue : CommandFactory {
 
-    @Suppress("SwallowedException")
+    @Suppress("SwallowedException", "LongMethod")
     override fun createCommand(): Command {
         return CommandBuilder
             .begin("value")
@@ -68,7 +68,20 @@ object CommandValue : CommandFactory {
                 ParameterBuilder
                     .begin<String>("value")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                    .useMinecraftAutoCompletion()
+                    .autocompletedWith { begin, args ->
+                        val moduleName = args.getOrNull(1) ?: return@autocompletedWith emptyList()
+                        val module = ModuleManager.find {
+                            it.name.equals(moduleName, true)
+                        } ?: return@autocompletedWith emptyList()
+
+                        val valueName = args.getOrNull(2) ?: return@autocompletedWith emptyList()
+                        val value = module.getContainedValuesRecursively().firstOrNull {
+                            it.name.equals(valueName, true)
+                        } ?: return@autocompletedWith emptyList()
+
+                        val options = value.valueType.completer.possible(value)
+                        options.filter { it.startsWith(begin, true) }
+                    }
                     .required()
                     .build()
             )
@@ -95,4 +108,5 @@ object CommandValue : CommandFactory {
             }
             .build()
     }
+
 }

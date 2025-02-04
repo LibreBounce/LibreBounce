@@ -23,8 +23,10 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.currentTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.player
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.world
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
+import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.BlockPos
@@ -51,15 +53,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
      */
     val terrain by boolean("Terrain", true)
 
-    val cacheMap = object : LinkedHashMap<DamageConstellation, DamageProvider>(
-        64,
-        0.75f,
-        true
-    ) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<DamageConstellation, DamageProvider>): Boolean {
-            return size > 64
-        }
-    }
+    val cacheMap = LruCache<DamageConstellation, DamageProvider>(64)
 
     /**
      * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
@@ -107,7 +101,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
         checkedEntity: CheckedEntity
     ): DamageProvider {
         val damageConstellation = DamageConstellation(this, blockPos, crystal, requestingSubmodule)
-        return cacheMap.computeIfAbsent(damageConstellation) {
+        val calc: (DamageConstellation) -> DamageProvider = {
             val excludeNotBlastResistant = terrain &&
                 (!requestingSubmodule.basePlace || SubmoduleBasePlace.terrain)
             checkedEntity.getDamage(
@@ -117,6 +111,12 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
                 if (excludeNotBlastResistant) 9f else null,
                 if (requestingSubmodule.basePlace) BlockPos.ofFloored(crystal).down() else null
             )
+        }
+
+        return if (CrystalAuraTriggerer.canCache()) {
+            cacheMap.computeIfAbsent(damageConstellation, calc)
+        } else {
+            calc(damageConstellation)
         }
     }
 

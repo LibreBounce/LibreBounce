@@ -51,6 +51,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     get("/screen", ::getScreenInfo)
     get("/screen/size", ::getScreenSize)
     put("/screen", ::putScreen)
+    delete("/screen", ::deleteScreen)
 
     // Module Functions
     get("/modules", ::getModules).apply {
@@ -61,6 +62,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
         put("/settings", ::putSettings)
         post("/panic", ::postPanic)
     }
+    get("/module/:name", ::getModule)
 
 
     // Component Functions
@@ -127,9 +129,15 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     // Reconnect Functions
     post("/reconnect", ::postReconnect)
 
+    // Spoofer Functions
+    get("/spoofer", ::getSpooferConfigurable)
+    put("/spoofer", ::putSpooferConfigurable)
+
     // Input Functions
     get("/input", ::getInputInfo)
     get("/keybinds", ::getKeybinds)
+    post("/typing", ::isTyping)
+    get("/typing", ::isTyping)
 
     // Player Functions
     get("/player", ::getPlayerData)

@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class MixinHeldItemRenderer {
@@ -54,6 +55,10 @@ public abstract class MixinHeldItemRenderer {
 
     @Shadow
     private ItemStack offHand;
+
+    @Shadow
+    @Final
+    private static float EQUIP_OFFSET_TRANSLATE_Y;
 
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;push()V", shift = At.Shift.AFTER))
     private void hookRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
@@ -162,8 +167,8 @@ public abstract class MixinHeldItemRenderer {
             target = "Lnet/minecraft/client/render/item/HeldItemRenderer;applyEquipOffset(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/Arm;F)V",
             ordinal = 3
     ), index = 2)
-    private float applyEquipOffset(float equipProgress) {
-        if (ModuleAnimations.INSTANCE.getRunning() && !ModuleAnimations.INSTANCE.getEquipOffset()) {
+    private float injectIgnoreBlocking(float equipProgress) {
+        if (ModuleAnimations.EquipOffset.INSTANCE.getRunning() && ModuleAnimations.EquipOffset.INSTANCE.getIgnoreBlocking()) {
             return 0.0F;
         }
 
@@ -229,4 +234,29 @@ public abstract class MixinHeldItemRenderer {
         return original;
     }
 
+    @Inject(method = "resetEquipProgress", at = @At("HEAD"), cancellable = true)
+    private void injectIgnorePlace(Hand hand, CallbackInfo ci) {
+        if (ModuleAnimations.INSTANCE.getRunning() && ModuleAnimations.EquipOffset.INSTANCE.getIgnorePlace()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "shouldSkipHandAnimationOnSwap", at = @At("RETURN"), cancellable = true)
+    private void injectIgnoreAmount(ItemStack from, ItemStack to, CallbackInfoReturnable<Boolean> cir) {
+        if (ModuleAnimations.INSTANCE.getRunning() && !cir.getReturnValueZ()) {
+            cir.setReturnValue(!ModuleAnimations.EquipOffset.INSTANCE.getRunning()
+                    || (from.getCount() == to.getCount() || ModuleAnimations.EquipOffset.INSTANCE.getIgnoreAmount())
+                    && ItemStack.areItemsAndComponentsEqual(from, to)
+            );
+        }
+    }
+
+    @ModifyArg(method = "applyEquipOffset", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V"), index = 1)
+    private float injectDisableEquipOffset(float y) {
+        if (ModuleAnimations.INSTANCE.getRunning() && !ModuleAnimations.EquipOffset.INSTANCE.getRunning()) {
+            return EQUIP_OFFSET_TRANSLATE_Y;
+        }
+
+        return y;
+    }
 }

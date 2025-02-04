@@ -596,6 +596,7 @@
   "liquidbounce.module.vehicleBoost.description": "在你离开载具时将你加速。",
   "liquidbounce.module.vehicleOneHit.description": "允许你一击打掉船/矿车。",
   "liquidbounce.module.velocity.description": "改变你在受击时的击退程度。",
+  "liquidbounce.module.voidEsp.description": "高亮显示周围所有可能为虚空的位置。",
   "liquidbounce.module.xRay.description": "仅渲染选定的方块。",
   "liquidbounce.module.zoom.description": "允许你以更大或更小的视角看世界上的一切。",
   "liquidbounce.module.antiHunger.description": "防止你饥饿。",

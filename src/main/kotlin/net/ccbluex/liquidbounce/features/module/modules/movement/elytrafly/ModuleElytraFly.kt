@@ -42,8 +42,8 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
     private val instantStop by boolean("InstantStop", true)
 
     object Speed : ToggleableConfigurable(this, "Speed", true) {
-        val vertical by float("Vertical", 0.5f, 0.1f..5f)
-        val horizontal by float("Horizontal", 1f, 0.1f..8f)
+        val vertical by float("Vertical", 0.5f, 0.0f..5f)
+        val horizontal by float("Horizontal", 1f, 0.0f..8f)
     }
 
     init {

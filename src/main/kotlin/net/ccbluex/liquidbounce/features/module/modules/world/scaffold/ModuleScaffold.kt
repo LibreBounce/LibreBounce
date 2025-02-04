@@ -44,10 +44,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.technique
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldDownFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldEagleFeature
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerKarhu
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerMotion
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerPulldown
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerVulcan
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -57,9 +54,9 @@ import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.item.*
@@ -155,7 +152,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             ScaffoldTowerMotion,
             ScaffoldTowerPulldown,
             ScaffoldTowerKarhu,
-            ScaffoldTowerVulcan
+            ScaffoldTowerVulcan,
+            ScaffoldTowerHypixel
         )
     }
 
@@ -206,7 +204,8 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         tree(ScaffoldRotationConfigurable)
         tree(ScaffoldSprintControlFeature)
         tree(SimulatePlacementAttempts)
-        tree(ScaffoldSlowFeature)
+        tree(ScaffoldAccelerationFeature)
+        tree(ScaffoldStrafeFeature)
         tree(ScaffoldJumpStrafe)
         tree(ScaffoldSpeedLimiterFeature)
         tree(ScaffoldBlinkFeature)
@@ -473,7 +472,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             arrayOf(Hand.MAIN_HAND, Hand.OFF_HAND).firstOrNull { isValidBlock(player.getStackInHand(it)) }
 
         if (simulatePlacementAttempts(currentCrosshairTarget, suitableHand) && player.moving
-            && SimulatePlacementAttempts.clickScheduler.goingToClick
+            && SimulatePlacementAttempts.clickScheduler.isGoingToClick
         ) {
             SimulatePlacementAttempts.clickScheduler.clicks {
                 doPlacement(currentCrosshairTarget!!, suitableHand!!, swingMode = swingMode)
@@ -610,9 +609,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         if (!isTowering) {
             sameYMode.getTargetedBlockPos(blockPos)?.let { return it }
-        } else if (towerMode.activeChoice == ScaffoldTowerMotion &&
-            ScaffoldTowerMotion.placeOffOnNoInput && !player.moving
-        ) {
+        } else if (towerMode.activeChoice == ScaffoldTowerHypixel && !player.moving) {
             // Find the block closest to the player
             val blocks = arrayOf(
                 blockPos.add(0, 0, 1),

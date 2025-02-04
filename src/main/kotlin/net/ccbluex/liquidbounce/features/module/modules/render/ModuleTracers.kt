@@ -86,31 +86,33 @@ object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
                 .rotatePitch((-Math.toRadians(camera.pitch.toDouble())).toFloat())
                 .rotateYaw((-Math.toRadians(camera.yaw.toDouble())).toFloat())
 
-            for (entity in filteredEntities) {
-                if (entity !is LivingEntity) {
-                    continue
-                }
+            longLines {
+                for (entity in filteredEntities) {
+                    if (entity !is LivingEntity) {
+                        continue
+                    }
 
-                val dist = player.distanceTo(entity) * 2.0F
+                    val dist = player.distanceTo(entity) * 2.0F
 
-                val color = if (useDistanceColor) {
-                    Color4b(
-                        Color.getHSBColor(
-                            (dist.coerceAtMost(viewDistance) / viewDistance) * (120.0f / 360.0f),
-                            1.0f,
-                            1.0f
+                    val color = if (useDistanceColor) {
+                        Color4b(
+                            Color.getHSBColor(
+                                (dist.coerceAtMost(viewDistance) / viewDistance) * (120.0f / 360.0f),
+                                1.0f,
+                                1.0f
+                            )
                         )
-                    )
-                } else if (entity is PlayerEntity && FriendManager.isFriend(entity.gameProfile.name)) {
-                    Color4b.BLUE
-                } else {
-                    EntityTaggingManager.getTag(entity).color ?: modes.activeChoice.getColor(entity) ?: continue
-                }
+                    } else if (entity is PlayerEntity && FriendManager.isFriend(entity.gameProfile.name)) {
+                        Color4b.BLUE
+                    } else {
+                        EntityTaggingManager.getTag(entity).color ?: modes.activeChoice.getColor(entity)
+                    }
 
-                val pos = relativeToCamera(entity.interpolateCurrentPosition(event.partialTicks)).toVec3()
+                    val pos = relativeToCamera(entity.interpolateCurrentPosition(event.partialTicks)).toVec3()
 
-                withColor(color) {
-                    drawLines(eyeVector, pos, pos, pos + Vec3(0f, entity.height, 0f))
+                    withColor(color) {
+                        drawLines(eyeVector, pos, pos, pos + Vec3(0f, entity.height, 0f))
+                    }
                 }
             }
         }
