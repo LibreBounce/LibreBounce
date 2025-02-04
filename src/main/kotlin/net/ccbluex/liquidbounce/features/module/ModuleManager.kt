@@ -42,6 +42,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.dupe.ModuleDupe
 import net.ccbluex.liquidbounce.features.module.modules.exploit.servercrasher.ModuleServerCrasher
+import net.ccbluex.liquidbounce.features.module.modules.exploit.phase.ModulePhase
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
@@ -236,6 +237,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleConsoleSpammer,
             ModuleTimeShift,
             ModuleTeleport,
+            ModulePhase,
 
             // Fun
             ModuleDankBobbing,
