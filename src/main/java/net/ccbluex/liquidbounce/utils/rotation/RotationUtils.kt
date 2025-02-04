@@ -255,7 +255,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         var attackRotation: Pair<Rotation, Float>? = null
         var lookRotation: Pair<Rotation, Float>? = null
 
-        randomization?.takeIf { it.randomize }?.run {
+        randomization?.takeIf { it.randomizationChosen }?.run {
             processNextSpot(bb, currRotation, eyes, scanRange.toDouble())
         }
 

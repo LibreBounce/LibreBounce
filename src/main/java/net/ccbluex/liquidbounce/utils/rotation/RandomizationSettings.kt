@@ -17,20 +17,22 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import kotlin.math.sign
 
-class RandomizationSettings(owner: Module, generalApply: () -> Boolean = { true }): Configurable("Randomization") {
+class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { true }): Configurable("Randomization") {
 
-    val randomize by boolean("RandomizeRotations", false) { generalApply() }
-    private val randomizationPattern by choices("RandomizationPattern", arrayOf("Zig-Zag", "LazyFlick"), "Zig-Zag")
-    private val yawRandomizationChance by floatRange("YawRandomizationChance", 0.8f..1.0f, 0f..1f) { randomize }
+    private val randomizationPattern by choices("RandomizationPattern", arrayOf("None", "Zig-Zag", "LazyFlick"), "None") { generalApply() }
+    private val yawRandomizationChance by floatRange("YawRandomizationChance", 0.8f..1.0f, 0f..1f) { randomizationChosen }
     private val yawRandomizationRange by floatRange("YawRandomizationRange", 5f..10f, 0f..30f)
-    { isZizZagActive && randomize && yawRandomizationChance.start != 1F }
-    private val yawSpeedIncreaseMultiplier by intRange("YawSpeedIncreaseMultiplier", 50..120, 0..500, suffix = "%") { !isZizZagActive && randomize }
-    private val pitchRandomizationChance by floatRange("PitchRandomizationChance", 0.8f..1.0f, 0f..1f) { randomize }
+    { isZizZagActive && !randomizationChosen && yawRandomizationChance.start != 1F }
+    private val yawSpeedIncreaseMultiplier by intRange("YawSpeedIncreaseMultiplier", 50..120, 0..500, suffix = "%") { !isZizZagActive && randomizationChosen }
+    private val pitchRandomizationChance by floatRange("PitchRandomizationChance", 0.8f..1.0f, 0f..1f) { randomizationChosen }
     private val pitchRandomizationRange by floatRange("PitchRandomizationRange", 5f..10f, 0f..30f)
-    { randomize && pitchRandomizationChance.start != 1F }
+    { randomizationChosen && pitchRandomizationChance.start != 1F }
 
     private val isZizZagActive
         get() = randomizationPattern == "Zig-Zag"
+
+    val randomizationChosen
+        get() = randomizationPattern != "None" && generalApply()
 
     fun processNextSpot(box: AxisAlignedBB, rotation: Rotation, eyes: Vec3, range: Double) {
         val intercept = box.calculateIntercept(eyes, eyes + getVectorForRotation(lastRotations.random()) * range)
