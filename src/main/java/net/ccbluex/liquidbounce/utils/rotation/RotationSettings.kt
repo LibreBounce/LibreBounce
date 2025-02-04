@@ -53,7 +53,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     ) { rotationsActive && generalApply() }
 
     open val minRotationDifferenceResetTimingValue = choices(
-        "MinRotationDifferenceResetTiming", arrayOf("OnStart", "Always"), "OnStart"
+        "MinRotationDifferenceResetTiming", arrayOf("OnStart", "OnSlowDown", "Always"), "OnStart"
     ) { rotationsActive && generalApply() }
 
     // Variables for easier access

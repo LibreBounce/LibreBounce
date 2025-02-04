@@ -427,8 +427,9 @@ object RotationUtils : MinecraftInstance, Listenable {
         }
 
         val diffAbs = abs(diff)
+        val isSlowingDown = diffAbs <= abs(lastTick1)
 
-        if (diffAbs.withGCD() <= min && diffAbs <= lastTick1 && (timing == "Always" || lastTick1 == 0f)) {
+        if (diffAbs.withGCD() <= min && (timing == "Always" || timing == "OnSlowDown" && isSlowingDown || timing == "OnStart" && lastTick1 == 0F)) {
             action(0f)
             return
         }
@@ -450,7 +451,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         val new = (lastTick1..diff).lerpWith(range.random())
 
-        if (abs(new.withGCD()) <= min && diffAbs <= abs(lastTick1)) {
+        if (abs(new.withGCD()) <= min && isSlowingDown) {
             action(diff)
         } else {
             action(new)
@@ -765,9 +766,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
     enum class BodyPoint(val rank: Int, val range: ClosedFloatingPointRange<Double>, val displayName: String) {
         HEAD(1, 0.75..0.9, "Head"), BODY(0, 0.5..0.75, "Body"), FEET(-1, 0.1..0.4, "Feet"), UNKNOWN(
-            -2,
-            0.0..0.0,
-            "Unknown"
+            -2, 0.0..0.0, "Unknown"
         );
 
         companion object {
