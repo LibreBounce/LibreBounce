@@ -392,6 +392,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleNuker,
             ModuleExtinguish,
             ModuleBedDefender,
+            ModuleBlockIn,
             ModuleSurround,
             ModulePacketMine,
             ModuleHoleFiller,
