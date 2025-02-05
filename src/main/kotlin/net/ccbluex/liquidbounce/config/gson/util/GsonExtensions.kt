@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.config.gson.util
 
 import com.google.gson.*
-import com.google.gson.reflect.TypeToken
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import java.io.InputStream
 import java.io.Reader
 
@@ -30,19 +30,20 @@ import java.io.Reader
  * Decode JSON content
  */
 inline fun <reified T> decode(stringJson: String): T =
-    Gson().fromJson(stringJson, object : TypeToken<T>() {}.type)
+    stringJson.reader().use(::decode)
 
 /**
- * Decode JSON content from an Input Stream
+ * Decode JSON content from an [InputStream] and close it
  */
 inline fun <reified T> decode(inputStream: InputStream): T =
-    decode(inputStream.bufferedReader())
+    inputStream.bufferedReader().use(::decode)
 
 /**
- * Decode JSON content from a Reader
+ * Decode JSON content from a [Reader] and close it
  */
-inline fun <reified T> decode(reader: Reader): T =
-    Gson().fromJson(reader, object : TypeToken<T>() {}.type)
+inline fun <reified T> decode(reader: Reader): T = reader.use {
+    publicGson.fromJson(reader, T::class.java)
+}
 
 fun String.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
 fun Char.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
