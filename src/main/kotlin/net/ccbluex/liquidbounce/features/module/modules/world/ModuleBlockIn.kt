@@ -36,6 +36,11 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import kotlin.random.Random
 
+/**
+ * BlockIn module
+ *
+ * Builds blocks to cover yourself.
+ */
 object ModuleBlockIn : ClientModule("BlockIn", Category.WORLD, disableOnQuit = true) {
     private val blockPlacer = tree(BlockPlacer("Placer", this, Priority.NORMAL, ::slotFinder))
     private val autoDisable by boolean("AutoDisable", true)
@@ -88,7 +93,7 @@ object ModuleBlockIn : ClientModule("BlockIn", Category.WORLD, disableOnQuit = t
         waitUntil(blockPlacer::isDone)
 
         if (autoDisable) {
-            notification(name, "Filled!", NotificationEvent.Severity.SUCCESS)
+            notification(name, message("filled"), NotificationEvent.Severity.SUCCESS)
             enabled = false
         }
         getPositions()
@@ -99,7 +104,7 @@ object ModuleBlockIn : ClientModule("BlockIn", Category.WORLD, disableOnQuit = t
         val currentPos = player.blockPos
 
         if (currentPos != startPos && currentPos != startPos.up()) {
-            notification(name, "Your position is changed!", NotificationEvent.Severity.ERROR)
+            notification(name, message("positionChanged"), NotificationEvent.Severity.ERROR)
             enabled = false
         }
     }
