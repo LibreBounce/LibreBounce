@@ -13,15 +13,17 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 internal object NoFallCancel : Choice("Cancel") {
     private val fallDistance = choices("FallDistance", Smart, arrayOf(Smart, Constant))
     private val resetFallDistance by boolean("ResetFallDistance", true)
-    private val cancelSetback by boolean("CancelSetbackPacket", false) // not sure who would use this, but it's there I guess :|
+    // not sure who would use this, but it's there I guess :|
+    private val cancelSetback by boolean("CancelSetbackPacket", false)
     private var isFalling = false
 
     override val parent: ChoiceConfigurable<*>
         get() = ModuleNoFall.modes
 
     val packetHandler = handler<PacketEvent> {
-        if (it.isCancelled)
+        if (it.isCancelled) {
             return@handler
+        }
 
         val packet = it.packet
 
