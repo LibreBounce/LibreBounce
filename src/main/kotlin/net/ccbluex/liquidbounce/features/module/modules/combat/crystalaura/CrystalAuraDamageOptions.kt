@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
+import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair
+import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.currentTarget
@@ -56,9 +58,11 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
     val cacheMap = LruCache<DamageConstellation, DamageProvider>(64)
 
     /**
-     * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
-     */ // TODO by equal positions take self min damage
-    internal fun approximateExplosionDamage(pos: Vec3d, requestingSubmodule: RequestingSubmodule): Float? {
+     * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be.
+     *
+     * The first float is the self-damage, the second is the enemy damage.
+     */
+    internal fun approximateExplosionDamage(pos: Vec3d, requestingSubmodule: RequestingSubmodule): FloatFloatPair? {
         val target = currentTarget ?: return null
         val damageToTarget = target.getDamage(pos, requestingSubmodule, CheckedEntity.TARGET)
         val notEnoughDamage = damageToTarget.isSmallerThan(minEnemyDamage)
@@ -92,7 +96,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
             return null
         }
 
-        return damageToTarget.getFixed()
+        return FloatFloatImmutablePair(selfDamage.getFixed(), damageToTarget.getFixed())
     }
 
     private fun LivingEntity.getDamage(
