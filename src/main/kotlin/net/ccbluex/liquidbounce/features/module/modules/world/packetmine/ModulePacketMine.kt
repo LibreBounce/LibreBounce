@@ -108,9 +108,9 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
      *
      * Should never be accessed directly by other modules!
      */
-    @Suppress("ObjectPropertyName")
-    var _target: MineTarget? = null
-        set(value) {
+    @Suppress("ObjectPropertyName", "ObjectPropertyNaming")
+    var _target: MineTarget? = null // yes "_" because kotlin lacks package private
+        set(value) { // and I don't want to offer this to modules using this to mine something
             if (value == field) {
                 return
             }
