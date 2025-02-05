@@ -41,8 +41,7 @@ internal object NoFallCancel : Choice("Cancel") {
                 )
             )
             isFalling = false
-        }
-        if (packet is PlayerMoveC2SPacket && player.fallDistance >= fallDistance.activeChoice.value) {
+        } else if (packet is PlayerMoveC2SPacket && player.fallDistance >= fallDistance.activeChoice.value) {
             isFalling = true
             it.cancelEvent()
             if (resetFallDistance) {
