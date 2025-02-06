@@ -23,7 +23,7 @@ import net.minecraft.client.MinecraftClient
 import java.util.concurrent.PriorityBlockingQueue
 
 class RequestHandler<T> {
-    @Volatile
+
     private var currentTick = 0
 
     private val activeRequests = PriorityBlockingQueue<Request<T>>(11, compareBy { -it.priority })
