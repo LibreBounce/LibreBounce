@@ -33,7 +33,7 @@ internal object NoFallCancel : Choice("Cancel") {
             if (cancelSetback) {
                 it.cancelEvent()
             }
-            sendPacketSilently(
+            network.sendPacket(
                 PlayerMoveC2SPacket.Full(
                     pos.x, pos.y,
                     pos.z, change.yaw,
