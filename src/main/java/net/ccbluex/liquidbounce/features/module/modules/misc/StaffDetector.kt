@@ -29,15 +29,27 @@ import java.util.concurrent.ConcurrentHashMap
 
 object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false) {
 
+    // Name to IP
+    private val serverIpMap = mapOf(
+        "BlocksMC" to "blocksmc.com",
+        "CubeCraft" to "cubecraft.net",
+        "Gamster" to "gamster.org",
+        "AgeraPvP" to "agerapvp.club",
+        "HypeMC" to "hypemc.pro",
+        "Hypixel" to "hypixel.net",
+        "SuperCraft" to "supercraft.es",
+        "PikaNetwork" to "pika-network.net",
+        "GommeHD" to "gommehd.net",
+        "CoralMC" to "coralmc.it",
+        "LibreCraft" to "librecraft.com",
+        "Originera" to "mc.orea.asia",
+        "OC-TC" to "oc.tc",
+        "AssPixel" to "asspixel.net"
+    )
+
     private val staffMode by choices(
-        "StaffMode", arrayOf(
-            "BlocksMC", "CubeCraft", "Gamster",
-            "AgeraPvP", "HypeMC", "Hypixel",
-            "SuperCraft", "PikaNetwork", "GommeHD",
-            "CoralMC", "LibreCraft", "Originera",
-            "OC-TC", "AssPixel"
-        ), "BlocksMC"
-    ).onChanged { loadStaffData() }
+        "StaffMode", serverIpMap.keys.toTypedArray(), "BlocksMC"
+    ).onChanged(::loadStaffData)
 
     private val tab by boolean("TAB", true)
     private val packet by boolean("Packet", true)
@@ -61,13 +73,11 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     private var alertClearVanish = false
 
     private val staffList = ConcurrentHashMap<String, Set<String>>()
-    private var serverIp = ""
 
-    private var moduleJob: Job? = null
+    private val moduleJobs = mutableListOf<Job>()
 
     override fun onDisable() {
-        serverIp = ""
-        moduleJob?.cancel()
+        moduleJobs.forEach { it.cancel() }
         checkedStaff.clear()
         checkedSpectator.clear()
         playersInSpectatorMode.clear()
@@ -88,28 +98,11 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         alertClearVanish = false
     }
 
-    private val serverIpMap = mapOf(
-        "blocksmc" to "blocksmc.com",
-        "cubecraft" to "cubecraft.net",
-        "gamster" to "gamster.org",
-        "agerapvp" to "agerapvp.club",
-        "hypemc" to "hypemc.pro",
-        "hypixel" to "hypixel.net",
-        "supercraft" to "supercraft.es",
-        "pikanetwork" to "pika-network.net",
-        "gommehd" to "gommehd.net",
-        "coralmc" to "coralmc.it",
-        "librecraft" to "librecraft.com",
-        "originera" to "mc.orea.asia",
-        "oc-tc" to "oc.tc",
-        "asspixel" to "asspixel.net"
-    )
+    private fun loadStaffData(serverName: String) {
+        val ip = serverIpMap[serverName] ?: return
 
-    private fun loadStaffData() {
-        serverIp = serverIpMap[staffMode.lowercase()] ?: return
-
-        moduleJob = SharedScopes.IO.launch {
-            loadStaffList("$CLIENT_CLOUD/staffs/$serverIp")
+        moduleJobs += SharedScopes.IO.launch {
+            loadStaffList(ip)
         }
     }
 
@@ -405,9 +398,9 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         notifyStaffPacket(staff)
     }
 
-    private fun loadStaffList(url: String) {
+    private fun loadStaffList(serverIp: String) {
         try {
-            HttpClient.get(url).use { response ->
+            HttpClient.get("$CLIENT_CLOUD/staffs/$serverIp").use { response ->
                 when (val code = response.code) {
                     200 -> {
                         val staffs = response.body.charStream().buffered().lineSequence()
@@ -416,7 +409,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                             }
 
                         chat("§aSuccessfully loaded §9${staffs.size} §astaff names.")
-                        staffList[url] = staffs
+                        staffList[serverIp] = staffs
                     }
 
                     404 -> {
