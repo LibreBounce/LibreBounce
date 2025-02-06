@@ -50,6 +50,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
+import net.ccbluex.liquidbounce.utils.io.MiscUtils.showErrorPopup
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.movement.BPSUtils
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
@@ -139,6 +140,9 @@ object LiquidBounce {
 
                 // Load alt generators
                 loadActiveGenerators()
+
+                // Load SRG file
+                loadSrg()
 
                 LOGGER.info("Preload tasks of $CLIENT_NAME are completed!")
 
@@ -259,6 +263,7 @@ object LiquidBounce {
             FileManager.loadBackground()
         } catch (e: Exception) {
             LOGGER.error("Failed to start client: ${e.message}")
+            e.showErrorPopup()
         } finally {
             // Set is starting status
             isStarting = false

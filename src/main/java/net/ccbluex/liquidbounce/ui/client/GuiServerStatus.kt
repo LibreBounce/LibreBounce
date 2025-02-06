@@ -9,12 +9,15 @@ import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.responseCode
+import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.defaultAgent
+import net.ccbluex.liquidbounce.utils.io.newCall
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
+import okhttp3.Request
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.io.IOException
@@ -87,8 +90,11 @@ class GuiServerStatus(private val prevGui: GuiScreen) : AbstractScreen() {
             status[url] = null
             SharedScopes.IO.launch {
                 try {
-                    val responseCode = responseCode(url, "GET")
-                    status[url] = if (responseCode in 200..499) "green" else "red"
+                    status[url] = HttpClient.newCall(fun Request.Builder.() {
+                        url(url).head().defaultAgent()
+                    }).execute().use {
+                        if (it.code in 200..499) "green" else "red"
+                    }
                 } catch (e: IOException) {
                     status[url] = "red"
                 }

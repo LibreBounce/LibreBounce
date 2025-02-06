@@ -1,8 +1,10 @@
 package net.ccbluex.liquidbounce.api
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.applyBypassHttps
+import net.ccbluex.liquidbounce.utils.io.applyBypassHttps
 import net.ccbluex.liquidbounce.utils.io.decodeJson
+import net.ccbluex.liquidbounce.utils.io.get
+import net.ccbluex.liquidbounce.utils.io.post
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -49,71 +51,46 @@ object ClientApi {
 
     fun getNewestBuild(branch: String = HARD_CODED_BRANCH, release: Boolean = false): Build {
         val url = "$API_V1_ENDPOINT/version/newest/$branch${if (release) "/release" else "" }"
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-
-        client.newCall(request).execute().use { response ->
+        client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body!!.charStream().decodeJson()
+            return response.body.charStream().decodeJson()
         }
     }
 
     fun getMessageOfTheDay(branch: String = HARD_CODED_BRANCH): MessageOfTheDay {
         val url = "$API_V1_ENDPOINT/client/$branch/motd"
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-
-        client.newCall(request).execute().use { response ->
+        client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body!!.charStream().decodeJson()
+            return response.body.charStream().decodeJson()
         }
     }
 
     fun getSettingsList(branch: String = HARD_CODED_BRANCH): List<AutoSettings> {
         val url = "$API_V1_ENDPOINT/client/$branch/settings"
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-
-        client.newCall(request).execute().use { response ->
+        client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body!!.charStream().decodeJson()
+            return response.body.charStream().decodeJson()
         }
     }
 
     fun getSettingsScript(branch: String = HARD_CODED_BRANCH, settingId: String): String {
         val url = "$API_V1_ENDPOINT/client/$branch/settings/$settingId"
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-
-        client.newCall(request).execute().use { response ->
+        client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body!!.string()
+            return response.body.string()
         }
     }
 
-    // TODO: backend not implemented yet
+    @Deprecated("Removed API")
     fun reportSettings(branch: String = HARD_CODED_BRANCH, settingId: String): ReportResponse {
         val url = "$API_V1_ENDPOINT/client/$branch/settings/report/$settingId"
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-
-        client.newCall(request).execute().use { response ->
+        client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body!!.charStream().decodeJson()
+            return response.body.charStream().decodeJson()
         }
     }
 
-    // TODO: backend not implemented yet
+    @Deprecated("Removed API")
     fun uploadSettings(
         branch: String = HARD_CODED_BRANCH,
         name: RequestBody,
@@ -128,14 +105,9 @@ object ClientApi {
             .addPart(settingsFile)
             .build()
 
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).execute().use { response ->
+        client.post(url, requestBody).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body!!.charStream().decodeJson()
+            return response.body.charStream().decodeJson()
         }
     }
 }

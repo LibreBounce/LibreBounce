@@ -19,7 +19,6 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.get
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
@@ -68,16 +67,7 @@ object SettingsCommand : Command("autosettings", "autosetting", "settings", "set
         }
 
         try {
-            val settings = if (args[2].startsWith("http")) {
-                val (text, code) = get(args[2])
-                if (code != 200) {
-                    error(text)
-                }
-
-                text
-            } else {
-                runBlocking { ClientApi.getSettingsScript(settingId = args[2]) }
-            }
+            val settings = SettingsUtils.loadFromUrl(args[2])
 
             chat("Applying settings...")
             SettingsUtils.applyScript(settings)

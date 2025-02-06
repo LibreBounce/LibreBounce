@@ -12,7 +12,9 @@ import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
-import net.ccbluex.liquidbounce.utils.io.HttpUtils
+import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.get
+import net.ccbluex.liquidbounce.utils.io.jsonBody
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.CustomTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
@@ -22,7 +24,6 @@ import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiSlot
 import net.minecraft.client.renderer.GlStateManager.*
-import okhttp3.Request
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -174,17 +175,17 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
 
     private fun loadCredits() {
         try {
-            val gitHubContributors = HttpUtils.getJson<Array<GitHubContributor>>(
+            val gitHubContributors = HttpClient.get(
                 "https://api.github.com/repos/CCBlueX/LiquidBounce/stats/contributors"
-            ) ?: run {
+            ).jsonBody<Array<GitHubContributor>>() ?: run {
                 failed = true
                 return
             }
 
             // Note: this API is not available in China
-            val additionalInformation = HttpUtils.getJson<Map<String, ContributorInformation>>(
+            val additionalInformation = HttpClient.get(
                 "https://raw.githubusercontent.com/CCBlueX/LiquidCloud/master/LiquidBounce/contributors.json"
-            ) ?: emptyMap()
+            ).jsonBody<Map<String, ContributorInformation>>() ?: emptyMap()
 
             val credits = ArrayList<Credit>(gitHubContributors.size)
 
@@ -291,8 +292,8 @@ private class Credit(
 ) {
     val avatar by lazy {
         runCatching {
-            HttpUtils.httpClient.newCall(Request.Builder().url(avatarUrl).build()).execute().use { response ->
-                response.body!!.byteStream().use(ImageIO::read).let(::CustomTexture)
+            HttpClient.get(avatarUrl).use { response ->
+                response.body.byteStream().use(ImageIO::read).let(::CustomTexture)
             }
         }.onFailure {
             LOGGER.error("Failed to load avatar.", it)

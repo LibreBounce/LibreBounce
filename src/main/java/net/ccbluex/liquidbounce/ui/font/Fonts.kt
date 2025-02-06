@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.file.FileManager.fontsDir
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.io.*
-import net.ccbluex.liquidbounce.utils.io.HttpUtils.Downloader
+import net.ccbluex.liquidbounce.utils.io.Downloader
 import net.minecraft.client.gui.FontRenderer
 import java.awt.Font
 import java.io.File
@@ -154,6 +154,7 @@ object Fonts : MinecraftInstance {
     }
 
     fun downloadFonts() {
+        fontsDir.mkdirs()
         val outputFile = File(fontsDir, "outfit.zip")
         if (!outputFile.exists()) {
             LOGGER.info("Downloading fonts...")

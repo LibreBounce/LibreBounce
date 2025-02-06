@@ -24,7 +24,9 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
-import net.ccbluex.liquidbounce.utils.io.HttpUtils
+import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.get
+import net.ccbluex.liquidbounce.utils.io.jsonBody
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import org.json.JSONObject
 import java.io.IOException
@@ -158,7 +160,7 @@ object ClientRichPresence : Configurable("DiscordRPC"), MinecraftInstance, Liste
      * @throws IOException If reading failed
      */
     private fun loadConfiguration() {
-        val discordConf = HttpUtils.getJson<DiscordConfiguration>("$CLIENT_CLOUD/discord.json") ?: return
+        val discordConf = HttpClient.get("$CLIENT_CLOUD/discord.json").jsonBody<DiscordConfiguration>() ?: return
 
         // Check has app id
         discordConf.appID?.let { appID = it }

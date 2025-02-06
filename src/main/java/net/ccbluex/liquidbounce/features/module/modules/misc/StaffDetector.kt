@@ -16,7 +16,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.io.HttpUtils
+import net.ccbluex.liquidbounce.utils.io.HttpClient
+import net.ccbluex.liquidbounce.utils.io.get
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -51,15 +52,15 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     private val inGame by boolean("InGame", true) { autoLeave != "Off" }
     private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
-    private val checkedStaff = ConcurrentHashMap.newKeySet<String>()
-    private val checkedSpectator = ConcurrentHashMap.newKeySet<String>()
-    private val playersInSpectatorMode = ConcurrentHashMap.newKeySet<String>()
+    private val checkedStaff: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val checkedSpectator: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val playersInSpectatorMode: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     private var attemptLeave = false
 
     private var alertClearVanish = false
 
-    private var staffList: Map<String, Set<String>?> = emptyMap()
+    private val staffList = ConcurrentHashMap<String, Set<String>>()
     private var serverIp = ""
 
     private var moduleJob: Job? = null
@@ -73,6 +74,9 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         attemptLeave = false
         alertClearVanish = false
     }
+
+    private fun isStaff(player: String): Boolean =
+        staffList.values.any { staffNames -> staffNames.any { player.contains(it) } }
 
     /**
      * Reset on World Change
@@ -105,7 +109,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         serverIp = serverIpMap[staffMode.lowercase()] ?: return
 
         moduleJob = SharedScopes.IO.launch {
-            staffList = loadStaffList("$CLIENT_CLOUD/staffs/$serverIp")
+            loadStaffList("$CLIENT_CLOUD/staffs/$serverIp")
         }
     }
 
@@ -133,24 +137,24 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                 if (teamName.equals("Z_Spectator", true)) {
                     val players = packet.players ?: return@handler
 
-                    val staffSpectateList = players.filter { it in staffList.keys } - checkedSpectator
-                    val nonStaffSpectateList = players.filter { it !in staffList.keys } - checkedSpectator
+                    val staffSpectateList = players.filter { it !in checkedSpectator && isStaff(it) }
+                    val nonStaffSpectateList = players.filter { it !in checkedSpectator && !isStaff(it) }
 
                     // Check for players who are using spectator menu
                     val miscSpectatorList = playersInSpectatorMode - players.toSet()
 
                     staffSpectateList.forEach { player ->
-                        notifySpectators(player!!)
+                        notifySpectators(player)
                     }
 
                     nonStaffSpectateList.forEach { player ->
                         if (otherSpectator) {
-                            notifySpectators(player!!)
+                            notifySpectators(player)
                         }
                     }
 
                     miscSpectatorList.forEach { player ->
-                        val isStaff = player in staffList
+                        val isStaff = isStaff(player)
 
                         if (isStaff && spectator) {
                             chat("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
@@ -199,9 +203,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             return
         }
 
-        val isStaff = staffList.any { entry ->
-            entry.value?.any { staffName -> player.contains(staffName) } == true
-        }
+        val isStaff = isStaff(player)
 
         if (isStaff && spectator) {
             if (warn == "Chat") {
@@ -249,9 +251,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
 
         playerInfos.forEach { (player, responseTime) ->
-            val isStaff = staffList.any { entry ->
-                entry.value?.any { staffName -> player.contains(staffName) } == true
-            }
+            val isStaff = isStaff(player)
 
             val condition = when {
                 responseTime > 0 -> "§e(${responseTime}ms)"
@@ -288,11 +288,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
 
         val isStaff = if (staff is EntityPlayer) {
-            val playerName = staff.gameProfile.name
-
-            staffList.any { entry ->
-                entry.value?.any { staffName -> playerName.contains(staffName) } == true
-            }
+            isStaff(staff.gameProfile.name)
         } else {
             false
         }
@@ -409,35 +405,31 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         notifyStaffPacket(staff)
     }
 
-    private fun loadStaffList(url: String): Map<String, Set<String>> {
-        return try {
-            val (response, code) = HttpUtils.requestStream(url)
+    private fun loadStaffList(url: String) {
+        try {
+            HttpClient.get(url).use { response ->
+                when (val code = response.code) {
+                    200 -> {
+                        val staffs = response.body.charStream().buffered().lineSequence()
+                            .mapNotNullTo(hashSetOf()) { line ->
+                                line.trim().takeIf { it.isNotBlank() }
+                            }
 
-            when (code) {
-                200 -> {
-                    val staffList = response.bufferedReader().lineSequence()
-                        .filter { it.isNotBlank() }
-                        .map { it.trim() }
-                        .toSet()
+                        chat("§aSuccessfully loaded §9${staffs.size} §astaff names.")
+                        staffList[url] = staffs
+                    }
 
-                    chat("§aSuccessfully loaded §9${staffList.size} §astaff names.")
-                    mapOf(url to staffList)
-                }
+                    404 -> {
+                        chat("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
+                    }
 
-                404 -> {
-                    chat("§cFailed to load staff list. §9(§3Doesn't exist in LiquidCloud§9)")
-                    emptyMap()
-                }
-
-                else -> {
-                    chat("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
-                    emptyMap()
+                    else -> {
+                        chat("§cFailed to load staff list. §9(§3ERROR CODE: $code§9)")
+                    }
                 }
             }
         } catch (e: Exception) {
             chat("§cFailed to load staff list. §9(${e.message})")
-            e.printStackTrace()
-            emptyMap()
         }
     }
 
