@@ -18,47 +18,39 @@
  */
 package net.ccbluex.liquidbounce.utils.kotlin
 
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.client.MinecraftClient
-import java.util.PriorityQueue
+import java.util.concurrent.PriorityBlockingQueue
 
 class RequestHandler<T> {
     @Volatile
     private var currentTick = 0
 
-    private val activeRequests = PriorityQueue<Request<T>>(11, compareBy { -it.priority })
-
-    private val lock = ReentrantLock()
+    private val activeRequests = PriorityBlockingQueue<Request<T>>(11, compareBy { -it.priority })
 
     fun tick(deltaTime: Int = 1) {
         currentTick += deltaTime
     }
 
     fun request(request: Request<T>) {
-        lock.withLock {
-            // we remove all requests provided by module on new request
-            activeRequests.removeAll { it.provider == request.provider }
-            request.expiresIn += currentTick
-            activeRequests.add(request)
-        }
+        // we remove all requests provided by module on new request
+        activeRequests.removeAll { it.provider == request.provider }
+        request.expiresIn += currentTick
+        activeRequests.add(request)
     }
 
     fun getActiveRequestValue(): T? {
-        lock.withLock {
-            var top = activeRequests.peek() ?: return null
+        var top = activeRequests.peek() ?: return null
 
-            if (MinecraftClient.getInstance()?.isOnThread != false) {
-                // we remove all outdated requests here
-                while (top.expiresIn <= currentTick || !top.provider.running) {
-                    activeRequests.remove()
-                    top = activeRequests.peek() ?: return null
-                }
+        if (MinecraftClient.getInstance()?.isOnThread != false) {
+            // we remove all outdated requests here
+            while (top.expiresIn <= currentTick || !top.provider.running) {
+                activeRequests.remove()
+                top = activeRequests.peek() ?: return null
             }
-
-            return top.value
         }
+
+        return top.value
     }
 
     /**
