@@ -53,7 +53,7 @@ class RequestHandler<T> {
                 // we remove all outdated requests here
                 while (top.expiresIn <= currentTick || !top.provider.running) {
                     activeRequests.remove()
-                    top = activeRequests.peek()
+                    top = activeRequests.peek() ?: return null
                 }
             }
 
