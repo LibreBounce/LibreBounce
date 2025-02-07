@@ -69,8 +69,9 @@ object MurderMysterySwordDetection {
 
     fun isSword(item: Item?): Boolean {
         if (item?.defaultStack?.isIn(ItemTags.SWORDS) == true
-            || item?.defaultStack?.isIn(ItemTags.PICKAXES) == true)
+            || item?.defaultStack?.isIn(ItemTags.PICKAXES) == true) {
             return true
+        }
         return when (item) {
             in KNOWN_NON_SWORD_ITEMS -> false
             in KNOWN_SWORD_ITEMS -> true
