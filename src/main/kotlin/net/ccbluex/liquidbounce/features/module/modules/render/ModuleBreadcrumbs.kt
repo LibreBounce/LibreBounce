@@ -58,6 +58,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
     private val color by color("Color", Color4b(70, 119, 255, 120))
     private val colorRainbow by boolean("Rainbow", false)
     private val height by float("Height", 0.5f, 0f..2f)
+    private val vertexBuffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
 
     internal object TemporaryConfigurable : ToggleableConfigurable(this, "Temporary", true) {
         val alive by int("Alive", 900, 10..10000, "ms")
@@ -112,7 +113,6 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
         }
 
         // TODO: idk if this is right, probably could do this better but yes
-        val vertexBuffer = VertexBuffer(GlUsage.STATIC_WRITE)
         vertexBuffer.upload(buffer.endNullable() ?: return)
         vertexBuffer.draw()
 
