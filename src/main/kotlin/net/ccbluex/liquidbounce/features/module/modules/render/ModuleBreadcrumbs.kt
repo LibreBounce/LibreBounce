@@ -33,9 +33,10 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.utils.rainbow
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
+import net.minecraft.client.gl.GlUsage
 import net.minecraft.client.gl.ShaderProgramKeys
+import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.VertexFormat.DrawMode
 import net.minecraft.client.render.VertexFormats
@@ -110,7 +111,10 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
             trail.verifyAndRenderTrail(renderData, camera, entity, time)
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+        // TODO: idk if this is right, probably could do this better but yes
+        val vertexBuffer = VertexBuffer(GlUsage.STATIC_WRITE)
+        vertexBuffer.upload(buffer.endNullable() ?: return)
+        vertexBuffer.draw()
 
         if (height > 0) {
             RenderSystem.enableCull()
