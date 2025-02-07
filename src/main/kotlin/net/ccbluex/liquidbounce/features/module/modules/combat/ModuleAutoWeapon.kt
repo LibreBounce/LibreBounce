@@ -136,7 +136,8 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
             .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>() }
             .filter(
                 when { // TODO: find `blockedByShield`
-                    !isOlderThanOrEqual1_8 /*&& target?.blockedByShield(world.damageSources.playerAttack(player)) == true*/
+                    !isOlderThanOrEqual1_8
+                            /*&& target?.blockedByShield(world.damageSources.playerAttack(player)) == true*/
                         -> againstShield.filter
 
                     else -> preferredWeapon.filter
