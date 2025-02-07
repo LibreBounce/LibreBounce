@@ -91,7 +91,7 @@ object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) 
         val offset = if (mainHandEmpty) 1 else 0
 
         for (i in range) {
-            inventory.main[i + offset] = items.getOrNull(i) ?: ItemStack.EMPTY
+            inventory.mainStacks[i + offset] = items.getOrNull(i) ?: ItemStack.EMPTY
         }
     }
 
@@ -102,8 +102,8 @@ object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) 
     private fun reset() {
         inventoryMap.keys.forEach { uuid ->
             val player = world.players.find { it.uuid == uuid } ?: return@forEach
-            for (i in 1 until player.inventory.main.size) {
-                player.inventory.main[i] = ItemStack.EMPTY
+            for (i in 1 until player.inventory.mainStacks.size) {
+                player.inventory.mainStacks[i] = ItemStack.EMPTY
             }
         }
         inventoryMap.clear()
