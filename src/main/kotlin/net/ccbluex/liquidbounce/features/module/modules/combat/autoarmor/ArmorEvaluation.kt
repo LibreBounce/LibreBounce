@@ -45,8 +45,9 @@ object ArmorEvaluation {
 
     private fun groupArmorByType(slots: List<ItemSlot>): Map<EquipmentSlot, List<ArmorPiece>> {
         val armorPiecesGroupedByType = slots.mapNotNull { slot ->
-            if (slot.itemStack.isIn(ItemTags.TRIMMABLE_ARMOR))
+            if (slot.itemStack.isIn(ItemTags.TRIMMABLE_ARMOR)) {
                 return@mapNotNull ArmorPiece(slot)
+            }
         }.groupBy { t -> (t as ArmorPiece).slotType }
 
         // TODO: please work lol
