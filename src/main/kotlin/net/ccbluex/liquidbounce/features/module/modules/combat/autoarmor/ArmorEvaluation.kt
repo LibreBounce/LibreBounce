@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.utils.item.ArmorComparator
 import net.ccbluex.liquidbounce.utils.item.ArmorKitParameters
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
 import net.minecraft.entity.EquipmentSlot
-import net.minecraft.item.ArmorItem
+import net.minecraft.registry.tag.ItemTags
 
 object ArmorEvaluation {
     /**
@@ -45,15 +45,12 @@ object ArmorEvaluation {
 
     private fun groupArmorByType(slots: List<ItemSlot>): Map<EquipmentSlot, List<ArmorPiece>> {
         val armorPiecesGroupedByType = slots.mapNotNull { slot ->
-            when (slot.itemStack.item) {
-                // Filter out animal armor which is an armor item but not for the player
-                // Note: in 1.21.4 [AnimalArmorItem] is not a subclass of [ArmorItem]
-                is ArmorItem -> ArmorPiece(slot)
-                else -> null
-            }
-        }.groupBy(ArmorPiece::slotType)
+            if (slot.itemStack.isIn(ItemTags.TRIMMABLE_ARMOR))
+                return@mapNotNull ArmorPiece(slot)
+        }.groupBy { t -> (t as ArmorPiece).slotType }
 
-        return armorPiecesGroupedByType
+        // TODO: please work lol
+        return armorPiecesGroupedByType as Map<EquipmentSlot, List<ArmorPiece>>
     }
 
     fun getArmorComparatorFor(currentKit: Map<EquipmentSlot, ArmorPiece?>): ArmorComparator {
