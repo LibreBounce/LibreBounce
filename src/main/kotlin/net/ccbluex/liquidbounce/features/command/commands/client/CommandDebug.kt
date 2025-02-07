@@ -50,6 +50,7 @@ import net.minecraft.text.Text
 import net.minecraft.text.TextColor
 import net.minecraft.util.Formatting
 import java.io.StringWriter
+import java.net.URI
 
 /**
  * Debug Command to collect information about the client
@@ -82,7 +83,7 @@ object CommandDebug : CommandFactory {
                 style.withColor(TextColor.fromFormatting(Formatting.GREEN))
             }.append(Text.literal(paste).styled { style ->
                 style.withColor(Formatting.YELLOW).withClickEvent(
-                    ClickEvent(ClickEvent.Action.OPEN_URL, paste)
+                    ClickEvent.OpenUrl(URI(paste))
                 )
             }))
         }
