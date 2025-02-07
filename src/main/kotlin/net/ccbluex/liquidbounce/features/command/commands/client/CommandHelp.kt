@@ -135,8 +135,7 @@ object CommandHelp : CommandFactory {
                 .styled { it.withColor(Formatting.BLUE) }
                 .styled {
                     it.withHoverEvent(
-                        HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT,
+                        HoverEvent.ShowText(
                             translation("liquidbounce.command.${cmd.name}.description")
                         )
                     )
@@ -173,7 +172,7 @@ object CommandHelp : CommandFactory {
                         })
                     }
                     .styled {
-                        it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, command.result("previous")))
+                        it.withHoverEvent(HoverEvent.ShowText(command.result("previous")))
                     }
                 )
                 .append("[$page]")
@@ -182,7 +181,7 @@ object CommandHelp : CommandFactory {
                         it.withClickEvent(RunnableClickEvent { printMessage(command, nextPage, maxPage, commands) })
                     }
                     .styled {
-                        it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, command.result("next")))
+                        it.withHoverEvent(HoverEvent.ShowText(command.result("next")))
                     }
                 ),
             metadata = MessageMetadata(id = "CommandHelp#Next")
