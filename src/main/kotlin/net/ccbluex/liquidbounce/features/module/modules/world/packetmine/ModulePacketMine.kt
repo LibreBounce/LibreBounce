@@ -24,10 +24,13 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.world.ModuleAutoTool
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.CivMineMode
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.ImmediateMineMode
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.mode.NormalMineMode
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.AlwaysToolMode
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.NeverToolMode
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.OnStopToolMode
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.PostStartToolMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -37,7 +40,6 @@ import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.outlineBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
 import net.minecraft.block.BlockState
@@ -225,15 +227,19 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
             return
         }
 
-        val slot = switchMode.activeChoice.getSlot(mineTarget.blockState)
+        val switchMode = switchMode.activeChoice
+        val slot = switchMode.getSlot(mineTarget.blockState)
         if (!mineTarget.started) {
             startBreaking(slot, mineTarget)
         } else if (mode.activeChoice.shouldUpdate(mineTarget, slot)) {
             updateBreakingProgress(mineTarget, slot)
             if (mineTarget.progress >= breakDamage && !mineTarget.finished) {
                 mode.activeChoice.finish(mineTarget)
+                switchMode.getSwitchingMethod().switchBack()
             }
         }
+
+        switchMode.getSwitchingMethod().reset()
     }
 
     private fun startBreaking(slot: IntObjectImmutablePair<ItemStack>?, mineTarget: MineTarget) {
@@ -247,14 +253,17 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
     }
 
     private fun updateBreakingProgress(mineTarget: MineTarget, slot: IntObjectImmutablePair<ItemStack>?) {
-        mineTarget.progress += switchMode.activeChoice.getBlockBreakingDelta(
+        val switchMode = switchMode.activeChoice
+        mineTarget.progress += switchMode.getBlockBreakingDelta(
             mineTarget.targetPos,
             mineTarget.blockState,
             slot?.second()
         )
 
         switch(slot, mineTarget)
-        interaction.syncSelectedSlot()
+        if (switchMode.getSwitchingMethod().shouldSync) {
+            interaction.syncSelectedSlot()
+        }
 
         val f = if (breakDamage > 0f) {
             val breakDamageD = breakDamage.toDouble()
@@ -282,11 +291,9 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
             return
         }
 
-        val shouldSwitch = switchMode.activeChoice.shouldSwitch(mineTarget)
-        if (shouldSwitch && ModuleAutoTool.running) {
-            ModuleAutoTool.switchToBreakBlock(mineTarget.targetPos)
-        } else if (shouldSwitch) {
-            SilentHotbar.selectSlotSilently(this, slot.firstInt(), 1)
+        val switchMode = switchMode.activeChoice
+        if (switchMode.shouldSwitch(mineTarget)) {
+            switchMode.getSwitchingMethod().switch(slot, mineTarget)
         }
     }
 
