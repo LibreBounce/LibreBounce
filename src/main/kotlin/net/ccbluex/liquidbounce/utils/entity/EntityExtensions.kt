@@ -50,6 +50,7 @@ import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.entity.mob.CreeperEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.vehicle.TntMinecartEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.item.consume.UseAction
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket
@@ -423,6 +424,9 @@ fun LivingEntity.getExplosionDamageFromEntity(entity: Entity): Float {
         else -> 0f
     }
 }
+
+val LivingEntity.handItems
+    get() = listOf(this.mainHandStack, this.offHandStack)
 
 /**
  * See [ExplosionBehavior.calculateDamage].
