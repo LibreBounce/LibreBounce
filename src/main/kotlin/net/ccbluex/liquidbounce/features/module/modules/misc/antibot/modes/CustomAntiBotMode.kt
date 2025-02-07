@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiB
 import net.ccbluex.liquidbounce.utils.item.material
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ArmorItem
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.Item
 import net.minecraft.item.equipment.ArmorMaterials
 import net.minecraft.item.equipment.EquipmentType
@@ -102,8 +102,8 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         ).also { it.reversedArray().onEach(::tree) }
 
         fun isValid(entity: PlayerEntity): Boolean {
-            return entity.armorItems.withIndex().all { (index, armor) ->
-                values[index].let { !it.enabled || it.isValid(armor.item) }
+            return PlayerInventory.equipmentSlots.all { (index, armor) ->
+                values[index].let { !it.enabled || it.isValid(entity.inventory.getStack(armor.index).item) }
             }
         }
     }
@@ -177,7 +177,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 val entity = packet.getEntity(world) ?: return@handler
                 val id = entity.id
                 val currentValue = flyingSet.getOrDefault(id, 0)
-                if (entity.isOnGround && entity.prevY != entity.y) {
+                if (entity.isOnGround && entity.lastY != entity.y) {
                     flyingSet.put(id, currentValue + 1)
                 } else if (!entity.isOnGround && currentValue > 0) {
                     val newVL = currentValue / 2
