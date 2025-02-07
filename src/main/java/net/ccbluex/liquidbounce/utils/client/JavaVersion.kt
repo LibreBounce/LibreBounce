@@ -39,7 +39,7 @@ fun checkJavaVersion() {
                         MiscUtils.showMessageDialog(
                             title = "Warning",
                             message = "You are using an outdated version of Java 8.\n"
-                                    + "${LiquidBounce.CLIENT_NAME} might has bug with it.\n"
+                                    + "${LiquidBounce.CLIENT_NAME} might have bug with it.\n"
                                     + "Please update it or get a new one from $DOWNLOAD_PAGE.",
                             JOptionPane.WARNING_MESSAGE
                         )
