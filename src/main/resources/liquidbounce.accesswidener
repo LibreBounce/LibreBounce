@@ -96,7 +96,7 @@ accessible field net/minecraft/client/render/WorldRenderer blockBreakingProgress
 accessible field net/minecraft/entity/projectile/ProjectileEntity ownerUuid Ljava/util/UUID;
 
 accessible method net/minecraft/entity/LivingEntity getJumpVelocity ()F
-#accessible method net/minecraft/entity/LivingEntity computeFallDamage (FF)I
+accessible method net/minecraft/entity/LivingEntity computeFallDamage (DF)I
 
 accessible field net/minecraft/entity/mob/CreeperEntity explosionRadius I
 
