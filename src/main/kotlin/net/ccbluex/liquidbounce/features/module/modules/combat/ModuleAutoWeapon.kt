@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.AxeItem
-import net.minecraft.item.SwordItem
+import net.minecraft.registry.tag.ItemTags
 
 /**
  * AutoWeapon module
@@ -59,7 +59,7 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
         val filter: (WeaponItemFacet) -> Boolean
     ): NamedChoice {
         ANY("Any", { true }),
-        SWORD("Sword", { it.itemStack.item is SwordItem }),
+        SWORD("Sword", { it.itemStack.isIn(ItemTags.SWORDS) }),
         AXE("Axe", { it.itemStack.item is AxeItem }),
 
         /**
@@ -135,8 +135,8 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
         val bestSlot = Slots.Hotbar
             .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>() }
             .filter(
-                when {
-                    !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true
+                when { // TODO: find `blockedByShield`
+                    !isOlderThanOrEqual1_8 /*&& target?.blockedByShield(world.damageSources.playerAttack(player)) == true*/
                         -> againstShield.filter
 
                     else -> preferredWeapon.filter
