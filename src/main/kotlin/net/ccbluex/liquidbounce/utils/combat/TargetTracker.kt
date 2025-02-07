@@ -20,58 +20,22 @@ package net.ccbluex.liquidbounce.utils.combat
 
 import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.config.types.ValueType.*
-import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
-import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
 import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
-import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.entity.getActualHealth
+import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.player.PlayerEntity
-
-/**
- * A target tracker to choose the best enemy to attack
- */
-class TargetTracker(
-    defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
-    range: RangedValue<*>? = null
-) : TargetSelector(defaultPriority, range) {
-
-    var target: LivingEntity? = null
-        private set
-
-    fun select(entity: LivingEntity, reportToUI: Boolean = true) {
-        target = entity
-
-        if (entity is PlayerEntity && reportToUI) {
-            EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))
-        }
-    }
-
-    fun selectFirst() = enemies().firstOrNull()?.let { select(it) } ?: reset()
-
-    fun reset() {
-        target = null
-    }
-
-    fun validate(validator: ((LivingEntity) -> Boolean)? = null) {
-        val target = target ?: return
-
-        if (!validate(target) || validator != null && !validator(target)) {
-            reset()
-        }
-    }
-}
 
 open class TargetSelector(
     defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
     val range: RangedValue<*>? = null
 ) : Configurable("Target") {
 
-    var maximumSquaredDistance: Double = 0.0
+    var closestSquaredEnemyDistance: Double = 0.0
 
     private val fov by float("FOV", 180f, 0f..180f)
     private val hurtTime by int("HurtTime", 10, 0..10)
@@ -80,13 +44,13 @@ open class TargetSelector(
     /**
      * Update should be called to always pick the best target out of the current world context
      */
-    fun enemies(): List<LivingEntity> {
+    fun enemies(): MutableList<LivingEntity> {
         val entities = world.entities
             .asSequence()
             .filterIsInstance<LivingEntity>()
             .filter(::validate)
             // Sort by distance (closest first) - in case of tie at priority level
-            .sortedBy { it.boxedDistanceTo(player) }
+            .sortedBy { it.squaredBoxedDistanceTo(player) }
             .toMutableList()
 
         if (entities.isEmpty()) {
@@ -116,7 +80,7 @@ open class TargetSelector(
         }
 
         // Update max distance squared
-        maximumSquaredDistance = entities.minOf { it.squaredBoxedDistanceTo(player) }
+        closestSquaredEnemyDistance = entities.minOf { it.squaredBoxedDistanceTo(player) }
 
         return entities
     }

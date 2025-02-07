@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.Timer.timerSpeed
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
@@ -64,7 +65,7 @@ object ModuleTimerRange : ClientModule("TimerRange", Category.COMBAT) {
 
     val repeatable = tickHandler {
         if (onlyOnGround && !player.isOnGround) return@tickHandler
-        if (requiresKillAura && (!ModuleKillAura.running || ModuleKillAura.targetTracker.target == null)) {
+        if (requiresKillAura && (!ModuleKillAura.running || CombatManager.target == null)) {
             return@tickHandler
         }
 

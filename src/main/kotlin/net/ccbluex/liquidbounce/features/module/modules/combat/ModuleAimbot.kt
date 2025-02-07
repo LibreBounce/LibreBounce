@@ -19,23 +19,18 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
-import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
-import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.MathHelper
@@ -55,11 +50,10 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         tree(OnClick)
     }
 
-    private val targetTracker = tree(TargetTracker(
+    private val targetSelector = tree(TargetSelector(
         PriorityEnum.DIRECTION,
         float("Range", 4.2f, 1f..8f)
     ))
-    private val targetRenderer = tree(WorldTargetRenderer(this))
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
@@ -79,7 +73,6 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var playerRotation: Rotation? = null
 
     private val tickHandler = handler<RotationUpdateEvent> { _ ->
-        targetTracker.validate()
         playerRotation = player.rotation
 
         if (mc.options.attackKey.isPressed) {
@@ -103,22 +96,12 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
 
         // Update Auto Weapon
-        ModuleAutoWeapon.prepare(targetTracker.target)
-    }
-
-    override fun disable() {
-        targetTracker.reset()
-        super.disable()
+        ModuleAutoWeapon.prepare(CombatManager.target)
     }
 
     val renderHandler = handler<WorldRenderEvent> { event ->
-        val matrixStack = event.matrixStack
         val partialTicks = event.partialTicks
-        val target = targetTracker.target ?: return@handler
-
-        renderEnvironmentForWorld(matrixStack) {
-            targetRenderer.render(this, target, partialTicks)
-        }
+        CombatManager.target ?: return@handler
 
         if (!ignoreOpenScreen && mc.currentScreen != null) {
             return@handler
@@ -158,33 +141,27 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
     }
 
-    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? {
-        for (target in targetTracker.enemies()) {
-            val pointOnHitbox = pointTracker.gatherPoint(target,
-                PointTracker.AimSituation.FOR_NOW)
-
+    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? =
+        CombatManager.updateTarget(targetSelector) { target ->
+            val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)
             val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 
             val spot = raytraceBox(
                 pointOnHitbox.fromPoint,
                 pointOnHitbox.cutOffBox,
-                range = targetTracker.maxRange.toDouble(),
+                range = targetSelector.maxRange.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                pointOnHitbox.fromPoint, pointOnHitbox.box, range = targetTracker.maxRange.toDouble(),
+                pointOnHitbox.fromPoint, pointOnHitbox.box, range = targetSelector.maxRange.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
-            ) ?: continue
+            ) ?: return@updateTarget null
 
-            if (targetTracker.target != target) {
+            if (target != CombatManager.target) {
                 slowStart.onTrigger()
             }
-            targetTracker.select(target, false)
-            return target to spot
+            target to spot
         }
-
-        return null
-    }
 
 }

@@ -22,10 +22,10 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.clickScheduler
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.targetTracker
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.times
@@ -80,7 +80,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
     override fun createNavigationContext(): CombatContext {
         val playerPosition = player.pos
 
-        val combatTarget = targetTracker.target?.let { entity ->
+        val combatTarget = CombatManager.target?.let { entity ->
             val distance = playerPosition.distanceTo(entity.pos)
             val range = min(ModuleKillAura.range, distance.toFloat())
             val outOfDistance = distance > opponentRange
@@ -146,7 +146,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
      */
     override fun getMovementRotation(): Rotation {
         val movementRotation = super.getMovementRotation()
-        val movementPitch = targetTracker.target?.let { entity ->
+        val movementPitch = CombatManager.target?.let { entity ->
             Rotation.lookingAt(point = entity.box.center, from = player.eyePos).pitch
         } ?: return movementRotation
 

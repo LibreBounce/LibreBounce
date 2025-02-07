@@ -43,7 +43,7 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
 
     val clickScheduler = tree(ClickScheduler(this, true))
     val mode = choices("Mode", AStarMode, arrayOf(AStarMode, ImmediateMode))
-    val targetTracker = tree(TargetSelector(PriorityEnum.HURT_TIME))
+    val targetSelector = tree(TargetSelector(PriorityEnum.HURT_TIME))
 
     val stuckChronometer = Chronometer()
     var desyncPlayerPosition: Vec3d? = null
@@ -53,7 +53,7 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
         val position = desyncPlayerPosition ?: player.pos
 
         clickScheduler.clicks {
-            val enemy = targetTracker.enemies().firstOrNull {
+            val enemy = targetSelector.enemies().firstOrNull {
                 it.squaredBoxedDistanceTo(position) <= attackRange * attackRange
             } ?: return@clicks false
 

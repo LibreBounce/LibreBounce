@@ -23,30 +23,21 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
-import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.PointTracker
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.interactItem
-import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
+import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.Item
@@ -65,7 +56,6 @@ import net.minecraft.util.Hand
  */
 object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
-    private val range by floatRange("Range", 3.0f..6f, 1f..50f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
     private val gravityType by enumChoice("GravityType", GravityType.AUTO).apply { tagBy(this) }
 
@@ -74,7 +64,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     /**
      * The target tracker to find the best enemy to attack.
      */
-    internal val targetTracker = tree(TargetTracker(PriorityEnum.DISTANCE))
+    private val targetSelector = tree(TargetSelector(PriorityEnum.DISTANCE, floatRange("Range", 3.0f..6f, 1f..50f)))
     private val pointTracker = tree(
         PointTracker(
             lowestPointDefault = PointTracker.PreferredBoxPart.HEAD,
@@ -92,11 +82,6 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     private val rotationConfigurable = tree(RotationsConfigurable(this))
     private val aimOffThreshold by float("AimOffThreshold", 2f, 0.5f..10f)
 
-    /**
-     * The target renderer to render the target, which we are currently aiming at.
-     */
-    private val targetRenderer = tree(WorldTargetRenderer(this))
-
     private val selectSlotAutomatically by boolean("SelectSlotAutomatically", true)
     private val tickUntilSlotReset by int("TicksUntillSlotReset", 1, 0..20)
     private val considerInventory by boolean("ConsiderInventory", true)
@@ -111,10 +96,8 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val simulatedTickHandler = handler<RotationUpdateEvent> {
-        targetTracker.reset()
-
         // Find the recommended target
-        val target = targetTracker.enemies().firstOrNull {
+        val target = CombatManager.target ?: targetSelector.enemies().firstOrNull {
             // Check if we can see the enemy
             player.canSee(it)
         } ?: return@handler
@@ -124,10 +107,6 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
         }
 
         if (requiresKillAura && !ModuleKillAura.running) {
-            return@handler
-        }
-
-        if (target.boxedDistanceTo(player) !in range) {
             return@handler
         }
 
@@ -144,12 +123,12 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
 
+        CombatManager.selectTarget(target)
         // Set the rotation with the usage priority of 2.
         RotationManager.aimAt(
             rotationConfigurable.toAimPlan(rotation ?: return@handler, considerInventory = considerInventory),
             Priority.IMPORTANT_FOR_USAGE_2, this
         )
-        targetTracker.select(target)
     }
 
     /**
@@ -157,17 +136,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val handleAutoShoot = tickHandler {
-        val target = targetTracker.target ?: return@tickHandler
-
-        // Cannot happen but we want to smart-cast
-        @Suppress("USELESS_IS_CHECK")
-        if (target !is LivingEntity) {
-            return@tickHandler
-        }
-
-        if (target.boxedDistanceTo(player) !in range) {
-            return@tickHandler
-        }
+        val target = CombatManager.target ?: return@tickHandler
 
         if (notDuringCombat && CombatManager.isInCombat) {
             return@tickHandler
@@ -213,15 +182,6 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
                 RotationManager.serverRotation.yaw,
                 RotationManager.serverRotation.pitch
             ).isAccepted
-        }
-    }
-
-    val renderHandler = handler<WorldRenderEvent> { event ->
-        val matrixStack = event.matrixStack
-        val target = targetTracker.target ?: return@handler
-
-        renderEnvironmentForWorld(matrixStack) {
-            targetRenderer.render(this, target, event.partialTicks)
         }
     }
 

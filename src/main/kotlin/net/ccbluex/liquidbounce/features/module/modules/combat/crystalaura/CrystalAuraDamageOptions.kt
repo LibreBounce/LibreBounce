@@ -21,9 +21,9 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.player
-import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.targetTracker
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura.world
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.entity.getDamageFromExplosion
 import net.ccbluex.liquidbounce.utils.kotlin.LruCache
@@ -59,7 +59,7 @@ object CrystalAuraDamageOptions : Configurable("Damage") {
      * Approximates how favorable an explosion of a crystal at [pos] in a given [world] would be
      */ // TODO by equal positions take self min damage
     internal fun approximateExplosionDamage(pos: Vec3d, requestingSubmodule: RequestingSubmodule): Float? {
-        val target = targetTracker.target ?: return null
+        val target = CombatManager.target ?: return null
         val damageToTarget = target.getDamage(pos, requestingSubmodule, CheckedEntity.TARGET)
         val notEnoughDamage = damageToTarget.isSmallerThan(minEnemyDamage)
         if (notEnoughDamage) {

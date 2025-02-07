@@ -27,8 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.*
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
-import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.util.Hand
 
@@ -45,7 +44,7 @@ object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = array
 
     private val ignitionTrapPlanner = tree(IgnitionTrapPlanner(this))
     private val webTrapPlanner = tree(WebTrapPlanner(this))
-    val targetTracker = tree(TargetTracker(range = floatRange("Range", 3.0f..4.5f, 2f..6f)))
+    val targetSelector = tree(TargetSelector(range = floatRange("Range", 3.0f..4.5f, 2f..6f)))
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
 
     private var currentPlan: BlockChangeIntent<*>? = null
@@ -66,9 +65,7 @@ object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = array
             return@handler
         }
 
-        targetTracker.validate()
-
-        val enemies = targetTracker.enemies()
+        val enemies = targetSelector.enemies()
         TrapPlayerSimulation.runSimulations(enemies)
 
         currentPlan = webTrapPlanner.plan(enemies) ?: ignitionTrapPlanner.plan(enemies)

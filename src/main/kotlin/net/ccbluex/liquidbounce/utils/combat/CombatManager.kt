@@ -18,18 +18,100 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
-import net.ccbluex.liquidbounce.event.events.GameTickEvent
-import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.utils.client.player
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.player.PlayerEntity
 
 /**
- * A rotation manager
+ * Manages current target and combat flags
  */
 object CombatManager : EventListener {
 
-    val targetTracker = TargetTracker()
+    var target: LivingEntity? = null
+        private set
+
+    fun selectTarget(entity: LivingEntity, override: Boolean = false) {
+        val oldTarget = target
+
+        if (oldTarget == null || override) {
+            target = entity
+
+            if (entity != oldTarget && entity is PlayerEntity) {
+                EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))
+            }
+        }
+    }
+
+    fun <R> updateTarget(targetSelector: TargetSelector, evaluator: (LivingEntity) -> R): R? =
+        updateTarget(targetSelector.enemies(), evaluator)
+
+    /**
+     * Updates [target] with [evaluator]. Tries the current target first, then loops through the provided
+     * list of [enemies] and checks if any of them is valid. Returning *null* in [evaluator] means it isn't.
+     * @return The value provided by [evaluator] of the found target (e.g. A rotation towards it)
+     */
+    fun <R> updateTarget(enemies: List<LivingEntity>, evaluator: (LivingEntity) -> R): R? {
+        val oldTarget = target
+
+        if (oldTarget != null) {
+            val value = evaluator(oldTarget)
+            if (value != null) {
+                return value
+            }
+        }
+
+        for (enemy in enemies) {
+            val value = evaluator(enemy)
+            if (value != null) {
+                selectTarget(enemy, true)
+                return value
+            }
+        }
+
+        return null
+    }
+
+    fun resetTarget() {
+        target = null
+    }
+
+    private fun validateTarget() {
+        val target = target ?: return
+
+        if (target == player || player.isDead || target.isRemoved || !target.shouldBeAttacked()) {
+            resetTarget()
+        }
+    }
+
+    @Suppress("unused")
+    val attackHandler = handler<AttackEntityEvent> {
+        if (it.entity is LivingEntity && it.entity.shouldBeAttacked()) {
+            // 40 ticks = 2 seconds
+            duringCombat = 40
+            selectTarget(it.entity, true)
+        }
+    }
+
+    @Suppress("unused")
+    val renderHandler = handler<WorldRenderEvent> { event ->
+        val matrixStack = event.matrixStack
+        val target = target ?: return@handler
+
+        renderEnvironmentForWorld(matrixStack) {
+            ModuleTargets.targetRenderer.render(this, target, event.partialTicks)
+        }
+    }
+
+    @Suppress("unused")
+    val deathHandler = handler<DeathEvent> { resetTarget() }
+
+    @Suppress("unused")
+    val handleWorldChange = handler<WorldChangeEvent> { resetTarget() }
 
     // useful for something like autoSoup
     private var pauseCombat: Int = 0
@@ -64,14 +146,12 @@ object CombatManager : EventListener {
         if (duringCombat <= 0) return
 
         if (--duringCombat == 0) {
-            targetTracker.reset()
+            resetTarget()
         }
     }
 
-    /**
-     * Update current rotation to new rotation step
-     */
     fun update() {
+        validateTarget()
         updatePauseRotation()
         updatePauseCombat()
         // TODO: implement this for killaura autoblock and other
@@ -83,34 +163,25 @@ object CombatManager : EventListener {
         update()
     }
 
-    @Suppress("unused")
-    val attackHandler = handler<AttackEntityEvent> {
-        if (it.entity is LivingEntity && it.entity.shouldBeAttacked()) {
-            // 40 ticks = 2 seconds
-            duringCombat = 40
-            targetTracker.select(it.entity)
-        }
-    }
-
     val shouldPauseCombat: Boolean
-        get() = this.pauseCombat > 0
+        get() = pauseCombat > 0
     val shouldPauseRotation: Boolean
-        get() = this.pauseRotation > 0
+        get() = pauseRotation > 0
     val shouldPauseBlocking: Boolean
-        get() = this.pauseBlocking > 0
+        get() = pauseBlocking > 0
     val isInCombat: Boolean
-        get() = this.duringCombat > 0 || targetTracker.target != null
+        get() = duringCombat > 0 || target != null
 
     fun pauseCombatForAtLeast(pauseTime: Int) {
-        this.pauseCombat = this.pauseCombat.coerceAtLeast(pauseTime)
+        pauseCombat = pauseCombat.coerceAtLeast(pauseTime)
     }
 
     fun pauseRotationForAtLeast(pauseTime: Int) {
-        this.pauseRotation = this.pauseRotation.coerceAtLeast(pauseTime)
+        pauseRotation = pauseRotation.coerceAtLeast(pauseTime)
     }
 
     fun pauseBlockingForAtLeast(pauseTime: Int) {
-        this.pauseBlocking = this.pauseBlocking.coerceAtLeast(pauseTime)
+        pauseBlocking = pauseBlocking.coerceAtLeast(pauseTime)
     }
 
 }

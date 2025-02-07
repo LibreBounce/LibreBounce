@@ -132,7 +132,7 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
             }
 
             // Get the target entity, requires a locked target
-            val target = CombatManager.targetTracker.target ?: return@handler
+            val target = CombatManager.target ?: return@handler
             val distance = sqrt((player.pos.x - target.pos.x).pow(2.0) + (player.pos.z - target.pos.z).pow(2.0))
 
             // return if we're too far

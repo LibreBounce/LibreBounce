@@ -22,10 +22,10 @@ import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair
 import it.unimi.dsi.fastutil.doubles.DoubleObjectPair
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.*
-import net.ccbluex.liquidbounce.features.module.modules.world.traps.ModuleAutoTrap.targetTracker
 import net.ccbluex.liquidbounce.utils.block.collidingRegion
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
@@ -50,20 +50,17 @@ class IgnitionTrapPlanner(parent: EventListener) : TrapPlanner<IgnitionTrapPlann
     override fun plan(enemies: List<LivingEntity>): BlockChangeIntent<IgnitionIntentData>? {
         val slot = findItemToIgnite() ?: return null
 
-        for (target in enemies) {
+        return CombatManager.updateTarget(enemies) { target ->
             if (target.isOnFire) {
-                continue
+                return@updateTarget null
             }
             val targetPos = TrapPlayerSimulation.findPosForTrap(
-                target,
-                isTargetLocked = targetTracker.target == target
-            ) ?: continue
+                target, isTargetLocked = CombatManager.target == target
+            ) ?: return@updateTarget null
 
-            val placementTarget = generatePlacementInfo(targetPos, target, slot) ?: continue
+            val placementTarget = generatePlacementInfo(targetPos, target, slot) ?: return@updateTarget null
 
-            targetTracker.select(target)
-
-            return BlockChangeIntent(
+            BlockChangeIntent(
                 BlockChangeInfo.PlaceBlock(placementTarget ),
                 slot,
                 IntentTiming.NEXT_PROPITIOUS_MOMENT,
@@ -71,8 +68,6 @@ class IgnitionTrapPlanner(parent: EventListener) : TrapPlanner<IgnitionTrapPlann
                 this
             )
         }
-
-        return null
     }
 
     private fun generatePlacementInfo(
@@ -186,7 +181,7 @@ class IgnitionTrapPlanner(parent: EventListener) : TrapPlanner<IgnitionTrapPlann
     }
 
     override fun onIntentFullfilled(intent: BlockChangeIntent<IgnitionIntentData>) {
-        targetTracker.select(intent.planningInfo.target, reportToUI = false)
+        CombatManager.resetTarget()
     }
 
     private fun findItemToIgnite(): HotbarItemSlot? {

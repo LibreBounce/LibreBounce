@@ -25,9 +25,13 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.combat.visualTargetsConfigurable
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 
 object ModuleTargets : ClientModule("Targets", Category.CLIENT, notActivatable = true, hide = true,
     aliases = arrayOf("Enemies")) {
+
+    val targetRenderer = tree(WorldTargetRenderer(this))
+
     init {
         tree(combatTargetsConfigurable)
         tree(visualTargetsConfigurable)
