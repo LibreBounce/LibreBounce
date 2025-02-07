@@ -44,7 +44,7 @@ class SpeedVulcanGround286(override val parent: ChoiceConfigurable<*>) : SpeedBH
         if (player.moving && collidesBottomVertical() && !mc.options.jumpKey.isPressed) {
             val speedEffect = player.getStatusEffect(StatusEffects.SPEED)
             val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0
-            val isMovingSideways = player.input.movementSideways != 0f
+            val isMovingSideways = player.input.playerInput.right || player.input.playerInput.left
 
             val strafe = when {
                 isAffectedBySpeed -> 0.59
