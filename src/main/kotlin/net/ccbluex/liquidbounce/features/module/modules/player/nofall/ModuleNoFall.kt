@@ -34,7 +34,6 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
 
     internal val modes = choices(
         "Mode", NoFallSpoofGround, arrayOf(
-            NoFallCancel,
             NoFallSpoofGround,
             NoFallNoGround,
             NoFallPacket,
@@ -46,6 +45,7 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             NoFallVulcanTP,
             NoFallVerus,
             NoFallForceJump,
+            NoFallCancel,
             NoFallBlink,
             NoFallHypixelPacket,
             NoFallHypixel,
