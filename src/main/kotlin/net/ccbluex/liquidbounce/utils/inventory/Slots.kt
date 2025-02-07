@@ -43,7 +43,7 @@ object Slots {
             val miningSpeedMultiplier = slot.itemStack.getMiningSpeedMultiplier(blockState)
 
             // The current slot already matches the best
-            if (miningSpeedMultiplier == player.inventory.mainHandStack.getMiningSpeedMultiplier(blockState)) {
+            if (miningSpeedMultiplier == player.mainHandStack.getMiningSpeedMultiplier(blockState)) {
                 return null
             }
 
