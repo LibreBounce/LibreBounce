@@ -83,6 +83,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     private var blockHitDelay = 0
     private val switchTimer = MSTimer()
     var currentDamage = 0F
+    var isOwnBed = false
 
     // Surroundings
     private var areSurroundings = false
@@ -95,6 +96,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         currentDamage = 0F
         pos = null
         areSurroundings = false
+        isOwnBed = false
     }
 
     val onPacket = handler<PacketEvent> { event ->
@@ -126,6 +128,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         if (pos == null) {
             currentDamage = 0F
             areSurroundings = false
+            isOwnBed = false
             return@handler
         }
 
@@ -133,7 +136,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
         var spot = faceBlock(currentPos) ?: return@handler
 
         // Check if it is the player's own bed
-        if (ignoreOwnBed && isBedNearSpawn(currentPos)) {
+        isOwnBed = ignoreOwnBed && isBedNearSpawn(currentPos)
+        if (isOwnBed) {
             return@handler
         }
 
@@ -212,7 +216,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
             // Destroy block
             action == "Destroy" || areSurroundings -> {
                 // Check if it is the player's own bed
-                if (ignoreOwnBed && isBedNearSpawn(currentPos)) {
+                isOwnBed = ignoreOwnBed && isBedNearSpawn(currentPos)
+                if (isOwnBed) {
                     return@loopHandler
                 }
 
@@ -297,7 +302,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
         val pos = pos ?: return@handler
 
         // Check if it is the player's own bed
-        if (mc.thePlayer == null || ignoreOwnBed && isBedNearSpawn(pos)) {
+        isOwnBed = ignoreOwnBed && isBedNearSpawn(pos)
+        if (mc.thePlayer == null || isOwnBed) {
             return@handler
         }
 
