@@ -81,8 +81,8 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC, disabl
             }.onSuccess { path ->
                 val text = path.asText().styled {
                     it.withUnderline(true)
-                        .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, regular("Browse...")))
-                        .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_FILE, path.toString()))
+                        .withHoverEvent(HoverEvent.ShowText(regular("Browse...")))
+                        .withClickEvent(ClickEvent.OpenFile(path.toString()))
                 }
 
                 chat(regular("Log was written to "), text, regular("."))
