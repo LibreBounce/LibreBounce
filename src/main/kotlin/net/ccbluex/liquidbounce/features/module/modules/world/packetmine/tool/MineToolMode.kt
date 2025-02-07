@@ -16,16 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
+package net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.SelectHotbarSlotSilentlyEvent
-import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleAutoTool
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.MineTarget
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.item.getEnchantment
@@ -36,68 +35,8 @@ import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.ItemStack
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
-import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket
 import net.minecraft.registry.tag.FluidTags
 import net.minecraft.util.math.BlockPos
-
-object AlwaysToolMode : MineToolMode("Always", syncOnStart = true) {
-
-    private val abortOnSwitch by boolean("AbortOnSwitch", true)
-    private val cancelAutomaticSwitching by boolean("CancelAutomaticSwitching", true)
-
-    @Suppress("unused")
-    private val packetHandler  = handler<PacketEvent> { event ->
-        mc.execute {
-            val target = ModulePacketMine._target ?: return@execute
-            if (!abortOnSwitch || !target.started) {
-                return@execute
-            }
-
-            val packet = event.packet
-            val serverInitiatedSwitch = packet is UpdateSelectedSlotS2CPacket &&
-                packet.slot == getSlot(target.blockState)?.firstInt()
-            val clientInitiatedSwitch = packet is UpdateSelectedSlotC2SPacket &&
-                packet.selectedSlot == getSlot(target.blockState)?.firstInt()
-            if (serverInitiatedSwitch || clientInitiatedSwitch) {
-                ModulePacketMine._resetTarget()
-            }
-        }
-    }
-
-    @Suppress("unused")
-    private val silentSwitchHandler = handler<SelectHotbarSlotSilentlyEvent> { event ->
-        val target = ModulePacketMine._target ?: return@handler
-
-        val requester = event.requester
-        val fromPacketMine = requester == ModulePacketMine
-        val fromAutoTool = requester == ModuleAutoTool && event.slot == getSlot(target.blockState)?.firstInt()
-        if (cancelAutomaticSwitching && target.started && !fromPacketMine && !fromAutoTool) {
-            event.cancelEvent()
-        }
-    }
-
-    override fun shouldSwitch(mineTarget: MineTarget) = true
-
-}
-
-object PostStartToolMode : MineToolMode("PostStart") {
-
-    override fun shouldSwitch(mineTarget: MineTarget) = true
-
-}
-
-object OnStopToolMode : MineToolMode("OnStop") {
-
-    override fun shouldSwitch(mineTarget: MineTarget) = mineTarget.progress >= ModulePacketMine.breakDamage
-
-}
-
-object NeverToolMode : MineToolMode("Never", switchesNever = true) {
-
-    override fun shouldSwitch(mineTarget: MineTarget) = false
-
-}
 
 /**
  * Determines when to switch to a tool and calculates the breaking process delta.
@@ -110,6 +49,8 @@ abstract class MineToolMode(
 ) : Choice(choiceName), MinecraftShortcuts {
 
     abstract fun shouldSwitch(mineTarget: MineTarget): Boolean
+
+    open fun getSwitchingMethod() = SwitchMethod.NORMAL
 
     fun getBlockBreakingDelta(pos: BlockPos, state: BlockState, itemStack: ItemStack?): Float {
         if (switchesNever || itemStack == null) {
