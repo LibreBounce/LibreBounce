@@ -24,8 +24,10 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.UV2f
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.minecraft.client.gl.GlUsage
 import net.minecraft.client.gl.ShaderProgramKey
 import net.minecraft.client.gl.ShaderProgramKeys
+import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.*
 import net.minecraft.client.render.VertexFormat.DrawMode
 import net.minecraft.util.math.Box
@@ -66,6 +68,7 @@ class RenderBufferBuilder<I : VertexInputType>(
 ) {
     // Begin drawing lines with position format
     val buffer: BufferBuilder = tesselator.begin(drawMode, vertexFormat.vertexFormat)
+    val vertexBuffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
 
     /**
      * Function to draw a solid box using the specified [box].
@@ -109,7 +112,8 @@ class RenderBufferBuilder<I : VertexInputType>(
 
         RenderSystem.setShader(vertexFormat.shaderProgram)
 
-        BufferRenderer.drawWithGlobalProgram(built)
+        vertexBuffer.upload(built)
+        vertexBuffer.draw()
         tesselator.clear()
     }
 
