@@ -23,8 +23,8 @@ import net.minecraft.client.network.ClientPlayerEntity
 
 fun ClientPlayerEntity.setRotation(rotation: Rotation) {
     rotation.normalize().let { normalizedRotation ->
-        prevPitch = pitch
-        prevYaw = yaw
+        lastPitch = pitch
+        lastYaw = yaw
         renderYaw = yaw
         lastRenderYaw = yaw
 
