@@ -43,9 +43,9 @@ import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
+import net.minecraft.registry.tag.ItemTags
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import org.lwjgl.glfw.GLFW
@@ -281,7 +281,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
                     return false
                 }
 
-                return player.mainHandStack.item is SwordItem || !Strength.onlyWhileHoldingSword
+                return player.mainHandStack.isIn(ItemTags.SWORDS) || !Strength.onlyWhileHoldingSword
             }
 
             override fun getSlot(): ItemSlot? {
@@ -298,7 +298,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
                     return false
                 }
 
-                if (player.mainHandStack.item is SwordItem && Gapple.WhileHoldingSword.enabled) {
+                if (player.mainHandStack.isIn(ItemTags.SWORDS) && Gapple.WhileHoldingSword.enabled) {
                     return if (Gapple.WhileHoldingSword.onlyWhileKa) {
                         ModuleKillAura.running
                     } else {
