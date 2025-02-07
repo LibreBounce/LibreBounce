@@ -146,8 +146,8 @@ object ModuleTeams : ClientModule("Teams", Category.MISC) {
      * the [player] matches the user's armor color in the same slot.
      */
     private fun matchesArmorColor(player: PlayerEntity, armorSlot: Int): Boolean {
-        val ownStack = this.player.inventory.getArmorStack(armorSlot)
-        val otherStack = player.inventory.getArmorStack(armorSlot)
+        val ownStack = this.player.inventory.getStack(armorSlot)
+        val otherStack = player.inventory.getStack(armorSlot)
 
         // returns false if the armor is not dyeable (e.g., iron armor)
         // to avoid a false positive from `null == null`
