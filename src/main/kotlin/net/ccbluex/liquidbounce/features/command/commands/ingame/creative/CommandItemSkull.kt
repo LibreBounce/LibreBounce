@@ -51,7 +51,8 @@ object CommandItemSkull : CommandFactory, MinecraftShortcuts {
             .handler { command, args ->
                 val name = args[0] as String
 
-                if (mc.interactionManager?.hasCreativeInventory() == false) {
+                // TODO: replace this hack fix
+                if (mc.interactionManager?.gameMode?.isCreative == false) {
                     throw CommandException(command.result("mustBeCreative"))
                 }
 
