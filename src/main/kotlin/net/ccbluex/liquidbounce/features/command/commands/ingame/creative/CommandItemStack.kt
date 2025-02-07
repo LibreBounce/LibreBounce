@@ -46,9 +46,11 @@ object CommandItemStack : CommandFactory, MinecraftShortcuts {
             .requiresIngame()
             .parameter(amountParameter)
             .handler { command, args ->
+                // TODO: find hasCreativeInventory
+                /*
                 if (mc.interactionManager?.hasCreativeInventory() == false) {
                     throw CommandException(command.result("mustBeCreative"))
-                }
+                }*/
 
                 val mainHandStack = player.mainHandStack
                 if (mainHandStack.isEmpty) {
