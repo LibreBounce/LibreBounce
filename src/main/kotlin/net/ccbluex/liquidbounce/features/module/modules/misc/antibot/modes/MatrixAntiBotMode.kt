@@ -27,10 +27,11 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiB
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isGameProfileUnique
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ArmorItem
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket
+import net.minecraft.registry.tag.ItemTags
 import java.util.*
 
 object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
@@ -84,7 +85,8 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
             var armor: MutableIterable<ItemStack>? = null
 
             if (!isFullyArmored(entity)) {
-                armor = entity.armorItems
+                // TODO: please work
+                armor = PlayerInventory.equipmentSlots.values.iterator().iterator() as MutableIterable<ItemStack>
                 waitTicks(1)
             }
 
@@ -98,8 +100,9 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
 
     private fun isFullyArmored(entity: PlayerEntity): Boolean {
         return (0..3).all {
-            val stack = entity.inventory.getArmorStack(it)
-            stack.item is ArmorItem && stack.hasEnchantments()
+            val stack = entity.inventory.getStack(it)
+            // TODO: please works
+            stack.isIn(ItemTags.ARMOR_ENCHANTABLE) && stack.hasEnchantments()
         }
     }
 
@@ -110,7 +113,7 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
      * With the help of at least 1 tick of waiting time, this function patches this "trick".
      */
     private fun updatesArmor(entity: PlayerEntity, prevArmor: MutableIterable<ItemStack>?): Boolean {
-        return prevArmor != entity.armorItems
+        return prevArmor != PlayerInventory.equipmentSlots
     }
 
     override fun isBot(entity: PlayerEntity): Boolean {
