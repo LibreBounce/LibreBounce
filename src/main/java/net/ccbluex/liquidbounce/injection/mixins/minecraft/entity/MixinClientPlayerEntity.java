@@ -48,8 +48,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -248,14 +248,14 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
     private void hookCustomMultiplier(CallbackInfo callbackInfo) {
         final Input input = this.input;
         // reverse
-        input.movementForward /= 0.2f;
-        input.movementSideways /= 0.2f;
+        // TODO: please work #1
+        input.movementVector = new Vec2f(input.movementVector.x / 0.2f, input.movementVector.y / 0.2f);
 
         // then
         final PlayerUseMultiplier playerUseMultiplier = new PlayerUseMultiplier(0.2f, 0.2f);
         EventManager.INSTANCE.callEvent(playerUseMultiplier);
-        input.movementForward *= playerUseMultiplier.getForward();
-        input.movementSideways *= playerUseMultiplier.getSideways();
+        // TODO: please work #2
+        input.movementVector = new Vec2f(playerUseMultiplier.getForward(), playerUseMultiplier.getSideways());
     }
 
     /**
