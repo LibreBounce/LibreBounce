@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.ccbluex.liquidbounce.utils.sorting.compareByCondition
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.enchantment.Enchantments
-import net.minecraft.item.SwordItem
 import net.minecraft.registry.tag.ItemTags
 import kotlin.math.ceil
 import kotlin.math.pow
