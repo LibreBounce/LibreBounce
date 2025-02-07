@@ -77,7 +77,7 @@ val Entity.netherPosition: Vec3d
     }
 
 val ClientPlayerEntity.moving
-    get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
+    get() = input.playerInput.any
 
 val Input.untransformed: PlayerInput
     get() = (this as InputAddition).`liquid_bounce$getUntransformed`()
@@ -249,7 +249,7 @@ fun Vec3d.withStrafe(
 }
 
 val Entity.prevPos: Vec3d
-    get() = Vec3d(this.prevX, this.prevY, this.prevZ)
+    get() = Vec3d(this.lastX, this.lastY, this.lastZ)
 
 val Entity.rotation: Rotation
     get() = Rotation(this.yaw, this.pitch, true)
@@ -303,8 +303,8 @@ fun Entity.interpolateCurrentRotation(tickDelta: Float): Rotation {
     }
 
     return Rotation(
-        this.prevYaw + (this.yaw - this.prevYaw) * tickDelta,
-        this.prevPitch + (this.pitch - this.prevPitch) * tickDelta,
+        this.lastYaw + (this.yaw - this.lastYaw) * tickDelta,
+        this.lastPitch + (this.pitch - this.lastPitch) * tickDelta,
     )
 }
 
@@ -401,8 +401,9 @@ fun LivingEntity.getEffectiveDamage(source: DamageSource, damage: Float, ignoreS
         return 0.0F
 
 
-    if (!ignoreShield && blockedByShield(source))
-        return 0.0F
+//    TODO: fix this
+//    if (!ignoreShield && blockedByShield(source))
+//        return 0.0F
 
     // Do we need to take the timeUntilRegen mechanic into account?
 
