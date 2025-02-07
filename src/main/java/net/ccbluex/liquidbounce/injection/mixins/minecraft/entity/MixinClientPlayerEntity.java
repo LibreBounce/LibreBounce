@@ -49,6 +49,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -233,7 +234,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
     /**
      * Hook custom sneaking multiplier
      */
-    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttributeValue(Lnet/minecraft/registry/entry/RegistryEntry;)D"))
+    @ModifyExpressionValue(method = "applyMovementSpeedFactors", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttributeValue(Lnet/minecraft/registry/entry/RegistryEntry;)D"))
     private double hookCustomSneakingMultiplier(double original) {
         var playerSneakMultiplier = new PlayerSneakMultiplier(original);
         EventManager.INSTANCE.callEvent(playerSneakMultiplier);
@@ -336,14 +337,14 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
         return ModuleSprint.INSTANCE.getShouldIgnoreHunger() ? -1F : constant;
     }
 
-    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z"))
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/PlayerInput;sprint()Z"))
     private boolean hookSprintStart(boolean original) {
         var event = new SprintEvent(new DirectionalInput(input), original, SprintEvent.Source.MOVEMENT_TICK);
         EventManager.INSTANCE.callEvent(event);
         return event.getSprint();
     }
 
-    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;canSprint()Z"))
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;canStartSprinting()Z"))
     private boolean hookSprintStop(boolean original) {
         var event = new SprintEvent(new DirectionalInput(input), original, SprintEvent.Source.MOVEMENT_TICK);
         EventManager.INSTANCE.callEvent(event);
@@ -355,23 +356,25 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
         return !ModuleSprint.INSTANCE.getShouldIgnoreBlindness() && original;
     }
 
-    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/client/network/ClientPlayerEntity;horizontalCollision:Z"))
-    private boolean hookSprintIgnoreCollision(boolean original) {
-        return !ModuleSprint.INSTANCE.getShouldIgnoreCollision() && original;
-    }
+//    TODO: fix this
+//    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;horizontalCollision:Z"))
+//    private boolean hookSprintIgnoreCollision(boolean original) {
+//        return !ModuleSprint.INSTANCE.getShouldIgnoreCollision() && original;
+//    }
 
-    @ModifyReturnValue(method = "isWalking", at = @At("RETURN"))
-    private boolean hookIsWalking(boolean original) {
-        if (!ModuleSprint.INSTANCE.getShouldSprintOmnidirectional()) {
-            return original;
-        }
-
-        var hasMovement = Math.abs(input.movementForward) > 1.0E-5F ||
-                Math.abs(input.movementSideways) > 1.0E-5F;
-        var isWalking = (double) Math.abs(input.movementForward) >= 0.8 ||
-                (double) Math.abs(input.movementSideways) >= 0.8;
-        return this.isSubmergedInWater() ? hasMovement : isWalking;
-    }
+//    TODO: also fix this
+//    @ModifyReturnValue(method = "isWalking", at = @At("RETURN"))
+//    private boolean hookIsWalking(boolean original) {
+//        if (!ModuleSprint.INSTANCE.getShouldSprintOmnidirectional()) {
+//            return original;
+//        }
+//
+//        var hasMovement = Math.abs(input.movementForward) > 1.0E-5F ||
+//                Math.abs(input.movementSideways) > 1.0E-5F;
+//        var isWalking = (double) Math.abs(input.movementForward) >= 0.8 ||
+//                (double) Math.abs(input.movementSideways) >= 0.8;
+//        return this.isSubmergedInWater() ? hasMovement : isWalking;
+//    }
 
     @ModifyExpressionValue(method = "sendSprintingPacket", at = @At(
             value = "INVOKE",
