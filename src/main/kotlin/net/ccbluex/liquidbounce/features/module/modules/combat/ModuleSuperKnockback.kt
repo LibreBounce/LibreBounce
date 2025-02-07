@@ -185,13 +185,15 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
             return false
         }
 
-        if (notInWater && player.isInsideWaterOrBubbleColumn) {
+        // TODO: probably works but I probably should revisit this
+        if (notInWater && player.isSubmergedInWater) {
             return false
         }
 
         if (OnlyOnMove.enabled) {
-            val isMovingSideways = player.input.movementSideways != 0f
-            val isMoving = player.input.movementForward != 0f || isMovingSideways
+            // TODO: probably should revisit this?
+            val isMovingSideways = player.input.playerInput.left || player.input.playerInput.right
+            val isMoving = player.input.playerInput.forward || player.input.playerInput.backward || isMovingSideways
 
             if (!isMoving || (OnlyOnMove.onlyForward && isMovingSideways)) {
                 return false
