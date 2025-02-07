@@ -264,7 +264,7 @@ object ModuleHoleFiller : ClientModule("HoleFiller", Category.WORLD), HoleManage
 
     private fun isMovingTowardsHole(hole: Hole, entity: Entity): BooleanDoubleImmutablePair {
         val holePos = hole.positions.from.toCenterPos()
-        val velocity = entity.pos.subtract(entity.prevX, entity.prevY, entity.prevZ)
+        val velocity = entity.pos.subtract(entity.lastX, entity.lastY, entity.lastZ)
         val playerPos = entity.pos
 
         val normalizedVelocity = Vector2d(velocity.x, velocity.z).normalize()
