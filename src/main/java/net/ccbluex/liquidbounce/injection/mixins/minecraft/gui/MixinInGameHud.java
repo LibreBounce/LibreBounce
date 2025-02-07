@@ -76,7 +76,7 @@ public abstract class MixinInGameHud {
      */
     @Inject(method = "renderMainHud", at = @At("HEAD"))
     private void hookRenderEventStart(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        UiRenderer.INSTANCE.startUIOverlayDrawing(context, tickCounter.getTickDelta(false));
+        UiRenderer.INSTANCE.startUIOverlayDrawing(context, tickCounter.getTickProgress(false));
 
         // Draw after overlay event
         var component = ComponentOverlay.getComponentWithTweak(FeatureTweak.TWEAK_HOTBAR);
