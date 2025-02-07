@@ -27,12 +27,13 @@ import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ShieldItem
-import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
+import net.minecraft.registry.tag.ItemTags
 import net.minecraft.util.Hand
 
 /**
  * This module allows the user to block with swords. This makes sense to be used on servers with ViaVersion.
+ * TODO: should we use the datapack stuff added in 1.21.5?
  */
 object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = arrayOf("OldBlocking")) {
 
@@ -46,7 +47,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
         offHandItem: Item = player.offHandStack.item,
         mainHandItem: Item = player.mainHandStack.item,
     ) = (running || KillAuraAutoBlock.blockVisual) && offHandItem is ShieldItem
-        && (mainHandItem is SwordItem || player === this.player && running && alwaysHideShield)
+        && (mainHandItem.defaultStack.isIn(ItemTags.SWORDS) || player === this.player && running && alwaysHideShield)
 
     @Suppress("UNUSED")
     private val packetHandler = sequenceHandler<PacketEvent> {
@@ -65,7 +66,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
             val hand = packet.hand
             val itemInHand = player.getStackInHand(hand) // or activeItem
 
-            if (hand == Hand.MAIN_HAND && itemInHand.item is SwordItem) {
+            if (hand == Hand.MAIN_HAND && itemInHand.isIn(ItemTags.SWORDS)) {
                 val offHandItem = player.getStackInHand(Hand.OFF_HAND)
                 if (offHandItem?.item !is ShieldItem) {
                     // Until "now" we should get a shield from the server
