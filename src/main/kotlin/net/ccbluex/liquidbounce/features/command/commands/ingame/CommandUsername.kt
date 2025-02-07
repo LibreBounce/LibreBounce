@@ -48,8 +48,8 @@ object CommandUsername : CommandFactory, MinecraftShortcuts {
                     it
                         .withItalic(true)
                         .withUnderline(true)
-                        .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, regular("Copy username")))
-                        .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, username))
+                        .withHoverEvent(HoverEvent.ShowText(regular("Copy username")))
+                        .withClickEvent(ClickEvent.CopyToClipboard(username))
                 }
 
                 chat(regular(command.result("username", formattedUsernameWithEvents)), command)
