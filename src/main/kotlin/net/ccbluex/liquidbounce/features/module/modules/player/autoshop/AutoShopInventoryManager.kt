@@ -26,6 +26,8 @@ import net.ccbluex.liquidbounce.utils.item.getPotionEffects
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.incrementOrSet
 import net.ccbluex.liquidbounce.utils.kotlin.sumValues
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.ItemStack
 import net.minecraft.item.PotionItem
 import net.minecraft.registry.Registries
 
@@ -38,9 +40,10 @@ class AutoShopInventoryManager : EventListener {
     @Suppress("unused")
     // update the items from the player's inventory every tick
     private val onTick = handler<GameTickEvent> {
-        val inventoryItems = player.inventory.main.toMutableList().apply {
-            addAll(player.inventory.armor)
-            addAll(player.inventory.offHand)
+        val inventoryItems = player.inventory.mainStacks.toMutableList().apply {
+            // TODO: please work lo
+            addAll(PlayerInventory.equipmentSlots.values as Collection<ItemStack>)
+            addAll(listOf(player.offHandStack))
         }
 
         val newItems = mutableMapOf<String, Int>()
