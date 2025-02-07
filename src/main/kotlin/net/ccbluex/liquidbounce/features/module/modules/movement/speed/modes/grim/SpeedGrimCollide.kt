@@ -26,7 +26,9 @@ class SpeedGrimCollide(override val parent: ChoiceConfigurable<*>) : Choice("Gri
      */
     @Suppress("unused")
     private val tickHandler = handler<PlayerTickEvent> {
-        if (player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f) {
+        if (!(player.input.playerInput.forward || player.input.playerInput.backward)
+            && !(player.input.playerInput.left || player.input.playerInput.right)
+        ) {
             return@handler
         }
 
