@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.ClickEvent
+import net.minecraft.text.ClickEvent.CopyToClipboard
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 
@@ -91,14 +92,12 @@ object CommandConfig : CommandFactory {
                         variable(settingName).styled { style ->
                             style
                                 .withClickEvent(
-                                    ClickEvent(
-                                        ClickEvent.Action.SUGGEST_COMMAND,
+                                    CopyToClipboard(
                                         ".config load $settingName"
                                     )
                                 )
                                 .withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         Text.of("§7Click to load $settingName")
                                     )
                                 )
@@ -111,8 +110,7 @@ object CommandConfig : CommandFactory {
                             style
                                 .withFormatting(it.statusType.formatting)
                                 .withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         Text.of(it.statusDateFormatted)
                                     )
                                 )
