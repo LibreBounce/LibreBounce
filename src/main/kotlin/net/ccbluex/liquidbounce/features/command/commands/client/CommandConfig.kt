@@ -33,7 +33,6 @@ import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.ClickEvent
-import net.minecraft.text.ClickEvent.CopyToClipboard
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 
@@ -92,7 +91,7 @@ object CommandConfig : CommandFactory {
                         variable(settingName).styled { style ->
                             style
                                 .withClickEvent(
-                                    CopyToClipboard(
+                                    ClickEvent.SuggestCommand(
                                         ".config load $settingName"
                                     )
                                 )
