@@ -60,7 +60,7 @@ open class InventoryConstraints : Configurable("Constraints") {
      * This can be overridden by [PlayerInventoryConstraints] which introduces additional requirements.
      */
     open fun passesRequirements(action: InventoryAction) =
-        (!requiresNoMovement || player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f) &&
+        (!requiresNoMovement || !player.input.hasForwardMovement() && player.input.playerInput.left || player.input.playerInput.right) &&
             (!requiresNoRotation || RotationManager.rotationMatchesPreviousRotation())
 
 }
@@ -94,7 +94,7 @@ class PlayerInventoryConstraints : InventoryConstraints() {
 
 }
 
-fun hasInventorySpace() = player.inventory.main.any { it.isEmpty }
+fun hasInventorySpace() = player.inventory.mainStacks.any { it.isEmpty }
 
 fun findEmptyStorageSlotsInInventory(): List<ItemSlot> {
     return (Slots.Inventory + Slots.Hotbar).filter { it.itemStack.isEmpty }
