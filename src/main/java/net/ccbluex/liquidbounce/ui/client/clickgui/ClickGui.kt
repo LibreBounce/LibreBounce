@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.api.ClientApi
 import net.ccbluex.liquidbounce.api.autoSettingsList
 import net.ccbluex.liquidbounce.api.loadSettings
-import net.ccbluex.liquidbounce.config.ColorValue
 import net.ccbluex.liquidbounce.config.SettingsUtils
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
@@ -22,7 +21,6 @@ import net.ccbluex.liquidbounce.file.FileManager.clickGuiConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.EditableText
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
@@ -37,7 +35,6 @@ import net.ccbluex.liquidbounce.utils.client.asResourceLocation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.playSound
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.minecraft.client.gui.GuiScreen
@@ -313,45 +310,7 @@ object ClickGui : GuiScreen() {
             }
         }
 
-        style.chosenText?.let {
-            when {
-                keyCode == Keyboard.KEY_BACK -> {
-                    it.deleteAtCursor(1)
-                }
-
-                keyCode in intArrayOf(Keyboard.KEY_LEFT, Keyboard.KEY_RIGHT) -> {
-                    it.moveCursorBy(if (keyCode == Keyboard.KEY_LEFT) -1 else 1)
-                }
-
-                keyCode in intArrayOf(Keyboard.KEY_DOWN, Keyboard.KEY_UP) -> {
-                    style.moveRGBAIndexBy(if (keyCode == Keyboard.KEY_DOWN) 1 else -1)
-                }
-
-                keyCode == Keyboard.KEY_C && isCtrlPressed() && it.selectionActive() -> {
-                    val start = minOf(it.selectionStart!!, it.selectionEnd!!)
-                    val end = maxOf(it.selectionStart!!, it.selectionEnd!!)
-                    setClipboardString(it.string.substring(start, end))
-                }
-
-                keyCode == Keyboard.KEY_V && isCtrlPressed() -> {
-                    getClipboardString()?.let { pastedText ->
-                        it.insertAtCursor(pastedText)
-                    }
-                }
-
-                keyCode == Keyboard.KEY_A && isCtrlPressed() -> {
-                    it.selectAll()
-                }
-
-                isValidInput(typedChar, it) -> {
-                    it.insertAtCursor(typedChar.toString())
-                }
-
-                else -> {}
-            }
-
-            it.updateText(it.string)
-        }
+        style.chosenText?.processInput(typedChar, keyCode) { style.moveRGBAIndexBy(it) }
 
         super.keyTyped(typedChar, keyCode)
     }
@@ -370,18 +329,4 @@ object ClickGui : GuiScreen() {
     fun Int.clamp(min: Int, max: Int): Int = this.coerceIn(min, max.coerceAtLeast(0))
 
     override fun doesGuiPauseGame() = false
-
-    private fun isCtrlPressed(): Boolean {
-        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
-    }
-
-    private fun isValidInput(typedChar: Char, text: EditableText): Boolean {
-        val nextString = text.string + typedChar
-        return when (text.value) {
-            is ColorValue -> {
-                text.validator(if (text.selectionActive()) typedChar.toString() else nextString)
-            }
-            else -> ColorUtils.isAllowedCharacter(typedChar) || typedChar == '§'
-        }
-    }
 }

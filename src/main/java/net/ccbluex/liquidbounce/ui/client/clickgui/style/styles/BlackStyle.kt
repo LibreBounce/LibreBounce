@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.EditableText
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
@@ -28,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledCircle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
+import net.ccbluex.liquidbounce.utils.ui.EditableText
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.StringUtils
 import net.minecraftforge.fml.relauncher.Side
@@ -71,8 +71,8 @@ object BlackStyle : Style() {
     override fun drawHoverText(mouseX: Int, mouseY: Int, text: String) {
         val lines = text.lines()
 
-        val width =
-            lines.maxOfOrNull { fontSemibold35.getStringWidth(it) + 14 } ?: return // Makes no sense to render empty lines
+        val width = lines.maxOfOrNull { fontSemibold35.getStringWidth(it) + 14 }
+            ?: return // Makes no sense to render empty lines
         val height = (fontSemibold35.fontHeight * lines.size) + 3
 
         // Don't draw hover text beyond window boundaries
@@ -103,10 +103,7 @@ object BlackStyle : Style() {
     }
 
     override fun drawModuleElementAndClick(
-        mouseX: Int,
-        mouseY: Int,
-        moduleElement: ModuleElement,
-        mouseButton: Int?
+        mouseX: Int, mouseY: Int, moduleElement: ModuleElement, mouseButton: Int?
     ): Boolean {
         drawRect(
             moduleElement.x - 1,
@@ -121,14 +118,14 @@ object BlackStyle : Style() {
             moduleElement.x + moduleElement.width + 1,
             moduleElement.y + moduleElement.height + 1,
             getHoverColor(
-                Color(20, 20, 20, moduleElement.slowlyFade),
-                moduleElement.hoverTime,
-                !moduleElement.module.isActive
+                Color(20, 20, 20, moduleElement.slowlyFade), moduleElement.hoverTime, !moduleElement.module.isActive
             )
         )
 
         fontSemibold35.drawString(
-            moduleElement.displayName, moduleElement.x + 5, moduleElement.y + 5,
+            moduleElement.displayName,
+            moduleElement.x + 5,
+            moduleElement.y + 5,
             if (moduleElement.module.state && !moduleElement.module.isActive) Color(255, 255, 255, 128).rgb
             else Color.WHITE.rgb
         )
@@ -240,7 +237,8 @@ object BlackStyle : Style() {
                             val color = Color(20, 20, 20)
 
                             val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = (x + width * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
+                            val sliderValue =
+                                (x + width * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in y - 2..y + 5 || sliderValueHeld == value) {
                                 val percentage = (mouseX - x) / width.toFloat()
@@ -265,7 +263,8 @@ object BlackStyle : Style() {
                         }
 
                         is BlockValue -> {
-                            val text = value.name + "§f: " + getBlockName(value.get()) + " (" + value.get() + ")" + " §7$suffix"
+                            val text =
+                                value.name + "§f: " + getBlockName(value.get()) + " (" + value.get() + ")" + " §7$suffix"
 
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
 
@@ -280,7 +279,9 @@ object BlackStyle : Style() {
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in y - 2..y + 5 || sliderValueHeld == value) {
                                 val percentage = (mouseX - x) / width.toFloat()
-                                value.setAndSaveValueOnButtonRelease(value.range.lerpWith(percentage).roundToInt().coerceIn(value.range))
+                                value.setAndSaveValueOnButtonRelease(
+                                    value.range.lerpWith(percentage).roundToInt().coerceIn(value.range)
+                                )
 
                                 sliderValueHeld = value
 
@@ -364,8 +365,7 @@ object BlackStyle : Style() {
                                 if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
                                     withDelayedSave {
                                         value.setFirst(
-                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
                                         )
                                     }
                                 }
@@ -373,8 +373,7 @@ object BlackStyle : Style() {
                                 if (isOnRightSlider && currSlider == null || currSlider == RangeSlider.RIGHT) {
                                     withDelayedSave {
                                         value.setLast(
-                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
                                         )
                                     }
                                 }
@@ -443,8 +442,7 @@ object BlackStyle : Style() {
                                 if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
                                     withDelayedSave {
                                         value.setFirst(
-                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
                                         )
                                     }
                                 }
@@ -452,8 +450,7 @@ object BlackStyle : Style() {
                                 if (isOnRightSlider && currSlider == null || currSlider == RangeSlider.RIGHT) {
                                     withDelayedSave {
                                         value.setLast(
-                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
                                         )
                                     }
                                 }
@@ -472,10 +469,8 @@ object BlackStyle : Style() {
                                 }
                             }
 
-                            val sliderValue1 =
-                                x + width * (slider1 - value.minimum) / (value.maximum - value.minimum)
-                            val sliderValue2 =
-                                x + width * (slider2 - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue1 = x + width * (slider1 - value.minimum) / (value.maximum - value.minimum)
+                            val sliderValue2 = x + width * (slider2 - value.minimum) / (value.maximum - value.minimum)
 
                             drawRect(x, y, x + width, y + 2, Int.MAX_VALUE)
                             drawRect(sliderValue1, y.toFloat(), sliderValue2, y + 2f, color.rgb)
@@ -550,8 +545,10 @@ object BlackStyle : Style() {
                             val rainbow = value.rainbow
 
                             if (mouseButton in arrayOf(0, 1)) {
-                                val isColorPreview = mouseX in colorPreviewX1..colorPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
-                                val isRainbowPreview = mouseX in rainbowPreviewX1..rainbowPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
+                                val isColorPreview =
+                                    mouseX in colorPreviewX1..colorPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
+                                val isRainbowPreview =
+                                    mouseX in rainbowPreviewX1..rainbowPreviewX2 && mouseY in colorPreviewY1..colorPreviewY2
 
                                 when {
                                     isColorPreview -> {
@@ -560,6 +557,7 @@ object BlackStyle : Style() {
                                         clickSound()
                                         return true
                                     }
+
                                     isRainbowPreview -> {
                                         if (mouseButton == 0) value.rainbow = true
                                         if (mouseButton == 1) value.showPicker = !value.showPicker
@@ -641,7 +639,8 @@ object BlackStyle : Style() {
                                     val colorX = textX + widestLabel + 4
                                     val yPosition = rgbaYStart + index * fontSemibold35.height
 
-                                    val isEmpty = chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()
+                                    val isEmpty =
+                                        chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()
 
                                     val extraSpacing = if (isEmpty) maxWidth + 4 else 0
                                     val finalX = colorX + extraSpacing
@@ -731,11 +730,7 @@ object BlackStyle : Style() {
                                     },
                                     drawAt = { id ->
                                         drawTexture(
-                                            id,
-                                            hueSliderX,
-                                            colorPickerStartY,
-                                            hueSliderWidth,
-                                            hueSliderHeight
+                                            id, hueSliderX, colorPickerStartY, hueSliderWidth, hueSliderHeight
                                         )
                                     })
 
@@ -763,8 +758,7 @@ object BlackStyle : Style() {
                                                     ((1 - y.toFloat() / hueSliderHeight.toFloat()) * 255).roundToInt()
 
                                                 val finalColor = blendColors(
-                                                    Color(checkerboardColor),
-                                                    currentColor.withAlpha(alpha)
+                                                    Color(checkerboardColor), currentColor.withAlpha(alpha)
                                                 )
 
                                                 image.setRGB(x, y, finalColor.rgb)
@@ -773,16 +767,11 @@ object BlackStyle : Style() {
                                     },
                                     drawAt = { id ->
                                         drawTexture(
-                                            id,
-                                            opacityStartX,
-                                            colorPickerStartY,
-                                            hueSliderWidth,
-                                            hueSliderHeight
+                                            id, opacityStartX, colorPickerStartY, hueSliderWidth, hueSliderHeight
                                         )
                                     })
 
-                                val opacityMarkerY =
-                                    (hueSliderStartY..hueSliderEndY).lerpWith(1 - value.opacitySliderY)
+                                val opacityMarkerY = (hueSliderStartY..hueSliderEndY).lerpWith(1 - value.opacitySliderY)
                                 val hueMarkerY = (hueSliderStartY..hueSliderEndY).lerpWith(hue)
 
                                 RenderUtils.drawBorder(
@@ -814,19 +803,14 @@ object BlackStyle : Style() {
                                 // If it's inside the statement, it will not update the mouse button state on time.
                                 val sliderType = value.lastChosenSlider
 
-                                if (mouseButton == 0 && (inColorPicker || inHueSlider || inOpacitySlider)
-                                    || sliderValueHeld == value && value.lastChosenSlider != null
-                                ) {
+                                if (mouseButton == 0 && (inColorPicker || inHueSlider || inOpacitySlider) || sliderValueHeld == value && value.lastChosenSlider != null) {
                                     if (inColorPicker && sliderType == null || sliderType == ColorValue.SliderType.COLOR) {
-                                        val newS =
-                                            ((mouseX - colorPickerStartX) / colorPickerWidth.toFloat()).coerceIn(
-                                                0f,
-                                                1f
-                                            )
+                                        val newS = ((mouseX - colorPickerStartX) / colorPickerWidth.toFloat()).coerceIn(
+                                            0f, 1f
+                                        )
                                         val newB =
                                             (1.0f - (mouseY - colorPickerStartY) / colorPickerHeight.toFloat()).coerceIn(
-                                                0f,
-                                                1f
+                                                0f, 1f
                                             )
                                         value.colorPickerPos.x = newS
                                         value.colorPickerPos.y = 1 - newB
@@ -834,24 +818,19 @@ object BlackStyle : Style() {
 
                                     var finalColor = Color(
                                         Color.HSBtoRGB(
-                                            value.hueSliderY,
-                                            value.colorPickerPos.x,
-                                            1 - value.colorPickerPos.y
+                                            value.hueSliderY, value.colorPickerPos.x, 1 - value.colorPickerPos.y
                                         )
                                     )
 
                                     if (inHueSlider && sliderType == null || sliderType == ColorValue.SliderType.HUE) {
                                         value.hueSliderY =
                                             ((mouseY - hueSliderStartY) / hueSliderHeight.toFloat()).coerceIn(
-                                                0f,
-                                                1f
+                                                0f, 1f
                                             )
 
                                         finalColor = Color(
                                             Color.HSBtoRGB(
-                                                value.hueSliderY,
-                                                value.colorPickerPos.x,
-                                                1 - value.colorPickerPos.y
+                                                value.hueSliderY, value.colorPickerPos.x, 1 - value.colorPickerPos.y
                                             )
                                         )
                                     }
@@ -859,13 +838,11 @@ object BlackStyle : Style() {
                                     if (inOpacitySlider && sliderType == null || sliderType == ColorValue.SliderType.OPACITY) {
                                         value.opacitySliderY =
                                             1 - ((mouseY - hueSliderStartY) / hueSliderHeight.toFloat()).coerceIn(
-                                                0f,
-                                                1f
+                                                0f, 1f
                                             )
                                     }
 
-                                    finalColor =
-                                        finalColor.withAlpha((value.opacitySliderY * 255).roundToInt())
+                                    finalColor = finalColor.withAlpha((value.opacitySliderY * 255).roundToInt())
 
                                     sliderValueHeld = value
 
@@ -940,7 +917,8 @@ object BlackStyle : Style() {
                                 val input = it.string
 
                                 if (it.selectionActive()) {
-                                    val start = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
+                                    val start =
+                                        textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
                                     val end = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionEnd!!))
                                     drawRect(
                                         start,

@@ -12,7 +12,6 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.EditableText
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
@@ -22,12 +21,14 @@ import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.minecraftRed
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
+import net.ccbluex.liquidbounce.utils.ui.EditableText
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.StringUtils
 import net.minecraftforge.fml.relauncher.Side
@@ -53,8 +54,8 @@ object NullStyle : Style() {
     override fun drawHoverText(mouseX: Int, mouseY: Int, text: String) {
         val lines = text.lines()
 
-        val width =
-            lines.maxOfOrNull { fontSemibold35.getStringWidth(it) + 14 } ?: return // Makes no sense to render empty lines
+        val width = lines.maxOfOrNull { fontSemibold35.getStringWidth(it) + 14 }
+            ?: return // Makes no sense to render empty lines
         val height = (fontSemibold35.fontHeight * lines.size) + 3
 
         // Don't draw hover text beyond window boundaries
@@ -206,13 +207,16 @@ object NullStyle : Style() {
                         }
 
                         is BlockValue -> {
-                            val text = value.name + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8${suffix}"
+                            val text =
+                                value.name + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8${suffix}"
 
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
-                                value.setAndSaveValueOnButtonRelease(value.range.lerpWith(percentage).roundToInt().coerceIn(value.range))
+                                value.setAndSaveValueOnButtonRelease(
+                                    value.range.lerpWith(percentage).roundToInt().coerceIn(value.range)
+                                )
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -297,8 +301,7 @@ object NullStyle : Style() {
                                 if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
                                     withDelayedSave {
                                         value.setFirst(
-                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
                                         )
                                     }
                                 }
@@ -306,8 +309,7 @@ object NullStyle : Style() {
                                 if (isOnRightSlider && currSlider == null || currSlider == RangeSlider.RIGHT) {
                                     withDelayedSave {
                                         value.setLast(
-                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
                                         )
                                     }
                                 }
@@ -348,8 +350,7 @@ object NullStyle : Style() {
                             val slider1 = value.get().start
                             val slider2 = value.get().endInclusive
 
-                            val text =
-                                "${value.name}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}"
+                            val text = "${value.name}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}"
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
 
                             val startX = minX + 4
@@ -381,8 +382,7 @@ object NullStyle : Style() {
                                 if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
                                     withDelayedSave {
                                         value.setFirst(
-                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
                                         )
                                     }
                                 }
@@ -390,8 +390,7 @@ object NullStyle : Style() {
                                 if (isOnRightSlider && currSlider == null || currSlider == RangeSlider.RIGHT) {
                                     withDelayedSave {
                                         value.setLast(
-                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum),
-                                            false
+                                            value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
                                         )
                                     }
                                 }
@@ -586,12 +585,13 @@ object NullStyle : Style() {
                                     val colorX = textX + widestLabel + 4
                                     val yPosition = rgbaYStart + index * fontSemibold35.height
 
-                                    val isEmpty = chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()
+                                    val isEmpty =
+                                        chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()
 
                                     val extraSpacing = if (isEmpty) maxWidth + 4 else 0
                                     val finalX = colorX + extraSpacing
 
-                                    val defaultColor = if (isEmpty) Color.LIGHT_GRAY else Color.RED
+                                    val defaultColor = if (isEmpty) Color.LIGHT_GRAY else minecraftRed
                                     val defaultText = if (isEmpty) "($rgbaValueText)" else rgbaValueText
 
                                     fontSemibold35.drawString(label, textX, yPosition, Color.WHITE.rgb)
@@ -866,7 +866,8 @@ object NullStyle : Style() {
                                 val input = it.string
 
                                 if (it.selectionActive()) {
-                                    val start = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
+                                    val start =
+                                        textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
                                     val end = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionEnd!!))
                                     drawRect(
                                         start,
@@ -891,7 +892,7 @@ object NullStyle : Style() {
 
                             fontSemibold35.drawString(startText, startX, textY, Color.WHITE.rgb)
 
-                            val defaultColor = if (shouldPushToRight) Color.LIGHT_GRAY else Color.RED
+                            val defaultColor = if (shouldPushToRight) Color.LIGHT_GRAY else minecraftRed
                             val originalX = textX - 1
 
                             // This usually happens when a value rejects a change and auto-sets it to a default value.
@@ -899,7 +900,7 @@ object NullStyle : Style() {
                                 valueText = "($valueText)"
                                 val valueWidth = fontSemibold35.getStringWidth(valueText)
                                 moduleElement.settingsWidth = combinedWidth + valueWidth + 12
-                                fontSemibold35.drawString(chosenText!!.string, textX, textY, Color.RED.rgb)
+                                fontSemibold35.drawString(chosenText!!.string, textX, textY, minecraftRed.rgb)
                                 textX += valueWidth + 4
                             }
 

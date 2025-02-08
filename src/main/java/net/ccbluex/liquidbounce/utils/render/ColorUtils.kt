@@ -37,6 +37,8 @@ object ColorUtils {
         (red and 255 shl 16) or (green and 255 shl 8) or (blue and 255)
     }
 
+    val minecraftRed = Color(255, 85, 85) // §c
+
     fun Color.withAlpha(a: Int) = Color(red, green, blue, a)
 
     fun Color.normalize() = Color(this.red / 255f, this.green / 255f, this.blue / 255f, this.alpha / 255f)

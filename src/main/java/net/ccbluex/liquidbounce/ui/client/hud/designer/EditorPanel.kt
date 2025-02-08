@@ -10,16 +10,17 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle.rgbaLabels
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.ELEMENTS
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.minecraftRed
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
@@ -28,6 +29,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
+import net.ccbluex.liquidbounce.utils.ui.EditableText
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.MathHelper
 import org.lwjgl.input.Mouse
@@ -135,9 +137,9 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
             val name = info.name
 
-            Fonts.fontSemibold35.drawString(name, x + 2f, y + height.toFloat(), Color.WHITE.rgb)
+            fontSemibold35.drawString(name, x + 2f, y + height.toFloat(), Color.WHITE.rgb)
 
-            val stringWidth = Fonts.fontSemibold35.getStringWidth(name) + 8
+            val stringWidth = fontSemibold35.getStringWidth(name) + 8
             if (stringWidth > width) width = stringWidth
 
             if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
@@ -159,7 +161,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
         drawRect(x, y, x + width, y + 12, guiColor)
         val centerX = (x..x + width).lerpWith(0.5F)
-        Fonts.fontSemibold35.drawCenteredString("§lCreate element", centerX, y + 3.5F, Color.WHITE.rgb)
+        fontSemibold35.drawCenteredString("§lCreate element", centerX, y + 3.5F, Color.WHITE.rgb)
     }
 
     /**
@@ -170,14 +172,14 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         realHeight = 15
         width = 120
 
-        Fonts.fontSemibold35.drawString("§lCreate element", x + 2f, y.toFloat() + height, Color.WHITE.rgb)
+        fontSemibold35.drawString("§lCreate element", x + 2f, y.toFloat() + height, Color.WHITE.rgb)
         if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY >= y + height && mouseY <= y + height + 10) create =
             true
 
         height += 10
         realHeight += 10
 
-        Fonts.fontSemibold35.drawString("§lReset", x + 2f, y.toFloat() + height, Color.WHITE.rgb)
+        fontSemibold35.drawString("§lReset", x + 2f, y.toFloat() + height, Color.WHITE.rgb)
         if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
             showConfirmation = true // Show confirmation button
         }
@@ -185,14 +187,14 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         height += 15
         realHeight += 15
 
-        Fonts.fontSemibold35.drawString("§lAvailable Elements", x + 2f, y + height.toFloat(), Color.WHITE.rgb)
+        fontSemibold35.drawString("§lAvailable Elements", x + 2f, y + height.toFloat(), Color.WHITE.rgb)
         height += 10
         realHeight += 10
 
         for (element in HUD.elements) {
-            Fonts.fontSemibold35.drawString(element.name, x + 2, y + height, Color.WHITE.rgb)
+            fontSemibold35.drawString(element.name, x + 2, y + height, Color.WHITE.rgb)
 
-            val stringWidth = Fonts.fontSemibold35.getStringWidth(element.name) + 8
+            val stringWidth = fontSemibold35.getStringWidth(element.name) + 8
             if (width < stringWidth) width = stringWidth
 
             if (Mouse.isButtonDown(0) && !mouseDown && mouseX in x..x + width && mouseY in y + height..y + height + 10) {
@@ -206,7 +208,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         drawRect(x, y, x + width, y + 12, guiColor)
         glColor4f(1f, 1f, 1f, 1f)
         val centerX = (x..x + width).lerpWith(0.5F)
-        Fonts.fontSemibold35.drawCenteredString("§lElement Editor", centerX, y + 3.5f, Color.WHITE.rgb)
+        fontSemibold35.drawCenteredString("§lElement Editor", centerX, y + 3.5f, Color.WHITE.rgb)
 
         if (showConfirmation) {
             val confirmationMessage = "Are you sure you want to reset?"
@@ -220,12 +222,14 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             val centerDialogX = (dialogX..dialogX2).lerpWith(0.5F)
 
             drawRect(
-                dialogX - padding, dialogY + 10,
-                dialogX2 + padding, dialogY + dialogHeight + 10,
+                dialogX - padding,
+                dialogY + 10,
+                dialogX2 + padding,
+                dialogY + dialogHeight + 10,
                 Color(0, 0, 0, 150).rgb
             )
 
-            Fonts.fontSemibold35.drawCenteredString(confirmationMessage, centerDialogX, dialogY + 12f, Color.WHITE.rgb)
+            fontSemibold35.drawCenteredString(confirmationMessage, centerDialogX, dialogY + 12f, Color.WHITE.rgb)
 
             val buttonData = listOf(
                 "Yes" to Color.GREEN to (dialogX.toFloat()..centerDialogX),
@@ -239,16 +243,17 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             buttonData.forEach { (labelAndColor, bounds) ->
                 val (label, color) = labelAndColor
                 val buttonX = bounds.lerpWith(0.5F)
-                val isHovered = mouseX.toFloat() in (buttonX - buttonWidth..buttonX + buttonWidth) &&
-                        mouseY.toFloat() in (answerButtonY - paddingY..answerButtonY + paddingY)
+                val isHovered =
+                    mouseX.toFloat() in (buttonX - buttonWidth..buttonX + buttonWidth) && mouseY.toFloat() in (answerButtonY - paddingY..answerButtonY + paddingY)
 
                 drawRect(
-                    buttonX - buttonWidth, answerButtonY - paddingY,
-                    buttonX + buttonWidth, answerButtonY + paddingY,
-                    color.let { if (isHovered) it.darker() else it }
-                )
+                    buttonX - buttonWidth,
+                    answerButtonY - paddingY,
+                    buttonX + buttonWidth,
+                    answerButtonY + paddingY,
+                    color.let { if (isHovered) it.darker() else it })
 
-                Fonts.fontSemibold35.drawCenteredString(label, buttonX, answerButtonY - 2, Color.WHITE.rgb, true)
+                fontSemibold35.drawCenteredString(label, buttonX, answerButtonY - 2, Color.WHITE.rgb, true)
 
                 if (Mouse.isButtonDown(0) && !mouseDown && isHovered) {
                     if (label == "Yes") HUD.setDefault()
@@ -270,27 +275,27 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         val element = currentElement ?: return
 
         // X
-        Fonts.fontSemibold35.drawString(
+        fontSemibold35.drawString(
             "X: ${"%.2f".format(element.renderX)} (${"%.2f".format(element.x)})", x + 2, y + height, Color.WHITE.rgb
         )
         height += 10
         realHeight += 10
 
         // Y
-        Fonts.fontSemibold35.drawString(
+        fontSemibold35.drawString(
             "Y: ${"%.2f".format(element.renderY)} (${"%.2f".format(element.y)})", x + 2, y + height, Color.WHITE.rgb
         )
         height += 10
         realHeight += 10
 
         // Scale
-        Fonts.fontSemibold35.drawString("Scale: ${"%.2f".format(element.scale)}", x + 2, y + height, Color.WHITE.rgb)
+        fontSemibold35.drawString("Scale: ${"%.2f".format(element.scale)}", x + 2, y + height, Color.WHITE.rgb)
         height += 10
         realHeight += 10
 
         // Horizontal
-        Fonts.fontSemibold35.drawString("H:", x + 2, y + height, Color.WHITE.rgb)
-        Fonts.fontSemibold35.drawString(
+        fontSemibold35.drawString("H:", x + 2, y + height, Color.WHITE.rgb)
+        fontSemibold35.drawString(
             element.side.horizontal.sideName, x + 12, y + height, Color.GRAY.rgb
         )
 
@@ -312,8 +317,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         realHeight += 10
 
         // Vertical
-        Fonts.fontSemibold35.drawString("V:", x + 2, y + height, Color.WHITE.rgb)
-        Fonts.fontSemibold35.drawString(
+        fontSemibold35.drawString("V:", x + 2, y + height, Color.WHITE.rgb)
+        fontSemibold35.drawString(
             element.side.vertical.sideName, x + 12, y + height, Color.GRAY.rgb
         )
 
@@ -338,6 +343,9 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         // Values
         for (value in element.values) {
             if (!value.isSupported()) continue
+
+            val leftClickPressed = Mouse.isButtonDown(0) && !mouseDown
+            val rightClickPressed = Mouse.isButtonDown(1) && !rightMouseDown
 
             when (value) {
                 is BoolValue -> {
@@ -485,22 +493,23 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                 is ColorValue -> {
                     val currentColor = value.selectedColor()
 
-                    val display = "${value.name}: ${"#%08X".format(currentColor.rgb)}"
+                    val startText = "${value.name}: "
+                    val valueText = "#%08X".format(currentColor.rgb)
+                    val combinedText = startText + valueText
 
-                    val newWidth = (fontSemibold35.getStringWidth(display) * 1.5F).roundToInt()
+                    val optimalWidth = (fontSemibold35.getStringWidth(combinedText) * 1.5F).roundToInt()
 
-                    if (newWidth > width) {
-                        width = newWidth
+                    if (optimalWidth > width) {
+                        width = optimalWidth
                     }
-
-                    val leftClickPressed = Mouse.isButtonDown(0) && !mouseDown
-                    val rightClickPressed = Mouse.isButtonDown(1) && !rightMouseDown
 
                     val spacing = 14
 
                     val maxX = x + width
                     val startX = x
                     val startY = y + height - 1
+
+                    val rgbaOptionHeight = if (value.showOptions) fontSemibold35.height * 4 else 0
 
                     // Color preview
                     val colorPreviewSize = 9
@@ -526,7 +535,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
                     val colorPickerStartX = textX.toInt()
                     val colorPickerEndX = colorPickerStartX + colorPickerWidth
-                    val colorPickerStartY = colorPreviewY2 + spacing / 3
+                    val colorPickerStartY = rgbaOptionHeight + colorPreviewY2 + spacing / 3
                     val colorPickerEndY = colorPickerStartY + colorPickerHeight
 
                     val hueSliderStartY = colorPickerStartY
@@ -562,7 +571,99 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                         }
                     }
 
-                    fontSemibold35.drawString(display, textX, textY, Color.WHITE.rgb)
+                    val valueX = startX + fontSemibold35.getStringWidth(startText)
+                    val valueWidth = fontSemibold35.getStringWidth(valueText)
+
+                    if (rightClickPressed && mouseX in valueX..valueX + valueWidth && mouseY.toFloat() in textY - 2..textY + fontSemibold35.height - 3F) {
+                        value.showOptions = !value.showOptions
+
+                        if (!value.showOptions) {
+                            resetChosenText(value)
+                        }
+                    }
+
+                    val widestLabel = rgbaLabels.maxOf { fontSemibold35.getStringWidth(it) }
+
+                    var highlightCursor = {}
+
+                    hudDesigner.elementEditableText?.chosenText?.let {
+                        if (it.value != value) {
+                            return@let
+                        }
+
+                        val startValueX = textX + widestLabel + 3
+                        val cursorY = textY + value.rgbaIndex * fontSemibold35.height + 10
+
+                        if (it.selectionActive()) {
+                            val start = startValueX + fontSemibold35.getStringWidth(it.string.take(it.selectionStart!!))
+                            val end = startValueX + fontSemibold35.getStringWidth(it.string.take(it.selectionEnd!!))
+                            drawRect(
+                                start,
+                                cursorY - 3f,
+                                end,
+                                cursorY + fontSemibold35.fontHeight - 2,
+                                Color(7, 152, 252).rgb
+                            )
+                        }
+
+                        highlightCursor = {
+                            val cursorX = startValueX + fontSemibold35.getStringWidth(it.cursorString)
+                            drawRect(
+                                cursorX,
+                                cursorY - 3F,
+                                cursorX + 1F,
+                                cursorY + fontSemibold35.fontHeight - 2,
+                                Color.WHITE.rgb
+                            )
+                        }
+                    }
+
+                    if (value.showOptions) {
+                        val mainColor = value.get()
+                        val rgbaValues = listOf(mainColor.red, mainColor.green, mainColor.blue, mainColor.alpha)
+                        val rgbaYStart = textY + 10
+
+                        var noClickAmount = 0
+
+                        val maxWidth = fontSemibold35.getStringWidth("255")
+
+                        val chosenText = hudDesigner.elementEditableText?.chosenText
+
+                        rgbaLabels.forEachIndexed { index, label ->
+                            val rgbaValueText = "${rgbaValues[index]}"
+                            val colorX = textX + widestLabel + 4
+                            val yPosition = rgbaYStart + index * fontSemibold35.height
+
+                            val isEmpty = chosenText?.value == value && value.rgbaIndex == index && chosenText.string.isEmpty()
+
+                            val extraSpacing = if (isEmpty) maxWidth + 4 else 0
+                            val finalX = colorX + extraSpacing
+
+                            val defaultColor = if (isEmpty) Color.LIGHT_GRAY else minecraftRed
+                            val defaultText = if (isEmpty) "($rgbaValueText)" else rgbaValueText
+
+                            fontSemibold35.drawString(label, textX, yPosition, Color.WHITE.rgb)
+                            fontSemibold35.drawString(defaultText, finalX, yPosition, defaultColor.rgb)
+
+                            if (leftClickPressed) {
+                                if (mouseX.toFloat() in finalX..finalX + maxWidth && mouseY.toFloat() in yPosition - 2..yPosition + 6) {
+                                    hudDesigner.elementEditableText =
+                                        ElementEditableText(element, EditableText.forRGBA(value, index))
+                                } else {
+                                    noClickAmount++
+                                }
+                            }
+                        }
+
+                        // Were none of these labels clicked on?
+                        if (noClickAmount == rgbaLabels.size) {
+                            resetChosenText(value)
+                        }
+                    }
+
+                    fontSemibold35.drawString(combinedText, textX, textY, Color.WHITE.rgb)
+
+                    highlightCursor()
 
                     val normalBorderColor = if (rainbow) 0 else Color.BLUE.rgb
                     val rainbowBorderColor = if (rainbow) Color.BLUE.rgb else 0
@@ -775,8 +876,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                         rainbowBorderColor,
                         ColorUtils.rainbow(alpha = value.opacitySliderY).rgb
                     )
-                    height += spacing
-                    realHeight += spacing
+                    height += spacing + rgbaOptionHeight
+                    realHeight += spacing + rgbaOptionHeight
                 }
 
                 // TODO: branch completion
@@ -792,9 +893,9 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         if (!element.info.force) {
             val deleteWidth = x + width - fontSemibold35.getStringWidth("§lDelete") - 2
             fontSemibold35.drawString("§lDelete", deleteWidth.toFloat(), y + 3.5F, Color.WHITE.rgb)
-            if (Mouse.isButtonDown(0) && !mouseDown && mouseX in deleteWidth..x + width && mouseY in y..y + 10) HUD.removeElement(
-                element
-            )
+            if (Mouse.isButtonDown(0) && !mouseDown && mouseX in deleteWidth..x + width && mouseY in y..y + 10) {
+                HUD.removeElement(hudDesigner, element)
+            }
         }
     }
 
@@ -813,5 +914,28 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             y = mouseY - dragY
         } else drag = false
     }
+
+    fun resetChosenText(value: Value<*>) {
+        if (hudDesigner.elementEditableText?.chosenText?.value == value) {
+            hudDesigner.elementEditableText = null
+        }
+    }
+
+    fun moveRGBAIndexBy(delta: Int) {
+        val elementEditableText = this.hudDesigner.elementEditableText ?: return
+
+        val editableText = elementEditableText.chosenText
+
+        if (editableText.value !is ColorValue) {
+            return
+        }
+
+        this.hudDesigner.elementEditableText = ElementEditableText(
+            elementEditableText.element,
+            EditableText.forRGBA(editableText.value, (editableText.value.rgbaIndex + delta).mod(4))
+        )
+    }
+
+    data class ElementEditableText(val element: Element, val chosenText: EditableText)
 
 }
