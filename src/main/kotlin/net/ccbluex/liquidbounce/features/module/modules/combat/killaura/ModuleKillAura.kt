@@ -332,14 +332,9 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val spot = getSpot(target, range.toDouble(), situation) ?: return@updateTarget null
 
             val ticks = rotations.howLongToReach(spot.rotation)
-            if (rotations.rotationTimingMode == SNAP
-                && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
-            ) {
-                return@updateTarget null
-            }
-
+            if (rotations.rotationTimingMode == SNAP && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
             // On Tick can only be used if the distance is not too far compared to the turn speed
-            if (rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
+            || rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
                 return@updateTarget null
             }
 
