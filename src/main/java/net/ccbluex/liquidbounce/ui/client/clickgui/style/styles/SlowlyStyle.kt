@@ -664,7 +664,7 @@ object SlowlyStyle : Style() {
                                     }
                                 }
 
-                                // None of them while
+                                // Were none of these labels clicked on?
                                 if (noClickAmount == rgbaLabels.size) {
                                     resetChosenText(value)
                                 }
