@@ -591,7 +591,6 @@ object SlowlyStyle : Style() {
                                 }
                             }
 
-                            val rgbaLabels = listOf("R:", "G:", "B:", "A:")
                             val widestLabel = rgbaLabels.maxOf { fontSemibold35.getStringWidth(it) }
 
                             var highlightCursor = {}
@@ -642,22 +641,20 @@ object SlowlyStyle : Style() {
                                 rgbaLabels.forEachIndexed { index, label ->
                                     val rgbaValueText = "${rgbaValues[index]}"
                                     val colorX = textX + widestLabel + 4
-                                    val yPosition = rgbaYStart + (index * fontSemibold35.height)
+                                    val yPosition = rgbaYStart + index * fontSemibold35.height
 
-                                    val extraSpacing =
-                                        if (chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()) {
-                                            maxWidth
-                                        } else 0
+                                    val isEmpty = chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()
+
+                                    val extraSpacing = if (isEmpty) maxWidth + 4 else 0
                                     val finalX = colorX + extraSpacing
 
+                                    val defaultText = if (isEmpty) "($rgbaValueText)" else rgbaValueText
                                     fontSemibold35.drawString(label, textX, yPosition, Color.WHITE.rgb)
-                                    fontSemibold35.drawString(rgbaValueText, finalX, yPosition, Color.LIGHT_GRAY.rgb)
+                                    fontSemibold35.drawString(defaultText, finalX, yPosition, Color.LIGHT_GRAY.rgb)
 
                                     if (mouseButton == 0) {
                                         if (mouseX.toFloat() in finalX..finalX + maxWidth && mouseY.toFloat() in yPosition - 2..yPosition + 6) {
                                             chosenText = EditableText.forRGBA(value, index)
-
-                                            value.rgbaIndex = index
                                         } else {
                                             noClickAmount++
                                         }
@@ -890,10 +887,9 @@ object SlowlyStyle : Style() {
 
                         else -> {
                             val startText = value.name + "§f: "
-                            val valueText = "${value.get()}"
+                            var valueText = "${value.get()}"
 
                             val combinedWidth = fontSemibold35.getStringWidth(startText + valueText)
-                            val valueWidth = fontSemibold35.getStringWidth(valueText)
 
                             moduleElement.settingsWidth = combinedWidth + 8
 
@@ -923,8 +919,8 @@ object SlowlyStyle : Style() {
                                 val input = it.string
 
                                 if (it.selectionActive()) {
-                                    val start = textX + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
-                                    val end = textX + fontSemibold35.getStringWidth(input.take(it.selectionEnd!!))
+                                    val start = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
+                                    val end = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionEnd!!))
                                     drawRect(
                                         start,
                                         textY - 3,
@@ -954,7 +950,9 @@ object SlowlyStyle : Style() {
 
                             // This usually happens when a value rejects a change and auto-sets it to a default value.
                             if (shouldPushToRight) {
-                                moduleElement.settingsWidth = combinedWidth + valueWidth + 12
+                                valueText = "($valueText)"
+                                val valueWidth = fontSemibold35.getStringWidth(valueText)
+                                moduleElement.settingsWidth = combinedWidth + valueWidth + 16
                                 fontSemibold35.drawString(chosenText!!.string, textX, textY, Color.WHITE.rgb)
                                 textX += valueWidth + 4
                             }
@@ -968,10 +966,7 @@ object SlowlyStyle : Style() {
                     }
                 }
 
-                if (moduleElement.settingsWidth - moduleElement.supposedWidth > 16) {
-                    moduleElement.disableFiltering = true
-                    moduleElement.settingsWidth = moduleElement.supposedWidth
-                }
+                moduleElement.adjustWidth()
 
                 moduleElement.settingsHeight = yPos - moduleElement.y - 6
 

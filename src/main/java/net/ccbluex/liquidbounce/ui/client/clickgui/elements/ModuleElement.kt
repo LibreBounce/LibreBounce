@@ -71,5 +71,12 @@ class ModuleElement(val module: Module) : ButtonElement(module.name, buttonActio
 
         return true
     }
+    
+    fun adjustWidth() {
+        if (settingsWidth - supposedWidth > 16) {
+            disableFiltering = true
+            settingsWidth = supposedWidth
+        }
+    }
 
 }
