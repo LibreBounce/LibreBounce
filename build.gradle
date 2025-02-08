@@ -5,7 +5,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
-    id "com.gorylenko.gradle-git-properties" version "2.4.0"
+    id "com.gorylenko.gradle-git-properties" version "2.4.2"
 }
 
 repositories {
@@ -37,14 +37,11 @@ minecraft {
 }
 
 configurations {
-    include
-    implementation.extendsFrom(include)
-
     runtimeOnly.canBeResolved = true
 }
 
 dependencies {
-    include("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         transitive = false
         exclude module: "guava"
         exclude module: "commons-io"
@@ -56,37 +53,36 @@ dependencies {
 
     annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 
-    include "com.jagrosh:DiscordIPC:0.4"
+    implementation "com.jagrosh:DiscordIPC:0.4"
 
-    include("com.github.CCBlueX:Elixir:1.2.6") {
+    implementation("com.github.CCBlueX:Elixir:1.2.6") {
         exclude module: "kotlin-stdlib"
         exclude module: "authlib"
     }
 
-    include 'com.github.TheAltening:TheAltening4j:d0771f42d3'
-    include 'com.github.TheAltening:API-Java-AuthLib:63a9702615'
+    implementation 'com.github.TheAltening:TheAltening4j:d0771f42d3'
+    implementation 'com.github.TheAltening:API-Java-AuthLib:63a9702615'
 
-    include("org.knowm.xchart:xchart:3.8.8")
+    implementation("org.knowm.xchart:xchart:3.8.8")
 
     // HTTP Client
-    include("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
         exclude module: "kotlin-stdlib"
     }
 
     // Kotlin
-    include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    include "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"
-    include "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlin_coroutines_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlin_coroutines_version"
 
     // Swing LookAndFeel
-    include "com.formdev:flatlaf:3.5.4"
+    implementation "com.formdev:flatlaf:3.5.4"
 
-    include fileTree(include: ["*.jar"], dir: "libs")
+    implementation fileTree(include: ["*.jar"], dir: "libs")
 }
 
 shadowJar {
     archiveClassifier.set("")
-    configurations = [project.configurations.include]
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
     exclude "LICENSE.txt"
