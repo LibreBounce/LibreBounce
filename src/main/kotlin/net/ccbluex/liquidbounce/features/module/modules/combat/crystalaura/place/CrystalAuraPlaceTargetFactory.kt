@@ -126,12 +126,12 @@ object CrystalAuraPlaceTargetFactory : MinecraftShortcuts {
         currentBasePlaceTarget: PlacementPositionCandidate?
     ): PlacementPositionCandidate? {
         // choose the target with the maximum damage
-        var bestTarget = finalPositions.maxByOrNull { it.explosionDamage!! } ?: return null
+        var bestTarget = finalPositions.maxOrNull() ?: return null
 
         // find a target position that will not require base place if possible
         if (bestTarget.requiresBasePlace) {
-            finalPositions.filterNot { it.requiresBasePlace }.maxByOrNull { it.explosionDamage!! }?.let {
-                if (it.explosionDamage!! - bestTarget.explosionDamage!! >= SubmoduleBasePlace.minAdvantage) {
+            finalPositions.filterNot { it.requiresBasePlace }.maxOrNull()?.let {
+                if (it.enemyDamage!! - bestTarget.enemyDamage!! >= SubmoduleBasePlace.minAdvantage) {
                     bestTarget = it
                 }
             }
@@ -141,7 +141,7 @@ object CrystalAuraPlaceTargetFactory : MinecraftShortcuts {
         currentBasePlaceTarget?.let {
             it.calculate()
             if (it.isNotInvalid() &&
-                it.explosionDamage!! - bestTarget.explosionDamage!! >= SubmoduleBasePlace.minAdvantage
+                it.enemyDamage!! - bestTarget.enemyDamage!! >= SubmoduleBasePlace.minAdvantage
             ) {
                 bestTarget = it
             }

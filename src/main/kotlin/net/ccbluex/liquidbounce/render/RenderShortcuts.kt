@@ -43,6 +43,19 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * This variable should be used when rendering long lines, meaning longer than ~2 in 3d.
+ * [WorldRenderEnvironment.longLines] is available for this.
+ *
+ * Context:
+ * For some reason, newer drivers for AMD Vega iGPUs (about end 2023 until now) fail to correctly smooth lines.
+ *
+ * This has to be removed or limited to old driver versions when AMD actually fixes the bug in their drivers.
+ * But as of now, 01.02.2025, they haven't.
+ */
+val HAS_AMD_VEGA_APU = GL11C.glGetString(GL11C.GL_RENDERER)?.startsWith("AMD Radeon(TM) RX Vega") ?: false &&
+    GL11C.glGetString(GL11C.GL_VENDOR) == "ATI Technologies Inc."
+
 val FULL_BOX = Box(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
 val EMPTY_BOX = Box(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
@@ -179,6 +192,23 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
         } finally {
             pop()
         }
+    }
+}
+
+/**
+ * Disables [GL11C.GL_LINE_SMOOTH] if [HAS_AMD_VEGA_APU].
+ */
+inline fun WorldRenderEnvironment.longLines(draw: RenderEnvironment.() -> Unit) {
+    if (!HAS_AMD_VEGA_APU) {
+        draw()
+        return
+    }
+
+    GL11C.glDisable(GL11C.GL_LINE_SMOOTH)
+    try {
+        draw()
+    } finally {
+        GL11C.glEnable(GL11C.GL_LINE_SMOOTH)
     }
 }
 
