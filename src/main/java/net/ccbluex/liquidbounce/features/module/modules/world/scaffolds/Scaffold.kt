@@ -56,7 +56,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val towerMode by Tower.towerModeValues
 
     init {
-        addValues(Tower.values)
+        +Tower
     }
 
     // <--

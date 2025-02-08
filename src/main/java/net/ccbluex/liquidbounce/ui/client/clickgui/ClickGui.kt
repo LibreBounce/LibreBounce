@@ -98,26 +98,32 @@ object ClickGui : GuiScreen() {
 
     private fun setupTargetsPanel(xPos: Int = 100, yPos: Int, width: Int, height: Int) =
         Panel("Targets", xPos, yPos, width, height, false, listOf(
-            ButtonElement("Players", { if (Targets.player) guiColor else Int.MAX_VALUE }) {
+            ButtonElement("Players") {
                 Targets.player = !Targets.player
-            },
-            ButtonElement("Mobs", { if (Targets.mob) guiColor else Int.MAX_VALUE }) {
+            }.color { if (Targets.player) guiColor else Int.MAX_VALUE },
+            ButtonElement("Mobs") {
                 Targets.mob = !Targets.mob
-            },
-            ButtonElement("Animals", { if (Targets.animal) guiColor else Int.MAX_VALUE }) {
+            }.color { if (Targets.mob) guiColor else Int.MAX_VALUE },
+            ButtonElement("Animals") {
                 Targets.animal = !Targets.animal
-            },
-            ButtonElement("Invisible", { if (Targets.invisible) guiColor else Int.MAX_VALUE }) {
+            }.color { if (Targets.animal) guiColor else Int.MAX_VALUE },
+            ButtonElement("Invisible") {
                 Targets.invisible = !Targets.invisible
-            },
-            ButtonElement("Dead", { if (Targets.dead) guiColor else Int.MAX_VALUE }) {
+            }.color { if (Targets.invisible) guiColor else Int.MAX_VALUE },
+            ButtonElement("Dead") {
                 Targets.dead = !Targets.dead
-            },
+            }.color { if (Targets.dead) guiColor else Int.MAX_VALUE },
         ))
 
     private fun setupSettingsPanel(xPos: Int = 100, yPos: Int, width: Int, height: Int): Panel {
         val list = autoSettingsList?.map { setting ->
-            ButtonElement(setting.name, { Integer.MAX_VALUE }) {
+            ButtonElement(setting.name, buildString {
+                appendLine("§7Description: §e${setting.description.ifBlank { "No description available" }}")
+                appendLine("§7Type: §e${setting.type.displayName}")
+                appendLine("§7Contributors: §e${setting.contributors}")
+                appendLine("§7Last updated: §e${setting.date}")
+                append("§7Status: §e${setting.statusType.displayName} §a(${setting.statusDate})")
+            }) {
                 SharedScopes.IO.launch {
                     try {
                         chat("Loading settings...")
@@ -135,14 +141,6 @@ object ClickGui : GuiScreen() {
                         ClientUtils.LOGGER.error("Failed to load settings", e)
                         chat("Failed to load settings: ${e.message}")
                     }
-                }
-            }.apply {
-                this.hoverText = buildString {
-                    appendLine("§7Description: §e${setting.description.ifBlank { "No description available" }}")
-                    appendLine("§7Type: §e${setting.type.displayName}")
-                    appendLine("§7Contributors: §e${setting.contributors}")
-                    appendLine("§7Last updated: §e${setting.date}")
-                    append("§7Status: §e${setting.statusType.displayName} §a(${setting.statusDate})")
                 }
             }
         } ?: run {

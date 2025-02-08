@@ -9,18 +9,23 @@ import net.ccbluex.liquidbounce.LiquidBounce.clickGui
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import java.util.function.IntSupplier
 
 @SideOnly(Side.CLIENT)
 open class ButtonElement(
     open val displayName: String,
-    val stateDependingColor: () -> Int = { Int.MAX_VALUE },
-    val buttonAction: () -> Unit
+    val hoverText: String = "",
+    val onClick: () -> Unit
 ) : Element() {
 
-    val color
-        get() = stateDependingColor()
+    private var colorSupplier = IntSupplier { Int.MAX_VALUE }
 
-    open var hoverText: String = ""
+    val color
+        get() = colorSupplier.asInt
+
+    fun color(supplier: IntSupplier) = apply {
+        this.colorSupplier = supplier
+    }
 
     var hoverTime = 0
         set(value) {
@@ -36,7 +41,7 @@ open class ButtonElement(
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int): Boolean {
         if (mouseButton == 0 && isHovered(mouseX, mouseY)) {
-            buttonAction()
+            onClick()
             ClickGui.style.clickSound()
             return true
         }

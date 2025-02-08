@@ -21,7 +21,7 @@ open class Configurable(
 ) {
 
     // TODO: hide in clickGUI
-    var isExpanded by boolean("Expanded", false)
+    var isExpanded by boolean("Expanded", false).subjective()
 
     val values: List<Value<*>>
         get() = this.get()

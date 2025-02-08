@@ -12,16 +12,19 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
 @SideOnly(Side.CLIENT)
-class ModuleElement(val module: Module) : ButtonElement(module.name, buttonAction = {
+class ModuleElement(val module: Module) : ButtonElement(module.name, module.description, onClick = {
     // This module element handles the click action itself.
 }) {
     override val displayName
         get() = module.getName(spacedModules)
 
-    override var hoverText = ""
-        get() = module.description
+    // delegate to module.isExpanded
+    var showSettings: Boolean
+        get() = module.isExpanded
+        set(value) {
+            module.isExpanded = value
+        }
 
-    var showSettings = false
     var settingsWidth = 0
         set(value) {
             if (value > settingsWidth) {
