@@ -20,6 +20,11 @@ object ColorUtils {
     fun isAllowedCharacter(character: Char) =
         character.code != 167 && character.code >= 32 && character.code != 127
 
+    fun isValidColorInput(input: String): Boolean {
+        val regex = Regex("^(0|[1-9][0-9]{0,2})$")
+        return regex.matches(input)
+    }
+
     private val COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]")
 
     val hexColors = IntArray(16) { i ->
@@ -47,6 +52,23 @@ object ColorUtils {
             argb ushr 8 and 0xFF,
             argb and 0xFF
         )
+    }
+
+    fun hexToColorInt(str: String): Int {
+        val hex = str.removePrefix("#")
+
+        if (hex.isEmpty()) Color.WHITE.rgb
+
+        val expandedHex = when (hex.length) {
+            1 -> hex.repeat(3) + "FF"
+            2 -> hex.repeat(3) + "FF"
+            3 -> hex[0].toString().repeat(2) + hex[1].toString().repeat(2) + hex[2].toString().repeat(2) + "FF"
+            6 -> hex + "FF"
+            8 -> hex
+            else -> throw IllegalArgumentException("Invalid hex color format")
+        }
+
+        return Color.decode("#$expandedHex").rgb
     }
 
     fun unpackARGBFloatValue(argb: Int): FloatArray {

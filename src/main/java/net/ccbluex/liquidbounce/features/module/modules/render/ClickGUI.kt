@@ -42,6 +42,7 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     override fun onEnable() {
         updateStyle()
         mc.displayGuiScreen(clickGui)
+        Keyboard.enableRepeatEvents(true)
     }
 
     private fun updateStyle() {
