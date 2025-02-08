@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.autobow.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.minecraft.item.BowItem
 import java.util.*
 
@@ -44,6 +45,10 @@ object ModuleAutoBow : ClientModule("AutoBow", Category.COMBAT, aliases = arrayO
         if (player.activeItem.item is BowItem) {
             lastShotTimer.reset()
         }
+    }
+
+    override fun disable() {
+        CombatManager.resetTarget()
     }
 
     init {

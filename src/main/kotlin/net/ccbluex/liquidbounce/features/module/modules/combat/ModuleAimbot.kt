@@ -99,6 +99,10 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         ModuleAutoWeapon.prepare(CombatManager.target)
     }
 
+    override fun disable() {
+        CombatManager.resetTarget()
+    }
+
     val renderHandler = handler<WorldRenderEvent> { event ->
         val partialTicks = event.partialTicks
         CombatManager.target ?: return@handler

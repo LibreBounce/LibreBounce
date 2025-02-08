@@ -77,6 +77,7 @@ object ModuleCrystalAura : ClientModule(
     }
 
     override fun disable() {
+        CombatManager.resetTarget()
         CrystalAuraTriggerer.terminateRunningTasks()
         SubmoduleCrystalPlacer.placementRenderer.clearSilently()
         SubmoduleCrystalDestroyer.postAttackHandlers.forEach(CrystalPostAttackTracker::onToggle)

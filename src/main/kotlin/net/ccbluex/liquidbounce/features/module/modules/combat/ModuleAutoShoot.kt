@@ -97,7 +97,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     @Suppress("unused")
     val simulatedTickHandler = handler<RotationUpdateEvent> {
         // Find the recommended target
-        val target = CombatManager.target ?: targetSelector.enemies().firstOrNull {
+        val target = CombatManager.target.takeIf { player.canSee(it) } ?: targetSelector.enemies().firstOrNull {
             // Check if we can see the enemy
             player.canSee(it)
         } ?: return@handler
@@ -123,12 +123,16 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
 
-        CombatManager.selectTarget(target)
+        CombatManager.selectTarget(target, true)
         // Set the rotation with the usage priority of 2.
         RotationManager.aimAt(
             rotationConfigurable.toAimPlan(rotation ?: return@handler, considerInventory = considerInventory),
             Priority.IMPORTANT_FOR_USAGE_2, this
         )
+    }
+
+    override fun disable() {
+        CombatManager.resetTarget()
     }
 
     /**
