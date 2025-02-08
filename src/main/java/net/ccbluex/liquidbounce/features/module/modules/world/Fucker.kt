@@ -78,6 +78,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
     var pos: BlockPos? = null
         private set
+    private var obstructingPos: BlockPos? = null 
     private var spawnLocation: Vec3? = null
     private var oldPos: BlockPos? = null
     private var blockHitDelay = 0
@@ -95,6 +96,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
         currentDamage = 0F
         pos = null
+        obstructingPos = null 
         areSurroundings = false
         isOwnBed = false
     }
@@ -122,6 +124,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
         if (pos == null || pos!!.block!!.id != targetId || getCenterDistance(pos!!) > range) {
             pos = find(targetId)
+            obstructingPos = null 
         }
 
         // Reset current breaking when there is no target block
@@ -129,37 +132,71 @@ object Fucker : Module("Fucker", Category.WORLD) {
             currentDamage = 0F
             areSurroundings = false
             isOwnBed = false
+            obstructingPos = null 
             return@handler
         }
 
         var currentPos = pos ?: return@handler
-        var spot = faceBlock(currentPos) ?: return@handler
+
 
         // Check if it is the player's own bed
         isOwnBed = ignoreOwnBed && isBedNearSpawn(currentPos)
         if (isOwnBed) {
+            obstructingPos = null 
             return@handler
         }
 
+
         if (surroundings || hypixel) {
-            val eyes = player.eyes
-
-            val blockPos = if (hypixel) {
-                currentPos.up()
-            } else {
-                world.rayTraceBlocks(eyes, spot.vec, false, false, true)?.blockPos
-            }
-
-            if (blockPos != null && blockPos.block != Blocks.air) {
-                if (currentPos.x != blockPos.x || currentPos.y != blockPos.y || currentPos.z != blockPos.z) {
-                    areSurroundings = true
+            if (hypixel && obstructingPos == null) { 
+                val abovePos = currentPos.up()
+                if (abovePos.block != Blocks.air && isHittable(abovePos)) {
+                    obstructingPos = abovePos 
+                    currentPos = obstructingPos!!
+                } else {
+                    currentPos = currentPos 
                 }
+            } else if (surroundings && obstructingPos == null) { 
+                val eyes = player.eyes
+                val spotToBed = faceBlock(currentPos) ?: return@handler 
 
-                pos = blockPos
-                currentPos = pos ?: return@handler
-                spot = faceBlock(currentPos) ?: return@handler
+                val blockPos = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)?.blockPos
+
+                if (blockPos != null && blockPos.block != Blocks.air && blockPos != currentPos) {
+                    obstructingPos = blockPos 
+                    currentPos = obstructingPos!!
+                } else {
+                    currentPos = currentPos 
+                }
+            } else if (obstructingPos != null) {
+                currentPos = obstructingPos!! 
+
+                 if (surroundings) { 
+                    val eyes = player.eyes
+                    val spotToObstruction = faceBlock(currentPos) ?: return@handler;
+                    val rayTraceResultToObstruction = world.rayTraceBlocks(eyes, spotToObstruction.vec, false, false, true);
+
+                     // Check if a new block is blocking it
+                    if (rayTraceResultToObstruction?.blockPos != currentPos && rayTraceResultToObstruction?.typeOfHit == net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK) {
+                        obstructingPos = null; // Obstruction is obscured by a new block, reset and find again.
+                        return@handler; // Re-evaluate target in next cycle
+                    }
+
+                    val spotToBed = faceBlock(pos!!) ?: return@handler; 
+                    val rayTraceToBed = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true);
+
+                    // Target bed if it's open
+                     if (rayTraceToBed?.blockPos == pos && rayTraceToBed.typeOfHit == net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK ) {
+                         obstructingPos = null; 
+                         currentPos = pos!!; 
+                     }
+                 }
+
             }
         }
+
+
+        var spot = faceBlock(currentPos) ?: return@handler
 
         // Reset switch timer when position changed
         if (oldPos != null && oldPos != currentPos) {
@@ -202,7 +239,11 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
         val controller = mc.playerController ?: return@loopHandler
 
-        val currentPos = pos ?: return@loopHandler
+        var currentPos = pos ?: return@loopHandler
+        if (obstructingPos != null) {
+            currentPos = obstructingPos!!
+        }
+
 
         val targetRotation = if (options.rotationsActive) {
             currentRotation ?: player.rotation
@@ -218,6 +259,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 // Check if it is the player's own bed
                 isOwnBed = ignoreOwnBed && isBedNearSpawn(currentPos)
                 if (isOwnBed) {
+                    obstructingPos = null
                     return@loopHandler
                 }
 
@@ -234,6 +276,9 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
                     sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     currentDamage = 0F
+                    if (currentPos == obstructingPos) obstructingPos = null
+                    pos = if (currentPos == pos) null else pos; 
+                    areSurroundings = false
                     return@loopHandler
                 }
 
@@ -260,7 +305,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
                         controller.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
 
                         currentDamage = 0F
-                        pos = null
+                        if (currentPos == obstructingPos) obstructingPos = null 
+                        pos = if (currentPos == pos) null else pos; 
                         areSurroundings = false
                         return@loopHandler
                     }
@@ -278,7 +324,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     controller.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
                     blockHitDelay = 4
                     currentDamage = 0F
-                    pos = null
+                    if (currentPos == obstructingPos) obstructingPos = null 
+                    pos = if (currentPos == pos) null else pos; 
                     areSurroundings = false
                 }
             }
@@ -291,7 +338,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
                     blockHitDelay = 4
                     currentDamage = 0F
-                    pos = null
+                    if (currentPos == obstructingPos) obstructingPos = null 
+                    pos = if (currentPos == pos) null else pos; 
                     areSurroundings = false
                 }
             }
@@ -299,10 +347,12 @@ object Fucker : Module("Fucker", Category.WORLD) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val pos = pos ?: return@handler
+        val renderPos = if (obstructingPos != null) obstructingPos else pos 
+        val posToDraw = renderPos ?: return@handler
+
 
         // Check if it is the player's own bed
-        isOwnBed = ignoreOwnBed && isBedNearSpawn(pos)
+        isOwnBed = ignoreOwnBed && isBedNearSpawn(posToDraw)
         if (mc.thePlayer == null || isOwnBed) {
             return@handler
         }
@@ -310,7 +360,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         if (block.blockById == Blocks.air) return@handler
 
         if (blockProgress) {
-            pos.drawBlockDamageText(
+            posToDraw.drawBlockDamageText(
                 currentDamage,
                 font,
                 fontShadow,
@@ -320,7 +370,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         }
 
         // Render block box
-        drawBlockBox(pos, Color.RED, true)
+        drawBlockBox(posToDraw, Color.RED, true)
     }
 
     /**
