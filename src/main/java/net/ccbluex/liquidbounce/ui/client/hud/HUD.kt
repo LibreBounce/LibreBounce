@@ -178,11 +178,7 @@ object HUD : MinecraftInstance {
     }
 
     /** Remove [element] from HUD */
-    fun removeElement(hudDesigner: GuiHudDesigner, element: Element): HUD {
-        if (hudDesigner.elementEditableText?.element == element) {
-            hudDesigner.elementEditableText = null
-        }
-
+    fun removeElement(element: Element): HUD {
         element.destroyElement()
         elements.remove(element)
         return this
@@ -197,7 +193,7 @@ object HUD : MinecraftInstance {
 
     /** Add [notification] */
     fun addNotification(notification: Notification) =
-        elements.any { it is Notifications } && notifications.add(notification)
+        elements.any { it is Notifications }.also { mc.addScheduledTask { notifications.add(notification) } }
 
     /** Remove [notification] */
     fun removeNotification(notification: Notification) = notifications.remove(notification)
