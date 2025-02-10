@@ -36,13 +36,7 @@ class GuiMainMenu : AbstractScreen() {
     private val warningInterval = TimeUnit.DAYS.toMillis(7)
 
     init {
-        if (FileManager.firstStart) {
-            showWelcomePopup()
-        } else if (hasUpdate()) {
-            showUpdatePopup()
-        } else if (lastWarningTime == null || Instant.now().toEpochMilli() - lastWarningTime!! > warningInterval) {
-            showDiscontinuedWarning()
-        }
+        showDiscontinuedWarning()
     }
 
     override fun initGui() {
@@ -50,7 +44,6 @@ class GuiMainMenu : AbstractScreen() {
 
         val baseCol1 = width / 2 - 100
         val baseCol2 = width / 2 + 2
-
 
         +GuiButton(100, baseCol1, defaultHeight + 24, 98, 20, translationMenu("altManager"))
         +GuiButton(103, baseCol2, defaultHeight + 24, 98, 20, translationMenu("mods"))
@@ -134,14 +127,28 @@ class GuiMainMenu : AbstractScreen() {
 
     private fun showDiscontinuedWarning() {
         popup = PopupScreen(
-            "Warning",
+            "§c§lWarning",
             """
-        This version is discontinued and unsupported.
-        We strongly recommend using LiquidBounce Nextgen instead, which supports all Minecraft versions (1.7 - latest), has active development, and includes the newest bypasses and features.
+        §6§lThis version is discontinued and unsupported.§r
+        
+        §eWe strongly recommend switching to §bLiquidBounce Nextgen§e, 
+        which offers the following benefits:
+        
+        §a- §fSupports all Minecraft versions from §71.7§f to §71.21+§f.
+        §a- §fFrequent updates with the latest bypasses and features.
+        §a- §fActive development and official support.
+        §a- §fImproved performance and compatibility.
+        
+        §cWhy upgrade?§r
+        - No new bypasses or features will be introduced in this version.
+        - Auto config support will not be actively maintained.
+        - Unofficial forks of this version are discouraged as they lack the full feature set of Nextgen and cannot be trusted.
+
+        §b§lUpgrade to LiquidBounce Nextgen today for a better experience!§r
         """.trimIndent(),
             listOf(
-                ButtonData("Download") { MiscUtils.showURL("https://liquidbounce.net/download") },
-                ButtonData("Installation Tutorial") { MiscUtils.showURL("https://www.youtube.com/watch?v=i_r1i4m-NZc") }
+                ButtonData("§aDownload Nextgen") { MiscUtils.showURL("https://liquidbounce.net/download") },
+                ButtonData("§eInstallation Tutorial") { MiscUtils.showURL("https://www.youtube.com/watch?v=i_r1i4m-NZc") }
             )
         ) {
             popup = null
