@@ -57,14 +57,6 @@ object ClientApi {
         }
     }
 
-    fun getMessageOfTheDay(branch: String = HARD_CODED_BRANCH): MessageOfTheDay {
-        val url = "$API_V1_ENDPOINT/client/$branch/motd"
-        client.get(url).use { response ->
-            if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body.charStream().decodeJson()
-        }
-    }
-
     fun getSettingsList(branch: String = HARD_CODED_BRANCH): List<AutoSettings> {
         val url = "$API_V1_ENDPOINT/client/$branch/settings"
         client.get(url).use { response ->

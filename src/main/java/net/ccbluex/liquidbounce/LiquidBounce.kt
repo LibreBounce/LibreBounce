@@ -10,8 +10,6 @@ import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.api.ClientUpdate
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.loadSettings
-import net.ccbluex.liquidbounce.api.messageOfTheDay
-import net.ccbluex.liquidbounce.api.reloadMessageOfTheDay
 import net.ccbluex.liquidbounce.cape.CapeService
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventManager
@@ -136,9 +134,6 @@ object LiquidBounce {
                 // Check update
                 ClientUpdate.reloadNewestVersion()
 
-                // Get MOTD
-                reloadMessageOfTheDay()
-
                 // Load languages
                 loadLanguages()
 
@@ -230,9 +225,6 @@ object LiquidBounce {
 
             // Disable Optifine FastRender
             disableFastRender()
-
-            // Load message of the day
-            messageOfTheDay?.message?.let { LOGGER.info("Message of the day: $it") }
 
             // Setup Discord RPC
             if (showRPCValue) {
