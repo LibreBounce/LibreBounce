@@ -32,11 +32,24 @@ import java.util.concurrent.TimeUnit
 class GuiMainMenu : AbstractScreen() {
 
     private var popup: PopupScreen? = null
-    private var lastWarningTime: Long? = null
-    private val warningInterval = TimeUnit.DAYS.toMillis(7)
+
+    companion object {
+        private var popupOnce = false
+        private var lastWarningTime: Long? = null
+        private val warningInterval = TimeUnit.DAYS.toMillis(7)
+    }
 
     init {
-        showDiscontinuedWarning()
+        if (!popupOnce) {
+            if (FileManager.firstStart) {
+                showWelcomePopup()
+            } else if (hasUpdate()) {
+                showUpdatePopup()
+            } else if (lastWarningTime == null || Instant.now().toEpochMilli() - lastWarningTime!! > warningInterval) {
+                showDiscontinuedWarning()
+            }
+            popupOnce = true
+        }
     }
 
     override fun initGui() {
@@ -64,26 +77,26 @@ class GuiMainMenu : AbstractScreen() {
 
     private fun showWelcomePopup() {
         popup = PopupScreen(
-            "Welcome!",
+            "§a§lWelcome!",
             """
-        Thank you for downloading and installing our client!
+        §eThank you for downloading and installing §bLiquidBounce§e!
 
-        Here is some information you might find useful:
-        §lClickGUI:§r Press [RightShift] to open.
-        Right-click modules with a '+' to edit.
-        Hover a module to see its description.
+        §6Here is some information you might find useful:§r
+        §a- §fClickGUI:§r Press §7[RightShift]§f to open ClickGUI.
+        §a- §fRight-click modules with a '+' to edit.
+        §a- §fHover over a module to see its description.
 
-        §lImportant Commands:§r
-        .bind <module> <key> / .bind <module> none
-        .autosettings load <name> / .autosettings list
+        §6Important Commands:§r
+        §a- §f.bind <module> <key> / .bind <module> none
+        §a- §f.config load <name> / .config list
 
-        §lNeed help?§r Contact us!
-        YouTube: https://youtube.com/ccbluex
-        Twitter: https://twitter.com/ccbluex
-        Forum: https://forums.ccbluex.net/
+        §bNeed help? Contact us!§r
+        - §fYouTube: §9https://youtube.com/ccbluex
+        - §fTwitter: §9https://twitter.com/ccbluex
+        - §fForum: §9https://forums.ccbluex.net/
         """.trimIndent(),
             listOf(
-                ButtonData("OK") { }
+                ButtonData("§aOK") { }
             ),
             {
                 popup = null
@@ -102,22 +115,24 @@ class GuiMainMenu : AbstractScreen() {
         val formattedNewestDate = dateFormatter.format(newestVersionDate)
 
         val updateMessage = """
-    A new $updateType of LiquidBounce is available!
+        §eA new $updateType of LiquidBounce is available!
 
-    - ${if (isReleaseBuild) "Version" else "Build ID"}: ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
-    - Minecraft Version: ${newestVersion.mcVersion}
-    - Branch: ${newestVersion.branch}
-    - Date: $formattedNewestDate
+        - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
+        - §aMinecraft Version:§r ${newestVersion.mcVersion}
+        - §aBranch:§r ${newestVersion.branch}
+        - §aDate:§r $formattedNewestDate
 
-    Changes:
-    ${newestVersion.message}
+        §6Changes:§r
+        ${newestVersion.message}
+
+        §bUpgrade now to enjoy the latest features and improvements!§r
     """.trimIndent()
 
         popup = PopupScreen(
-            "New Update Available!",
+            "§bNew Update Available!",
             updateMessage,
             listOf(
-                ButtonData("Download") { MiscUtils.showURL(newestVersion.url) }
+                ButtonData("§aDownload") { MiscUtils.showURL(newestVersion.url) }
             ),
             {
                 popup = null
