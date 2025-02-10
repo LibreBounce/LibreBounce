@@ -19,7 +19,6 @@ import net.minecraft.network.play.server.S32PacketConfirmTransaction
 
 object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     private val debug by boolean("Debug", true)
-
     private val actionNumbers = mutableListOf<Int>()
     private var check = false
     private var ticksPassed = 0
@@ -87,9 +86,10 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
                 }
 
                 -1 -> when {
+                    first in -8287..-8280 -> "Errata"
                     first < -3000 -> "Intave"
                     first in -5..0 -> "Grim"
-                    first in -3005..-2995 -> "Karhu"
+                    first in -3000..-2995 -> "Karhu"
                     else -> "Polar"
                 }
 
@@ -120,6 +120,14 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
         val firstAction = actionNumbers.firstOrNull()
         if (firstAction != null && firstAction < -3000 && actionNumbers.any { it == 0 }) {
             hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aIntave", 3000L))
+            actionNumbers.clear()
+            return
+        }
+
+        // Old Vulcan
+        if (actionNumbers.take(3) == listOf(-30767, -30766, -25767) &&
+            actionNumbers.drop(3).zipWithNext().all { (prev, curr) -> curr - prev == 1 }) {
+            hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aOld Vulcan", 3000L))
             actionNumbers.clear()
             return
         }
