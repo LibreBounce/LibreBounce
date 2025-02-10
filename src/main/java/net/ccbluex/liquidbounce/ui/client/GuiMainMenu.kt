@@ -51,18 +51,22 @@ class GuiMainMenu : AbstractScreen() {
         val baseCol1 = width / 2 - 100
         val baseCol2 = width / 2 + 2
 
-        buttonList.add(GuiButton(100, baseCol1, defaultHeight + 24, 98, 20, translationMenu("altManager")))
-        buttonList.add(GuiButton(103, baseCol2, defaultHeight + 24, 98, 20, translationMenu("mods")))
-        buttonList.add(GuiButton(109, baseCol1, defaultHeight + 24 * 2, 98, 20, translationMenu("fontManager")))
-        buttonList.add(GuiButton(102, baseCol2, defaultHeight + 24 * 2, 98, 20, translationMenu("configuration")))
-        buttonList.add(GuiButton(101, baseCol1, defaultHeight + 24 * 3, 98, 20, translationMenu("serverStatus")))
-        buttonList.add(GuiButton(108, baseCol2, defaultHeight + 24 * 3, 98, 20, translationMenu("contributors")))
 
-        buttonList.add(GuiButton(1, baseCol1, defaultHeight, 98, 20, I18n.format("menu.singleplayer")))
-        buttonList.add(GuiButton(2, baseCol2, defaultHeight, 98, 20, I18n.format("menu.multiplayer")))
+        +GuiButton(100, baseCol1, defaultHeight + 24, 98, 20, translationMenu("altManager"))
+        +GuiButton(103, baseCol2, defaultHeight + 24, 98, 20, translationMenu("mods"))
+        +GuiButton(109, baseCol1, defaultHeight + 24 * 2, 98, 20, translationMenu("fontManager"))
+        +GuiButton(102, baseCol2, defaultHeight + 24 * 2, 98, 20, translationMenu("configuration"))
+        +GuiButton(101, baseCol1, defaultHeight + 24 * 3, 98, 20, translationMenu("serverStatus"))
+        +GuiButton(108, baseCol2, defaultHeight + 24 * 3, 98, 20, translationMenu("contributors"))
 
-        buttonList.add(GuiButton(0, baseCol1, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.options")))
-        buttonList.add(GuiButton(4, baseCol2, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.quit")))
+        +GuiButton(1, baseCol1, defaultHeight, 98, 20, I18n.format("menu.singleplayer"))
+        +GuiButton(2, baseCol2, defaultHeight, 98, 20, I18n.format("menu.multiplayer"))
+
+        // Minecraft Realms
+        //        +GuiButton(14, this.baseCol1, j + 24 * 2, I18n.format("menu.online"))
+
+        +GuiButton(0, baseCol1, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.options"))
+        +GuiButton(4, baseCol2, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.quit"))
     }
 
     private fun showWelcomePopup() {
