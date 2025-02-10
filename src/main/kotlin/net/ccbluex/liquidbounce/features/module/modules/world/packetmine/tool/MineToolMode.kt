@@ -16,12 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.world.packetmine
+package net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool
 
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair
-import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleAutoTool
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.MineTarget
+import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModulePacketMine
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.item.getEnchantment
@@ -39,19 +42,18 @@ import net.minecraft.util.math.BlockPos
  * Determines when to switch to a tool and calculates the breaking process delta.
  */
 @Suppress("unused")
-enum class MineToolMode(override val choiceName: String, val end: Boolean, val between: Boolean) :
-    NamedChoice, MinecraftShortcuts {
+abstract class MineToolMode(
+    override val choiceName: String,
+    val syncOnStart: Boolean = false,
+    private val switchesNever: Boolean = false
+) : Choice(choiceName), MinecraftShortcuts {
 
-    ON_STOP("OnStop", true, false),
-    ALWAYS("Always", true, true),
-    NEVER("Never", false, false);
+    abstract fun shouldSwitch(mineTarget: MineTarget): Boolean
 
-    fun shouldSwitch(mineTarget: MineTarget): Boolean {
-        return between || end && mineTarget.progress >= ModulePacketMine.breakDamage
-    }
+    open fun getSwitchingMethod() = SwitchMethod.NORMAL
 
     fun getBlockBreakingDelta(pos: BlockPos, state: BlockState, itemStack: ItemStack?): Float {
-        if (!end && !between || itemStack == null) {
+        if (switchesNever || itemStack == null) {
             return state.calcBlockBreakingDelta(player, world, pos)
         }
 
@@ -59,7 +61,7 @@ enum class MineToolMode(override val choiceName: String, val end: Boolean, val b
     }
 
     fun getSlot(state: BlockState): IntObjectImmutablePair<ItemStack>? {
-        if (!end && !between) {
+        if (switchesNever) {
             return null
         }
 
@@ -67,6 +69,9 @@ enum class MineToolMode(override val choiceName: String, val end: Boolean, val b
             IntObjectImmutablePair(it.hotbarSlot, it.itemStack)
         }
     }
+
+    override val parent: ChoiceConfigurable<*>
+        get() = ModulePacketMine.switchMode
 
 }
 
