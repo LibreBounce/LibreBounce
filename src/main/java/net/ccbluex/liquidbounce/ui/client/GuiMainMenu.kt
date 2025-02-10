@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.api.ClientUpdate
 import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
 import net.ccbluex.liquidbounce.file.FileManager
+import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.client.fontmanager.GuiFontManager
@@ -167,6 +168,7 @@ class GuiMainMenu : AbstractScreen() {
         ) {
             popup = null
             lastWarningTime = Instant.now().toEpochMilli()
+            FileManager.saveConfig(valuesConfig)
         }
     }
 

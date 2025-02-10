@@ -88,7 +88,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     if (jsonValue.has("Particles")) ClientConfiguration.particles = jsonValue["Particles"].asBoolean
                 }
 
-                key.equals("popupData", true) -> {
+                key.equals("popup", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("lastWarningTime")) GuiMainMenu.lastWarningTime = jsonValue["lastWarningTime"].asLong
                 }
@@ -149,7 +149,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
 
         val popupData = JsonObject()
         GuiMainMenu.lastWarningTime?.let { popupData.addProperty("lastWarningTime", it) }
-        jsonObject.add("lastWarningTime", popupData)
+        jsonObject.add("popup", popupData)
 
         file.writeText(PRETTY_GSON.toJson(jsonObject))
     }
