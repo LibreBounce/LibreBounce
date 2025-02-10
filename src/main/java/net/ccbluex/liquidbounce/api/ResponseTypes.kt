@@ -23,13 +23,6 @@ data class Build(
 )
 
 /**
- * Message of the day
- *
- * Contains only a message
- */
-data class MessageOfTheDay(val message: String)
-
-/**
  * Settings
  *
  * Settings only stores the setting ID, name, type, description, date, contributors and status

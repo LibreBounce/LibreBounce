@@ -1,8 +1,3 @@
-/*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
- */
 package net.ccbluex.liquidbounce.ui.client
 
 import net.ccbluex.liquidbounce.ui.font.Fonts
@@ -45,24 +40,33 @@ class PopupScreen(
     private var dismissButtonAnimation = 0f
 
     private fun wrapText(text: String, maxWidth: Int): List<String> {
-        val words = text.split(" ")
         val lines = mutableListOf<String>()
-        var currentLine = ""
+        val paragraphs = text.split("\n")
 
-        for (word in words) {
-            val tempLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-            val width = Fonts.fontSemibold35.getStringWidth(tempLine)
-
-            if (width > maxWidth && currentLine.isNotEmpty()) {
-                lines.add(currentLine)
-                currentLine = word
-            } else {
-                currentLine = tempLine
+        for (paragraph in paragraphs) {
+            if (paragraph.isBlank()) {
+                lines.add("")
+                continue
             }
-        }
 
-        if (currentLine.isNotEmpty()) {
-            lines.add(currentLine)
+            val words = paragraph.split(" ")
+            var currentLine = ""
+
+            for (word in words) {
+                val tempLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                val width = Fonts.fontSemibold35.getStringWidth(tempLine)
+
+                if (width > maxWidth && currentLine.isNotEmpty()) {
+                    lines.add(currentLine)
+                    currentLine = word
+                } else {
+                    currentLine = tempLine
+                }
+            }
+
+            if (currentLine.isNotEmpty()) {
+                lines.add(currentLine)
+            }
         }
 
         return lines
@@ -96,9 +100,9 @@ class PopupScreen(
         var messageY = y + messageYOffset + scrollOffset
 
         for (line in messageLines) {
-            Fonts.fontSemibold35.drawCenteredString(
+            Fonts.fontSemibold35.drawString(
                 line,
-                (screenWidth / 2).toFloat(),
+                (x + 10).toFloat(),
                 messageY.toFloat(),
                 textColor,
                 true

@@ -5,9 +5,12 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_WEBSITE
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
+import net.ccbluex.liquidbounce.api.ClientUpdate
+import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
+import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.client.fontmanager.GuiFontManager
@@ -21,14 +24,26 @@ import net.minecraft.client.gui.GuiOptions
 import net.minecraft.client.gui.GuiSelectWorld
 import net.minecraft.client.resources.I18n
 import org.lwjgl.input.Mouse
+import java.text.SimpleDateFormat
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class GuiMainMenu : AbstractScreen() {
 
     private var popup: PopupScreen? = null
-    private var lastPopupTime: Long? = null
-    private val popupInterval = TimeUnit.DAYS.toMillis(7) // One week
+    private var lastWarningTime: Long? = null
+    private val warningInterval = TimeUnit.DAYS.toMillis(7)
+
+    init {
+        if (FileManager.firstStart) {
+            showWelcomePopup()
+        } else if (hasUpdate()) {
+            showUpdatePopup()
+        } else if (lastWarningTime == null || Instant.now().toEpochMilli() - lastWarningTime!! > warningInterval) {
+            showDiscontinuedWarning()
+        }
+    }
 
     override fun initGui() {
         val defaultHeight = height / 4 + 48
@@ -48,28 +63,88 @@ class GuiMainMenu : AbstractScreen() {
 
         buttonList.add(GuiButton(0, baseCol1, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.options")))
         buttonList.add(GuiButton(4, baseCol2, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.quit")))
+    }
 
-        // Check if the popup should be displayed
-        if (lastPopupTime == null || Instant.now().toEpochMilli() - lastPopupTime!! > popupInterval) {
-            showDiscontinuedWarning()
-        }
+    private fun showWelcomePopup() {
+        popup = PopupScreen(
+            "Welcome!",
+            """
+        Thank you for downloading and installing our client!
+
+        Here is some information you might find useful:
+        §lClickGUI:§r Press [RightShift] to open.
+        Right-click modules with a '+' to edit.
+        Hover a module to see its description.
+
+        §lImportant Commands:§r
+        .bind <module> <key> / .bind <module> none
+        .autosettings load <name> / .autosettings list
+
+        §lNeed help?§r Contact us!
+        YouTube: https://youtube.com/ccbluex
+        Twitter: https://twitter.com/ccbluex
+        Forum: https://forums.ccbluex.net/
+        """.trimIndent(),
+            listOf(
+                ButtonData("OK") { }
+            ),
+            {
+                popup = null
+            }
+        )
+    }
+
+    private fun showUpdatePopup() {
+        val newestVersion = ClientUpdate.newestVersion ?: return
+
+        val isReleaseBuild = newestVersion.release
+        val updateType = if (isReleaseBuild) "version" else "development build"
+
+        val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy, h a z", Locale.ENGLISH)
+        val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
+        val formattedNewestDate = dateFormatter.format(newestVersionDate)
+
+        val updateMessage = """
+    A new $updateType of LiquidBounce is available!
+
+    - ${if (isReleaseBuild) "Version" else "Build ID"}: ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
+    - Minecraft Version: ${newestVersion.mcVersion}
+    - Branch: ${newestVersion.branch}
+    - Date: $formattedNewestDate
+
+    Changes:
+    ${newestVersion.message}
+    """.trimIndent()
+
+        popup = PopupScreen(
+            "New Update Available!",
+            updateMessage,
+            listOf(
+                ButtonData("Download") { MiscUtils.showURL(newestVersion.url) }
+            ),
+            {
+                popup = null
+            }
+        )
     }
 
     private fun showDiscontinuedWarning() {
         popup = PopupScreen(
             "Warning",
-            "This version is discontinued and unsupported. We strongly recommend using LiquidBounce Nextgen instead, which supports all Minecraft versions (1.7 - latest), has active development, and includes the newest bypasses and features."
-                .repeat(5),
+            """
+        This version is discontinued and unsupported.
+        We strongly recommend using LiquidBounce Nextgen instead, which supports all Minecraft versions (1.7 - latest), has active development, and includes the newest bypasses and features.
+        """.trimIndent(),
             listOf(
-                ButtonData("Download Nextgen") { MiscUtils.showURL("https://liquidbounce.net/download") },
+                ButtonData("Download") { MiscUtils.showURL("https://liquidbounce.net/download") },
                 ButtonData("Installation Tutorial") { MiscUtils.showURL("https://www.youtube.com/watch?v=i_r1i4m-NZc") }
             )
         ) {
             popup = null
-            lastPopupTime = Instant.now().toEpochMilli()
+            lastWarningTime = Instant.now().toEpochMilli()
         }
-
     }
+
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
