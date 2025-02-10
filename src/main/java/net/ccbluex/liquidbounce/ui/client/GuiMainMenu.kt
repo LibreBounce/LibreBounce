@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.api.ClientUpdate
@@ -142,7 +141,7 @@ class GuiMainMenu : AbstractScreen() {
 
     private fun showDiscontinuedWarning() {
         popup = PopupScreen(
-            "§c§lWarning",
+            "§c§lUnsupported version",
             """
         §6§lThis version is discontinued and unsupported.§r
         
@@ -159,7 +158,7 @@ class GuiMainMenu : AbstractScreen() {
         - Auto config support will not be actively maintained.
         - Unofficial forks of this version are discouraged as they lack the full feature set of Nextgen and cannot be trusted.
 
-        §b§lUpgrade to LiquidBounce Nextgen today for a better experience!§r
+        §9Upgrade to LiquidBounce Nextgen today for a better experience!§r
         """.trimIndent(),
             listOf(
                 ButtonData("§aDownload Nextgen") { MiscUtils.showURL("https://liquidbounce.net/download") },
