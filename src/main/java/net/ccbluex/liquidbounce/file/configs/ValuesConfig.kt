@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration
+import net.ccbluex.liquidbounce.ui.client.GuiMainMenu
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.io.readJson
@@ -87,6 +88,11 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     if (jsonValue.has("Particles")) ClientConfiguration.particles = jsonValue["Particles"].asBoolean
                 }
 
+                key.equals("popupData", true) -> {
+                    val jsonValue = value as JsonObject
+                    if (jsonValue.has("lastWarningTime")) GuiMainMenu.lastWarningTime = jsonValue["lastWarningTime"].asLong
+                }
+
                 else -> {
                     val module = moduleManager[key] ?: continue
 
@@ -140,6 +146,10 @@ class ValuesConfig(file: File) : FileConfig(file) {
             for (value in module.values) jsonModule.add(value.name, value.toJson())
             jsonObject.add(module.name, jsonModule)
         }
+
+        val popupData = JsonObject()
+        GuiMainMenu.lastWarningTime?.let { popupData.addProperty("lastWarningTime", it) }
+        jsonObject.add("lastWarningTime", popupData)
 
         file.writeText(PRETTY_GSON.toJson(jsonObject))
     }

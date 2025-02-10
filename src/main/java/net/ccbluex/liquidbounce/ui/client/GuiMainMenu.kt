@@ -35,7 +35,7 @@ class GuiMainMenu : AbstractScreen() {
 
     companion object {
         private var popupOnce = false
-        private var lastWarningTime: Long? = null
+        var lastWarningTime: Long? = null
         private val warningInterval = TimeUnit.DAYS.toMillis(7)
     }
 
@@ -170,7 +170,6 @@ class GuiMainMenu : AbstractScreen() {
             lastWarningTime = Instant.now().toEpochMilli()
         }
     }
-
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
