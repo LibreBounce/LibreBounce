@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -76,7 +77,10 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val tabHeight by float("TabHeight", 13F, 10F..15F)
     private val upperCase by boolean("UpperCase", false)
 
-    private val tabs = mutableListOf<Tab>()
+    private val tabs = Array(Category.entries.size) {
+        val category = Category.entries[it]
+        Tab(category, category.displayName)
+    }
 
     private var categoryMenu = true
     private var selectedCategory = 0
@@ -98,20 +102,6 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
 
     private var tabY = 0F
     private var itemY = 0F
-
-    init {
-        for (category in Category.entries) {
-            val tab = Tab(category, category.displayName)
-
-            moduleManager.forEach { module ->
-                if (category == module.category) {
-                    tab.modules += module
-                }
-            }
-
-            tabs += tab
-        }
-    }
 
     private val corners = arrayOf(RenderUtils.RoundedCorners.RIGHT_ONLY, RenderUtils.RoundedCorners.LEFT_ONLY)
 
@@ -383,7 +373,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
      */
     private inner class Tab(val category: Category, val tabName: String) {
 
-        val modules = mutableListOf<Module>()
+        val modules = ModuleManager[category]
         var menuWidth = 0
         var textFade = 0F
             set(value) {
