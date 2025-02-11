@@ -18,17 +18,11 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.minecraft.client.gui.ScaledResolution
+import org.lwjgl.input.Keyboard.*
 import java.awt.Color
 import javax.vecmath.Point2i
 
 object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
-
-    // Key code constants
-    private const val KEY_RIGHT = 205
-    private const val KEY_LEFT = 203
-    private const val KEY_UP = 200
-    private const val KEY_DOWN = 208
-    private const val KEY_ESCAPE = 1
 
     // Game field constants
     private const val BLOCK_SIZE = 10
@@ -67,7 +61,7 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
             toggle()
             return@handler
         }
-        if ((key == KEY_RIGHT || key == KEY_LEFT || key == KEY_UP || key == KEY_DOWN) &&
+        if ((key == KEY_RIGHT|| key == KEY_LEFT || key == KEY_UP || key == KEY_DOWN) &&
             !isOppositeDirection(lastKey, key)
         ) {
             lastKey = key
