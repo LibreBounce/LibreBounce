@@ -23,14 +23,17 @@ import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.combat.*
+import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
+import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.MathHelper
@@ -50,10 +53,8 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         tree(OnClick)
     }
 
-    private val targetSelector = tree(TargetSelector(
-        PriorityEnum.DIRECTION,
-        float("Range", 4.2f, 1f..8f)
-    ))
+    val targetTracker = tree(TargetTracker(PriorityEnum.DIRECTION, float("Range", 4.2f, 1f..8f)))
+    private val targetRenderer = tree(WorldTargetRenderer(this))
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
@@ -96,16 +97,21 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
 
         // Update Auto Weapon
-        ModuleAutoWeapon.prepare(CombatManager.target)
+        ModuleAutoWeapon.prepare(targetTracker.target)
     }
 
     override fun disable() {
-        CombatManager.resetTarget()
+        targetTracker.reset()
     }
 
     val renderHandler = handler<WorldRenderEvent> { event ->
+        val matrixStack = event.matrixStack
         val partialTicks = event.partialTicks
-        CombatManager.target ?: return@handler
+        val target = targetTracker.target ?: return@handler
+
+        renderEnvironmentForWorld(matrixStack) {
+            targetRenderer.render(this, target, partialTicks)
+        }
 
         if (!ignoreOpenScreen && mc.currentScreen != null) {
             return@handler
@@ -145,27 +151,32 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
     }
 
-    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? =
-        CombatManager.updateTarget(targetSelector) { target ->
+    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? {
+        for (target in targetTracker.enemies()) {
             val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)
             val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 
             val spot = raytraceBox(
                 pointOnHitbox.fromPoint,
                 pointOnHitbox.cutOffBox,
-                range = targetSelector.maxRange.toDouble(),
+                range = targetTracker.maxRange.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                pointOnHitbox.fromPoint, pointOnHitbox.box, range = targetSelector.maxRange.toDouble(),
+                pointOnHitbox.fromPoint, pointOnHitbox.box, range = targetTracker.maxRange.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
-            ) ?: return@updateTarget null
+            ) ?: continue
 
-            if (target != CombatManager.target) {
+            if (target != targetTracker.target) {
                 slowStart.onTrigger()
             }
-            target to spot
+            targetTracker.target = target
+            return target to spot
         }
+
+        targetTracker.reset()
+        return null
+    }
 
 }

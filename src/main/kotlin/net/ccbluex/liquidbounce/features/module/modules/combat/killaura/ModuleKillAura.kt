@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleMultiActio
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.*
@@ -46,7 +47,9 @@ import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.openInventorySilently
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -90,7 +93,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     // Target
-    val targetSelector = tree(TargetSelector())
+    val targetTracker = tree(TargetTracker())
 
     // Rotation
     private val rotations = tree(object : RotationsConfigurable(this, combatSpecific = true) {
@@ -112,13 +115,16 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         tree(KillAuraAutoBlock)
     }
 
+    // Target rendering
+    private val targetRenderer = tree(WorldTargetRenderer(this))
+
     init {
         tree(KillAuraFailSwing)
         tree(KillAuraFightBot)
     }
 
     override fun disable() {
-        CombatManager.resetTarget()
+        targetTracker.reset()
         failedHits.clear()
         KillAuraAutoBlock.stopBlocking()
         KillAuraNotifyWhenFail.failedHitsIncrement = 0
@@ -128,7 +134,19 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         get() = !requiresClick || mc.options.attackKey.isPressed
 
     val renderHandler = handler<WorldRenderEvent> { event ->
-        renderFailedHits(event.matrixStack)
+        val matrixStack = event.matrixStack
+
+        renderTarget(matrixStack, event.partialTicks)
+        renderFailedHits(matrixStack)
+    }
+
+    private fun renderTarget(matrixStack: MatrixStack, partialTicks: Float) {
+        if (!targetRenderer.enabled) return
+        val target = targetTracker.target ?: return
+
+        renderEnvironmentForWorld(matrixStack) {
+            targetRenderer.render(this, target, partialTicks)
+        }
     }
 
     @Suppress("unused")
@@ -141,7 +159,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         if (isInInventoryScreen && !ignoreOpenInventory || shouldResetTarget) {
             // Reset current target
-            CombatManager.resetTarget()
+            targetTracker.reset()
             return@handler
         }
 
@@ -149,7 +167,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         updateEnemySelection()
 
         // Update Auto Weapon
-        ModuleAutoWeapon.prepare(CombatManager.target)
+        ModuleAutoWeapon.prepare(targetTracker.target)
     }
 
     @Suppress("unused")
@@ -159,7 +177,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Check if there is target to attack
-        val target = CombatManager.target
+        val target = targetTracker.target
 
         if (CombatManager.shouldPauseCombat) {
             KillAuraAutoBlock.stopBlocking()
@@ -210,7 +228,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
             // Swap enemy if there is a better enemy (closer to the player crosshair)
             if (chosenEntity is LivingEntity && chosenEntity.shouldBeAttacked() && chosenEntity != target) {
-                CombatManager.selectTarget(chosenEntity, true)
+                targetTracker.target = chosenEntity
             }
         } else {
             chosenEntity = target
@@ -305,7 +323,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     private fun updateEnemySelection() {
         // Maximum range can be higher than the normal range, since we want to scan for enemies
         // which are in our [scanExtraRange] as well
-        val maximumRange = if (targetSelector.closestSquaredEnemyDistance > range * range) {
+        val maximumRange = if (targetTracker.closestSquaredEnemyDistance > range * range) {
             range + scanExtraRange
         } else {
             range
@@ -324,27 +342,28 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
         ModuleDebug.debugParameter(ModuleKillAura, "AimSituation", situation)
 
-        CombatManager.updateTarget(targetSelector) { target ->
+        for (target in targetTracker.enemies()) {
             if (target.squaredBoxedDistanceTo(player) > range * range) {
-                return@updateTarget null
+                continue
             }
 
-            val spot = getSpot(target, range.toDouble(), situation) ?: return@updateTarget null
+            val spot = getSpot(target, range.toDouble(), situation) ?: continue
 
             val ticks = rotations.howLongToReach(spot.rotation)
             if (rotations.rotationTimingMode == SNAP && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
             // On Tick can only be used if the distance is not too far compared to the turn speed
             || rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
-                return@updateTarget null
+                continue
             }
 
-            spot
-        }?.let { spot ->
+            val (rotation, vec) = spot
+
+            targetTracker.target = target
             RotationManager.aimAt(
                 rotations.toAimPlan(
-                    spot.rotation,
-                    spot.vec,
-                    CombatManager.target,
+                    rotation,
+                    vec,
+                    target,
                     considerInventory = !ignoreOpenInventory
                 ),
                 priority = Priority.IMPORTANT_FOR_USAGE_2,
@@ -352,13 +371,11 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             )
             return
         }
+        targetTracker.reset()
 
         // Choose enemy for fight bot
         if (KillAuraFightBot.enabled) {
-            val target = CombatManager.target ?: targetSelector.enemies().firstOrNull()
-            if (target != null) {
-                CombatManager.selectTarget(target)
-            }
+            targetTracker.selectFirst()
 
             RotationManager.aimAt(
                 rotations.toAimPlan(
@@ -507,7 +524,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     val shouldBlockSprinting
         get() = !player.isOnGround &&
             criticalsMode != CriticalsMode.IGNORE &&
-            CombatManager.target != null &&
+            targetTracker.target != null &&
             clickScheduler.isClickOnNextTick(1)
 
     @Suppress("unused")

@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.plac
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleBasePlace
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer.getMaxRange
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer.oldVersion
@@ -27,7 +28,6 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.utils.block.getSortedSphere
 import net.ccbluex.liquidbounce.utils.block.isBlockedByEntitiesReturnCrystal
-import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.minecraft.util.math.BlockPos
 
 object CrystalAuraPlaceTargetFactory : MinecraftShortcuts {
@@ -95,7 +95,7 @@ object CrystalAuraPlaceTargetFactory : MinecraftShortcuts {
         excludeIds: IntArray?,
         positions: MutableList<PlacementPositionCandidate>
     ): Boolean {
-        val target = CombatManager.target ?: return true
+        val target = ModuleCrystalAura.targetTracker.target ?: return true
         val expectedCrystal = if (oldVersion) FULL_BOX.withMaxX(2.0) else FULL_BOX
         val basePlaceLayers = if (basePlace) SubmoduleBasePlace.getBasePlaceLayers(target.y) else IntOpenHashSet()
 

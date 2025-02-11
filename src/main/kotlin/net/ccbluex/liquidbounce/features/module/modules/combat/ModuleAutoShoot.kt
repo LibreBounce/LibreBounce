@@ -23,11 +23,13 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
@@ -38,6 +40,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.Item
@@ -64,7 +67,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     /**
      * The target tracker to find the best enemy to attack.
      */
-    private val targetSelector = tree(TargetSelector(PriorityEnum.DISTANCE, floatRange("Range", 3.0f..6f, 1f..50f)))
+    internal val targetTracker = tree(TargetTracker(PriorityEnum.DISTANCE, floatRange("Range", 3.0f..6f, 1f..50f)))
     private val pointTracker = tree(
         PointTracker(
             lowestPointDefault = PointTracker.PreferredBoxPart.HEAD,
@@ -82,6 +85,11 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     private val rotationConfigurable = tree(RotationsConfigurable(this))
     private val aimOffThreshold by float("AimOffThreshold", 2f, 0.5f..10f)
 
+    /**
+     * The target renderer to render the target, which we are currently aiming at.
+     */
+    private val targetRenderer = tree(WorldTargetRenderer(this))
+
     private val selectSlotAutomatically by boolean("SelectSlotAutomatically", true)
     private val tickUntilSlotReset by int("TicksUntillSlotReset", 1, 0..20)
     private val considerInventory by boolean("ConsiderInventory", true)
@@ -97,7 +105,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     @Suppress("unused")
     val simulatedTickHandler = handler<RotationUpdateEvent> {
         // Find the recommended target
-        val target = CombatManager.target.takeIf { player.canSee(it) } ?: targetSelector.enemies().firstOrNull {
+        val target = targetTracker.selectFirst {
             // Check if we can see the enemy
             player.canSee(it)
         } ?: return@handler
@@ -123,7 +131,6 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         val rotation = generateRotation(target, GravityType.fromHand(hand))
 
-        CombatManager.selectTarget(target, true)
         // Set the rotation with the usage priority of 2.
         RotationManager.aimAt(
             rotationConfigurable.toAimPlan(rotation ?: return@handler, considerInventory = considerInventory),
@@ -132,7 +139,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     }
 
     override fun disable() {
-        CombatManager.resetTarget()
+        targetTracker.reset()
     }
 
     /**
@@ -140,7 +147,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val handleAutoShoot = tickHandler {
-        val target = CombatManager.target ?: return@tickHandler
+        val target = targetTracker.target ?: return@tickHandler
 
         if (notDuringCombat && CombatManager.isInCombat) {
             return@tickHandler
@@ -186,6 +193,15 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
                 RotationManager.serverRotation.yaw,
                 RotationManager.serverRotation.pitch
             ).isAccepted
+        }
+    }
+
+    val renderHandler = handler<WorldRenderEvent> { event ->
+        val matrixStack = event.matrixStack
+        val target = targetTracker.target ?: return@handler
+
+        renderEnvironmentForWorld(matrixStack) {
+            targetRenderer.render(this, target, event.partialTicks)
         }
     }
 

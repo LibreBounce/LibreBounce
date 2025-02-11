@@ -172,7 +172,7 @@ object ModuleFakeLag : ClientModule("FakeLag", Category.COMBAT) {
         }
 
         // Support auto shoot with fake lag
-        if (running && ModuleAutoShoot.constantLag && CombatManager.target == null) {
+        if (running && ModuleAutoShoot.constantLag && ModuleAutoShoot.targetTracker.target == null) {
             event.action = PacketQueueManager.Action.QUEUE
             return@handler
         }

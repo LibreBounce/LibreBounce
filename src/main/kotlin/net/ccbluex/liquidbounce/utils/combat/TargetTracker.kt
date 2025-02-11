@@ -30,6 +30,47 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.player.PlayerEntity
 
+/**
+ * A target tracker to choose the best enemy to attack
+ */
+class TargetTracker(
+    defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
+    range: RangedValue<*>? = null
+) : TargetSelector(defaultPriority, range) {
+
+    var target: LivingEntity? = null
+
+    fun selectFirst(predicate: ((LivingEntity) -> Boolean)? = null): LivingEntity? {
+        val enemies = enemies()
+        return (if (predicate != null) enemies.firstOrNull(predicate) else enemies.firstOrNull()).also { target = it }
+    }
+
+    fun <R> select(evaluator: (LivingEntity) -> R): R? {
+        for (enemy in enemies()) {
+            val value = evaluator(enemy)
+            if (value != null) {
+                target = enemy
+                return value
+            }
+        }
+
+        reset()
+        return null
+    }
+
+    fun reset() {
+        target = null
+    }
+
+    fun validate(validator: ((LivingEntity) -> Boolean)? = null) {
+        val target = target ?: return
+
+        if (!validate(target) || validator != null && !validator(target)) {
+            reset()
+        }
+    }
+}
+
 open class TargetSelector(
     defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
     val range: RangedValue<*>? = null
@@ -109,7 +150,7 @@ open class TargetSelector(
         }
     }
 
-    val maxRange: Number
+    val maxRange: Float
         get() {
             if (range == null) return Float.MAX_VALUE
 
@@ -117,8 +158,8 @@ open class TargetSelector(
             return when (range.valueType) {
                 FLOAT -> value as Float
                 FLOAT_RANGE -> (value as ClosedFloatingPointRange<Float>).endInclusive
-                INT -> value as Int
-                INT_RANGE -> (value as IntRange).last
+                INT -> (value as Int).toFloat()
+                INT_RANGE -> (value as IntRange).last.toFloat()
                 else -> Float.MAX_VALUE
             }
         }
