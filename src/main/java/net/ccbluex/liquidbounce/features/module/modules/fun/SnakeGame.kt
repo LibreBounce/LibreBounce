@@ -23,54 +23,69 @@ import javax.vecmath.Point2i
 
 object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
 
-    private val mode by choices("Mode", arrayOf("Easy", "Normal", "Hard"), "Easy")
+    // Key code constants
+    private const val KEY_RIGHT = 205
+    private const val KEY_LEFT = 203
+    private const val KEY_UP = 200
+    private const val KEY_DOWN = 208
+    private const val KEY_ESCAPE = 1
 
-    private var obstacles = mutableListOf(Point2i(0, 0))
-    private var snake = mutableListOf(Point2i(0, 0))
-    private var lastKey = 208
+    // Game field constants
+    private const val BLOCK_SIZE = 10
+    private const val FIELD_WIDTH = 200
+    private const val FIELD_HEIGHT = 150
+
+    // Game state
+    private val mode by choices("Mode", arrayOf("Easy", "Normal", "Hard"), "Easy")
+    private var obstacles = mutableListOf<Point2i>()
+    private var snake = mutableListOf<Point2i>()
+    private var lastKey = KEY_DOWN
     private var food = Point2i(0, 0)
     private var score = 0
     private var highScore = 0
 
-    private const val BLOCK_SIZE = 10
-    private const val FIELD_WIDTH = 200
-    private const val FIELD_HEIGHT = 150
+    override fun onEnable() {
+        setupGame()
+    }
 
     override fun onDisable() {
         checkHighScore()
         setupGame()
     }
 
-    override fun onEnable() {
-        setupGame()
+    private val speed: Int
+        get() = when (mode) {
+            "Easy"   -> 3
+            "Normal" -> 2
+            "Hard"   -> 2
+            else     -> 3
+        }
+
+    val onKey = handler<KeyEvent> { event ->
+        val key = event.key
+        if (key == KEY_ESCAPE) {
+            toggle()
+            return@handler
+        }
+        if ((key == KEY_RIGHT || key == KEY_LEFT || key == KEY_UP || key == KEY_DOWN) &&
+            !isOppositeDirection(lastKey, key)
+        ) {
+            lastKey = key
+        }
     }
 
-    private val speed
-        get() = when (mode) {
-            "Easy" -> 3
-            "Normal" -> 2
-            "Hard" -> 2
-            else -> 3
-        }
-
-    val onKey = handler<KeyEvent> { e ->
-        val k = e.key
-        if (k == 1) {
-            toggle()
-        }
-        if ((k == 205 && lastKey != 203) ||
-            (k == 203 && lastKey != 205) ||
-            (k == 200 && lastKey != 208) ||
-            (k == 208 && lastKey != 200)
-        ) {
-            lastKey = k
-        }
+    private fun isOppositeDirection(current: Int, newKey: Int): Boolean {
+        return (current == KEY_RIGHT && newKey == KEY_LEFT) ||
+               (current == KEY_LEFT && newKey == KEY_RIGHT) ||
+               (current == KEY_UP && newKey == KEY_DOWN) ||
+               (current == KEY_DOWN && newKey == KEY_UP)
     }
 
     val onUpdate = handler<UpdateEvent> {
         val player = mc.thePlayer ?: return@handler
-        
+
         if (player.ticksExisted % speed == 0) {
+
             if (snake[0].x == food.x && snake[0].y == food.y) {
                 score++
                 when (mode) {
@@ -78,12 +93,10 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
                         if (score % 3 == 0) generateOneObstacle()
                         if (score % 10 == 0 && obstacles.isNotEmpty()) obstacles.removeAt(obstacles.lastIndex)
                     }
-
                     "Normal" -> {
                         if (score % 2 == 0) generateOneObstacle()
                         if (score % 5 == 0 && obstacles.isNotEmpty()) obstacles.removeAt(obstacles.lastIndex)
                     }
-
                     "Hard" -> {
                         if (score % 5 == 0 && obstacles.isNotEmpty()) obstacles.removeAt(obstacles.lastIndex)
                     }
@@ -92,16 +105,17 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
                 snake.add(Point2i(snake[0].x, snake[0].y))
             }
 
+            // Move snake body
             for (i in snake.size - 1 downTo 1) {
                 snake[i].x = snake[i - 1].x
                 snake[i].y = snake[i - 1].y
             }
 
             when (lastKey) {
-                205 -> snake[0].x++
-                203 -> snake[0].x--
-                200 -> snake[0].y--
-                208 -> snake[0].y++
+                KEY_RIGHT -> snake[0].x++
+                KEY_LEFT  -> snake[0].x--
+                KEY_UP    -> snake[0].y--
+                KEY_DOWN  -> snake[0].y++
             }
 
             if (mode == "Hard") {
@@ -151,74 +165,80 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
             )
         }
 
+        // Draw field background
         drawRect(sx, sy, sx + FIELD_WIDTH, sy + FIELD_HEIGHT, Color(30, 0, 0, 0).rgb)
 
-        val fx = food.x * BLOCK_SIZE + sx
-        val fy = food.y * BLOCK_SIZE + sy
-        val cFood = ColorUtils.fade(Color(255, 15, 15), 1, 3)
-        drawRect(fx, fy, fx + BLOCK_SIZE, fy + BLOCK_SIZE, cFood.rgb)
+        // Draw food
+        val foodX = food.x * BLOCK_SIZE + sx
+        val foodY = food.y * BLOCK_SIZE + sy
+        val foodColor = ColorUtils.fade(Color(255, 15, 15), 1, 3)
+        drawRect(foodX, foodY, foodX + BLOCK_SIZE, foodY + BLOCK_SIZE, foodColor.rgb)
 
-        if (mode in listOf("Hard", "Normal", "Easy")) {
-            for (obs in obstacles) {
-                val ox = obs.x * BLOCK_SIZE + sx
-                val oy = obs.y * BLOCK_SIZE + sy
-                val cObs = ColorUtils.fade(Color(255, 255, 0), 1, 3)
-                drawRect(ox, oy, ox + BLOCK_SIZE, oy + BLOCK_SIZE, cObs.rgb)
-            }
+        // Draw obstacles
+        for (obs in obstacles) {
+            val ox = obs.x * BLOCK_SIZE + sx
+            val oy = obs.y * BLOCK_SIZE + sy
+            val obsColor = ColorUtils.fade(Color(255, 255, 0), 1, 3)
+            drawRect(ox, oy, ox + BLOCK_SIZE, oy + BLOCK_SIZE, obsColor.rgb)
         }
 
+        // Draw snake segments
         for (i in snake.indices) {
-            val xx = snake[i].x * BLOCK_SIZE + sx
-            val yy = snake[i].y * BLOCK_SIZE + sy
-            val cc = ColorUtils.fade(Color(255, 253, 255), i, snake.size)
-            drawRect(xx, yy, xx + BLOCK_SIZE, yy + BLOCK_SIZE, cc.rgb)
+            val segX = snake[i].x * BLOCK_SIZE + sx
+            val segY = snake[i].y * BLOCK_SIZE + sy
+            val segColor = ColorUtils.fade(Color(255, 253, 255), i, snake.size)
+            drawRect(segX, segY, segX + BLOCK_SIZE, segY + BLOCK_SIZE, segColor.rgb)
         }
 
-        if (snake[0].x * BLOCK_SIZE + sx >= sx + FIELD_WIDTH ||
-            snake[0].x * BLOCK_SIZE + sx < sx ||
-            snake[0].y * BLOCK_SIZE + sy < sy ||
-            snake[0].y * BLOCK_SIZE + sy >= sy + FIELD_HEIGHT
+        // Check boundaries
+        val headPixelX = snake[0].x * BLOCK_SIZE + sx
+        val headPixelY = snake[0].y * BLOCK_SIZE + sy
+        if (headPixelX >= sx + FIELD_WIDTH ||
+            headPixelX < sx ||
+            headPixelY < sy ||
+            headPixelY >= sy + FIELD_HEIGHT
         ) {
             checkHighScore()
             setupGame()
         }
 
-        fontSemibold35.drawStringWithShadow("Score: §a$score", sx.toFloat(), (sy - 14.0).toFloat(), Color(220, 220, 220).rgb)
+        // Draw score text
+        fontSemibold35.drawStringWithShadow("Score: §a$score", sx, sy - 14f, Color(220, 220, 220).rgb)
 
-        val hsTxt = "High Score: §a$highScore"
-        val hsW = fontSemibold35.getStringWidth(hsTxt)
-        val hsH = fontSemibold35.FONT_HEIGHT
+        // Draw high score box
+        val hsText = "High Score: §a$highScore"
+        val hsTextWidth = fontSemibold35.getStringWidth(hsText)
+        val hsTextHeight = fontSemibold35.FONT_HEIGHT
         val hsX1 = sx.toInt()
-        val hsY1 = (sy - 28.0).toInt()
-        val hsX2 = hsX1 + hsW + 6
-        val hsY2 = hsY1 + hsH + 4
+        val hsY1 = (sy - 28).toInt()
+        val hsX2 = hsX1 + hsTextWidth + 6
+        val hsY2 = hsY1 + hsTextHeight + 4
         drawGradientRect(hsX1, hsY1, hsX2, hsY2, Color(0, 0, 0, 120).rgb, Color(0, 0, 0, 120).rgb, 0f)
-        drawBorder(hsX1, hsY1, hsX2, hsY2, 1f, Color(6, 70, 255, 120).rgb)
-        fontSemibold35.drawStringWithShadow(hsTxt, (hsX1 + 3).toFloat(), (hsY1 + 2).toFloat(), Color(220, 220, 220).rgb)
+        drawBorder(hsX1.toFloat(), hsY1.toFloat(), hsX2.toFloat(), hsY2.toFloat(), 1f, Color(6, 70, 255, 120).rgb)
+        fontSemibold35.drawStringWithShadow(hsText, (hsX1 + 3).toFloat(), (hsY1 + 2).toFloat(), Color(220, 220, 220).rgb)
 
+        // Draw current mode indicator
         fontSemibold35.drawStringWithShadow(
             "mode: $mode",
-            (sx + FIELD_WIDTH - 50).toFloat(),
-            (sy - 14.0).toFloat(),
+            sx + FIELD_WIDTH - 50,
+            sy - 14f,
             Color(220, 220, 220).rgb
         )
     }
 
     private fun setupGame() {
-        snake = mutableListOf(Point2i(0, 0))
+        snake.clear()
+        snake.add(Point2i(0, 0))
         moveFood()
-        lastKey = 208
+        lastKey = KEY_DOWN
         score = 0
-        when (mode) {
-            "Hard" -> {
-                generateObstacles(7)
-            }
 
-            "Normal", "Easy" -> {
-                obstacles.clear()
-            }
+        when (mode) {
+            "Hard" -> generateObstacles(7)
+            "Normal", "Easy" -> obstacles.clear()
         }
     }
+
 
     private fun moveFood() {
         var px: Int
