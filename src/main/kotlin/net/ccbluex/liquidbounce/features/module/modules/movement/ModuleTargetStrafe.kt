@@ -173,7 +173,9 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
                         currentRange += AdaptiveRange.rangeStep
                         if (currentRange > AdaptiveRange.maxRange) {
                             direction = -direction
-                            strafeVec = computeDirectionVec(strafeYaw, distance, speed, targetSelector.maxRange, direction)
+                            strafeVec = computeDirectionVec(
+                                strafeYaw, distance, speed, targetSelector.maxRange, direction
+                            )
                             break
                         }
                     }
