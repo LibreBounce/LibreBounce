@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.event
 
-open class Event
+interface Event
 
-open class CancellableEvent : Event() {
+abstract class CancellableEvent : Event {
 
     /**
      * Let you know if the event is cancelled

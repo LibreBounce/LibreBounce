@@ -19,7 +19,7 @@ import net.minecraft.util.*
  *
  * @param targetEntity Attacked entity
  */
-class AttackEvent(val targetEntity: Entity?) : Event()
+class AttackEvent(val targetEntity: Entity?) : Event
 
 /**
  * Called when minecraft get bounding box of block
@@ -28,7 +28,7 @@ class AttackEvent(val targetEntity: Entity?) : Event()
  * @param block block itself
  * @param boundingBox vanilla bounding box
  */
-class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAlignedBB?) : Event() {
+class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAlignedBB?) : Event {
     val x = blockPos.x
     val y = blockPos.y
     val z = blockPos.z
@@ -37,17 +37,17 @@ class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAl
 /**
  * Called when player clicks a block
  */
-class ClickBlockEvent(val clickedBlock: BlockPos?, val enumFacing: EnumFacing?) : Event()
+class ClickBlockEvent(val clickedBlock: BlockPos?, val enumFacing: EnumFacing?) : Event
 
 /**
  * Called when client is shutting down
  */
-object ClientShutdownEvent : Event()
+object ClientShutdownEvent : Event
 
 /**
  * Called when another entity moves
  */
-data class EntityMovementEvent(val movedEntity: Entity) : Event()
+data class EntityMovementEvent(val movedEntity: Entity) : Event
 
 /**
  * Called when player jumps
@@ -61,15 +61,20 @@ class JumpEvent(var motion: Float, val eventState: EventState) : CancellableEven
  *
  * @param key Pressed key
  */
-class KeyEvent(val key: Int) : Event()
+class KeyEvent(val key: Int) : Event
 
 /**
  * Called in "onUpdateWalkingPlayer"
  *
  * @param eventState PRE or POST
  */
-class MotionEvent(var x: Double, var y: Double, var z: Double, var onGround: Boolean, val eventState: EventState) :
-    Event()
+class MotionEvent(
+    var x: Double,
+    var y: Double,
+    var z: Double,
+    var onGround: Boolean,
+    val eventState: EventState
+) : Event
 
 /**
  * Called in "onLivingUpdate" when the player is using a use item.
@@ -77,7 +82,7 @@ class MotionEvent(var x: Double, var y: Double, var z: Double, var onGround: Boo
  * @param strafe the applied strafe slow down
  * @param forward the applied forward slow down
  */
-class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
+class SlowDownEvent(var strafe: Float, var forward: Float) : Event
 
 /**
  * Called in "onLivingUpdate" when the player is sneaking.
@@ -85,19 +90,19 @@ class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
  * @param strafe the applied strafe slow down
  * @param forward the applied forward slow down
  */
-class SneakSlowDownEvent(var strafe: Float, var forward: Float) : Event()
+class SneakSlowDownEvent(var strafe: Float, var forward: Float) : Event
 
 /**
  * Called in "onLivingUpdate" after the movement input update.
  *
  * @param originalInput the movement input after the update
  */
-class MovementInputEvent(var originalInput: MovementInput) : Event()
+class MovementInputEvent(var originalInput: MovementInput) : Event
 
 /**
  * Called in "onLivingUpdate" after when the player's sprint states are updated
  */
-object PostSprintUpdateEvent : Event()
+object PostSprintUpdateEvent : Event
 
 /**
  * Called in "moveFlying"
@@ -139,76 +144,76 @@ class BlockPushEvent : CancellableEvent()
 /**
  * Called when screen is going to be rendered
  */
-class Render2DEvent(val partialTicks: Float) : Event()
+class Render2DEvent(val partialTicks: Float) : Event
 
 /**
  * Called when packets sent to client are processed
  */
-object GameLoopEvent : Event()
+object GameLoopEvent : Event
 
 /**
  * Called when world is going to be rendered
  */
-class Render3DEvent(val partialTicks: Float) : Event()
+class Render3DEvent(val partialTicks: Float) : Event
 
 /**
  * Called when the screen changes
  */
-class ScreenEvent(val guiScreen: GuiScreen?) : Event()
+class ScreenEvent(val guiScreen: GuiScreen?) : Event
 
 /**
  * Called when the session changes
  */
-object SessionUpdateEvent : Event()
+object SessionUpdateEvent : Event
 
 /**
  * Called when player is going to step
  */
-class StepEvent(var stepHeight: Float) : Event()
+class StepEvent(var stepHeight: Float) : Event
 
 /**
  * Called when player step is confirmed
  */
-object StepConfirmEvent : Event()
+object StepConfirmEvent : Event
 
 /**
  * tick... tack... tick... tack
  */
-object GameTickEvent : Event()
+object GameTickEvent : Event
 
-object TickEndEvent : Event()
+object TickEndEvent : Event
 
 /**
  * tick tack for player
  */
 class PlayerTickEvent(val state: EventState) : CancellableEvent()
 
-object RotationUpdateEvent : Event()
+object RotationUpdateEvent : Event
 
 class RotationSetEvent(var yawDiff: Float, var pitchDiff: Float) : CancellableEvent()
 
 class CameraPositionEvent(
     private val currPos: Vec3, private val prevPos: Vec3, private val lastTickPos: Vec3,
     var result: FreeCam.PositionPair? = null,
-) : Event() {
+) : Event {
     fun withY(value: Double) {
         result = FreeCam.PositionPair(currPos.withY(value), prevPos.withY(value), lastTickPos.withY(value))
     }
 }
 
-class ClientSlotChangeEvent(var supposedSlot: Int, var modifiedSlot: Int) : Event()
+class ClientSlotChangeEvent(var supposedSlot: Int, var modifiedSlot: Int) : Event
 
 class DelayedPacketProcessEvent : CancellableEvent()
 
 /**
  * Called when minecraft player will be updated
  */
-object UpdateEvent : Event()
+object UpdateEvent : Event
 
 /**
  * Called when the world changes
  */
-class WorldEvent(val worldClient: WorldClient?) : Event()
+class WorldEvent(val worldClient: WorldClient?) : Event
 
 /**
  * Called when window clicked
@@ -219,7 +224,7 @@ class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicke
 /**
  * Called when LiquidBounce finishes starting up
  */
-object StartupEvent : Event()
+object StartupEvent : Event
 
 internal val ALL_EVENT_CLASSES = arrayOf(
     PlayerTickEvent::class.java,
