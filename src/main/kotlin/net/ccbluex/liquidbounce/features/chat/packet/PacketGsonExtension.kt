@@ -21,6 +21,7 @@
 package net.ccbluex.liquidbounce.features.chat.packet
 
 import com.google.gson.*
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import java.lang.reflect.Type
 
 /**
@@ -63,7 +64,7 @@ class PacketSerializer : JsonSerializer<Packet> {
         val serializedPacket =
             SerializedPacket(packetName, if (src.javaClass.constructors.none { it.parameterCount != 0 }) null else src)
 
-        return Gson().toJsonTree(serializedPacket)
+        return publicGson.toJsonTree(serializedPacket)
     }
 
 }
@@ -111,7 +112,7 @@ class PacketDeserializer : JsonDeserializer<Packet> {
 
         if (!packetObject.has("c")) packetObject.add("c", JsonObject())
 
-        return Gson().fromJson(packetObject.get("c"), packetRegistry[packetName])
+        return publicGson.fromJson(packetObject.get("c"), packetRegistry[packetName])
 
     }
 
