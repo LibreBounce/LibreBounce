@@ -20,21 +20,27 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor
 
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.inventory.ArmorItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.*
+import net.ccbluex.liquidbounce.utils.item.ArmorComparator.Companion.DURABILITY_THRESHOLD
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
+import net.ccbluex.liquidbounce.utils.item.durability
 import net.ccbluex.liquidbounce.utils.item.isNothing
+import net.ccbluex.liquidbounce.utils.item.type
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.client.gui.screen.ingame.InventoryScreen
+import net.minecraft.item.ArmorItem
 import net.minecraft.item.Items
 
 /**
  * AutoArmor module
  *
- * Automatically put on the best armor.
+ * Automatically puts on the best armor.
  */
 object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
@@ -45,6 +51,31 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
      * If disabled, it will only use inventory moves.
      */
     private val useHotbar by boolean("Hotbar", true)
+
+    // TODO: ideally, this value should be visible only if [inventoryConstraints] requires open inventory
+    //  because if there is no such requirement, the armor will be replaced and saved automatically.
+    private val autoOpenInventoryToSaveArmor by boolean("AutoOpenInvToSaveArmor", false)
+
+    private val repeatable = tickHandler {
+        val armorToEquip = ArmorEvaluation.findBestArmorPieces().values.filterNotNull().filter {
+            !it.isAlreadyEquipped
+        }
+
+        val hasArmorToRepair = player.inventory.armor.filter { it.item is ArmorItem }
+            .any { armorStack ->
+                armorStack.durability <= DURABILITY_THRESHOLD && armorToEquip
+                    .filter { it.itemSlot.itemStack.item is ArmorItem }
+                    .any { (it.itemSlot.itemStack.item as ArmorItem).type() == (armorStack.item as ArmorItem).type() }
+        }
+
+        if (autoOpenInventoryToSaveArmor && inventoryConstraints.requiresOpenInventory && hasArmorToRepair) {
+            if (mc.currentScreen != null) {
+                player.closeHandledScreen()
+            }
+            // TODO: make sure it's legit and undetectable.
+            mc.setScreen(InventoryScreen(player))
+        }
+    }
 
     private val scheduleHandler = handler<ScheduleInventoryActionEvent> { event ->
         // Filter out already equipped armor pieces
