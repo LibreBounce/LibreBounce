@@ -25,6 +25,7 @@ import kotlin.reflect.full.findAnnotation
 /**
  * A callable event
  */
+@Suppress("UtilityClassWithPublicConstructor")
 open class Event {
     /**
      * Singleton empty event
