@@ -38,7 +38,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 
 @Nameable("gameTick")
-object GameTickEvent : Event
+object GameTickEvent : Event()
 
 /**
  * We can use this event to populate the render task queue with tasks that should be
@@ -46,25 +46,25 @@ object GameTickEvent : Event
  * and allows to also schedule tasks off-schedule.
  */
 @Nameable("gameRenderTaskQueue")
-object GameRenderTaskQueueEvent : Event
+object GameRenderTaskQueueEvent : Event()
 
 @Nameable("key")
 @WebSocketEvent
-class KeyEvent(val key: InputUtil.Key, val action: Int) : Event
+class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 
 // Input events
 @Nameable("inputHandle")
-object InputHandleEvent : Event
+object InputHandleEvent : Event()
 
 @Nameable("movementInput")
 class MovementInputEvent(
     var directionalInput: DirectionalInput,
     var jump: Boolean,
     var sneak: Boolean
-) : Event
+) : Event()
 
 @Nameable("sprint")
-class SprintEvent(val directionalInput: DirectionalInput, var sprint: Boolean, val source: Source) : Event {
+class SprintEvent(val directionalInput: DirectionalInput, var sprint: Boolean, val source: Source) : Event() {
     enum class Source {
         INPUT,
         MOVEMENT_TICK,
@@ -77,19 +77,19 @@ class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : C
 
 @Nameable("keybindChange")
 @WebSocketEvent
-object KeybindChangeEvent: Event
+object KeybindChangeEvent: Event()
 
 @Nameable("keybindIsPressed")
-class KeybindIsPressedEvent(val keyBinding: KeyBinding, var isPressed: Boolean) : Event
+class KeybindIsPressedEvent(val keyBinding: KeyBinding, var isPressed: Boolean) : Event()
 
 @Nameable("useCooldown")
-class UseCooldownEvent(var cooldown: Int) : Event
+class UseCooldownEvent(var cooldown: Int) : Event()
 
 @Nameable("cancelBlockBreaking")
 class CancelBlockBreakingEvent : CancellableEvent()
 
 @Nameable("autoJump")
-class MinecraftAutoJumpEvent(var autoJump: Boolean) : Event
+class MinecraftAutoJumpEvent(var autoJump: Boolean) : Event()
 
 /**
  * All events which are related to the minecraft client
@@ -97,7 +97,7 @@ class MinecraftAutoJumpEvent(var autoJump: Boolean) : Event
 
 @Nameable("session")
 @WebSocketEvent
-class SessionEvent(val session: Session) : Event
+class SessionEvent(val session: Session) : Event()
 
 @Nameable("screen")
 class ScreenEvent(val screen: Screen?) : CancellableEvent()
@@ -125,11 +125,11 @@ class ChatReceiveEvent(
 
 @Nameable("splashOverlay")
 @WebSocketEvent
-class SplashOverlayEvent(val showingSplash: Boolean) : Event
+class SplashOverlayEvent(val showingSplash: Boolean) : Event()
 
 @Nameable("splashProgress")
 @WebSocketEvent
-class SplashProgressEvent(val progress: Float, val isComplete: Boolean) : Event
+class SplashProgressEvent(val progress: Float, val isComplete: Boolean) : Event()
 
 @Nameable("serverConnect")
 class ServerConnectEvent(
@@ -141,14 +141,14 @@ class ServerConnectEvent(
 
 @Nameable("disconnect")
 @WebSocketEvent
-object DisconnectEvent : Event
+object DisconnectEvent : Event()
 
 @Nameable("overlayMessage")
 @WebSocketEvent
-class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event
+class OverlayMessageEvent(val text: Text, val tinted: Boolean) : Event()
 
 @Nameable("perspective")
-class PerspectiveEvent(var perspective: Perspective) : Event
+class PerspectiveEvent(var perspective: Perspective) : Event()
 
 @Nameable("itemLoreQuery")
-class ItemLoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event
+class ItemLoreQueryEvent(val itemStack: ItemStack, val lore: ArrayList<Text>) : Event()

@@ -27,11 +27,11 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.Player
 
 @Nameable("fps")
 @WebSocketEvent
-class FpsChangeEvent(val fps: Int) : Event
+class FpsChangeEvent(val fps: Int) : Event()
 
 @Nameable("clientPlayerData")
 @WebSocketEvent
-class ClientPlayerDataEvent(val playerData: PlayerData) : Event {
+class ClientPlayerDataEvent(val playerData: PlayerData) : Event() {
     companion object {
         fun fromPlayerStatistics(stats: PlayerData) = ClientPlayerDataEvent(stats)
     }

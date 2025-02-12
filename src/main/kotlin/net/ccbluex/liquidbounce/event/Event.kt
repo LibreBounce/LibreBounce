@@ -25,20 +25,18 @@ import kotlin.reflect.full.findAnnotation
 /**
  * A callable event
  */
-interface Event {
+@Suppress("UtilityClassWithPublicConstructor")
+open class Event {
     /**
      * Singleton empty event
-     *
-     * This should not be used as the type parameter of [handler],
-     * because it is excluded in collection of events
      */
-    companion object Empty : Event
+    companion object Empty : Event()
 }
 
 /**
  * A cancellable event
  */
-open class CancellableEvent : Event {
+open class CancellableEvent : Event() {
 
     /**
      * Let you know if the event is cancelled

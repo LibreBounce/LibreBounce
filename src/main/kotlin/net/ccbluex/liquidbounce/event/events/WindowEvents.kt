@@ -28,22 +28,22 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.InputUtil
 
 @Nameable("windowResize")
-class WindowResizeEvent(val width: Int, val height: Int) : Event
+class WindowResizeEvent(val width: Int, val height: Int) : Event()
 
 @Nameable("frameBufferResize")
-class FrameBufferResizeEvent(val width: Int, val height: Int) : Event
+class FrameBufferResizeEvent(val width: Int, val height: Int) : Event()
 
 @Nameable("mouseButton")
-class MouseButtonEvent(val button: Int, val action: Int, val mods: Int) : Event
+class MouseButtonEvent(val button: Int, val action: Int, val mods: Int) : Event()
 
 @Nameable("mouseScroll")
-class MouseScrollEvent(val horizontal: Double, val vertical: Double) : Event
+class MouseScrollEvent(val horizontal: Double, val vertical: Double) : Event()
 
 @Nameable("mouseScrollInHotbar")
 class MouseScrollInHotbarEvent(val speed: Int) : CancellableEvent()
 
 @Nameable("mouseCursor")
-class MouseCursorEvent(val x: Double, val y: Double) : Event
+class MouseCursorEvent(val x: Double, val y: Double) : Event()
 
 @Nameable("keyboardKey")
 @WebSocketEvent
@@ -54,8 +54,8 @@ class KeyboardKeyEvent(
     val action: Int,
     val mods: Int,
     val screen: Screen? = null
-) : Event
+) : Event()
 
 @Nameable("keyboardChar")
 @WebSocketEvent
-class KeyboardCharEvent(val codePoint: Int, val modifiers: Int) : Event
+class KeyboardCharEvent(val codePoint: Int, val modifiers: Int) : Event()
