@@ -47,7 +47,7 @@ object ClientShutdownEvent : Event
 /**
  * Called when another entity moves
  */
-data class EntityMovementEvent(val movedEntity: Entity) : Event
+class EntityMovementEvent(val movedEntity: Entity) : Event
 
 /**
  * Called when player jumps
@@ -66,7 +66,7 @@ class KeyEvent(val key: Int) : Event
 /**
  * Called in "onUpdateWalkingPlayer"
  *
- * @param eventState PRE or POST
+ * @param eventState [EventState.PRE] or [EventState.POST]
  */
 class MotionEvent(
     var x: Double,
@@ -181,10 +181,17 @@ object StepConfirmEvent : Event
  */
 object GameTickEvent : Event
 
+/**
+ * Called at client tick end
+ */
 object TickEndEvent : Event
 
 /**
- * tick tack for player
+ * tick-tack for player
+ *
+ * when [state] is [EventState.POST], the [isCancelled] is useless
+ *
+ * @param state [EventState.PRE] or [EventState.POST]
  */
 class PlayerTickEvent(val state: EventState) : CancellableEvent()
 
