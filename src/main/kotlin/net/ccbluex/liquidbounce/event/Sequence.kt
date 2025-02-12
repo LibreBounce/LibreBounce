@@ -196,10 +196,8 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
 
 }
 
-object DummyEvent : Event()
-
-class TickSequence(owner: EventListener, handler: SuspendableHandler<DummyEvent>)
-    : Sequence<DummyEvent>(owner, handler, DummyEvent) {
+class TickSequence(owner: EventListener, handler: SuspendableHandler<Event.Empty>)
+    : Sequence<Event.Empty>(owner, handler, Event.Empty) {
 
     private var continueLoop = true
 

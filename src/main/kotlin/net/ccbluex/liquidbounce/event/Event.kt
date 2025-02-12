@@ -25,7 +25,12 @@ import kotlin.reflect.full.findAnnotation
 /**
  * A callable event
  */
-open class Event
+open class Event {
+    /**
+     * Singleton empty event
+     */
+    companion object Empty : Event()
+}
 
 /**
  * A cancellable event
