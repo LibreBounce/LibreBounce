@@ -34,39 +34,39 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.shape.VoxelShape
 
 @Nameable("worldChange")
-class WorldChangeEvent(val world: ClientWorld?) : Event()
+class WorldChangeEvent(val world: ClientWorld?) : Event
 
 @Nameable("chunkUnload")
-class ChunkUnloadEvent(val x: Int, val z: Int) : Event()
+class ChunkUnloadEvent(val x: Int, val z: Int) : Event
 
 @Nameable("chunkLoad")
-class ChunkLoadEvent(val x: Int, val z: Int) : Event()
+class ChunkLoadEvent(val x: Int, val z: Int) : Event
 
 @Nameable("chunkDeltaUpdate")
-class ChunkDeltaUpdateEvent(val x: Int, val z: Int) : Event()
+class ChunkDeltaUpdateEvent(val x: Int, val z: Int) : Event
 
 @Nameable("blockChange")
-class BlockChangeEvent(val blockPos: BlockPos, val newState: BlockState) : Event()
+class BlockChangeEvent(val blockPos: BlockPos, val newState: BlockState) : Event
 
 @Nameable("blockShape")
-class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: VoxelShape) : Event()
+class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: VoxelShape) : Event
 
 @Nameable("blockBreakingProgress")
-class BlockBreakingProgressEvent(val pos: BlockPos) : Event()
+class BlockBreakingProgressEvent(val pos: BlockPos) : Event
 
 @Nameable("blockBreakingProgress")
 class BlockAttackEvent(val pos: BlockPos) : CancellableEvent()
 
 @Nameable("blockVelocityMultiplier")
-class BlockVelocityMultiplierEvent(val block: Block, var multiplier: Float) : Event()
+class BlockVelocityMultiplierEvent(val block: Block, var multiplier: Float) : Event
 
 @Nameable("blockSlipperinessMultiplier")
-class BlockSlipperinessMultiplierEvent(val block: Block, var slipperiness: Float) : Event()
+class BlockSlipperinessMultiplierEvent(val block: Block, var slipperiness: Float) : Event
 
 @Nameable("entityEquipmentChange")
 class PlayerEquipmentChangeEvent(
     val player: PlayerEntity, val equipmentSlot: EquipmentSlot, val itemStack: ItemStack
-) : Event()
+) : Event
 
 @Nameable("fluidPush")
 class FluidPushEvent : CancellableEvent()
