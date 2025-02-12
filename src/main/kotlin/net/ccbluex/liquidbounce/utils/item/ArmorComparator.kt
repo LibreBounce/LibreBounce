@@ -103,9 +103,18 @@ class ArmorComparator(
             Enchantments.UNBREAKING
         )
         private val OTHER_ENCHANTMENT_PER_LEVEL = floatArrayOf(3.0f, 1.0f, 0.1f, 0.05f, 0.01f)
+
+        /**
+         * The minimum durability an armor piece must have to be prioritized for use.
+         * If an armor piece's remaining durability is lower than this threshold,
+         * the piece is not prioritized anymore, and it can be replaced with another piece
+         * so that this piece can be preserved.
+         */
+        private const val DURABILITY_THRESHOLD = 24
     }
 
     private val comparator = ComparatorChain(
+        compareBy { it.itemSlot.itemStack.maxDamage - it.itemSlot.itemStack.damage > DURABILITY_THRESHOLD },
         compareByDescending { round(getThresholdedDamageReduction(it.itemSlot.itemStack).toDouble(), 3) },
         compareBy { round(getEnchantmentThreshold(it.itemSlot.itemStack).toDouble(), 3) },
         compareBy { it.itemSlot.itemStack.getEnchantmentCount() },
