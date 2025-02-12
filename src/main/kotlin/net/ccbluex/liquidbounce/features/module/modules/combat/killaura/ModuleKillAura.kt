@@ -249,7 +249,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         mightAttack(chosenEntity, rotation)
     }
 
-    private suspend fun Sequence<*>.mightAttack(chosenEntity: Entity, rotation: Rotation) {
+    private suspend fun Sequence.mightAttack(chosenEntity: Entity, rotation: Rotation) {
         // Make it seem like we are blocking
         KillAuraAutoBlock.makeSeemBlock()
 
@@ -499,7 +499,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      * This means, we make sure we are not blocking, we are not using another item,
      * and we are not in an inventory screen depending on the configuration.
      */
-    internal suspend fun Sequence<*>.prepareAttackEnvironment(rotation: Rotation? = null, attack: () -> Unit) {
+    internal suspend fun Sequence.prepareAttackEnvironment(rotation: Rotation? = null, attack: () -> Unit) {
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
 
