@@ -18,8 +18,12 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
 import net.minecraft.entity.LivingEntity
@@ -81,12 +85,13 @@ object CombatManager : EventListener {
     }
 
     @Suppress("unused")
-    val attackHandler = handler<AttackEntityEvent> {
-        val entity = it.entity
+    val attackHandler = handler<AttackEntityEvent> { event ->
+        val entity = event.entity
 
         if (entity is LivingEntity && entity.shouldBeAttacked()) {
             // 40 ticks = 2 seconds
             duringCombat = 40
+
             if (entity is PlayerEntity) {
                 EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))
             }
