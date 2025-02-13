@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.DrawOutlinesEvent;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.ModuleESP;
+import net.ccbluex.liquidbounce.features.module.modules.render.esp.modes.EspGlowMode;
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.modes.EspOutlineMode;
 import net.ccbluex.liquidbounce.render.engine.Color4b;
 import net.ccbluex.liquidbounce.render.engine.RenderingFlags;
@@ -205,7 +206,7 @@ public abstract class MixinWorldRenderer {
     private boolean shouldRenderOutline(Entity entity) {
         if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             return true;
-        } else if (EspOutlineMode.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeShown(entity)) {
+        } else if (EspGlowMode.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeShown(entity)) {
             return true;
         } else if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
             return true;
@@ -223,7 +224,7 @@ public abstract class MixinWorldRenderer {
      */
     @ModifyExpressionValue(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getTeamColorValue()I"))
     private int injectTeamColor(int original, @Local Entity entity) {
-        if (entity instanceof LivingEntity livingEntity && EspOutlineMode.INSTANCE.getRunning()) {
+        if (entity instanceof LivingEntity livingEntity && EspGlowMode.INSTANCE.getRunning()) {
             return ModuleESP.INSTANCE.getColor(livingEntity).toARGB();
         } else if (ModuleItemESP.GlowMode.INSTANCE.getRunning() && ModuleItemESP.INSTANCE.shouldRender(entity)) {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
