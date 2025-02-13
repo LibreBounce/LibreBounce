@@ -46,7 +46,6 @@ open class Component(
     val id: UUID = UUID.randomUUID()
 
     var alignment by value("Alignment", alignment, valueType = ValueType.ALIGNMENT)
-        .notAnOption()
 
     protected fun registerComponentListen(cfg: Configurable = this) {
         for (v in cfg.inner) {
