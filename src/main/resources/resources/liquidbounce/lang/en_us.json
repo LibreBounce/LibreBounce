@@ -356,6 +356,7 @@
   "liquidbounce.module.packetLogger.messages.receive": "Receiving",
   "liquidbounce.module.packetLogger.messages.canceled": "canceled",
   "liquidbounce.module.ESP.description": "Allows you to see targets through walls.",
+  "liquidbounce.module.logoffSpot.description": "Allows you to see where other players logged off.",
   "liquidbounce.module.tntTimer.description": "Highlight the active TNTs.",
   "liquidbounce.module.abortBreaking.description": "Allows you to abort breaking without losing progress.",
   "liquidbounce.module.aimbot.description": "Automatically faces targets nearby.",
