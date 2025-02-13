@@ -25,9 +25,9 @@ import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
-import net.ccbluex.liquidbounce.integration.theme.component.Component;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentTweak;
+import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
 import net.ccbluex.liquidbounce.render.engine.UiRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -105,7 +105,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
     private void hookFreeCamRenderCrosshairInThirdPerson(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if ((ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableCrosshair())
+        if ((ModuleFreeCam.INSTANCE.getRunning() && ModuleFreeCam.INSTANCE.shouldDisableCameraInteract())
                 || ComponentOverlay.isTweakEnabled(ComponentTweak.DISABLE_CROSSHAIR)) {
             ci.cancel();
         }
@@ -184,7 +184,7 @@ public abstract class MixinInGameHud {
     }
 
     @Unique
-    private void drawCustomHotbar(DrawContext context, RenderTickCounter tickCounter, Component component) {
+    private void drawCustomHotbar(DrawContext context, RenderTickCounter tickCounter, IntegratedComponent component) {
         var playerEntity = this.getCameraPlayer();
         if (playerEntity == null) {
             return;

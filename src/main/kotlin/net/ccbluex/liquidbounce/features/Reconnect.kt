@@ -38,8 +38,9 @@ object Reconnect : EventListener {
 
     private var lastServer: ServerInfo? = null
 
-    val handleServerConnect = handler<ServerConnectEvent> {
-        lastServer = ServerInfo(it.serverName, it.serverAddress, ServerInfo.ServerType.OTHER)
+    @Suppress("unused")
+    private val handleServerConnect = handler<ServerConnectEvent> { event ->
+        lastServer = event.serverInfo
     }
 
     /**

@@ -43,6 +43,19 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * This variable should be used when rendering long lines, meaning longer than ~2 in 3d.
+ * [WorldRenderEnvironment.longLines] is available for this.
+ *
+ * Context:
+ * For some reason, newer drivers for AMD Vega iGPUs (about end 2023 until now) fail to correctly smooth lines.
+ *
+ * This has to be removed or limited to old driver versions when AMD actually fixes the bug in their drivers.
+ * But as of now, 01.02.2025, they haven't.
+ */
+val HAS_AMD_VEGA_APU = GL11C.glGetString(GL11C.GL_RENDERER)?.startsWith("AMD Radeon(TM) RX Vega") ?: false &&
+    GL11C.glGetString(GL11C.GL_VENDOR) == "ATI Technologies Inc."
+
 val FULL_BOX = Box(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
 val EMPTY_BOX = Box(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
@@ -139,8 +152,11 @@ inline fun RenderEnvironment.withPosition(pos: Vec3, draw: RenderEnvironment.() 
     with(matrixStack) {
         push()
         translate(pos.x, pos.y, pos.z)
-        try { draw() }
-        finally { pop() }
+        try {
+            draw()
+        } finally {
+            pop()
+        }
     }
 }
 
@@ -154,8 +170,11 @@ inline fun RenderEnvironment.withPosition(pos: Vec3d, draw: RenderEnvironment.()
     with(matrixStack) {
         push()
         translate(pos.x, pos.y, pos.z)
-        try { draw() }
-        finally { pop() }
+        try {
+            draw()
+        } finally {
+            pop()
+        }
     }
 }
 
@@ -168,8 +187,28 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
     with(matrixStack) {
         push()
         translate(relativePos.x, relativePos.y, relativePos.z)
-        try { draw() }
-        finally { pop() }
+        try {
+            draw()
+        } finally {
+            pop()
+        }
+    }
+}
+
+/**
+ * Disables [GL11C.GL_LINE_SMOOTH] if [HAS_AMD_VEGA_APU].
+ */
+inline fun WorldRenderEnvironment.longLines(draw: RenderEnvironment.() -> Unit) {
+    if (!HAS_AMD_VEGA_APU) {
+        draw()
+        return
+    }
+
+    GL11C.glDisable(GL11C.GL_LINE_SMOOTH)
+    try {
+        draw()
+    } finally {
+        GL11C.glEnable(GL11C.GL_LINE_SMOOTH)
     }
 }
 
@@ -181,8 +220,11 @@ inline fun WorldRenderEnvironment.withPositionRelativeToCamera(pos: Vec3d, draw:
  */
 inline fun RenderEnvironment.withColor(color4b: Color4b, draw: RenderEnvironment.() -> Unit) {
     RenderSystem.setShaderColor(color4b.r / 255f, color4b.g / 255f, color4b.b / 255f, color4b.a / 255f)
-    try { draw() }
-    finally { RenderSystem.setShaderColor(1f, 1f, 1f, 1f) }
+    try {
+        draw()
+    } finally {
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
+    }
 }
 
 /**
@@ -193,8 +235,11 @@ inline fun RenderEnvironment.withColor(color4b: Color4b, draw: RenderEnvironment
  */
 inline fun RenderEnvironment.withDisabledCull(draw: RenderEnvironment.() -> Unit) {
     RenderSystem.disableCull()
-    try { draw() }
-    finally { RenderSystem.enableCull() }
+    try {
+        draw()
+    } finally {
+        RenderSystem.enableCull()
+    }
 }
 
 /**
@@ -283,6 +328,7 @@ fun RenderEnvironment.drawTextureQuad(pos1: Vec3d, pos2: Vec3d) {
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
     }
 }
+
 /**
  */
 inline fun RenderEnvironment.drawCustomMesh(
@@ -391,13 +437,18 @@ fun BufferBuilder.coloredTriangle(matrix: Matrix4f, p1: Vec3d, p2: Vec3d, p3: Ve
  * @param side The direction of the side.
  * @param onlyOutline Determines if the function only should draw the outline of the [side] or only fill it in
  */
-fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolean = false){
+@Suppress("LongMethod")
+fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolean = false) {
     val matrix = matrixStack.peek().positionMatrix
     val tessellator = RenderSystem.renderThreadTesselator()
+
     // Begin drawing lines or quads with position format
     val buffer = tessellator.begin(
-        if (onlyOutline) DrawMode.DEBUG_LINE_STRIP
-        else DrawMode.QUADS,
+        if (onlyOutline) {
+            DrawMode.DEBUG_LINE_STRIP
+        } else {
+            DrawMode.QUADS
+        },
         VertexFormats.POSITION
     )
 
@@ -413,7 +464,7 @@ fun RenderEnvironment.drawSideBox(box: Box, side: Direction, onlyOutline: Boolea
             vertex(matrix, x, y, z)
         }
 
-        if(onlyOutline) {
+        if (onlyOutline) {
             vertex(matrix, vertices[0].x, vertices[0].y, vertices[0].z)
         }
 
@@ -460,6 +511,10 @@ fun RenderEnvironment.drawBoxSide(box: Box, side: Direction, face: Color4b, outl
         vertices.forEach { (x, y, z) ->
             vertex(matrix, x, y, z).color(outline.r, outline.g, outline.b, outline.a)
         }
+
+        // close the loop
+        val firstVertex = vertices[0]
+        vertex(matrix, firstVertex.x, firstVertex.y, firstVertex.z).color(outline.r, outline.g, outline.b, outline.a)
 
         // Draw the outlined box
         BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
@@ -538,6 +593,7 @@ fun RenderEnvironment.drawGradientQuad(vertices: List<Vec3>, colors: List<Color4
 }
 
 const val CIRCLE_RES = 40
+
 // using a val instead of a function for better performance
 val circlePoints =
     (0..CIRCLE_RES).map {
@@ -723,8 +779,9 @@ fun RenderEnvironment.drawGradientSides(
     topColor: Color4b,
     box: Box
 ) {
-    if (height == 0.0)
+    if (height == 0.0) {
         return
+    }
 
     val vertexColors =
         listOf(

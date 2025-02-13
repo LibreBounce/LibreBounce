@@ -33,8 +33,9 @@ enum class AutoFarmTrackedStates {
 
 object AutoFarmBlockTracker : AbstractBlockLocationTracker<AutoFarmTrackedStates>() {
     override fun getStateFor(pos: BlockPos, state: BlockState): AutoFarmTrackedStates? {
-        if (ModuleAutoFarm.isTargeted(state, pos))
+        if (ModuleAutoFarm.isTargeted(state, pos)) {
             return AutoFarmTrackedStates.Destroy
+        }
 
         val stateBellow = pos.down().getState() ?: return null
 

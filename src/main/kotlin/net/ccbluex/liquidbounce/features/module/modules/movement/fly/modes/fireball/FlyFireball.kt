@@ -75,8 +75,9 @@ internal object FlyFireball : Choice("Fireball") {
             val bestMainHandSlot = findFireballSlot()
             if (bestMainHandSlot != null) {
                 SilentHotbar.selectSlotSilently(this, bestMainHandSlot, AutoFireball.slotResetDelay)
-            } else
+            } else {
                 SilentHotbar.resetSlot(this)
+            }
         } else {
             SilentHotbar.resetSlot(this)
         }

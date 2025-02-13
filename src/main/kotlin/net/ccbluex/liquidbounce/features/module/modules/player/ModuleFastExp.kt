@@ -22,17 +22,12 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.OffHandSlot
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
-import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
-import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.item.getEnchantment
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.enchantment.Enchantments
@@ -117,11 +112,11 @@ object ModuleFastExp : ClientModule(
     private fun noMending(itemStack: ItemStack?) = itemStack.getEnchantment(Enchantments.MENDING) == 0
 
     private fun getSlot(): HotbarItemSlot? {
-        if (OFFHAND_SLOT.itemStack.item == Items.EXPERIENCE_BOTTLE) {
-            return OFFHAND_SLOT
+        if (OffHandSlot.itemStack.item == Items.EXPERIENCE_BOTTLE) {
+            return OffHandSlot
         }
 
-        return findHotbarItemSlot(Items.EXPERIENCE_BOTTLE)
+        return Slots.Hotbar.findSlot(Items.EXPERIENCE_BOTTLE)
     }
 
 }

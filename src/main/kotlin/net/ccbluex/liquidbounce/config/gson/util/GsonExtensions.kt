@@ -16,23 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.config.gson.util
 
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
+import net.ccbluex.liquidbounce.config.gson.publicGson
 import java.io.InputStream
+import java.io.Reader
 
 /**
  * Decode JSON content
  */
 inline fun <reified T> decode(stringJson: String): T =
-    Gson().fromJson(stringJson, object : TypeToken<T>() {}.type)
+    stringJson.reader().use(::decode)
 
 /**
- * Decode JSON content from an Input Stream
+ * Decode JSON content from an [InputStream] and close it
  */
 inline fun <reified T> decode(inputStream: InputStream): T =
-    Gson().fromJson(inputStream.bufferedReader(), object : TypeToken<T>() {}.type)
+    inputStream.bufferedReader().use(::decode)
+
+/**
+ * Decode JSON content from a [Reader] and close it
+ */
+inline fun <reified T> decode(reader: Reader): T = reader.use {
+    publicGson.fromJson(reader, object : TypeToken<T>() {}.type)
+}
 
 fun String.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
 fun Char.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)

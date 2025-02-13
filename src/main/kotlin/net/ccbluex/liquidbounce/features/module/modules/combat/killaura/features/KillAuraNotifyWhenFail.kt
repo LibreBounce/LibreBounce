@@ -30,7 +30,6 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.minecraft.client.util.math.MatrixStack
@@ -73,8 +72,8 @@ internal object KillAuraNotifyWhenFail {
 
         when (mode.activeChoice) {
             Box -> {
-                val centerDistance = entity.box.center.subtract(player.eyes).length()
-                val boxSpot = player.eyes.add(rotation.rotationVec.multiply(centerDistance))
+                val centerDistance = entity.box.center.subtract(player.eyePos).length()
+                val boxSpot = player.eyePos.add(rotation.rotationVec.multiply(centerDistance))
 
                 failedHits.add(ObjectLongMutablePair(boxSpot, 0L))
             }
@@ -118,8 +117,8 @@ internal object KillAuraNotifyWhenFail {
             for ((pos, opacity) in markedBlocks) {
                 val fade = (255 + (0 - 255) * opacity.toDouble() / boxFadeSeconds.toDouble()).toInt()
 
-                val baseColor = base.alpha(fade)
-                val outlineColor = base.alpha(fade)
+                val baseColor = base.with(a = fade)
+                val outlineColor = base.with(a = fade)
 
                 withPositionRelativeToCamera(pos) {
                     withColor(baseColor) {

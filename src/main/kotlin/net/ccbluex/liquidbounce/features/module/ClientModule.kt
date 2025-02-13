@@ -50,7 +50,8 @@ open class ClientModule(
     bind: Int = InputUtil.UNKNOWN_KEY.code, // default bind
     bindAction: InputBind.BindAction = InputBind.BindAction.TOGGLE, // default action
     state: Boolean = false, // default state
-    @Exclude val disableActivation: Boolean = false, // disable activation
+    @Exclude val notActivatable: Boolean = false, // disable settings that are not needed if the module can't be enabled
+    @Exclude val disableActivation: Boolean = notActivatable, // disable activation
     hide: Boolean = false, // default hide
     @Exclude val disableOnQuit: Boolean = false, // disables module when player leaves the world,
     @Exclude val aliases: Array<out String> = emptyArray() // additional names under which the module is known
@@ -110,12 +111,13 @@ open class ClientModule(
             }
 
             if (!loadingNow) {
-                notification(
-                    if (new) translation("liquidbounce.generic.enabled")
-                    else translation("liquidbounce.generic.disabled"),
-                    this.name,
-                    if (new) NotificationEvent.Severity.ENABLED else NotificationEvent.Severity.DISABLED
-                )
+                val (title, severity) = if (new) {
+                    translation("liquidbounce.generic.enabled") to NotificationEvent.Severity.ENABLED
+                } else {
+                    translation("liquidbounce.generic.disabled") to NotificationEvent.Severity.DISABLED
+                }
+
+                notification(title, this.name, severity)
             }
 
             // Notify everyone about module state
@@ -138,12 +140,12 @@ open class ClientModule(
      * If the module is running and in game. Can be overridden to add additional checks.
      */
     override val running: Boolean
-        get() = super.running && inGame && (enabled || disableActivation)
+        get() = super.running && inGame && (enabled || notActivatable)
 
     val bind by bind("Bind", InputBind(InputUtil.Type.KEYSYM, bind, bindAction))
         .doNotIncludeWhen { !AutoConfig.includeConfiguration.includeBinds }
         .independentDescription().apply {
-            if (disableActivation) {
+            if (notActivatable) {
                 notAnOption()
             }
         }
@@ -154,7 +156,7 @@ open class ClientModule(
             EventManager.callEvent(RefreshArrayListEvent)
             it
         }.apply {
-            if (disableActivation) {
+            if (notActivatable) {
                 notAnOption()
             }
         }
@@ -226,12 +228,12 @@ open class ClientModule(
         }
     }
 
-    protected fun <T: Choice> choices(name: String, active: T, choices: Array<T>) =
+    protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)
 
     protected fun <T : Choice> choices(
         name: String,
-        activeIndex: Int,
+        activeIndex: Int = 0,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ) = choices(this, name, activeIndex, choicesCallback)
 

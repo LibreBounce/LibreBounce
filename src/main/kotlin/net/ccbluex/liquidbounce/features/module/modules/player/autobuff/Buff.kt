@@ -23,12 +23,12 @@ package net.ccbluex.liquidbounce.features.module.modules.player.autobuff
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.OffHandSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.item.ItemStack
 
 abstract class Buff(
@@ -42,7 +42,7 @@ abstract class Buff(
     /**
      * Try to run feature if possible, otherwise return false
      */
-    internal suspend fun runIfPossible(sequence: Sequence<*>): Boolean {
+    internal suspend fun runIfPossible(sequence: Sequence): Boolean {
         if (!enabled || !passesRequirements) {
             return false
         }
@@ -66,7 +66,7 @@ abstract class Buff(
         // Check if we should auto swap
         ModuleAutoBuff.AutoSwap.takeIf { autoSwap -> autoSwap.enabled }?.run {
             // Check if the item is in the hotbar
-            val slot = findHotbarSlot { stack -> isValidItem(stack, true) }
+            val slot = Slots.Hotbar.findSlotIndex { stack: ItemStack -> isValidItem(stack, true) }
 
             if (slot != null) {
                 CombatManager.pauseCombatForAtLeast(ModuleAutoBuff.combatPauseTime)
@@ -83,7 +83,7 @@ abstract class Buff(
         return false
     }
 
-    abstract suspend fun execute(sequence: Sequence<*>, slot: HotbarItemSlot)
+    abstract suspend fun execute(sequence: Sequence, slot: HotbarItemSlot)
 
     internal fun getStack(slot: Int): ItemStack =
         if (slot == -1) player.offHandStack else player.inventory.getStack(slot)

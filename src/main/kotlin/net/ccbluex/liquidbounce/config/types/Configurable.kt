@@ -28,7 +28,9 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.item.Item
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
+import org.lwjgl.glfw.GLFW
 
+@Suppress("TooManyFunctions")
 open class Configurable(
     name: String,
     value: MutableList<Value<*>> = mutableListOf(),
@@ -198,12 +200,12 @@ open class Configurable(
     fun int(name: String, default: Int, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT)
 
-    fun bind(name: String, default: Int) = bind(
+    fun bind(name: String, default: Int = GLFW.GLFW_KEY_UNKNOWN) = bind(
         name,
         InputBind(InputUtil.Type.KEYSYM, default, InputBind.BindAction.TOGGLE)
     )
 
-    fun bind(name: String, default: InputBind) = value(name, default, ValueType.BIND)
+    fun bind(name: String, default: InputBind) = BindValue(name, default).apply { this@Configurable.inner.add(this) }
 
     fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
 
@@ -243,22 +245,25 @@ open class Configurable(
         where T : Enum<T>, T : NamedChoice =
         ChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this) }
 
-    fun <T : Choice> choices(
+    protected fun <T : Choice> choices(
         eventListener: EventListener,
         name: String,
         active: T,
         choices: Array<T>
     ): ChoiceConfigurable<T> {
-        return ChoiceConfigurable<T>(eventListener, name, { active }) { choices }.apply {
-            this@Configurable.inner.add(this)
-            this.base = this@Configurable
-        }
+        return choices(eventListener, name, {
+            val idx = choices.indexOf(active)
+
+            check(idx != -1) { "The active choice $active is not contained within the choice array ($it)" }
+
+            idx
+        }) { choices }
     }
 
     protected fun <T : Choice> choices(
         eventListener: EventListener,
         name: String,
-        activeCallback: (ChoiceConfigurable<T>) -> T,
+        activeCallback: (List<T>) -> Int,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ): ChoiceConfigurable<T> {
         return ChoiceConfigurable(eventListener, name, activeCallback, choicesCallback).apply {
@@ -270,9 +275,9 @@ open class Configurable(
     protected fun <T : Choice> choices(
         eventListener: EventListener,
         name: String,
-        activeIndex: Int,
+        activeIndex: Int = 0,
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
-    ) = choices(eventListener, name, { it.choices[activeIndex] }, choicesCallback)
+    ) = choices(eventListener, name, { activeIndex }, choicesCallback)
 
     fun value(value: Value<*>) = value.apply { this@Configurable.inner.add(this) }
 

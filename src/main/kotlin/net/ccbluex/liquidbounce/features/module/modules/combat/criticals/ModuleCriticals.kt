@@ -22,19 +22,17 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsBlink
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsJump
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsNoGround
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.CriticalsPacket
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.minecraft.block.CobwebBlock
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -58,7 +56,8 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
             CriticalsPacket,
             CriticalsNoGround,
             CriticalsJump,
-            CriticalsBlink
+            CriticalsBlink,
+            CriticalsTimer
         )
     }.apply(::tagBy)
 
@@ -80,7 +79,7 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
 
         @Suppress("unused")
         private val attackHandler = handler<AttackEntityEvent>(
-            priority = EventPriorityConvention.FIRST_PRIORITY
+            priority = CRITICAL_MODIFICATION
         ) { event ->
             if (event.isCancelled) {
                 return@handler
@@ -92,6 +91,24 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
             }
         }
 
+        @Suppress("unused")
+        private val sprintHandler = handler<SprintEvent> { event ->
+            when (stopSprinting) {
+                StopSprintingMode.LEGIT ->
+                    if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
+                        event.sprint = false
+                    }
+                StopSprintingMode.ON_NETWORK ->
+                    if (event.source == SprintEvent.Source.NETWORK || event.source == SprintEvent.Source.INPUT) {
+                        event.sprint = false
+                    }
+                else -> {}
+            }
+        }
+
+        fun shouldAttemptCritWhileSprinting(): Boolean {
+            return this.running && this.stopSprinting == StopSprintingMode.NONE
+        }
     }
 
     /**

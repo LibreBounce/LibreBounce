@@ -23,12 +23,14 @@ import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon.againstShield
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon.prepare
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategorization
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.WeaponItemFacet
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
-import net.ccbluex.liquidbounce.utils.inventory.HOTBAR_SLOTS
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.AxeItem
@@ -58,7 +60,13 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
     ): NamedChoice {
         ANY("Any", { true }),
         SWORD("Sword", { it.itemStack.item is SwordItem }),
-        AXE("Axe", { it.itemStack.item is AxeItem })
+        AXE("Axe", { it.itemStack.item is AxeItem }),
+
+        /**
+         * Do not prefer any weapon type, this is useful to only
+         * use the [againstShield] weapon type.
+         */
+        NONE("None", { false })
     }
 
     private val prepare by boolean("Prepare", true)
@@ -108,11 +116,11 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
      * Prepare AutoWeapon for given [entity] if [prepare] is enabled
      */
     fun prepare(entity: Entity?) {
-        if (!running || !prepare) {
+        if (!running || !prepare || entity !is LivingEntity) {
             return
         }
 
-        determineWeaponSlot(entity as? LivingEntity)?.let { slot ->
+        determineWeaponSlot(entity)?.let { slot ->
             SilentHotbar.selectSlotSilently(
                 this,
                 slot,
@@ -122,16 +130,18 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
     }
 
     private fun determineWeaponSlot(target: LivingEntity?): Int? {
-        val itemCategorization = ItemCategorization(HOTBAR_SLOTS)
-        val itemMap = HOTBAR_SLOTS
-            .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>().toList() }
+        val itemCategorization = ItemCategorization(Slots.Hotbar)
 
-        val bestSlot = itemMap
-            .filter(when {
-                !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true
-                    -> againstShield.filter
-                else -> preferredWeapon.filter
-            })
+        val bestSlot = Slots.Hotbar
+            .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>() }
+            .filter(
+                when {
+                    !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true
+                        -> againstShield.filter
+
+                    else -> preferredWeapon.filter
+                }
+            )
             .maxOrNull()
 
         return (bestSlot?.itemSlot as HotbarItemSlot?)?.hotbarSlot

@@ -21,14 +21,13 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniqu
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.getTargetedPosition
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold.rawInput
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique.NORMAL_INVESTIGATION_OFFSETS
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.getState
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
@@ -57,19 +56,22 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
         bestStack: ItemStack
     ): BlockPlacementTarget? {
         val searchOptions = BlockPlacementTargetFindingOptions(
-            NORMAL_INVESTIGATION_OFFSETS,
-            bestStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            predictedPos,
-            predictedPose
+            BlockOffsetOptions(
+                NORMAL_INVESTIGATION_OFFSETS,
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = bestStack,
+            PlayerLocationOnPlacement(position = predictedPos, pose = predictedPose),
         )
 
         return findBestBlockPlacementTarget(getTargetedPosition(predictedPos.toBlockPos()), searchOptions)
     }
 
     @Suppress("unused")
-    private val handleMovementInput = handler<MovementInputEvent> { event ->
+    private val handleMovementInput = handler<MovementInputEvent>(
+        priority = EventPriorityConvention.SAFETY_FEATURE
+    ) { event ->
         if (!event.directionalInput.forwards || player.isSneaking) {
             return@handler
         }
@@ -124,15 +126,13 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
     }
 
     override fun getRotations(target: BlockPlacementTarget?): Rotation? {
-        val dirInput = DirectionalInput(player.input)
-
-        if (dirInput == DirectionalInput.NONE) {
+        if (rawInput == DirectionalInput.NONE) {
             target ?: return null
 
             return getRotationForNoInput(target)
         }
 
-        val direction = getMovementDirectionOfInput(player.yaw, dirInput) + 180
+        val direction = getMovementDirectionOfInput(player.yaw, rawInput) + 180
 
         // Round to 45°-steps (NORTH, NORTH_EAST, etc.)
         val movingYaw = round(direction / 45) * 45

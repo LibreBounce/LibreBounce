@@ -138,7 +138,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
 
     private object OnlyInCombat : ToggleableConfigurable(this, "OnlyInCombat", false) {
 
-        val modes = choices(this, "Mode", 0, ModuleSpeed::initializeSpeeds)
+        val modes = choices(this, "Mode", activeIndex = 0, ModuleSpeed::initializeSpeeds)
 
         /**
          * Controls [modes] activation state.
@@ -161,7 +161,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
             arrayOf(SpeedPotionEffectChoice, SlownessPotionEffectChoice, BothEffectsChoice)
         )
 
-        val modes = choices(this, "Mode", 0, ModuleSpeed::initializeSpeeds)
+        val modes = choices(this, "Mode", activeIndex = 0, ModuleSpeed::initializeSpeeds)
 
         /**
          * Controls [modes] activation state.

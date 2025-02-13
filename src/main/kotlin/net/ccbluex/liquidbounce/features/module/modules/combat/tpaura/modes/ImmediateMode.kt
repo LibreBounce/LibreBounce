@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.clickScheduler
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.desyncPlayerPosition
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.stuckChronometer
-import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.targetTracker
+import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.targetSelector
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.TpAuraChoice
 import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -27,12 +27,12 @@ import kotlin.math.floor
 object ImmediateMode : TpAuraChoice("Immediate") {
 
     val repeatable = tickHandler {
-        if (!clickScheduler.goingToClick) {
+        if (!clickScheduler.isGoingToClick) {
             return@tickHandler
         }
 
         val playerPosition = player.pos
-        val enemyPosition = targetTracker.enemies().minByOrNull { it.squaredBoxedDistanceTo(playerPosition) }?.pos
+        val enemyPosition = targetSelector.targets().minByOrNull { it.squaredBoxedDistanceTo(playerPosition) }?.pos
             ?: return@tickHandler
 
         travel(enemyPosition)

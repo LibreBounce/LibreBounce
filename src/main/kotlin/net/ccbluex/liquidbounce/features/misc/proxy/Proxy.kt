@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.misc.proxy
 
 import io.netty.handler.proxy.Socks5ProxyHandler
-import net.ccbluex.liquidbounce.api.IpInfoApi
+import net.ccbluex.liquidbounce.api.thirdparty.IpInfoApi
 import java.net.InetSocketAddress
 
 /**

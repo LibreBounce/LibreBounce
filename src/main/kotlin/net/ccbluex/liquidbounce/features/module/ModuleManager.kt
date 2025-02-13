@@ -42,6 +42,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.dupe.ModuleDupe
 import net.ccbluex.liquidbounce.features.module.modules.exploit.servercrasher.ModuleServerCrasher
+import net.ccbluex.liquidbounce.features.module.modules.exploit.phase.ModulePhase
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
@@ -184,6 +185,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
     /**
      * Register inbuilt client modules
      */
+    @Suppress("LongMethod")
     fun registerInbuilt() {
         var builtin = arrayOf(
             // Combat
@@ -227,18 +229,15 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModulePingSpoof,
             ModulePlugins,
             ModulePortalMenu,
-            ModuleResourceSpoof,
             ModuleSleepWalker,
-            ModuleSpoofer,
-            ModuleBungeeSpoofer,
             ModuleVehicleOneHit,
             ModuleServerCrasher,
             ModuleDupe,
             ModuleClickTp,
             ModuleConsoleSpammer,
-            ModuleTranslationFix,
             ModuleTimeShift,
             ModuleTeleport,
+            ModulePhase,
 
             // Fun
             ModuleDankBobbing,
@@ -302,6 +301,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleVehicleControl,
             ModuleSpider,
             ModuleTargetStrafe,
+            ModuleAnchor,
 
             // Player
             ModuleAntiVoid,
@@ -324,6 +324,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleReach,
             ModuleAutoQueue,
             ModuleSmartEat,
+            ModuleReplenish,
 
             // Render
             ModuleAnimations,
@@ -366,10 +367,12 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTracers,
             ModuleTrajectories,
             ModuleTrueSight,
+            ModuleVoidESP,
             ModuleXRay,
             ModuleDebug,
             ModuleZoom,
             ModuleItemChams,
+            ModuleCrystalView,
 
             // World
             ModuleAutoBuild,
@@ -389,6 +392,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleNuker,
             ModuleExtinguish,
             ModuleBedDefender,
+            ModuleBlockIn,
             ModuleSurround,
             ModulePacketMine,
             ModuleHoleFiller,
@@ -412,13 +416,13 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         }
     }
 
-    private fun addModule(module: ClientModule) {
+    fun addModule(module: ClientModule) {
         module.initConfigurable()
         module.init()
         modules.sortedInsert(module, ClientModule::name)
     }
 
-    private fun removeModule(module: ClientModule) {
+    fun removeModule(module: ClientModule) {
         if (module.running) {
             module.disable()
         }
@@ -426,30 +430,11 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules -= module
     }
 
-    /**
-     * Allow `ModuleManager += Module` syntax
-     */
-    operator fun plusAssign(module: ClientModule) {
-        addModule(module)
-    }
-
-    operator fun plusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::addModule)
-    }
-
-    operator fun minusAssign(module: ClientModule) {
-        removeModule(module)
-    }
-
-    operator fun minusAssign(modules: Iterable<ClientModule>) {
-        modules.forEach(this::removeModule)
-    }
-
     fun clear() {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, args: List<String>, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
         val resultPrefix = parts.dropLast(1).joinToString(",") + ","

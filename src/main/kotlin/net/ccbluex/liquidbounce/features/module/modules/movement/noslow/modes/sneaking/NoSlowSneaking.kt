@@ -31,7 +31,7 @@ internal object NoSlowSneaking : ToggleableConfigurable(ModuleNoSlow, "Sneaking"
     private val minMultiplier by float("MinMultiplier", 1f, 0.3f..1f)
 
     @Suppress("unused")
-    private val modes = choices(this, "Mode", 0) {
+    private val modes = choices(this, "Mode") {
         arrayOf(
             NoneChoice(it),
             NoSlowSneakingSwitch(it),

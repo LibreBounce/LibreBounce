@@ -24,19 +24,23 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.raytraceUpperBlockSide
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getNearestPoint
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.inventory.hasInventorySpace
 import net.ccbluex.liquidbounce.utils.item.getEnchantment
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.*
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.enchantment.Enchantments
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
@@ -83,13 +87,13 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
     val itemsForSoulsand = arrayOf(Items.NETHER_WART)
 
     private val itemForFarmland
-        get() = Hotbar.findClosestItem(items = itemsForFarmland)
+        get() = Slots.Hotbar.findClosestItem(items = itemsForFarmland)
     private val itemForSoulSand
-        get() = Hotbar.findClosestItem(items = itemsForFarmland)
+        get() = Slots.Hotbar.findClosestItem(items = itemsForFarmland)
 
     var currentTarget: BlockPos? = null
 
-    val repeatable = tickHandler { _ ->
+    val repeatable = tickHandler {
         // Return if the user is inside a screen like the inventory
         if (mc.currentScreen is HandledScreen<*>) {
             return@tickHandler
@@ -122,8 +126,8 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         val rayTraceResult = world.raycast(
             RaycastContext(
-                player.eyes,
-                player.eyes.add(currentRotation.rotationVec.multiply(range.toDouble())),
+                player.eyePos,
+                player.eyePos.add(currentRotation.rotationVec.multiply(range.toDouble())),
                 RaycastContext.ShapeType.OUTLINE,
                 RaycastContext.FluidHandling.NONE,
                 player
@@ -139,10 +143,12 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         var state = blockPos.getState() ?: return@tickHandler
         if (isTargeted(state, blockPos)) {
             if (fortune) {
-                Hotbar.findBestItem(1) { _, itemStack -> itemStack.getEnchantment(Enchantments.FORTUNE) }
-                    ?.let { (slot, _) ->
-                        SilentHotbar.selectSlotSilently(this, slot, 2)
-                    } // Swap to a fortune item to increase drops
+                // Swap to a fortune item to increase drops
+                Slots.Hotbar.maxByOrNull { it.itemStack.getEnchantment(Enchantments.FORTUNE) }
+                    ?.takeIf { it.itemStack.getEnchantment(Enchantments.FORTUNE) >= 1 }
+                    ?.let {
+                        SilentHotbar.selectSlotSilently(this, it.hotbarSlot, 2)
+                    }
             }
 
             val direction = rayTraceResult.side
@@ -186,7 +192,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         for ((pos, state) in blocksToBreak) {
             val (rotation, _) = raytraceBlock(
-                player.eyes,
+                player.eyePos,
                 pos,
                 state,
                 range = range.toDouble() - 0.1,
@@ -211,7 +217,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
     // Searches for any blocks suitable for placing crops or nether wart on
     // returns ture if it found a target
     private fun updateTargetToPlaceable(radius: Float, radiusSquared: Float, eyesPos: Vec3d): Boolean {
-        val hotbarItems = Hotbar.items
+        val hotbarItems = Slots.Hotbar.items
 
         val allowFarmland = hotbarItems.any { it in itemsForFarmland }
         val allowSoulsand = hotbarItems.any { it in itemsForSoulsand }
@@ -227,7 +233,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         for (pos in blocksToPlace) {
             // We can only plant on the upper side
             val (rotation, _) = raytraceUpperBlockSide(
-                player.eyes,
+                player.eyePos,
                 range = range.toDouble() - 0.1,
                 wallsRange = wallRange.toDouble() - 0.1,
                 pos
@@ -256,15 +262,17 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
 
         val radius = range
         val radiusSquared = radius * radius
-        val eyesPos = player.eyes
+        val eyesPos = player.eyePos
 
         // Can we find a breakable target?
-        if (updateTargetToBreakable(radius, radiusSquared, eyesPos))
+        if (updateTargetToBreakable(radius, radiusSquared, eyesPos)) {
             return
+        }
 
         // Can we find a placeable target?
-        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos))
+        if (AutoPlaceCrops.enabled && updateTargetToPlaceable(radius, radiusSquared, eyesPos)) {
             return
+        }
     }
 
     fun isTargeted(state: BlockState, pos: BlockPos): Boolean {

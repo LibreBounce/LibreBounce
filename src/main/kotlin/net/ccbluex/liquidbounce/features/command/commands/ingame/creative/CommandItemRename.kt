@@ -45,27 +45,33 @@ object CommandItemRename : CommandFactory {
                 ParameterBuilder
                     .begin<String>("name")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                    .required()
+                    .optional()
                     .vararg()
                     .build()
             )
             .handler { command, args ->
-                val name = (args[0] as Array<*>).joinToString(" ") { it as String }
-
                 if (!interaction.hasCreativeInventory()) {
                     throw CommandException(command.result("mustBeCreative"))
                 }
 
                 val itemStack = player.getStackInHand(Hand.MAIN_HAND)
-
                 if (itemStack.isNothing()) {
                     throw CommandException(command.result("mustHoldItem"))
                 }
 
-                itemStack!!.set<Text>(DataComponentTypes.CUSTOM_NAME, name.translateColorCodes().asText())
-
+                val name = (args.getOrElse(0, defaultValue = { arrayOf("") }) as Array<*>)
+                    .joinToString(" ") { it as String }
+                when (name) {
+                    "" -> {
+                        itemStack!!.remove(DataComponentTypes.CUSTOM_NAME)
+                        chat(regular(command.result("nameReset")), command)
+                    }
+                    else -> {
+                        itemStack!!.set<Text>(DataComponentTypes.CUSTOM_NAME, name.translateColorCodes().asText())
+                        chat(regular(command.result("renamedItem", itemStack.item.name, variable(name))), command)
+                    }
+                }
                 network.sendPacket(CreativeInventoryActionC2SPacket(36 + mc.player!!.inventory.selectedSlot, itemStack))
-                chat(regular(command.result("renamedItem", itemStack.item.name, variable(name))), command)
             }
             .build()
     }

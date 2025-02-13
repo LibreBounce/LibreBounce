@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.*
 import net.minecraft.entity.EntityPose
+import net.minecraft.item.Items
 
 /**
  * NoFall module
@@ -36,6 +37,7 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             NoFallSpoofGround,
             NoFallNoGround,
             NoFallPacket,
+            NoFallPacketJump,
             NoFallMLG,
             NoFallRettungsplatform,
             NoFallSpartan524Flag,
@@ -43,14 +45,15 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             NoFallVulcanTP,
             NoFallVerus,
             NoFallForceJump,
+            NoFallCancel,
             NoFallBlink,
-            NoFallHoplite,
             NoFallHypixelPacket,
             NoFallHypixel,
         )
     ).apply(::tagBy)
 
-    private var duringFallFlying by boolean("DuringFallFlying", false)
+    private var notWhileGliding by boolean("NotWhileGliding", true)
+    private var notWithMace by boolean("NotWithMace", true)
 
     override val running: Boolean
         get() {
@@ -69,7 +72,12 @@ object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
             }
 
             // With Elytra - we don't want to reduce fall damage.
-            if (!duringFallFlying && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
+            if (notWhileGliding && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
+                return false
+            }
+
+            // Check if we are holding a mace
+            if (notWithMace && player.mainHandStack.item == Items.MACE) {
                 return false
             }
 

@@ -32,8 +32,8 @@ import net.ccbluex.liquidbounce.utils.aiming.raytraceEntity
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
-import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Items
 
@@ -70,11 +70,11 @@ object ModuleMiddleClickAction : ClientModule(
 
             if (pickup) {
                 // visually select the slot
-                val slot = findHotbarItemSlot(Items.ENDER_PEARL)?.hotbarSlotForServer ?: return@tickHandler
+                val slot = Slots.Hotbar.findSlot(Items.ENDER_PEARL)?.hotbarSlotForServer ?: return@tickHandler
                 SilentHotbar.selectSlotSilently(this, slot, slotResetDelay)
                 wasPressed = true
             } else if (wasPressed) { // the key was released
-                findHotbarItemSlot(Items.ENDER_PEARL)?.let {
+                Slots.Hotbar.findSlot(Items.ENDER_PEARL)?.let {
                     useHotbarSlotOrOffhand(it, slotResetDelay)
                 }
 
@@ -93,7 +93,7 @@ object ModuleMiddleClickAction : ClientModule(
         fun cancelPick(): Boolean {
             return ModuleMiddleClickAction.running &&
                 mode.activeChoice == this &&
-                findHotbarItemSlot(Items.ENDER_PEARL) != null
+                Slots.Hotbar.findSlot(Items.ENDER_PEARL) != null
         }
 
         override val parent: ChoiceConfigurable<*>

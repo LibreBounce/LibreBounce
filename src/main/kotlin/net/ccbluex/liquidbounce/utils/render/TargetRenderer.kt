@@ -84,7 +84,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
     inner class Ghost : WorldTargetRenderAppearance("Ghost") {
 
         private val glow by lazy {
-            Identifier.of("liquiudbounce", "glow").also { identifier ->
+            Identifier.of("liquidbounce", "glow").also { identifier ->
                 val texture = with(LiquidBounce.javaClass.getResourceAsStream("/resources/liquidbounce/glow.png")) {
                     NativeImageBackedTexture(NativeImage.read(this))
                 }
@@ -113,7 +113,6 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 GlStateManager.SrcFactor.ZERO,
                 GlStateManager.DstFactor.ONE
             )
-
 
             with(mc.gameRenderer.camera.pos) {
                 env.matrixStack.translate(-this.x, -this.y, -this.z)
@@ -149,7 +148,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 )
             }
 
-            RenderSystem.depthMask(false)
+            RenderSystem.depthMask(true)
             RenderSystem.defaultBlendFunc()
             mc.gameRenderer.lightmapTextureManager.enable()
             RenderSystem.enableCull()
@@ -269,7 +268,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
         private val innerRadius by float("InnerRadius", 0f, 0f..2f)
             .onChange { min(radius, it) }
 
-        private val heightMode = choices(module, "HeightMode", 0) {
+        private val heightMode = choices(module, "HeightMode") {
             arrayOf(FeetHeight(it), TopHeight(it), RelativeHeight(it), HealthHeight(it))
         }
 
@@ -287,7 +286,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                     withDisabledCull {
                         drawGradientCircle(radius, innerRadius, outerColor, innerColor)
                     }
-                    if(outline.enabled) {
+                    if (outline.enabled) {
                         drawCircleOutline(radius, outline.color)
                     }
                 }
@@ -302,7 +301,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
         private val radius by float("Radius", 0.85f, 0.1f..2f)
 
-        private val heightMode = choices(module, "HeightMode", 0) {
+        private val heightMode = choices(module, "HeightMode") {
             arrayOf(FeetHeight(it), TopHeight(it), RelativeHeight(it), HealthHeight(it), AnimatedHeight(it))
         }
 
@@ -319,10 +318,11 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
             val currentHeightMode = heightMode.activeChoice
 
-            val glowHeight = if(currentHeightMode is HeightWithGlow)
+            val glowHeight = if (currentHeightMode is HeightWithGlow) {
                 currentHeightMode.getGlowHeight(entity, partialTicks) - height
-            else
+            } else {
                 glowHeightSetting.toDouble()
+            }
 
             with(env) {
                 withPosition(this.relativeToCamera(pos)) {
@@ -332,15 +332,17 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                             radius,
                             color,
                             glowColor,
-                            Vec3(0.0, glowHeight, 0.0))
+                            Vec3(0.0, glowHeight, 0.0)
+                        )
 
                         drawGradientCircle(
                             radius,
                             0f,
                             color,
-                            color)
+                            color
+                        )
                     }
-                    if(outline.enabled) {
+                    if (outline.enabled) {
                         drawCircleOutline(radius, outline.color)
                     }
                 }
@@ -349,7 +351,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
     }
 
-    inner class Outline : ToggleableConfigurable(parent,"Outline", true) {
+    inner class Outline : ToggleableConfigurable(parent, "Outline", true) {
         val color by color("Color", Color4b(0x00007CFF, false))
     }
 
@@ -425,15 +427,13 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 }
 
 class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvironment>(module) {
-    private val legacy = Legacy()
-
-    override val appearance = choices(module, "Mode", 0) {
-        arrayOf(legacy)
+    override val appearance = choices<TargetRenderAppearance<GUIRenderEnvironment>>(module, "Mode") {
+        arrayOf(Legacy())
     }
 
     inner class Legacy : OverlayTargetRenderAppearance("Arrow") {
 
-        override val parent: ChoiceConfigurable<*>
+        override val parent: ChoiceConfigurable<TargetRenderAppearance<GUIRenderEnvironment>>
             get() = appearance
 
         private val color by color("Color", Color4b.RED)
@@ -453,7 +453,7 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
                         VertexFormats.POSITION,
                         ShaderProgramKeys.POSITION
                     ) {
-                        vertex(it, screenPos.x - 5 *  size, screenPos.y - 10 * size, 1f)
+                        vertex(it, screenPos.x - 5 * size, screenPos.y - 10 * size, 1f)
                         vertex(it, screenPos.x, screenPos.y, 1f)
                         vertex(it, screenPos.x + 5 * size, screenPos.y - 10 * size, 1f)
                     }

@@ -17,6 +17,9 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+@file:Suppress("LongMethod")
+
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1
 
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client.*
@@ -53,6 +56,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     get("/screen", ::getScreenInfo)
     get("/screen/size", ::getScreenSize)
     put("/screen", ::putScreen)
+    delete("/screen", ::deleteScreen)
 
     // Module Functions
     get("/modules", ::getModules).apply {
@@ -63,6 +67,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
         put("/settings", ::putSettings)
         post("/panic", ::postPanic)
     }
+    get("/module/:name", ::getModule)
 
     // Component Array Functions
     get("/components", ::getAllComponents)
@@ -137,9 +142,15 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     // Reconnect Functions
     post("/reconnect", ::postReconnect)
 
+    // Spoofer Functions
+    get("/spoofer", ::getSpooferConfigurable)
+    put("/spoofer", ::putSpooferConfigurable)
+
     // Input Functions
     get("/input", ::getInputInfo)
     get("/keybinds", ::getKeybinds)
+    post("/typing", ::isTyping)
+    get("/typing", ::isTyping)
 
     // Player Functions
     get("/player", ::getPlayerData)

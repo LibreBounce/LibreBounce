@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.Buff
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff.AutoBuffRotationsConfigurable.RotationTimingMode.*
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features.Pot.isPotion
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager.currentRotation
@@ -111,7 +111,7 @@ object Pot : Buff("Pot", isValidItem = { stack, forUse -> isPotion(stack, forUse
 
     private val allowLingering by boolean("AllowLingering", false)
 
-    override suspend fun execute(sequence: Sequence<*>, slot: HotbarItemSlot) {
+    override suspend fun execute(sequence: Sequence, slot: HotbarItemSlot) {
         // TODO: Use movement prediction to splash against walls and away from the player
         //   See https://github.com/CCBlueX/LiquidBounce/issues/2051
         var rotation = Rotation(player.yaw, (85f..90f).random().toFloat())

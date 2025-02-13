@@ -124,7 +124,7 @@ object IntegrationListener : EventListener {
         // Set to default GLFW cursor
         GLFW.glfwSetCursor(mc.window.handle, standardCursor)
 
-        if (handleScreenSituation(event.screen)) {
+        if (handleCurrentScreen(event.screen)) {
             event.cancelEvent()
         }
     }
@@ -134,7 +134,7 @@ object IntegrationListener : EventListener {
     private val screenRefresher = handler<GameTickEvent> {
 
         if (browserIsReady && mc.currentScreen !is MCEFProgressMenu) {
-            handleScreenSituation(mc.currentScreen)
+            handleCurrentScreen(mc.currentScreen)
         }
     }
 
@@ -147,7 +147,7 @@ object IntegrationListener : EventListener {
         sync()
     }
 
-    private fun handleScreenSituation(screen: Screen?): Boolean {
+    private fun handleCurrentScreen(screen: Screen?): Boolean {
         if (screen !is VirtualDisplayScreen && HideAppearance.isHidingNow) {
             virtualClose()
             return false

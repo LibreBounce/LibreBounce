@@ -19,6 +19,8 @@
  *
  */
 
+@file:Suppress("LongMethod")
+
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 
 import com.google.gson.JsonArray

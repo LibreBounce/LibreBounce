@@ -28,9 +28,10 @@ import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.input.availableInputKeys
 import net.ccbluex.liquidbounce.utils.input.inputByName
-import net.ccbluex.liquidbounce.utils.input.keyList
-import net.ccbluex.liquidbounce.utils.input.mouseList
+import net.ccbluex.liquidbounce.utils.input.availableMouseKeys
+import net.ccbluex.liquidbounce.utils.input.availableKeyboardKeys
 import net.minecraft.client.util.InputUtil
 import net.minecraft.util.Formatting
 import kotlin.math.ceil
@@ -48,137 +49,142 @@ object CommandBinds : CommandFactory {
         return CommandBuilder
             .begin("binds")
             .hub()
-            .subcommand(
-                CommandBuilder
-                    .begin("add")
-                    .parameter(
-                        moduleParameter()
-                            .required()
-                            .build()
-                    ).parameter(
-                        ParameterBuilder
-                            .begin<String>("key")
-                            .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                            .autocompletedWith { begin -> (keyList + mouseList).filter { it.startsWith(begin) } }
-                            .required()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        val name = args[0] as String
-                        val keyName = args[1] as String
-                        val module = ModuleManager.find { it.name.equals(name, true) }
-                            ?: throw CommandException(command.result("moduleNotFound", name))
-
-                        val bindKey = inputByName(keyName)
-                        if (bindKey == InputUtil.UNKNOWN_KEY) {
-                            throw CommandException(command.result("unknownKey"))
-                        }
-
-                        module.bind.bind(bindKey)
-                        ModuleClickGui.reloadView()
-                        chat(regular(command.result("moduleBound", variable(module.name),
-                            variable(module.bind.keyName))), metadata = MessageMetadata(id = "Binds#${module.name}")
-                        )
-                    }
-                    .build()
-            )
-            .subcommand(
-                CommandBuilder
-                    .begin("remove")
-                    .parameter(
-                        moduleParameter { mod -> !mod.bind.isUnbound }
-                            .required()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        val name = args[0] as String
-                        val module = ModuleManager.find { it.name.equals(name, true) }
-                            ?: throw CommandException(command.result("moduleNotFound", name))
-
-                        if (module.bind.isUnbound) {
-                            throw CommandException(command.result("moduleNotBound"))
-                        }
-
-                        module.bind.unbind()
-                        ModuleClickGui.reloadView()
-                        chat(
-                            regular(command.result("bindRemoved", variable(module.name))),
-                            metadata = MessageMetadata(id = "Binds#${module.name}")
-                        )
-                    }
-                    .build()
-            )
-            .subcommand(
-                CommandBuilder
-                    .begin("list")
-                    .parameter(
-                        pageParameter()
-                            .verifiedBy(ParameterBuilder.INTEGER_VALIDATOR)
-                            .optional()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        val page = if (args.size > 1) {
-                            args[0] as Int
-                        } else {
-                            1
-                        }.coerceAtLeast(1)
-
-                        val bindings = ModuleManager.sortedBy { it.name }
-                            .filter { !it.bind.isUnbound }
-
-                        if (bindings.isEmpty()) {
-                            throw CommandException(command.result("noBindings"))
-                        }
-
-                        // Max page
-                        val maxPage = ceil(bindings.size / 8.0).roundToInt()
-                        if (page > maxPage) {
-                            throw CommandException(command.result("pageNumberTooLarge", maxPage))
-                        }
-
-                        mc.inGameHud.chatHud.removeMessage("Binds#global")
-                        val data = MessageMetadata(id = "Binds#global", remove = false)
-
-                        // Print out bindings
-                        chat(
-                            command.result("bindings").styled { it.withColor(Formatting.RED).withBold(true) },
-                            metadata = data
-                        )
-                        chat(
-                            regular(command.result("page", variable("$page / $maxPage"))),
-                            metadata = data
-                        )
-
-                        val iterPage = 8 * page
-                        for (module in bindings.subList(iterPage - 8, iterPage.coerceAtMost(bindings.size))) {
-                            chat(
-                                "> ".asText()
-                                    .styled { it.withColor(Formatting.GOLD) }
-                                    .append(module.name + " (")
-                                    .styled { it.withColor(Formatting.GRAY) }
-                                    .append(
-                                        module.bind.keyName.asText()
-                                            .styled { it.withColor(Formatting.DARK_GRAY).withBold(true) }
-                                    )
-                                    .append(")")
-                                    .styled { it.withColor(Formatting.GRAY) },
-                                metadata = data
-                            )
-                        }
-                    }
-                    .build()
-            )
-            .subcommand(
-                CommandBuilder
-                    .begin("clear")
-                    .handler { command, _ ->
-                        ModuleManager.forEach { it.bind.unbind() }
-                        chat(command.result("bindsCleared"), metadata = MessageMetadata(id = "Binds#global"))
-                    }
-                    .build()
-            )
+            .subcommand(addSubcommand())
+            .subcommand(removeSubcommand())
+            .subcommand(listSubcommand())
+            .subcommand(clearSubcommand())
             .build()
     }
+
+    private fun clearSubcommand() = CommandBuilder
+        .begin("clear")
+        .handler { command, _ ->
+            ModuleManager.forEach { it.bind.unbind() }
+            chat(command.result("bindsCleared"), metadata = MessageMetadata(id = "Binds#global"))
+        }
+        .build()
+
+    private fun listSubcommand() = CommandBuilder
+        .begin("list")
+        .parameter(
+            pageParameter()
+                .verifiedBy(ParameterBuilder.INTEGER_VALIDATOR)
+                .optional()
+                .build()
+        )
+        .handler { command, args ->
+            val page = if (args.size > 1) {
+                args[0] as Int
+            } else {
+                1
+            }.coerceAtLeast(1)
+
+            val bindings = ModuleManager.sortedBy { it.name }
+                .filter { !it.bind.isUnbound }
+
+            if (bindings.isEmpty()) {
+                throw CommandException(command.result("noBindings"))
+            }
+
+            // Max page
+            val maxPage = ceil(bindings.size / 8.0).roundToInt()
+            if (page > maxPage) {
+                throw CommandException(command.result("pageNumberTooLarge", maxPage))
+            }
+
+            mc.inGameHud.chatHud.removeMessage("Binds#global")
+            val data = MessageMetadata(id = "Binds#global", remove = false)
+
+            // Print out bindings
+            chat(
+                command.result("bindings").styled { it.withColor(Formatting.RED).withBold(true) },
+                metadata = data
+            )
+            chat(
+                regular(command.result("page", variable("$page / $maxPage"))),
+                metadata = data
+            )
+
+            val iterPage = 8 * page
+            for (module in bindings.subList(iterPage - 8, iterPage.coerceAtMost(bindings.size))) {
+                chat(
+                    "> ".asText()
+                        .styled { it.withColor(Formatting.GOLD) }
+                        .append(module.name + " (")
+                        .styled { it.withColor(Formatting.GRAY) }
+                        .append(
+                            module.bind.keyName.asText()
+                                .styled { it.withColor(Formatting.DARK_GRAY).withBold(true) }
+                        )
+                        .append(")")
+                        .styled { it.withColor(Formatting.GRAY) },
+                    metadata = data
+                )
+            }
+        }
+        .build()
+
+    private fun removeSubcommand() = CommandBuilder
+        .begin("remove")
+        .parameter(
+            moduleParameter { mod -> !mod.bind.isUnbound }
+                .required()
+                .build()
+        )
+        .handler { command, args ->
+            val name = args[0] as String
+            val module = ModuleManager.find { it.name.equals(name, true) }
+                ?: throw CommandException(command.result("moduleNotFound", name))
+
+            if (module.bind.isUnbound) {
+                throw CommandException(command.result("moduleNotBound"))
+            }
+
+            module.bind.unbind()
+            ModuleClickGui.reloadView()
+            chat(
+                regular(command.result("bindRemoved", variable(module.name))),
+                metadata = MessageMetadata(id = "Binds#${module.name}")
+            )
+        }
+        .build()
+
+    private fun addSubcommand() = CommandBuilder
+        .begin("add")
+        .parameter(
+            moduleParameter()
+                .required()
+                .build()
+        ).parameter(
+            ParameterBuilder
+                .begin<String>("key")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .autocompletedWith { begin, _ -> availableInputKeys.filter { it.startsWith(begin) } }
+                .required()
+                .build()
+        )
+        .handler { command, args ->
+            val name = args[0] as String
+            val keyName = args[1] as String
+            val module = ModuleManager.find { it.name.equals(name, true) }
+                ?: throw CommandException(command.result("moduleNotFound", name))
+
+            val bindKey = inputByName(keyName)
+            if (bindKey == InputUtil.UNKNOWN_KEY) {
+                throw CommandException(command.result("unknownKey"))
+            }
+
+            module.bind.bind(bindKey)
+            ModuleClickGui.reloadView()
+            chat(
+                regular(
+                    command.result(
+                        "moduleBound", variable(module.name),
+                        variable(module.bind.keyName)
+                    )
+                ), metadata = MessageMetadata(id = "Binds#${module.name}")
+            )
+        }
+        .build()
 
 }

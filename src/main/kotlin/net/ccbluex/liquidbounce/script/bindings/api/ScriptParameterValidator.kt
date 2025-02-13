@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.script.bindings.api
 
-import net.ccbluex.liquidbounce.features.command.ParameterVerifier
+import net.ccbluex.liquidbounce.features.command.ParameterValidationResult
+import net.ccbluex.liquidbounce.features.command.ParameterVerificator
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyObject
@@ -8,13 +9,10 @@ import org.graalvm.polyglot.proxy.ProxyObject
 @Suppress("unused")
 class ScriptParameterValidator(val bindings: Value) {
 
-    private fun map(param: String, validator: ParameterVerifier<*>): Value {
-        val result = validator.invoke(param)
-
-        val v = if (result.errorMessage == null) {
-            mapOf("accept" to true, "value" to result.mappedResult!!)
-        } else {
-            mapOf("accept" to false, "error" to result.errorMessage)
+    private fun map(param: String, validator: ParameterVerificator<*>): Value {
+        val v = when (val result = validator.verifyAndParse(param)) {
+            is ParameterValidationResult.Ok -> mapOf("accept" to true, "value" to result.mappedResult!!)
+            is ParameterValidationResult.Error -> mapOf("accept" to false, "error" to result.errorMessage)
         }
 
         return bindings.context.asValue(ProxyObject.fromMap(v))

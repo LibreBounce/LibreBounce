@@ -19,6 +19,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.Dispatchers
+import net.ccbluex.liquidbounce.api.thirdparty.OPENAI_BASE_URL
+import net.ccbluex.liquidbounce.api.thirdparty.OpenAiApi
 import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -27,8 +29,6 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.openai.OPENAI_BASE_URL
-import net.ccbluex.liquidbounce.utils.openai.OpenAi
 
 /**
  * Automatically solves chat game riddles.
@@ -154,7 +154,7 @@ object ModuleAutoChatGame : ClientModule("AutoChatGame", Category.MISC) {
         val answer = waitFor(Dispatchers.IO) {
             runCatching {
                 // Create new AI instance with OpenAI key
-                val ai = OpenAi(baseUrl, openAiKey, model, prompt.replace("{SERVER_NAME}", serverName))
+                val ai = OpenAiApi(baseUrl, openAiKey, model, prompt.replace("{SERVER_NAME}", serverName))
 
                 ai.requestNewAnswer(question).trimEnd {
                     // Remove dot on the end of answer

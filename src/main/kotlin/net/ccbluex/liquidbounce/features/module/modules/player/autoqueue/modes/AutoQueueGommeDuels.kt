@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Items
@@ -122,7 +122,7 @@ object AutoQueueGommeDuels : Choice("GommeDuels") {
         inMatch = false
     }
 
-    private suspend fun Sequence<*>.handleLobbySituation() {
+    private suspend fun Sequence.handleLobbySituation() {
         inMatch = false
 
         val duelsEntity = world.entities.filterIsInstance<ArmorStandEntity>().find {
@@ -145,14 +145,14 @@ object AutoQueueGommeDuels : Choice("GommeDuels") {
         waitSeconds(5)
     }
 
-    private suspend fun Sequence<*>.handleDuelsSituation() {
+    private suspend fun Sequence.handleDuelsSituation() {
         // Check if player inventory has a head
         if (!inMatch) {
             if (controlKillAura) {
                 ModuleKillAura.enabled = false
             }
 
-            val headSlot = findHotbarSlot(Items.PLAYER_HEAD) ?: return
+            val headSlot = Slots.Hotbar.findSlotIndex(Items.PLAYER_HEAD) ?: return
 
             if (headSlot != player.inventory.selectedSlot) {
                 SilentHotbar.selectSlotSilently(this, headSlot, 20)

@@ -37,7 +37,7 @@ object TpsObserver : EventListener {
     var tps = Double.NaN
 
     @Suppress("unused")
-    private val packetHandler =  handler<PacketEvent> { event ->
+    private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
 
         // the world time update packet should be sent once every second
@@ -61,17 +61,17 @@ object TpsObserver : EventListener {
         }
 
         val averageInterval = intervals.average()
-        mc.renderTaskQueue.add(Runnable {
+        mc.renderTaskQueue.add {
             tps = if (averageInterval > 0 && !averageInterval.isNaN()) {
                 (20.0 / (averageInterval / 1000.0)).coerceIn(0.0..20.0)
             } else {
                 Double.NaN
             }
-        })
+        }
     }
 
     @Suppress("unused")
-    private val disconnectHandler =  handler<DisconnectEvent> { _ ->
+    private val disconnectHandler = handler<DisconnectEvent> {
         wasDisconnected = true
         intervals.clear()
         tps = Double.NaN

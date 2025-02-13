@@ -88,20 +88,22 @@ object ClientItemGroups : Configurable("tabs") {
         }.onSuccess {
             runCatching {
                 // Create item groups
-                arrayOf(
+                val itemGroups = arrayOf(
                     HeadsItemGroup(),
                     ExploitsItemGroup(),
                     ContainerItemGroup(),
-                ).forEach {
-                    it.create()
-                    logger.info("Created item group ${it.plainName}")
+                )
+
+                for (itemGroup in itemGroups) {
+                    itemGroup.setup()
                 }
 
                 beenSetup = true
-            }.onFailure {
-                logger.error("Unable to setup tabs", it)
-            }.onSuccess {
-                logger.info("Successfully setup tabs")
+                itemGroups
+            }.onFailure { exception ->
+                logger.error("Unable to setup item groups", exception)
+            }.onSuccess { itemGroups ->
+                logger.info("Item Groups: [ ${itemGroups.joinToString { group -> group.plainName }} ]")
             }
         }
     }

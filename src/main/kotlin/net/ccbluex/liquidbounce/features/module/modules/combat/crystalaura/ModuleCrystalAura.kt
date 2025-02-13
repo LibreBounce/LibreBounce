@@ -19,21 +19,31 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura
 
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.destroy.SubmoduleCrystalDestroyer
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.place.SubmoduleCrystalPlacer
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.post.CrystalPostAttackTracker
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.post.SubmoduleSetDead
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.CrystalAuraTriggerer
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
-import net.ccbluex.liquidbounce.utils.aiming.RotationMode
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
-import net.minecraft.entity.LivingEntity
 
+/**
+ * Module CrystalAura
+ *
+ * Automatically places and explodes end crystals.
+ *
+ * @author ccetl
+ */
 object ModuleCrystalAura : ClientModule(
     "CrystalAura",
     Category.COMBAT,
@@ -41,7 +51,7 @@ object ModuleCrystalAura : ClientModule(
     disableOnQuit = true
 ) {
 
-    val targetTracker = tree(TargetTracker(maxRange = 12f))
+    val targetTracker = tree(TargetTracker(range = float("Range", 4.5f, 1f..12f)))
 
     object PredictFeature : Configurable("Predict") {
         init {
@@ -54,6 +64,7 @@ object ModuleCrystalAura : ClientModule(
             SubmoduleCrystalPlacer,
             SubmoduleCrystalDestroyer,
             CrystalAuraDamageOptions,
+            CrystalAuraTriggerer,
             PredictFeature,
             SubmoduleIdPredict,
             SubmoduleSetDead,
@@ -63,13 +74,15 @@ object ModuleCrystalAura : ClientModule(
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
-    val rotationMode = choices("RotationMode", 0) {
-        arrayOf(NormalRotationMode(it, this, Priority.NORMAL), NoRotationMode(it, this))
+    val rotationMode = choices(this, "RotationMode") {
+        arrayOf(
+            NormalRotationMode(it, this, Priority.IMPORTANT_FOR_USAGE_2, true),
+            NoRotationMode(it, this)
+        )
     }
 
-    var currentTarget: LivingEntity? = null
-
     override fun disable() {
+        CrystalAuraTriggerer.terminateRunningTasks()
         SubmoduleCrystalPlacer.placementRenderer.clearSilently()
         SubmoduleCrystalDestroyer.postAttackHandlers.forEach(CrystalPostAttackTracker::onToggle)
         SubmoduleBasePlace.disable()
@@ -81,27 +94,18 @@ object ModuleCrystalAura : ClientModule(
     }
 
     @Suppress("unused")
-    val simulatedTickHandler = handler<SimulatedTickEvent> {
+    private val simulatedTickHandler = handler<RotationUpdateEvent>(1) {
         CrystalAuraDamageOptions.cacheMap.clear()
         if (CombatManager.shouldPauseCombat) {
             return@handler
         }
 
-        currentTarget = targetTracker.enemies().firstOrNull()
-        currentTarget ?: return@handler
-        // Make the crystal destroyer run
-        SubmoduleCrystalDestroyer.tick()
-        // Make the crystal placer run
-        SubmoduleCrystalPlacer.tick()
-        if (!SubmoduleIdPredict.enabled) {
-            // Make the crystal destroyer run
-            SubmoduleCrystalDestroyer.tick()
-        }
+        targetTracker.selectFirst()
     }
 
     @Suppress("unused")
-    val renderHandler = handler<WorldRenderEvent> {
-        val target = currentTarget ?: return@handler
+    private val renderHandler = handler<WorldRenderEvent> {
+        val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForWorld(it.matrixStack) {
             targetRenderer.render(this, target, it.partialTicks)

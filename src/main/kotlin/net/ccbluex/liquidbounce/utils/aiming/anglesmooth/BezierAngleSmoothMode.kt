@@ -41,27 +41,28 @@ class BezierAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleS
         vec3d: Vec3d?,
         entity: Entity?
     ): Rotation {
-        val yawDifference = RotationManager.angleDifference(targetRotation.yaw, currentRotation.yaw)
-        val pitchDifference = RotationManager.angleDifference(targetRotation.pitch, currentRotation.pitch)
-        val rotationDifference = hypot(abs(yawDifference), abs(pitchDifference))
+        val diff = currentRotation.rotationDeltaTo(targetRotation)
+        val rotationDifference = diff.length()
+
         val (factorH, factorV) = computeFactor(rotationDifference, horizontalTurnSpeed.random()) to
             computeFactor(rotationDifference, verticalTurnSpeed.random())
-        val straightLineYaw = abs(yawDifference / rotationDifference) * (factorH * factorModifier)
-        val straightLinePitch = abs(pitchDifference / rotationDifference) * (factorV * factorModifier)
+        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier)
+        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier)
+
         return Rotation(
-            currentRotation.yaw + yawDifference.coerceIn(-straightLineYaw, straightLineYaw),
-            currentRotation.pitch + pitchDifference.coerceIn(-straightLinePitch, straightLinePitch)
+            currentRotation.yaw + diff.deltaYaw.coerceIn(-straightLineYaw, straightLineYaw),
+            currentRotation.pitch + diff.deltaPitch.coerceIn(-straightLinePitch, straightLinePitch)
         )
     }
 
     override fun howLongToReach(currentRotation: Rotation, targetRotation: Rotation): Int {
-        val yawDifference = RotationManager.angleDifference(targetRotation.yaw, currentRotation.yaw)
-        val pitchDifference = RotationManager.angleDifference(targetRotation.pitch, currentRotation.pitch)
-        val rotationDifference = hypot(abs(yawDifference), abs(pitchDifference))
+        val diff = currentRotation.rotationDeltaTo(targetRotation)
+        val rotationDifference = diff.length()
+
         val (factorH, factorV) = computeFactor(rotationDifference, horizontalTurnSpeed.random()) to
             computeFactor(rotationDifference, verticalTurnSpeed.random())
-        val straightLineYaw = abs(yawDifference / rotationDifference) * factorH
-        val straightLinePitch = abs(pitchDifference / rotationDifference) * factorV
+        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * factorH
+        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * factorV
         return (rotationDifference / min(straightLineYaw, straightLinePitch)).toInt()
     }
 

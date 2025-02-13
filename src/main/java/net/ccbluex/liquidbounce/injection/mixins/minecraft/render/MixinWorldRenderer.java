@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b;
 import net.ccbluex.liquidbounce.render.engine.RenderingFlags;
 import net.ccbluex.liquidbounce.render.shader.shaders.OutlineShader;
 import net.ccbluex.liquidbounce.utils.client.ClientUtilsKt;
+import net.ccbluex.liquidbounce.utils.client.ErrorHandler;
 import net.ccbluex.liquidbounce.utils.combat.CombatExtensionsKt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -75,9 +76,16 @@ public abstract class MixinWorldRenderer {
 
     @Inject(method = "loadEntityOutlinePostProcessor", at = @At("RETURN"))
     private void onLoadEntityOutlineShader(CallbackInfo info) {
-        // load the shader class to compile the shaders
-        //noinspection unused
-        var instance = OutlineShader.INSTANCE;
+        try {
+            // load the shader class to compile the shaders
+            //noinspection unused
+            var instance = OutlineShader.INSTANCE;
+        } catch (Exception e) {
+            ErrorHandler.INSTANCE.fatal(e, "Failed to load outline shader");
+
+            // This will make Minecraft unable to continue loading
+            throw e;
+        }
     }
 
    @Inject(method = "render", at = @At("HEAD"))
@@ -199,6 +207,8 @@ public abstract class MixinWorldRenderer {
             return true;
         } else if (ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp() && entity instanceof TntEntity) {
             return true;
+        } else if (ModuleStorageESP.Glow.INSTANCE.getRunning() && ModuleStorageESP.categorize(entity) != null) {
+            return true;
         } else {
             return false;
         }
@@ -217,9 +227,14 @@ public abstract class MixinWorldRenderer {
             return ModuleItemESP.INSTANCE.getColor().toARGB();
         } else if (entity instanceof TntEntity tntEntity && ModuleTNTTimer.INSTANCE.getRunning() && ModuleTNTTimer.INSTANCE.getEsp()) {
             return ModuleTNTTimer.INSTANCE.getTntColor(tntEntity.getFuse()).toARGB();
-        } else {
-            return original;
+        } else if (ModuleStorageESP.Glow.INSTANCE.getRunning()) {
+            var color = ModuleStorageESP.categorize(entity);
+            if (color != null) {
+                return color.getColor().toARGB();
+            }
         }
+
+        return original;
     }
 
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE))

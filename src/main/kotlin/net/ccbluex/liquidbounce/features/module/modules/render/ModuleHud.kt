@@ -90,6 +90,7 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         refresh()
 
         // Minimap
+        RenderedEntities.subscribe(this)
         ChunkScanner.subscribe(ChunkRenderer.MinimapChunkUpdateSubscriber)
     }
 
@@ -98,6 +99,7 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         ComponentOverlay.clear()
 
         // Minimap
+        RenderedEntities.unsubscribe(this)
         ChunkScanner.unsubscribe(ChunkRenderer.MinimapChunkUpdateSubscriber)
         // todo: fix that unloading it and re-enabling breaks it
 //        ChunkRenderer.unloadEverything()

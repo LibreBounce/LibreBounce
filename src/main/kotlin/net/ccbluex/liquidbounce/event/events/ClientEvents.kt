@@ -24,6 +24,7 @@ import com.google.gson.annotations.SerializedName
 import net.ccbluex.liquidbounce.config.gson.GsonInstance
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
+import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.features.chat.packet.User
 import net.ccbluex.liquidbounce.features.misc.proxy.Proxy
@@ -32,7 +33,6 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEven
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.utils.client.Nameable
-import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.inventory.InventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.InventoryActionChain
 import net.ccbluex.liquidbounce.utils.inventory.InventoryConstraints
@@ -196,14 +196,8 @@ class ServerPingedEvent(val server: ServerInfo) : Event()
 @WebSocketEvent(serializer = GsonInstance.ACCESSIBLE_INTEROP)
 class ComponentsUpdate(val components: List<Component>) : Event()
 
-/**
- * The simulated tick event is called by the [MovementInputEvent] with a simulated movement context.
- * This context includes a simulated player position one tick into the future.
- * Position changes will not apply within the simulated tick. Only use this for prediction purposes as
- * updating the rotation or target.
- */
-@Nameable("simulatedTick")
-class SimulatedTickEvent(val movementEvent: MovementInputEvent, val simulatedPlayer: SimulatedPlayer) : Event()
+@Nameable("rotationUpdate")
+object RotationUpdateEvent : Event()
 
 @Nameable("resourceReload")
 object ResourceReloadEvent : Event()
@@ -213,9 +207,7 @@ object ResourceReloadEvent : Event()
 class ScaleFactorChangeEvent(val scaleFactor: Double) : Event()
 
 @Nameable("scheduleInventoryAction")
-class ScheduleInventoryActionEvent(
-    val schedule: MutableList<InventoryActionChain> = mutableListOf()
-) : Event() {
+class ScheduleInventoryActionEvent(val schedule: MutableList<InventoryActionChain> = mutableListOf()) : Event() {
 
     fun schedule(
         constrains: InventoryConstraints,
@@ -241,6 +233,9 @@ class ScheduleInventoryActionEvent(
         this.schedule.add(InventoryActionChain(constrains, actions.toTypedArray(), priority))
     }
 }
+
+@Nameable("selectHotbarSlotSilently")
+class SelectHotbarSlotSilentlyEvent(val requester: Any?, val slot: Int): CancellableEvent()
 
 @Nameable("browserUrlChange")
 @WebSocketEvent

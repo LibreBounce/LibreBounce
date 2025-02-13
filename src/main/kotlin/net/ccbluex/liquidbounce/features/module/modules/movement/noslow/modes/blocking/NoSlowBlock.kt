@@ -33,7 +33,7 @@ internal object NoSlowBlock : NoSlowUseActionHandler("Blocking") {
 
     private val onlySlowOnServerSide by boolean("OnlySlowOnServerSide", false)
 
-    val modes = choices<Choice>(this, "Choice", 0) {
+    val modes = choices(this, "Choice") {
         arrayOf(
             NoneChoice(it),
             NoSlowBlockingReuse,

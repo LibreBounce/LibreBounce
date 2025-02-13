@@ -22,7 +22,6 @@ package net.ccbluex.liquidbounce.features.module.modules.world.nuker.area
 import net.ccbluex.liquidbounce.features.module.modules.world.nuker.ModuleNuker
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.kotlin.isNotEmpty
 import net.ccbluex.liquidbounce.utils.math.component1
@@ -56,7 +55,7 @@ object FloorNukerArea : NukerArea("Floor") {
         )
 
         // Check if the box is within the radius
-        val eyesPos = player.eyes
+        val eyesPos = player.eyePos
         val rangeSquared = radius * radius
         if (box.squaredBoxedDistanceTo(eyesPos) > rangeSquared) {
             // Return empty list if not

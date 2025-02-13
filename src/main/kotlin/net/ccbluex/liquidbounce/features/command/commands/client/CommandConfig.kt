@@ -18,21 +18,20 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.api.ClientApi
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.parse
+import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.services.client.ClientApi
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
-import net.ccbluex.liquidbounce.config.AutoConfig.configsCache
-import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
-import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.io.HttpClient.get
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
@@ -52,140 +51,132 @@ object CommandConfig : CommandFactory {
         return CommandBuilder
             .begin("config")
             .hub()
-            .subcommand(
-                CommandBuilder
-                    .begin("load")
-                    .parameter(
-                        ParameterBuilder
-                            .begin<String>("name")
-                            .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                            .autocompletedWith(this::autoComplete)
-                            .required()
-                            .build()
-                    )
-                    .parameter(
-                        moduleParameter()
-                            .optional()
-                            .build()
-                    )
-                    .handler { command, args ->
-                        val name = args[0] as String
-                        val moduleNames = args.getOrNull(1) as String?
-                        val modules = ModuleManager.parseModulesFromParameter(moduleNames)
-
-                        // Load the config in a separate thread to prevent the client from freezing
-                        AutoConfig.startLoaderTask {
-                            runCatching {
-                                if (name.startsWith("http")) {
-                                    // Load the config from the specified URL
-                                    get(name).reader()
-                                } else {
-                                    // Get online config from API
-                                    ClientApi.requestSettingsScript(name).reader()
-                                }
-                            }.onSuccess { sourceReader ->
-                                AutoConfig.withLoading {
-                                    runCatching {
-                                        sourceReader.apply {
-                                            if (modules.isEmpty()) {
-                                                ConfigSystem.deserializeConfigurable(
-                                                    ModuleManager.modulesConfigurable, this,
-                                                    publicGson
-                                                )
-                                            } else {
-                                                ConfigSystem.deserializeModuleConfigurable(
-                                                    modules, this,
-                                                    publicGson
-                                                )
-                                            }
-                                        }
-                                    }.onFailure {
-                                        chat(markAsError(command.result("failedToLoad", variable(name))))
-                                    }.onSuccess {
-                                        chat(regular(command.result("loaded", variable(name))))
-                                    }
-                                }
-                            }.onFailure {
-                                chat(markAsError(command.result("failedToLoad", variable(name))))
-                            }
-                        }
-                    }
-                    .build()
-            )
-            .subcommand(
-                CommandBuilder
-                    .begin("list")
-                    .handler { command, args ->
-                        runCatching {
-                            chat(regular(command.result("loading")))
-                            val widthOfSpace = mc.textRenderer.getWidth(" ")
-                            val width = configs.maxOf { mc.textRenderer.getWidth(it.settingId) }
-
-                            // In case of the chat, we want to show the newest config at the bottom for visibility
-                            configs.sortedBy { it.javaDate }.forEach {
-                                val settingName = it.settingId // there is also .name, but we use it for GUI instead
-
-                                // Append spaces to the setting name to align the date and status
-                                // Compensate for the length of the setting name
-                                val spaces = " ".repeat(
-                                    (width - mc.textRenderer.getWidth(settingName))
-                                        / widthOfSpace
-                                )
-
-                                chat(
-                                    variable(settingName).styled { style ->
-                                        style
-                                            .withClickEvent(
-                                                ClickEvent(
-                                                    ClickEvent.Action.SUGGEST_COMMAND,
-                                                    ".config load $settingName"
-                                                )
-                                            )
-                                            .withHoverEvent(
-                                                HoverEvent(
-                                                    HoverEvent.Action.SHOW_TEXT,
-                                                    Text.of("§7Click to load $settingName")
-                                                )
-                                            )
-                                    },
-                                    regular(spaces),
-                                    regular(" | "),
-                                    variable(it.dateFormatted),
-                                    regular(" | "),
-                                    Text.literal(it.statusType.displayName).styled { style ->
-                                        style
-                                            .withFormatting(it.statusType.formatting)
-                                            .withHoverEvent(
-                                                HoverEvent(
-                                                    HoverEvent.Action.SHOW_TEXT,
-                                                    Text.of(it.statusDateFormatted)
-                                                )
-                                            )
-                                    },
-                                    regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
-                                        prefix = false
-                                    )
-                                )
-                            }
-                        }.onFailure {
-                            chat(regular("§cFailed to load settings list from API"))
-                        }
-                    }
-                    .build()
-            )
-            .subcommand(
-                CommandBuilder
-                    .begin("browse")
-                    .handler { _, _ ->
-                        browseUrl(CONFIGS_URL)
-                    }
-                    .build()
-            )
+            .subcommand(loadSubcommand())
+            .subcommand(listSubcommand())
+            .subcommand(browseSubcommand())
             .build()
     }
 
-    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
-        return configsCache?.map { it.settingId }?.filter { it.startsWith(begin, true) } ?: emptyList()
+    private fun browseSubcommand() = CommandBuilder
+        .begin("browse")
+        .handler { _, _ ->
+            browseUrl(CONFIGS_URL)
+        }
+        .build()
+
+    private fun listSubcommand() = CommandBuilder
+        .begin("list")
+        .handler { command, _ ->
+            runCatching {
+                chat(regular(command.result("loading")))
+                val widthOfSpace = mc.textRenderer.getWidth(" ")
+                val configs = configs ?: run {
+                    chat(regular("§cFailed to load settings list from API"))
+                    return@handler
+                }
+                val width = configs.maxOf { mc.textRenderer.getWidth(it.settingId) }
+
+                // In the case of the chat, we want to show the newest config at the bottom for visibility
+                configs.sortedBy { it.javaDate }.forEach {
+                    val settingName = it.settingId // there is also .name, but we use it for GUI instead
+
+                    // Append spaces to the setting name to align the date and status
+                    // Compensate for the length of the setting name
+                    val spaces = " ".repeat(
+                        (width - mc.textRenderer.getWidth(settingName))
+                            / widthOfSpace
+                    )
+
+                    chat(
+                        variable(settingName).styled { style ->
+                            style
+                                .withClickEvent(
+                                    ClickEvent(
+                                        ClickEvent.Action.SUGGEST_COMMAND,
+                                        ".config load $settingName"
+                                    )
+                                )
+                                .withHoverEvent(
+                                    HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Text.of("§7Click to load $settingName")
+                                    )
+                                )
+                        },
+                        regular(spaces),
+                        regular(" | "),
+                        variable(it.dateFormatted),
+                        regular(" | "),
+                        Text.literal(it.statusType.displayName).styled { style ->
+                            style
+                                .withFormatting(it.statusType.formatting)
+                                .withHoverEvent(
+                                    HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Text.of(it.statusDateFormatted)
+                                    )
+                                )
+                        },
+                        regular(" | ${it.serverAddress ?: "Global"}"), metadata = MessageMetadata(
+                            prefix = false
+                        )
+                    )
+                }
+            }.onFailure {
+                chat(regular("§cFailed to load settings list from API"))
+            }
+        }
+        .build()
+
+    private fun loadSubcommand() = CommandBuilder
+        .begin("load")
+        .parameter(
+            ParameterBuilder
+                .begin<String>("name")
+                .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                .autocompletedWith { begin, _ -> this.autocompleteConfigs(begin) }
+                .required()
+                .build()
+        )
+        .parameter(
+            moduleParameter()
+                .optional()
+                .build()
+        )
+        .handler { command, args ->
+            val name = args[0] as String
+            val moduleNames = args.getOrNull(1) as String?
+            val modules = ModuleManager.parseModulesFromParameter(moduleNames)
+
+            // Load the config in a separate thread to prevent the client from freezing
+            withScope {
+                runCatching {
+                    if (name.startsWith("http")) {
+                        // Load the config from the specified URL
+                        HttpClient.request(name, HttpMethod.GET).parse<String>().reader()
+                    } else {
+                        // Get online config from API
+                        ClientApi.requestSettingsScript(name).reader()
+                    }
+                }.onSuccess { sourceReader ->
+                    AutoConfig.withLoading {
+                        runCatching {
+                            AutoConfig.loadAutoConfig(sourceReader, modules)
+                        }.onFailure {
+                            chat(markAsError(command.result("failedToLoad", variable(name))))
+                        }.onSuccess {
+                            chat(regular(command.result("loaded", variable(name))))
+                        }
+                    }
+                }.onFailure { exception ->
+                    chat(markAsError(command.result("failedToLoad", variable(name))))
+                }
+            }
+        }
+        .build()
+
+    private fun autocompleteConfigs(begin: String): List<String> {
+        return configs?.map { it.settingId }?.filter { it.startsWith(begin, true) } ?: emptyList()
     }
 
 

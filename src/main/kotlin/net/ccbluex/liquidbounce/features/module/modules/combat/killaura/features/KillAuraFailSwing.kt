@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.Box
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.Sound
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
+import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -41,15 +41,15 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
     /**
      * Additional range for fail swing to work
      */
-    val additionalRange by float("AdditionalRange", 2f, 0f..10f)
+    private val additionalRange by float("AdditionalRange", 2f, 0f..10f)
     val clickScheduler = tree(ClickScheduler(this, false))
-    val mode = choices(this, "NotifyWhenFail", 1) {
+    val mode = choices(this, "NotifyWhenFail", activeIndex = 1) {
         arrayOf(NoneChoice(it), Box, Sound)
     }.apply {
         doNotIncludeAlways()
     }
 
-    suspend fun Sequence<*>.dealWithFakeSwing(target: Entity?) {
+    suspend fun Sequence.dealWithFakeSwing(target: Entity?) {
         if (!enabled) {
             return
         }
@@ -77,7 +77,7 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
         // Make it seem like we are blocking
         KillAuraAutoBlock.makeSeemBlock()
 
-        if (clickScheduler.goingToClick) {
+        if (clickScheduler.isGoingToClick) {
             prepareAttackEnvironment {
                 clickScheduler.clicks {
                     if (considerMissCooldown && mc.attackCooldown > 0) {

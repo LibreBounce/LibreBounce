@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.isTyping
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager.route
 import net.ccbluex.liquidbounce.utils.client.asText
@@ -73,6 +74,9 @@ object ModuleClickGui :
     private val searchBarAutoFocus by boolean("SearchBarAutoFocus", true).onChanged {
         EventManager.callEvent(ClickGuiValueChangeEvent(this))
     }
+
+    val isInSearchBar: Boolean
+        get() = (mc.currentScreen is VrScreen || mc.currentScreen is ClickScreen) && isTyping
 
     object Snapping : ToggleableConfigurable(this, "Snapping", true) {
 

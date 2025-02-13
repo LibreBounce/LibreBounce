@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
@@ -71,7 +71,7 @@ object FlyFireballCustomTechnique : Choice("Custom") {
     }
 
     @Suppress("unused")
-    private val rotationUpdateHandler = handler<SimulatedTickEvent> {
+    private val rotationUpdateHandler = handler<RotationUpdateEvent> {
         RotationManager.aimAt(
             Rotation(player.yaw, Rotations.pitch),
             configurable = Rotations,
@@ -82,8 +82,9 @@ object FlyFireballCustomTechnique : Choice("Custom") {
 
     @Suppress("unused")
     private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
-        if (stopMove && !canMove)
+        if (stopMove && !canMove) {
             event.directionalInput = DirectionalInput.BACKWARDS // Cancel out movement.
+        }
     }
 
     @Suppress("unused")
@@ -100,8 +101,9 @@ object FlyFireballCustomTechnique : Choice("Custom") {
 
             FlyFireball.throwFireball()
 
-            if (sprint)
+            if (sprint) {
                 player.isSprinting = true
+            }
         }
 
         if (YVelocity.enabled) {

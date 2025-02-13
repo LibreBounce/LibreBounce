@@ -39,5 +39,8 @@
     "fabric": ">=${fabric_version}",
     "viafabricplus": ">=${viafabricplus_version}"
   },
+  "breaks": {
+    "viafabricplus": "<${viafabricplus_version}"
+  },
   "accessWidener": "liquidbounce.accesswidener"
 }

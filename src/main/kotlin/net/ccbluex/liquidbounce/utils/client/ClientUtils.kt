@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.LiquidBounce
@@ -109,7 +111,7 @@ data class MessageMetadata(
     replaceWith = ReplaceWith("chat(*texts, metadata = MessageMetadata(prefix = prefix))")
 )
 fun chat(vararg texts: Text, prefix: Boolean) {
-    chat(*texts, metadata =  MessageMetadata(prefix = prefix))
+    chat(texts = texts, metadata = MessageMetadata(prefix = prefix))
 }
 
 /**

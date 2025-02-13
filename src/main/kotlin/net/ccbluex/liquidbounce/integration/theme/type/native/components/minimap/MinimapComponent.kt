@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f
 import net.ccbluex.liquidbounce.utils.client.toRadians
+import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentRotation
 import net.ccbluex.liquidbounce.utils.math.Vec2i
@@ -118,7 +119,7 @@ class MinimapComponent(theme: Theme) : NativeComponent(theme, "Minimap", true, A
                 VertexFormats.POSITION_COLOR,
                 ShaderProgramKeys.POSITION_COLOR,
             ) { matrix ->
-                for (renderedEntity in ModuleESP.findRenderedEntities()) {
+                for (renderedEntity in RenderedEntities) {
                     drawEntityOnMinimap(
                         this, matStack, renderedEntity, delta, Vec2f(baseX.toFloat(), baseZ.toFloat())
                     )

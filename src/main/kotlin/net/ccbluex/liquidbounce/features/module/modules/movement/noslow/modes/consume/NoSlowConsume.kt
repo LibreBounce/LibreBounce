@@ -37,7 +37,7 @@ object NoSlowConsume : NoSlowUseActionHandler("Consume") {
     })
 
     @Suppress("unused")
-    private val modes = choices<Choice>(this, "Mode", 0) {
+    private val modes = choices(this, "Mode") {
         arrayOf(
             NoneChoice(it),
             NoSlowSharedGrim2360(it),

@@ -30,12 +30,12 @@ def getContributors(repoOwner, repoName) {
     connection.connectTimeout = 5000
     connection.readTimeout = 5000
 
-    connection.setRequestProperty("User-Agent", "LiquiudBounce-App")
+    connection.setRequestProperty("User-Agent", "LiquidBounce-App")
 
     if (200 <= connection.responseCode && connection.responseCode <= 299) {
         def response = connection.inputStream.text
         def json = new JsonSlurper().parseText(response)
-        return json
+        return json[]
                 .collect { it['author']['login'] }
                 .findAll { !(it as String).contains("dependabot") }
                 .reversed()
@@ -120,7 +120,10 @@ dependencies {
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modImplementation "maven.modrinth:lithium:${project.lithium_version}"
-    modImplementation "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
+
+    // ViaFabricPlus
+    modImplementation "com.viaversion:viafabricplus-api:${project.viafabricplus_version}"
+    modRuntimeOnly "com.viaversion:viafabricplus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
@@ -130,14 +133,17 @@ dependencies {
         exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
         exclude group: "org.slf4j", module: "slf4j-api"
         exclude group: "com.mojang", module: "authlib"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
     // JCEF Support
-    includeModDependency "com.github.CCBlueX:mcef:${project.mcef_version}"
-    includeDependency "org.apache.commons:commons-exec:1.3"
+    includeModDependency ("com.github.CCBlueX:mcef:${project.mcef_version}") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
     includeDependency "org.apache.commons:commons-compress:1.27.1"
     includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
     // Discord RPC Support
@@ -153,6 +159,11 @@ dependencies {
 //    includeDependency "org.graalvm.polyglot:java-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:ruby-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
+
+    // HTTP library
+    includeDependency ("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
 
     // SOCKS5 Proxy Support
     includeDependency ("io.netty:netty-handler-proxy:4.1.97.Final") {
@@ -171,6 +182,9 @@ dependencies {
     // Test libraries
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.3"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+
+    // Fix nullable annotations
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
     afterEvaluate {
         configurations.includeDependency.incoming.resolutionResult.allDependencies.each {
@@ -307,6 +321,47 @@ task detektProjectBaseline(type: io.gitlab.arturbosch.detekt.DetektCreateBaselin
     include("**/*.kts")
     exclude("**/resources/**")
     exclude("**/build/**")
+}
+
+tasks.register("verifyI18nJsonKeys") {
+    def baselineFileName = "en_us.json"
+
+    group = "verification"
+    description = "Compare i18n JSON files with ${baselineFileName} as the baseline and report missing keys."
+
+    def i18nDir = file("src/main/resources/resources/liquidbounce/lang")
+
+    doLast {
+        if (!i18nDir.exists() || !i18nDir.isDirectory()) {
+            throw new GradleException("The specified directory ${i18nDir} does not exist or is not a directory.")
+        }
+
+        def baselineFile = new File(i18nDir, baselineFileName)
+        if (!baselineFile.exists()) {
+            throw new GradleException("Baseline file ${baselineFileName} not found in ${i18nDir}.")
+        }
+
+        def baseline = new JsonSlurper().parse(baselineFile)
+
+        i18nDir.eachFile { file ->
+            if (file.name.endsWith(".json") && file.name != baselineFileName) {
+                def currentFile = new JsonSlurper().parse(file)
+
+                def missingKeys = baseline.keySet() - currentFile.keySet()
+
+                if (missingKeys.isEmpty()) {
+                    println "${file.name} is complete. No missing keys."
+                } else {
+                    def limitedMissingKeys = missingKeys.take(5)
+                    def output = limitedMissingKeys.join(', ')
+                    if (missingKeys.size() > 5) {
+                        output += ", ..."
+                    }
+                    println "${file.name} is missing the following keys (${missingKeys.size()}): ${output}"
+                }
+            }
+        }
+    }
 }
 
 java {

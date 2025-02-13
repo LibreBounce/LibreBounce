@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.autobow
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.KeybindIsPressedEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -13,9 +14,7 @@ import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.item.BowItem
 import net.minecraft.item.TridentItem
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
 
 object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoot", true) {
 
@@ -50,8 +49,12 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
         return currentChargeRandom!!
     }
 
+    private var forceUncharged = false
+
     @Suppress("unused")
-    val tickRepeatable = handler<GameTickEvent> {
+    private val tickHandler = handler<GameTickEvent> {
+        forceUncharged = false
+
         val currentItem = player.activeItem?.item
 
         // Should check if player is using bow
@@ -62,6 +65,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
         if (player.itemUseTime < charged + getChargedRandom()) { // Wait until the bow is fully charged
             return@handler
         }
+
         if (!ModuleAutoBow.lastShotTimer.hasElapsed((delayBetweenShots * 1000.0F).toLong())) {
             return@handler
         }
@@ -73,23 +77,28 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
                 return@handler
             }
         } else if (AutoBowAimbotFeature.enabled) {
-            if (AutoBowAimbotFeature.targetTracker.lockedOnTarget == null) {
+            if (AutoBowAimbotFeature.targetTracker.target == null) {
                 return@handler
             }
 
             val targetRotation = RotationManager.workingAimPlan ?: return@handler
 
-            val aimDifference = RotationManager.rotationDifference(
-                RotationManager.serverRotation, targetRotation.rotation
-            )
+            val aimDifference = RotationManager.serverRotation.angleTo(targetRotation.rotation)
 
             if (aimDifference > aimThreshold) {
                 return@handler
             }
         }
 
-        interaction.stopUsingItem(player)
+        forceUncharged = true
         updateChargeRandom()
+    }
+
+    @Suppress("unused")
+    private val keybindHandler = handler<KeybindIsPressedEvent> { event ->
+        if (event.keyBinding == mc.options.useKey && forceUncharged) {
+            event.isPressed = false
+        }
     }
 
     fun getHypotheticalHit(): AbstractClientPlayerEntity? {
@@ -105,7 +114,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
 
         val arrow = SimulatedArrow(
             world,
-            player.eyes,
+            player.eyePos,
             Vec3d(vX, vY, vZ),
             collideEntities = false
         )
@@ -136,7 +145,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
         return null
     }
 
-    fun findAndBuildSimulatedPlayers(): List<Pair<AbstractClientPlayerEntity, SimulatedPlayerCache>> {
+    private fun findAndBuildSimulatedPlayers(): List<Pair<AbstractClientPlayerEntity, SimulatedPlayerCache>> {
         return world.players.filter {
             it != player &&
                 Line(player.pos, player.rotationVector).squaredDistanceTo(it.pos) < 10.0 * 10.0
@@ -144,4 +153,10 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
             Pair(it, PlayerSimulationCache.getSimulationForOtherPlayers(it))
         }
     }
+
+    override fun disable() {
+        forceUncharged = false
+        super.disable()
+    }
+
 }

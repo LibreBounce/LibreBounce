@@ -30,9 +30,7 @@ import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.CrystalDestroyFeature
 import net.ccbluex.liquidbounce.utils.block.placer.NoRotationMode
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
@@ -48,17 +46,20 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3i
 import org.joml.Vector2d
-import org.lwjgl.glfw.GLFW
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.floor
 
 /**
  * Surround module
  *
  * Builds safe holes.
+ *
+ * @author ccetl
  */
 object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit = true) {
 
@@ -87,7 +88,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     private val noWaste by boolean("NoWaste", false)
 
     /**
-     * Places blocks bellow the surround so that enemies can't mine the block bellow you making you fall down.
+     * Places blocks below the surround so that enemies can't mine the block bellow you making you fall down.
      */
     private val down by boolean("Down", true)
 
@@ -224,7 +225,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     /**
      * Manually triggers the protection mechanism [Protect.ExtraLayer].
      */
-    private val addExtraLayer by bind("AddExtraLayer", GLFW.GLFW_KEY_UNKNOWN)
+    private val addExtraLayer by bind("AddExtraLayer")
 
     init {
         tree(Protect)
@@ -232,7 +233,12 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
     private val filter by enumChoice("Filter", Filter.WHITELIST)
     private val blocks by blocks("Blocks", DEFAULT_BLOCKS)
-    private val placer = tree(BlockPlacer("Placing", this, Priority.NORMAL, { filter.getSlot(blocks) }))
+    private val placer = tree(BlockPlacer(
+        "Placing",
+        this,
+        Priority.IMPORTANT_FOR_PLAYER_LIFE,
+        { filter.getSlot(blocks) }
+    ))
 
     private var addExtraLayerBlocks = false
     private var startY = 0.0
@@ -281,7 +287,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     }
 
     @Suppress("unused")
-    private val targetUpdater = handler<SimulatedTickEvent> {
+    private val targetUpdater = handler<RotationUpdateEvent> {
         if (disableOnYChange && player.pos.y != startY) {
             enabled = false
             return@handler
@@ -294,11 +300,13 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         val hole = if (noWaste && player.isInHole(feetBlockPos)) {
             setOf(feetBlockPos)
         } else {
+            val maxX = getMax(bb, Direction.Axis.X)
+            val maxZ = getMax(bb, Direction.Axis.Z)
             setOf(
                 BlockPos.ofFloored(bb.minX, y, bb.minZ),
-                BlockPos.ofFloored(bb.minX, y, bb.maxZ),
-                BlockPos.ofFloored(bb.maxX, y, bb.minZ),
-                BlockPos.ofFloored(bb.maxX, y, bb.maxZ),
+                BlockPos.ofFloored(bb.minX, y, maxZ),
+                BlockPos.ofFloored(maxX, y, bb.minZ),
+                BlockPos.ofFloored(maxX, y, maxZ),
             )
         }
 
@@ -361,13 +369,13 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         }
 
         val searchOptions = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i.ZERO),
-            ItemStack(Items.SANDSTONE),
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            player.pos,
-            player.pose,
-            placer.wallRange > 0
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory, considerFacingAwayFaces = placer.wallRange > 0),
+            stackToPlaceWith = ItemStack(Items.SANDSTONE),
+            PlayerLocationOnPlacement(position = player.pos, pose = player.pose),
         )
 
         val placementTarget = findBestBlockPlacementTarget(pos, searchOptions) ?: return
@@ -386,10 +394,9 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
         if (rotationMode.send) {
             val rotation = placementTarget.rotation.normalize()
-            network.connection!!.send(
+            network.sendPacket(
                 PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
-                    player.horizontalCollision),
-                null
+                    player.horizontalCollision)
             )
         }
 
@@ -399,11 +406,13 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     private fun getEntitySurround(entity: Entity, list: HashSet<BlockPos>, blocked: HashSet<BlockPos>, y: Double) {
         val bb = entity.boundingBox
 
+        val maxX = getMax(bb, Direction.Axis.X)
+        val maxZ = getMax(bb, Direction.Axis.Z)
         val hole = setOf(
             BlockPos.ofFloored(bb.minX, y, bb.minZ),
-            BlockPos.ofFloored(bb.minX, y, bb.maxZ),
-            BlockPos.ofFloored(bb.maxX, y, bb.minZ),
-            BlockPos.ofFloored(bb.maxX, y, bb.maxZ),
+            BlockPos.ofFloored(bb.minX, y, maxZ),
+            BlockPos.ofFloored(maxX, y, bb.minZ),
+            BlockPos.ofFloored(maxX, y, maxZ),
         )
 
         blocked.addAll(hole)
@@ -416,6 +425,17 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
                     list += pos
                 }
             }
+        }
+    }
+
+    private fun getMax(boundingBox: Box, axis: Direction.Axis): Double {
+        val max = boundingBox.getMax(axis)
+        val min = boundingBox.getMin(axis)
+
+        return if (max == floor(min) + 1.0) {
+            min
+        } else {
+            max
         }
     }
 

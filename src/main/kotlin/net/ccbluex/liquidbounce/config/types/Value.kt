@@ -16,13 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
-import com.mojang.brigadier.StringReader
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
@@ -30,15 +28,16 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
+import net.ccbluex.liquidbounce.utils.input.HumanInputDeserializer
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.minecraft.client.util.InputUtil
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -66,7 +65,8 @@ open class Value<T : Any>(
     @Exclude @ProtocolExclude var independentDescription: Boolean = false
 ) {
 
-    @SerializedName("value") internal var inner: T = defaultValue
+    @SerializedName("value")
+    internal var inner: T = defaultValue
 
     internal val loweredName
         get() = name.lowercase()
@@ -170,6 +170,10 @@ open class Value<T : Any>(
                     (a.first().toFloat()..a.last().toFloat()) as T
                 }
 
+                is InputUtil.Key -> {
+                    inputByName(t.asString()) as T
+                }
+
                 is IntRange -> {
                     val a = t.`as`(Array<Int>::class.java)
                     require(a.size == 2)
@@ -185,7 +189,7 @@ open class Value<T : Any>(
             }
         )
     }.onFailure {
-        logger.error("Could not set value ${this.inner}")
+        logger.error("Could not set value, old value: ${this.inner}, throwable: $it")
     }
 
     fun get() = inner
@@ -259,144 +263,50 @@ open class Value<T : Any>(
     open fun deserializeFrom(gson: Gson, element: JsonElement) {
         val currValue = this.inner
 
-        set(when (currValue) {
-            is List<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    mutableListOf()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            is HashSet<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    HashSet()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            is Set<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    TreeSet()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            else -> {
-                var clazz: Class<*>? = currValue.javaClass
-                var r: T? = null
-
-                while (clazz != null && clazz != Any::class.java) {
-                    try {
-                        r = gson.fromJson(element, clazz) as T?
-                        break
-                    } catch (@Suppress("SwallowedException") e: ClassCastException) {
-                        clazz = clazz.superclass
-                    }
+        set(
+            when (currValue) {
+                is List<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        mutableListOf()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
                 }
 
-                r ?: error("Failed to deserialize value")
-            }
-        })
+                is HashSet<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        HashSet()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
+                }
+
+                is Set<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        TreeSet()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
+                }
+
+                else -> {
+                    var clazz: Class<*>? = currValue.javaClass
+                    var r: T? = null
+
+                    while (clazz != null && clazz != Any::class.java) {
+                        try {
+                            r = gson.fromJson(element, clazz) as T?
+                            break
+                        } catch (@Suppress("SwallowedException") e: ClassCastException) {
+                            clazz = clazz.superclass
+                        }
+                    }
+
+                    r ?: error("Failed to deserialize value")
+                }
+            })
     }
 
     open fun setByString(string: String) {
-        when (this.valueType) {
-            ValueType.BOOLEAN -> {
-                val newValue = when (string.lowercase(Locale.ROOT)) {
-                    "true", "on" -> true
-                    "false", "off" -> false
-                    else -> throw IllegalArgumentException()
-                }
+        val deserializer = this.valueType.deserializer
 
-                set(newValue as T)
-            }
+        requireNotNull(deserializer) { "Cannot deserialize values of type ${this.valueType} yet." }
 
-            ValueType.FLOAT -> {
-                val newValue = string.toFloat()
-
-                set(newValue as T)
-            }
-
-            ValueType.FLOAT_RANGE -> {
-                val split = string.split("..")
-                require(split.size == 2)
-                val newValue = split[0].toFloat()..split[1].toFloat()
-
-                set(newValue as T)
-            }
-
-            ValueType.INT -> {
-                val newValue = string.toInt()
-
-                set(newValue as T)
-            }
-
-            ValueType.INT_RANGE -> {
-                val split = string.split("..")
-                require(split.size == 2)
-                val newValue = split[0].toInt()..split[1].toInt()
-
-                set(newValue as T)
-            }
-
-            ValueType.TEXT -> {
-                set(string as T)
-            }
-
-            ValueType.TEXT_ARRAY -> {
-                val newValue = string.split(",").toMutableList()
-                set(newValue as T)
-            }
-
-            ValueType.COLOR -> {
-                if (string.startsWith("#")) {
-                    set(Color4b.fromHex(string) as T)
-                } else {
-                    set(Color4b(Color(string.toInt())) as T)
-                }
-            }
-
-            ValueType.BLOCK -> {
-                set(Registries.BLOCK.get(Identifier.fromCommandInput(StringReader(string))) as T)
-            }
-
-            ValueType.BLOCKS -> {
-                val blocks = string.split(",").map {
-                    findBlocksEndingWith(it).filter {
-                        !it.defaultState.isAir
-                    }
-                }.flatten().toHashSet()
-
-                if (blocks.isEmpty()) {
-                    error("No blocks found")
-                }
-
-                set(blocks as T)
-            }
-
-            ValueType.ITEM -> {
-                set(Registries.ITEM.get(Identifier.fromCommandInput(StringReader(string))) as T)
-            }
-
-            ValueType.ITEMS -> {
-                val items = string.split(",").map {
-                    Registries.ITEM.get(Identifier.fromCommandInput(StringReader(it)))
-                }.toMutableList()
-
-                if (items.isEmpty()) {
-                    error("No items found")
-                }
-
-                set(items as T)
-            }
-
-            ValueType.KEY -> {
-                set(inputByName(string) as T)
-            }
-
-            ValueType.BIND -> {
-                (get() as InputBind).bind(string)
-            }
-
-            else -> error("unsupported value type")
-        }
+        set(deserializer.deserializeThrowing(string) as T)
     }
 
 }
@@ -444,6 +354,15 @@ class RangedValue<T : Any>(
 
 }
 
+class BindValue(
+    name: String,
+    defaultValue: InputBind,
+) : Value<InputBind>(name, defaultValue, ValueType.BIND) {
+    override fun setByString(string: String) {
+        get().bind(string)
+    }
+}
+
 class ChooseListValue<T : NamedChoice>(
     name: String, value: T, @Exclude val choices: Array<T>
 ) : Value<T>(name, value, ValueType.CHOOSE) {
@@ -478,19 +397,23 @@ interface NamedChoice {
     val choiceName: String
 }
 
-enum class ValueType {
-    BOOLEAN,
-    FLOAT, FLOAT_RANGE,
-    INT, INT_RANGE,
-    TEXT, TEXT_ARRAY,
-    COLOR,
-    BLOCK, BLOCKS,
-    ITEM, ITEMS,
-    KEY,
+enum class ValueType(
+    val deserializer: HumanInputDeserializer.StringDeserializer<*>? = null,
+    val completer: AutoCompletionProvider.CompletionHandler = AutoCompletionProvider.defaultCompleter
+) {
+    BOOLEAN(HumanInputDeserializer.booleanDeserializer, AutoCompletionProvider.booleanCompleter),
+    FLOAT(HumanInputDeserializer.floatDeserializer), FLOAT_RANGE(HumanInputDeserializer.floatRangeDeserializer),
+    INT(HumanInputDeserializer.intDeserializer), INT_RANGE(HumanInputDeserializer.intRangeDeserializer),
+    TEXT(HumanInputDeserializer.textDeserializer), TEXT_ARRAY(HumanInputDeserializer.textArrayDeserializer),
+    COLOR(HumanInputDeserializer.colorDeserializer),
+    BLOCK(HumanInputDeserializer.blockDeserializer), BLOCKS(HumanInputDeserializer.blockListDeserializer),
+    ITEM(HumanInputDeserializer.itemDeserializer), ITEMS(HumanInputDeserializer.itemListDeserializer),
+    KEY(HumanInputDeserializer.keyDeserializer),
     BIND,
     VECTOR_I,
     VECTOR_D,
-    CHOICE, CHOOSE,
+    CHOICE(completer = AutoCompletionProvider.choiceCompleter),
+    CHOOSE(completer = AutoCompletionProvider.chooseCompleter),
     INVALID,
     PROXY,
     CONFIGURABLE,

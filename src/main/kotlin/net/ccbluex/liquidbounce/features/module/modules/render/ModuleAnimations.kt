@@ -45,6 +45,7 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER) {
     init {
         tree(MainHand)
         tree(OffHand)
+        tree(EquipOffset)
     }
 
     object MainHand : ToggleableConfigurable(this, "MainHand", false) {
@@ -65,24 +66,25 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER) {
         val OffHandPositiveZ by float("PositiveRotationZ", 0f, -50f..50f)
     }
 
+    val swingDuration by int("SwingDuration", 6, 1..20)
+
     /**
      * A choice that allows the user to choose the animation that will be used during the blocking
      * of a sword.
      * This choice is only used when the [ModuleSwordBlock] module is enabled.
      */
-    var blockAnimationChoice = choices(
+    val blockAnimationChoice = choices(
         "BlockingAnimation", OneSevenAnimation, arrayOf(
             OneSevenAnimation,
             PushdownAnimation
         )
     )
 
-    /**
-     * If true, the original Minecraft equip offset will be applied.
-     * This causes the blocking to look weirdly fast and cause the sword to almost disappear from
-     * the screen.
-     */
-    var equipOffset by boolean("EquipOffset", false)
+    object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
+        val ignoreBlocking by boolean("IgnoreBlocking", true)
+        val ignorePlace by boolean("IgnorePlace", true)
+        val ignoreAmount by boolean("IgnoreAmount", false)
+    }
 
     /**
      * if true, the walk animation will also be applied in the air.

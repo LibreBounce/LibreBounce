@@ -21,12 +21,11 @@ package net.ccbluex.liquidbounce.features.module.modules.world.autofarm
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.entity.eyes
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.inventory.hasInventorySpace
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -81,7 +80,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
         val target = walkTarget ?: return false
 
         RotationManager.aimAt(
-            RotationManager.makeRotation(target, player.eyes),
+            Rotation.lookingAt(point = target, from = player.eyePos),
             configurable = ModuleAutoFarm.rotations,
             priority = Priority.IMPORTANT_FOR_USAGE_1,
             provider = ModuleAutoFarm
@@ -97,7 +96,7 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
         // 2. false: we should only walk to farmland blocks if we got the needed items
         // 3. false: same as 2. only go if we got the needed items for soulsand (netherwarts)
         if (toPlace) {
-            for (item in Hotbar.items) {
+            for (item in Slots.Hotbar.items) {
                 when (item) {
                     in ModuleAutoFarm.itemsForFarmland -> allowedItems[1] = true
                     in ModuleAutoFarm.itemsForSoulsand -> allowedItems[2] = true
@@ -120,15 +119,18 @@ object AutoFarmAutoWalk : ToggleableConfigurable(ModuleAutoFarm, "AutoWalk", fal
 
     private fun shouldWalk() = (walkTarget != null && mc.currentScreen !is HandledScreen<*>)
 
-    val horizontalMovementHandling = handler<RotatedMovementInputEvent> { event ->
-        if (!shouldWalk()) return@handler
+    @Suppress("unused")
+    private val horizontalMovementHandling = handler<MovementInputEvent> { event ->
+        if (!shouldWalk()) {
+            return@handler
+        }
 
-        event.forward = 1f
-
+        event.directionalInput = event.directionalInput.copy(forwards = true)
         player.isSprinting = true
     }
 
-    val verticalMovementHandling = handler<MovementInputEvent> { event ->
+    @Suppress("unused")
+    private val verticalMovementHandling = handler<MovementInputEvent> { event ->
         if (!shouldWalk()) return@handler
 
         // We want to swim up in water, so we don't drown and can move onwards

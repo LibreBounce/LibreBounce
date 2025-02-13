@@ -31,6 +31,7 @@ import net.minecraft.util.math.Vec3d
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.sqrt
 
+@Suppress("LongParameterList")
 class FallingPlayer(
     private val player: ClientPlayerEntity,
     var x: Double,

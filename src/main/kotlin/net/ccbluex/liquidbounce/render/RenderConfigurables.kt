@@ -28,7 +28,7 @@ class GenericRainbowColorMode(
     override val parent: ChoiceConfigurable<*>,
     private val alpha: Int = 50
 ) : GenericColorMode<Any?>("Rainbow") {
-    override fun getColor(param: Any?) = rainbow().alpha(alpha)
+    override fun getColor(param: Any?) = rainbow().with(a = alpha)
 }
 
 class MapColorMode(
@@ -39,7 +39,7 @@ class MapColorMode(
     override fun getColor(param: Pair<BlockPos, BlockState>): Color4b {
         val (pos, state) = param
 
-        return Color4b(state.getMapColor(world, pos).color).alpha(alpha)
+        return Color4b(state.getMapColor(world, pos).color).with(a = alpha)
     }
 
 }

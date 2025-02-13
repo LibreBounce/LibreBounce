@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockChangeIntent
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.BlockIntentProvider
+import net.minecraft.entity.LivingEntity
 
 abstract class TrapPlanner<T>(
     parent: EventListener,
@@ -31,5 +32,5 @@ abstract class TrapPlanner<T>(
     /**
      * Called during simulated tick event
      */
-    abstract fun plan(): BlockChangeIntent<T>?
+    abstract fun plan(enemies: List<LivingEntity>): BlockChangeIntent<T>?
 }
