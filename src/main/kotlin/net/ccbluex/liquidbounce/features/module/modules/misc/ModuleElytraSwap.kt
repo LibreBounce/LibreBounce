@@ -61,17 +61,17 @@ object ModuleElytraSwap : ClientModule("ElytraSwap", Category.MISC) {
         val elytra = slots.findSlot(Items.ELYTRA)
         val chestplate = slots.findSlot { it.isChestplate() }
 
-        val wearedItem = chestplateSlot.itemStack
+        with (chestplateSlot.itemStack /* worn item */) {
+            when {
+                // put on elytra
+                isEmpty && elytra != null -> doSwap(elytra)
 
-        when {
-            // swap from air (empty) to elytra
-            wearedItem.isEmpty && elytra != null -> doSwap(elytra)
+                // replacing of elytra with a chestplate
+                item == Items.ELYTRA && chestplate != null -> doSwap(chestplate)
 
-            // swap from elytra to chestplate
-            wearedItem.item == Items.ELYTRA && chestplate != null -> doSwap(chestplate)
-
-            // swap from chestplate to elytra
-            wearedItem.isChestplate() && elytra != null -> doSwap(elytra)
+                // replacing the chestplate with elytra
+                isChestplate() && elytra != null -> doSwap(elytra)
+            }
         }
     }
 }
