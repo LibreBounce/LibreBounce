@@ -112,7 +112,7 @@ object IntegrationListener : EventListener {
      */
     fun restoreOriginal() {
         if (mc.currentScreen is VirtualDisplayScreen) {
-            mc.setScreen((mc.currentScreen as VirtualDisplayScreen).original)
+            mc.setScreen((mc.currentScreen as VirtualDisplayScreen).originalScreen)
         }
     }
 
@@ -193,7 +193,7 @@ object IntegrationListener : EventListener {
         val theme = route.theme
 
         if (theme.doesSupport(virtualScreenType)) {
-            val virtualDisplayScreen = VirtualDisplayScreen(route, original = screen)
+            val virtualDisplayScreen = VirtualDisplayScreen(route, originalScreen = screen)
             mc.setScreen(virtualDisplayScreen)
             return true
         } else if (theme.doesOverlay(virtualScreenType)) {

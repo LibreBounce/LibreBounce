@@ -25,9 +25,9 @@ import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
+import net.ccbluex.liquidbounce.integration.theme.component.Component;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentTweak;
-import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
 import net.ccbluex.liquidbounce.render.engine.UiRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -184,7 +184,7 @@ public abstract class MixinInGameHud {
     }
 
     @Unique
-    private void drawCustomHotbar(DrawContext context, RenderTickCounter tickCounter, IntegratedComponent component) {
+    private void drawCustomHotbar(DrawContext context, RenderTickCounter tickCounter, Component component) {
         var playerEntity = this.getCameraPlayer();
         if (playerEntity == null) {
             return;

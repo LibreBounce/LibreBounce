@@ -28,7 +28,8 @@ import net.minecraft.client.gui.screen.Screen
 
 class VirtualDisplayScreen(
     val route: RouteType,
-    val original: Screen? = null
+    val originalScreen: Screen? = null,
+    val parentScreen: Screen? = mc.currentScreen
 ) : Screen("VS-${route.type?.routeName?.uppercase()}".asText()) {
 
     override fun init() {

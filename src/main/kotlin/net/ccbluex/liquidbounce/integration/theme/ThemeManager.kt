@@ -174,6 +174,7 @@ object ThemeManager : Configurable("style") {
             // Delete old generated default theme
             runCatching {
                 themesFolder.resolve("default").takeIf { it.exists() }?.deleteRecursively()
+                themesFolder.resolve("liquidbounce").takeIf { it.exists() }?.deleteRecursively()
             }
 
             // Extract default theme
