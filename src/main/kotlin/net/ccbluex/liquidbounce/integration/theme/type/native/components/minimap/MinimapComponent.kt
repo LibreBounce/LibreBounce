@@ -22,7 +22,7 @@
 package net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleESP
+import net.ccbluex.liquidbounce.features.module.modules.render.esp.ModuleESP
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
 import net.ccbluex.liquidbounce.integration.theme.type.native.components.NativeComponent
 import net.ccbluex.liquidbounce.render.*
