@@ -252,14 +252,15 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
      * The chain will prefer the block that is solid. If both are solid, it goes to the next criteria
      * (in this case full cube) and so on
      */
-    val BLOCK_COMPARATOR_FOR_HOTBAR =
+    private val BLOCK_COMPARATOR_FOR_HOTBAR =
         ComparatorChain(
             PreferFavourableBlocks,
             PreferSolidBlocks,
             PreferFullCubeBlocks,
             PreferWalkableBlocks,
-            PreferAverageHardBlocks,
+            PreferAverageHardBlocks(neutralRange = true),
             PreferStackSize(higher = false),
+            PreferAverageHardBlocks(neutralRange = false),
         )
     val BLOCK_COMPARATOR_FOR_INVENTORY =
         ComparatorChain(
@@ -267,8 +268,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             PreferSolidBlocks,
             PreferFullCubeBlocks,
             PreferWalkableBlocks,
-            PreferAverageHardBlocks,
-            PreferStackSize(higher = false),
+            PreferAverageHardBlocks(neutralRange = true),
+            PreferStackSize(higher = true),
+            PreferAverageHardBlocks(neutralRange = false),
         )
 
     override fun enable() {

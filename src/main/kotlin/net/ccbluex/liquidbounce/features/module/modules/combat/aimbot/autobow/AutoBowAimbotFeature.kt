@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
+import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.OverlayTargetRenderer
@@ -24,12 +24,10 @@ import net.minecraft.item.TridentItem
 object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot", true) {
 
     // Target
-    val targetTracker = TargetTracker(PriorityEnum.DISTANCE)
+    val targetTracker = TargetTracker(TargetPriority.DISTANCE)
 
     // Rotation
     val rotationConfigurable = RotationsConfigurable(this)
-
-    val minExpectedPull by int("MinExpectedPull", 5, 0..20, suffix = "ticks")
 
     init {
         tree(targetTracker)
@@ -39,8 +37,8 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
     private val targetRenderer = tree(OverlayTargetRenderer(ModuleAutoBow))
 
     @Suppress("unused")
-    val tickRepeatable = tickHandler {
-        targetTracker.cleanup()
+    private val tickRepeatable = tickHandler {
+        targetTracker.reset()
 
         // Should check if player is using bow
         val activeItem = player.activeItem?.item
@@ -55,21 +53,13 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
         ) ?: return@tickHandler
 
         var rotation: Rotation? = null
-
-        for (enemy in targetTracker.enemies()) {
-            val rot = SituationalProjectileAngleCalculator.calculateAngleForEntity(projectileInfo, enemy) ?: continue
-
-            targetTracker.lock(enemy)
-            rotation = rot
-            break
-        }
-
-        if (rotation == null) {
-            return@tickHandler
-        }
+        targetTracker.selectFirst { enemy ->
+            rotation = SituationalProjectileAngleCalculator.calculateAngleForEntity(projectileInfo, enemy)
+            rotation != null
+        } ?: return@tickHandler
 
         RotationManager.aimAt(
-            rotation,
+            rotation!!,
             priority = Priority.IMPORTANT_FOR_USAGE_1,
             provider = ModuleAutoBow,
             configurable = rotationConfigurable
@@ -77,8 +67,8 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
     }
 
     @Suppress("unused")
-    val renderHandler = handler<OverlayRenderEvent> { event ->
-        val target = targetTracker.lockedOnTarget ?: return@handler
+    private val renderHandler = handler<OverlayRenderEvent> { event ->
+        val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForGUI {
             targetRenderer.render(this, target, event.tickDelta)

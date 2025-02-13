@@ -207,6 +207,10 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     fun stopBlocking(pauses: Boolean = false): Boolean {
         if (!pauses) {
             blockVisual = false
+
+            if (mc.options.useKey.isPressed) {
+                return false
+            }
         }
 
         // We do not want the player to stop eating or else. Only when he blocks.
@@ -296,7 +300,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     /**
      * Check if the player is in danger.
      */
-    private fun isInDanger() = targetTracker.enemies().any { target ->
+    private fun isInDanger() = targetTracker.targets().any { target ->
         facingEnemy(
             fromEntity = target,
             toEntity = player,

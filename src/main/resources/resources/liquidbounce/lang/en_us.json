@@ -541,6 +541,7 @@
   "liquidbounce.module.noSwing.description": "Disables the hand swing animation.",
   "liquidbounce.module.noWeather.description": "Disables weather effects.",
   "liquidbounce.module.noWeb.description": "Disables slow down caused by webs.",
+  "liquidbounce.module.elytraSwap.description": "Allows to quickly replace the chestplate with an elytra and vice versa.",
   "liquidbounce.module.notifier.description": "Notifies you about all kinds of events.",
   "liquidbounce.module.nuker.description": "Automatically destroys all blocks in your area. Be careful!",
   "liquidbounce.module.parkour.description": "Automatically jumps at the very edge of a block.",

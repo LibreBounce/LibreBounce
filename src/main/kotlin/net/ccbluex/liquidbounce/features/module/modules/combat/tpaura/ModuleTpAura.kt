@@ -31,7 +31,8 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.combat.TargetTracker
+import net.ccbluex.liquidbounce.utils.combat.TargetPriority
+import net.ccbluex.liquidbounce.utils.combat.TargetSelector
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
@@ -43,8 +44,8 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
     private val attackRange by float("AttackRange", 4.2f, 3f..5f)
 
     val clickScheduler = tree(ClickScheduler(this, true))
-    val mode = choices<TpAuraChoice>("Mode", AStarMode, arrayOf(AStarMode, ImmediateMode))
-    val targetTracker = tree(TargetTracker())
+    val mode = choices("Mode", AStarMode, arrayOf(AStarMode, ImmediateMode))
+    val targetSelector = tree(TargetSelector(TargetPriority.HURT_TIME))
 
     val stuckChronometer = Chronometer()
     var desyncPlayerPosition: Vec3d? = null
@@ -54,9 +55,9 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
         val position = desyncPlayerPosition ?: player.pos
 
         clickScheduler.clicks {
-            val enemy = targetTracker.enemies()
-                .filter { it.squaredBoxedDistanceTo(position) <= attackRange * attackRange }
-                .minByOrNull { it.hurtTime } ?: return@clicks false
+            val enemy = targetSelector.targets().firstOrNull {
+                it.squaredBoxedDistanceTo(position) <= attackRange * attackRange
+            } ?: return@clicks false
 
             enemy.attack(true, keepSprint = true)
             true

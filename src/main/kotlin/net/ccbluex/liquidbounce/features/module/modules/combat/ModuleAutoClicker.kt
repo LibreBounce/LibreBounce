@@ -93,7 +93,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             }
         }
 
-        suspend fun Sequence<*>.encounterItemUse(): Boolean {
+        suspend fun Sequence.encounterItemUse(): Boolean {
             return when (onItemUse) {
                 Use.WAIT -> {
                     this.waitUntil { !player.isUsingItem }

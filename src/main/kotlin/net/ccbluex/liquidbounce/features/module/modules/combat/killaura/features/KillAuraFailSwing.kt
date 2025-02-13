@@ -49,7 +49,7 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
         doNotIncludeAlways()
     }
 
-    suspend fun Sequence<*>.dealWithFakeSwing(target: Entity?) {
+    suspend fun Sequence.dealWithFakeSwing(target: Entity?) {
         if (!enabled) {
             return
         }
