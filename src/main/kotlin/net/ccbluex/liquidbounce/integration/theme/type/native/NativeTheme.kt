@@ -25,11 +25,10 @@ object NativeTheme : Theme {
         )
     override val wallpapers: List<Wallpaper> = listOf(Wallpaper.MinecraftWallpaper)
 
-    private val routes = mutableMapOf(
-        VirtualScreenType.TITLE to TitleDrawableRoute()
-    )
+    private val routes = emptyMap<VirtualScreenType, NativeDrawableRoute>()
 
     private val overlayRoutes = mutableMapOf(
+        VirtualScreenType.TITLE to TitleDrawableRoute(),
         VirtualScreenType.HUD to HudDrawableRoute()
     )
 

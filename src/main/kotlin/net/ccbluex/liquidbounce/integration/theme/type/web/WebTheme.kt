@@ -74,7 +74,7 @@ class WebTheme(val folder: File) : Theme {
         } ?: emptyList()
 
     override val defaultWallpaper: Wallpaper?
-        get() = wallpapers.firstOrNull { it.name == metadata.wallpaper }
+        get() = wallpapers.firstOrNull { wallpaper -> wallpaper.name == metadata.wallpaper }
 
     override val fontRenderer: FontRenderer?
         get() = metadata.font?.let { FontManager.fontFace(it)?.renderer }
