@@ -260,6 +260,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSpammer,
             ModuleAutoAccount,
             ModuleTeams,
+            ModuleElytraSwap,
             ModuleAutoChatGame,
             ModuleFocus,
             ModuleAutoPearl,
