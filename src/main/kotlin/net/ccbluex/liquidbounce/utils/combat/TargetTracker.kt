@@ -18,7 +18,9 @@
  */
 package net.ccbluex.liquidbounce.utils.combat
 
-import net.ccbluex.liquidbounce.config.types.*
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.RangedValue
 import net.ccbluex.liquidbounce.config.types.ValueType.*
 import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.client.player
@@ -34,19 +36,19 @@ import net.minecraft.entity.player.PlayerEntity
  * A target tracker to choose the best enemy to attack
  */
 class TargetTracker(
-    defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
+    defaultPriority: TargetPriority = TargetPriority.HEALTH,
     range: RangedValue<*>? = null
 ) : TargetSelector(defaultPriority, range) {
 
     var target: LivingEntity? = null
 
     fun selectFirst(predicate: ((LivingEntity) -> Boolean)? = null): LivingEntity? {
-        val enemies = enemies()
+        val enemies = targets()
         return (if (predicate != null) enemies.firstOrNull(predicate) else enemies.firstOrNull()).also { target = it }
     }
 
     fun <R> select(evaluator: (LivingEntity) -> R): R? {
-        for (enemy in enemies()) {
+        for (enemy in targets()) {
             val value = evaluator(enemy)
             if (value != null) {
                 target = enemy
@@ -72,7 +74,7 @@ class TargetTracker(
 }
 
 open class TargetSelector(
-    defaultPriority: PriorityEnum = PriorityEnum.HEALTH,
+    defaultPriority: TargetPriority = TargetPriority.HEALTH,
     val range: RangedValue<*>? = null
 ) : Configurable("Target") {
 
@@ -85,7 +87,7 @@ open class TargetSelector(
     /**
      * Update should be called to always pick the best target out of the current world context
      */
-    fun enemies(): MutableList<LivingEntity> {
+    fun targets(): MutableList<LivingEntity> {
         val entities = world.entities
             .asSequence()
             .filterIsInstance<LivingEntity>()
@@ -109,13 +111,13 @@ open class TargetSelector(
 
         when (priority) {
             // Lowest health first
-            PriorityEnum.HEALTH -> entities.sortBy { it.getActualHealth() }
+            TargetPriority.HEALTH -> entities.sortBy { it.getActualHealth() }
             // Closest to your crosshair first
-            PriorityEnum.DIRECTION -> entities.sortBy { RotationUtil.crosshairAngleToEntity(it) }
+            TargetPriority.DIRECTION -> entities.sortBy { RotationUtil.crosshairAngleToEntity(it) }
             // Oldest entity first
-            PriorityEnum.AGE -> entities.sortByDescending { it.age }
+            TargetPriority.AGE -> entities.sortByDescending { it.age }
             // With the lowest hurt time first
-            PriorityEnum.HURT_TIME -> entities.sortBy { it.hurtTime } // Sort by hurt time
+            TargetPriority.HURT_TIME -> entities.sortBy { it.hurtTime } // Sort by hurt time
             // Closest to you first
             else -> {} // Do nothing
         }
@@ -139,6 +141,8 @@ open class TargetSelector(
 
         val distanceSq = entity.squaredBoxedDistanceTo(player)
         val range = range.get()
+
+        @Suppress("UNCHECKED_CAST")
         return when (this.range.valueType) {
             FLOAT -> distanceSq <= (range as Float).sq()
             FLOAT_RANGE ->
@@ -155,6 +159,8 @@ open class TargetSelector(
             if (range == null) return Float.MAX_VALUE
 
             val value = range.get()
+
+            @Suppress("UNCHECKED_CAST")
             return when (range.valueType) {
                 FLOAT -> value as Float
                 FLOAT_RANGE -> (value as ClosedFloatingPointRange<Float>).endInclusive
@@ -166,7 +172,7 @@ open class TargetSelector(
 
 }
 
-enum class PriorityEnum(override val choiceName: String) : NamedChoice {
+enum class TargetPriority(override val choiceName: String) : NamedChoice {
     HEALTH("Health"),
     DISTANCE("Distance"),
     DIRECTION("Direction"),

@@ -6,9 +6,11 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
+import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.OverlayTargetRenderer
@@ -22,12 +24,10 @@ import net.minecraft.item.TridentItem
 object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot", true) {
 
     // Target
-    val targetTracker = TargetTracker(PriorityEnum.DISTANCE)
+    val targetTracker = TargetTracker(TargetPriority.DISTANCE)
 
     // Rotation
     val rotationConfigurable = RotationsConfigurable(this)
-
-    val minExpectedPull by int("MinExpectedPull", 5, 0..20, suffix = "ticks")
 
     init {
         tree(targetTracker)
@@ -37,7 +37,7 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
     private val targetRenderer = tree(OverlayTargetRenderer(ModuleAutoBow))
 
     @Suppress("unused")
-    val tickRepeatable = tickHandler {
+    private val tickRepeatable = tickHandler {
         targetTracker.reset()
 
         // Should check if player is using bow
@@ -67,7 +67,7 @@ object AutoBowAimbotFeature : ToggleableConfigurable(ModuleAutoBow, "BowAimbot",
     }
 
     @Suppress("unused")
-    val renderHandler = handler<OverlayRenderEvent> { event ->
+    private val renderHandler = handler<OverlayRenderEvent> { event ->
         val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForGUI {

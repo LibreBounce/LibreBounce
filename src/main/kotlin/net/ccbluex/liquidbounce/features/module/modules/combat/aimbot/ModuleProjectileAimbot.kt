@@ -20,8 +20,9 @@ object ModuleProjectileAimbot : ClientModule("ProjectileAimbot", Category.COMBAT
         tree(rotations)
     }
 
+    @Suppress("unused")
     private val tickHandler = tickHandler {
-        val target = targetSelector.enemies().firstOrNull() ?: return@tickHandler
+        val target = targetSelector.targets().firstOrNull() ?: return@tickHandler
 
         val rotation = player.handItems.firstNotNullOfOrNull {
             if (it.item == null) {

@@ -9,9 +9,13 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAu
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.stuckChronometer
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.targetSelector
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.TpAuraChoice
-import net.ccbluex.liquidbounce.render.*
+import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.render.withColor
+import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -28,7 +32,7 @@ object ImmediateMode : TpAuraChoice("Immediate") {
         }
 
         val playerPosition = player.pos
-        val enemyPosition = targetSelector.enemies().minByOrNull { it.squaredBoxedDistanceTo(playerPosition) }?.pos
+        val enemyPosition = targetSelector.targets().minByOrNull { it.squaredBoxedDistanceTo(playerPosition) }?.pos
             ?: return@tickHandler
 
         travel(enemyPosition)

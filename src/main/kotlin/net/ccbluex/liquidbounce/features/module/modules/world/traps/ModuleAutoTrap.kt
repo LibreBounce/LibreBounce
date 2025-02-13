@@ -23,8 +23,12 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.*
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.IgnitionTrapPlanner
+import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.TrapPlayerSimulation
+import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.WebTrapPlanner
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -40,12 +44,13 @@ import net.minecraft.util.Hand
  */
 object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = arrayOf("Ignite", "AutoWeb")) {
 
+    private val range = floatRange("Range", 3.0f..4.5f, 2f..6f)
     private val delay by int("Delay", 20, 0..400, "ticks")
     private val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
 
     private val ignitionTrapPlanner = tree(IgnitionTrapPlanner(this))
     private val webTrapPlanner = tree(WebTrapPlanner(this))
-    val targetTracker = tree(TargetTracker(range = floatRange("Range", 3.0f..4.5f, 2f..6f)))
+    val targetTracker = tree(TargetTracker(range = range))
     private val rotationsConfigurable = tree(RotationsConfigurable(this))
 
     private var currentPlan: BlockChangeIntent<*>? = null
@@ -66,7 +71,7 @@ object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = array
             return@handler
         }
 
-        val enemies = targetTracker.enemies()
+        val enemies = targetTracker.targets()
         TrapPlayerSimulation.runSimulations(enemies)
 
         currentPlan = webTrapPlanner.plan(enemies) ?: ignitionTrapPlanner.plan(enemies)

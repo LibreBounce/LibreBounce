@@ -19,7 +19,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -29,7 +31,7 @@ import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
+import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -45,6 +47,8 @@ import net.minecraft.util.math.MathHelper
  */
 object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf("AimAssist", "AutoAim")) {
 
+    private val range = float("Range", 4.2f, 1f..8f)
+
     private object OnClick : ToggleableConfigurable(this, "OnClick", false) {
         val delayUntilStop by int("DelayUntilStop", 3, 0..10, "ticks")
     }
@@ -53,7 +57,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         tree(OnClick)
     }
 
-    val targetTracker = tree(TargetTracker(PriorityEnum.DIRECTION, float("Range", 4.2f, 1f..8f)))
+    val targetTracker = tree(TargetTracker(TargetPriority.DIRECTION, range = range))
     private val targetRenderer = tree(WorldTargetRenderer(this))
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
@@ -152,7 +156,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     }
 
     private fun findNextTargetRotation(): Pair<Entity, VecRotation>? {
-        for (target in targetTracker.enemies()) {
+        for (target in targetTracker.targets()) {
             val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)
             val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 

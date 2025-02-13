@@ -1,6 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.types.*
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -136,7 +138,7 @@ object ModuleTargetStrafe : ClientModule("TargetStrafe", Category.MOVEMENT) {
             // Get the target entity, requires a locked target
             val target = ModuleKillAura.targetTracker.target
                 ?: ModuleAimbot.targetTracker.target
-                ?: targetSelector.enemies().firstOrNull() ?: return@handler
+                ?: targetSelector.targets().firstOrNull() ?: return@handler
             val distance = sqrt((player.pos.x - target.pos.x).pow(2.0) + (player.pos.z - target.pos.z).pow(2.0))
 
             // return if we're too far

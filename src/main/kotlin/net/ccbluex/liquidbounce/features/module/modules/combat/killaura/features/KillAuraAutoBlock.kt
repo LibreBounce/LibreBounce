@@ -296,7 +296,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     /**
      * Check if the player is in danger.
      */
-    private fun isInDanger() = targetTracker.enemies().any { target ->
+    private fun isInDanger() = targetTracker.targets().any { target ->
         facingEnemy(
             fromEntity = target,
             toEntity = player,
