@@ -34,24 +34,27 @@ data class Alignment(
     fun getBounds(
         width: Float,
         height: Float,
+        factor: Float = 1f
     ): BoundingBox2f {
         val screenWidth = mc.window.scaledWidth.toFloat()
         val screenHeight = mc.window.scaledHeight.toFloat()
 
+        val horizontalOffset = (horizontalOffset * factor).toFloat()
         val x =
             when (horizontalAlignment) {
-                ScreenAxisX.LEFT -> horizontalOffset.toFloat()
-                ScreenAxisX.CENTER_TRANSLATED -> screenWidth / 2f - width / 2f + horizontalOffset.toFloat()
-                ScreenAxisX.RIGHT -> screenWidth - width - horizontalOffset.toFloat()
-                ScreenAxisX.CENTER -> screenWidth / 2f - width / 2f + horizontalOffset.toFloat()
+                ScreenAxisX.LEFT -> horizontalOffset
+                ScreenAxisX.CENTER_TRANSLATED -> screenWidth / 2f - width / 2f + horizontalOffset
+                ScreenAxisX.RIGHT -> screenWidth - width - horizontalOffset
+                ScreenAxisX.CENTER -> screenWidth / 2f - width / 2f + horizontalOffset
             }
 
+        val verticalOffset = (verticalOffset * factor).toFloat()
         val y =
             when (verticalAlignment) {
-                ScreenAxisY.TOP -> verticalOffset.toFloat()
-                ScreenAxisY.CENTER_TRANSLATED -> screenHeight / 2f - height / 2f + verticalOffset.toFloat()
-                ScreenAxisY.BOTTOM -> screenHeight - height - verticalOffset.toFloat()
-                ScreenAxisY.CENTER -> screenWidth / 2f - height / 2f + verticalOffset.toFloat()
+                ScreenAxisY.TOP -> verticalOffset
+                ScreenAxisY.CENTER_TRANSLATED -> screenHeight / 2f - height / 2f + verticalOffset
+                ScreenAxisY.BOTTOM -> screenHeight - height - verticalOffset
+                ScreenAxisY.CENTER -> screenWidth / 2f - height / 2f + verticalOffset
             }
 
         return BoundingBox2f(x, y, x + width, y + height)

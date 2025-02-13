@@ -192,7 +192,8 @@ public abstract class MixinInGameHud {
 
         var itemWidth = 22.5;
         var offset = 98;
-        var bounds = component.getAlignment().getBounds(0, 0);
+        var factor = (float) client.getWindow().getScaledWidth() / (float) client.getWindow().getWidth();
+        var bounds = component.getAlignment().getBounds(0, 0, factor);
 
         int center = (int) bounds.getXMin();
         var y = bounds.getYMin() - 12;
