@@ -196,7 +196,7 @@ public abstract class MixinInGameHud {
         var bounds = component.getAlignment().getBounds(0, 0, factor);
 
         int center = (int) bounds.getXMin();
-        var y = bounds.getYMin() - 12;
+        var y = bounds.getYMin() - 20;
 
         int l = 1;
         for (int m = 0; m < 9; ++m) {
