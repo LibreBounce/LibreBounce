@@ -28,7 +28,7 @@ object ModuleElytraSwap : ClientModule("ElytraSwap", Category.MISC) {
     internal val constraints = tree(PlayerInventoryConstraints())
 
     @Suppress("unused")
-    private val swapKey by key("Swap", canExecuteInMenu = true).onTrigger {
+    private val swapKey by key("Swap", canExecuteInMenu = true).onPress {
         swapRequested = true
     }
 

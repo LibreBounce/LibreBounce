@@ -58,7 +58,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
     private val switchDelay by int("SwitchDelay", 0, 0..500, "ms")
 
     @Suppress("unused")
-    private val cycleSlots by key("Cycle", GLFW.GLFW_KEY_H, canExecuteInMenu = true).onTrigger {
+    private val cycleSlots by key("Cycle", GLFW.GLFW_KEY_H, canExecuteInMenu = true).onPress {
         val entries = Mode.entries
         val startIndex = staticMode.ordinal
         var index = (startIndex + 1) % entries.size
@@ -67,7 +67,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
             val mode = entries[index]
             if (mode.canCycleTo()) {
                 staticMode = mode
-                return@onTrigger
+                return@onPress
             }
 
             index = (index + 1) % entries.size
@@ -80,7 +80,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         }
 
         @Suppress("unused")
-        private val gappleBind by key("GappleBind", canExecuteInMenu = true).onTrigger {
+        private val gappleBind by key("GappleBind", canExecuteInMenu = true).onPress {
             Mode.GAPPLE.onBindPress();
         }
 
@@ -94,7 +94,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         val whenNoTotems by boolean("WhenNoTotems", true)
 
         @Suppress("unused")
-        private val crystalBind by key("CrystalBind", canExecuteInMenu = true).onTrigger {
+        private val crystalBind by key("CrystalBind", canExecuteInMenu = true).onPress {
             Mode.CRYSTAL.onBindPress()
         }
     }
@@ -104,7 +104,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
         val onlyWhileKa by boolean("OnlyWhileKillAura", true)
 
         @Suppress("unused")
-        private val strengthBind by key("StrengthBind", canExecuteInMenu = true).onTrigger {
+        private val strengthBind by key("StrengthBind", canExecuteInMenu = true).onPress {
             if (Strength.enabled) {
                 Mode.STRENGTH.onBindPress()
             }

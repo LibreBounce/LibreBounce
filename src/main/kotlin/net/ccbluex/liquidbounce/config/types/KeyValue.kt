@@ -28,31 +28,30 @@ class KeyValue(
 ) : Value<InputUtil.Key>(name, default, ValueType.KEY) {
     private var action: Action? = null
 
-    init {
-        parent?.apply {
-            handler<KeyboardKeyEvent> {
-                if (canExecute(it.action) && it.key.code == inner.code) {
-                    action?.invoke()
-                }
-            }
-
-            handler<MouseButtonEvent> {
-                if (canExecute(it.action)
-                    && inner.category == InputUtil.Type.MOUSE
-                    && inner.code == it.button
-                ) {
-                    action?.invoke()
-                }
-            }
+    @Suppress("unused")
+    private val keyboardHandler = parent?.handler<KeyboardKeyEvent> {
+        if (canExecute(it.action) && it.key.code == inner.code) {
+            action?.invoke()
         }
     }
 
-    fun onTrigger(action: Action): KeyValue {
-        require(this.parent != null) {
+    @Suppress("unused")
+    private val mouseHandler = parent?.handler<MouseButtonEvent> {
+        if (canExecute(it.action)
+            && inner.category == InputUtil.Type.MOUSE
+            && inner.code == it.button
+        ) {
+            action?.invoke()
+        }
+    }
+
+    fun onPress(action: Action): KeyValue {
+        requireNotNull(this.parent) {
             "To be able to automatically handle click events, " +
             "parent must not be null, " +
             "as handling is bound to it."
         }
+
         require(this.action == null) { "Action already set." }
 
         this.action = action
