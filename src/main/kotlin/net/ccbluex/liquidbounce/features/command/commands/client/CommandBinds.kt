@@ -79,8 +79,7 @@ object CommandBinds : CommandFactory {
                 1
             }.coerceAtLeast(1)
 
-            val bindings = ModuleManager.sortedBy { it.name }
-                .filter { !it.bind.isUnbound }
+            val bindings = ModuleManager.filter { !it.bind.isUnbound }
 
             if (bindings.isEmpty()) {
                 throw CommandException(command.result("noBindings"))
