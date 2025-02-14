@@ -48,6 +48,11 @@ class KeyValue(
     }
 
     fun onTrigger(action: Action): KeyValue {
+        require(this.parent != null) {
+            "To be able to automatically handle click events, " +
+            "parent must not be null, " +
+            "as handling is bound to it."
+        }
         require(this.action == null) { "Action already set." }
 
         this.action = action
