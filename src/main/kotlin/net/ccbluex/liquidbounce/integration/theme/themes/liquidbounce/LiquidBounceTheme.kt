@@ -1,27 +1,27 @@
-package net.ccbluex.liquidbounce.integration.theme.type.native
+package net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce
 
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.Wallpaper
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentFactory
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentFactory.NativeComponentFactory
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.ArrayListNativeComponent
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.minimap.MinimapComponent
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.routes.EmptyDrawableRoute
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.routes.HudDrawableRoute
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.routes.TitleDrawableRoute
 import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
-import net.ccbluex.liquidbounce.integration.theme.type.native.components.ArrayListNativeComponent
-import net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.MinimapComponent
-import net.ccbluex.liquidbounce.integration.theme.type.native.routes.EmptyDrawableRoute
-import net.ccbluex.liquidbounce.integration.theme.type.native.routes.HudDrawableRoute
-import net.ccbluex.liquidbounce.integration.theme.type.native.routes.TitleDrawableRoute
+import net.ccbluex.liquidbounce.integration.theme.type.native.NativeDrawableRoute
 
 /**
  * A Theme based on native GL rendering.
  */
-object NativeTheme : Theme {
+object LiquidBounceTheme : Theme {
 
-    override val name = "Generic"
+    override val name = "LiquidBounce"
     override val components: List<ComponentFactory>
         get() = listOf(
-            NativeComponentFactory("ArrayList", true) { ArrayListNativeComponent(this) },
-            NativeComponentFactory("Minimap", false) { MinimapComponent(this) }
+            ComponentFactory.NativeComponentFactory("ArrayList", true) { ArrayListNativeComponent(this) },
+            ComponentFactory.NativeComponentFactory("Minimap", false) { MinimapComponent(this) }
         )
     override val wallpapers: List<Wallpaper> = listOf(Wallpaper.MinecraftWallpaper)
 

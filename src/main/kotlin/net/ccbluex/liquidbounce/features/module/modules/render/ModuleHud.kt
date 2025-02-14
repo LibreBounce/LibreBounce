@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.isHidingNow
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap.ChunkRenderer
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.minimap.ChunkRenderer
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.inGame

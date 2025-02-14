@@ -18,7 +18,7 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.integration.theme.type.native.components.minimap
+package net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.minimap
 
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f

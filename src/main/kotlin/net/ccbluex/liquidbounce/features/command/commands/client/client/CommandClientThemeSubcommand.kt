@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client.client
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.ccbluex.liquidbounce.integration.theme.type.native.NativeTheme
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.LiquidBounceTheme
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -55,7 +55,7 @@ object CommandClientThemeSubcommand {
                     listOf(
                         regular(if (index == 0) "" else ", "),
                         variable(theme.name),
-                        regular(" (${if (theme is NativeTheme) "Native" else "Web"})")
+                        regular(" (${if (theme is LiquidBounceTheme) "Native" else "Web"})")
                     )
                 }.toTypedArray()
             )

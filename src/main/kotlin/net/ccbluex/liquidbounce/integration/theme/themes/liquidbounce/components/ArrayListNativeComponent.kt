@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.integration.theme.type.native.components
+package net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components
 
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.integration.theme.type.Theme

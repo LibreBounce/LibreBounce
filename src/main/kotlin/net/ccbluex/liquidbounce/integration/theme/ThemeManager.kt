@@ -29,9 +29,9 @@ import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager.extractDefault
 import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.LiquidBounceTheme
 import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
-import net.ccbluex.liquidbounce.integration.theme.type.native.NativeTheme
 import net.ccbluex.liquidbounce.integration.theme.type.web.WebTheme
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
@@ -40,11 +40,10 @@ import net.ccbluex.liquidbounce.utils.io.extractZip
 import net.ccbluex.liquidbounce.utils.io.resource
 import java.io.File
 
-const val DEFAULT_THEME = "LiquidBounce"
-
 object ThemeManager : Configurable("style") {
 
     val themesFolder = File(ConfigSystem.rootFolder, "themes")
+    const val DEFAULT_THEME = "LiquidBounce"
 
     init {
         extractDefault()
@@ -55,14 +54,14 @@ object ThemeManager : Configurable("style") {
      * and any other themes that have been dropped into the themes folder.
      */
     val availableThemes = arrayOf(
-        NativeTheme,
+        LiquidBounceTheme,
         *themesFolder.listFiles()?.filter(File::isDirectory)?.map(::WebTheme)?.toTypedArray() ?: emptyArray()
     )
 
     /**
      * The preferred active theme which is used as UI of the client.
      */
-    var activeTheme: Theme = availableThemes.firstOrNull { it.name == DEFAULT_THEME } ?: NativeTheme
+    var activeTheme: Theme = availableThemes.firstOrNull { it.name == DEFAULT_THEME } ?: LiquidBounceTheme
         set(value) {
             field = value
 
@@ -76,7 +75,7 @@ object ThemeManager : Configurable("style") {
     /**
      * The fallback theme which is used when the active theme does not support a virtual screen type.
      */
-    private var fallbackTheme = availableThemes.firstOrNull { it.name == DEFAULT_THEME } ?: NativeTheme
+    private var fallbackTheme = availableThemes.firstOrNull { it.name == DEFAULT_THEME } ?: LiquidBounceTheme
 
     /**
      * List of all available wallpapers that can be displayed in the background of the client UI.
@@ -171,21 +170,22 @@ object ThemeManager : Configurable("style") {
      */
     private fun extractDefault() {
         runCatching {
+            val folder = themesFolder.resolve(DEFAULT_THEME)
+
             // Delete old generated default theme
             runCatching {
-                themesFolder.resolve("default").takeIf { it.exists() }?.deleteRecursively()
-                themesFolder.resolve("liquidbounce").takeIf { it.exists() }?.deleteRecursively()
+                folder.takeIf { file -> file.exists() }
+                    ?.deleteRecursively()
+                themesFolder.resolve("default").takeIf { file -> file.exists() }
+                    ?.deleteRecursively()
+            }.onFailure { exception ->
+                logger.error("Unable to delete old default theme", exception)
             }
 
             // Extract default theme
-            val folder = themesFolder.resolve("liquidbounce")
-            val stream = resource("/resources/liquidbounce/default_theme.zip")
-
-            if (folder.exists()) {
-                folder.deleteRecursively()
+            resource("/resources/liquidbounce/default_theme.zip").use { stream ->
+                extractZip(stream, folder)
             }
-
-            extractZip(stream, folder)
             folder.deleteOnExit()
 
             logger.info("Extracted default theme")

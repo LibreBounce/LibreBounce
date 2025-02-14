@@ -22,6 +22,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager;
 import net.ccbluex.liquidbounce.utils.client.RunnableClickEvent;
+import net.ccbluex.liquidbounce.utils.math.Vec2i;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -60,21 +61,20 @@ public abstract class MixinScreen {
 
     @Inject(method = "init(Lnet/minecraft/client/MinecraftClient;II)V", at = @At("TAIL"))
     private void objInit(CallbackInfo ci) {
-        var wallpaper = ThemeManager.INSTANCE.getActiveWallpaper();
-        if (wallpaper != null) wallpaper.load();
+        ThemeManager.INSTANCE.getActiveWallpaper().load();
     }
 
     @Inject(method = "init()V", at = @At("TAIL"))
     protected void init(CallbackInfo ci) {
-        var wallpaper = ThemeManager.INSTANCE.getActiveWallpaper();
-        if (wallpaper != null) wallpaper.load();
+        ThemeManager.INSTANCE.getActiveWallpaper().load();
     }
 
     @Inject(method = "renderBackground", at = @At("HEAD"), cancellable = true)
     private void renderBackgroundTexture(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (this.client != null && this.client.world == null && !HideAppearance.INSTANCE.isHidingNow()) {
             var wallpaper = ThemeManager.INSTANCE.getActiveWallpaper();
-            if (wallpaper != null && wallpaper.draw(context, width, height, mouseX, mouseY, delta)) {
+
+            if (wallpaper.draw(context, width, height, new Vec2i(mouseX, mouseY), delta)) {
                 ci.cancel();
             }
         }

@@ -1,11 +1,12 @@
 package net.ccbluex.liquidbounce.integration.theme
 
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.LiquidBounceTheme
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
-import net.ccbluex.liquidbounce.integration.theme.type.native.NativeTheme
 import net.ccbluex.liquidbounce.render.shader.CanvasShader
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.io.resourceToString
+import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.texture.NativeImage
@@ -33,7 +34,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
         }
     }
 
-    object MinecraftWallpaper : Wallpaper(NativeTheme, "minecraft") {
+    object MinecraftWallpaper : Wallpaper(LiquidBounceTheme, "minecraft") {
         override fun load() = true
         override fun draw(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float) =
             // When returning false, the default Minecraft wallpaper will be displayed
@@ -103,6 +104,6 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
     }
 
     abstract fun load(): Boolean
-    abstract fun draw(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float): Boolean
+    abstract fun draw(context: DrawContext, width: Int, height: Int, mouse: Vec2i, delta: Float): Boolean
 
 }

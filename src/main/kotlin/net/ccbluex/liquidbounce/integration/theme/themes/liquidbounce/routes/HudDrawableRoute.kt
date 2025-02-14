@@ -1,10 +1,10 @@
-package net.ccbluex.liquidbounce.integration.theme.type.native.routes
+package net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.routes
 
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager.activeComponents
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.NativeComponent
 import net.ccbluex.liquidbounce.integration.theme.type.native.NativeDrawableRoute
-import net.ccbluex.liquidbounce.integration.theme.type.native.components.NativeComponent
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.render.Alignment
 import net.minecraft.client.gui.DrawContext
