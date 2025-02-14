@@ -219,7 +219,7 @@ open class Configurable(
         name: String,
         default: InputUtil.Key = InputUtil.UNKNOWN_KEY,
         canExecuteInMenu: Boolean = false
-    ) = KeyValue(parent, name, default, canExecuteInMenu)
+    ) = KeyValue(parent, name, default, canExecuteInMenu).apply { this@Configurable.inner.add(this) }
 
     fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)
