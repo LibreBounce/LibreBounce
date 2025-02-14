@@ -1,0 +1,127 @@
+{
+  "name": "Text",
+  "default": false,
+  "alignment": {
+    "horizontal": "Center",
+    "horizontalOffset": 0,
+    "vertical": "Center",
+    "verticalOffset": 0
+  },
+  "settings": [
+    {
+      "type": "TEXT",
+      "name": "Text",
+      "default": "Text"
+    },
+    {
+      "type": "COLOR",
+      "name": "Color",
+      "default": 4294967295
+    },
+    {
+      "type": "TEXT",
+      "name": "Font",
+      "default": "Inter"
+    },
+    {
+      "type": "INT",
+      "name": "Size",
+      "default": 14,
+      "range": {
+        "min": 1,
+        "max": 100
+      },
+      "suffix": "px"
+    },
+    {
+      "type": "CONFIGURABLE",
+      "name": "Decorations",
+      "settings": [
+        {
+          "type": "BOOLEAN",
+          "name": "Bold",
+          "default": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "Italic",
+          "default": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "Underline",
+          "default": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "Strikethrough",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "TOGGLEABLE",
+      "name": "Shadow",
+      "default": false,
+      "settings": [
+        {
+          "type": "INT",
+          "name": "OffsetX",
+          "default": 0,
+          "range": {
+            "min": -10,
+            "max": 10
+          },
+          "suffix": "px"
+        },
+        {
+          "type": "INT",
+          "name": "OffsetY",
+          "default": 0,
+          "range": {
+            "min": -10,
+            "max": 10
+          },
+          "suffix": "px"
+        },
+        {
+          "type": "INT",
+          "name": "BlurRadius",
+          "default": 0,
+          "range": {
+            "min": 0,
+            "max": 10
+          },
+          "suffix": "px"
+        },
+        {
+          "type": "COLOR",
+          "name": "Color",
+          "default": 4278190080
+        }
+      ]
+    },
+    {
+      "type": "TOGGLEABLE",
+      "name": "Glow",
+      "default": false,
+      "settings": [
+        {
+          "type": "INT",
+          "name": "Radius",
+          "default": 0,
+          "range": {
+            "min": 0,
+            "max": 10
+          },
+          "suffix": "px"
+        },
+        {
+          "type": "COLOR",
+          "name": "Color",
+          "default": 4294967295
+        }
+      ]
+    }
+  ]
+}

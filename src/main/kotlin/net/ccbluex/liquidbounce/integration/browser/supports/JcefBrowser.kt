@@ -156,23 +156,19 @@ class JcefBrowser : IBrowser, EventListener {
 
     override fun isInitialized() = MCEF.INSTANCE.isInitialized
 
-    override fun createTab(url: String, position: TabPosition, frameRate: Int) =
-        JcefTab(this, url, position, frameRate) { false }.apply(::addTab)
+    override fun createTab(url: String, position: TabPosition, frameRate: Int, takesInput: () -> Boolean) =
+        JcefTab(this, url, position, frameRate, takesInput = takesInput).apply {
+            tabs.sortedInsert(this, JcefTab::drawingStage)
+        }
 
-    override fun createInputAwareTab(url: String, position: TabPosition, frameRate: Int, takesInput: () -> Boolean) =
-        JcefTab(this, url, position, frameRate, takesInput = takesInput).apply(::addTab)
-
-    override fun getTabs(): List<JcefTab> = tabs
-
-    private fun addTab(tab: JcefTab) {
-        tabs.sortedInsert(tab, JcefTab::preferOnTop)
-    }
+    override fun getTabs() = tabs
 
     internal fun removeTab(tab: JcefTab) {
         tabs.remove(tab)
     }
 
     override fun getBrowserType() = BrowserType.JCEF
+
     override fun drawGlobally() {
         if (MCEF.INSTANCE.isInitialized) {
             try {

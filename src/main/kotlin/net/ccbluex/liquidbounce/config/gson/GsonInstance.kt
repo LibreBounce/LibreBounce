@@ -25,6 +25,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.adapter.*
+import net.ccbluex.liquidbounce.config.gson.adapter.lookup.WallpaperLookupAdapter
 import net.ccbluex.liquidbounce.config.gson.serializer.*
 import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.*
 import net.ccbluex.liquidbounce.config.gson.stategies.ExcludeStrategy
@@ -32,9 +33,11 @@ import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.Wallpaper
+import net.ccbluex.liquidbounce.integration.theme.layout.component.Component
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.render.Alignment
 import net.minecraft.block.Block
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.network.ServerInfo
@@ -93,6 +96,7 @@ val fileGson: Gson = GsonBuilder()
     .addSerializationExclusionStrategy(ExcludeStrategy())
     .registerCommonTypeAdapters()
     .registerTypeHierarchyAdapter(Configurable::class.javaObjectType, ConfigurableSerializer.FILE_SERIALIZER)
+    .registerTypeHierarchyAdapter(Component::class.javaObjectType, ComponentSerializer)
     .create()
 
 /**
@@ -147,6 +151,8 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
         .registerTypeAdapter(ChoiceConfigurable::class.javaObjectType, ChoiceConfigurableSerializer)
         .registerTypeHierarchyAdapter(NamedChoice::class.javaObjectType, EnumChoiceSerializer)
         .registerTypeHierarchyAdapter(MinecraftAccount::class.javaObjectType, MinecraftAccountAdapter)
+        .registerTypeHierarchyAdapter(Alignment::class.javaObjectType, AlignmentAdapter)
+        .registerTypeHierarchyAdapter(Wallpaper::class.javaObjectType, WallpaperLookupAdapter)
         .registerTypeHierarchyAdapter(Text::class.javaObjectType, TextSerializer)
         .registerTypeHierarchyAdapter(Screen::class.javaObjectType, ScreenSerializer)
         .registerTypeAdapter(Session::class.javaObjectType, SessionSerializer)

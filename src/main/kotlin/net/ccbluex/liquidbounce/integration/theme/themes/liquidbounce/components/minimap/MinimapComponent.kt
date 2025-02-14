@@ -19,14 +19,12 @@
  *
  */
 
-package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
+package net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.minimap
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
-import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.ModuleESP
-import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.NativeComponent
+import net.ccbluex.liquidbounce.integration.theme.type.Theme
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -35,9 +33,11 @@ import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentRotation
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.Vec2i
+import net.ccbluex.liquidbounce.utils.render.Alignment
+import net.ccbluex.liquidbounce.utils.render.Alignment.ScreenAxisX
 import net.minecraft.client.gl.ShaderProgramKeys
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
@@ -53,7 +53,12 @@ import org.lwjgl.opengl.GL11
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
-object MinimapComponent : Component("Minimap", true) {
+class MinimapComponent(theme: Theme) : NativeComponent(theme, "Minimap", true, Alignment(
+    horizontalAlignment = ScreenAxisX.LEFT,
+    horizontalOffset = 7,
+    verticalAlignment = Alignment.ScreenAxisY.TOP,
+    verticalOffset = 180,
+)) {
 
     private val size by int("Size", 96, 1..256)
     private val viewDistance by float("ViewDistance", 3.0F, 1.0F..8.0F)
@@ -63,25 +68,21 @@ object MinimapComponent : Component("Minimap", true) {
         registerComponentListen()
     }
 
-    val renderHandler = handler<OverlayRenderEvent>(priority = EventPriorityConvention.MODEL_STATE) { event ->
-        if (HideAppearance.isHidingNow) {
-            return@handler
-        }
+    override fun render(context: DrawContext, delta: Float) {
+        val matStack = context.matrices
 
-        val matStack = MatrixStack()
-
-        val playerPos = player.interpolateCurrentPosition(event.tickDelta)
-        val playerRotation = player.interpolateCurrentRotation(event.tickDelta)
+        val playerPos = player.interpolateCurrentPosition(delta)
+        val playerRotation = player.interpolateCurrentRotation(delta)
 
         val minimapSize = size
 
-        val boundingBox = alignment.getBounds(minimapSize.toFloat(), minimapSize.toFloat())
+        val scissorBox = alignment.getBounds(minimapSize.toFloat(), minimapSize.toFloat())
         val scaleFactor = mc.window.scaleFactor
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST)
         GL11.glScissor(
-            (boundingBox.xMin * scaleFactor).toInt(),
-            mc.framebuffer.viewportHeight - ((boundingBox.yMin + minimapSize) * scaleFactor).toInt(),
+            (scissorBox.xMin * scaleFactor).toInt(),
+            mc.framebuffer.viewportHeight - ((scissorBox.yMin + minimapSize) * scaleFactor).toInt(),
             (minimapSize * scaleFactor).toInt(),
             (minimapSize * scaleFactor).toInt(),
         )
@@ -98,7 +99,7 @@ object MinimapComponent : Component("Minimap", true) {
 
         matStack.push()
 
-        matStack.translate(boundingBox.xMin + minimapSize * 0.5, boundingBox.yMin + minimapSize * 0.5, 0.0)
+        matStack.translate(minimapSize * 0.5, minimapSize * 0.5, 0.0)
         matStack.scale(scale, scale, scale)
 
         matStack.multiply(Quaternionf(AxisAngle4f(-(playerRotation.yaw + 180.0F).toRadians(), 0.0F, 0.0F, 1.0F)))
@@ -126,7 +127,7 @@ object MinimapComponent : Component("Minimap", true) {
             ) { matrix ->
                 for (renderedEntity in RenderedEntities) {
                     drawEntityOnMinimap(
-                        this, matStack, renderedEntity, event.tickDelta, Vec2f(baseX.toFloat(), baseZ.toFloat())
+                        this, matStack, renderedEntity, delta, Vec2f(baseX.toFloat(), baseZ.toFloat())
                     )
                 }
             }
@@ -134,6 +135,7 @@ object MinimapComponent : Component("Minimap", true) {
 
         matStack.pop()
 
+        val boundingBox = BoundingBox2f(0f, 0f, minimapSize.toFloat(), minimapSize.toFloat())
         val centerBB = Vec2f(
             boundingBox.xMin + (boundingBox.xMax - boundingBox.xMin) * 0.5F,
             boundingBox.yMin + (boundingBox.yMax - boundingBox.yMin) * 0.5F
@@ -166,6 +168,8 @@ object MinimapComponent : Component("Minimap", true) {
         }
 
     }
+
+    override fun size() = size + 5 to size + 5
 
     private fun RenderEnvironment.drawShadowForBB(
         boundingBox: BoundingBox2f, from: Color4b, to: Color4b, offset: Float = 3.0F, width: Float = 3.0F

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2025 CCBlueX
+ * Copyright (c) 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,24 +19,20 @@
  *
  */
 
-package net.ccbluex.liquidbounce.integration.theme.component.types
+package net.ccbluex.liquidbounce.integration.theme.type.native
 
-import net.ccbluex.liquidbounce.integration.theme.component.Component
-import net.ccbluex.liquidbounce.integration.theme.component.FeatureTweak
+import net.minecraft.client.gui.DrawContext
 
-/**
- * Unlike other components integrated are built into the theme and are being configured
- * by the metadata of the theme
- *
- * TODO: These should be serializable from the Metadata JSON
- */
-class IntegratedComponent(
-    name: String,
-    val tweaks: Array<FeatureTweak> = emptyArray()
-) : Component(name, true) {
+abstract class NativeDrawableRoute {
 
-    init {
-        registerComponentListen()
-    }
+    abstract fun render(context: DrawContext, delta: Float)
+
+    open fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int) = false
+    open fun mouseReleased(mouseX: Double, mouseY: Double, mouseButton: Int) = false
+    open fun mouseMoved(mouseX: Double, mouseY: Double) {}
+    open fun mouseScrolled(mouseX: Double, mouseY: Double) {}
+    open fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int) = false
+    open fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int) = false
+    open fun charTyped(char: Char, modifiers: Int) = false
 
 }

@@ -1,0 +1,10 @@
+{
+  "name": "Taco",
+  "default": false,
+  "alignment": {
+    "horizontal": "Left",
+    "horizontalOffset": 0,
+    "vertical": "Bottom",
+    "verticalOffset": 65
+  }
+}

@@ -19,21 +19,19 @@
  */
 package net.ccbluex.liquidbounce.integration
 
-import net.ccbluex.liquidbounce.integration.theme.Theme
-import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.screen.Screen
 
-class VrScreen(
-    private val screenType: VirtualScreenType,
-    private val theme: Theme = ThemeManager.route(screenType).theme,
+class VirtualDisplayScreen(
+    val route: RouteType,
     val originalScreen: Screen? = null,
     val parentScreen: Screen? = mc.currentScreen
-) : Screen("VS-${screenType.routeName.uppercase()}".asText()) {
+) : Screen("VS-${route.type?.routeName?.uppercase()}".asText()) {
 
     override fun init() {
-        IntegrationListener.virtualOpen(theme, screenType)
+        IntegrationListener.virtualOpen(route)
     }
 
     override fun close() {

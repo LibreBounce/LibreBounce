@@ -52,7 +52,6 @@ import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.HAS_AMD_VEGA_APU
@@ -171,9 +170,8 @@ object LiquidBounce : EventListener {
             // Load user scripts
             ScriptManager.loadAll()
 
-            // Load theme and component overlay
-            ThemeManager
-            ComponentOverlay.insertComponents()
+            // Load theme
+            ThemeManager.loadThemes()
 
             // Load config system from disk
             ConfigSystem.loadAll()

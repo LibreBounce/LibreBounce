@@ -44,7 +44,12 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
 
     // Theme Functions
     get("/theme", ::getThemeInfo)
-    post("/shader", ::postToggleShader)
+    get("/fonts", ::getFonts)
+    get("/fonts/:name", ::getFont)
+
+    // Wallpaper Functions
+    get("/wallpaper", ::getWallpaper)
+    put("/wallpaper/:theme/:name", ::putWallpaper)
 
     // VirtualScreen Functions
     get("/virtualScreen", ::getVirtualScreenInfo)
@@ -64,9 +69,13 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
     }
     get("/module/:name", ::getModule)
 
+    // Component Array Functions
+    get("/components", ::getAllComponents)
+    get("/components/:name", ::getComponents)
 
     // Component Functions
-    get("/components", ::getComponents)
+    put("/component/:id", ::updateComponentSettings)
+    get("/component/:id", ::getComponentSettings)
 
     // Session Functions
     get("/session", ::getSessionInfo)

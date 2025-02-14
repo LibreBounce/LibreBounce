@@ -25,8 +25,8 @@ import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.integration.IntegrationListener
+import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.VrScreen
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
@@ -40,23 +40,9 @@ import net.minecraft.client.gui.screen.TitleScreen
 @Suppress("UNUSED_PARAMETER")
 fun getVirtualScreenInfo(requestObject: RequestObject): FullHttpResponse {
     return httpOk(JsonObject().apply {
-        addProperty("name", IntegrationListener.momentaryVirtualScreen?.type?.routeName)
+        addProperty("name", IntegrationListener.route.type?.routeName ?: "none")
         addProperty("showingSplash", mc.overlay is SplashOverlay)
     })
-}
-
-// POST /api/v1/client/virtualScreen
-fun postVirtualScreen(requestObject: RequestObject): FullHttpResponse {
-    val body = requestObject.asJson<JsonObject>()
-    val name = body["name"]?.asString ?: return httpForbidden("No name")
-
-    val virtualScreen = IntegrationListener.momentaryVirtualScreen
-    if ((virtualScreen?.type?.routeName ?: "none") != name) {
-        return httpForbidden("Wrong virtual screen")
-    }
-
-    IntegrationListener.acknowledgement.confirm()
-    return httpOk(JsonObject())
 }
 
 // GET /api/v1/client/screen
@@ -95,7 +81,7 @@ fun putScreen(requestObject: RequestObject): FullHttpResponse {
 fun deleteScreen(requestObject: RequestObject): FullHttpResponse {
     val screen = mc.currentScreen ?: return httpForbidden("No screen")
 
-    if (screen is VrScreen && screen.parentScreen != null) {
+    if (screen is VirtualDisplayScreen && screen.parentScreen != null) {
         RenderSystem.recordRenderCall {
             mc.setScreen(screen.parentScreen)
         }

@@ -20,13 +20,63 @@
 
 package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.client
 
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import io.netty.handler.codec.http.FullHttpResponse
+import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.accessibleInteropGson
-import net.ccbluex.liquidbounce.integration.theme.component.components
-import net.ccbluex.liquidbounce.integration.theme.component.customComponents
+import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.integration.theme.layout.component.ComponentManager
 import net.ccbluex.netty.http.model.RequestObject
+import net.ccbluex.netty.http.util.httpBadRequest
 import net.ccbluex.netty.http.util.httpOk
+import java.io.StringReader
+import java.util.*
 
 // GET /api/v1/client/components
 @Suppress("UNUSED_PARAMETER")
-fun getComponents(requestObject: RequestObject) =
-    httpOk(accessibleInteropGson.toJsonTree(components + customComponents).asJsonArray)
+fun getAllComponents(requestObject: RequestObject) = httpOk(JsonArray().apply {
+    for (component in ComponentManager.activeComponents) {
+        add(accessibleInteropGson.toJsonTree(component))
+    }
+})
+
+// GET /api/v1/client/components/:name
+fun getComponents(requestObject: RequestObject): FullHttpResponse {
+    val name = requestObject.params["name"] ?: return httpBadRequest("No name provided")
+    val components = ComponentManager.activeComponents.filter { theme -> theme.theme.name.equals(name, true) }
+
+    return httpOk(JsonArray().apply {
+        for (component in components) {
+            add(accessibleInteropGson.toJsonTree(component))
+        }
+    })
+}
+
+// GET /api/v1/client/component/:id
+fun getComponentSettings(requestObject: RequestObject): FullHttpResponse {
+    val id = requestObject.params["id"]?.let { UUID.fromString(it) }
+        ?: return httpBadRequest("No ID provided")
+
+    val component = ComponentManager.activeComponents
+        .find { it.id == id } ?: return httpBadRequest("No component found")
+    val json = ConfigSystem.serializeConfigurable(component, gson = interopGson)
+
+    ComponentManager.fireComponentsUpdate()
+
+    return httpOk(json)
+}
+
+// PUT /api/v1/client/component/:id
+fun updateComponentSettings(requestObject: RequestObject): FullHttpResponse {
+    val id = requestObject.params["id"]?.let { UUID.fromString(it) }
+        ?: return httpBadRequest("No ID provided")
+
+    val component = ComponentManager.activeComponents
+        .find { it.id == id } ?: return httpBadRequest("No component found")
+    ConfigSystem.deserializeConfigurable(component, StringReader(requestObject.body), gson = interopGson)
+
+    ComponentManager.fireComponentsUpdate()
+
+    return httpOk(JsonObject())
+}

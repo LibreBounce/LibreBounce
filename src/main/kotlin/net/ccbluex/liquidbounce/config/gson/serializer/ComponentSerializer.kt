@@ -15,43 +15,50 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
 
 package net.ccbluex.liquidbounce.config.gson.serializer
 
 import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.layout.component.Component
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
-import net.ccbluex.liquidbounce.utils.render.Alignment
 import java.lang.reflect.Type
+
+object ComponentSerializer : JsonSerializer<Component> {
+
+    override fun serialize(
+        src: Component, typeOfSrc: Type, context: JsonSerializationContext
+    ) = JsonObject().apply {
+        addProperty("name", src.name)
+        addProperty("theme", src.theme.name)
+        add("value", context.serialize(src.inner))
+    }
+
+}
 
 object ReadOnlyComponentSerializer : JsonSerializer<Component> {
 
     override fun serialize(
-        src: Component,
-        typeOfSrc: Type,
-        context: JsonSerializationContext
+        src: Component, typeOfSrc: Type, context: JsonSerializationContext
     ) = JsonObject().apply {
         addProperty("name", src.name)
+        addProperty("id", src.id.toString())
         add("settings", serializeReadOnly(src, context))
     }
 
     private fun serializeReadOnly(
-        configurable: Configurable,
-        context: JsonSerializationContext
+        configurable: Configurable, context: JsonSerializationContext
     ): JsonObject = JsonObject().apply {
         for (v in configurable.inner) {
-            add(v.name.toLowerCamelCase(), when (v) {
-                is Alignment -> JsonPrimitive(v.toStyle())
-                is Configurable -> serializeReadOnly(v, context)
-                else -> context.serialize(v.inner)
-            })
+            add(
+                v.name.toLowerCamelCase(), when (v) {
+                    is Configurable -> serializeReadOnly(v, context)
+                    else -> context.serialize(v.inner)
+                }
+            )
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2025 CCBlueX
+ * Copyright (c) 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,17 +19,15 @@
  *
  */
 
-package net.ccbluex.liquidbounce.integration.theme.component.types
+package net.ccbluex.liquidbounce.integration.theme.type.web
 
-import net.ccbluex.liquidbounce.integration.theme.component.Component
-
-class ImageComponent(src: String, enabled: Boolean = true) : Component("Image", enabled) {
-
-    val src by text("Src", src)
-    val scale by float("Scale", 1.0f, 0.0f..10.0f)
-
-    init {
-        registerComponentListen()
-    }
-
-}
+data class ThemeMetadata(
+    val name: String,
+    val authors: List<String>,
+    val version: String,
+    val supports: List<String>,
+    val overlays: List<String>,
+    val font: String? = null,
+    // If null, there is no default wallpaper for this theme assigned
+    val wallpaper: String? = null
+)

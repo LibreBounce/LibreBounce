@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client.client
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.integration.BrowserScreen
+import net.ccbluex.liquidbounce.integration.browser.BrowserScreen
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.regular

@@ -1,0 +1,10 @@
+{
+  "name": "BlockCounter",
+  "default": true,
+  "alignment": {
+    "horizontal": "Center",
+    "horizontalOffset": -20,
+    "vertical": "CenterTranslated",
+    "verticalOffset": 0
+  }
+}

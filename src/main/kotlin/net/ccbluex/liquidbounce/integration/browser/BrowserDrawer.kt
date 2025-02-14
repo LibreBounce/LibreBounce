@@ -23,6 +23,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.integration.DrawingStage
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
 import net.ccbluex.liquidbounce.render.engine.UiRenderer
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -123,7 +124,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
                 continue
             }
 
-            if (tab.preferOnTop && mc.currentScreen != null) {
+            if (tab.drawingStage == DrawingStage.SCREEN && mc.currentScreen != null) {
                 continue
             }
 

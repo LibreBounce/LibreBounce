@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.integration.browser.supports.tab
 
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
+import net.ccbluex.liquidbounce.integration.DrawingStage
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.mcef.MCEFBrowser
@@ -59,7 +60,7 @@ class JcefTab(
     private val texture = Identifier.of("liquidbounce", "browser/tab/${mcefBrowser.hashCode()}")
 
     override var drawn = false
-    override var preferOnTop = false
+    override var drawingStage = DrawingStage.SCREEN
 
     init {
         mc.textureManager.registerTexture(texture, object : AbstractTexture() {
@@ -87,7 +88,7 @@ class JcefTab(
         mcefBrowser.loadURL(url)
     }
 
-    override fun getUrl() = mcefBrowser.getURL()
+    override fun getUrl(): String = mcefBrowser.url
 
     override fun closeTab() {
         mcefBrowser.close()
