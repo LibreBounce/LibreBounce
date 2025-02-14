@@ -29,6 +29,7 @@ class KeyValue(
     private var action: Action? = null
 
     @Suppress("unused")
+    @Exclude @ProtocolExclude
     private val keyboardHandler = parent?.handler<KeyboardKeyEvent> {
         if (canExecute(it.action) && it.key.code == inner.code) {
             action?.invoke()
@@ -36,6 +37,7 @@ class KeyValue(
     }
 
     @Suppress("unused")
+    @Exclude @ProtocolExclude
     private val mouseHandler = parent?.handler<MouseButtonEvent> {
         if (canExecute(it.action)
             && inner.category == InputUtil.Type.MOUSE
