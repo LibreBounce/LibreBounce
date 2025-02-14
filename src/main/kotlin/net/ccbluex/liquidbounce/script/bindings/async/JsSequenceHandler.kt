@@ -27,7 +27,7 @@ internal class JsSequenceHandler(
 
     private var current: Sequence? = null
 
-    fun startWith(eventInstance: Event?) {
+    internal fun startWith(eventInstance: Event?) {
         current = Sequence(owner) {
             /**
              * TODO
