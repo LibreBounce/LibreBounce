@@ -46,6 +46,7 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
      */
     private val useHotbar by boolean("Hotbar", true)
 
+    @Suppress("unused")
     private val scheduleHandler = handler<ScheduleInventoryActionEvent> { event ->
         // Filter out already equipped armor pieces
         for (armorPiece in ArmorEvaluation.findBestArmorPieces().values) {
