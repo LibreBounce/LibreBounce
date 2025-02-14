@@ -47,17 +47,18 @@ internal class JsSequenceHandler(
         }
     }
 
-    private fun <T> wrap(suspendableHandler: suspend Sequence.() -> T): Value =
-        promiseConstructor.newInstance(ProxyExecutable { (onResolve, onReject) ->
-            SequenceManager.launch {
-                try {
-                    val result = current!!.suspendableHandler()
-                    onResolve.execute(result)
-                } catch (e: Throwable) {
-                    onReject.execute(e)
-                }
+    private inline fun <T> wrap(
+        crossinline suspendableHandler: suspend Sequence.() -> T
+    ): Value = promiseConstructor.newInstance(ProxyExecutable { (onResolve, onReject) ->
+        SequenceManager.launch {
+            try {
+                val result = current!!.suspendableHandler()
+                onResolve.execute(result)
+            } catch (e: Throwable) {
+                onReject.execute(e)
             }
-        })
+        }
+    })
 
     /**
      * Example: `await seq.ticks(10)`
