@@ -72,11 +72,7 @@ object CommandAutoDisable : CommandFactory {
                 .build()
         )
         .handler { command, args ->
-            val page = if (args.isNotEmpty()) {
-                args[0] as Int
-            } else {
-                1
-            }.coerceAtLeast(1)
+            val page = (args.firstOrNull() as? Int ?: 1).coerceAtLeast(1)
 
             val modules = ModuleAutoDisable.listOfModules.sortedBy { it.name }
 
