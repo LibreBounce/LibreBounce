@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigg
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
 import net.ccbluex.liquidbounce.utils.aiming.NormalRotationMode
+import net.ccbluex.liquidbounce.utils.client.FloatValueProvider
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -51,7 +52,9 @@ object ModuleCrystalAura : ClientModule(
     disableOnQuit = true
 ) {
 
-    val targetTracker = tree(TargetTracker(range = float("Range", 4.5f, 1f..12f)))
+    val targetTracker = tree(TargetTracker(
+        rangeValue =  FloatValueProvider("Range", 4.5f, 1f..12f)
+    ))
 
     object PredictFeature : Configurable("Predict") {
         init {
