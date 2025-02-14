@@ -7,13 +7,14 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
+import net.ccbluex.liquidbounce.ui.client.hud.HUD.notifications
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification.Companion.maxTextLength
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
@@ -55,7 +56,9 @@ class Notifications(
     override fun drawElement(): Border? {
         var verticalOffset = 0f
 
-        HUD.notifications.removeEach { notification ->
+        maxTextLength = maxOf(100, notifications.maxOfOrNull { it.textLength } ?: 0)
+
+        notifications.removeEach { notification ->
             if (notification != exampleNotification) {
                 notification.y = (notification.y..verticalOffset).lerpWith(RenderUtils.deltaTimeNormalized())
             }
@@ -63,25 +66,21 @@ class Notifications(
             notification.drawNotification(this).also { if (!it) verticalOffset += Notification.MAX_HEIGHT + padding }
         }
 
-        if (HUD.notifications.isEmpty() || mc.currentScreen is GuiHudDesigner) {
-            Notification.maxTextLength = 100
-        }
-
         if (mc.currentScreen is GuiHudDesigner) {
-            if (exampleNotification !in HUD.notifications) {
+            if (exampleNotification !in notifications) {
                 index = 0
                 addNotification(exampleNotification)
             }
 
             exampleNotification.fadeState = Notification.FadeState.STAY
-            exampleNotification.textLength = Fonts.fontSemibold35.getStringWidth(exampleNotification.longestString)
+            exampleNotification.textLength = Fonts.fontSemibold40.getStringWidth(exampleNotification.longestString)
 
             val notificationHeight = Notification.MAX_HEIGHT
 
             exampleNotification.y = 0F
 
             return Border(
-                -(Notification.maxTextLength.toFloat() + 24 + 20), -notificationHeight.toFloat(), 0F, 0F
+                -(maxTextLength.toFloat() + 24 + 20), -notificationHeight.toFloat(), 0F, 0F
             )
         }
 
@@ -105,13 +104,11 @@ class Notification(
     var x = 0F
 
     // Spawn the notification 32 pixels above the last one - if exists.
-    var y: Float = (HUD.notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
+    var y: Float = (notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
     var textLength = 0
 
     val longestString
-        get() = arrayOf(title to Fonts.fontSemibold40, description to Fonts.fontSemibold35).maxBy {
-            it.second.getStringWidth(it.first)
-        }.first
+        get() = arrayOf(title, description).maxBy { Fonts.fontSemibold40.getStringWidth(it) }
 
     private var stay = delay
     private var fadeStep = 0F
@@ -131,10 +128,10 @@ class Notification(
         this.title = title
         this.description = description
 
-        textLength = Fonts.fontSemibold35.getStringWidth(longestString)
+        textLength = Fonts.fontSemibold40.getStringWidth(longestString)
         maxTextLength = maxOf(textLength, maxTextLength)
 
-        HUD.notifications.sortBy { it.stay }
+        notifications.sortBy { it.stay }
     }
 
     companion object {
@@ -160,8 +157,8 @@ class Notification(
     }
 
     init {
-        textLength = Fonts.fontSemibold35.getStringWidth(longestString)
-        maxTextLength = maxOf(textLength, maxTextLength)
+        textLength = Fonts.fontSemibold40.getStringWidth(longestString)
+        maxTextLength = maxOf(maxTextLength, textLength)
     }
 
     fun drawNotification(element: Notifications): Boolean {
@@ -216,7 +213,7 @@ class Notification(
 
             FadeState.STAY -> {
                 if (textLength != maxTextLength) {
-                    textLength = maxTextLength
+                    maxTextLength = maxOf(textLength, maxTextLength)
                     x = maxTextLength + ICON_SIZE + 16F
                     fadeStep = x
                 }
