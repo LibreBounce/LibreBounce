@@ -43,7 +43,7 @@ import net.minecraft.client.util.InputUtil
 /**
  * A module also called 'hack' can be enabled and handle events
  */
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 open class ClientModule(
     name: String, // name parameter in configurable
     @Exclude val category: Category, // module category
@@ -227,6 +227,18 @@ open class ClientModule(
             logger.warn("$name is missing fallback description key $descriptionKey")
         }
     }
+
+    protected fun key(
+        name: String,
+        default: Int,
+        canExecuteInMenu: Boolean = false
+    ) = key(this, name, default, canExecuteInMenu)
+
+    protected fun key(
+        name: String,
+        default: InputUtil.Key = InputUtil.UNKNOWN_KEY,
+        canExecuteInMenu: Boolean = false
+    ) = key(this, name, default, canExecuteInMenu)
 
     protected fun <T : Choice> choices(name: String, active: T, choices: Array<T>) =
         choices(this, name, active, choices)

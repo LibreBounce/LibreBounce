@@ -1,7 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.events.KeyEvent
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -11,7 +10,6 @@ import net.ccbluex.liquidbounce.utils.inventory.*
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import org.lwjgl.glfw.GLFW
 
 private var swapRequested = false
 
@@ -28,19 +26,10 @@ private val chestplateSlot = ArmorItemSlot(2 /* chestplate */)
  **/
 object ModuleElytraSwap : ClientModule("ElytraSwap", Category.MISC) {
     internal val constraints = tree(PlayerInventoryConstraints())
-    private val swapKey by key("Swap", GLFW.GLFW_KEY_UNKNOWN)
 
     @Suppress("unused")
-    private val keyboardHandler = handler<KeyEvent> {
-        if (it.action != GLFW.GLFW_PRESS) {
-            return@handler
-        }
-
-        when (it.key.code) {
-            swapKey.code -> {
-                swapRequested = true
-            }
-        }
+    private val swapKey by key("Swap", canExecuteInMenu = true).onTrigger {
+        swapRequested = true
     }
 
     @Suppress("unused")

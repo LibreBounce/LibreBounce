@@ -207,10 +207,19 @@ open class Configurable(
 
     fun bind(name: String, default: InputBind) = BindValue(name, default).apply { this@Configurable.inner.add(this) }
 
-    fun key(name: String, default: Int) = key(name, InputUtil.Type.KEYSYM.createFromCode(default))
+    fun key(
+        parent: EventListener? = null,
+        name: String,
+        default: Int,
+        canExecuteInMenu: Boolean = false
+    ) = key(parent, name, InputUtil.Type.KEYSYM.createFromCode(default), canExecuteInMenu)
 
-    fun key(name: String, default: InputUtil.Key = InputUtil.UNKNOWN_KEY) =
-        value(name, default, ValueType.KEY)
+    fun key(
+        parent: EventListener? = null,
+        name: String,
+        default: InputUtil.Key = InputUtil.UNKNOWN_KEY,
+        canExecuteInMenu: Boolean = false
+    ) = KeyValue(parent, name, default, canExecuteInMenu)
 
     fun intRange(name: String, default: IntRange, range: IntRange, suffix: String = "") =
         rangedValue(name, default, range, suffix, ValueType.INT_RANGE)

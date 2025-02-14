@@ -68,7 +68,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
      */
     private object Navigation : NavigationBaseConfigurable<Unit>(ModuleFreeCam, "Navigation", false) {
 
-        private val controlKey by key("Key", InputUtil.GLFW_KEY_LEFT_CONTROL)
+        private val controlKey by key(null, "Key", InputUtil.GLFW_KEY_LEFT_CONTROL)
 
         val shouldBeGoing
             get() = running && controlKey != InputUtil.UNKNOWN_KEY &&
