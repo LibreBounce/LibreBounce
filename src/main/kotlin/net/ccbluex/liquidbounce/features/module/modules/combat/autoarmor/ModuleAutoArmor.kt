@@ -48,11 +48,11 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
     private val scheduleHandler = handler<ScheduleInventoryActionEvent> { event ->
         // Filter out already equipped armor pieces
-        val armorToEquip = ArmorEvaluation.findBestArmorPieces().values.filterNotNull().filter {
-            !it.isAlreadyEquipped
-        }
+        for (armorPiece in ArmorEvaluation.findBestArmorPieces().values) {
+            if (armorPiece == null || armorPiece.isAlreadyEquipped) {
+                continue
+            }
 
-        for (armorPiece in armorToEquip) {
             event.schedule(
                 inventoryConstraints,
                 equipArmorPiece(armorPiece) ?: continue,

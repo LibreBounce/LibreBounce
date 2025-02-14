@@ -41,14 +41,14 @@ import kotlin.math.ceil
 
 object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
 
-    val inventoryConstrains = tree(InventoryConstraints())
-    val autoClose by boolean("AutoClose", true)
+    private val inventoryConstrains = tree(InventoryConstraints())
+    private val autoClose by boolean("AutoClose", true)
 
-    val selectionMode by enumChoice("SelectionMode", SelectionMode.DISTANCE)
-    val itemMoveMode by enumChoice("MoveMode", ItemMoveMode.QUICK_MOVE)
-    val quickSwaps by boolean("QuickSwaps", true)
+    private val selectionMode by enumChoice("SelectionMode", SelectionMode.DISTANCE)
+    private val itemMoveMode by enumChoice("MoveMode", ItemMoveMode.QUICK_MOVE)
+    private val quickSwaps by boolean("QuickSwaps", true)
 
-    val checkTitle by boolean("CheckTitle", true)
+    private val checkTitle by boolean("CheckTitle", true)
 
     init {
         tree(FeatureChestAura)
@@ -136,7 +136,7 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         cleanupPlan: InventoryCleanupPlan,
         slotsToCollect: Int,
     ): Int {
-        val freeSlotsInInv = (0..35).count { player.inventory.getStack(it).isNothing() }
+        val freeSlotsInInv = (Slots.Inventory + Slots.Hotbar).count { it.itemStack.isEmpty }
 
         val spaceGainedThroughMerge = cleanupPlan.mergeableItems.entries.sumOf { (id, slots) ->
             val slotsInChest = slots.count { it.slotType == ItemSlotType.CONTAINER }
@@ -153,12 +153,10 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
     private fun isScreenTitleChest(screen: GenericContainerScreen): Boolean {
         val titleString = screen.title.string
 
-        return sequenceOf(
+        return arrayOf(
             "container.chest", "container.chestDouble", "container.enderchest", "container.shulkerBox",
             "container.barrel"
-        )
-            .map { Text.translatable(it) }
-            .any { it.string == titleString }
+        ).any { Text.translatable(it).string == titleString }
     }
 
 
@@ -221,7 +219,8 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         return cleanupPlan
     }
 
-    enum class SelectionMode(
+    @Suppress("UNUSED")
+    private enum class SelectionMode(
         override val choiceName: String,
         val processor: (List<ContainerItemSlot>) -> List<ContainerItemSlot>
     ) : NamedChoice {
@@ -255,7 +254,7 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         }
     }
 
-    enum class ItemMoveMode(override val choiceName: String) : NamedChoice {
+    private enum class ItemMoveMode(override val choiceName: String) : NamedChoice {
         QUICK_MOVE("QuickMove"),
         DRAG_AND_DROP("DragAndDrop"),
     }

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
+import it.unimi.dsi.fastutil.objects.ObjectIntPair
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategory
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemFunction
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
@@ -31,7 +32,7 @@ open class ItemFacet(val itemSlot: ItemSlot) : Comparable<ItemFacet> {
     open val category: ItemCategory
         get() = ItemCategory(ItemType.NONE, 0)
 
-    open val providedItemFunctions: List<Pair<ItemFunction, Int>>
+    open val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
         get() = emptyList()
 
     val itemStack: ItemStack
