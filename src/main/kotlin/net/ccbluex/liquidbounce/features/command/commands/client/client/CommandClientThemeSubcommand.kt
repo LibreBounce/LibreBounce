@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.features.command.commands.client.client
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.LiquidBounceTheme
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -27,18 +28,14 @@ object CommandClientThemeSubcommand {
             ParameterBuilder.begin<String>("theme")
                 .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
                 .autocompletedWith { s, _ ->
-                    ThemeManager.themes().filter { it.startsWith(s, true) }
+                    ThemeManager.availableThemes
+                        .map { theme -> theme.name }
+                        .filter { name -> name.startsWith(name, true) }
                 }
                 .build()
         )
         .handler { command, args ->
             val name = args[0] as String
-
-            if (name.equals("default", true)) {
-                ThemeManager.activeTheme = ThemeManager.defaultTheme
-                chat(regular("Switching theme to default..."))
-                return@handler
-            }
 
             runCatching {
                 ThemeManager.chooseTheme(name)
@@ -52,14 +49,15 @@ object CommandClientThemeSubcommand {
     private fun listSubcommand() = CommandBuilder.begin("list")
         .handler { command, args ->
             @Suppress("SpreadOperator")
-            (chat(
+            chat(
                 regular("Available themes: "),
-                *ThemeManager.themes().flatMapIndexed { index, name ->
+                *ThemeManager.availableThemes.flatMapIndexed { index, theme ->
                     listOf(
                         regular(if (index == 0) "" else ", "),
-                        variable(name)
+                        variable(theme.name),
+                        regular(" (${if (theme is LiquidBounceTheme) "Native" else "Web"})")
                     )
                 }.toTypedArray()
-            ))
+            )
         }.build()
 }

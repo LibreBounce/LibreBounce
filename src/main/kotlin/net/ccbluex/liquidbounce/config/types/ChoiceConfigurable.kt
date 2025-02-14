@@ -108,9 +108,12 @@ class ChoiceConfigurable<T : Choice>(
 }
 
 /**
- * A mode is sub-module to separate different bypasses into extra classes
+ * A mode is submodule to separate different bypasses into extra classes
  */
-abstract class Choice(name: String) : Configurable(name), EventListener, NamedChoice, MinecraftShortcuts {
+abstract class Choice(
+    name: String,
+    value: MutableList<Value<*>> = mutableListOf()
+) : Configurable(name, value), EventListener, NamedChoice, MinecraftShortcuts {
 
     override val choiceName: String
         get() = this.name

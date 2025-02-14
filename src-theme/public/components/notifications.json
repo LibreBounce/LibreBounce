@@ -1,0 +1,10 @@
+{
+  "name": "Notifications",
+  "default": true,
+  "alignment": {
+    "horizontal": "Right",
+    "horizontalOffset": 15,
+    "vertical": "Bottom",
+    "verticalOffset": 5
+  }
+}

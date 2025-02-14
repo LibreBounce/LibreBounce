@@ -3,13 +3,10 @@ package net.ccbluex.liquidbounce.features.command.commands.client.client
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.integration.IntegrationListener
-import net.ccbluex.liquidbounce.integration.IntegrationListener.clientJcef
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.ccbluex.liquidbounce.utils.client.MessageMetadata
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.integration.theme.type.RouteType
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 
@@ -24,7 +21,7 @@ object CommandClientIntegrationSubcommand {
     private fun resetSubcommand() = CommandBuilder.begin("reset")
         .handler { _, _ ->
             chat(regular("Resetting client JCEF browser..."))
-            IntegrationListener.updateIntegrationBrowser()
+            IntegrationListener.sync()
         }.build()
 
     private fun overrideSubcommand() = CommandBuilder.begin("override")
@@ -33,15 +30,20 @@ object CommandClientIntegrationSubcommand {
                 .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
                 .build()
         ).handler { _, args ->
-            chat(regular("Overrides client JCEF browser..."))
-            clientJcef.loadUrl(args[0] as String)
+//            chat(regular("Overrides client JCEF browser..."))
+            // TODO: FIX
+//            clientJcef.loadUrl(args[0] as String)
         }.build()
 
     private fun menuSubcommand() = CommandBuilder.begin("menu")
         .alias("url")
         .handler { _, _ ->
             chat(variable("Client Integration"))
-            val baseUrl = ThemeManager.route().url
+            val baseUrl = (ThemeManager.route() as? RouteType.Web)?.url
+                ?: run {
+                    chat(markAsError("Your current theme does not support web menu."))
+                    return@handler
+                }
 
             chat(
                 regular("Base URL: ")
@@ -63,9 +65,15 @@ object CommandClientIntegrationSubcommand {
             chat(metadata = MessageMetadata(prefix = false))
             chat(regular("Integration Menu:"))
             for (screenType in VirtualScreenType.entries) {
-                val url = runCatching {
-                    ThemeManager.route(screenType, true)
+                var url = runCatching {
+                    ThemeManager.route(screenType) as? RouteType.Web
                 }.getOrNull()?.url ?: continue
+
+                // If the screen type is marked as static, it already contains ?static at the end
+                if (!screenType.isStatic) {
+                    url = "$url?static"
+                }
+
                 val upperFirstName = screenType.routeName.replaceFirstChar { it.uppercase() }
 
                 chat(
@@ -98,8 +106,7 @@ object CommandClientIntegrationSubcommand {
                 )
             }
 
-            chat(
-                variable("Hint: You can also access the integration from another device.")
-                        .styled { it.withItalic(true) })
+            chat(variable("Hint: You can also access the integration from another device.")
+                .styled { it.withItalic(true) })
         }.build()
 }

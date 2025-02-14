@@ -37,6 +37,7 @@
     "minecraft.entity.MixinClientPlayerEntity",
     "minecraft.entity.MixinEntity",
     "minecraft.entity.MixinLivingEntity",
+    "minecraft.entity.MixinLivingEntityCompatibility",
     "minecraft.entity.MixinPlayerEntity",
     "minecraft.entity.MixinPlayerEntityAccessor",
     "minecraft.entity.projectile.MixinFishingBobberEntity",
@@ -57,7 +58,9 @@
     "minecraft.gui.custom.MixinConnectScreen",
     "minecraft.gui.custom.MixinDisconnectedScreen",
     "minecraft.gui.custom.MixinDownloadingTerrainScreen",
+    "minecraft.gui.widget.MixinClickableWidget",
     "minecraft.gui.widget.MixinEntryListWidget",
+    "minecraft.gui.widget.MixinPressableWidget",
     "minecraft.item.MixinArmorItem",
     "minecraft.item.MixinHeldItemRenderer",
     "minecraft.item.MixinItem",
@@ -109,8 +112,7 @@
     "truffle.MixinHostClassDesc",
     "truffle.MixinHostClassLoader",
     "truffle.MixinHostContext",
-    "truffle.MixinTruffleLanguage",
-    "minecraft.entity.MixinLivingEntityCompatibility"
+    "truffle.MixinTruffleLanguage"
   ],
   "server": [],
   "injectors": {

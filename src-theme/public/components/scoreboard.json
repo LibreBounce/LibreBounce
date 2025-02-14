@@ -1,0 +1,11 @@
+{
+  "name": "Scoreboard",
+  "default": true,
+  "alignment": {
+    "horizontal": "Left",
+    "horizontalOffset": 15,
+    "vertical": "Top",
+    "verticalOffset": 550
+  },
+  "tweaks": ["DISABLE_SCOREBOARD"]
+}

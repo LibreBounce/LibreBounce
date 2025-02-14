@@ -1,0 +1,10 @@
+{
+  "name": "Keystrokes",
+  "default": true,
+  "alignment": {
+    "horizontal": "Left",
+    "horizontalOffset": 15,
+    "vertical": "Bottom",
+    "verticalOffset": 15
+  }
+}

@@ -22,6 +22,8 @@
 package net.ccbluex.liquidbounce.integration
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.integration.browser.BrowserScreen
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager.route
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.openVfpProtocolSelection
 import net.minecraft.client.gui.screen.DisconnectedScreen
@@ -49,11 +51,11 @@ private val Screen.isLunar
 enum class VirtualScreenType(
     val routeName: String,
     val recognizer: (Screen) -> Boolean = { false },
-    val isInGame: Boolean = false,
-    private val open: () -> Unit = { mc.setScreen(VrScreen(byName(routeName)!!)) }
+    val isStatic: Boolean = false,
+    private val open: () -> Unit = { mc.setScreen(VirtualDisplayScreen(route(byName(routeName)))) }
 ) {
 
-    HUD("hud", isInGame = true),
+    HUD("hud", isStatic = true),
     CLICK_GUI("clickgui"),
     ALT_MANAGER("altmanager"),
     PROXY_MANAGER("proxymanager"),

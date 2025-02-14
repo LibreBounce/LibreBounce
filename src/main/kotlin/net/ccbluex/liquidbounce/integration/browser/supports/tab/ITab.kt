@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.integration.browser.supports.tab
 
+import net.ccbluex.liquidbounce.integration.DrawingStage
 import net.minecraft.util.Identifier
 
 interface ITab {
@@ -25,7 +26,7 @@ interface ITab {
     var position: TabPosition
 
     var drawn: Boolean
-    var preferOnTop: Boolean
+    var drawingStage: DrawingStage
 
     fun forceReload()
     fun reload()
@@ -37,10 +38,9 @@ interface ITab {
     fun getTexture(): Identifier
     fun resize(width: Int, height: Int)
 
-    fun preferOnTop(): ITab {
-        preferOnTop = true
+    fun stage(stage: DrawingStage): ITab {
+        drawingStage = stage
         return this
     }
-
 
 }
