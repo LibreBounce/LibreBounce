@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.integration.theme.type.native.NativeDrawableRout
  */
 object LiquidBounceTheme : Theme {
 
-    override val name = "LiquidBounce"
+    override val name = "LiquidBounce-Native"
     override val components: List<ComponentFactory>
         get() = listOf(
             ComponentFactory.NativeComponentFactory("ArrayList", true) { ArrayListNativeComponent(this) },
