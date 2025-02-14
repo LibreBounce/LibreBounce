@@ -58,21 +58,7 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
     private val switchDelay by int("SwitchDelay", 0, 0..500, "ms")
 
     @Suppress("unused")
-    private val cycleSlots by key("Cycle", GLFW.GLFW_KEY_H, canExecuteInMenu = true).onPress {
-        val entries = Mode.entries
-        val startIndex = staticMode.ordinal
-        var index = (startIndex + 1) % entries.size
-
-        while (index != startIndex) {
-            val mode = entries[index]
-            if (mode.canCycleTo()) {
-                staticMode = mode
-                return@onPress
-            }
-
-            index = (index + 1) % entries.size
-        }
-    }
+    private val cycleSlots by key("Cycle", GLFW.GLFW_KEY_H, canExecuteInMenu = true).onPress(::doCycle)
 
     private object Gapple : ToggleableConfigurable(this, "Gapple", true) {
         object WhileHoldingSword : ToggleableConfigurable(this, "WhileHoldingSword", true) {
@@ -142,6 +128,22 @@ object ModuleOffhand : ClientModule("Offhand", Category.PLAYER, aliases = arrayO
             Gapple.enabled -> Mode.GAPPLE
             Totem.enabled && !Totem.Health.enabled -> Mode.TOTEM
             else -> Mode.NONE
+        }
+    }
+
+    private fun doCycle() {
+        val entries = Mode.entries
+        val startIndex = staticMode.ordinal
+        var index = (startIndex + 1) % entries.size
+
+        while (index != startIndex) {
+            val mode = entries[index]
+            if (mode.canCycleTo()) {
+                staticMode = mode
+                return
+            }
+
+            index = (index + 1) % entries.size
         }
     }
 
