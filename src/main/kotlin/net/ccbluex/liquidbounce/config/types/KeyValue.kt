@@ -28,22 +28,22 @@ class KeyValue(
 ) : Value<InputUtil.Key>(name, default, ValueType.KEY) {
     private var action: Action? = null
 
-    @Suppress("unused")
-    @Exclude @ProtocolExclude
-    private val keyboardHandler = parent?.handler<KeyboardKeyEvent> {
-        if (canExecute(it.action) && it.key.code == inner.code) {
-            action?.invoke()
-        }
-    }
+    init {
+        parent?.apply {
+            handler<KeyboardKeyEvent> {
+                if (canExecute(it.action) && it.key.code == inner.code) {
+                    action?.invoke()
+                }
+            }
 
-    @Suppress("unused")
-    @Exclude @ProtocolExclude
-    private val mouseHandler = parent?.handler<MouseButtonEvent> {
-        if (canExecute(it.action)
-            && inner.category == InputUtil.Type.MOUSE
-            && inner.code == it.button
-        ) {
-            action?.invoke()
+            handler<MouseButtonEvent> {
+                if (canExecute(it.action)
+                    && inner.category == InputUtil.Type.MOUSE
+                    && inner.code == it.button
+                ) {
+                    action?.invoke()
+                }
+            }
         }
     }
 
