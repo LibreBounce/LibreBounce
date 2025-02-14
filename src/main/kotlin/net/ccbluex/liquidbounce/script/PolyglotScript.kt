@@ -56,7 +56,7 @@ class PolyglotScript(
         .currentWorkingDirectory(file.parentFile.toPath())
         .allowIO(IOAccess.ALL) // Allow access to all IO operations
         .allowCreateProcess(false) // Disable process creation
-        .allowCreateThread(true) // Disable thread creation
+        .allowCreateThread(true) // Enable thread creation
         .allowNativeAccess(false) // Disable native access
         .allowExperimentalOptions(true) // Allow experimental options
         .option("js.nashorn-compat", "true") // Enable Nashorn compatibility
@@ -118,6 +118,12 @@ class PolyglotScript(
         }
 
     private val scriptText: String = file.readText()
+
+    internal val promiseConstructor: Value? = if (language.equals("js", true)) {
+        context.getBindings(language).getMember("Promise")
+    } else {
+        null
+    }
 
     // Script information
     lateinit var scriptName: String

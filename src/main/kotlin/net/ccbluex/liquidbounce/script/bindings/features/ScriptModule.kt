@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.script.PolyglotScript
+import net.ccbluex.liquidbounce.script.bindings.async.JsSequenceHandler
 import net.ccbluex.liquidbounce.utils.client.*
 import java.util.function.Supplier
 import kotlin.reflect.KClass
@@ -32,7 +33,8 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
     category = Category.fromReadableName(moduleObject["category"] as String)!!
 ) {
 
-    private val events = hashMapOf<String, (Any?) -> Unit>()
+    private val events = hashMapOf<String, org.graalvm.polyglot.Value>()
+    private val eventSequences = hashMapOf<String, JsSequenceHandler>()
     private val _values = linkedMapOf<String, Value<*>>()
     private var _tag: String? = null
     override val tag: String?
@@ -68,9 +70,26 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
      * Called from inside the script to register a new event handler.
      * @param eventName Name of the event.
      * @param handler JavaScript function used to handle the event.
+     *   1. `() => void` (enable/disable)
+     *   2. `(Event) => void`
+     *   3. `async (JsSequence, Event) => void`
      */
-    fun on(eventName: String, handler: (Any?) -> Unit) {
-        events[eventName] = handler
+    fun on(eventName: String, handler: org.graalvm.polyglot.Value) {
+        if (!handler.canExecute()) {
+            logger.error("Invalid event handler for $eventName")
+            return
+        }
+
+        when (handler.getMember("constructor").getMember("name").asString()) {
+            "Function" -> {
+                events[eventName] = handler
+            }
+            "AsyncFunction" -> script.promiseConstructor?.let {
+                eventSequences[eventName] = JsSequenceHandler(this, it, handler)
+            }
+            else -> { /* ??? */ }
+        }
+
         hookHandler(eventName)
     }
 
@@ -79,11 +98,14 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
     override fun disable() = callEvent("disable")
 
     /**
-     * Calls the function of the [event]  with the [payload] of the event.
+     * Calls the function of the [event] with the [payload] of the event.
+     *
+     * @param payload when event is "enable" or "disable", it will be null
      */
     private fun callEvent(event: String, payload: Event? = null) {
         try {
-            events[event]?.invoke(payload)
+            events[event]?.executeVoid(payload)
+            eventSequences[event]?.startWith(payload)
         } catch (throwable: Throwable) {
             if (inGame) {
                 chat(
