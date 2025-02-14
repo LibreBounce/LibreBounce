@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.util.InputUtil
 import org.lwjgl.glfw.GLFW
 
-private typealias  Action = () -> Unit
+private typealias Action = () -> Unit
 
 /**
  * KeyValue
