@@ -219,7 +219,7 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         return cleanupPlan
     }
 
-    @Suppress("UNUSED")
+    @Suppress("unused")
     private enum class SelectionMode(
         override val choiceName: String,
         val processor: (List<ContainerItemSlot>) -> List<ContainerItemSlot>
