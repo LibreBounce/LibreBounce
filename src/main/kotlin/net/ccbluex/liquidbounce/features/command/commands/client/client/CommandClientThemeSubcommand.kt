@@ -28,7 +28,7 @@ object CommandClientThemeSubcommand {
             ParameterBuilder.begin<String>("theme")
                 .verifiedBy(ParameterBuilder.STRING_VALIDATOR).required()
                 .autocompletedWith { s, _ ->
-                    ThemeManager.availableThemes
+                    ThemeManager.themes
                         .map { theme -> theme.name }
                         .filter { name -> name.startsWith(name, true) }
                 }
@@ -51,7 +51,7 @@ object CommandClientThemeSubcommand {
             @Suppress("SpreadOperator")
             chat(
                 regular("Available themes: "),
-                *ThemeManager.availableThemes.flatMapIndexed { index, theme ->
+                *ThemeManager.themes.flatMapIndexed { index, theme ->
                     listOf(
                         regular(if (index == 0) "" else ", "),
                         variable(theme.name),

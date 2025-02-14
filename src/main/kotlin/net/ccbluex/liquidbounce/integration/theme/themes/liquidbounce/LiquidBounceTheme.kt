@@ -21,43 +21,61 @@
 
 package net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce
 
-import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager.DEFAULT_THEME
+import net.ccbluex.liquidbounce.integration.theme.ThemeManager.themesFolder
 import net.ccbluex.liquidbounce.integration.theme.Wallpaper
 import net.ccbluex.liquidbounce.integration.theme.layout.component.ComponentFactory
 import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.components.minimap.MinimapComponent
-import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.routes.EmptyDrawableRoute
-import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.routes.HudDrawableRoute
-import net.ccbluex.liquidbounce.integration.theme.type.RouteType
-import net.ccbluex.liquidbounce.integration.theme.type.Theme
-import net.ccbluex.liquidbounce.integration.theme.type.native.NativeDrawableRoute
+import net.ccbluex.liquidbounce.integration.theme.type.web.WebTheme
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.io.extractZip
+import net.ccbluex.liquidbounce.utils.io.resource
 
 /**
- * A Theme based on native GL rendering.
+ * The default theme for LiquidBounce.
  */
-object LiquidBounceTheme : Theme {
+object LiquidBounceTheme : WebTheme(themesFolder.resolve(DEFAULT_THEME)) {
 
-    override val name = "LiquidBounce-Native"
+    override fun init() {
+        extract()
+        super.init()
+    }
+
+    private fun extract() {
+        runCatching {
+            // Delete old generated default theme
+            runCatching {
+                folder.takeIf { file -> file.exists() }
+                    ?.deleteRecursively()
+                themesFolder.resolve("default").takeIf { file -> file.exists() }
+                    ?.deleteRecursively()
+            }.onFailure { exception ->
+                logger.error("Unable to delete old default theme", exception)
+            }
+
+            // Extract default theme
+            resource("/resources/liquidbounce/default_theme.zip").use { stream ->
+                extractZip(stream, folder)
+            }
+            folder.deleteOnExit()
+
+            logger.info("Extracted default theme")
+        }.onFailure {
+            logger.error("Unable to extract default theme", it)
+        }.onSuccess {
+            logger.info("Successfully extracted default theme")
+        }.getOrThrow()
+    }
+
+    override val name = "LiquidBounce"
     override val components: List<ComponentFactory>
+        get() = super.components + listOf(
+            // Additional Components
+            ComponentFactory.NativeComponentFactory("Minimap", true) { MinimapComponent(this) }
+        )
+    override val wallpapers: List<Wallpaper>
         get() = listOf(
-            ComponentFactory.NativeComponentFactory("Minimap", false) { MinimapComponent(this) }
-        )
-    override val wallpapers: List<Wallpaper> = listOf(Wallpaper.MinecraftWallpaper)
-
-    private val routes = emptyMap<VirtualScreenType, NativeDrawableRoute>()
-
-    private val overlayRoutes = mutableMapOf(
-        VirtualScreenType.HUD to HudDrawableRoute()
-    )
-
-    override fun route(screenType: VirtualScreenType?) =
-        RouteType.Native(
-            screenType,
-            this,
-            routes[screenType] ?: overlayRoutes[screenType] ?: EmptyDrawableRoute()
-        )
-
-    override fun doesSupport(type: VirtualScreenType?) = routes.containsKey(type)
-    override fun doesOverlay(type: VirtualScreenType?) = overlayRoutes.containsKey(type)
-    override fun canSplash() = false
+            Wallpaper.MinecraftWallpaper
+        ) + super.wallpapers
 
 }

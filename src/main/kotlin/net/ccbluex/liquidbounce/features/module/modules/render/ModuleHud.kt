@@ -64,7 +64,7 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         get() = blur && !(mc.options.hudHidden && mc.currentScreen == null)
 
     val layouts = choices("Layouts", 0) {
-        ThemeManager.availableThemes.map { theme -> Layout(theme) }.toTypedArray()
+        ThemeManager.themes.map { theme -> Layout(theme) }.toTypedArray()
     }.apply {
         onChanged {
             if (enabled) {

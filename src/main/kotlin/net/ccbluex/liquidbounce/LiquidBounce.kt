@@ -170,8 +170,8 @@ object LiquidBounce : EventListener {
             // Load user scripts
             ScriptManager.loadAll()
 
-            // Load theme and component overlay
-            ThemeManager
+            // Load theme
+            ThemeManager.loadThemes()
 
             // Load config system from disk
             ConfigSystem.loadAll()

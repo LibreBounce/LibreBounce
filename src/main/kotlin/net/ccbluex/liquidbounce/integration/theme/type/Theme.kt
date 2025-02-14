@@ -39,6 +39,7 @@ interface Theme {
     val textures: Map<String, Lazy<Identifier>>
         get() = hashMapOf()
 
+    fun init()
     fun route(screenType: VirtualScreenType? = null): RouteType
     fun doesAccept(type: VirtualScreenType?): Boolean = doesOverlay(type) || doesSupport(type)
     fun doesSupport(type: VirtualScreenType?): Boolean

@@ -37,7 +37,11 @@ import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
 import java.io.File
 
-class WebTheme(val folder: File) : Theme {
+open class WebTheme(val folder: File) : Theme {
+
+    init {
+        init()
+    }
 
     private val metadata: ThemeMetadata = run {
         val metadataFile = File(folder, "metadata.json")
@@ -53,7 +57,7 @@ class WebTheme(val folder: File) : Theme {
 
     override val providesInterface = true
 
-    override val components: List<ComponentFactory.JsonComponentFactory> =
+    override val components: List<ComponentFactory> =
         folder.resolve("components").listFiles()?.mapNotNull { file ->
                 runCatching {
                     interopGson.fromJson(file.readText(), ComponentFactory.JsonComponentFactory::class.java)
@@ -97,6 +101,8 @@ class WebTheme(val folder: File) : Theme {
         // Load fonts from the assets folder
         FontManager.queueFolder(folder.resolve("assets"))
     }
+
+    override fun init() { }
 
     override fun route(screenType: VirtualScreenType?) = "$url${screenType?.routeName ?: ""}".let { url ->
         RouteType.Web(
