@@ -72,7 +72,7 @@ object CommandAutoDisable : CommandFactory {
                 .build()
         )
         .handler { command, args ->
-            val page = if (args.size > 1) {
+            val page = if (args.isNotEmpty()) {
                 args[0] as Int
             } else {
                 1
@@ -129,7 +129,7 @@ object CommandAutoDisable : CommandFactory {
                 .begin<String>("module")
                 .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
                 .autocompletedWith { begin, _ ->
-                    ModuleAutoDisable.listOfModules.map { it.name }.toList().filter { it.startsWith(begin) }
+                    ModuleAutoDisable.listOfModules.mapNotNull { it.name.takeIf { n -> n.startsWith(begin) } }
                 }
                 .required()
                 .build()
