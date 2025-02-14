@@ -38,7 +38,13 @@ abstract class ComponentFactory {
         private val tweaks: Array<ComponentTweak>?,
         private val settings: Array<JsonObject>?,
     ) : ComponentFactory() {
-        override fun new(theme: Theme) =
+
+        /**
+         * [theme] has to be passed on to the component,
+         * as we do not know which theme the component belongs to
+         * when we deserialized it from JSON.
+         */
+        override fun createComponent(theme: Theme) =
             WebComponent(
                 theme,
                 name,
@@ -54,9 +60,12 @@ abstract class ComponentFactory {
         override val default: Boolean = false,
         private val function: () -> Component,
     ) : ComponentFactory() {
-        override fun new(theme: Theme) = function()
+        /**
+         * Consistent with the [JsonComponentFactory], we have to pass the [theme] to the component.
+         */
+        override fun createComponent(theme: Theme) = function()
     }
 
-    abstract fun new(theme: Theme): Component
+    abstract fun createComponent(theme: Theme): Component
 
 }

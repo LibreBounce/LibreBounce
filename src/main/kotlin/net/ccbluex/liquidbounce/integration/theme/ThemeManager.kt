@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.integration.VirtualScreenType
 import net.ccbluex.liquidbounce.integration.theme.themes.liquidbounce.LiquidBounceTheme
 import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
-import net.ccbluex.liquidbounce.integration.theme.type.web.WebTheme
+import net.ccbluex.liquidbounce.integration.theme.type.web.LegacyWebTheme
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
 import java.io.File
@@ -107,7 +107,7 @@ object ThemeManager : Configurable("theme") {
             }
 
             // Create a new theme
-            themes += WebTheme(folder)
+            themes += LegacyWebTheme(folder)
         }
 
         this.themes = themes

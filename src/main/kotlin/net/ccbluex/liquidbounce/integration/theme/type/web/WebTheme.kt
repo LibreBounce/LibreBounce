@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.integration.theme.Wallpaper
 import net.ccbluex.liquidbounce.integration.theme.layout.component.ComponentFactory
 import net.ccbluex.liquidbounce.integration.theme.type.RouteType
 import net.ccbluex.liquidbounce.integration.theme.type.Theme
+import net.ccbluex.liquidbounce.integration.theme.type.ThemeVersion
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -55,7 +56,7 @@ open class WebTheme(val folder: File) : Theme {
     override val name: String
         get() = metadata.name
 
-    override val providesInterface = true
+    override val version = ThemeVersion.V1
 
     override val components: List<ComponentFactory> =
         folder.resolve("components").listFiles()?.mapNotNull { file ->

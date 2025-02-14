@@ -26,11 +26,13 @@ import net.ccbluex.liquidbounce.integration.theme.Wallpaper
 import net.ccbluex.liquidbounce.integration.theme.layout.component.ComponentFactory
 import net.ccbluex.liquidbounce.integration.theme.type.native.NativeDrawableRoute
 import net.ccbluex.liquidbounce.render.engine.font.FontRenderer
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.minecraft.util.Identifier
 
 interface Theme {
+
     val name: String
-    val providesInterface: Boolean get() = false
+    val version: ThemeVersion
     val components: List<ComponentFactory>
     val wallpapers: List<Wallpaper>
     val defaultWallpaper: Wallpaper? get() = wallpapers.firstOrNull()
@@ -39,15 +41,28 @@ interface Theme {
     val textures: Map<String, Lazy<Identifier>>
         get() = hashMapOf()
 
-    fun init()
+    fun init() {
+        logger.info("[ThemeManager] Loading theme $name")
+    }
+
     fun route(screenType: VirtualScreenType? = null): RouteType
     fun doesAccept(type: VirtualScreenType?): Boolean = doesOverlay(type) || doesSupport(type)
     fun doesSupport(type: VirtualScreenType?): Boolean
     fun doesOverlay(type: VirtualScreenType?): Boolean
     fun canSplash(): Boolean
 
-    fun getComponentFactory(name: String): ComponentFactory? = components.firstOrNull { it.name == name }
+}
 
+/**
+ * Allows for backwards compatibility
+ */
+enum class ThemeVersion {
+    V1,
+
+    /**
+     * Adds support for Custom HUDs
+     */
+    V2
 }
 
 sealed class RouteType(open val type: VirtualScreenType?, open val theme: Theme) {

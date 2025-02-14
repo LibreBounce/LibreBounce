@@ -34,7 +34,7 @@ abstract class Wallpaper(val theme: Theme, val name: String) {
         }
     }
 
-    object MinecraftWallpaper : Wallpaper(LiquidBounceTheme, "minecraft") {
+    object MinecraftWallpaper : Wallpaper(LiquidBounceTheme, "Minecraft") {
         override fun load() = true
         override fun draw(context: DrawContext, width: Int, height: Int, mouse: Vec2i, delta: Float) =
             // When returning false, the default Minecraft wallpaper will be displayed

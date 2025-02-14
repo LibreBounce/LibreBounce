@@ -10,7 +10,7 @@ class Layout(theme: Theme) : Choice(
     value = mutableListOf(
         *theme.components
             .filter { factory -> factory.default }
-            .map { factory -> factory.new(theme) }.toTypedArray()
+            .map { factory -> factory.createComponent(theme) }.toTypedArray()
     )
 ) {
     override val parent: ChoiceConfigurable<*>
