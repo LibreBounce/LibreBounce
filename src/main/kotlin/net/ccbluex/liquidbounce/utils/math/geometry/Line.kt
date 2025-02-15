@@ -27,6 +27,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.abs
 
+@Suppress("TooManyFunctions")
 open class Line(val position: Vec3d, val direction: Vec3d) {
 
     companion object {
