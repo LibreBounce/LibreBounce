@@ -85,8 +85,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
                 range = range.toDouble(),
                 wallsRange = wallsRange.toDouble(),
                 futureTarget = base,
-                prioritizeVisible = prioritizeVisibleFaces,
-                allowInside = true
+                prioritizeVisible = prioritizeVisibleFaces
             ) ?: return
 
         queueDestroy(rotation, target, base, eyePos, vec3d)

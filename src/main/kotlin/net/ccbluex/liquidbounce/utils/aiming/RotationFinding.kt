@@ -295,16 +295,16 @@ fun raytraceBox(
     visibilityPredicate: VisibilityPredicate = BoxVisibilityPredicate(),
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
     futureTarget: Box? = null,
-    prioritizeVisible: Boolean = true,
-    allowInside: Boolean = false
+    prioritizeVisible: Boolean = true
 ): VecRotation? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
     val preferredSpot = rotationPreference.getPreferredSpot(eyes, range)
-    var preferredSpotOnBox = box.raycast(eyes, preferredSpot).getOrNull()
-    if (preferredSpotOnBox == null && box.contains(eyes) && allowInside) {
-        preferredSpotOnBox = eyes
+    var preferredSpotOnBox = if (box.contains(eyes)) {
+        preferredSpot
+    } else {
+        box.raycast(eyes, preferredSpot).getOrNull()
     }
 
     if (preferredSpotOnBox != null) {
@@ -369,7 +369,12 @@ private fun considerSpot(
 ) {
     // Elongate the line so we have no issues with fp-precision
     val raycastTarget = (preferredSpot - eyes) * 2.0 + eyes
-    val spotOnBox = box.raycast(eyes, raycastTarget).getOrNull() ?: return
+
+    val spotOnBox = if (box.contains(raycastTarget)) {
+        raycastTarget
+    } else {
+        box.raycast(eyes, raycastTarget).getOrNull() ?: return
+    }
     val distance = eyes.squaredDistanceTo(spotOnBox)
 
     val visible = visibilityPredicate.isVisible(eyes, raycastTarget)
@@ -389,7 +394,7 @@ private fun considerSpot(
  *
  * Will return `true` if the player is inside the [box].
  */
-fun canSeeBox(eyes: Vec3d, box: Box, range: Double, wallsRange: Double, expectedTarget: BlockPos? = null, ): Boolean {
+fun canSeeBox(eyes: Vec3d, box: Box, range: Double, wallsRange: Double, expectedTarget: BlockPos? = null): Boolean {
     if (box.contains(eyes)) {
         return true
     }
