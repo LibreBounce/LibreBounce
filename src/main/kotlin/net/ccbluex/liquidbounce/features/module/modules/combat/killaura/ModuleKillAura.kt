@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClicker.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RotationTimingMode.ON_TICK
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RotationTimingMode.SNAP
@@ -48,8 +48,17 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
+import net.ccbluex.liquidbounce.utils.aiming.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.VecRotation
+import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
+import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
+import net.ccbluex.liquidbounce.utils.aiming.utils.withFixedYaw
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.attack
@@ -78,7 +87,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
  */
 object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
-    object KillAuraClickScheduler : ClickScheduler<ModuleKillAura>(ModuleKillAura, true) {
+    object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, true) {
 
         /**
          * When missing a hit, Minecraft has a cooldown before you can attack again.
@@ -92,7 +101,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     // Attack speed
-    val clickScheduler = tree(KillAuraClickScheduler)
+    val clickScheduler = tree(KillAuraClicker)
 
     // Range
     internal val range by float("Range", 4.2f, 1f..8f)
@@ -365,15 +374,15 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
             val ticks = rotations.howLongToReach(spot.rotation)
             if (rotations.rotationTimingMode == SNAP && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
-            // On Tick can only be used if the distance is not too far compared to the turn speed
-            || rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
+                // On Tick can only be used if the distance is not too far compared to the turn speed
+                || rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
                 continue
             }
 
             val (rotation, vec) = spot
 
             targetTracker.target = target
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotations.toAimPlan(
                     rotation,
                     vec,
@@ -391,7 +400,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         if (KillAuraFightBot.enabled) {
             targetTracker.selectFirst()
 
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotations.toAimPlan(
                     KillAuraFightBot.getMovementRotation(),
                     considerInventory = !ignoreOpenInventory

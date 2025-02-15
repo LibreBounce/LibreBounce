@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.preference
 
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
@@ -27,16 +29,6 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-
-interface RotationPreference : Comparator<Rotation> {
-
-    fun getPreferredSpot(eyesPos: Vec3d, range: Double, ): Vec3d
-
-    fun getPreferredSpotOnBox(box: Box, eyesPos: Vec3d, range: Double): Vec3d? {
-        return getPreferredSpot(eyesPos, range)
-    }
-
-}
 
 class LeastDifferencePreference(
     private val baseRotation: Rotation,

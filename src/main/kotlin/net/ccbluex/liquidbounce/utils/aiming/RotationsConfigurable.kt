@@ -2,7 +2,12 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
+import net.ccbluex.liquidbounce.utils.aiming.features.UpRamp
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.*
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
@@ -26,7 +31,7 @@ open class RotationsConfigurable(
         )
     }
 
-    private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private var upRamp = UpRamp(owner).takeIf { combatSpecific }?.also { tree(it) }
     private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
     private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
 
@@ -40,12 +45,12 @@ open class RotationsConfigurable(
         entity: Entity? = null,
         considerInventory: Boolean = false,
         whenReached: RestrictedSingleUseAction? = null
-    ) = AimPlan(
+    ) = RotationTarget(
         rotation,
         vec,
         entity,
         angleSmooth.activeChoice,
-        slowStart,
+        upRamp,
         failFocus,
         shortStop,
         ticksUntilReset,

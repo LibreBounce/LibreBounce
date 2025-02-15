@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.utils
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProjectileAimbot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -20,7 +20,10 @@ import net.minecraft.world.RaycastContext
 import org.joml.Matrix3f
 import org.joml.Vector3f
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
 
 val Box.edgePoints: Array<Vec3d>
     get() = arrayOf(

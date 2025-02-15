@@ -16,10 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.clicking.pattern
+package net.ccbluex.liquidbounce.utils.aiming.data
 
-import net.ccbluex.liquidbounce.utils.clicking.Clicker
+import kotlin.math.hypot
 
-interface ClickPattern {
-    fun fill(clickArray: IntArray, cps: IntRange, clicker: Clicker<*>)
+data class RotationDelta(val deltaYaw: Float, val deltaPitch: Float) {
+    fun length() = hypot(deltaYaw, deltaPitch)
 }
