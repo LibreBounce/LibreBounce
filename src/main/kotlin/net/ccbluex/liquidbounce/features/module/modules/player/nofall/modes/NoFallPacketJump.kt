@@ -11,6 +11,10 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallPacketJump.DistanceMode.Constant
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallPacketJump.DistanceMode.Smart
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallPacketJump.Timing.Falling
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallPacketJump.Timing.Landing
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
@@ -22,8 +26,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 internal object NoFallPacketJump : Choice("PacketJump") {
     private val packetType by enumChoice("PacketType", MovePacketType.FULL,
         arrayOf(MovePacketType.FULL, MovePacketType.POSITION_AND_ON_GROUND))
-    private val fallDistance = choices("FallDistance", DistanceMode.Smart, arrayOf(DistanceMode.Smart, DistanceMode.Constant))
-    private val timing = choices("Timing", Timing.Landing, arrayOf(Timing.Landing, Timing.Falling))
+    private val fallDistance = choices("FallDistance", Smart, arrayOf(Smart, Constant))
+    private val timing = choices("Timing", Landing, arrayOf(Landing, Falling))
 
     private var falling = false
 
@@ -31,18 +35,20 @@ internal object NoFallPacketJump : Choice("PacketJump") {
         get() = ModuleNoFall.modes
 
     val tickHandler = handler<PlayerTickEvent> {
-        falling = player.fallDistance - (if (timing.activeChoice is Timing.Falling && Timing.Falling.resetFallDistance) Timing.Falling.packetFallDistance else 0f) >= fallDistance.activeChoice.value
-        if (timing.activeChoice is Timing.Falling && !player.isOnGround && falling) {
+        val resetFallDistance = timing.activeChoice is Falling && Falling.resetFallDistance
+        val distance = player.fallDistance - (if (resetFallDistance) Falling.packetFallDistance else 0f)
+        falling = distance >= fallDistance.activeChoice.value
+        if (timing.activeChoice is Falling && !player.isOnGround && falling) {
             network.sendPacket(packetType.generatePacket().apply {
                 y += 1.0E-9
             })
 
-            Timing.Falling.onPacket()
+            Falling.onPacket()
         }
     }
 
     val packetHandler = handler<PacketEvent> { event ->
-        if (timing.activeChoice is Timing.Landing && event.packet is PlayerMoveC2SPacket && event.packet.onGround && falling) {
+        if (timing.activeChoice is Landing && event.packet is PlayerMoveC2SPacket && event.packet.onGround && falling) {
             falling = false
             network.sendPacket(packetType.generatePacket().apply {
                 x = player.lastX

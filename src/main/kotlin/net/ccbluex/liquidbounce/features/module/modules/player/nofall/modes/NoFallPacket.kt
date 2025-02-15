@@ -27,6 +27,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallPacket.Filter.FallDistance.DistanceMode.Constant
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallPacket.Filter.FallDistance.DistanceMode.Smart
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
@@ -59,10 +61,13 @@ internal object NoFallPacket : Choice("Packet") {
         open fun onPacket() {}
 
         object FallDistance : Filter("FallDistance") {
-            override val isActive
-                get() = player.fallDistance - (if (resetFallDistance) packetFallDistance else 0f) - player.velocity.y >= distance.activeChoice.value && player.age > 20
+            override val isActive: Boolean
+                get() {
+                    val fallDistance = player.fallDistance - (if (resetFallDistance) packetFallDistance else 0f)
+                    return fallDistance - player.velocity.y >= distance.activeChoice.value && player.age > 20
+                }
 
-            private val distance = choices("Distance", DistanceMode.Smart, arrayOf(DistanceMode.Smart, DistanceMode.Constant))
+            private val distance = choices("Distance", Smart, arrayOf(Smart, Constant))
             val resetFallDistance by boolean("ResetFallDistance", true)
             object Blink : ToggleableConfigurable(this, "Blink", false) {
                 val disableOnSpoof by boolean("DisableOnSpoof", false)

@@ -27,6 +27,8 @@ import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallSpoofGround.DistanceMode.Constant
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallSpoofGround.DistanceMode.Smart
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
@@ -39,7 +41,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
  * This mode spoofs the 'onGround' flag in PlayerMoveC2SPacket to prevent fall damage.
  */
 internal object NoFallSpoofGround : Choice("SpoofGround") {
-    private val fallDistance = choices("FallDistance", DistanceMode.Smart, arrayOf(DistanceMode.Smart, DistanceMode.Constant))
+    private val fallDistance = choices("FallDistance", Smart, arrayOf(Smart, Constant))
     private val resetFallDistance by boolean("ResetFallDistance", true)
     private object Blink : ToggleableConfigurable(this, "Blink", false) {
         val disableOnSpoof by boolean("DisableOnSpoof", false)
@@ -69,7 +71,8 @@ internal object NoFallSpoofGround : Choice("SpoofGround") {
                 }
             }
 
-            if (player.fallDistance - (if (resetFallDistance) spoofFallDistance else 0f) >= fallDistance.activeChoice.value) {
+            val distance = player.fallDistance - (if (resetFallDistance) spoofFallDistance else 0f)
+            if (distance >= fallDistance.activeChoice.value) {
                 // Modify the 'onGround' flag to true, preventing fall damage
                 packet.onGround = true
 
