@@ -37,6 +37,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.AxeItem
 import net.minecraft.item.SwordItem
+import net.minecraft.util.Hand
 
 /**
  * AutoWeapon module
@@ -91,7 +92,8 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
      * Prioritize Auto Buff or consuming an item over Auto Weapon
      */
     private val isBusy: Boolean
-        get() = SilentHotbar.isSlotModifiedBy(ModuleAutoBuff) || player.isUsingItem && player.activeItem.isConsumable
+        get() = SilentHotbar.isSlotModifiedBy(ModuleAutoBuff) || player.isUsingItem && player.activeHand ==
+            Hand.MAIN_HAND && player.activeItem.isConsumable
 
     @Suppress("unused")
     private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
