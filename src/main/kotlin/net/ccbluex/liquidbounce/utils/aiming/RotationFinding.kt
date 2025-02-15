@@ -301,7 +301,7 @@ fun raytraceBox(
     val wallsRangeSquared = wallsRange * wallsRange
 
     val preferredSpot = rotationPreference.getPreferredSpot(eyes, range)
-    var preferredSpotOnBox = if (box.contains(preferredSpot)) {
+    var preferredSpotOnBox = if (box.contains(eyes) && box.contains(preferredSpot)) {
         preferredSpot
     } else {
         box.raycast(eyes, preferredSpot).getOrNull()
@@ -370,7 +370,7 @@ private fun considerSpot(
     // Elongate the line so we have no issues with fp-precision
     val raycastTarget = (preferredSpot - eyes) * 2.0 + eyes
 
-    val spotOnBox = if (box.contains(raycastTarget)) {
+    val spotOnBox = if (box.contains(eyes) && box.contains(raycastTarget)) {
         raycastTarget
     } else {
         box.raycast(eyes, raycastTarget).getOrNull() ?: return
