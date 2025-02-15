@@ -116,7 +116,7 @@ object RotationManager : EventListener {
 
         aimPlanHandler.request(
             RequestHandler.Request(
-                if (plan.changeLook) 1 else plan.ticksUntilReset,
+                if (plan.movementCorrection == MovementCorrection.CHANGE_LOOK) 1 else plan.ticksUntilReset,
                 priority.priority,
                 provider,
                 plan
@@ -156,7 +156,8 @@ object RotationManager : EventListener {
 
             val diff = rotation.angleTo(playerRotation)
 
-            if (aimPlan == null && (workingAimPlan.changeLook || diff <= workingAimPlan.resetThreshold)) {
+            if (aimPlan == null && (workingAimPlan.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || diff <= workingAimPlan.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
                     player.renderYaw = player.yaw
@@ -166,7 +167,7 @@ object RotationManager : EventListener {
                 currentRotation = null
                 previousAimPlan = null
             } else {
-                if (workingAimPlan.changeLook) {
+                if (workingAimPlan.movementCorrection == MovementCorrection.CHANGE_LOOK) {
                     player.setRotation(rotation)
                 }
 
@@ -198,7 +199,7 @@ object RotationManager : EventListener {
 
     @Suppress("unused")
     private val velocityHandler = handler<PlayerVelocityStrafe> { event ->
-        if (workingAimPlan?.applyVelocityFix == true) {
+        if (workingAimPlan?.movementCorrection != MovementCorrection.OFF) {
             val rotation = currentRotation ?: return@handler
 
             event.velocity = Entity.movementInputToVelocity(

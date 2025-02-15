@@ -22,6 +22,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleDroneControl;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
+import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -107,7 +108,7 @@ public abstract class MixinCamera {
         var currentRotation = RotationManager.INSTANCE.getCurrentRotation();
 
         boolean shouldModifyRotation = ModuleRotations.INSTANCE.getRunning() && ModuleRotations.INSTANCE.getCamera()
-            || aimPlan != null && aimPlan.getChangeLook();
+            || aimPlan != null && aimPlan.getMovementCorrection() == MovementCorrection.CHANGE_LOOK;
 
         if (currentRotation == null || previousRotation == null || !shouldModifyRotation) {
             return;

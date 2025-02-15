@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
+import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
@@ -176,7 +177,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        if (configurable == null || !configurable.getApplyVelocityFix() || rotation == null) {
+        if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
         }
 
@@ -248,7 +249,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         var rotation = rotationManager.getCurrentRotation();
         var configurable = rotationManager.getWorkingAimPlan();
 
-        if (rotation == null || configurable == null || !configurable.getApplyVelocityFix() || configurable.getChangeLook()) {
+        if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 
@@ -268,7 +269,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         var rotation = rotationManager.getCurrentRotation();
         var configurable = rotationManager.getWorkingAimPlan();
 
-        if (rotation == null || configurable == null || !configurable.getApplyVelocityFix() || configurable.getChangeLook()) {
+        if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 

@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldSprintControlFeature
+import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -121,7 +122,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
             MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
         val preventSprint = (if (player.isOnGround) stopOnGround else stopOnAir)
             && !shouldSprintOmnidirectional
-            && RotationManager.workingAimPlan?.applyVelocityFix == false && !hasForwardMovement
+            && RotationManager.workingAimPlan?.movementCorrection == MovementCorrection.OFF && !hasForwardMovement
 
         return running && preventSprint
     }

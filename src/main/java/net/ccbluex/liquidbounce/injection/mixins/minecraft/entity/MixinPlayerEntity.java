@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach;
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallNoGround;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleNoSlowBreak;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
+import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.minecraft.client.MinecraftClient;
@@ -96,7 +97,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         Rotation rotation = rotationManager.getCurrentRotation();
         AimPlan configurable = rotationManager.getWorkingAimPlan();
 
-        if (configurable == null || !configurable.getApplyVelocityFix() || rotation == null) {
+        if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
         }
 

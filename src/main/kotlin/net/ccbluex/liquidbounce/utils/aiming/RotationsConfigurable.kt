@@ -12,8 +12,7 @@ import net.minecraft.util.math.Vec3d
  */
 open class RotationsConfigurable(
     owner: EventListener,
-    fixVelocity: Boolean = true,
-    changeLook: Boolean = false,
+    movementCorrection: MovementCorrection = MovementCorrection.SILENT,
     combatSpecific: Boolean = false
 ) : Configurable("Rotations") {
 
@@ -31,10 +30,9 @@ open class RotationsConfigurable(
     private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
     private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
 
-    var fixVelocity by boolean("FixVelocity", fixVelocity)
+    private val movementCorrection by enumChoice("MovementCorrection", movementCorrection)
     private val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
     private val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
-    private val changeLook by boolean("ChangeLook", changeLook)
 
     fun toAimPlan(
         rotation: Rotation,
@@ -53,8 +51,7 @@ open class RotationsConfigurable(
         ticksUntilReset,
         resetThreshold,
         considerInventory,
-        fixVelocity,
-        changeLook,
+        movementCorrection,
         whenReached
     )
 

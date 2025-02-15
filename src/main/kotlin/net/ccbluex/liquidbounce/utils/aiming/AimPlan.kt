@@ -54,8 +54,7 @@ class AimPlan(
      * Consider if the inventory is open or not. If the inventory is open, we might not want to continue updating.
      */
     val considerInventory: Boolean,
-    val applyVelocityFix: Boolean,
-    val changeLook: Boolean,
+    val movementCorrection: MovementCorrection,
     /**
      * What should be done if the target rotation has been reached. Can be `null`.
       */
