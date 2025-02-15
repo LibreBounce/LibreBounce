@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClickScheduler.considerMissCooldown
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClicker.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RotationTimingMode.ON_TICK
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RotationTimingMode.SNAP
@@ -49,7 +49,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.combat.attack
@@ -78,7 +78,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
  */
 object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
-    object KillAuraClickScheduler : ClickScheduler<ModuleKillAura>(ModuleKillAura, true) {
+    object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, true) {
 
         /**
          * When missing a hit, Minecraft has a cooldown before you can attack again.
@@ -92,7 +92,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     // Attack speed
-    val clickScheduler = tree(KillAuraClickScheduler)
+    val clickScheduler = tree(KillAuraClicker)
 
     // Range
     internal val range by float("Range", 4.2f, 1f..8f)

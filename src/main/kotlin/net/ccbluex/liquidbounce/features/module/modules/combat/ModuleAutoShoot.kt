@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
-import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.interactItem
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -67,7 +67,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
     private val gravityType by enumChoice("GravityType", GravityType.AUTO).apply { tagBy(this) }
 
-    private val clickScheduler = tree(ClickScheduler(this, showCooldown = false))
+    private val clicker = tree(Clicker(this, showCooldown = false))
 
     /**
      * The target tracker to find the best enemy to attack.
@@ -187,7 +187,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
         }
 
         // Check if we are still aiming at the target
-        clickScheduler.clicks {
+        clicker.clicks {
             if (player.isUsingItem || (considerInventory && InventoryManager.isInventoryOpen)) {
                 return@clicks false
             }

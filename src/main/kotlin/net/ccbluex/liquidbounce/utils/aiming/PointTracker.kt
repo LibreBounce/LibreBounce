@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler.Companion.RNG
+import net.ccbluex.liquidbounce.utils.clicking.Clicker.Companion.RNG
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.prevPos
@@ -44,7 +44,7 @@ class PointTracker(
     lowestPointDefault: PreferredBoxPart = PreferredBoxPart.BODY,
     timeEnemyOffsetDefault: Float = 0.4f,
     timeEnemyOffsetScale: ClosedFloatingPointRange<Float> = -1f..1f
-) : Configurable("PointTracker"), EventListener {
+) : Configurable("AimPoint", aliases = arrayOf("PointTracker")), EventListener {
 
     companion object {
 
@@ -59,6 +59,28 @@ class PointTracker(
         private const val MEAN_Z = 0.013282929419023442
 
     }
+
+    /**
+     * Define the highest and lowest point of the box we want to aim at.
+     */
+    private val highestPoint: PreferredBoxPart by enumChoice("HighestPoint", highestPointDefault)
+        .onChange { new ->
+            if (lowestPoint.isHigherThan(new)) {
+                lowestPoint
+            } else {
+                new
+            }
+        }
+    private val lowestPoint: PreferredBoxPart by enumChoice("LowestPoint", lowestPointDefault)
+        .onChange { new ->
+            if (new.isHigherThan(highestPoint)) {
+                highestPoint
+            } else {
+                new
+            }
+        }
+
+    private val preferredBoxPoint by enumChoice("BoxPoint", PreferredBoxPoint.STRAIGHT)
 
     /**
      * The time offset defines a prediction or rather a delay of the point tracker.
@@ -173,33 +195,6 @@ class PointTracker(
     private val shrinkBox by float("ShrinkBox", 0.05f, 0.0f..0.3f)
     private val dynamicShrinkBox by boolean("DynamicShrinkBox", true)
 
-    /**
-     * The shrink box value will shrink the cut-off box by the given amount.
-     */
-    private val intersectsBox by boolean("Intersects", true)
-
-    /**
-     * Define the highest and lowest point of the box we want to aim at.
-     */
-    private val highestPoint: PreferredBoxPart by enumChoice("HighestPoint", highestPointDefault)
-        .onChange { new ->
-            if (lowestPoint.isHigherThan(new)) {
-                lowestPoint
-            } else {
-                new
-            }
-        }
-    private val lowestPoint: PreferredBoxPart by enumChoice("LowestPoint", lowestPointDefault)
-        .onChange { new ->
-            if (new.isHigherThan(highestPoint)) {
-                highestPoint
-            } else {
-                new
-            }
-        }
-
-    private val preferredBoxPoint by enumChoice("BoxPoint", PreferredBoxPoint.STRAIGHT)
-
     enum class PreferredBoxPart(override val choiceName: String, val cutOff: (Box) -> Double) : NamedChoice {
         HEAD("Head", { box -> box.maxY }),
         BODY("Body", { box -> box.center.y }),
@@ -263,12 +258,7 @@ class PointTracker(
     fun gatherPoint(entity: LivingEntity, situation: AimSituation): Point {
         val playerPosition = player.pos
         val playerEyes = player.eyePos
-        val currentRotation = RotationManager.currentRotation ?: player.rotation
         val positionDifference = playerPosition.y - entity.pos.y
-
-        if (intersectsBox && player.box.intersects(entity.box)) {
-            return Point(playerEyes, playerEyes + currentRotation.directionVector, entity.box, entity.box)
-        }
 
         // Predicted target position of the enemy
         val targetVelocity = entity.pos.subtract(entity.prevPos)
