@@ -223,7 +223,7 @@ class PointTracker(
             )
         }),
         ASSIST("Assist", { box, eyes ->
-            val vec3 = eyes + player.rotation.rotationVec
+            val vec3 = eyes + player.rotation.directionVector
 
             Vec3d(
                 vec3.x.coerceAtMost(box.maxX).coerceAtLeast(box.minX),
@@ -267,7 +267,7 @@ class PointTracker(
         val positionDifference = playerPosition.y - entity.pos.y
 
         if (intersectsBox && player.box.intersects(entity.box)) {
-            return Point(playerEyes, playerEyes + currentRotation.rotationVec, entity.box, entity.box)
+            return Point(playerEyes, playerEyes + currentRotation.directionVector, entity.box, entity.box)
         }
 
         // Predicted target position of the enemy

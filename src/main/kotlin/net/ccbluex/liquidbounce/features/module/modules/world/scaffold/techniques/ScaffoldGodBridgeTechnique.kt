@@ -82,7 +82,7 @@ object ScaffoldGodBridgeTechnique : ScaffoldTechnique("GodBridge"), ScaffoldLedg
 
         return if (snapshotOne.clipLedged) {
             val cameraPosition = snapshotOne.pos.add(0.0, player.standingEyeHeight.toDouble(), 0.0)
-            val currentCrosshairTarget = raycast(start = cameraPosition, direction = rotation.rotationVec)
+            val currentCrosshairTarget = raycast(start = cameraPosition, direction = rotation.directionVector)
 
             if (target == null) {
                 return LedgeAction.NO_LEDGE

@@ -157,7 +157,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
         return (-180..180 step 45)
             .mapNotNull { yaw ->
                 val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
-                val position = leaderPosition.add(rotation.rotationVec * LeaderFollower.radius.toDouble())
+                val position = leaderPosition.add(rotation.directionVector * LeaderFollower.radius.toDouble())
                 ModuleDebug.debugGeometry(
                     this,
                     "Possible Position $yaw",
@@ -170,20 +170,20 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
 
     private fun calculateRunawayPosition(context: CombatContext, combatTarget: CombatTarget): Vec3d {
         return context.playerPosition.add(
-            combatTarget.requiredTargetRotation.rotationVec * combatTarget.range.toDouble()
+            combatTarget.requiredTargetRotation.directionVector * combatTarget.range.toDouble()
         )
     }
 
     private fun calculateAttackPosition(context: CombatContext, combatTarget: CombatTarget): Vec3d {
         val target = combatTarget.entity
         val targetLookPosition = target.pos.add(
-            combatTarget.targetRotation.rotationVec * combatTarget.range.toDouble()
+            combatTarget.targetRotation.directionVector * combatTarget.range.toDouble()
         )
 
         return (-180..180 step 10)
             .mapNotNull { yaw ->
                 val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
-                val position = target.pos.add(rotation.rotationVec * combatTarget.range.toDouble())
+                val position = target.pos.add(rotation.directionVector * combatTarget.range.toDouble())
 
                 val isInAngle = rotation.angleTo(combatTarget.targetRotation) <= dangerousYawDiff
                 ModuleDebug.debugGeometry(

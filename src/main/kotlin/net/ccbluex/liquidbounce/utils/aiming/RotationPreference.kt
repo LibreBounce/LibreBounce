@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.util.math.Vec3d
@@ -41,7 +41,7 @@ class LeastDifferencePreference(
             return this.basePoint
         }
 
-        return eyesPos + this.baseRotation.rotationVec * range
+        return eyesPos + this.baseRotation.directionVector * range
     }
 
     override fun compare(o1: Rotation, o2: Rotation): Int {

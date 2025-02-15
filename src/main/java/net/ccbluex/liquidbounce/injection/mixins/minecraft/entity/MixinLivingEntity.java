@@ -272,7 +272,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        return rotation.getRotationVec();
+        return rotation.getDirectionVector();
     }
 
 }

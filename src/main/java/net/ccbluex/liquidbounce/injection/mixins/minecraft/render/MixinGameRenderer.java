@@ -122,7 +122,7 @@ public abstract class MixinGameRenderer {
         }
 
         var rotation = RotationManager.INSTANCE.getCurrentRotation();
-        return rotation != null ? rotation.getRotationVec() : original;
+        return rotation != null ? rotation.getDirectionVector() : original;
     }
 
     /**

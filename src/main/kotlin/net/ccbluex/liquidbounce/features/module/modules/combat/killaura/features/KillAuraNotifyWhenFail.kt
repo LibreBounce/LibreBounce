@@ -73,7 +73,7 @@ internal object KillAuraNotifyWhenFail {
         when (mode.activeChoice) {
             Box -> {
                 val centerDistance = entity.box.center.subtract(player.eyePos).length()
-                val boxSpot = player.eyePos.add(rotation.rotationVec.multiply(centerDistance))
+                val boxSpot = player.eyePos.add(rotation.directionVector.multiply(centerDistance))
 
                 failedHits.add(ObjectLongMutablePair(boxSpot, 0L))
             }

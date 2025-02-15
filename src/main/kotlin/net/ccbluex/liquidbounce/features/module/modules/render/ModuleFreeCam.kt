@@ -94,7 +94,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
             val target = raycast(
                 range = 100.0,
                 start = cameraPosition,
-                direction = mc.cameraEntity?.rotation?.rotationVec ?: return null
+                direction = mc.cameraEntity?.rotation?.directionVector ?: return null
             )
 
             return target.pos

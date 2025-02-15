@@ -53,14 +53,8 @@ data class Rotation(
         }
     }
 
-    val rotationVec: Vec3d
-        get() {
-            val yawCos = MathHelper.cos(-yaw * 0.017453292f)
-            val yawSin = MathHelper.sin(-yaw * 0.017453292f)
-            val pitchCos = MathHelper.cos(pitch * 0.017453292f)
-            val pitchSin = MathHelper.sin(pitch * 0.017453292f)
-            return Vec3d((yawSin * pitchCos).toDouble(), (-pitchSin).toDouble(), (yawCos * pitchCos).toDouble())
-        }
+    val directionVector: Vec3d
+        get() = Vec3d.fromPolar(pitch, yaw)
 
     /**
      * Fixes GCD and Modulo 360° at yaw

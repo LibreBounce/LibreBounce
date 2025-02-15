@@ -39,8 +39,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.block.*
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.enchantment.Enchantments
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
@@ -127,7 +125,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
         val rayTraceResult = world.raycast(
             RaycastContext(
                 player.eyePos,
-                player.eyePos.add(currentRotation.rotationVec.multiply(range.toDouble())),
+                player.eyePos.add(currentRotation.directionVector.multiply(range.toDouble())),
                 RaycastContext.ShapeType.OUTLINE,
                 RaycastContext.FluidHandling.NONE,
                 player
