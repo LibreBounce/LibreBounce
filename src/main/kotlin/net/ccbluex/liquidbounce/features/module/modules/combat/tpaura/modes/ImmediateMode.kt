@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.clickScheduler
+import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.clicker
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.desyncPlayerPosition
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.stuckChronometer
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura.targetSelector
@@ -27,7 +27,7 @@ import kotlin.math.floor
 object ImmediateMode : TpAuraChoice("Immediate") {
 
     val repeatable = tickHandler {
-        if (!clickScheduler.isGoingToClick) {
+        if (!clicker.isGoingToClick) {
             return@tickHandler
         }
 

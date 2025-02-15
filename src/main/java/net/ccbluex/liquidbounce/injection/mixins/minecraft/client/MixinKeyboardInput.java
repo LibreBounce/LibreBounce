@@ -25,8 +25,8 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent;
 import net.ccbluex.liquidbounce.event.events.SprintEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove;
-import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.ccbluex.liquidbounce.utils.input.InputTracker;
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
 import net.minecraft.client.MinecraftClient;
@@ -109,7 +109,7 @@ public abstract class MixinKeyboardInput extends MixinInput {
     private DirectionalInput transformDirection(DirectionalInput input) {
         var player = MinecraftClient.getInstance().player;
         var rotation = RotationManager.INSTANCE.getCurrentRotation();
-        var configurable = RotationManager.INSTANCE.getWorkingAimPlan();
+        var configurable = RotationManager.INSTANCE.getWorkingRotationTarget();
 
         float z = KeyboardInput.getMovementMultiplier(input.getForwards(), input.getBackwards());
         float x = KeyboardInput.getMovementMultiplier(input.getLeft(), input.getRight());

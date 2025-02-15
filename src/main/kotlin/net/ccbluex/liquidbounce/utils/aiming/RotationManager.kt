@@ -27,6 +27,10 @@ import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
+import net.ccbluex.liquidbounce.utils.aiming.utils.withFixedYaw
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
@@ -51,14 +55,13 @@ object RotationManager : EventListener {
     /**
      * Our final target rotation. This rotation is only used to define our current rotation.
      */
-    private val aimPlan
-        get() = aimPlanHandler.getActiveRequestValue()
-    private var aimPlanHandler = RequestHandler<AimPlan>()
+    private val rotationTarget
+        get() = rotationTargetHandler.getActiveRequestValue()
+    private var rotationTargetHandler = RequestHandler<RotationTarget>()
 
-    val workingAimPlan: AimPlan?
-        get() = aimPlan ?: previousAimPlan
-    private var previousAimPlan: AimPlan? = null
-
+    val workingRotationTarget: RotationTarget?
+        get() = rotationTarget ?: previousRotationTarget
+    private var previousRotationTarget: RotationTarget? = null
 
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
@@ -96,7 +99,7 @@ object RotationManager : EventListener {
     private var triggerNoDifference = false
 
     @Suppress("LongParameterList")
-    fun aimAt(
+    fun setRotationTarget(
         rotation: Rotation,
         considerInventory: Boolean = true,
         configurable: RotationsConfigurable,
@@ -104,17 +107,17 @@ object RotationManager : EventListener {
         provider: ClientModule,
         whenReached: RestrictedSingleUseAction? = null
     ) {
-        aimAt(configurable.toAimPlan(
+        setRotationTarget(configurable.toAimPlan(
             rotation, considerInventory = considerInventory, whenReached = whenReached
         ), priority, provider)
     }
 
-    fun aimAt(plan: AimPlan, priority: Priority, provider: ClientModule) {
+    fun setRotationTarget(plan: RotationTarget, priority: Priority, provider: ClientModule) {
         if (!allowedToUpdate()) {
             return
         }
 
-        aimPlanHandler.request(
+        rotationTargetHandler.request(
             RequestHandler.Request(
                 if (plan.movementCorrection == MovementCorrection.CHANGE_LOOK) 1 else plan.ticksUntilReset,
                 priority.priority,
@@ -124,23 +127,22 @@ object RotationManager : EventListener {
         )
     }
 
-
     /**
      * Update current rotation to a new rotation step
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     fun update() {
-        val workingAimPlan = this.workingAimPlan ?: return
+        val workingAimPlan = this.workingRotationTarget ?: return
         val playerRotation = player.rotation
 
-        val aimPlan = this.aimPlan
+        val aimPlan = this.rotationTarget
         if (aimPlan != null) {
-            val enemyChange = aimPlan.entity != null && aimPlan.entity != previousAimPlan?.entity &&
-                aimPlan.slowStart?.onEnemyChange == true
-            val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
+            val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
+                aimPlan.upRamp?.onEnemyChange == true
+            val triggerNoChange = triggerNoDifference && aimPlan.upRamp?.onZeroRotationDifference == true
 
             if (triggerNoChange || enemyChange) {
-                aimPlan.slowStart?.onTrigger()
+                aimPlan.upRamp?.onTrigger()
             }
         }
 
@@ -165,21 +167,21 @@ object RotationManager : EventListener {
                 }
 
                 currentRotation = null
-                previousAimPlan = null
+                previousRotationTarget = null
             } else {
                 if (workingAimPlan.movementCorrection == MovementCorrection.CHANGE_LOOK) {
                     player.setRotation(rotation)
                 }
 
                 currentRotation = rotation
-                previousAimPlan = workingAimPlan
+                previousRotationTarget = workingAimPlan
 
                 aimPlan?.whenReached?.invoke()
             }
         }
 
         // Update reset ticks
-        aimPlanHandler.tick()
+        rotationTargetHandler.tick()
     }
 
     /**
@@ -199,7 +201,7 @@ object RotationManager : EventListener {
 
     @Suppress("unused")
     private val velocityHandler = handler<PlayerVelocityStrafe> { event ->
-        if (workingAimPlan?.movementCorrection != MovementCorrection.OFF) {
+        if (workingRotationTarget?.movementCorrection != MovementCorrection.OFF) {
             val rotation = currentRotation ?: return@handler
 
             event.velocity = Entity.movementInputToVelocity(

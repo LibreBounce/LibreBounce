@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener

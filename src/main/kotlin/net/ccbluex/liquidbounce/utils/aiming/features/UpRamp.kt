@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
@@ -7,14 +7,14 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 
 /**
- * The slow start modulates the rotation speed based on the time duration
+ * The up ramp modulates the rotation speed based on the time duration
  * a target has been focused on. Initially, the rotation speed is reduced to smoothly
  * transition to a new target and gradually increases to normal speed. This method
  * enhances aiming by providing smooth adjustments, particularly for fast-moving targets,
  * avoiding abrupt or unnatural flicks.
  */
-class SlowStart(owner: EventListener? = null)
-    : ToggleableConfigurable(owner, "SlowStart", false) {
+class UpRamp(owner: EventListener? = null)
+    : ToggleableConfigurable(owner, "UpRamp", false, aliases = arrayOf("SlowStart")) {
 
     // Configuration properties
     private val slowStartFactor by float("SlowStartFactor", 0.6f, 0.01f..0.99f)

@@ -32,10 +32,10 @@ import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.Ne
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.OnStopToolMode
 import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.tool.PostStartToolMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.outlineBox
@@ -175,7 +175,7 @@ object ModulePacketMine : ClientModule("PacketMine", Category.WORLD) {
         }
 
         if (rotate) {
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 raytrace.rotation,
                 considerInventory = !ignoreOpenInventory,
                 configurable = rotationsConfigurable,

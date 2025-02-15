@@ -23,7 +23,13 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.Modul
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleIdPredict
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.VecRotation
+import net.ccbluex.liquidbounce.utils.aiming.utils.findClosestPointOnBlockInLineWithCrystal
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceUpperBlockSide
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.Chronometer

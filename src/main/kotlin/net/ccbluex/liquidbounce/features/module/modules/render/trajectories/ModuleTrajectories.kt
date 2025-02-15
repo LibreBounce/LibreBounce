@@ -95,7 +95,7 @@ object ModuleTrajectories : ClientModule("Trajectories", Category.RENDER) {
             if (ModuleFreeCam.running) {
                 RotationManager.serverRotation
             } else {
-                RotationManager.workingAimPlan?.rotation
+                RotationManager.workingRotationTarget?.rotation
                     ?: RotationManager.currentRotation ?: otherPlayer.rotation
             }
         } else {

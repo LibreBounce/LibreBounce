@@ -15,11 +15,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.utils.clicking.pattern
 
-import net.ccbluex.liquidbounce.utils.clicking.Clicker
+package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
-interface ClickPattern {
-    fun fill(clickArray: IntArray, cps: IntRange, clicker: Clicker<*>)
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.minecraft.entity.Entity
+import net.minecraft.util.math.Vec3d
+
+/**
+ * A smoother is being used to limit the angle change between two rotations.
+ */
+abstract class AngleSmoothMode(name: String) : Choice(name) {
+    abstract fun limitAngleChange(
+        factorModifier: Float,
+        currentRotation: Rotation,
+        targetRotation: Rotation,
+        vec3d: Vec3d? = null,
+        entity: Entity? = null
+    ): Rotation
+    abstract fun howLongToReach(currentRotation: Rotation, targetRotation: Rotation): Int
 }

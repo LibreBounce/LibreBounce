@@ -18,7 +18,7 @@
  */
 @file:Suppress("Detekt.TooManyFunctions")
 
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.utils
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
@@ -26,6 +26,11 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.features.module.modules.world.autofarm.ModuleAutoFarm
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.VecRotation
+import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
+import net.ccbluex.liquidbounce.utils.aiming.preference.RotationPreference
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player

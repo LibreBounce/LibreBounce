@@ -34,10 +34,10 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoClip;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach;
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallNoGround;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleNoSlowBreak;
-import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
-import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection;
-import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget;
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
@@ -95,7 +95,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();
-        AimPlan configurable = rotationManager.getWorkingAimPlan();
+        RotationTarget configurable = rotationManager.getWorkingRotationTarget();
 
         if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
