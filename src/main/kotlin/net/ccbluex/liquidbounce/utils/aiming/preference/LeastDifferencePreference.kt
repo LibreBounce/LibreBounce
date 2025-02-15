@@ -30,16 +30,6 @@ import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
-interface RotationPreference : Comparator<Rotation> {
-
-    fun getPreferredSpot(eyesPos: Vec3d, range: Double, ): Vec3d
-
-    fun getPreferredSpotOnBox(box: Box, eyesPos: Vec3d, range: Double): Vec3d? {
-        return getPreferredSpot(eyesPos, range)
-    }
-
-}
-
 class LeastDifferencePreference(
     private val baseRotation: Rotation,
     private val basePoint: Vec3d? = null
