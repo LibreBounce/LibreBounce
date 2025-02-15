@@ -94,9 +94,6 @@ open class Line(val position: Vec3d, val direction: Vec3d) {
      * Finds the closest point on the box's surface to the [position] in positive [direction].
      */
     fun getPointOnBoxInDirection(box: Box): Vec3d? {
-        var minT = Double.POSITIVE_INFINITY
-        var intersection: Vec3d? = null
-
         val candidates = Direction.entries.mapNotNull { dir ->
             val positionCoordinate = position.getComponentAlongAxis(dir.axis)
             val directionCoordinate = direction.getComponentAlongAxis(dir.axis)
@@ -107,9 +104,11 @@ open class Line(val position: Vec3d, val direction: Vec3d) {
             }
         }
 
+        var minDistanceSq = Double.POSITIVE_INFINITY
+        var intersection: Vec3d? = null
         candidates.forEach { candidate ->
-            if (position.squaredDistanceTo(candidate) < minT) {
-                minT = position.squaredDistanceTo(candidate)
+            if (position.squaredDistanceTo(candidate) < minDistanceSq) {
+                minDistanceSq = position.squaredDistanceTo(candidate)
                 intersection = candidate
             }
         }
