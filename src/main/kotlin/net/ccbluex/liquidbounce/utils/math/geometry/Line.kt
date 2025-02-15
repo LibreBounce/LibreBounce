@@ -107,7 +107,7 @@ open class Line(val position: Vec3d, val direction: Vec3d) {
             }
         }
 
-        for (candidate in candidates) {
+        candidates.forEach { candidate ->
             if (position.squaredDistanceTo(candidate) < minT) {
                 minT = position.squaredDistanceTo(candidate)
                 intersection = candidate
