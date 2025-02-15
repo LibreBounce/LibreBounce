@@ -179,7 +179,8 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
             return@handler
         }
 
-        RotationManager.setRotationTarget(rotationsConfigurable.toAimPlan(lookAt), Priority.NOT_IMPORTANT, ModuleFreeCam)
+        RotationManager.setRotationTarget(rotationsConfigurable.toAimPlan(lookAt),
+            Priority.NOT_IMPORTANT, ModuleFreeCam)
     }
 
     fun applyCameraPosition(entity: Entity, tickDelta: Float) {

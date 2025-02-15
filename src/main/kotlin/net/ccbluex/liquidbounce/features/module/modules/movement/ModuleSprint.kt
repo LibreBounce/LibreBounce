@@ -122,7 +122,8 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
             MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
         val preventSprint = (if (player.isOnGround) stopOnGround else stopOnAir)
             && !shouldSprintOmnidirectional
-            && RotationManager.workingRotationTarget?.movementCorrection == MovementCorrection.OFF && !hasForwardMovement
+            && RotationManager.workingRotationTarget?.movementCorrection == MovementCorrection.OFF
+            && !hasForwardMovement
 
         return running && preventSprint
     }
