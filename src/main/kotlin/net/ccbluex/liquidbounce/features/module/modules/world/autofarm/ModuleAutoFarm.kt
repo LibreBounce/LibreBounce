@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
-import net.ccbluex.liquidbounce.utils.aiming.raytraceUpperBlockSide
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceUpperBlockSide
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.notification
@@ -200,7 +200,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
             // set currentTarget to the new target
             currentTarget = pos
             // aim at target
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotation,
                 configurable = rotations,
                 priority = Priority.IMPORTANT_FOR_USAGE_1,
@@ -240,7 +240,7 @@ object ModuleAutoFarm : ClientModule("AutoFarm", Category.WORLD) {
             // set currentTarget to the new target
             currentTarget = pos
             // aim at target
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotation,
                 configurable = rotations,
                 priority = Priority.IMPORTANT_FOR_USAGE_1,

@@ -48,7 +48,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
+import net.ccbluex.liquidbounce.utils.aiming.utils.withFixedYaw
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
@@ -355,7 +355,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         if (rotationTiming == NORMAL) {
             val rotation = technique.getRotations(target)
 
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotation ?: return@handler,
                 considerInventory = considerInventory,
                 configurable = ScaffoldRotationConfigurable,
@@ -519,7 +519,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             }
 
             if (rotationTiming == ON_TICK_SNAP) {
-                RotationManager.aimAt(
+                RotationManager.setRotationTarget(
                     currentRotation,
                     considerInventory = considerInventory,
                     configurable = ScaffoldRotationConfigurable,

@@ -18,7 +18,12 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
+import net.ccbluex.liquidbounce.utils.aiming.features.UpRamp
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
@@ -33,7 +38,7 @@ import net.minecraft.util.math.Vec3d
  * @param angleSmooth The mode of the smoother.
  */
 @Suppress("LongParameterList")
-class AimPlan(
+class RotationTarget(
     val rotation: Rotation,
     val vec3d: Vec3d? = null,
     val entity: Entity? = null,
@@ -41,7 +46,7 @@ class AimPlan(
      * If we do not want to smooth the angle, we can set this to null.
      */
     val angleSmooth: AngleSmoothMode?,
-    val slowStart: SlowStart?,
+    val upRamp: UpRamp?,
     val failFocus: FailFocus?,
     val shortStop: ShortStop?,
     val ticksUntilReset: Int,
@@ -77,7 +82,7 @@ class AimPlan(
         val factorModifier = if (failFocus?.isInFailState == true) {
             failFocus.failFactor
         } else {
-            slowStart?.rotationFactor ?: 1f
+            upRamp?.rotationFactor ?: 1f
         }
 
         if (isResetting) {

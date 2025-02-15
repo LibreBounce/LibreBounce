@@ -48,7 +48,16 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.VecRotation
+import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
+import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
+import net.ccbluex.liquidbounce.utils.aiming.utils.withFixedYaw
 import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
@@ -365,15 +374,15 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
             val ticks = rotations.howLongToReach(spot.rotation)
             if (rotations.rotationTimingMode == SNAP && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
-            // On Tick can only be used if the distance is not too far compared to the turn speed
-            || rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
+                // On Tick can only be used if the distance is not too far compared to the turn speed
+                || rotations.rotationTimingMode == ON_TICK && ticks <= 1) {
                 continue
             }
 
             val (rotation, vec) = spot
 
             targetTracker.target = target
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotations.toAimPlan(
                     rotation,
                     vec,
@@ -391,7 +400,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         if (KillAuraFightBot.enabled) {
             targetTracker.selectFirst()
 
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotations.toAimPlan(
                     KillAuraFightBot.getMovementRotation(),
                     considerInventory = !ignoreOpenInventory

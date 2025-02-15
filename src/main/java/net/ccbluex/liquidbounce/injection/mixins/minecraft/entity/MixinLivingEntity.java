@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
-import net.ccbluex.liquidbounce.utils.aiming.MovementCorrection;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -171,7 +171,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     private Vec3d hookFixRotation(Vec3d original) {
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingAimPlan();
+        var configurable = rotationManager.getWorkingRotationTarget();
 
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
@@ -247,7 +247,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingAimPlan();
+        var configurable = rotationManager.getWorkingRotationTarget();
 
         if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
@@ -267,7 +267,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingAimPlan();
+        var configurable = rotationManager.getWorkingRotationTarget();
 
         if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;

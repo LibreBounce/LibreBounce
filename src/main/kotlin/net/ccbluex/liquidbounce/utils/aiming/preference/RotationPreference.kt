@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2025 CCBlueX
+ * Copyright (c) 2015 - 2024 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.preference
 
-import net.ccbluex.liquidbounce.utils.aiming.RotationUtil.angleDifference
-import net.minecraft.client.network.ClientPlayerEntity
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.minecraft.util.math.Vec3d
 
-fun ClientPlayerEntity.setRotation(rotation: Rotation) {
-    rotation.normalize().let { normalizedRotation ->
-        prevPitch = pitch
-        prevYaw = yaw
-        renderYaw = yaw
-        lastRenderYaw = yaw
-
-        yaw = normalizedRotation.yaw
-        pitch = normalizedRotation.pitch
-    }
+interface RotationPreference : Comparator<Rotation> {
+    fun getPreferredSpot(
+        eyesPos: Vec3d,
+        range: Double,
+    ): Vec3d
 }
 
-fun ClientPlayerEntity.withFixedYaw(rotation: Rotation) = rotation.yaw + angleDifference(yaw, rotation.yaw)

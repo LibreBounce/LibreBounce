@@ -55,7 +55,7 @@ open class ClientModule(
     hide: Boolean = false, // default hide
     @Exclude val disableOnQuit: Boolean = false, // disables module when player leaves the world,
     aliases: Array<out String> = emptyArray() // additional names under which the module is known
-) : EventListener, Configurable(name, aliases), MinecraftShortcuts {
+) : EventListener, Configurable(name, aliases = aliases), MinecraftShortcuts {
 
     /**
      * Option to enable or disable the module, this DOES NOT mean the module is running. This

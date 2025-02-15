@@ -33,10 +33,6 @@ import org.lwjgl.glfw.GLFW
 @Suppress("TooManyFunctions")
 open class Configurable(
     name: String,
-    /**
-     * Used for backwards compatibility when renaming.
-     */
-    aliases: Array<out String> = emptyArray(),
     value: MutableList<Value<*>> = mutableListOf(),
     valueType: ValueType = ValueType.CONFIGURABLE,
 
@@ -48,7 +44,11 @@ open class Configurable(
      * The options should be used in common options, so that
      * descriptions don't have to be written twice.
      */
-    independentDescription: Boolean = false
+    independentDescription: Boolean = false,
+    /**
+     * Used for backwards compatibility when renaming.
+     */
+    aliases: Array<out String> = emptyArray(),
 ) : Value<MutableList<Value<*>>>(
     name,
     aliases,
