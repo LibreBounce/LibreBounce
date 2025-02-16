@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
+import net.ccbluex.liquidbounce.utils.extensions.safeDiv
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -27,11 +28,11 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.passive.EntityCow
+import net.minecraft.entity.passive.EntitySheep
+import net.minecraft.entity.passive.EntityVillager
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
@@ -49,8 +50,8 @@ class Target : Element("Target") {
     private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private val healthbarColor1 by color("healthBar-Gradient1", Color(3, 65, 252))
-    private val healthbarColor2 by color("healthBar-Gradient2", Color(3, 252, 236))
+    private val healthBarColor1 by color("HealthBar-Gradient1", Color(3, 65, 252))
+    private val healthBarColor2 by color("HealthBar-Gradient2", Color(3, 252, 236))
 
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
@@ -61,7 +62,7 @@ class Target : Element("Target") {
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
 
     private val titleFont by font("TitleFont", Fonts.fontSemibold40)
-    private val healthFont by font("healthFont", Fonts.fontRegular30)
+    private val healthFont by font("HealthFont", Fonts.fontRegular30)
     private val textShadow by boolean("TextShadow", false)
 
     private val fadeSpeed by float("FadeSpeed", 2F, 1F..9F)
@@ -72,7 +73,6 @@ class Target : Element("Target") {
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.05F..1F)
     private val vanishDelay by int("VanishDelay", 300, 0..500)
 
-    private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private var easingHealth = 0F
     private var lastTarget: EntityLivingBase? = null
 
@@ -97,7 +97,11 @@ class Target : Element("Target") {
         val fadeMode = animation == "Fade"
 
         val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat
-        val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
+        val target = KillAura.target ?: if (delayCounter >= vanishDelay && !isRendered) {
+            mc.thePlayer
+        } else {
+            lastTarget ?: mc.thePlayer
+        }
 
         val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
 
@@ -112,22 +116,7 @@ class Target : Element("Target") {
                 val targetHealth = getHealth(target!!, healthFromScoreboard, absorption)
                 val maxHealth = target.maxHealth + if (absorption) target.absorptionAmount else 0F
 
-                val healthColor = when {
-                    targetHealth <= 0 -> Color(255, 0, 0, if (fadeMode) alphaText else textColor.alpha)
-                    else -> {
-                        ColorUtils.interpolateHealthColor(
-                            target,
-                            255,
-                            255,
-                            0,
-                            if (fadeMode) alphaText else textColor.alpha,
-                            healthFromScoreboard,
-                            absorption
-                        )
-                    }
-                }
-
-                easingHealth += ((targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed)) * deltaTime
+                easingHealth += (targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed) * deltaTime
                 easingHealth = easingHealth.coerceIn(0f, maxHealth)
 
                 easingHurtTime = (easingHurtTime..target.hurtTime.toFloat()).lerpWith(RenderUtils.deltaTimeNormalized())
@@ -186,8 +175,8 @@ class Target : Element("Target") {
                 ).rgb
 
                 val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
-                val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
-                val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
+                val rainbowX = 1f safeDiv rainbowX
+                val rainbowY = 1f safeDiv rainbowY
 
                 glPushMatrix()
 
@@ -243,11 +232,11 @@ class Target : Element("Target") {
                             healthBarTop.toInt(),
                             healthBarStart.toInt() + currentWidth.toInt(),
                             healthBarTop.toInt() + healthBarHeight.toInt(),
-                            healthbarColor1.rgb,
-                            healthbarColor2.rgb,
+                            healthBarColor1.rgb,
+                            healthBarColor2.rgb,
                             0f
                         )
-                    })
+                    }, hide = true)
 
                     val healthPercentage = (easingHealth / maxHealth * 100).toInt()
                     val percentageText = "$healthPercentage%"
@@ -276,46 +265,42 @@ class Target : Element("Target") {
                             glTranslatef(centerX1, midY, 0f)
                             glScalef(f1, f1, f1)
                             glTranslatef(-centerX1, -midY, 0f)
+
+                            val w = when (target) {
+                                is EntitySheep -> 7.5F to 7
+                                is EntityCow -> 6.5F to 7
+                                else -> 8F to 8
+                            }
+
+                            val h = when (target) {
+                                is EntitySheep -> 16F to 11
+                                is EntityVillager -> 9F to 9
+                                is EntityCow -> 15F to 12
+                                else -> 8F to 8
+                            }
+
                             if (entityTexture != null) {
                                 withClipping(main = {
                                     drawRoundedRect(4f, 6f, 32f, 34f, Color.BLACK.rgb, roundedRectRadius)
                                 }, toClip = {
-                                    drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F, color)
-                                })
+                                    drawHead(
+                                        entityTexture,
+                                        4,
+                                        6,
+                                        w.first,
+                                        h.first,
+                                        w.second,
+                                        h.second,
+                                        28,
+                                        28,
+                                        64F,
+                                        64F,
+                                        color
+                                    )
+                                }, hide = true)
                             }
                             glPopMatrix()
                         }
-
-                        /*
-
-                        If you decide to make the avatar shrinkable on hit, see the translate and scale code
-
-                        in your case you must find the midpoint X/Y of the avatar position, then do the scaling
-                        but make sure the scaling is within the original element scale, check code below
-                        then after you are done with the scaling, revert back to the original position by translating the positions
-                        against them so it becomes back to 0. push/pop matrix is needed so it only handles the avatar.
-                        just check code below.
-
-                        remove if you know what to do
-
-                        val renderer = mc.renderManager.getEntityRenderObject<Entity>(target)
-                        if (renderer != null) {
-                            val entityTexture = renderer.getEntityTexture(target)
-
-                            if (entityTexture != null) {
-                                glPushMatrix()
-                                val scale = 1 - hurtTime / 10f
-                                val f1 = (0.7F..1F).lerpWith(scale) * this.scale * elementScale
-                                val color = ColorUtils.interpolateColor(Color.RED, Color.WHITE, scale)
-                                val centerX1 = (4..32).lerpWith(0.5F)
-
-                                glTranslatef(centerX1, midY, 0f)
-                                glScalef(f1, f1, f1)
-                                glTranslatef(-centerX1, -midY, 0f)
-                                drawHead(entityTexture, 4, (midY - 16).roundToInt(), 8F, 8F, 8, 8, 28, 28, 64F, 64F, color)
-                                glPopMatrix()
-                            }
-                        }*/
 
                         target.name?.let {
                             titleFont.drawString(it, 36F, 8F, textCustomColor, textShadow)
