@@ -37,10 +37,10 @@ class AttackEntityEvent(
 ) : CancellableEvent()
 
 @Nameable("entityMargin")
-class EntityMarginEvent(val entity: Entity, var margin: Float) : Event
+class EntityMarginEvent(val entity: Entity, var margin: Float) : Event()
 
 @Nameable("tagEntityEvent")
-class TagEntityEvent(val entity: Entity, var targetingInfo: EntityTargetingInfo) : Event {
+class TagEntityEvent(val entity: Entity, var targetingInfo: EntityTargetingInfo) : Event() {
     val color: PriorityField<Color4b?> = PriorityField(null, Priority.NOT_IMPORTANT)
 
     /**

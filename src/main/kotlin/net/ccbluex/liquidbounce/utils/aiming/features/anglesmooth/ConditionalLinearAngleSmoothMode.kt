@@ -17,16 +17,18 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
+package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.failedHitsIncrement
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.facingEnemy
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 class ConditionalLinearAngleSmoothMode(override val parent: ChoiceConfigurable<*>)
     : AngleSmoothMode("Conditional") {

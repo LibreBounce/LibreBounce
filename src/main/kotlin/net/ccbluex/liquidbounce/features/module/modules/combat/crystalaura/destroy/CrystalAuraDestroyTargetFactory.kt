@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.Cryst
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.destroy.SubmoduleCrystalDestroyer.getMaxRange
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.destroy.SubmoduleCrystalDestroyer.range
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.destroy.SubmoduleCrystalDestroyer.wallsRange
-import net.ccbluex.liquidbounce.utils.aiming.canSeeBox
+import net.ccbluex.liquidbounce.utils.aiming.utils.canSeeBox
 import net.ccbluex.liquidbounce.utils.combat.getEntitiesBoxInRange
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.Entity

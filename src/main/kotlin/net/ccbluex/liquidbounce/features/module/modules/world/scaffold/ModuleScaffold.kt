@@ -48,13 +48,13 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
+import net.ccbluex.liquidbounce.utils.aiming.utils.withFixedYaw
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
-import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
@@ -196,7 +196,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     object SimulatePlacementAttempts : ToggleableConfigurable(this, "SimulatePlacementAttempts", false) {
 
-        internal val clickScheduler = tree(ClickScheduler(ModuleScaffold, false, maxCps = 100))
+        internal val clicker = tree(Clicker(ModuleScaffold, false, maxCps = 100))
         val failedAttemptsOnly by boolean("FailedAttemptsOnly", true)
     }
 
@@ -355,7 +355,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         if (rotationTiming == NORMAL) {
             val rotation = technique.getRotations(target)
 
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotation ?: return@handler,
                 considerInventory = considerInventory,
                 configurable = ScaffoldRotationConfigurable,
@@ -474,9 +474,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             arrayOf(Hand.MAIN_HAND, Hand.OFF_HAND).firstOrNull { isValidBlock(player.getStackInHand(it)) }
 
         if (simulatePlacementAttempts(currentCrosshairTarget, suitableHand) && player.moving
-            && SimulatePlacementAttempts.clickScheduler.isGoingToClick
+            && SimulatePlacementAttempts.clicker.isGoingToClick
         ) {
-            SimulatePlacementAttempts.clickScheduler.clicks {
+            SimulatePlacementAttempts.clicker.clicks {
                 doPlacement(currentCrosshairTarget!!, suitableHand!!, swingMode = swingMode)
                 true
             }
@@ -519,7 +519,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             }
 
             if (rotationTiming == ON_TICK_SNAP) {
-                RotationManager.aimAt(
+                RotationManager.setRotationTarget(
                     currentRotation,
                     considerInventory = considerInventory,
                     configurable = ScaffoldRotationConfigurable,

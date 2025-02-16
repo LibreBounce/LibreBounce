@@ -25,21 +25,12 @@ import kotlin.reflect.full.findAnnotation
 /**
  * A callable event
  */
-interface Event {
-    /**
-     * Singleton empty event
-     *
-     * This should not be used as the type parameter of [handler],
-     * because it is excluded in collection of events
-     */
-    companion object Empty : Event
-}
+abstract class Event
 
 /**
  * A cancellable event
  */
-open class CancellableEvent : Event {
-
+abstract class CancellableEvent : Event() {
     /**
      * Let you know if the event is cancelled
      *
