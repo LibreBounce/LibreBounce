@@ -38,7 +38,7 @@ import net.ccbluex.liquidbounce.features.command.commands.module.CommandXRay
 import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandPlayerTeleport
 import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandTeleport
 import net.ccbluex.liquidbounce.features.command.commands.module.teleport.CommandVClip
-import net.ccbluex.liquidbounce.features.command.commands.training.CommandTensorflow
+import net.ccbluex.liquidbounce.features.command.commands.tensorflow.CommandTensorflow
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired

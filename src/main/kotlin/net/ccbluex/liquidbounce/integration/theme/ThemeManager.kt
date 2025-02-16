@@ -22,6 +22,7 @@ package net.ccbluex.liquidbounce.integration.theme
 import com.google.gson.JsonArray
 import com.google.gson.annotations.SerializedName
 import com.mojang.blaze3d.systems.RenderSystem
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
@@ -311,7 +312,9 @@ class Theme(val name: String) : Closeable {
                 folder.deleteRecursively()
             }
 
-            extractZip(stream, folder)
+            runBlocking {
+                extractZip(stream, folder)
+            }
             folder.deleteOnExit()
 
             Theme("default")

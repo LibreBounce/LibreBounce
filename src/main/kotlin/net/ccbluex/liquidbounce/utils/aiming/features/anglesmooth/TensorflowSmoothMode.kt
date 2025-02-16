@@ -21,117 +21,22 @@
 
 package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
-import net.ccbluex.liquidbounce.config.ConfigSystem.rootFolder
-import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.types.Configurable
-import net.ccbluex.liquidbounce.event.EventListener
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.ml.TensorflowIntegration
+import net.ccbluex.liquidbounce.ml.TensorflowIntegration.models
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowModels.models
-import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
-import org.jetbrains.kotlinx.dl.api.core.Sequential
-import org.jetbrains.kotlinx.dl.api.core.activation.Activations
-import org.jetbrains.kotlinx.dl.api.core.initializer.HeNormal
-import org.jetbrains.kotlinx.dl.api.core.layer.core.Dense
-import org.jetbrains.kotlinx.dl.api.core.layer.core.Input
-import org.jetbrains.kotlinx.dl.api.core.loss.Losses
-import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
-import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
-import java.io.Closeable
-import java.io.File
-import kotlin.time.measureTimedValue
-
-object TensorflowModels : EventListener, Configurable("Tensorflow") {
-
-    val modelsFolder = rootFolder.resolve("models").apply {
-        mkdirs()
-    }
-
-    init {
-        logger.info("Initializing Tensorflow...")
-
-        // Load TensorFlow JNI libraries from /run directory
-        System.load(File("./libtensorflow_framework.so.1").absolutePath)
-        System.load(File("./libtensorflow_jni.so").absolutePath)
-    }
-
-    class Model(name: String, val folder: File, override val parent: ChoiceConfigurable<*>) : Choice(name), Closeable {
-
-        // TODO: How do I combine these two models into one?
-        //    Kotlinx DL doesn't support multiple outputs in a single model?
-        val yawModel: Sequential = loadModel(folder.resolve("yaw_model"))
-        val pitchModel: Sequential = loadModel(folder.resolve("pitch_model"))
-
-        private fun loadModel(file: File): Sequential {
-            logger.info("[TensorFlow] Loading ${file.name} model...")
-
-            return Sequential.of(
-                Input(7),
-                Dense(64, Activations.Relu, kernelInitializer = HeNormal()),
-                Dense(32, Activations.Relu, kernelInitializer = HeNormal()),
-                Dense(1, Activations.Linear)
-            ).also { model ->
-                model.compile(
-                    optimizer = Adam(),
-                    loss = Losses.MSE,
-                    metric = Metrics.MAE
-                )
-                model.loadWeights(file, true)
-            }
-        }
-
-        override fun close() {
-            yawModel.close()
-            pitchModel.close()
-        }
-
-    }
-
-    /**
-     * Dummy choice
-     */
-    val models = choices(this, "Model", 0, ::loadModels)
-
-    fun loadModels(parent: ChoiceConfigurable<*>) = modelsFolder.listFiles {
-        file -> file.isDirectory
-    }?.map { file ->
-        val (model, time) = measureTimedValue { Model(file.name, file, parent) }
-        logger.info("[TensorFlow] Loaded ${file.name} in ${time.inWholeMilliseconds}ms")
-        model
-    }?.toTypedArray() ?: emptyArray()
-
-    fun loadModels() {
-        models.choices = loadModels(models).toMutableList()
-
-        // Trigger changed listeners
-        models.setByString(models.activeChoice.choiceName)
-    }
-
-    fun unloadModels() {
-        val iterator = models.choices.iterator()
-
-        while (iterator.hasNext()) {
-            val model = iterator.next()
-            model.close()
-            iterator.remove()
-        }
-    }
-
-    fun reloadModels() {
-        unloadModels()
-        loadModels()
-    }
-
-}
 
 /**
  * Record combat using [net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.AimDebugRecorder] and
- * process data using [training.DataModelRecorder] which will export a model to /models directory
+ * train model using recorded data with
+ * [net.ccbluex.liquidbounce.features.command.commands.tensorflow.CommandTensorflow] which will
+ * export a model to /models directory
  * and after restarting the client, this mode will be available to use.
  */
 class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Tensorflow") {
@@ -139,7 +44,6 @@ class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSm
     private val choices = choices("Model", 0) { local ->
         models.onChanged { _ ->
             local.choices = models.choices
-            ModuleClickGui.reloadView()
         }
 
         models.choices.toTypedArray()
@@ -156,7 +60,11 @@ class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSm
         val targetDirectionVector = targetRotation.directionVector
         val distance = entity?.let { entity -> player.boxedDistanceTo(entity) } ?: 0.0
 
-        val model = choices.activeChoice
+        val model = choices.activeChoice as? TensorflowIntegration.TensorflowModel
+            ?: run {
+                chat(markAsError("No tensorflow model selected"))
+                return currentRotation
+            }
 
         ModuleDebug.debugParameter(this, "CurrentDirectionVector", currentDirectionVector)
         ModuleDebug.debugParameter(this, "TargetDirectionVector", targetDirectionVector)

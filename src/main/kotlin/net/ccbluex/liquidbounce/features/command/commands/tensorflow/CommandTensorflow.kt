@@ -18,17 +18,17 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.features.command.commands.training
-import com.google.gson.Gson
+package net.ccbluex.liquidbounce.features.command.commands.tensorflow
+
 import com.google.gson.annotations.SerializedName
-import com.google.gson.reflect.TypeToken
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.ml.TensorflowIntegration
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowModels
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.util.math.Vec2f
@@ -157,7 +157,7 @@ object CommandTensorflow : CommandFactory {
             variable("${time6.inWholeMilliseconds}ms"),
             dot()
         )
-        TensorflowModels.reloadModels()
+        TensorflowIntegration.reloadModels()
     }.onFailure {
         chat(markAsError("✘ Error training models: ${it.message}"))
     }
@@ -270,20 +270,13 @@ fun saveModel(model: Sequential, name: String, modelName: String) {
     println("Model saved to ${savePath.absolutePath}")
 }
 
-
-fun parseJson(jsonString: String): List<TrainingData> {
-    val gson = Gson()
-    val listType = object : TypeToken<List<TrainingData>>() {}.type
-    return gson.fromJson(jsonString, listType)
-}
-
 fun readTrainingDataFromFolder(folder: File): List<TrainingData> {
     require(folder.exists() && folder.isDirectory) { "Invalid folder path: ${folder.path}" }
 
     return folder.listFiles { file -> file.isFile && file.extension == "json" }
         ?.flatMap { file ->
             try {
-                parseJson(file.readText())
+                decode<List<TrainingData>>(file.inputStream())
             } catch (e: Exception) {
                 println("Error parsing file ${file.name}: ${e.message}")
                 emptyList()

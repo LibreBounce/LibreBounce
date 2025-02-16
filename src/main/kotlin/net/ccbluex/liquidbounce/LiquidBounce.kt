@@ -54,13 +54,13 @@ import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.Active
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
+import net.ccbluex.liquidbounce.ml.TensorflowIntegration
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.HAS_AMD_VEGA_APU
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowModels
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -140,7 +140,6 @@ object LiquidBounce : EventListener {
             RenderedEntities
             ChunkScanner
             InputTracker
-            TensorflowModels
 
             // Features
             ModuleManager
@@ -217,7 +216,15 @@ object LiquidBounce : EventListener {
                         }
                     },
                     async { heads },
-                    async { configs }
+                    async { configs },
+                    async {
+                        runCatching {
+                            TensorflowIntegration.init()
+                            TensorflowIntegration.loadModels()
+                        }.onFailure { exception ->
+                            logger.info("Failed to initialize Tensorflow.", exception)
+                        }
+                    }
                 )
             }
 

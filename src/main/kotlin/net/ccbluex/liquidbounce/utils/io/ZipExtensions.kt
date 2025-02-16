@@ -18,37 +18,91 @@
  */
 package net.ccbluex.liquidbounce.utils.io
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.InputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import java.io.*
 import java.util.zip.ZipInputStream
 
-fun extractZip(zipStream: InputStream, folder: File) {
+/**
+ * Extracts a ZIP archive from an input stream to a specified folder
+ */
+suspend fun extractZip(zipStream: InputStream, folder: File) = withContext(Dispatchers.IO) {
     if (!folder.exists()) {
         folder.mkdir()
     }
 
-    ZipInputStream(zipStream).use { zipInputStream ->
-        var zipEntry = zipInputStream.nextEntry
+    ZipInputStream(zipStream.buffered()).use { zipInputStream ->
+        generateSequence { zipInputStream.nextEntry }
+            .filterNot { it.isDirectory }
+            .forEach { entry ->
+                val newFile = File(folder, entry.name).apply {
+                    parentFile?.mkdirs()
+                }
 
-        while (zipEntry != null) {
-            if (zipEntry.isDirectory) {
-                zipEntry = zipInputStream.nextEntry
-                continue
+                // Ensure the entry is within the target directory to prevent zip slip
+                if (!newFile.canonicalPath.startsWith(folder.canonicalPath)) {
+                    throw SecurityException("Entry is outside of the target directory: ${entry.name}")
+                }
+
+                FileOutputStream(newFile).buffered().use { outputStream ->
+                    zipInputStream.copyTo(outputStream)
+                }
             }
-
-            val newFile = File(folder, zipEntry.name)
-            File(newFile.parent).mkdirs()
-
-            FileOutputStream(newFile).use {
-                zipInputStream.copyTo(it)
-            }
-            zipEntry = zipInputStream.nextEntry
-        }
-
-        zipInputStream.closeEntry()
     }
 }
 
-fun extractZip(zipFile: File, folder: File) = extractZip(FileInputStream(zipFile), folder)
+/**
+ * Extracts a ZIP file to a specified
+ */
+suspend fun extractZip(zipFile: File, folder: File) =
+    withContext(Dispatchers.IO) {
+        FileInputStream(zipFile).use { stream ->
+            extractZip(stream, folder)
+        }
+    }
+
+/**
+ * Extracts a tar.gz file to a specified folder
+ */
+suspend fun extractTarGz(tarGzFile: File, folder: File) = withContext(Dispatchers.IO) {
+    if (!folder.exists()) {
+        folder.mkdir()
+    }
+
+    FileInputStream(tarGzFile).buffered().use { fileInputStream ->
+        GzipCompressorInputStream(fileInputStream).use { gzipInputStream ->
+            TarArchiveInputStream(gzipInputStream).use { tarInputStream ->
+                generateSequence { tarInputStream.nextTarEntry }
+                    .filterNot { it.isDirectory }
+                    .forEach { entry ->
+                        val newFile = File(folder, entry.name).apply {
+                            parentFile?.mkdirs()
+                        }
+
+                        // Prevent tar slip vulnerability
+                        if (!newFile.canonicalPath.startsWith(folder.canonicalPath)) {
+                            throw SecurityException("Entry is outside of the target directory: ${entry.name}")
+                        }
+
+                        FileOutputStream(newFile).buffered().use { outputStream ->
+                            tarInputStream.copyTo(outputStream)
+                        }
+                    }
+            }
+        }
+    }
+}
+
+/**
+ * Create a buffered output stream with a default buffer size for fewer I/O operations
+ */
+private fun OutputStream.buffered(bufferSize: Int = DEFAULT_BUFFER_SIZE): BufferedOutputStream =
+    if (this is BufferedOutputStream) this else BufferedOutputStream(this, bufferSize)
+
+/**
+ * Create a buffered input stream with a default buffer size for fewer I/O operations
+ */
+private fun InputStream.buffered(bufferSize: Int = DEFAULT_BUFFER_SIZE): BufferedInputStream =
+    if (this is BufferedInputStream) this else BufferedInputStream(this, bufferSize)
