@@ -92,9 +92,13 @@ object CommandTensorflow : CommandFactory {
                         val (dataset, time3) = measureTimedValue { prepareData(linearTrainingData + trainingData) }
                         chat("Prepared dataset with ${dataset.features.size} samples in ${time3.inWholeMilliseconds}ms")
 
-                        val (modelYaw, time4) = measureTimedValue { createAndTrainModel(dataset.features, dataset.labelX) }
+                        val (modelYaw, time4) = measureTimedValue {
+                            createAndTrainModel(dataset.features, dataset.labelX)
+                        }
                         chat("Trained yaw model in ${time4.inWholeSeconds}s")
-                        val (modelPitch, time5) = measureTimedValue { createAndTrainModel(dataset.features, dataset.labelY) }
+                        val (modelPitch, time5) = measureTimedValue {
+                            createAndTrainModel(dataset.features, dataset.labelY)
+                        }
                         chat("Trained pitch model in ${time5.inWholeSeconds}s")
 
                         // Save the models
