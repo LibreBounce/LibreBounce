@@ -60,6 +60,7 @@ import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowModels
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -139,6 +140,7 @@ object LiquidBounce : EventListener {
             RenderedEntities
             ChunkScanner
             InputTracker
+            TensorflowModels
 
             // Features
             ModuleManager
