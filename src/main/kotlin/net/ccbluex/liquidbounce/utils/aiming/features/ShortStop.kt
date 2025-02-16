@@ -22,7 +22,7 @@ class ShortStop(owner: EventListener? = null)
     // The currently set transition duration, randomized within the defined range
     private var currentTransitionInDuration = stopDuration.random()
     val isInStopState: Boolean
-        get() = enabled && ticksElapsed < currentTransitionInDuration
+        get() = running && ticksElapsed < currentTransitionInDuration
 
     @Suppress("unused")
     private val gameHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {

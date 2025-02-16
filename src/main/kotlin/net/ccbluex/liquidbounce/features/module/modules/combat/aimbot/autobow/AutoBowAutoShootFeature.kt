@@ -85,7 +85,7 @@ object AutoBowAutoShootFeature : ToggleableConfigurable(ModuleAutoBow, "AutoShoo
                 return@handler
             }
 
-            val targetRotation = RotationManager.workingRotationTarget ?: return@handler
+            val targetRotation = RotationManager.activeRotationTarget ?: return@handler
 
             val aimDifference = RotationManager.serverRotation.angleTo(targetRotation.rotation)
 

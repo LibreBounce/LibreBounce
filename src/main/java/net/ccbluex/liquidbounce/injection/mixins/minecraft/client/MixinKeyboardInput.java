@@ -109,7 +109,7 @@ public abstract class MixinKeyboardInput extends MixinInput {
     private DirectionalInput transformDirection(DirectionalInput input) {
         var player = MinecraftClient.getInstance().player;
         var rotation = RotationManager.INSTANCE.getCurrentRotation();
-        var configurable = RotationManager.INSTANCE.getWorkingRotationTarget();
+        var configurable = RotationManager.INSTANCE.getActiveRotationTarget();
 
         float z = KeyboardInput.getMovementMultiplier(input.getForwards(), input.getBackwards());
         float x = KeyboardInput.getMovementMultiplier(input.getLeft(), input.getRight());

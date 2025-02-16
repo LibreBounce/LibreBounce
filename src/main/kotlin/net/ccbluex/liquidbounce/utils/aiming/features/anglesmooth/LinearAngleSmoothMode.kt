@@ -38,7 +38,6 @@ class LinearAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleS
         0.0f..180f)
 
     override fun limitAngleChange(
-        factorModifier: Float,
         currentRotation: Rotation,
         targetRotation: Rotation,
         vec3d: Vec3d?,
@@ -50,8 +49,8 @@ class LinearAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleS
         val (factorH, factorV) = horizontalTurnSpeed.random().toFloat() to
             verticalTurnSpeed.random().toFloat()
 
-        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier)
-        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier)
+        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * factorH
+        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * factorV
 
         return Rotation(
             currentRotation.yaw + diff.deltaYaw.coerceIn(-straightLineYaw, straightLineYaw),

@@ -31,7 +31,6 @@ import net.minecraft.util.math.Vec3d
  */
 abstract class AngleSmoothMode(name: String) : Choice(name) {
     abstract fun limitAngleChange(
-        factorModifier: Float,
         currentRotation: Rotation,
         targetRotation: Rotation,
         vec3d: Vec3d? = null,

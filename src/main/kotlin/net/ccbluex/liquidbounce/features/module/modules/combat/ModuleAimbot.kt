@@ -28,10 +28,9 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.data.VecRotation
-import net.ccbluex.liquidbounce.utils.aiming.features.UpRamp
+import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.SigmoidAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
 import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
@@ -71,11 +70,9 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
             LinearAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it)
+            TensorflowSmoothMode(it)
         )
     }
-
-    private val upRamp = tree(UpRamp(this))
 
     private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
     private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
@@ -98,7 +95,6 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
         targetRotation = findNextTargetRotation()?.let { (target, rotation) ->
             angleSmooth.activeChoice.limitAngleChange(
-                upRamp.rotationFactor,
                 player.rotation,
                 rotation.rotation,
                 rotation.vec,
@@ -161,7 +157,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
     }
 
-    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? {
+    private fun findNextTargetRotation(): Pair<Entity, RotationWithVector>? {
         for (target in targetTracker.targets()) {
             val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)
             val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
@@ -178,9 +174,6 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 rotationPreference = rotationPreference
             ) ?: continue
 
-            if (target != targetTracker.target) {
-                upRamp.onTrigger()
-            }
             targetTracker.target = target
             return target to spot
         }

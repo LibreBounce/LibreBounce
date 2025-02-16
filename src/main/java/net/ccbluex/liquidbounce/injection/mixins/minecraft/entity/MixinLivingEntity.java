@@ -171,7 +171,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     private Vec3d hookFixRotation(Vec3d original) {
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingRotationTarget();
+        var configurable = rotationManager.getActiveRotationTarget();
 
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
@@ -247,7 +247,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingRotationTarget();
+        var configurable = rotationManager.getActiveRotationTarget();
 
         if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
@@ -267,7 +267,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         var rotationManager = RotationManager.INSTANCE;
         var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingRotationTarget();
+        var configurable = rotationManager.getActiveRotationTarget();
 
         if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;

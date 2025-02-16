@@ -20,4 +20,4 @@ package net.ccbluex.liquidbounce.utils.aiming.data
 
 import net.minecraft.util.math.Vec3d
 
-data class VecRotation(val rotation: Rotation, val vec: Vec3d)
+data class RotationWithVector(val rotation: Rotation, val vec: Vec3d)

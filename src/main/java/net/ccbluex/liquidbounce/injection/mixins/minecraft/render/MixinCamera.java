@@ -102,7 +102,7 @@ public abstract class MixinCamera {
             this.setRotation(screen.getCameraRotation().x, screen.getCameraRotation().y);
         }
 
-        RotationTarget rotationTarget = RotationManager.INSTANCE.getWorkingRotationTarget();
+        RotationTarget rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
         var previousRotation = RotationManager.INSTANCE.getPreviousRotation();
         var currentRotation = RotationManager.INSTANCE.getCurrentRotation();
