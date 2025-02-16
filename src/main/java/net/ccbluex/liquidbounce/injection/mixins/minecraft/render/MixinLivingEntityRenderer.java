@@ -124,19 +124,10 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     }
 
     @Redirect(method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;III)V"))
-    private void injectTrueSight(EntityModel instance, MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay, int color, @Local(argsOnly = true) S livingEntityRenderState) {
-        final ModuleTrueSight trueSightModule = ModuleTrueSight.INSTANCE;
-        final ModuleESP espModule = ModuleESP.INSTANCE;
-        final Entity entity = ((EntityRenderStateAddition) livingEntityRenderState).liquid_bounce$getEntity();
-        final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
-        final boolean trueSight = trueSightModule.getRunning() && trueSightModule.getEntities();
-        if (
-                (
-                        trueSight ||
-                        livingEntity != null &&
-                        espModule.getRunning() && espModule.requiresTrueSight(livingEntity)
-                ) && entity.isInvisible()
-        ) {
+    private void injectTrueSight(EntityModel instance, MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay, int color, @Local(argsOnly = true) S state) {
+        var trueSightModule = ModuleTrueSight.INSTANCE;
+        var trueSight = trueSightModule.getRunning() && trueSightModule.getEntities();
+        if (ModuleTrueSight.canRenderEntities(state)) {
             color = trueSight ? trueSightModule.getEntityColor().toARGB() : ESP_TRUE_SIGHT_REQUIREMENT_COLOR;
         }
         instance.render(matrixStack, vertexConsumer, light, overlay, color);
