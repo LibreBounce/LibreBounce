@@ -423,7 +423,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      *
      *  @return The best spot to attack the entity
      */
-    private fun getSpot(entity: LivingEntity, range: Double, situation: PointTracker.AimSituation): RotationWithVector? {
+    private fun getSpot(entity: LivingEntity, range: Double,
+                        situation: PointTracker.AimSituation): RotationWithVector? {
         val point = pointTracker.gatherPoint(
             entity,
             situation

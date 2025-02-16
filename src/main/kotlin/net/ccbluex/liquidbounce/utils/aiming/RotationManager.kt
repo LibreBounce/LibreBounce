@@ -142,13 +142,14 @@ object RotationManager : EventListener {
             val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
 
             if (triggerNoChange || enemyChange) {
-                aimPlan.slowStart?.onTrigger()
+                aimPlan.slowStart.onTrigger()
             }
         }
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpen &&
-            mc.currentScreen !is GenericContainerScreen) || !activeRotationTarget.considerInventory) && allowedToUpdate()
+            mc.currentScreen !is GenericContainerScreen) || !activeRotationTarget.considerInventory)
+            && allowedToUpdate()
 
         if (allowedRotation) {
             val fromRotation = currentRotation ?: playerRotation
