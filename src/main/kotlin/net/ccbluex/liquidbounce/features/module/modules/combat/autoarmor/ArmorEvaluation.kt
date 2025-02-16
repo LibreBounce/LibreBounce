@@ -57,11 +57,20 @@ object ArmorEvaluation {
         return armorPiecesGroupedByType
     }
 
-    fun getArmorComparatorFor(currentKit: Map<EquipmentSlot, ArmorPiece?>, durabilityThreshold: Int = Int.MIN_VALUE): ArmorComparator {
-        return getArmorComparatorForParameters(ArmorKitParameters.getParametersForSlots(currentKit), durabilityThreshold)
+    fun getArmorComparatorFor(
+        currentKit: Map<EquipmentSlot, ArmorPiece?>,
+        durabilityThreshold: Int = Int.MIN_VALUE
+    ): ArmorComparator {
+        return getArmorComparatorForParameters(
+            ArmorKitParameters.getParametersForSlots(currentKit),
+            durabilityThreshold
+        )
     }
 
-    fun getArmorComparatorForParameters(currentParameters: ArmorKitParameters, durabilityThreshold: Int = Int.MIN_VALUE): ArmorComparator {
+    fun getArmorComparatorForParameters(
+        currentParameters: ArmorKitParameters,
+        durabilityThreshold: Int = Int.MIN_VALUE
+    ): ArmorComparator {
         return ArmorComparator(EXPECTED_DAMAGE, currentParameters, durabilityThreshold)
     }
 
