@@ -97,6 +97,7 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
     }
 
     override fun limitAngleChange(
+        factorModifier: Float,
         currentRotation: Rotation,
         targetRotation: Rotation,
         vec3d: Vec3d?,

@@ -1,4 +1,5 @@
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
@@ -19,8 +20,10 @@ import kotlin.math.abs
 data class Vector(val x: Double, val y: Double, val z: Double)
 data class Vec2f(val x: Float, val y: Float)
 data class TrainingData(
-    val c_vector: Vector,
-    val w_vector: Vector,
+    @SerializedName("c_vector")
+    val currentVector: Vector,
+    @SerializedName("w_vector")
+    val targetVector: Vector,
     val delta: Vec2f,
     val distance: Double
 )
@@ -78,8 +81,16 @@ fun generateTrainingData(): List<TrainingData> {
             val diff2 = clientRotation.rotationDeltaTo(nextClientRotation)
 
             trainingData += TrainingData(
-                Vector(clientRotation.directionVector.x, clientRotation.directionVector.y, clientRotation.directionVector.z),
-                Vector(targetRotation.directionVector.x, targetRotation.directionVector.y, targetRotation.directionVector.z),
+                Vector(
+                    clientRotation.directionVector.x,
+                    clientRotation.directionVector.y,
+                    clientRotation.directionVector.z
+                ),
+                Vector(
+                    targetRotation.directionVector.x,
+                    targetRotation.directionVector.y,
+                    targetRotation.directionVector.z
+                ),
                 Vec2f(diff2.deltaYaw, diff2.deltaPitch),
                 distance
             )
@@ -134,8 +145,8 @@ data class Dataset(val features: Array<FloatArray>, val labelX: FloatArray, val 
 fun prepareData(trainingData: List<TrainingData>): Dataset {
     val features = trainingData.map { data ->
         floatArrayOf(
-            data.c_vector.x.toFloat(), data.c_vector.y.toFloat(), data.c_vector.z.toFloat(),
-            data.w_vector.x.toFloat(), data.w_vector.y.toFloat(), data.w_vector.z.toFloat(),
+            data.currentVector.x.toFloat(), data.currentVector.y.toFloat(), data.currentVector.z.toFloat(),
+            data.targetVector.x.toFloat(), data.targetVector.y.toFloat(), data.targetVector.z.toFloat(),
             data.distance.toFloat()
         )
     }.toTypedArray()

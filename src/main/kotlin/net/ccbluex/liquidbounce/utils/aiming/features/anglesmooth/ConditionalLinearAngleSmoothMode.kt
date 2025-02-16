@@ -51,6 +51,7 @@ class ConditionalLinearAngleSmoothMode(override val parent: ChoiceConfigurable<*
     private val failIncrementV by float("FailIncrementV", 0f, 0.0f..10f)
 
     override fun limitAngleChange(
+        factorModifier: Float,
         currentRotation: Rotation,
         targetRotation: Rotation,
         vec3d: Vec3d?,
@@ -70,9 +71,9 @@ class ConditionalLinearAngleSmoothMode(override val parent: ChoiceConfigurable<*
             crosshair,
         )
 
-        val straightLineYaw = max(abs(diff.deltaYaw / rotationDifference) * factorH,
+        val straightLineYaw = max(abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier),
             minimumTurnSpeedH)
-        val straightLinePitch = max(abs(diff.deltaPitch / rotationDifference) * factorV,
+        val straightLinePitch = max(abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier),
             minimumTurnSpeedV)
 
         return Rotation(

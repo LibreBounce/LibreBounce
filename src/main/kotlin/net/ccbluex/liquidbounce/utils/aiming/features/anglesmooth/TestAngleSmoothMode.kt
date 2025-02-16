@@ -49,6 +49,7 @@ class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSm
     }
 
     override fun limitAngleChange(
+        rotationFactor: Float,
         currentRotation: Rotation,
         targetRotation: Rotation,
         vec3d: Vec3d?,
