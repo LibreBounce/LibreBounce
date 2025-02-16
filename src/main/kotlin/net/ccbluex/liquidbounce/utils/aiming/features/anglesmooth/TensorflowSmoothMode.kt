@@ -26,8 +26,11 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowModels.models
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
@@ -39,17 +42,25 @@ import org.jetbrains.kotlinx.dl.api.core.layer.core.Input
 import org.jetbrains.kotlinx.dl.api.core.loss.Losses
 import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
 import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
+import java.io.Closeable
 import java.io.File
+import kotlin.time.measureTimedValue
 
 object TensorflowModels : EventListener, Configurable("Tensorflow") {
 
+    val modelsFolder = rootFolder.resolve("models").apply {
+        mkdirs()
+    }
+
     init {
+        logger.info("Initializing Tensorflow...")
+
         // Load TensorFlow JNI libraries from /run directory
         System.load(File("./libtensorflow_framework.so.1").absolutePath)
         System.load(File("./libtensorflow_jni.so").absolutePath)
     }
 
-    class Model(name: String, val folder: File, override val parent: ChoiceConfigurable<*>) : Choice(name) {
+    class Model(name: String, val folder: File, override val parent: ChoiceConfigurable<*>) : Choice(name), Closeable {
 
         // TODO: How do I combine these two models into one?
         //    Kotlinx DL doesn't support multiple outputs in a single model?
@@ -57,6 +68,8 @@ object TensorflowModels : EventListener, Configurable("Tensorflow") {
         val pitchModel: Sequential = loadModel(folder.resolve("pitch_model"))
 
         private fun loadModel(file: File): Sequential {
+            logger.info("[TensorFlow] Loading ${file.name} model...")
+
             return Sequential.of(
                 Input(7),
                 Dense(64, Activations.Relu, kernelInitializer = HeNormal()),
@@ -72,19 +85,46 @@ object TensorflowModels : EventListener, Configurable("Tensorflow") {
             }
         }
 
+        override fun close() {
+            yawModel.close()
+            pitchModel.close()
+        }
+
     }
 
     /**
      * Dummy choice
      */
-    val choices = choices(this, "Model", 0) { parent ->
-        // Load models from /models directory in LiquidBounce
-        val folder = rootFolder.resolve("models")
-        folder.mkdirs()
+    val models = choices(this, "Model", 0, ::loadModels)
 
-        folder.listFiles { file -> file.isDirectory }?.map { file ->
-            Model(file.name, file, parent)
-        }?.toTypedArray() ?: emptyArray()
+    fun loadModels(parent: ChoiceConfigurable<*>) = modelsFolder.listFiles {
+        file -> file.isDirectory
+    }?.map { file ->
+        val (model, time) = measureTimedValue { Model(file.name, file, parent) }
+        logger.info("[TensorFlow] Loaded ${file.name} in ${time.inWholeMilliseconds}ms")
+        model
+    }?.toTypedArray() ?: emptyArray()
+
+    fun loadModels() {
+        models.choices = loadModels(models).toMutableList()
+
+        // Trigger changed listeners
+        models.setByString(models.activeChoice.choiceName)
+    }
+
+    fun unloadModels() {
+        val iterator = models.choices.iterator()
+
+        while (iterator.hasNext()) {
+            val model = iterator.next()
+            model.close()
+            iterator.remove()
+        }
+    }
+
+    fun reloadModels() {
+        unloadModels()
+        loadModels()
     }
 
 }
@@ -96,8 +136,13 @@ object TensorflowModels : EventListener, Configurable("Tensorflow") {
  */
 class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Tensorflow") {
 
-    private val choices = choices("Model", 0) {
-        TensorflowModels.choices.choices.toTypedArray()
+    private val choices = choices("Model", 0) { local ->
+        models.onChanged { _ ->
+            local.choices = models.choices
+            ModuleClickGui.reloadView()
+        }
+
+        models.choices.toTypedArray()
     }
 
     override fun limitAngleChange(

@@ -28,8 +28,8 @@ import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.markAsError
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowModels
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
@@ -80,41 +80,86 @@ object CommandTensorflow : CommandFactory {
             .handler { command, args ->
                 val name = args[0] as String
                 val samples = (args.getOrNull(1) as String?)?.toIntOrNull() ?: SAMPLES
-                val debugFolder = ConfigSystem.rootFolder.resolve("debug-recorder/Aim")
+
+                chat(
+                    regular("⚡ Starting training for "),
+                    variable(name),
+                    regular(" model"),
+                    dot()
+                )
 
                 thread {
-                    runCatching {
-                        val (linearTrainingData, time1) = measureTimedValue { generateTrainingData(samples) }
-                        chat("Generated ${linearTrainingData.size} training samples in ${time1.inWholeMilliseconds}ms")
-                        val (trainingData, time2) = measureTimedValue { readTrainingDataFromFolder(debugFolder) }
-                        chat("Read ${trainingData.size} training samples in ${time2.inWholeMilliseconds}ms")
-
-                        val (dataset, time3) = measureTimedValue { prepareData(linearTrainingData + trainingData) }
-                        chat("Prepared dataset with ${dataset.features.size} samples in ${time3.inWholeMilliseconds}ms")
-
-                        val (modelYaw, time4) = measureTimedValue {
-                            createAndTrainModel(dataset.features, dataset.labelX)
-                        }
-                        chat("Trained yaw model in ${time4.inWholeSeconds}s")
-                        val (modelPitch, time5) = measureTimedValue {
-                            createAndTrainModel(dataset.features, dataset.labelY)
-                        }
-                        chat("Trained pitch model in ${time5.inWholeSeconds}s")
-
-                        // Save the models
-                        val time6 = measureTime {
-                            saveModel(modelYaw, name, "yaw_model")
-                            saveModel(modelPitch, name, "pitch_model")
-                        }
-
-                        chat("Models trained and saved successfully in ${time6.inWholeMilliseconds}ms.")
-                        chat("Client requires a restart to load the new models.")
-                    }.onFailure {
-                        chat(markAsError("Error training models: ${it.message}"))
-                    }
+                    startGeneration(name, samples)
                 }
             }
             .build()
+    }
+
+    val trainingDataFolder = ConfigSystem.rootFolder.resolve("debug-recorder/Aim")
+
+    fun startGeneration(name: String, samples: Int) = runCatching {
+        val (linearTrainingData, time1) = measureTimedValue { generateTrainingData(samples) }
+        chat(
+            regular("✦ Generated "),
+            variable("${linearTrainingData.size}"),
+            regular(" training samples in "),
+            variable("${time1.inWholeMilliseconds}ms"),
+            dot()
+        )
+
+        val (trainingData, time2) = measureTimedValue { readTrainingDataFromFolder(trainingDataFolder) }
+        chat(
+            regular("✦ Read "),
+            variable("${trainingData.size}"),
+            regular(" training samples in "),
+            variable("${time2.inWholeMilliseconds}ms"),
+            dot()
+        )
+
+        val (dataset, time3) = measureTimedValue { prepareData(linearTrainingData + trainingData) }
+        chat(
+            regular("✧ Prepared dataset with "),
+            variable("${dataset.features.size}"),
+            regular(" samples in "),
+            variable("${time3.inWholeMilliseconds}ms"),
+            dot()
+        )
+
+        val (modelYaw, time4) = measureTimedValue {
+            createAndTrainModel(dataset.features, dataset.labelX)
+        }
+        chat(
+            regular("⚔ Trained "),
+            highlight("yaw"),
+            regular(" model in "),
+            variable("${time4.inWholeSeconds}s"),
+            dot()
+        )
+        val (modelPitch, time5) = measureTimedValue {
+            createAndTrainModel(dataset.features, dataset.labelY)
+        }
+        chat(
+            regular("⚔ Trained "),
+            highlight("pitch"),
+            regular(" model in "),
+            variable("${time5.inWholeSeconds}s"),
+            dot()
+        )
+
+        // Save the models
+        val time6 = measureTime {
+            saveModel(modelYaw, name, "yaw_model")
+            saveModel(modelPitch, name, "pitch_model")
+        }
+
+        chat(
+            regular("✔ Models trained and saved successfully in "),
+            variable("${time6.inWholeMilliseconds}ms"),
+            dot()
+        )
+        TensorflowModels.reloadModels()
+    }.onFailure {
+        chat(markAsError("✘ Error training models: ${it.message}"))
     }
 
 }
