@@ -225,21 +225,26 @@ class Target : Element("Target") {
                     // main bar
                     withClipping(main = {
                         drawRoundedRect(
-                            healthBarStart, 
-                            healthBarTop, 
-                            healthBarStart + currentWidth, 
-                            healthBarTop + healthBarHeight, 
-                            Color.BLACK.rgb, 
+                            healthBarStart,
+                            healthBarTop,
+                            healthBarStart + currentWidth,
+                            healthBarTop + healthBarHeight,
+                            Color.BLACK.rgb,
                             3F
-                        )}, toClip = {
-                        drawGradientRect(healthBarStart.toInt(), 
-                            healthBarTop.toInt(), 
-                            healthBarStart.toInt() + currentWidth.toInt(), 
+                        )
+                    }, toClip = {
+                        drawGradientRect(
+                            healthBarStart.toInt(),
+                            healthBarTop.toInt(),
+                            healthBarStart.toInt() + currentWidth.toInt(),
                             healthBarTop.toInt() + healthBarHeight.toInt(),
                             healthbarColor1.rgb,
-                            healthbarColor2.rgb, 0f)})
+                            healthbarColor2.rgb,
+                            0f
+                        )
+                    })
 
-                    val healthPercentage = ((easingHealth / maxHealth) * 100).toInt()
+                    val healthPercentage = (easingHealth / maxHealth * 100).toInt()
                     val percentageText = "$healthPercentage%"
                     val textWidth = healthFont.getStringWidth(percentageText)
                     val calcX = healthBarStart + currentWidth - textWidth
@@ -258,9 +263,10 @@ class Target : Element("Target") {
 
                             if (entityTexture != null) {
                                 withClipping(main = {
-                                    drawRoundedRect(4f, 6f, 28f + 4f, 28f + 6f, Color.BLACK.rgb, roundedRectRadius)},
-                                    toClip = {
-                                drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F)})
+                                    drawRoundedRect(4f, 6f, 28f + 4f, 28f + 6f, Color.BLACK.rgb, roundedRectRadius)
+                                }, toClip = {
+                                    drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F, Color.WHITE)
+                                })
                             }
                         }
 
@@ -295,7 +301,7 @@ class Target : Element("Target") {
                             }
                         }*/
 
-                        target.name?.let { 
+                        target.name?.let {
                             titleFont.drawString(it, 36F, 8F, textCustomColor, textShadow)
                         }
                     }

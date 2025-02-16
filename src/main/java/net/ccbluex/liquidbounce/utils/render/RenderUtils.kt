@@ -1178,13 +1178,17 @@ object RenderUtils : MinecraftInstance {
         width: Int,
         height: Int,
         tileWidth: Float,
-        tileHeight: Float
+        tileHeight: Float,
+        color: Color
     ) {
+        glPushMatrix()
         val texture: ResourceLocation = skin ?: mc.thePlayer.locationSkin
 
-        glColor4f(1F, 1F, 1F, 1F)
+        glColor(color)
         mc.textureManager.bindTexture(texture)
         drawScaledCustomSizeModalRect(x, y, u, v, uWidth, vHeight, width, height, tileWidth, tileHeight)
+        glColor(Color.WHITE)
+        glPopMatrix()
     }
 
     fun drawImage(
