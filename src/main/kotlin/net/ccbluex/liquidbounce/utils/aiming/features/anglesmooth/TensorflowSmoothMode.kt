@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
@@ -27,6 +27,7 @@ class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSm
         }
 
         // TODO: How do I combine these two models into one?
+        //    Kotlinx DL doesn't support multiple outputs in a single model?
         private val yawModel: Sequential = loadModel("./models/yaw_model")
         private val pitchModel: Sequential = loadModel("./models/pitch_model")
 
@@ -55,29 +56,24 @@ class TensorflowSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSm
         vec3d: Vec3d?,
         entity: Entity?
     ): Rotation {
-        /**
-         *         floatArrayOf(
-         *             data.c_vector.x.toFloat(), data.c_vector.y.toFloat(), data.c_vector.z.toFloat(),
-         *             data.w_vector.x.toFloat(), data.w_vector.y.toFloat(), data.w_vector.z.toFloat(),
-         *             data.distance.toFloat()
-         *         )
-         */
-        val c_vector = currentRotation.directionVector
-        val w_vector = targetRotation.directionVector
+        val currentDirectionVector = currentRotation.directionVector
+        val targetDirectionVector = targetRotation.directionVector
         val distance = entity?.let { entity -> player.boxedDistanceTo(entity) } ?: 0.0
 
         val predictedYaw = yawModel.predictSoftly(floatArrayOf(
-            c_vector.x.toFloat(), c_vector.y.toFloat(), c_vector.z.toFloat(),
-            w_vector.x.toFloat(), w_vector.y.toFloat(), w_vector.z.toFloat(),
+            currentDirectionVector.x.toFloat(), currentDirectionVector.y.toFloat(), currentDirectionVector.z.toFloat(),
+            targetDirectionVector.x.toFloat(), targetDirectionVector.y.toFloat(), targetDirectionVector.z.toFloat(),
             distance.toFloat()
         ))[0]
 
         val predictedPitch = pitchModel.predictSoftly(floatArrayOf(
-            c_vector.x.toFloat(), c_vector.y.toFloat(), c_vector.z.toFloat(),
-            w_vector.x.toFloat(), w_vector.y.toFloat(), w_vector.z.toFloat(),
+            currentDirectionVector.x.toFloat(), currentDirectionVector.y.toFloat(), currentDirectionVector.z.toFloat(),
+            targetDirectionVector.x.toFloat(), targetDirectionVector.y.toFloat(), targetDirectionVector.z.toFloat(),
             distance.toFloat()
         ))[0]
-        chat("TensorFlow -> Yaw: $predictedYaw, Pitch: $predictedPitch")
+
+        ModuleDebug.debugParameter(this, "Yaw", predictedYaw)
+        ModuleDebug.debugParameter(this, "Pitch", predictedPitch)
 
         return Rotation(
             currentRotation.yaw + predictedYaw,

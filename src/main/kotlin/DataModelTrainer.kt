@@ -125,9 +125,7 @@ fun parseJson(jsonString: String): List<TrainingData> {
 
 fun readTrainingDataFromFolder(folderPath: String): List<TrainingData> {
     val folder = File(folderPath)
-    if (!folder.exists() || !folder.isDirectory) {
-        throw IllegalArgumentException("Invalid folder path: $folderPath")
-    }
+    require(folder.exists() && folder.isDirectory) { "Invalid folder path: $folderPath" }
 
     return folder.listFiles { file -> file.isFile && file.extension == "json" }
         ?.flatMap { file ->
