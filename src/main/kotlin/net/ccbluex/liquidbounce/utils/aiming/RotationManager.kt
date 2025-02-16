@@ -59,7 +59,7 @@ object RotationManager : EventListener {
         get() = rotationTargetHandler.getActiveRequestValue()
     private var rotationTargetHandler = RequestHandler<RotationTarget>()
 
-    val workingRotationTarget: RotationTarget?
+    val activeRotationTarget: RotationTarget?
         get() = rotationTarget ?: previousRotationTarget
     private var previousRotationTarget: RotationTarget? = null
 
@@ -132,34 +132,34 @@ object RotationManager : EventListener {
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     fun update() {
-        val workingAimPlan = this.workingRotationTarget ?: return
+        val activeRotationTarget = this.activeRotationTarget ?: return
         val playerRotation = player.rotation
 
         val aimPlan = this.rotationTarget
         if (aimPlan != null) {
             val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
-                aimPlan.upRamp?.onEnemyChange == true
-            val triggerNoChange = triggerNoDifference && aimPlan.upRamp?.onZeroRotationDifference == true
+                aimPlan.slowStart?.onEnemyChange == true
+            val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
 
             if (triggerNoChange || enemyChange) {
-                aimPlan.upRamp?.onTrigger()
+                aimPlan.slowStart?.onTrigger()
             }
         }
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpen &&
-            mc.currentScreen !is GenericContainerScreen) || !workingAimPlan.considerInventory) && allowedToUpdate()
+            mc.currentScreen !is GenericContainerScreen) || !activeRotationTarget.considerInventory) && allowedToUpdate()
 
         if (allowedRotation) {
             val fromRotation = currentRotation ?: playerRotation
-            val rotation = workingAimPlan.nextRotation(fromRotation, aimPlan == null)
+            val rotation = activeRotationTarget.nextRotation(fromRotation, aimPlan == null)
                 // After generating the next rotation, we need to normalize it
                 .normalize()
 
             val diff = rotation.angleTo(playerRotation)
 
-            if (aimPlan == null && (workingAimPlan.movementCorrection == MovementCorrection.CHANGE_LOOK
-                    || diff <= workingAimPlan.resetThreshold)) {
+            if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
                     player.renderYaw = player.yaw
@@ -169,12 +169,12 @@ object RotationManager : EventListener {
                 currentRotation = null
                 previousRotationTarget = null
             } else {
-                if (workingAimPlan.movementCorrection == MovementCorrection.CHANGE_LOOK) {
+                if (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK) {
                     player.setRotation(rotation)
                 }
 
                 currentRotation = rotation
-                previousRotationTarget = workingAimPlan
+                previousRotationTarget = activeRotationTarget
 
                 aimPlan?.whenReached?.invoke()
             }
@@ -201,7 +201,7 @@ object RotationManager : EventListener {
 
     @Suppress("unused")
     private val velocityHandler = handler<PlayerVelocityStrafe> { event ->
-        if (workingRotationTarget?.movementCorrection != MovementCorrection.OFF) {
+        if (activeRotationTarget?.movementCorrection != MovementCorrection.OFF) {
             val rotation = currentRotation ?: return@handler
 
             event.velocity = Entity.movementInputToVelocity(

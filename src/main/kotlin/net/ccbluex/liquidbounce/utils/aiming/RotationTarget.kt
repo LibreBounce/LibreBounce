@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
 import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
-import net.ccbluex.liquidbounce.utils.aiming.features.UpRamp
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
@@ -46,7 +46,7 @@ class RotationTarget(
      * If we do not want to smooth the angle, we can set this to null.
      */
     val angleSmooth: AngleSmoothMode?,
-    val upRamp: UpRamp?,
+    val slowStart: SlowStart?,
     val failFocus: FailFocus?,
     val shortStop: ShortStop?,
     val ticksUntilReset: Int,
@@ -82,7 +82,7 @@ class RotationTarget(
         val factorModifier = if (failFocus?.isInFailState == true) {
             failFocus.failFactor
         } else {
-            upRamp?.rotationFactor ?: 1f
+            slowStart?.rotationFactor ?: 1f
         }
 
         if (isResetting) {

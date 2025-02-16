@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIOR
  * enhances aiming by providing smooth adjustments, particularly for fast-moving targets,
  * avoiding abrupt or unnatural flicks.
  */
-class UpRamp(owner: EventListener? = null)
-    : ToggleableConfigurable(owner, "UpRamp", false, aliases = arrayOf("SlowStart")) {
+class SlowStart(owner: EventListener? = null)
+    : ToggleableConfigurable(owner, "SlowStart", false) {
 
     // Configuration properties
     private val slowStartFactor by float("SlowStartFactor", 0.6f, 0.01f..0.99f)
@@ -37,7 +37,7 @@ class UpRamp(owner: EventListener? = null)
      */
     val rotationFactor: Float
         get() {
-            if (!enabled) {
+            if (!running) {
                 return 1f
             }
 

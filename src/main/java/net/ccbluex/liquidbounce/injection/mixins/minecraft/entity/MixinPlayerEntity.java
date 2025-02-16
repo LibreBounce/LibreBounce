@@ -95,7 +95,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();
-        RotationTarget configurable = rotationManager.getWorkingRotationTarget();
+        RotationTarget configurable = rotationManager.getActiveRotationTarget();
 
         if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;

@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.data.VecRotation
+import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
 import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
 import net.ccbluex.liquidbounce.utils.aiming.preference.RotationPreference
 import net.ccbluex.liquidbounce.utils.block.getState
@@ -55,7 +55,7 @@ fun raytraceBlock(
     state: BlockState,
     range: Double,
     wallsRange: Double,
-): VecRotation? {
+): RotationWithVector? {
     val offset = Vec3d(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
     val shape = state.getOutlineShape(world, pos, ShapeContext.of(player))
 
@@ -119,12 +119,12 @@ fun canSeeUpperBlockSide(
 
 private open class BestRotationTracker(val comparator: Comparator<Rotation>, val ignoreVisibility: Boolean = false) {
 
-    var bestInvisible: VecRotation? = null
+    var bestInvisible: RotationWithVector? = null
         private set
-    var bestVisible: VecRotation? = null
+    var bestVisible: RotationWithVector? = null
         private set
 
-    fun considerRotation(rotation: VecRotation, visible: Boolean = true) {
+    fun considerRotation(rotation: RotationWithVector, visible: Boolean = true) {
         if (visible || ignoreVisibility) {
             val isRotationBetter = getIsRotationBetter(base = this.bestVisible, rotation, true)
 
@@ -140,7 +140,7 @@ private open class BestRotationTracker(val comparator: Comparator<Rotation>, val
         }
     }
 
-    protected open fun getIsRotationBetter(base: VecRotation?, newRotation: VecRotation, visible: Boolean): Boolean {
+    protected open fun getIsRotationBetter(base: RotationWithVector?, newRotation: RotationWithVector, visible: Boolean): Boolean {
         return base?.let { currentlyBest ->
             this.comparator.compare(currentlyBest.rotation, newRotation.rotation) > 0
         } ?: true
@@ -161,7 +161,7 @@ private class PrePlaningTracker(
     private val bestVisibleIntersects = false
     private val bestInvisibleIntersects = false
 
-    override fun getIsRotationBetter(base: VecRotation?, newRotation: VecRotation, visible: Boolean): Boolean {
+    override fun getIsRotationBetter(base: RotationWithVector?, newRotation: RotationWithVector, visible: Boolean): Boolean {
         val intersects = futureTarget.isHitByLine(eyes, newRotation.vec)
 
         val isBetterWhenVisible = visible && !bestVisibleIntersects
@@ -232,7 +232,7 @@ fun raytraceBlockSide(
     rangeSquared: Double,
     wallsRangeSquared: Double,
     shapeContext: ShapeContext
-): VecRotation? {
+): RotationWithVector? {
     pos.getState()?.getOutlineShape(world, pos, shapeContext)?.let { shape ->
         val sortedShapes = shape.boundingBoxes.sortedBy {
             -(it.maxX - it.minX) * (it.maxY - it.minY) * (it.maxZ - it.minZ)
@@ -301,7 +301,7 @@ fun raytraceBox(
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
     futureTarget: Box? = null,
     prioritizeVisible: Boolean = true
-): VecRotation? {
+): RotationWithVector? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
@@ -322,7 +322,7 @@ fun raytraceBox(
         val validCauseVisible = visibilityPredicate.isVisible(eyesPos = eyes, targetSpot = preferredSpotOnBox)
 
         if (validCauseBelowWallsRange || validCauseVisible && preferredSpotDistance < rangeSquared) {
-            return VecRotation(Rotation.lookingAt(point = preferredSpot, from = eyes), preferredSpot)
+            return RotationWithVector(Rotation.lookingAt(point = preferredSpot, from = eyes), preferredSpot)
         }
     }
 
@@ -391,7 +391,7 @@ private fun considerSpot(
 
     val rotation = Rotation.lookingAt(point = spot, from = eyes)
 
-    bestRotationTracker.considerRotation(VecRotation(rotation, spot), visible)
+    bestRotationTracker.considerRotation(RotationWithVector(rotation, spot), visible)
 }
 
 /**
@@ -475,7 +475,7 @@ fun raytraceUpperBlockSide(
     expectedTarget: BlockPos,
     rotationPreference: RotationPreference = LeastDifferencePreference.LEAST_DISTANCE_TO_CURRENT_ROTATION,
     rotationsNotToMatch: List<Rotation>? = null
-): VecRotation? {
+): RotationWithVector? {
     val rangeSquared = range * range
     val wallsRangeSquared = wallsRange * wallsRange
 
@@ -507,7 +507,7 @@ fun raytraceUpperBlockSide(
             return@range
         }
 
-        bestRotationTracker.considerRotation(VecRotation(rotation, vec3), visible)
+        bestRotationTracker.considerRotation(RotationWithVector(rotation, vec3), visible)
     }
 
     return bestRotationTracker.bestVisible ?: bestRotationTracker.bestInvisible
@@ -531,8 +531,8 @@ fun findClosestPointOnBlockInLineWithCrystal(
     expectedTarget: BlockPos,
     notFacingAway: Boolean,
     rotationsNotToMatch: List<Rotation>? = null
-): Pair<VecRotation, Direction>? {
-    var best: Pair<VecRotation, Direction>? = null
+): Pair<RotationWithVector, Direction>? {
+    var best: Pair<RotationWithVector, Direction>? = null
     var bestIntersects = false
     var bestDistance = Double.MAX_VALUE
 
@@ -596,7 +596,7 @@ fun findClosestPointOnBlockInLineWithCrystal(
                 return@range
             }
 
-            best = VecRotation(rotation, vec3) to it
+            best = RotationWithVector(rotation, vec3) to it
             bestDistance = distance
             bestIntersects = intersects
         }
@@ -611,7 +611,7 @@ private fun checkCurrentRotation(
     expectedTarget: BlockPos,
     predictedCrystal: Box,
     eyes: Vec3d
-): Pair<VecRotation, Direction>? {
+): Pair<RotationWithVector, Direction>? {
     val currentHit = raytraceBlock(
         max(range, wallsRange),
         RotationManager.serverRotation,
@@ -632,7 +632,7 @@ private fun checkCurrentRotation(
 
     if (intersects && distance <= range.sq() && visibleThroughWalls) {
         val rotation = Rotation.lookingAt(point = pos, from = eyes)
-        return VecRotation(rotation, pos) to currentHit.side
+        return RotationWithVector(rotation, pos) to currentHit.side
     }
 
     return null

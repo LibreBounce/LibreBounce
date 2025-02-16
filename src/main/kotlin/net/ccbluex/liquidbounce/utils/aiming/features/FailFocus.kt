@@ -42,7 +42,7 @@ class FailFocus(owner: EventListener? = null)
     private var shiftRotation = Rotation(0f, 0f)
 
     val isInFailState: Boolean
-        get() = enabled && ticksElapsed < currentTransitionInDuration
+        get() = running && ticksElapsed < currentTransitionInDuration
 
     @Suppress("unused")
     private val gameTick = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
