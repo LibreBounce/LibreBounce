@@ -257,7 +257,10 @@ class Target : Element("Target") {
                             val entityTexture = renderer.getEntityTexture(target)
 
                             if (entityTexture != null) {
-                                drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F)
+                                withClipping(main = {
+                                    drawRoundedRect(4f, 6f, 28f + 4f, 28f + 6f, Color.BLACK.rgb, 2f)}, 
+                                    toClip = {
+                                drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F)})
                             }
                         }
 
