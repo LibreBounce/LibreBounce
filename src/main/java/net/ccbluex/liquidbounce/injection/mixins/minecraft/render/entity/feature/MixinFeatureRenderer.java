@@ -19,6 +19,8 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render.entity.feature;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleTrueSight;
 import net.ccbluex.liquidbounce.render.engine.Color4b;
@@ -32,7 +34,6 @@ import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(FeatureRenderer.class)
 public abstract class MixinFeatureRenderer {
@@ -40,23 +41,22 @@ public abstract class MixinFeatureRenderer {
     @Unique
     private static final int ESP_TRUE_SIGHT_REQUIREMENT_COLOR = new Color4b(255, 255, 255, 255).alpha(120).toARGB();
 
-    @Redirect(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;III)V"))
-    private static void injectTrueSight(EntityModel instance, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, int color, @Local(argsOnly = true) LivingEntityRenderState state) {
+    @WrapOperation(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;III)V"))
+    private static void injectTrueSight(EntityModel instance, MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay, int color, Operation<Void> original, @Local(argsOnly = true) LivingEntityRenderState state) {
         var trueSightModule = ModuleTrueSight.INSTANCE;
         var trueSight = trueSightModule.getRunning() && trueSightModule.getEntities();
         if (ModuleTrueSight.canRenderEntities(state)) {
             color = trueSight ? trueSightModule.getEntityFeatureLayerColor().toARGB() : ESP_TRUE_SIGHT_REQUIREMENT_COLOR;
         }
-        instance.render(matrices, vertices, light, overlay, color);
+        original.call(instance, matrixStack, vertexConsumer, light, overlay, color);
     }
 
-    @Redirect(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/RenderLayer;getEntityCutoutNoCull(Lnet/minecraft/util/Identifier;)Lnet/minecraft/client/render/RenderLayer;"))
-    private static RenderLayer injectTrueSight(Identifier texture, @Local(argsOnly = true) LivingEntityRenderState state) {
+    @WrapOperation(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/RenderLayer;getEntityCutoutNoCull(Lnet/minecraft/util/Identifier;)Lnet/minecraft/client/render/RenderLayer;"))
+    private static RenderLayer injectTrueSight(Identifier texture, Operation<RenderLayer> original, @Local(argsOnly = true) LivingEntityRenderState state) {
         if (ModuleTrueSight.canRenderEntities(state)) {
             return RenderLayer.getItemEntityTranslucentCull(texture);
-        } else {
-            return RenderLayer.getEntityCutoutNoCull(texture);
         }
+        return original.call(texture);
     }
 
 }
