@@ -19,8 +19,10 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
 import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
@@ -44,6 +46,8 @@ class RotationTarget(
      * If we do not want to smooth the angle, we can set this to null.
      */
     val angleSmooth: AngleSmoothMode?,
+    val slowStart: SlowStart?,
+    val failFocus: FailFocus?,
     val shortStop: ShortStop?,
     val ticksUntilReset: Int,
     /**
@@ -75,11 +79,23 @@ class RotationTarget(
         }
 
         val angleSmooth = angleSmooth ?: return rotation
+        val factorModifier = if (failFocus?.isInFailState == true) {
+            failFocus.failFactor
+        } else {
+            slowStart?.rotationFactor ?: 1f
+        }
 
         if (isResetting) {
-            return angleSmooth.limitAngleChange(fromRotation, player.rotation)
+            return angleSmooth.limitAngleChange(factorModifier, fromRotation, player.rotation)
         }
-        return angleSmooth.limitAngleChange(fromRotation, rotation, vec3d, entity)
+
+        val rotation = if (failFocus?.isInFailState == true) {
+            failFocus.shiftRotation(rotation)
+        } else {
+            rotation
+        }
+
+        return angleSmooth.limitAngleChange(factorModifier, fromRotation, rotation, vec3d, entity)
     }
 
 }

@@ -3,12 +3,11 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
 import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AccelerationSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.ConditionalLinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.*
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
@@ -25,13 +24,16 @@ open class RotationsConfigurable(
     private val angleSmooth = choices(owner, "AngleSmooth", 0) {
         arrayOf(
             LinearAngleSmoothMode(it),
-            TensorflowSmoothMode(it),
+            BezierAngleSmoothMode(it),
+            SigmoidAngleSmoothMode(it),
             ConditionalLinearAngleSmoothMode(it),
             AccelerationSmoothMode(it)
         )
     }
 
+    private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
     private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
 
     private val movementCorrection by enumChoice("MovementCorrection", movementCorrection)
     private val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
@@ -48,6 +50,8 @@ open class RotationsConfigurable(
         vec,
         entity,
         angleSmooth.activeChoice,
+        slowStart,
+        failFocus,
         shortStop,
         ticksUntilReset,
         resetThreshold,

@@ -29,8 +29,9 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.TensorflowSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.SigmoidAngleSmoothMode
 import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
 import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
@@ -70,9 +71,11 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
             LinearAngleSmoothMode(it),
-            TensorflowSmoothMode(it)
+            SigmoidAngleSmoothMode(it)
         )
     }
+
+    private val slowStart = tree(SlowStart(this))
 
     private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
     private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
@@ -80,6 +83,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
+    @Suppress("unused")
     private val tickHandler = handler<RotationUpdateEvent> { _ ->
         playerRotation = player.rotation
 
@@ -95,6 +99,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
         targetRotation = findNextTargetRotation()?.let { (target, rotation) ->
             angleSmooth.activeChoice.limitAngleChange(
+                slowStart.rotationFactor,
                 player.rotation,
                 rotation.rotation,
                 rotation.vec,
@@ -174,6 +179,9 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 rotationPreference = rotationPreference
             ) ?: continue
 
+            if (target != targetTracker.target) {
+                slowStart.onTrigger()
+            }
             targetTracker.target = target
             return target to spot
         }

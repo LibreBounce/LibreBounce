@@ -132,24 +132,35 @@ object RotationManager : EventListener {
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
     fun update() {
-        val activeTarget = this.activeRotationTarget ?: return
+        val activeRotationTarget = this.activeRotationTarget ?: return
         val playerRotation = player.rotation
-        val rotationTarget = this.rotationTarget
+
+        val aimPlan = this.rotationTarget
+        if (aimPlan != null) {
+            val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
+                aimPlan.slowStart?.onEnemyChange == true
+            val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
+
+            if (triggerNoChange || enemyChange) {
+                aimPlan.slowStart.onTrigger()
+            }
+        }
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpen &&
-            mc.currentScreen !is GenericContainerScreen) || !activeTarget.considerInventory) && allowedToUpdate()
+            mc.currentScreen !is GenericContainerScreen) || !activeRotationTarget.considerInventory)
+            && allowedToUpdate()
 
         if (allowedRotation) {
             val fromRotation = currentRotation ?: playerRotation
-            val rotation = activeTarget.nextRotation(fromRotation, rotationTarget == null)
+            val rotation = activeRotationTarget.nextRotation(fromRotation, aimPlan == null)
                 // After generating the next rotation, we need to normalize it
                 .normalize()
 
             val diff = rotation.angleTo(playerRotation)
 
-            if (rotationTarget == null && (activeTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
-                    || diff <= activeTarget.resetThreshold)) {
+            if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
                     player.renderYaw = player.yaw
@@ -159,14 +170,14 @@ object RotationManager : EventListener {
                 currentRotation = null
                 previousRotationTarget = null
             } else {
-                if (activeTarget.movementCorrection == MovementCorrection.CHANGE_LOOK) {
+                if (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK) {
                     player.setRotation(rotation)
                 }
 
                 currentRotation = rotation
-                previousRotationTarget = activeTarget
+                previousRotationTarget = activeRotationTarget
 
-                rotationTarget?.whenReached?.invoke()
+                aimPlan?.whenReached?.invoke()
             }
         }
 
@@ -227,7 +238,17 @@ object RotationManager : EventListener {
         priority = EventPriorityConvention.READ_FINAL_STATE
     ) { event ->
         val rotation = when (val packet = event.packet) {
-            is PlayerMoveC2SPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
+            is PlayerMoveC2SPacket -> {
+                // If we are not changing the look, we don't need to update the rotation
+                // but, we want to handle slow start triggers
+                if (!packet.changeLook) {
+                    triggerNoDifference = true
+                    return@handler
+                }
+
+                // We trust that we have sent a normalized rotation, if not, ... why?
+                Rotation(packet.yaw, packet.pitch, isNormalized = true)
+            }
             is PlayerPositionLookS2CPacket -> Rotation(packet.change.yaw, packet.change.pitch, isNormalized = true)
             is PlayerInteractItemC2SPacket -> Rotation(packet.yaw, packet.pitch, isNormalized = true)
             else -> return@handler

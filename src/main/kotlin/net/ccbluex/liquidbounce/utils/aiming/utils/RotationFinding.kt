@@ -140,10 +140,11 @@ private open class BestRotationTracker(val comparator: Comparator<Rotation>, val
         }
     }
 
-    protected open fun getIsRotationBetter(base: RotationWithVector?, newRotation: RotationWithVector, visible: Boolean): Boolean {
+    open fun getIsRotationBetter(base: RotationWithVector?, newRotation: RotationWithVector,
+                                 visible: Boolean): Boolean {
         return base?.let { currentlyBest ->
             this.comparator.compare(currentlyBest.rotation, newRotation.rotation) > 0
-        } ?: true
+        } != false
     }
 
 }
@@ -161,7 +162,8 @@ private class PrePlaningTracker(
     private val bestVisibleIntersects = false
     private val bestInvisibleIntersects = false
 
-    override fun getIsRotationBetter(base: RotationWithVector?, newRotation: RotationWithVector, visible: Boolean): Boolean {
+    override fun getIsRotationBetter(base: RotationWithVector?, newRotation: RotationWithVector,
+                                     visible: Boolean): Boolean {
         val intersects = futureTarget.isHitByLine(eyes, newRotation.vec)
 
         val isBetterWhenVisible = visible && !bestVisibleIntersects
