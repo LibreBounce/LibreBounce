@@ -5,11 +5,13 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
+import co.uk.hexeption.utils.OutlineUtils
 import net.ccbluex.liquidbounce.config.ColorValue
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.block.center
 import net.ccbluex.liquidbounce.utils.block.toVec
+import net.ccbluex.liquidbounce.utils.client.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.io.flipSafely
@@ -44,6 +46,34 @@ object RenderUtils : MinecraftInstance {
         glGenLists(1)
     }
     var deltaTime = 0
+
+    /**
+     * Useful for clipping any top-layered rectangle that falls outside a bottom-layered rectangle.
+     */
+    inline fun withClipping(main: () -> Unit, toClip: () -> Unit) {
+        disableFastRender()
+        OutlineUtils.checkSetupFBO()
+        glPushMatrix()
+
+        glEnable(GL_STENCIL_TEST)
+        glStencilFunc(GL_ALWAYS, 1, 1)
+        glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE)
+        glStencilMask(1)
+        glClear(GL_STENCIL_BUFFER_BIT)
+
+        main()
+
+        glStencilFunc(GL_EQUAL, 1, 1)
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+        glStencilMask(0)
+
+        toClip()
+
+        glStencilMask(0xFF)
+        glDisable(GL_STENCIL_TEST)
+
+        glPopMatrix()
+    }
 
     fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime safeDivD ticks * 50.0).coerceAtMost(1.0)
 
@@ -1321,6 +1351,26 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
+        glPopMatrix()
+    }
+
+    // Used to draw a WIFI-like icon.
+    fun drawQuarterCircle(x: Int, y: Int, radius: Float, color: Color) {
+        glPushMatrix()
+        glDisable(GL_TEXTURE_2D)
+        glColor(color)
+        glBegin(GL_TRIANGLE_FAN)
+
+        glVertex2f(x.toFloat(), y.toFloat())
+
+        for (i in CIRCLE_STEPS / 8..CIRCLE_STEPS * 3 / 8) {
+            val point = circlePoints[i]
+            glVertex2f(x + radius * point.z.toFloat(), y + radius * point.x.toFloat())
+        }
+
+        glColor4f(1f, 1f, 1f, 1f)
+        glEnd()
+        glEnable(GL_TEXTURE_2D)
         glPopMatrix()
     }
 

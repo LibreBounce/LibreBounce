@@ -12,20 +12,19 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
-import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
+import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.client.gui.GuiChat
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -33,8 +32,8 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.pow
 import kotlin.math.max
+import kotlin.math.pow
 
 /**
  * A Target HUD
@@ -260,11 +259,47 @@ class Target : Element("Target") {
                         (fadeMode && alphaText + alphaBackground + alphaBorder > 100) || (smoothMode && width + height > 100)
 
                     if (shouldRenderBody) {
-                        mc.netHandler?.getPlayerInfo(target.uniqueID)?.let {
-                            val locationSkin = it.locationSkin
-                            drawHead(locationSkin, 4, 6, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F)
+                        val renderer = mc.renderManager.getEntityRenderObject<Entity>(target)
+
+                        if (renderer != null) {
+                            val entityTexture = renderer.getEntityTexture(target)
+
+                            if (entityTexture != null) {
+                                drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 32, 32, 64F, 64F)
+                            }
                         }
-                        
+
+                        /*
+
+                        If you decide to make the avatar shrinkable on hit, see the translate and scale code
+
+                        in your case you must find the midpoint X/Y of the avatar position, then do the scaling
+                        but make sure the scaling is within the original element scale, check code below
+                        then after you are done with the scaling, revert back to the original position by translating the positions
+                        against them so it becomes back to 0. push/pop matrix is needed so it only handles the avatar.
+                        just check code below.
+
+                        remove if you know what to do
+
+                        val renderer = mc.renderManager.getEntityRenderObject<Entity>(target)
+                        if (renderer != null) {
+                            val entityTexture = renderer.getEntityTexture(target)
+
+                            if (entityTexture != null) {
+                                glPushMatrix()
+                                val scale = 1 - hurtTime / 10f
+                                val f1 = (0.7F..1F).lerpWith(scale) * this.scale * elementScale
+                                val color = ColorUtils.interpolateColor(Color.RED, Color.WHITE, scale)
+                                val centerX1 = (4..32).lerpWith(0.5F)
+
+                                glTranslatef(centerX1, midY, 0f)
+                                glScalef(f1, f1, f1)
+                                glTranslatef(-centerX1, -midY, 0f)
+                                drawHead(entityTexture, 4, (midY - 16).roundToInt(), 8F, 8F, 8, 8, 32, 32, 64F, 64F, color)
+                                glPopMatrix()
+                            }
+                        }*/
+
                         target.name?.let { 
                             titleFont.drawString(it, 36F, 8F, textCustomColor, textShadow)
                         }
