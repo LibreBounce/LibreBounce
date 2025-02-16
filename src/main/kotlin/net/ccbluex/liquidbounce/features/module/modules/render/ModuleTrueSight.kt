@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.render.engine.Color4b
 
 /**
  * TrueSight module
@@ -30,4 +31,6 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 object ModuleTrueSight : ClientModule("TrueSight", Category.RENDER) {
     val barriers by boolean("Barriers", true)
     val entities by boolean("Entities", true)
+    val entityColor by color("EntityColor", Color4b(255, 255, 255, 100))
+    val entityFeatureLayerColor by color("EntityFeatureLayerColor", Color4b(255, 255, 255, 120))
 }

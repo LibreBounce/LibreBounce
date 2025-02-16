@@ -29,22 +29,38 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleTrueSight;
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.ModuleESP;
 import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition;
+import net.ccbluex.liquidbounce.render.engine.Color4b;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
-public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
+public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
+
+    @Unique
+    private static final int ESP_TRUE_SIGHT_REQUIREMENT_COLOR = new Color4b(255, 255, 255, 255).alpha(100).toARGB();
+
+    @Shadow
+    public abstract Identifier getTexture(S state);
 
     @Unique
     private Pair<Rotation, Rotation> getOverwriteRotation(ModuleRotations.BodyPart bodyPart) {
@@ -107,15 +123,39 @@ public class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingE
         return original;
     }
 
-    @ModifyExpressionValue(method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;isVisible(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;)Z"))
-    private boolean injectTrueSight(boolean original, @Local(argsOnly = true) S livingEntityRenderState) {
-        // Check if TrueSight is enabled and entities are enabled or ESP is enabled and in glow mode
-        if (ModuleTrueSight.INSTANCE.getRunning() && ModuleTrueSight.INSTANCE.getEntities() ||
-                ModuleESP.INSTANCE.getRunning() && ModuleESP.INSTANCE.requiresTrueSight(((LivingEntity) ((EntityRenderStateAddition) livingEntityRenderState).liquid_bounce$getEntity()))) {
-            return true;
+    @Redirect(method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;III)V"))
+    private void injectTrueSight(EntityModel instance, MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay, int color, @Local(argsOnly = true) S livingEntityRenderState) {
+        final ModuleTrueSight trueSightModule = ModuleTrueSight.INSTANCE;
+        final ModuleESP espModule = ModuleESP.INSTANCE;
+        final Entity entity = ((EntityRenderStateAddition) livingEntityRenderState).liquid_bounce$getEntity();
+        final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
+        final boolean trueSight = trueSightModule.getRunning() && trueSightModule.getEntities();
+        if (
+                (
+                        trueSight ||
+                        livingEntity != null &&
+                        espModule.getRunning() && espModule.requiresTrueSight(livingEntity)
+                ) && entity.isInvisible()
+        ) {
+            color = trueSight ? trueSightModule.getEntityColor().toARGB() : ESP_TRUE_SIGHT_REQUIREMENT_COLOR;
         }
+        instance.render(matrixStack, vertexConsumer, light, overlay, color);
+    }
 
-        return original;
+    @Inject(method = "getRenderLayer", at = @At("HEAD"), cancellable = true)
+    private void injectTrueSight(S state, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
+        final ModuleTrueSight trueSightModule = ModuleTrueSight.INSTANCE;
+        final ModuleESP espModule = ModuleESP.INSTANCE;
+        final Entity entity = ((EntityRenderStateAddition) state).liquid_bounce$getEntity();
+        if (
+                (trueSightModule.getRunning() && trueSightModule.getEntities() ||
+                        entity instanceof final LivingEntity livingEntity &&
+                                espModule.getRunning() && espModule.requiresTrueSight(livingEntity)) &&
+                        !showBody && !translucent && !showOutline
+        ) {
+            state.invisible = false;
+            cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(this.getTexture(state)));
+        }
     }
 
     @ModifyReturnValue(method = "shouldFlipUpsideDown", at = @At("RETURN"))
