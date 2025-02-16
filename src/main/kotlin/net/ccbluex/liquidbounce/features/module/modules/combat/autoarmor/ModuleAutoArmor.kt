@@ -23,7 +23,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.integration.VrScreen
 import net.ccbluex.liquidbounce.utils.inventory.ArmorItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
@@ -33,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.item.durability
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.item.type
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.Items
@@ -68,7 +68,9 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
             return@tickHandler
         }
 
-        val armorToEquip = ArmorEvaluation.findBestArmorPieces().values
+        val armorToEquip = ArmorEvaluation
+            .findBestArmorPieces(durabilityThreshold = AutoArmorSaveArmor.durabilityThreshold)
+            .values
             .filterNotNull()
             .filter { !it.isAlreadyEquipped && it.itemSlot.itemStack.item is ArmorItem }
             .map { it.itemSlot.itemStack.item as ArmorItem }
@@ -93,11 +95,9 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
         // tries to close the previous screen and open the inventory
         while (hasArmorToReplace && mc.currentScreen !is InventoryScreen) {
-            if (mc.currentScreen is VrScreen) {
-                // closes ClickGUI to save some armor :)
-                (mc.currentScreen as VrScreen).close()
-            } else {
-                // closes any other screen.
+
+            if (mc.currentScreen is HandledScreen<*>) {
+                // closes chests/crating tables/etc.
                 // TODO: well, it doesn't... :(
                 //  When the player is in a chest/anvil/crafting table/etc.,
                 //  hasArmorToReplace is always false...
@@ -106,6 +106,9 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
                 //  the client doesn't receive any updates on the armor slots until the screen is closed.
                 //  However, the client still gets updates on the armor of other players :/
                 player.closeHandledScreen()
+            } else if (mc.currentScreen != null) {
+                // closes ClickGUI, game chat, etc. to save some armor :)
+                mc.currentScreen!!.close()
             }
 
             waitTicks(1)    // TODO: custom delay?
@@ -120,9 +123,11 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
     private val scheduleHandler = handler<ScheduleInventoryActionEvent> { event ->
         // Filter out already equipped armor pieces
-        val armorToEquip = ArmorEvaluation.findBestArmorPieces().values.filterNotNull().filter {
-            !it.isAlreadyEquipped
-        }
+        val armorToEquip = ArmorEvaluation
+            .findBestArmorPieces(durabilityThreshold = AutoArmorSaveArmor.durabilityThreshold)
+            .values.filterNotNull().filter {
+                !it.isAlreadyEquipped
+            }
 
         for (armorPiece in armorToEquip) {
             event.schedule(
