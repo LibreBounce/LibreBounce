@@ -257,7 +257,7 @@ class Target : Element("Target") {
                             val entityTexture = renderer.getEntityTexture(target)
 
                             if (entityTexture != null) {
-                                drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 32, 32, 64F, 64F)
+                                drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F)
                             }
                         }
 
