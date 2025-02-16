@@ -12,8 +12,10 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
+import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
@@ -88,6 +90,7 @@ class Target : Element("Target") {
         get() = alphaBorder > 0 || alphaBackground > 0 || alphaText > 0
 
     private var delayCounter = 0
+    private var easingHurtTime = 0F
 
     override fun drawElement(): Border {
         val smoothMode = animation == "Smooth"
@@ -126,6 +129,8 @@ class Target : Element("Target") {
 
                 easingHealth += ((targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed)) * deltaTime
                 easingHealth = easingHealth.coerceIn(0f, maxHealth)
+
+                easingHurtTime = (easingHurtTime..target.hurtTime.toFloat()).lerpWith(RenderUtils.deltaTimeNormalized())
 
                 if (target != lastTarget || abs(easingHealth - targetHealth) < 0.01) {
                     easingHealth = targetHealth
@@ -261,13 +266,24 @@ class Target : Element("Target") {
                         if (renderer != null) {
                             val entityTexture = renderer.getEntityTexture(target)
 
+                            glPushMatrix()
+                            val scale = 1 - easingHurtTime / 10f
+                            val f1 = (0.7F..1F).lerpWith(scale) * this.scale
+                            val color = ColorUtils.interpolateColor(Color.RED, Color.WHITE, scale)
+                            val centerX1 = (4..32).lerpWith(0.5F)
+                            val midY = (6f..32f).lerpWith(0.5F)
+
+                            glTranslatef(centerX1, midY, 0f)
+                            glScalef(f1, f1, f1)
+                            glTranslatef(-centerX1, -midY, 0f)
                             if (entityTexture != null) {
                                 withClipping(main = {
-                                    drawRoundedRect(4f, 6f, 28f + 4f, 28f + 6f, Color.BLACK.rgb, roundedRectRadius)
+                                    drawRoundedRect(4f, 6f, 32f, 34f, Color.BLACK.rgb, roundedRectRadius)
                                 }, toClip = {
-                                    drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F, Color.WHITE)
+                                    drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F, color)
                                 })
                             }
+                            glPopMatrix()
                         }
 
                         /*
