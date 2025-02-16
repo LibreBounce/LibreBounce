@@ -79,7 +79,7 @@ object CommandTensorflow : CommandFactory {
             )
             .handler { command, args ->
                 val name = args[0] as String
-                val samples = (args.getOrNull(1) as? Int) ?: SAMPLES
+                val samples = (args.getOrNull(1) as String?)?.toIntOrNull() ?: SAMPLES
                 val debugFolder = ConfigSystem.rootFolder.resolve("debug-recorder/Aim")
 
                 thread {
