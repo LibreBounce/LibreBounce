@@ -12,17 +12,16 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
-import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -48,11 +47,8 @@ class Target : Element("Target") {
     private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private val gradientHealthSpeed by float("Health-Gradient-Speed", 1f, 0.5f..10f)
-    private val maxGradientHealthColors by int("Max-Health-Gradient-Colors", 2, 2..MAX_GRADIENT_COLORS)
-    private val gradientHealthColors = ColorSettingsFloat.create(this, "Health-Gradient") { it <= maxGradientHealthColors }
-    private val gradientX by float("Gradient-X", -250F, -2000F..2000F)
-    private val gradientY by float("Gradient-Y", -1000F, -2000F..2000F)
+    private val healthbarColor1 by color("healthBar-Gradient1", Color(3, 65, 252))
+    private val healthbarColor2 by color("healthBar-Gradient2", Color(3, 252, 236))
 
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
@@ -188,10 +184,6 @@ class Target : Element("Target") {
                 val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
                 val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
 
-                val gradientOffset = System.currentTimeMillis() % 10000 / 10000F
-                val gradientX = if (gradientX == 0f) 0f else 1f / gradientX
-                val gradientY = if (gradientY == 0f) 0f else 1f / gradientY
-
                 glPushMatrix()
 
                 glEnable(GL_BLEND)
@@ -220,6 +212,7 @@ class Target : Element("Target") {
                     val healthBarTotal = (width - 39F).coerceAtLeast(0F)
                     val currentWidth = (easingHealth / maxHealth).coerceIn(0F, 1F) * healthBarTotal
 
+                    // background bar
                     drawRoundedRect(
                         healthBarStart,
                         healthBarTop,
@@ -229,23 +222,22 @@ class Target : Element("Target") {
                         3F,
                     )
 
-                    GradientShader.begin(
-                        true,
-                        gradientX,
-                        gradientY,
-                        gradientHealthColors.toColorArray(maxGradientHealthColors),
-                        gradientHealthSpeed,
-                        gradientOffset
-                    ).use {
+                    // main bar
+                    withClipping(main = {
                         drawRoundedRect(
                             healthBarStart, 
                             healthBarTop, 
                             healthBarStart + currentWidth, 
                             healthBarTop + healthBarHeight, 
-                            0, 
+                            Color.BLACK.rgb, 
                             3F
-                        )
-                    }
+                        )}, toClip = {
+                        drawGradientRect(healthBarStart.toInt(), 
+                            healthBarTop.toInt(), 
+                            healthBarStart.toInt() + currentWidth.toInt(), 
+                            healthBarTop.toInt() + healthBarHeight.toInt(),
+                            healthbarColor1.rgb,
+                            healthbarColor2.rgb, 0f)})
 
                     val healthPercentage = ((easingHealth / maxHealth) * 100).toInt()
                     val percentageText = "$healthPercentage%"
@@ -295,7 +287,7 @@ class Target : Element("Target") {
                                 glTranslatef(centerX1, midY, 0f)
                                 glScalef(f1, f1, f1)
                                 glTranslatef(-centerX1, -midY, 0f)
-                                drawHead(entityTexture, 4, (midY - 16).roundToInt(), 8F, 8F, 8, 8, 32, 32, 64F, 64F, color)
+                                drawHead(entityTexture, 4, (midY - 16).roundToInt(), 8F, 8F, 8, 8, 28, 28, 64F, 64F, color)
                                 glPopMatrix()
                             }
                         }*/

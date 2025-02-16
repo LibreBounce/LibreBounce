@@ -61,7 +61,9 @@ object RenderUtils : MinecraftInstance {
         glStencilMask(1)
         glClear(GL_STENCIL_BUFFER_BIT)
 
+        glColorMask(false, false, false, false)
         main()
+        glColorMask(true, true, true, true)
 
         glStencilFunc(GL_EQUAL, 1, 1)
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
@@ -74,6 +76,7 @@ object RenderUtils : MinecraftInstance {
 
         glPopMatrix()
     }
+
 
     fun deltaTimeNormalized(ticks: Int = 1) = (deltaTime safeDivD ticks * 50.0).coerceAtMost(1.0)
 
@@ -943,9 +946,9 @@ object RenderUtils : MinecraftInstance {
         val buffer = tessellator.worldRenderer
 
         buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
-        buffer.pos(right.toDouble(), top.toDouble(), zLevel.toDouble()).color(r1, g1, b1, a1).endVertex()
+        buffer.pos(right.toDouble(), top.toDouble(), zLevel.toDouble()).color(r2, g2, b2, a2).endVertex()
         buffer.pos(left.toDouble(), top.toDouble(), zLevel.toDouble()).color(r1, g1, b1, a1).endVertex()
-        buffer.pos(left.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(r2, g2, b2, a2).endVertex()
+        buffer.pos(left.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(r1, g1, b1, a1).endVertex()
         buffer.pos(right.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(r2, g2, b2, a2).endVertex()
         tessellator.draw()
 
