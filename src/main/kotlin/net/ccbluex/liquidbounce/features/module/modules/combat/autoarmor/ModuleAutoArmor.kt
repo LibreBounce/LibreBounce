@@ -23,11 +23,11 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.integration.VrScreen
 import net.ccbluex.liquidbounce.utils.inventory.ArmorItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.*
-import net.ccbluex.liquidbounce.utils.item.ArmorComparator.Companion.DURABILITY_THRESHOLD
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
 import net.ccbluex.liquidbounce.utils.item.durability
 import net.ccbluex.liquidbounce.utils.item.isNothing
@@ -51,29 +51,70 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
      * If disabled, it will only use inventory moves.
      */
     private val useHotbar by boolean("Hotbar", true)
+    private var hasOpenedInventory = false
 
-    // TODO: ideally, this value should be visible only if [inventoryConstraints] requires open inventory
-    //  because if there is no such requirement, the armor will be replaced and saved automatically.
-    private val autoOpenInventoryToSaveArmor by boolean("AutoOpenInvToSaveArmor", false)
+    init {
+        tree(AutoArmorSaveArmor)
+    }
 
-    private val repeatable = tickHandler {
-        val armorToEquip = ArmorEvaluation.findBestArmorPieces().values.filterNotNull().filter {
-            !it.isAlreadyEquipped
+    @Suppress("unused")
+    private val armorAutoSaveHandler = tickHandler {
+        if (!AutoArmorSaveArmor.enabled) {
+            return@tickHandler
         }
 
-        val hasArmorToRepair = player.inventory.armor.filter { it.item is ArmorItem }
-            .any { armorStack ->
-                armorStack.durability <= DURABILITY_THRESHOLD && armorToEquip
-                    .filter { it.itemSlot.itemStack.item is ArmorItem }
-                    .any { (it.itemSlot.itemStack.item as ArmorItem).type() == (armorStack.item as ArmorItem).type() }
+        // the module will save armor automatically if open inventory isn't required
+        if (!inventoryConstraints.requiresOpenInventory || !AutoArmorSaveArmor.autoOpen) {
+            return@tickHandler
         }
 
-        if (autoOpenInventoryToSaveArmor && inventoryConstraints.requiresOpenInventory && hasArmorToRepair) {
-            if (mc.currentScreen != null) {
+        val armorToEquip = ArmorEvaluation.findBestArmorPieces().values
+            .filterNotNull()
+            .filter { !it.isAlreadyEquipped && it.itemSlot.itemStack.item is ArmorItem }
+            .map { it.itemSlot.itemStack.item as ArmorItem }
+
+        val playerArmor = player.inventory.armor.filter { it.item is ArmorItem }
+
+        val hasArmorToReplace = playerArmor.any { armorStack ->
+            armorStack.durability <= AutoArmorSaveArmor.durabilityThreshold &&
+                armorToEquip.any { it.type() == (armorStack.item as ArmorItem).type() }
+        }
+
+        // closes the inventory after the armor is replaced
+        if (hasOpenedInventory && armorToEquip.isEmpty()) {
+            hasOpenedInventory = false
+            waitTicks(inventoryConstraints.closeDelay.random())
+
+            // the current screen might change while the module is waiting
+            if (mc.currentScreen is InventoryScreen) {
                 player.closeHandledScreen()
             }
-            // TODO: make sure it's legit and undetectable.
-            mc.setScreen(InventoryScreen(player))
+        }
+
+        // tries to close the previous screen and open the inventory
+        while (hasArmorToReplace && mc.currentScreen !is InventoryScreen) {
+            if (mc.currentScreen is VrScreen) {
+                // closes ClickGUI to save some armor :)
+                (mc.currentScreen as VrScreen).close()
+            } else {
+                // closes any other screen.
+                // TODO: well, it doesn't... :(
+                //  When the player is in a chest/anvil/crafting table/etc.,
+                //  hasArmorToReplace is always false...
+                //  The server simply doesn't let the player know anything new about his armor :/
+                //  the client knows only the state of the armor before opening the screen,
+                //  the client doesn't receive any updates on the armor slots until the screen is closed.
+                //  However, the client still gets updates on the armor of other players :/
+                player.closeHandledScreen()
+            }
+
+            waitTicks(1)    // TODO: custom delay?
+
+            // again, the current screen might change while the module is waiting
+            if (mc.currentScreen == null) {
+                mc.setScreen(InventoryScreen(player))
+                hasOpenedInventory = true
+            }
         }
     }
 
