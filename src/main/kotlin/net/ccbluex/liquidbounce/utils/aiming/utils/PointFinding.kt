@@ -173,7 +173,7 @@ fun findVisiblePointFromVirtualEye(
     val rays = ArrayList<ModuleDebug.DebuggedGeometry>()
 
     val center = box.center
-    points.sortedBy { it.squaredDistanceTo(center) }
+    points.sortBy { it.squaredDistanceTo(center) }
 
     for (spot in points) {
         val vecFromEyes = spot - virtualEyes
