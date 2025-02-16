@@ -61,6 +61,7 @@ object Fonts : MinecraftInstance {
     lateinit var fontRegular40: GameFontRenderer
     lateinit var fontRegular45: GameFontRenderer
     lateinit var fontRegular35: GameFontRenderer
+    lateinit var fontRegular30: GameFontRenderer
     lateinit var fontBold180: GameFontRenderer
 
     private fun <T : FontRenderer> register(fontInfo: FontInfo, fontRenderer: T): T {
@@ -90,6 +91,11 @@ object Fonts : MinecraftInstance {
 
             register(minecraftFontInfo, minecraftFont)
 
+            fontRegular30 = register(
+                FontInfo(name = "Outfit Regular", size = 30),
+                getFontFromFile("Outfit-Regular.ttf", 30).asGameFontRenderer()
+            )
+
             fontSemibold35 = register(
                 FontInfo(name = "Outfit Semibold", size = 35),
                 getFontFromFile("Outfit-Semibold.ttf", 35).asGameFontRenderer()
@@ -108,11 +114,6 @@ object Fonts : MinecraftInstance {
             fontSemibold40 = register(
                 FontInfo(name = "Outfit Semibold", size = 40),
                 getFontFromFile("Outfit-Semibold.ttf", 40).asGameFontRenderer()
-            )
-
-            fontSemibold35 = register(
-                FontInfo(name = "Outfit Semibold", size = 35),
-                getFontFromFile("Outfit-Semibold.ttf", 35).asGameFontRenderer()
             )
 
             fontRegular45 = register(

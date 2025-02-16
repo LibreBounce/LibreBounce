@@ -18,9 +18,13 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
+import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
+import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
+import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
@@ -30,6 +34,7 @@ import java.text.DecimalFormatSymbols
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.max
 
 /**
  * A Target HUD
@@ -44,6 +49,12 @@ class Target : Element("Target") {
     private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
+    private val gradientHealthSpeed by float("Health-Gradient-Speed", 1f, 0.5f..10f)
+    private val maxGradientHealthColors by int("Max-Health-Gradient-Colors", 2, 2..MAX_GRADIENT_COLORS)
+    private val gradientHealthColors = ColorSettingsFloat.create(this, "Health-Gradient") { it <= maxGradientHealthColors }
+    private val gradientX by float("Gradient-X", -250F, -2000F..2000F)
+    private val gradientY by float("Gradient-Y", -1000F, -2000F..2000F)
+
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
 
@@ -53,7 +64,7 @@ class Target : Element("Target") {
     private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
 
     private val titleFont by font("TitleFont", Fonts.fontSemibold40)
-    private val bodyFont by font("BodyFont", Fonts.fontSemibold35)
+    private val healthFont by font("healthFont", Fonts.fontRegular30)
     private val textShadow by boolean("TextShadow", false)
 
     private val fadeSpeed by float("FadeSpeed", 2F, 1F..9F)
@@ -103,7 +114,6 @@ class Target : Element("Target") {
                 val targetHealth = getHealth(target!!, healthFromScoreboard, absorption)
                 val maxHealth = target.maxHealth + if (absorption) target.absorptionAmount else 0F
 
-                // Calculate health color based on entity's health
                 val healthColor = when {
                     targetHealth <= 0 -> Color(255, 0, 0, if (fadeMode) alphaText else textColor.alpha)
                     else -> {
@@ -119,7 +129,10 @@ class Target : Element("Target") {
                     }
                 }
 
-                if (target != lastTarget || easingHealth < 0 || easingHealth > maxHealth || abs(easingHealth - targetHealth) < 0.01) {
+                easingHealth += ((targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed)) * deltaTime
+                easingHealth = easingHealth.coerceIn(0f, maxHealth)
+
+                if (target != lastTarget || abs(easingHealth - targetHealth) < 0.01) {
                     easingHealth = targetHealth
                 }
 
@@ -176,6 +189,10 @@ class Target : Element("Target") {
                 val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
                 val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
 
+                val gradientOffset = System.currentTimeMillis() % 10000 / 10000F
+                val gradientX = if (gradientX == 0f) 0f else 1f / gradientX
+                val gradientY = if (gradientY == 0f) 0f else 1f / gradientY
+
                 glPushMatrix()
 
                 glEnable(GL_BLEND)
@@ -198,49 +215,58 @@ class Target : Element("Target") {
                         )
                     }
 
-                    // Health bar
-                    val healthBarWidth = (targetHealth / maxHealth).coerceIn(0F, 1F) * (width - 6f).coerceAtLeast(0F)
-                    drawRect(3F, 34F, 3f + healthBarWidth, 36F, healthColor.rgb)
+                    val healthBarTop = 26F
+                    val healthBarHeight = 8F
+                    val healthBarStart = 36F
+                    val healthBarTotal = (width - 39F).coerceAtLeast(0F)
+                    val currentWidth = (easingHealth / maxHealth).coerceIn(0F, 1F) * healthBarTotal
 
-                    // Easing health update
-                    easingHealth += ((targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed)) * deltaTime
-                    val easingHealthWidth = (easingHealth / maxHealth) * (width - 6f)
+                    drawRoundedRect(
+                        healthBarStart,
+                        healthBarTop,
+                        healthBarStart + healthBarTotal,
+                        healthBarTop + healthBarHeight,
+                        Color.BLACK.rgb,
+                        3F,
+                    )
 
-                    // Heal animation, only animate from the right side
-                    if (easingHealth < targetHealth) {
-                        drawRect(3f + easingHealthWidth, 34F, 3f + healthBarWidth, 36F, Color(44, 201, 144).rgb)
+                    GradientShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        gradientHealthColors.toColorArray(maxGradientHealthColors),
+                        gradientHealthSpeed,
+                        gradientOffset
+                    ).use {
+                        drawRoundedRect(
+                            healthBarStart, 
+                            healthBarTop, 
+                            healthBarStart + currentWidth, 
+                            healthBarTop + healthBarHeight, 
+                            0, 
+                            3F
+                        )
                     }
 
-                    // Damage animation, only animate from the right side
-                    if (easingHealth > targetHealth) {
-                        drawRect(3f + healthBarWidth, 34F, 3f + easingHealthWidth, 36F, Color(252, 185, 65).rgb)
-                    }
+                    val healthPercentage = ((easingHealth / maxHealth) * 100).toInt()
+                    val percentageText = "$healthPercentage%"
+                    val textWidth = healthFont.getStringWidth(percentageText)
+                    val calcX = healthBarStart + currentWidth - textWidth
+                    val textX = max(healthBarStart, calcX)
+                    val textY = healthBarTop - Fonts.fontRegular30.fontHeight / 2 - 4F
+                    healthFont.drawString(percentageText, textX, textY, textCustomColor, textShadow)
 
                     val shouldRenderBody =
                         (fadeMode && alphaText + alphaBackground + alphaBorder > 100) || (smoothMode && width + height > 100)
 
                     if (shouldRenderBody) {
-                        // Draw title text
-                        target.name?.let { titleFont.drawString(it, 36F, 5F, textCustomColor, textShadow) }
-
-                        // Draw body text
-                        bodyFont.drawString(
-                            "Distance: ${decimalFormat.format(mc.thePlayer.getDistanceToEntityBox(target))}",
-                            36F,
-                            15F,
-                            textCustomColor,
-                            textShadow
-                        )
-
-                        // Draw info
                         mc.netHandler?.getPlayerInfo(target.uniqueID)?.let {
-                            bodyFont.drawString(
-                                "Ping: ${it.responseTime.coerceAtLeast(0)}", 36F, 24F, textCustomColor, textShadow
-                            )
-
-                            // Draw head
                             val locationSkin = it.locationSkin
-                            drawHead(locationSkin, 4, 4, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F)
+                            drawHead(locationSkin, 4, 6, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F)
+                        }
+                        
+                        target.name?.let { 
+                            titleFont.drawString(it, 36F, 8F, textCustomColor, textShadow)
                         }
                     }
                 }
@@ -252,5 +278,4 @@ class Target : Element("Target") {
         lastTarget = target
         return Border(0F, 0F, stringWidth, 40F)
     }
-
 }
