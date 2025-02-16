@@ -15,10 +15,10 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
@@ -258,7 +258,7 @@ class Target : Element("Target") {
 
                             if (entityTexture != null) {
                                 withClipping(main = {
-                                    drawRoundedRect(4f, 6f, 28f + 4f, 28f + 6f, Color.BLACK.rgb, 2f)}, 
+                                    drawRoundedRect(4f, 6f, 28f + 4f, 28f + 6f, Color.BLACK.rgb, roundedRectRadius)},
                                     toClip = {
                                 drawHead(entityTexture, 4, 6, 8F, 8F, 8, 8, 28, 28, 64F, 64F)})
                             }
