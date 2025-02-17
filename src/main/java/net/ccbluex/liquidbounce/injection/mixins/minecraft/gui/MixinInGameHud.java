@@ -28,25 +28,26 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
 import net.ccbluex.liquidbounce.integration.theme.component.FeatureTweak;
 import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
+import net.ccbluex.liquidbounce.interfaces.DrawContextAddition;
 import net.ccbluex.liquidbounce.render.engine.UiRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.option.Perspective;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.function.Function;
 
 @Mixin(InGameHud.class)
 public abstract class MixinInGameHud {
@@ -70,6 +71,10 @@ public abstract class MixinInGameHud {
 
     @Shadow
     protected abstract void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed);
+
+    @Shadow
+    @Final
+    private static Identifier CROSSHAIR_TEXTURE;
 
     /**
      * Hook render hud event at the top layer
@@ -109,6 +114,19 @@ public abstract class MixinInGameHud {
                 || ComponentOverlay.isTweakEnabled(FeatureTweak.DISABLE_CROSSHAIR)) {
             ci.cancel();
         }
+    }
+
+    @Redirect(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
+    private void drawTextureRedirect(DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y, int width, int height) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        double scaleFactor = window.getScaleFactor();
+        double scaledCenterX = (window.getFramebufferWidth() / scaleFactor) / 2.0;
+        double scaledCenterY = (window.getFramebufferHeight() / scaleFactor) / 2.0;
+        ((DrawContextAddition) drawContext).liquid_bounce$drawTexture(
+            renderLayers, CROSSHAIR_TEXTURE,
+            Math.round((scaledCenterX - 7.5) * 4.0) * 0.25f,
+            Math.round((scaledCenterY - 7.5) * 4.0) * 0.25f, 15, 15
+        );
     }
 
     @Inject(method = "renderPortalOverlay", at = @At("HEAD"), cancellable = true)
