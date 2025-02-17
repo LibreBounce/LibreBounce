@@ -145,11 +145,11 @@ object ModuleFullTrap : ClientModule("FullTrap", Category.WORLD) {
 
         range(xRange step 1, yRange step 1, zRange step 1) { x, y, z ->
             // continue if the position is in the box or outside on two or more axes
-            if (x in bbXRange && y in bbYRange && z in bbZRange ||
-                x !in bbXRange && y !in bbYRange ||
-                y !in bbYRange && z !in bbZRange ||
-                z !in bbZRange && x !in bbXRange
-                ) {
+            val inBb = x in bbXRange && y in bbYRange && z in bbZRange
+            val onlyZIn = x !in bbXRange && y !in bbYRange
+            val onlyXIn = y !in bbYRange && z !in bbZRange
+            val onlyYIn = z !in bbZRange && x !in bbXRange
+            if (inBb || onlyZIn || onlyXIn || onlyYIn) {
                 return@range
             }
 
@@ -159,12 +159,15 @@ object ModuleFullTrap : ClientModule("FullTrap", Category.WORLD) {
             lowestY = min(lowestY, blockPos.y)
         }
 
+        return tweakPlan(result, lowestY, highestY)
+    }
+
+    private fun tweakPlan(result: MutableSet<BlockPos>, lowestY: Int, highestY: Int): Set<BlockPos> {
         // step two tweaking with options
         val shouldFilterLegsOut = !legs // && highestY - lowestY > 3
         val shouldFilterFloorOut = !floor
         val filteredList = result.filterNot {
-            shouldFilterLegsOut && it.y == lowestY + 1 ||
-            shouldFilterFloorOut && it.y == lowestY
+            shouldFilterLegsOut && it.y == lowestY + 1 || shouldFilterFloorOut && it.y == lowestY
         }
 
         val additions = mutableListOf<BlockPos>()
