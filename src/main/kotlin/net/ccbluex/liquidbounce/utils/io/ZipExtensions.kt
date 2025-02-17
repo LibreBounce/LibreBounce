@@ -22,7 +22,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.util.zip.ZipInputStream
 
 /**
@@ -94,15 +97,3 @@ suspend fun extractTarGz(tarGzFile: File, folder: File) = withContext(Dispatcher
         }
     }
 }
-
-/**
- * Create a buffered output stream with a default buffer size for fewer I/O operations
- */
-private fun OutputStream.buffered(bufferSize: Int = DEFAULT_BUFFER_SIZE): BufferedOutputStream =
-    if (this is BufferedOutputStream) this else BufferedOutputStream(this, bufferSize)
-
-/**
- * Create a buffered input stream with a default buffer size for fewer I/O operations
- */
-private fun InputStream.buffered(bufferSize: Int = DEFAULT_BUFFER_SIZE): BufferedInputStream =
-    if (this is BufferedInputStream) this else BufferedInputStream(this, bufferSize)
