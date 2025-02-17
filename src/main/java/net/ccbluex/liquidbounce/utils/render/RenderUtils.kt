@@ -238,10 +238,10 @@ object RenderUtils : MinecraftInstance {
         filled: Boolean,
         withHeight: Boolean,
         circleY: ClosedFloatingPointRange<Float>? = null,
-        color: Color
+        startColor: Int,
+        endColor: Int
     ) {
         val manager = mc.renderManager
-
         val positions = mutableListOf<DoubleArray>()
 
         val renderX = manager.viewerPosX
@@ -254,12 +254,21 @@ object RenderUtils : MinecraftInstance {
         glDisable(GL_TEXTURE_2D)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glEnable(GL_LINE_SMOOTH)
-        glDisable(GL_DEPTH_TEST)
         glDisable(GL_CULL_FACE)
         glEnable(GL_ALPHA_TEST)
         glAlphaFunc(GL_GREATER, 0.0f)
         mc.entityRenderer.disableLightmap()
+
+        shadeModel(GL_SMOOTH)
+
+        val a1 = (startColor shr 24 and 255) / 255f
+        val r1 = (startColor shr 16 and 255) / 255f
+        val g1 = (startColor shr 8 and 255) / 255f
+        val b1 = (startColor and 255) / 255f
+        val a2 = (endColor shr 24 and 255) / 255f
+        val r2 = (endColor shr 16 and 255) / 255f
+        val g2 = (endColor shr 8 and 255) / 255f
+        val b2 = (endColor and 255) / 255f
 
         val breathingT = AnimationUtil.breathe(speed)
         val entityHeight = (entity.hitBox.maxY - entity.hitBox.minY).toFloat()
@@ -268,51 +277,50 @@ object RenderUtils : MinecraftInstance {
         val animatedHeight = (0F..entityHeight).lerpWith(height.lerpWith(breathingT))
         val animatedCircleY = (0F..entityHeight).lerpWith(circleY?.lerpWith(breathingT) ?: 0F)
 
+        val tessellator = Tessellator.getInstance()
+        val buffer = tessellator.worldRenderer
+
         if (filled) {
-            glBegin(GL_TRIANGLE_FAN)
-            glColor(color)
+            buffer.begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_COLOR)
         }
 
         entity.interpolatedPosition(entity.prevPos).let { pos ->
-            circlePoints.forEach {
+            circlePoints.forEachIndexed { index, it ->
                 val p = pos + Vec3(it.x * width, it.y + animatedCircleY, it.z * width)
-
                 positions += doubleArrayOf(p.xCoord, p.yCoord, p.zCoord)
 
                 if (filled) {
-                    glVertex3d(p.xCoord - renderX, p.yCoord - renderY, p.zCoord - renderZ)
+                    buffer.pos(p.xCoord - renderX, p.yCoord - renderY, p.zCoord - renderZ).color(r1, g1, b1, a1)
+                        .endVertex()
                 }
             }
         }
 
         if (filled) {
-            glEnd()
-            glColor(Color.WHITE)
+            tessellator.draw()
         }
 
         if (withHeight) {
-            glBegin(GL_QUADS)
-            glColor(color)
+            buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
 
             positions.forEachIndexed { index, pos ->
                 val endPos = positions.getOrNull(index + 1) ?: return@forEachIndexed
 
-                glVertex3d(pos[0] - renderX, pos[1] - renderY, pos[2] - renderZ)
-                glVertex3d(endPos[0] - renderX, endPos[1] - renderY, endPos[2] - renderZ)
-                glVertex3d(endPos[0] - renderX, endPos[1] - renderY + animatedHeight, endPos[2] - renderZ)
-                glVertex3d(pos[0] - renderX, pos[1] - renderY + animatedHeight, pos[2] - renderZ)
+                buffer.pos(pos[0] - renderX, pos[1] - renderY, pos[2] - renderZ).color(r1, g1, b1, a1).endVertex()
+                buffer.pos(endPos[0] - renderX, endPos[1] - renderY, endPos[2] - renderZ).color(r1, g1, b1, a1)
+                    .endVertex()
+                buffer.pos(endPos[0] - renderX, endPos[1] - renderY + animatedHeight, endPos[2] - renderZ)
+                    .color(r2, g2, b2, a2).endVertex()
+                buffer.pos(pos[0] - renderX, pos[1] - renderY + animatedHeight, pos[2] - renderZ).color(r2, g2, b2, a2)
+                    .endVertex()
             }
-
-            glEnd()
-
-            glColor(Color.WHITE)
+            tessellator.draw()
         }
 
-        glEnable(GL_CULL_FACE)
-        glEnable(GL_DEPTH_TEST)
+        shadeModel(GL_FLAT)
         glDisable(GL_ALPHA_TEST)
-        glDisable(GL_LINE_SMOOTH)
         glDisable(GL_BLEND)
+        glEnable(GL_CULL_FACE)
         glEnable(GL_TEXTURE_2D)
         glPopMatrix()
         glPopAttrib()
@@ -346,9 +354,7 @@ object RenderUtils : MinecraftInstance {
             val innerHue = ColorUtils.shiftHue(innerColor, (index / CIRCLE_STEPS).toInt())
             glColor4f(innerHue.red / 255f, innerHue.green / 255f, innerHue.blue / 255f, innerColor.alpha / 255f)
             glVertex3d(
-                position.xCoord - renderX + innerX,
-                position.yCoord - renderY,
-                position.zCoord - renderZ + innerZ
+                position.xCoord - renderX + innerX, position.yCoord - renderY, position.zCoord - renderZ + innerZ
             )
         }
         glEnd()
@@ -361,9 +367,7 @@ object RenderUtils : MinecraftInstance {
             val outerHue = ColorUtils.shiftHue(outerColor, (index / CIRCLE_STEPS).toInt())
             glColor4f(outerHue.red / 255f, outerHue.green / 255f, outerHue.alpha / 255f, outerColor.alpha / 255f)
             glVertex3d(
-                position.xCoord - renderX + outerX,
-                position.yCoord - renderY,
-                position.zCoord - renderZ + outerZ
+                position.xCoord - renderX + outerX, position.yCoord - renderY, position.zCoord - renderZ + outerZ
             )
         }
         glEnd()
@@ -930,7 +934,7 @@ object RenderUtils : MinecraftInstance {
      * @param endColor   the end color
      */
     fun drawGradientRect(
-        left: Int, top: Int, right: Int, bottom: Int, startColor: Int, endColor: Int, zLevel: Float
+        left: Number, top: Number, right: Number, bottom: Number, startColor: Int, endColor: Int, zLevel: Float
     ) {
         val a1 = (startColor shr 24 and 255) / 255f
         val r1 = (startColor shr 16 and 255) / 255f

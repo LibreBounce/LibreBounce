@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.utils.inventory.ItemUtils.isConsumingItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
@@ -294,12 +293,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val aimPointBoxSize by float("AimPointBoxSize", 0.1f, 0f..0.2F) { renderAimPointBox }.subjective()
 
     // Circle options
-    private val circleRainbow by boolean("CircleRainbow", false) { mark == "Circle" }.subjective()
-
-    // TODO: replace this with color value
-    private val colors = ColorSettingsInteger(
-        this, "CircleColor"
-    ) { mark == "Circle" && !circleRainbow }.with(132, 102, 255, 100)//.subjective()
+    private val circleStartColor by color("CircleStartColor", Color.BLUE) { mark == "Circle" }.subjective()
+    private val circleEndColor by color("CircleEndColor", Color.CYAN.withAlpha(0)) { mark == "Circle" }.subjective()
     private val fillInnerCircle by boolean("FillInnerCircle", false) { mark == "Circle" }.subjective()
     private val withHeight by boolean("WithHeight", true) { mark == "Circle" }.subjective()
     private val animateHeight by boolean("AnimateHeight", false) { withHeight }.subjective()
@@ -549,7 +544,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     fillInnerCircle,
                     withHeight,
                     circleYRange.takeIf { animateCircleY },
-                    if (circleRainbow) rainbow().withAlpha(colors.color().alpha) else colors.color()
+                    circleStartColor.rgb,
+                    circleEndColor.rgb
                 )
             }
         }
