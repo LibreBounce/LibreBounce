@@ -103,7 +103,7 @@ class ScoreboardElement(
             }
 
             val maxHeight = scoreCollection.size * fontHeight
-            val l1 = -maxWidth - 3
+            val l1 = -maxWidth  - 3
 
             val inc = if (drawRectOnTitle) titleRectExtraHeight else 0
 
@@ -128,7 +128,15 @@ class ScoreboardElement(
                     RenderUtils.RoundedCorners.ALL
                 }
 
-                drawRoundedRectInt(minX, -(4 + inc), maxX, maxHeight + fontHeight + 2, backColor, roundedRectRadius, corners)
+                drawRoundedRectInt(
+                    minX,
+                    -(4 + inc),
+                    maxX,
+                    maxHeight + fontHeight + 2,
+                    backColor,
+                    roundedRectRadius,
+                    corners
+                )
             }, toClip = {
                 scoreCollection.filterNotNull().forEachIndexed { index, score ->
                     val team = scoreboard.getPlayersTeam(score.playerName)
@@ -236,7 +244,7 @@ class ScoreboardElement(
                             }
 
                             drawRoundedRect(
-                                (if (side.horizontal != Side.Horizontal.LEFT) maxX + 5 else minX - 5).toFloat(),
+                                (if (side.horizontal != Side.Horizontal.LEFT) maxX + 4 else minX - 4).toFloat(),
                                 (if (index == scoreCollection.size - 1) -2F else height) - inc - 2F,
                                 (if (side.horizontal != Side.Horizontal.LEFT) maxX else minX).toFloat(),
                                 (if (index == 0) fontHeight.toFloat() else height + fontHeight * 2F) + 2F,
@@ -255,7 +263,7 @@ class ScoreboardElement(
 
             indexRects.removeEach { it(); true }
 
-            return Border(minX.toFloat(), -4F - inc, maxX.toFloat(), maxHeight + fontHeight + 2F)
+            return Border(minX.toFloat() - if (rect && side.horizontal == Side.Horizontal.LEFT) 5 else 0, -4F - inc, maxX.toFloat() + if (rect && side.horizontal != Side.Horizontal.LEFT) 5 else 0, maxHeight + fontHeight + 2F)
         }
 
         return null
