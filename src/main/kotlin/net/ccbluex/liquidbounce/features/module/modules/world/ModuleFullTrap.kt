@@ -35,7 +35,6 @@ import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.range
-import net.ccbluex.liquidbounce.utils.kotlin.step
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
@@ -162,11 +161,11 @@ object ModuleFullTrap : ClientModule("FullTrap", Category.WORLD) {
         return tweakPlan(result, lowestY, highestY)
     }
 
-    private fun tweakPlan(result: MutableSet<BlockPos>, lowestY: Int, highestY: Int): Set<BlockPos> {
+    private fun tweakPlan(currentPlan: Set<BlockPos>, lowestY: Int, highestY: Int): Set<BlockPos> {
         // step two tweaking with options
         val shouldFilterLegsOut = !legs // && highestY - lowestY > 3
         val shouldFilterFloorOut = !floor
-        val filteredList = result.filterNot {
+        val filteredList = currentPlan.filterNot {
             shouldFilterLegsOut && it.y == lowestY + 1 || shouldFilterFloorOut && it.y == lowestY
         }
 
