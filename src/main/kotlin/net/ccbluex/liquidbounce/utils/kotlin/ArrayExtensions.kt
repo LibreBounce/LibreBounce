@@ -23,6 +23,8 @@ package net.ccbluex.liquidbounce.utils.kotlin
 import it.unimi.dsi.fastutil.doubles.DoubleIterable
 import it.unimi.dsi.fastutil.doubles.DoubleIterator
 import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntIterable
+import it.unimi.dsi.fastutil.ints.IntIterator
 import it.unimi.dsi.fastutil.ints.IntList
 import java.util.stream.Stream
 
@@ -60,10 +62,47 @@ infix fun ClosedRange<Double>.step(step: Double): DoubleIterable {
             override fun hasNext(): Boolean = hasNextValue
 
             override fun nextDouble(): Double {
-                if (!hasNextValue) throw NoSuchElementException()
+                if (!hasNextValue) {
+                    throw NoSuchElementException()
+                }
+
                 val nextValue = current
                 current += step
-                if (current > endInclusive) hasNextValue = false
+                if (current > endInclusive) {
+                    hasNextValue = false
+                }
+
+                return nextValue
+            }
+
+            override fun remove() {
+                throw UnsupportedOperationException("This iterator is read-only")
+            }
+        }
+    }
+}
+
+infix fun ClosedRange<Int>.step(step: Int): IntIterable {
+    require(step > 0)
+
+    return IntIterable {
+        object : IntIterator {
+            private var current = start
+            private var hasNextValue = current <= endInclusive
+
+            override fun hasNext(): Boolean = hasNextValue
+
+            override fun nextInt(): Int {
+                if (!hasNextValue) {
+                    throw NoSuchElementException()
+                }
+
+                val nextValue = current
+                current += step
+                if (current > endInclusive)  {
+                    hasNextValue = false
+                }
+
                 return nextValue
             }
 
@@ -82,10 +121,33 @@ inline fun range(iterable: DoubleIterable, operation: (Double) -> Unit) {
     }
 }
 
+inline fun range(iterable: IntIterable, operation: (Int) -> Unit) {
+    iterable.intIterator().apply {
+        while (hasNext()) {
+            operation(nextInt())
+        }
+    }
+}
+
 inline fun range(iterable1: DoubleIterable, iterable2: DoubleIterable, operation: (Double, Double) -> Unit) {
     range(iterable1) { d1 ->
         range(iterable2) { d2 ->
             operation(d1, d2)
+        }
+    }
+}
+
+inline fun range(
+    iterable1: IntIterable,
+    iterable2: IntIterable,
+    iterable3: IntIterable,
+    operation: (Int, Int, Int) -> Unit
+) {
+    range(iterable1) { d1 ->
+        range(iterable2) { d2 ->
+            range(iterable3) { d3 ->
+                operation(d1, d2, d3)
+            }
         }
     }
 }
