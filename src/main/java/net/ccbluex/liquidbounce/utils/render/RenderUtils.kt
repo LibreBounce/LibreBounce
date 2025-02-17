@@ -50,10 +50,12 @@ object RenderUtils : MinecraftInstance {
     /**
      * Useful for clipping any top-layered rectangle that falls outside a bottom-layered rectangle.
      */
-    inline fun withClipping(main: () -> Unit, toClip: () -> Unit, hide: Boolean = false) {
+    inline fun withClipping(main: () -> Unit, toClip: () -> Unit) {
         disableFastRender()
         OutlineUtils.checkSetupFBO()
         glPushMatrix()
+
+        glDisable(GL_ALPHA_TEST)
 
         glEnable(GL_STENCIL_TEST)
         glStencilFunc(GL_ALWAYS, 1, 1)
@@ -61,15 +63,7 @@ object RenderUtils : MinecraftInstance {
         glStencilMask(1)
         glClear(GL_STENCIL_BUFFER_BIT)
 
-        if (hide) {
-            glColorMask(false, false, false, false)
-        }
-
         main()
-
-        if (hide) {
-            glColorMask(true, true, true, true)
-        }
 
         glStencilFunc(GL_EQUAL, 1, 1)
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
@@ -79,6 +73,8 @@ object RenderUtils : MinecraftInstance {
 
         glStencilMask(0xFF)
         glDisable(GL_STENCIL_TEST)
+
+        glEnable(GL_ALPHA_TEST)
 
         glPopMatrix()
     }

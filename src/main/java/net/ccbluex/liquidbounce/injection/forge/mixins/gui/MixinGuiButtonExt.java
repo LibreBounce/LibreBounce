@@ -85,7 +85,7 @@ public abstract class MixinGuiButtonExt extends GuiButton {
                 RenderUtils.INSTANCE.drawGradientRect(xPosition, yPosition, progress, yPosition + height, Color.CYAN.darker().getRGB(), Color.BLUE.darker().getRGB(), 0F);
             }
             return null;
-        }, false);
+        });
 
         mc.getTextureManager().bindTexture(buttonTextures);
         mouseDragged(mc, mouseX, mouseY);
