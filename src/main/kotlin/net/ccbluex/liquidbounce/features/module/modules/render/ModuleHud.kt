@@ -66,6 +66,8 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         it
     }
 
+    val centeredCrosshair by boolean("CenteredCrosshair", false)
+
     val isBlurable
         get() = blur && !(mc.options.hudHidden && mc.currentScreen == null) &&
             // Only blur on Windows and Linux - Mac seems to have issues with it

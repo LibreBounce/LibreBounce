@@ -23,8 +23,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.OverlayMessageEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
+import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
 import net.ccbluex.liquidbounce.integration.theme.component.FeatureTweak;
 import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
@@ -118,6 +117,15 @@ public abstract class MixinInGameHud {
 
     @Redirect(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
     private void drawTextureRedirect(DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y, int width, int height) {
+        if (!ModuleHud.INSTANCE.getCenteredCrosshair()) {
+            drawContext.drawGuiTexture(
+                RenderLayer::getCrosshair, CROSSHAIR_TEXTURE,
+                (drawContext.getScaledWindowWidth() - 15) / 2,
+                (drawContext.getScaledWindowHeight() - 15) / 2, 15, 15
+            );
+            return;
+        }
+
         Window window = MinecraftClient.getInstance().getWindow();
         double scaleFactor = window.getScaleFactor();
         double scaledCenterX = (window.getFramebufferWidth() / scaleFactor) / 2.0;
