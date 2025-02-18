@@ -16,12 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.client
-
-import net.ccbluex.liquidbounce.utils.text.dropPort
-import net.ccbluex.liquidbounce.utils.text.rootDomain
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+package net.ccbluex.liquidbounce.utils.text
 
 class RootDomainTest {
 
