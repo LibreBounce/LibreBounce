@@ -270,7 +270,7 @@ object RenderUtils : MinecraftInstance {
         val entityHeight = (entity.hitBox.maxY - entity.hitBox.minY).toFloat()
 
         val width = (mc.renderManager.getEntityRenderObject<Entity>(entity)?.shadowSize ?: 0.5F) + size
-        val animatedHeight = (0F..entityHeight).lerpWith(height.lerpWith(breathingT))
+        val animatedHeight = (0F..entityHeight).lerpWith((height.endInclusive..height.start).lerpWith(breathingT))
         val animatedCircleY = (0F..entityHeight).lerpWith(circleY?.lerpWith(breathingT) ?: 0F)
 
         val tessellator = Tessellator.getInstance()
