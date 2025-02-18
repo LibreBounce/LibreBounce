@@ -28,9 +28,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.passive.EntityCow
-import net.minecraft.entity.passive.EntitySheep
-import net.minecraft.entity.passive.EntityVillager
+import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.abs
@@ -96,8 +94,10 @@ class Target : Element("Target") {
         val smoothMode = animation == "Smooth"
         val fadeMode = animation == "Fade"
 
-        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat
-        val target = KillAura.target ?: if (delayCounter >= vanishDelay && !isRendered) {
+        val killAuraTarget = KillAura.target.takeIf { it is EntityPlayer }
+
+        val shouldRender = KillAura.handleEvents() && killAuraTarget != null || mc.currentScreen is GuiChat
+        val target = killAuraTarget ?: if (delayCounter >= vanishDelay && !isRendered) {
             mc.thePlayer
         } else {
             lastTarget ?: mc.thePlayer
@@ -223,7 +223,7 @@ class Target : Element("Target") {
                             healthBarTop,
                             healthBarStart + currentWidth,
                             healthBarTop + healthBarHeight,
-                            Color.BLACK.rgb,
+                            0,
                             6F
                         )
                     }, toClip = {
@@ -236,7 +236,7 @@ class Target : Element("Target") {
                             healthBarColor2.rgb,
                             0f
                         )
-                    }, hide = true)
+                    })
 
                     val healthPercentage = (easingHealth / maxHealth * 100).toInt()
                     val percentageText = "$healthPercentage%"
@@ -266,38 +266,22 @@ class Target : Element("Target") {
                             glScalef(f1, f1, f1)
                             glTranslatef(-centerX1, -midY, 0f)
 
-                            val w = when (target) {
-                                is EntitySheep -> 7.5F to 7
-                                is EntityCow -> 6.5F to 7
-                                else -> 8F to 8
-                            }
-
-                            val h = when (target) {
-                                is EntitySheep -> 16F to 11
-                                is EntityVillager -> 9F to 9
-                                is EntityCow -> 15F to 12
-                                else -> 8F to 8
-                            }
-
                             if (entityTexture != null) {
                                 withClipping(main = {
-                                    drawRoundedRect(6f, 6f, 34f, 34f, Color.BLACK.rgb, roundedRectRadius)
+                                    drawRoundedRect(6f, 6f, 34f, 34f, 0, roundedRectRadius)
                                 }, toClip = {
                                     drawHead(
                                         entityTexture,
                                         6,
                                         6,
-                                        w.first,
-                                        h.first,
-                                        w.second,
-                                        h.second,
+                                        8f, 8f, 8, 8,
                                         28,
                                         28,
                                         64F,
                                         64F,
                                         color
                                     )
-                                }, hide = true)
+                                })
                             }
                             glPopMatrix()
                         }
