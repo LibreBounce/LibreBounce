@@ -21,7 +21,7 @@ import java.awt.Color
 import java.awt.Font
 
 fun FontRenderer.drawCenteredString(
-    text: String, x: Float, y: Float, color: Int, shadow: Boolean
+    text: String?, x: Float, y: Float, color: Int, shadow: Boolean
 ) {
     val drawX = x - getStringWidth(text) / 2f
     if (shadow) {
@@ -32,7 +32,7 @@ fun FontRenderer.drawCenteredString(
 }
 
 fun FontRenderer.drawCenteredString(
-    text: String, x: Float, y: Float, color: Int
+    text: String?, x: Float, y: Float, color: Int
 ) {
     val drawX = x - getStringWidth(text) / 2f
     drawString(text, drawX.toInt(), y.toInt(), color)
@@ -73,7 +73,7 @@ class GameFontRenderer(
      * Regular text draw (no shadow).
      */
     fun drawString(
-        text: String, x: Float, y: Float, color: Int
+        text: String?, x: Float, y: Float, color: Int
     ): Int = drawString(text, x, y, color, shadow = false)
 
     /**
@@ -82,7 +82,7 @@ class GameFontRenderer(
      * - Main text in [color]
      */
     fun drawStringFade(
-        text: String, x: Float, y: Float, color: Color
+        text: String?, x: Float, y: Float, color: Color
     ) {
         val blackWithAlpha = Color(0, 0, 0, color.alpha).rgb
         drawString(text, x + 0.7f, y + 0.7f, blackWithAlpha, shadow = false)
@@ -93,11 +93,11 @@ class GameFontRenderer(
      * Overrides vanilla's drawStringWithShadow for compatibility.
      */
     override fun drawStringWithShadow(
-        text: String, x: Float, y: Float, color: Int
+        text: String?, x: Float, y: Float, color: Int
     ): Int = drawString(text, x, y, color, shadow = true)
 
     fun drawCenteredString(
-        text: String, x: Float, y: Float, color: Int, shadow: Boolean
+        text: String?, x: Float, y: Float, color: Int, shadow: Boolean
     ) {
         val drawX = x - getStringWidth(text) / 2f
         if (shadow) {
@@ -108,7 +108,7 @@ class GameFontRenderer(
     }
 
     fun drawCenteredString(
-        text: String, x: Float, y: Float, color: Int
+        text: String?, x: Float, y: Float, color: Int
     ) {
         val drawX = x - getStringWidth(text) / 2f
         drawString(text, drawX, y, color)
@@ -135,8 +135,12 @@ class GameFontRenderer(
      * the text. Then we draw the real text with optional rainbow/gradient.
      */
     override fun drawString(
-        text: String, x: Float, y: Float, color: Int, shadow: Boolean
+        text: String?, x: Float, y: Float, color: Int, shadow: Boolean
     ): Int {
+        if (text == null) {
+            return 0
+        }
+
         // Basic blend
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -175,7 +179,7 @@ class GameFontRenderer(
      * If [rainbow] or [gradient] is true, we apply the respective shader programs.
      */
     private fun drawText(
-        text: String,
+        text: String?,
         x: Float,
         y: Float,
         color: Int,
@@ -183,7 +187,7 @@ class GameFontRenderer(
         rainbow: Boolean = false,
         gradient: Boolean = false
     ): Int {
-        if (text.isEmpty()) return x.toInt()
+        if (text.isNullOrEmpty()) return x.toInt()
 
         // Potentially enable rainbow or gradient shaders
         if (rainbow) glUseProgram(RainbowFontShader.programId)
@@ -231,6 +235,7 @@ class GameFontRenderer(
                             randomCase = false; bold = false; italic = false
                             underline = false; strikeThrough = false
                         }
+
                         16 -> randomCase = true        // §k => random
                         17 -> bold = true              // §l => bold
                         18 -> strikeThrough = true     // §m => strikethrough
@@ -305,7 +310,11 @@ class GameFontRenderer(
         return hexColors[getColorIndex(charCode)]
     }
 
-    override fun getStringWidth(text: String): Int {
+    override fun getStringWidth(text: String?): Int {
+        if (text == null) {
+            return 0
+        }
+
         // NameProtect transformation
         val realText = NameProtect.handleTextMessage(text)
         // If color codes => parse for advanced widths
