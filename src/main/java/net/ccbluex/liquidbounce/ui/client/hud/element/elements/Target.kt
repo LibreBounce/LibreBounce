@@ -28,7 +28,9 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.passive.EntityCow
+import net.minecraft.entity.passive.EntitySheep
+import net.minecraft.entity.passive.EntityVillager
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.abs
@@ -94,10 +96,8 @@ class Target : Element("Target") {
         val smoothMode = animation == "Smooth"
         val fadeMode = animation == "Fade"
 
-        val killAuraTarget = KillAura.target?.takeIf { it is EntityPlayer }
-
-        val shouldRender = KillAura.handleEvents() && killAuraTarget != null || mc.currentScreen is GuiChat
-        val target = killAuraTarget ?: if (delayCounter >= vanishDelay && !isRendered) {
+        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat
+        val target = KillAura.target ?: if (delayCounter >= vanishDelay && !isRendered) {
             mc.thePlayer
         } else {
             lastTarget ?: mc.thePlayer
@@ -118,8 +118,8 @@ class Target : Element("Target") {
 
                 easingHealth += (targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed) * deltaTime
                 easingHealth = easingHealth.coerceIn(0f, maxHealth)
-
-                easingHurtTime = (easingHurtTime..target.hurtTime.toFloat()).lerpWith(RenderUtils.deltaTimeNormalized())
+                val targetHurtTime = if (target.isEntityAlive()) target.hurtTime.toFloat() else 0F
+                easingHurtTime = (easingHurtTime..targetHurtTime).lerpWith(RenderUtils.deltaTimeNormalized())
 
                 if (target != lastTarget || abs(easingHealth - targetHealth) < 0.01) {
                     easingHealth = targetHealth
@@ -202,8 +202,8 @@ class Target : Element("Target") {
 
                     val healthBarTop = 26F
                     val healthBarHeight = 8F
-                    val healthBarStart = 36F
-                    val healthBarTotal = (width - 39F).coerceAtLeast(0F)
+                    val healthBarStart = 38F
+                    val healthBarTotal = (width - 41F).coerceAtLeast(0F)
                     val currentWidth = (easingHealth / maxHealth).coerceIn(0F, 1F) * healthBarTotal
 
                     // background bar
@@ -213,7 +213,7 @@ class Target : Element("Target") {
                         healthBarStart + healthBarTotal,
                         healthBarTop + healthBarHeight,
                         Color.BLACK.rgb,
-                        3F,
+                        6F,
                     )
 
                     // main bar
@@ -223,8 +223,8 @@ class Target : Element("Target") {
                             healthBarTop,
                             healthBarStart + currentWidth,
                             healthBarTop + healthBarHeight,
-                            0,
-                            3F
+                            Color.BLACK.rgb,
+                            6F
                         )
                     }, toClip = {
                         drawGradientRect(
@@ -236,14 +236,14 @@ class Target : Element("Target") {
                             healthBarColor2.rgb,
                             0f
                         )
-                    })
+                    }, hide = true)
 
                     val healthPercentage = (easingHealth / maxHealth * 100).toInt()
                     val percentageText = "$healthPercentage%"
                     val textWidth = healthFont.getStringWidth(percentageText)
                     val calcX = healthBarStart + currentWidth - textWidth
                     val textX = max(healthBarStart, calcX)
-                    val textY = healthBarTop - Fonts.fontRegular30.fontHeight / 2 - 4F
+                    val textY = healthBarTop - Fonts.fontRegular30.fontHeight / 2 - 2F
                     healthFont.drawString(percentageText, textX, textY, textCustomColor, textShadow)
 
                     val shouldRenderBody =
@@ -266,18 +266,44 @@ class Target : Element("Target") {
                             glScalef(f1, f1, f1)
                             glTranslatef(-centerX1, -midY, 0f)
 
+                            val w = when (target) {
+                                is EntitySheep -> 7.5F to 7
+                                is EntityCow -> 6.5F to 7
+                                else -> 8F to 8
+                            }
+
+                            val h = when (target) {
+                                is EntitySheep -> 16F to 11
+                                is EntityVillager -> 9F to 9
+                                is EntityCow -> 15F to 12
+                                else -> 8F to 8
+                            }
+
                             if (entityTexture != null) {
                                 withClipping(main = {
-                                    drawRoundedRect(4f, 6f, 32f, 34f, 0, roundedRectRadius)
+                                    drawRoundedRect(6f, 6f, 34f, 34f, Color.BLACK.rgb, roundedRectRadius)
                                 }, toClip = {
-                                    drawHead(entityTexture, 4, 6, 8f, 8f, 8, 8, 28, 28, 64F, 64F, color)
-                                })
+                                    drawHead(
+                                        entityTexture,
+                                        6,
+                                        6,
+                                        w.first,
+                                        h.first,
+                                        w.second,
+                                        h.second,
+                                        28,
+                                        28,
+                                        64F,
+                                        64F,
+                                        color
+                                    )
+                                }, hide = true)
                             }
                             glPopMatrix()
                         }
 
                         target.name?.let {
-                            titleFont.drawString(it, 36F, 8F, textCustomColor, textShadow)
+                            titleFont.drawString(it, healthBarStart, 8F, textCustomColor, textShadow)
                         }
                     }
                 }
