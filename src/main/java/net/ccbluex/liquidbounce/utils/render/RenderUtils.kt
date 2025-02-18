@@ -252,6 +252,7 @@ object RenderUtils : MinecraftInstance {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glDisable(GL_CULL_FACE)
         glEnable(GL_ALPHA_TEST)
+        glDepthMask(false)
         glAlphaFunc(GL_GREATER, 0.0f)
         mc.entityRenderer.disableLightmap()
 
@@ -317,6 +318,7 @@ object RenderUtils : MinecraftInstance {
         glDisable(GL_ALPHA_TEST)
         glDisable(GL_BLEND)
         glEnable(GL_CULL_FACE)
+        glDepthMask(true)
         glEnable(GL_TEXTURE_2D)
         glPopMatrix()
         glPopAttrib()
@@ -1047,16 +1049,34 @@ object RenderUtils : MinecraftInstance {
     }
 
     enum class RoundedCorners(val corners: Set<Corner>, val displayName: String) {
-        NONE(emptySet(), "None"),
-        TOP_LEFT_ONLY(setOf(Corner.TOP_LEFT), "Top-Left-Only"),
-        TOP_RIGHT_ONLY(setOf(Corner.TOP_RIGHT), "Top-Right-Only"),
-        BOTTOM_LEFT_ONLY(setOf(Corner.BOTTOM_LEFT), "Bottom-Left-Only"),
-        BOTTOM_RIGHT_ONLY(setOf(Corner.BOTTOM_RIGHT), "Bottom-Right-Only"),
-        TOP_ONLY(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT), "Top-Only"),
-        BOTTOM_ONLY(setOf(Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT), "Bottom-Only"),
-        LEFT_ONLY(setOf(Corner.TOP_LEFT, Corner.BOTTOM_LEFT), "Left-Only"),
-        RIGHT_ONLY(setOf(Corner.TOP_RIGHT, Corner.BOTTOM_RIGHT), "Right-Only"),
-        ALL(setOf(Corner.TOP_LEFT, Corner.TOP_RIGHT, Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT), "All")
+        NONE(emptySet(), "None"), TOP_LEFT_ONLY(
+            setOf(Corner.TOP_LEFT),
+            "Top-Left-Only"
+        ),
+        TOP_RIGHT_ONLY(setOf(Corner.TOP_RIGHT), "Top-Right-Only"), BOTTOM_LEFT_ONLY(
+            setOf(Corner.BOTTOM_LEFT),
+            "Bottom-Left-Only"
+        ),
+        BOTTOM_RIGHT_ONLY(setOf(Corner.BOTTOM_RIGHT), "Bottom-Right-Only"), TOP_ONLY(
+            setOf(
+                Corner.TOP_LEFT,
+                Corner.TOP_RIGHT
+            ), "Top-Only"
+        ),
+        BOTTOM_ONLY(setOf(Corner.BOTTOM_LEFT, Corner.BOTTOM_RIGHT), "Bottom-Only"), LEFT_ONLY(
+            setOf(
+                Corner.TOP_LEFT,
+                Corner.BOTTOM_LEFT
+            ), "Left-Only"
+        ),
+        RIGHT_ONLY(setOf(Corner.TOP_RIGHT, Corner.BOTTOM_RIGHT), "Right-Only"), ALL(
+            setOf(
+                Corner.TOP_LEFT,
+                Corner.TOP_RIGHT,
+                Corner.BOTTOM_LEFT,
+                Corner.BOTTOM_RIGHT
+            ), "All"
+        )
     }
 
     private fun drawRoundedRectangle(
