@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.chat.removeMessage
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.text.RunnableClickEvent
 import net.ccbluex.liquidbounce.utils.text.asText
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.HoverEvent
@@ -163,29 +164,31 @@ object CommandHelp : CommandFactory {
         chat(
             "".asText()
                 .styled { it.withColor(Formatting.GRAY) }
-                .append("<--".asText()
-                    .styled {
-                        it.withClickEvent(RunnableClickEvent {
-                            printMessage(
-                                command,
-                                previousPage,
-                                maxPage,
-                                commands
-                            )
-                        })
-                    }
-                    .styled {
-                        it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, command.result("previous")))
-                    }
+                .append(
+                    "<--".asText()
+                        .styled {
+                            it.withClickEvent(RunnableClickEvent {
+                                printMessage(
+                                    command,
+                                    previousPage,
+                                    maxPage,
+                                    commands
+                                )
+                            })
+                        }
+                        .styled {
+                            it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, command.result("previous")))
+                        }
                 )
                 .append("[$page]")
-                .append("-->".asText()
-                    .styled {
-                        it.withClickEvent(RunnableClickEvent { printMessage(command, nextPage, maxPage, commands) })
-                    }
-                    .styled {
-                        it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, command.result("next")))
-                    }
+                .append(
+                    "-->".asText()
+                        .styled {
+                            it.withClickEvent(RunnableClickEvent { printMessage(command, nextPage, maxPage, commands) })
+                        }
+                        .styled {
+                            it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, command.result("next")))
+                        }
                 ),
             metadata = MessageMetadata(id = "CommandHelp#Next")
         )
