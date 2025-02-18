@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.minecraft.component.ComponentMap
 import net.minecraft.item.Item
 

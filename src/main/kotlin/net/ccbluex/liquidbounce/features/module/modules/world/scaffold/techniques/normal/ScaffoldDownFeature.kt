@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerSafeWalkEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique
 import net.ccbluex.liquidbounce.utils.block.canStandOn
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention
 
 object ScaffoldDownFeature : ToggleableConfigurable(ScaffoldNormalTechnique, "Down", false) {
 

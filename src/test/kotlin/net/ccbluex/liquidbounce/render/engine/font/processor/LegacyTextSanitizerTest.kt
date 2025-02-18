@@ -1,8 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font.processor
 
-import net.ccbluex.liquidbounce.utils.client.asText
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.minecraft.text.StringVisitable
+import net.ccbluex.liquidbounce.utils.text.asText
 import net.minecraft.text.StringVisitable.StyledVisitor
 import net.minecraft.text.Style
 import net.minecraft.text.Text

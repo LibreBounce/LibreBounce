@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.network
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.Switc
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModulePacketLogger
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.minecraft.client.network.ClientPlayerEntity
@@ -168,14 +169,16 @@ enum class MovePacketType(override val choiceName: String, val generatePacket: (
         PlayerMoveC2SPacket.OnGroundOnly(player.isOnGround, player.horizontalCollision)
     }),
     POSITION_AND_ON_GROUND("PositionAndOnGround", {
-        PlayerMoveC2SPacket.PositionAndOnGround(player.x, player.y, player.z, player.isOnGround,
+        PlayerMoveC2SPacket.PositionAndOnGround(
+            player.x, player.y, player.z, player.isOnGround,
             player.horizontalCollision)
     }),
     LOOK_AND_ON_GROUND("LookAndOnGround", {
         PlayerMoveC2SPacket.LookAndOnGround(player.yaw, player.pitch, player.isOnGround, player.horizontalCollision)
     }),
     FULL("Full", {
-        PlayerMoveC2SPacket.Full(player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround,
+        PlayerMoveC2SPacket.Full(
+            player.x, player.y, player.z, player.yaw, player.pitch, player.isOnGround,
             player.horizontalCollision)
     });
 }

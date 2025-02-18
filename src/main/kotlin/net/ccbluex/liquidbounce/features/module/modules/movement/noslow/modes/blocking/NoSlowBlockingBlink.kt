@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslow.modes.blocking.NoSlowBlock.modes
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 

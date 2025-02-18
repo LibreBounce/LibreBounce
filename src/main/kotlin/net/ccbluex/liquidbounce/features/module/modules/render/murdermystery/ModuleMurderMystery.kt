@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.entity.Entity

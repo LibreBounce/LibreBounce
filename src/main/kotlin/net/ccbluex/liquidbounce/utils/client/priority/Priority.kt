@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.kotlin
+package net.ccbluex.liquidbounce.utils.client.priority
 
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention.OBJECTION_AGAINST_EVERYTHING
 
 
 enum class Priority(val priority: Int) {

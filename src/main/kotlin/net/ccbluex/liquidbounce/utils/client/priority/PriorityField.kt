@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.kotlin
+package net.ccbluex.liquidbounce.utils.client.priority
 
 /**
  * Returns the value of the set operation with the highest priority

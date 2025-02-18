@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.ccbluex.liquidbounce.utils.render.OverlayTargetRenderer
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryData
 import net.minecraft.item.BowItem

@@ -16,51 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.math
 
-import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Vec3d
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 fun Float.toRadians() = this / 180.0F * Math.PI.toFloat()
 fun Float.toDegrees() = this / Math.PI.toFloat() * 180.0F
-
-fun Box.getFace(direction: Direction): AlignedFace {
-    return when (direction) {
-        Direction.DOWN -> AlignedFace(
-            Vec3d(this.minX, this.minY, this.minZ),
-            Vec3d(this.maxX, this.minY, this.maxZ)
-        )
-
-        Direction.UP -> AlignedFace(
-            Vec3d(this.minX, this.maxY, this.minZ),
-            Vec3d(this.maxX, this.maxY, this.maxZ)
-        )
-
-        Direction.SOUTH -> AlignedFace(
-            Vec3d(this.minX, this.minY, this.maxZ),
-            Vec3d(this.maxX, this.maxY, this.maxZ)
-        )
-
-        Direction.NORTH -> AlignedFace(
-            Vec3d(this.minX, this.minY, this.minZ),
-            Vec3d(this.maxX, this.maxY, this.minZ)
-        )
-
-        Direction.EAST -> AlignedFace(
-            Vec3d(this.maxX, this.minY, this.minZ),
-            Vec3d(this.maxX, this.maxY, this.maxZ)
-        )
-
-        Direction.WEST -> AlignedFace(
-            Vec3d(this.minX, this.minY, this.minZ),
-            Vec3d(this.minX, this.maxY, this.maxZ)
-        )
-    }
-}
 
 /**
  * Rounds the given number to the specified decimal place (the first by default).

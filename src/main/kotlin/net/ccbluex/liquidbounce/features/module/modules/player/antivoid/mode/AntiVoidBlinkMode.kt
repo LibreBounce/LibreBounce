@@ -27,9 +27,9 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.antivoid.ModuleAntiVoid
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.block.canStandOn
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager.Action
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 
 object AntiVoidBlinkMode : AntiVoidMode("Blink") {

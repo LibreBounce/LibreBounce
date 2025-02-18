@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.client.convertToString
+import net.ccbluex.liquidbounce.utils.text.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.minecraft.client.network.Address
 import net.minecraft.client.network.AllowedAddressResolver

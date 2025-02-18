@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.clicking.pattern.ClickPattern
 import net.ccbluex.liquidbounce.utils.clicking.pattern.patterns.*
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention
 import java.util.*
 
 /**

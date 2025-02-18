@@ -26,10 +26,11 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
 import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.item.isConsumable
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
 import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.network.packet.s2c.play.*

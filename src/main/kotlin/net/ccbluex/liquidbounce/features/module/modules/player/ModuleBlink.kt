@@ -26,11 +26,11 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.autododge.ModuleAutoDodge
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager.Action
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager.positions
 import net.ccbluex.liquidbounce.utils.client.notification
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket

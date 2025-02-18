@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.isNewerThanOrEquals1_16
-import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
+import net.ccbluex.liquidbounce.utils.network.isNewerThanOrEquals1_16
+import net.ccbluex.liquidbounce.utils.network.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent

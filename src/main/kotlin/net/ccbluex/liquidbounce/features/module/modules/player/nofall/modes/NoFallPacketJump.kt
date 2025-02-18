@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
-import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.network.MovePacketType
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 

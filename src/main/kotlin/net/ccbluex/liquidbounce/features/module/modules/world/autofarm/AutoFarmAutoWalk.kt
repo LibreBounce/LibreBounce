@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.inventory.hasInventorySpace
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.ItemEntity

@@ -25,7 +25,9 @@ import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.lang.translation
+import net.ccbluex.liquidbounce.utils.chat.removeMessage
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.text.asText
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text

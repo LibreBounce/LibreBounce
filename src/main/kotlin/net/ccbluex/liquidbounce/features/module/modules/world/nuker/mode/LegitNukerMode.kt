@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.doBreak
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.isNotBreakable
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos

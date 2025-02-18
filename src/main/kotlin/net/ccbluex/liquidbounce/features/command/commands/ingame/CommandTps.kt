@@ -22,6 +22,8 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.math.roundToDecimalPlaces
+import net.ccbluex.liquidbounce.utils.tick.TpsObserver
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket
 
 /**

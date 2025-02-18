@@ -23,7 +23,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.client.processContent
+import net.ccbluex.liquidbounce.utils.text.processContent
 import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.text.Text
 import java.lang.reflect.Type

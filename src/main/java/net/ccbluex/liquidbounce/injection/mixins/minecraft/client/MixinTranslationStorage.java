@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
-import net.ccbluex.liquidbounce.utils.client.VanillaTranslationRecognizer;
+import net.ccbluex.liquidbounce.utils.text.VanillaTranslationRecognizer;
 import net.minecraft.client.resource.language.TranslationStorage;
 import net.minecraft.resource.Resource;
 import org.spongepowered.asm.mixin.Mixin;

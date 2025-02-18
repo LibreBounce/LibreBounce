@@ -26,7 +26,9 @@ import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.blockParameter
 import net.ccbluex.liquidbounce.features.command.builder.pageParameter
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay
+import net.ccbluex.liquidbounce.utils.chat.removeMessage
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.text.asText
 import net.minecraft.registry.Registries
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.event
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention.FIRST_PRIORITY
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.function.BooleanSupplier
 import java.util.function.IntSupplier

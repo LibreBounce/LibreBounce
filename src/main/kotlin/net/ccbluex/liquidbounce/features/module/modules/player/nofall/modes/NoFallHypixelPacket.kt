@@ -22,10 +22,10 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
-import net.ccbluex.liquidbounce.utils.client.MovePacketType
-import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.network.MovePacketType
+import net.ccbluex.liquidbounce.utils.tick.Timer
 import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 
 internal object NoFallHypixelPacket : Choice("HypixelPacket") {
 

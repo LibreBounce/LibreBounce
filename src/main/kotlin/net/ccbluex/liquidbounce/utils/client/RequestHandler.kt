@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.kotlin
+package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.client.MinecraftClient

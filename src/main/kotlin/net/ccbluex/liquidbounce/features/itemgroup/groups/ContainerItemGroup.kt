@@ -20,8 +20,7 @@ package net.ccbluex.liquidbounce.features.itemgroup.groups
 
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroup
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
-import net.ccbluex.liquidbounce.utils.client.asText
-import net.ccbluex.liquidbounce.utils.client.translateColorCodes
+import net.ccbluex.liquidbounce.utils.text.asText
 import net.minecraft.block.Blocks
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.item.ItemStack

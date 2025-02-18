@@ -31,6 +31,8 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.text.dropPort
+import net.ccbluex.liquidbounce.utils.text.rootDomain
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen
 
 object ModuleAutoConfig : ClientModule("AutoConfig", Category.CLIENT, state = true, aliases = arrayOf("AutoSettings")) {

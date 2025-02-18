@@ -20,7 +20,7 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSignRender;
-import net.ccbluex.liquidbounce.utils.client.SignTranslationFixKt;
+import net.ccbluex.liquidbounce.utils.text.SignTranslationFixKt;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;

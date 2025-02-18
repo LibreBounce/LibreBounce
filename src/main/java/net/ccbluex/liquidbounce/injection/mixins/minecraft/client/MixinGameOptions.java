@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
-import net.ccbluex.liquidbounce.utils.client.VanillaTranslationRecognizer;
+import net.ccbluex.liquidbounce.utils.text.VanillaTranslationRecognizer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.SimpleOption;

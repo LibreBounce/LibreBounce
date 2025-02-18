@@ -42,7 +42,7 @@ import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
+import net.ccbluex.liquidbounce.utils.network.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.minecraft.SharedConstants
 import net.minecraft.text.ClickEvent

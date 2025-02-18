@@ -16,21 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.network
+package net.ccbluex.liquidbounce.utils.text
 
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper
-import com.viaversion.viaversion.api.type.Types
-import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.Protocol1_21_2To1_21_4
-import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.MutableText
 
-class PickFromInventoryPacket(val slot: Int): LegacyPacket {
+/**
+ * Allows [MutableText] to execute anything on click.
+ */
+class RunnableClickEvent(private val action: Runnable) : ClickEvent(null, "run") {
 
-    override val protocol = Protocol1_21_2To1_21_4::class.java
-
-    override val packetType = ServerboundPackets1_21_2.PICK_ITEM
-
-    override fun write(packetWrapper: PacketWrapper) {
-        packetWrapper.write(Types.VAR_INT, slot)
+    fun run() {
+        action.run()
     }
 
 }

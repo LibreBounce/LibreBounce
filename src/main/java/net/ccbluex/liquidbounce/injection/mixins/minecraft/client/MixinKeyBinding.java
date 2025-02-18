@@ -23,7 +23,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.KeybindChangeEvent;
 import net.ccbluex.liquidbounce.event.events.KeybindIsPressedEvent;
-import net.ccbluex.liquidbounce.utils.client.VanillaTranslationRecognizer;
+import net.ccbluex.liquidbounce.utils.text.VanillaTranslationRecognizer;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.spongepowered.asm.mixin.Mixin;

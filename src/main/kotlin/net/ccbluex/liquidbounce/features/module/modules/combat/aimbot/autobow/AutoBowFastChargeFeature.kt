@@ -4,7 +4,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.autobow
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
-import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.network.MovePacketType
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.BowItem

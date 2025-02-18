@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ScaffoldB
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.VirtualItemSlot
 import net.ccbluex.liquidbounce.utils.item.*
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.ccbluex.liquidbounce.utils.sorting.compareByCondition
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.fluid.LavaFluid

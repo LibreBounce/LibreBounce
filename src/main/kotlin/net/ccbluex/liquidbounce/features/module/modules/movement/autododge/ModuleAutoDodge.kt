@@ -26,10 +26,10 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleBlink
 import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
-import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.tick.Timer
 import net.ccbluex.liquidbounce.utils.entity.*
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.util.math.Box

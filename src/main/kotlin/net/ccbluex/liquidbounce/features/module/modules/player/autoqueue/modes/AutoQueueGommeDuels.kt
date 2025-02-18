@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleA
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.Slots
+import net.ccbluex.liquidbounce.utils.text.convertToString
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Items

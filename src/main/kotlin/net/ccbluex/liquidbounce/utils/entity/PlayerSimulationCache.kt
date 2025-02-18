@@ -5,9 +5,9 @@ import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.MODEL_STATE
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention.CRITICAL_MODIFICATION
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention.FIRST_PRIORITY
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention.MODEL_STATE
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Vec3d

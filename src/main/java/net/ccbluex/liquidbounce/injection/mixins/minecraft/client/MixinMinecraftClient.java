@@ -64,7 +64,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
-import static net.ccbluex.liquidbounce.utils.client.ProtocolUtilKt.getUsesViaFabricPlus;
+import static net.ccbluex.liquidbounce.utils.network.ProtocolUtilKt.getUsesViaFabricPlus;
 
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {

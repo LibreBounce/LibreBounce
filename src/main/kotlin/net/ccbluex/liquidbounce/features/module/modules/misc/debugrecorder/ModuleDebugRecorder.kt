@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.DebugCPSRecorder
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.text.asText
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import java.text.SimpleDateFormat

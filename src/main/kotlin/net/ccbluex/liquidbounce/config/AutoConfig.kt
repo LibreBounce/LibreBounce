@@ -38,6 +38,11 @@ import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.spoofer.SpooferManager
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.network.protocolVersion
+import net.ccbluex.liquidbounce.utils.network.selectProtocolVersion
+import net.ccbluex.liquidbounce.utils.network.usesViaFabricPlus
+import net.ccbluex.liquidbounce.utils.text.dropPort
+import net.ccbluex.liquidbounce.utils.text.rootDomain
 import net.minecraft.util.Formatting
 import java.io.Reader
 import java.io.Writer

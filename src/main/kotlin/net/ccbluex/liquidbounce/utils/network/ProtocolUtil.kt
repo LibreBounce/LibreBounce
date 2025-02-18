@@ -18,10 +18,12 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.network
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.viaversion.viafabricplus.ViaFabricPlus
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility1_8
 import net.minecraft.SharedConstants

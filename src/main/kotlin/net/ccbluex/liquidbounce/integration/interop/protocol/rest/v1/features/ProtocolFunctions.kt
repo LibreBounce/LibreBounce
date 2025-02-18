@@ -25,10 +25,10 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.gson.util.emptyJsonObject
-import net.ccbluex.liquidbounce.utils.client.defaultProtocolVersion
-import net.ccbluex.liquidbounce.utils.client.protocolVersion
-import net.ccbluex.liquidbounce.utils.client.protocolVersions
-import net.ccbluex.liquidbounce.utils.client.selectProtocolVersion
+import net.ccbluex.liquidbounce.utils.network.defaultProtocolVersion
+import net.ccbluex.liquidbounce.utils.network.protocolVersion
+import net.ccbluex.liquidbounce.utils.network.protocolVersions
+import net.ccbluex.liquidbounce.utils.network.selectProtocolVersion
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 

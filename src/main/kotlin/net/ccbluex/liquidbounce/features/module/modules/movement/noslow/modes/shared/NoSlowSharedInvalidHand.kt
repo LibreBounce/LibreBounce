@@ -23,8 +23,8 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.client.sendPacketSilently
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.network.sendPacketSilently
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 
 internal class NoSlowSharedInvalidHand(override val parent: ChoiceConfigurable<*>) : Choice("InvalidHand") {

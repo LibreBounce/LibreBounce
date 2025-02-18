@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
 import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.formatBytesAsSize
+import net.ccbluex.liquidbounce.utils.text.formatBytesAsSize
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import net.ccbluex.liquidbounce.utils.validation.HashValidator

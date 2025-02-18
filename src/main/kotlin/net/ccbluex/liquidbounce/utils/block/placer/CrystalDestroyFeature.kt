@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.entity.getExplosionDamageFromEntity
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 

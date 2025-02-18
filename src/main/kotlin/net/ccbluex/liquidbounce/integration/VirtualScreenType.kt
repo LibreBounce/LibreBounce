@@ -23,7 +23,7 @@ package net.ccbluex.liquidbounce.integration
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.client.openVfpProtocolSelection
+import net.ccbluex.liquidbounce.utils.network.openVfpProtocolSelection
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.client.gui.screen.Screen

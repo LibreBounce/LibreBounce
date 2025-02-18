@@ -27,8 +27,9 @@ import net.ccbluex.liquidbounce.features.module.modules.world.packetmine.ModuleP
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
 import net.ccbluex.liquidbounce.utils.inventory.Slots
-import net.ccbluex.liquidbounce.utils.network.PickFromInventoryPacket
-import net.ccbluex.liquidbounce.utils.network.sendPacket
+import net.ccbluex.liquidbounce.utils.network.legacy.PickFromInventoryPacket
+import net.ccbluex.liquidbounce.utils.network.legacy.sendPacket
+import net.ccbluex.liquidbounce.utils.network.usesViaFabricPlus
 import net.minecraft.item.ItemStack
 
 enum class SwitchMethod(override val choiceName: String, val shouldSync: Boolean) : NamedChoice, MinecraftShortcuts {

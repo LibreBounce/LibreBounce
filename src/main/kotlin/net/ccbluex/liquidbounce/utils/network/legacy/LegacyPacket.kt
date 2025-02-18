@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.network
+package net.ccbluex.liquidbounce.utils.network.legacy
 
 import com.viaversion.viaversion.api.Via
 import com.viaversion.viaversion.api.protocol.Protocol

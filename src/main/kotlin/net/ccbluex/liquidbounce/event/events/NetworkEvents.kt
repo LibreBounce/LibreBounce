@@ -24,7 +24,7 @@ import io.netty.channel.ChannelPipeline
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.utils.client.Nameable
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
 import net.minecraft.network.packet.Packet
 
 @Nameable("pipeline")

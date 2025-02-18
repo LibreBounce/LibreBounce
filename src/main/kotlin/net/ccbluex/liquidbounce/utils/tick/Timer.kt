@@ -16,16 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.tick
 
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.Timer.requestTimerSpeed
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.kotlin.RequestHandler
+import net.ccbluex.liquidbounce.utils.client.priority.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
+import net.ccbluex.liquidbounce.utils.client.RequestHandler
 
 // Global minecraft timer
 object Timer : EventListener {
@@ -38,7 +37,7 @@ object Timer : EventListener {
         get() = requestHandler.getActiveRequestValue() ?: 1.0f
 
     @Suppress("unused")
-    private val tickHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
+    private val tickHandler = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
         requestHandler.tick()
     }
 

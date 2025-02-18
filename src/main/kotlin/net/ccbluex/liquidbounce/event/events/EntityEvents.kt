@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.ccbluex.liquidbounce.utils.combat.EntityTargetClassification
 import net.ccbluex.liquidbounce.utils.combat.EntityTargetingInfo
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.kotlin.PriorityField
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.PriorityField
 import net.minecraft.entity.Entity
 
 @Nameable("attack")

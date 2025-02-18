@@ -24,10 +24,10 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.client.Timer.timerSpeed
+import net.ccbluex.liquidbounce.utils.tick.Timer
+import net.ccbluex.liquidbounce.utils.tick.Timer.timerSpeed
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import kotlin.random.Random
 

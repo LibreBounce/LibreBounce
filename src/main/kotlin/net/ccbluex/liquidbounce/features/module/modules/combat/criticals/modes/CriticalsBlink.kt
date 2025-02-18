@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.wouldDoCriticalHit
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
 import net.minecraft.network.packet.c2s.play.*

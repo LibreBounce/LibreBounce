@@ -18,7 +18,7 @@
  */
 @file:Suppress("TooManyFunctions")
 
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.text
 
 import net.minecraft.nbt.NbtString
 import net.minecraft.registry.DynamicRegistryManager

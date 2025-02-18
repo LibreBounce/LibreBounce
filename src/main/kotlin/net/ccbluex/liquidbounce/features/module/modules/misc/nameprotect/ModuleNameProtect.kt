@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.render.GenericStaticColorMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.font.processor.LegacyTextSanitizer
 import net.ccbluex.liquidbounce.utils.client.bypassesNameProtection
-import net.ccbluex.liquidbounce.utils.client.toText
+import net.ccbluex.liquidbounce.utils.text.toText
 import net.ccbluex.liquidbounce.utils.kotlin.mapString
 import net.minecraft.text.CharacterVisitor
 import net.minecraft.text.OrderedText

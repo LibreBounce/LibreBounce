@@ -29,8 +29,10 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.ccbluex.liquidbounce.utils.item.isNothing
-import net.ccbluex.liquidbounce.utils.network.OpenInventorySilentlyPacket
-import net.ccbluex.liquidbounce.utils.network.sendPacket
+import net.ccbluex.liquidbounce.utils.network.interactItem
+import net.ccbluex.liquidbounce.utils.network.legacy.OpenInventorySilentlyPacket
+import net.ccbluex.liquidbounce.utils.network.legacy.sendPacket
+import net.ccbluex.liquidbounce.utils.network.usesViaFabricPlus
 import net.minecraft.block.Blocks
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.component.type.DyedColorComponent

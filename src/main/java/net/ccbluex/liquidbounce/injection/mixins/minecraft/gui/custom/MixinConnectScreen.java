@@ -48,7 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 
-import static net.ccbluex.liquidbounce.utils.client.TextExtensionsKt.hideSensitiveAddress;
+import static net.ccbluex.liquidbounce.utils.text.TextExtensionsKt.hideSensitiveAddress;
 
 @Mixin(ConnectScreen.class)
 public abstract class MixinConnectScreen extends MixinScreen {

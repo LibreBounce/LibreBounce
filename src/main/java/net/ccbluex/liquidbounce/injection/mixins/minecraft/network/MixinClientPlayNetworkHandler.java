@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleNoRotateSet;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
-import net.ccbluex.liquidbounce.utils.kotlin.Priority;
+import net.ccbluex.liquidbounce.utils.client.priority.Priority;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.network.ClientCommonNetworkHandler;

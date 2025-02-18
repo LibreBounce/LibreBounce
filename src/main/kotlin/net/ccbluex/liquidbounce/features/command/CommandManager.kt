@@ -40,7 +40,10 @@ import net.ccbluex.liquidbounce.features.command.commands.module.teleport.Comman
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
+import net.ccbluex.liquidbounce.utils.chat.removeMessage
 import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.text.asText
+import net.ccbluex.liquidbounce.utils.text.convertToString
 import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting
 import java.util.concurrent.CompletableFuture

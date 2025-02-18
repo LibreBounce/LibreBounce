@@ -32,7 +32,10 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
 import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
-import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.client.priority.Priority
+import net.ccbluex.liquidbounce.utils.network.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.text.formatAsTime
+import net.ccbluex.liquidbounce.utils.tick.Timer
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen

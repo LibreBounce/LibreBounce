@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.chat
 
 import net.ccbluex.liquidbounce.interfaces.ChatHudLineAddition
 import net.ccbluex.liquidbounce.interfaces.ChatMessageAddition
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.hud.ChatHud
 import net.minecraft.client.gui.hud.ChatHudLine
 import net.minecraft.client.gui.hud.MessageIndicator
