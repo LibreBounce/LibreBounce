@@ -18,6 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.PlayerMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -44,15 +46,104 @@ import kotlin.random.Random
 object ModuleBlockIn : ClientModule("BlockIn", Category.WORLD, disableOnQuit = true) {
     private val blockPlacer = tree(BlockPlacer("Placer", this, Priority.NORMAL, ::slotFinder))
     private val autoDisable by boolean("AutoDisable", true)
+    private val placeOrder = choices("PlaceOrder", Order.Normal,
+        arrayOf(Order.Normal, Order.Random, Order.BottomTop, Order.TopBottom))
     private val filter by enumChoice("Filter", Filter.BLACKLIST)
     private val blocks by blocks("Blocks", hashSetOf())
+
+    private sealed class Order(name: String) : Choice(name) {
+        override val parent: ChoiceConfigurable<*>
+            get() = placeOrder
+
+        fun positions(): Set<BlockPos> = generatePositions().apply {
+            removeIf { !it.getState()!!.isReplaceable }
+        }
+
+        /**
+         * @return an ordered set, contains 9 elements
+         */
+        protected abstract fun generatePositions(): MutableSet<BlockPos>
+
+        object Normal : Order("Normal") {
+            override fun generatePositions(): MutableSet<BlockPos> {
+                val result = linkedSetOf<BlockPos>()
+                rotateSurroundings {
+                    val value = startPos.offset(it)
+                    result += value
+                    result += value.up()
+                }
+                result += startPos.up(2)
+
+                return result
+            }
+        }
+
+        object Random : Order("Random") {
+            override fun generatePositions(): MutableSet<BlockPos> {
+                val list = ArrayList<BlockPos>(9)
+                val center = startPos.mutableCopy()
+                Direction.HORIZONTAL.forEach {
+                    list += center.offset(it)
+                }
+                center.move(0, 1, 0)
+                Direction.HORIZONTAL.forEach {
+                    list += center.offset(it)
+                }
+                list += center.move(0, 1, 0)
+                list.shuffle()
+                return LinkedHashSet(list)
+            }
+        }
+
+        object BottomTop : Order("BottomTop") {
+            override fun generatePositions(): MutableSet<BlockPos> {
+                val result = linkedSetOf<BlockPos>()
+
+                val center = startPos.mutableCopy() // Player legs
+                rotateSurroundings {
+                    val value = center.offset(it)
+                    result += value
+                }
+                center.move(0, 1, 0) // Player chest
+                rotateSurroundings {
+                    val value = center.offset(it)
+                    result += value
+                }
+                result += center.move(0, 1, 0)
+
+                return result
+            }
+        }
+
+        object TopBottom : Order("TopBottom") {
+            override fun generatePositions(): MutableSet<BlockPos> {
+                val result = linkedSetOf<BlockPos>()
+
+                val center = startPos.mutableCopy()
+                center.move(0, 1, 0) // Player chest
+                rotateSurroundings {
+                    val value = center.offset(it)
+                    result += value
+                }
+                center.move(0, -1, 0) // Player legs
+                rotateSurroundings {
+                    val value = center.offset(it)
+                    result += value
+                }
+                result.addFirst(center.set(startPos, 0, 2, 0))
+
+                return result
+            }
+        }
+
+    }
 
     private val startPos = BlockPos.Mutable()
     private var rotateClockwise = false
     private var blockList = emptySet<BlockPos>()
 
     override fun disable() {
-        startPos.set(BlockPos.ORIGIN)
+        startPos.set(0, 0, 0)
         blockList = emptySet()
         blockPlacer.disable()
     }
@@ -63,28 +154,21 @@ object ModuleBlockIn : ClientModule("BlockIn", Category.WORLD, disableOnQuit = t
         getPositions()
     }
 
-    private fun Direction.next() = if (rotateClockwise) {
-        rotateYClockwise()
-    } else {
-        rotateYCounterclockwise()
+    private inline fun rotateSurroundings(action: (Direction) -> Unit) {
+        var direction = player.horizontalFacing
+        repeat(4) {
+            action(direction)
+            // Next direction
+            direction = if (rotateClockwise) {
+                direction.rotateYClockwise()
+            } else {
+                direction.rotateYCounterclockwise()
+            }
+        }
     }
 
     private fun getPositions() {
-        // Rotate clockwise from player facing
-        blockList = sequence<BlockPos> {
-            var direction = player.horizontalFacing
-
-            repeat(4) {
-                val value = startPos.offset(direction)
-                yield(value)
-                yield(value.up())
-                direction = direction.next()
-            }
-
-            yield(startPos.up(2))
-        }.filterTo(linkedSetOf()) { // keep order
-            it.getState()!!.isReplaceable
-        }
+        blockList = placeOrder.activeChoice.positions()
     }
 
     @Suppress("unused")
