@@ -15,13 +15,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.utils.aiming.data
+package net.ccbluex.liquidbounce.deeplearn.models
 
-import net.minecraft.util.math.Vec2f
-import kotlin.math.hypot
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.deeplearn.translators.FloatArrayInAndOutTranslator
+import java.nio.file.Path
 
-data class RotationDelta(val deltaYaw: Float, val deltaPitch: Float) {
-    fun length() = hypot(deltaYaw, deltaPitch)
-    fun toVec2f() = Vec2f(deltaYaw, deltaPitch)
+class MinaraiModel : ModelWrapper<FloatArray, FloatArray> {
+
+    constructor(name: String, parent: ChoiceConfigurable<*>) : super(
+        name,
+        FloatArrayInAndOutTranslator(),
+        2, // X, Y
+        parent
+    )
+
+    constructor(path: Path, parent: ChoiceConfigurable<*>) : super(
+        path,
+        FloatArrayInAndOutTranslator(),
+        2,
+        parent
+    )
+
 }

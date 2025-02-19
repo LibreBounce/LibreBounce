@@ -30,6 +30,8 @@ import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.update
 import net.ccbluex.liquidbounce.api.thirdparty.IpInfoApi
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
+import net.ccbluex.liquidbounce.deeplearn.ModelHolster
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
@@ -215,7 +217,15 @@ object LiquidBounce : EventListener {
                         }
                     },
                     async { heads },
-                    async { configs }
+                    async { configs },
+                    async {
+                        runCatching {
+                            DeepLearningEngine.init()
+                            ModelHolster.load()
+                        }.onFailure { exception ->
+                            logger.info("Failed to initialize deep learning.", exception)
+                        }
+                    }
                 )
             }
 

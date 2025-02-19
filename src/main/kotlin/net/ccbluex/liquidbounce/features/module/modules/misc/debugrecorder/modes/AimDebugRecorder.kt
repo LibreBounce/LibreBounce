@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 
-object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Aim") {
+object AimDebugRecorder : ModuleDebugRecorder.DebugRecorderMode<JsonObject>("Aim") {
 
     val repeatable = tickHandler {
         val playerRotation = player.rotation

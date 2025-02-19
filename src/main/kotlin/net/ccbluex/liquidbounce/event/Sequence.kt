@@ -120,10 +120,13 @@ open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
     /**
      * Waits until the [case] is true, then continues. Checks every tick.
      */
-    suspend fun waitUntil(case: BooleanSupplier) {
+    suspend fun waitUntil(case: BooleanSupplier): Int {
+        var ticks = 0
         while (!case.asBoolean) {
             sync()
+            ticks++
         }
+        return ticks
     }
 
     /**

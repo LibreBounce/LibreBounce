@@ -15,13 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.utils.aiming.data
+package net.ccbluex.liquidbounce.deeplearn.generators
 
-import net.minecraft.util.math.Vec2f
-import kotlin.math.hypot
+import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 
-data class RotationDelta(val deltaYaw: Float, val deltaPitch: Float) {
-    fun length() = hypot(deltaYaw, deltaPitch)
-    fun toVec2f() = Vec2f(deltaYaw, deltaPitch)
+interface DataGenerator {
+    fun generateData(samples: Int): List<TrainingData>
 }

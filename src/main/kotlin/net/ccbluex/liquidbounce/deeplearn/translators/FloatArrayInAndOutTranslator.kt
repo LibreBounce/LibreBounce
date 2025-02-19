@@ -15,13 +15,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.utils.aiming.data
+package net.ccbluex.liquidbounce.deeplearn.translators
 
-import net.minecraft.util.math.Vec2f
-import kotlin.math.hypot
+import ai.djl.ndarray.NDList
+import ai.djl.translate.Translator
+import ai.djl.translate.TranslatorContext
 
-data class RotationDelta(val deltaYaw: Float, val deltaPitch: Float) {
-    fun length() = hypot(deltaYaw, deltaPitch)
-    fun toVec2f() = Vec2f(deltaYaw, deltaPitch)
+class FloatArrayInAndOutTranslator : Translator<FloatArray, FloatArray> {
+
+    override fun processInput(ctx: TranslatorContext, input: FloatArray): NDList {
+        return NDList(ctx.ndManager.create(input))
+    }
+
+    override fun processOutput(ctx: TranslatorContext, list: NDList): FloatArray {
+        return list[0].toFloatArray()
+    }
+
 }
