@@ -143,7 +143,7 @@ object ModuleBlockIn : ClientModule("BlockIn", Category.WORLD, disableOnQuit = t
     private var blockList = emptySet<BlockPos>()
 
     override fun disable() {
-        startPos.set(0, 0, 0)
+        startPos.set(BlockPos.ORIGIN)
         blockList = emptySet()
         blockPlacer.disable()
     }
