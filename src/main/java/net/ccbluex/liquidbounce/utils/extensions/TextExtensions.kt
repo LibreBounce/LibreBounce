@@ -5,4 +5,6 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
-fun String.toLowerCamelCase() = this.replaceFirst(this.toCharArray()[0], this.toCharArray()[0].lowercaseChar())
+fun String.toLowerCamelCase() = String(this.toCharArray().apply {
+    this[0] = this[0].lowercaseChar()
+})

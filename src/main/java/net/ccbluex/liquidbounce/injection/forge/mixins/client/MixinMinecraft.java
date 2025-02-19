@@ -49,7 +49,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -206,9 +205,7 @@ public abstract class MixinMinecraft {
     private void setWindowIcon(CallbackInfo callbackInfo) {
         if (Util.getOSType() != Util.EnumOS.OSX) {
             if (ClientConfiguration.INSTANCE.getClientTitle()) {
-                final ByteBuffer[] liquidBounceFavicon = IconUtils.INSTANCE.getFavicon();
-                if (liquidBounceFavicon != null) {
-                    Display.setIcon(liquidBounceFavicon);
+                if (IconUtils.initLwjglIcon()) {
                     callbackInfo.cancel();
                 }
             }

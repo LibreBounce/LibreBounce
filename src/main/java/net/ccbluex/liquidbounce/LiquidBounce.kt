@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.loa
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.integration.swing.MainWindow
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.client.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -257,6 +258,10 @@ object LiquidBounce {
 
             // Load background
             FileManager.loadBackground()
+
+            // Swing GUI
+            // TODO: move it
+            MainWindow.show()
         } catch (e: Exception) {
             LOGGER.error("Failed to start client: ${e.message}")
             e.showErrorPopup()

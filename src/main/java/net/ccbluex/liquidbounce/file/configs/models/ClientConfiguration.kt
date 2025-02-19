@@ -22,9 +22,7 @@ object ClientConfiguration : Configurable("ClientConfiguration"), MinecraftInsta
             // Set LiquidBounce title
             Display.setTitle(LiquidBounce.clientTitle)
             // Update favicon
-            IconUtils.favicon?.let { icons ->
-                Display.setIcon(icons)
-            }
+            IconUtils.initLwjglIcon()
         } else {
             // Set original title
             Display.setTitle("Minecraft 1.8.9")

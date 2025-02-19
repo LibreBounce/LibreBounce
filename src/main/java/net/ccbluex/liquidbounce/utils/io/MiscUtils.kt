@@ -22,6 +22,8 @@ import javax.swing.*
 import javax.swing.filechooser.FileFilter
 import javax.swing.filechooser.FileNameExtensionFilter
 
+inline fun File.open() = Desktop.getDesktop().open(this)
+
 object MiscUtils : MinecraftInstance {
 
     @JvmStatic

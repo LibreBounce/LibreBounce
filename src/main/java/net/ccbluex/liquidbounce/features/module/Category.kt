@@ -5,6 +5,11 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
+import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
+import net.minecraft.util.ResourceLocation
+import javax.swing.Icon
+import javax.swing.ImageIcon
+
 enum class Category(val displayName: String) {
 
     COMBAT("Combat"),
@@ -15,5 +20,15 @@ enum class Category(val displayName: String) {
     MISC("Misc"),
     EXPLOIT("Exploit"),
     FUN("Fun");
+
+    /**
+     * For Minecraft
+     */
+    val iconResourceLocation: ResourceLocation = ResourceLocation("${CLIENT_NAME.lowercase()}/tabgui/${name.lowercase()}.png")
+
+    /**
+     * For Swing
+     */
+    val icon: Icon = ImageIcon(this::class.java.getResource("/assets/minecraft/${CLIENT_NAME.lowercase()}/tabgui/${name.lowercase()}.png"), displayName)
 
 }

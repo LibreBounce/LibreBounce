@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
 import net.minecraft.client.Minecraft
 import net.minecraft.util.IThreadListener
+import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 
 object SharedScopes {
@@ -38,6 +39,20 @@ private object RenderDispatcher : CoroutineDispatcher() {
                 block.run()
             } else {
                 mc.addScheduledTask(block)
+            }
+        } catch (e: Throwable) {
+            context[CoroutineExceptionHandler]?.handleException(context, e) ?: throw e
+        }
+    }
+}
+
+object SwingDispatcher : CoroutineDispatcher() {
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        try {
+            if (SwingUtilities.isEventDispatchThread()) {
+                block.run()
+            } else {
+                SwingUtilities.invokeLater(block)
             }
         } catch (e: Throwable) {
             context[CoroutineExceptionHandler]?.handleException(context, e) ?: throw e
