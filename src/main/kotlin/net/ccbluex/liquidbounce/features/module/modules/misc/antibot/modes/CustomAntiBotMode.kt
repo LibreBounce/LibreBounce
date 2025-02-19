@@ -79,8 +79,9 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         @Suppress("unused")
         private enum class ArmorMaterialChoice(
             override val choiceName: String,
-            val material: ArmorMaterial,
+            val material: ArmorMaterial?,
         ) : NamedChoice {
+            NOTHING("Nothing", null),
             LEATHER("Leather", ArmorMaterials.LEATHER),
             GOLD("Gold", ArmorMaterials.GOLD),
             CHAIN("Chain", ArmorMaterials.CHAIN),
