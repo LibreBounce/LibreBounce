@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.Item
-import net.minecraft.item.equipment.ArmorMaterial
 import net.minecraft.item.equipment.ArmorMaterials
 import net.minecraft.item.equipment.EquipmentType
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
@@ -74,38 +73,25 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val minimum by int("Minimum", 20, 0..120, "ticks")
     }
 
-    private object Armor : ToggleableConfigurable(ModuleAntiBot, "Armor", false) {
-
-        @Suppress("unused")
-        private enum class ArmorMaterialChoice(
-            override val choiceName: String,
-            val material: ArmorMaterial?,
-        ) : NamedChoice {
-            NOTHING("Nothing", null),
-            LEATHER("Leather", ArmorMaterials.LEATHER),
-            GOLD("Gold", ArmorMaterials.GOLD),
-            CHAIN("Chain", ArmorMaterials.CHAIN),
-            IRON("Iron", ArmorMaterials.IRON),
-            DIAMOND("Diamond", ArmorMaterials.DIAMOND),
-            NETHERITE("Netherite", ArmorMaterials.NETHERITE)
-        }
+    private object ArmorMaterial : ToggleableConfigurable(ModuleAntiBot, "ArmorMaterial", false) {
 
         private class ArmorConfigurable(
             name: String, val equipmentType: EquipmentType
         ) : ToggleableConfigurable(this, name, false) {
 
-            val mode by enumChoice("Mode", Filter.BLACKLIST)
-
-            // TODO: replace with multiple choice
-            val materialChoice by enumChoice("Material", ArmorMaterialChoice.LEATHER)
+            private val materialValues = mapOf(
+                null to boolean("Nothing", true),
+                ArmorMaterials.LEATHER to boolean("Leather", true),
+                ArmorMaterials.GOLD to boolean("Gold", true),
+                ArmorMaterials.CHAIN to boolean("Chain", true),
+                ArmorMaterials.IRON to boolean("Iron", true),
+                ArmorMaterials.DIAMOND to boolean("Diamond", true),
+                ArmorMaterials.NETHERITE to boolean("Netherite", true)
+            )
 
             fun isValid(item: Item): Boolean {
-                with((item as? ArmorItem)?.material() == materialChoice.material) {
-                    return when (mode) {
-                        Filter.WHITELIST -> this
-                        Filter.BLACKLIST -> !this
-                    }
-                }
+                // TURTLE_SCUTE or ARMADILLO_SCUTE -> valid
+                return materialValues[(item as? ArmorItem)?.material()]?.get() ?: true
             }
         }
 
@@ -127,7 +113,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         tree(InvalidGround)
         tree(AlwaysInRadius)
         tree(Age)
-        tree(Armor)
+        tree(ArmorMaterial)
     }
 
     private val flyingSet = Int2IntOpenHashMap()
@@ -152,7 +138,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 ageSet.add(entity.id)
             }
 
-            if (Armor.enabled && !Armor.isValid(entity)) {
+            if (ArmorMaterial.enabled && !ArmorMaterial.isValid(entity)) {
                 armorSet.add(entity.id)
             }
         }
@@ -169,7 +155,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         with(armorSet.intIterator()) {
             while (hasNext()) {
                 val entity = world.getEntityById(nextInt()) as? PlayerEntity
-                if (entity == null || Armor.isValid(entity)) {
+                if (entity == null || ArmorMaterial.isValid(entity)) {
                     remove()
                 }
             }
@@ -267,7 +253,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             illegalPitch && abs(player.pitch) > 90 -> true
             AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(playerId) -> true
             Age.enabled && ageSet.contains(playerId) -> true
-            Armor.enabled && armorSet.contains(playerId) -> true
+            ArmorMaterial.enabled && armorSet.contains(playerId) -> true
             needHit && !hitListSet.contains(playerId) -> true
             health && player.health > 20f -> true
             swung && !swungSet.contains(playerId) -> true
