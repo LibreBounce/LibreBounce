@@ -5,6 +5,16 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
 
+/**
+ * The age defines the ticks we start tracking the entity. However, due to the fact
+ * that in simulated environments the time of combat will be much shorter,
+ * and therefore not have enough data to satisfy our whole scale of combat time.
+ *
+ * This limit will allow the model to know that we just started,
+ * until we reach the maximum training age.
+ */
+const val MAXIMUM_TRAINING_AGE = 5
+
 data class TrainingData(
     @SerializedName(CURRENT_DIRECTION_VECTOR)
     val currentVector: Vec3d,
@@ -71,6 +81,15 @@ data class TrainingData(
             velocityDelta.x,
             velocityDelta.y
         )
+
+    /**
+     * Filter the training data to make sure it is within the limits.
+     */
+    fun map(): TrainingData? {
+        if (age > MAXIMUM_TRAINING_AGE) return null
+
+        return copy()
+    }
 
     companion object {
         const val CURRENT_DIRECTION_VECTOR = "a"

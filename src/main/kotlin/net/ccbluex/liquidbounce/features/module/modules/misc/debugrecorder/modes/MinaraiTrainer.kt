@@ -156,7 +156,7 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
     }
 
     fun training() = runCatching {
-        val data = packets
+        val data = packets.mapNotNull(TrainingData::map)
         val model = model!!
 
         @Suppress("ArrayInDataClass")

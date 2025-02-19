@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
 import net.ccbluex.liquidbounce.deeplearn.ModelHolster.models
+import net.ccbluex.liquidbounce.deeplearn.data.MAXIMUM_TRAINING_AGE
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.deeplearn.models.MinaraiModel
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -35,6 +36,7 @@ import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
+import kotlin.math.min
 
 var previousEntityDistance = 0.0f
 
@@ -96,7 +98,7 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
             velocityDelta = velocityDelta.toVec2f(),
             entityDistance = entityDistance,
             entityDistanceDelta = entityDistance - previousEntityDistance,
-            age = RotationManager.ticksSinceChange
+            age = min(MAXIMUM_TRAINING_AGE, RotationManager.ticksSinceChange)
         )
 
         previousEntityDistance = entityDistance

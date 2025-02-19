@@ -88,7 +88,7 @@ abstract class ModelWrapper<I, O>(
                     emptyList()
                 }
             } ?: emptyList()
-        }
+        }.mapNotNull(TrainingData::map)
 
         logger.info("Training model $name with ${data.size} samples")
         val features = data.map(TrainingData::asInput).toTypedArray()

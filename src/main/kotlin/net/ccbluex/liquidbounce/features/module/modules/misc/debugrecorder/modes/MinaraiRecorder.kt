@@ -47,6 +47,7 @@ import java.util.Date
 import java.util.UUID
 import kotlin.collections.ArrayDeque
 import kotlin.collections.map
+import kotlin.collections.mapNotNull
 import kotlin.collections.toTypedArray
 import kotlin.concurrent.thread
 import kotlin.random.Random
@@ -183,7 +184,7 @@ object MinaraiRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Mi
     }
 
     fun training() = runCatching {
-        val data = packets
+        val data = packets.mapNotNull(TrainingData::map)
         val model = model!!
 
         @Suppress("ArrayInDataClass")
