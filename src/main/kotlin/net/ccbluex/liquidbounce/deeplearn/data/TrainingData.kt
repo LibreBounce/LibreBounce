@@ -16,8 +16,15 @@ data class TrainingData(
     val velocityDelta: Vec2f,
     @SerializedName(CURRENT_ENTITY_DISTANCE)
     val entityDistance: Float,
-    @SerializedName(PREVIOUS_ENTITY_DISTANCE)
-    val previousEntityDistance: Float
+    @SerializedName(ENTITY_DISTANCE_DELTA)
+    val entityDistanceDelta: Float,
+
+    /**
+     * Age in this case is the Entity Age, however, we will use it later to determine
+     * the time we have been tracking this entity.
+     */
+    @SerializedName(AGE)
+    val age: Int
 ) {
 
     val currentRotation
@@ -43,6 +50,9 @@ data class TrainingData(
 
     val asInput: FloatArray
         get() = floatArrayOf(
+            // Age
+            age.toFloat(),
+
             // Total Delta
             totalDelta.deltaYaw,
             totalDelta.deltaPitch,
@@ -53,14 +63,7 @@ data class TrainingData(
 
             // Distance
             entityDistance,
-            previousEntityDistance
-
-            // The idea is to normalize the time in and time out to a range of 0 to 1,
-            // which allows us to stretch the model behaviour on prediction, post training.
-            // This can be useful when we think our model is aiming fast enough, giving us a small
-            // room to adjust the prediction.
-            //(data.timeIn.toFloat() / MAXIMUM_IN_TIME.toFloat()).coerceIn(0f, 1f),
-            // (data.timeOut.toFloat() / maxTimeOut.toFloat()).coerceIn(0f, 1f)
+            entityDistanceDelta
         )
 
     val asOutput
@@ -74,15 +77,14 @@ data class TrainingData(
         const val PREVIOUS_DIRECTION_VECTOR = "b"
         const val TARGET_DIRECTION_VECTOR = "c"
         const val DELTA_VECTOR = "d"
-        const val TIME_IN = "ti"
-        const val TIME_OUT = "to"
+        const val AGE = "f"
 
         /**
          * Unlike with all other parameters, we keep track of the entity distance
          * as well, as it might be related to aiming behaviour.
          */
         const val CURRENT_ENTITY_DISTANCE = "e"
-        const val PREVIOUS_ENTITY_DISTANCE = "v"
+        const val ENTITY_DISTANCE_DELTA = "g"
 
     }
 }

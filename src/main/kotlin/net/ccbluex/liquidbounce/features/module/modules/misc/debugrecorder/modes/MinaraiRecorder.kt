@@ -103,10 +103,9 @@ object MinaraiRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Mi
                 previousVector = snapshot.previous,
                 targetVector = target,
                 velocityDelta = snapshot.delta,
-//                timeIn = timeWithoutMovement,
-//                timeOut = timeWithMovement,
                 entityDistance = snapshot.distance,
-                previousEntityDistance = prevInbetween?.distance ?: snapshot.distance
+                entityDistanceDelta = snapshot.distance - (prevInbetween?.distance ?: snapshot.distance),
+                age = snapshot.age
             ))
 
             prevInbetween = snapshot
@@ -243,7 +242,8 @@ object MinaraiRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Mi
             current = current.directionVector,
             previous = previous.directionVector,
             delta = current.rotationDeltaTo(next).toVec2f(),
-            distance = player.squaredBoxedDistanceTo(slimeEntity).toFloat()
+            distance = player.squaredBoxedDistanceTo(slimeEntity).toFloat(),
+            age = slimeEntity.age
         )
     }
 
@@ -252,6 +252,7 @@ object MinaraiRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Mi
         val previous: Vec3d,
         val delta: Vec2f,
         val distance: Float,
+        val age: Int
     )
 
 }

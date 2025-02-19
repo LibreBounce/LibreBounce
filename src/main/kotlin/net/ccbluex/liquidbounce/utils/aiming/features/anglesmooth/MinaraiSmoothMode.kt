@@ -94,10 +94,9 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
             previousVector = prevRotation.directionVector,
             targetVector = targetRotation.directionVector,
             velocityDelta = velocityDelta.toVec2f(),
-//            timeIn = 0,
-//            timeOut = 0,
             entityDistance = entityDistance,
-            previousEntityDistance = previousEntityDistance
+            entityDistanceDelta = entityDistance - previousEntityDistance,
+            age = RotationManager.ticksSinceChange
         )
 
         previousEntityDistance = entityDistance

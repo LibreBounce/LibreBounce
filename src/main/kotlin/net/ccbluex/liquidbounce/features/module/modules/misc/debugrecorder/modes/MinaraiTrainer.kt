@@ -76,10 +76,9 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
                 previousVector = previous.directionVector,
                 targetVector = Rotation.lookingAt(player.eyePos, slime.box.center).directionVector,
                 velocityDelta = current.rotationDeltaTo(next).toVec2f(),
-//                timeIn = 0,
-//                timeOut = 0,
                 entityDistance = distance,
-                previousEntityDistance = previousEntityDistance ?: distance
+                entityDistanceDelta = distance - (previousEntityDistance ?: distance),
+                age = slime.age
             ))
             previousEntityDistance = distance
 

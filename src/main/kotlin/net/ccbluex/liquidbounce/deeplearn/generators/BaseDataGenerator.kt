@@ -55,11 +55,10 @@ object BaseDataGenerator : DataGenerator {
         var current = starting()
         var previous = starting()
 
-        val ti = random.nextGaussian(0.4012, 2.2643).toFloat()
-        val to = random.nextGaussian(15.5179, 11.3291).toFloat()
         val e = random.nextGaussian(2.7127, 1.2936).toFloat()
-        val v = random.nextGaussian(2.7180, 1.2915).toFloat()
+        val v = e - random.nextGaussian(2.7180, 1.2915).toFloat()
 
+        var t = 0
         while (current.angleTo(target) > 1.0E-5f) {
             val next = this.next(current, target)
             val delta = current.rotationDeltaTo(next)
@@ -69,14 +68,15 @@ object BaseDataGenerator : DataGenerator {
                 previous.directionVector,
                 targetVector,
                 Vec2f(delta.deltaYaw, delta.deltaPitch),
-//                ti.toInt(),
-//                to.toInt(),
                 e,
-                v
+                v,
+                t
             )
 
             previous = current
             current = next
+
+            t++
         }
     }
 
