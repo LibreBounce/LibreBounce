@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.runWithSimulatedPosition
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
 import net.ccbluex.liquidbounce.features.module.modules.world.Nuker
@@ -1229,13 +1230,15 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val renderManager = mc.renderManager
 
-        val rotationVec = player.interpolatedPosition(player.prevPos, player.eyeHeight) + getVectorForRotation(
-            serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
-        ) * player.getDistanceToEntityBox(target).coerceAtMost(range.toDouble())
+        runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
+            val rotationVec = player.eyes + getVectorForRotation(
+                serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
+            ) * player.getDistanceToEntityBox(target).coerceAtMost(range.toDouble())
 
-        val offSetBox = box.offset(rotationVec - renderManager.renderPos)
+            val offSetBox = box.offset(rotationVec - renderManager.renderPos)
 
-        RenderUtils.drawAxisAlignedBB(offSetBox, aimPointBoxColor)
+            RenderUtils.drawAxisAlignedBB(offSetBox, aimPointBoxColor)
+        }
     }
 
     /**
