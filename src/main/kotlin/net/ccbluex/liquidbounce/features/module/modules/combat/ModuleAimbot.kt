@@ -26,9 +26,15 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.LinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.SigmoidAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.SigmoidAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
+import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
@@ -77,6 +83,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
+    @Suppress("unused")
     private val tickHandler = handler<RotationUpdateEvent> { _ ->
         playerRotation = player.rotation
 
@@ -155,7 +162,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
     }
 
-    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? {
+    private fun findNextTargetRotation(): Pair<Entity, RotationWithVector>? {
         for (target in targetTracker.targets()) {
             val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)
             val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)

@@ -18,7 +18,12 @@
  */
 package net.ccbluex.liquidbounce.utils.aiming
 
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmoothMode
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
@@ -33,7 +38,7 @@ import net.minecraft.util.math.Vec3d
  * @param angleSmooth The mode of the smoother.
  */
 @Suppress("LongParameterList")
-class AimPlan(
+class RotationTarget(
     val rotation: Rotation,
     val vec3d: Vec3d? = null,
     val entity: Entity? = null,
@@ -54,8 +59,7 @@ class AimPlan(
      * Consider if the inventory is open or not. If the inventory is open, we might not want to continue updating.
      */
     val considerInventory: Boolean,
-    val applyVelocityFix: Boolean,
-    val changeLook: Boolean,
+    val movementCorrection: MovementCorrection,
     /**
      * What should be done if the target rotation has been reached. Can be `null`.
       */

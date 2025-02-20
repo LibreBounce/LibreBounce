@@ -1,9 +1,13 @@
-package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
+package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
 import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.RotationDelta
+import net.ccbluex.liquidbounce.utils.aiming.utils.RotationUtil
+import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2

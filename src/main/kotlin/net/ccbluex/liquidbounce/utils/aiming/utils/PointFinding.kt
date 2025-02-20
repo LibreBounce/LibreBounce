@@ -1,9 +1,11 @@
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.utils
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleProjectileAimbot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug.debugGeometry
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.NormalizedPlane
 import net.ccbluex.liquidbounce.utils.math.geometry.PlaneSection
@@ -20,7 +22,10 @@ import net.minecraft.world.RaycastContext
 import org.joml.Matrix3f
 import org.joml.Vector3f
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
 
 val Box.edgePoints: Array<Vec3d>
     get() = arrayOf(
@@ -95,14 +100,14 @@ inline fun projectPointsOnBox(
     // Find a point between the virtual eye and the target box such that every edge point of the box is behind it
     // (from the perspective of the virtual eye). This position is used to craft a the targeting frame
     val targetFrameOrigin = targetBox.edgePoints
-        .map { playerToBoxLine.getNearestPointTo(it) }
+        .mapArray { playerToBoxLine.getNearestPointTo(it) }
         .minBy { it.squaredDistanceTo(virtualEye) }
         .moveTowards(virtualEye, 0.1)
 
     val plane = NormalizedPlane(targetFrameOrigin, playerToBoxLine.direction)
     val (toMatrix, backMatrix) = getRotationMatricesForVec(plane.normalVec)
 
-    val projectedAndRotatedPoints = targetBox.edgePoints.map {
+    val projectedAndRotatedPoints = targetBox.edgePoints.mapArray {
         plane.intersection(Line.fromPoints(virtualEye, it))!!.subtract(targetFrameOrigin).toVector3f().mul(backMatrix)
     }
 
@@ -118,10 +123,9 @@ inline fun projectPointsOnBox(
         maxY = max(maxY, it.y)
     }
 
-    val posVec =
-        Vec3d(0.0, minY.toDouble(), minZ.toDouble()).toVector3f().mul(toMatrix).toVec3d().add(targetFrameOrigin)
-    val dirVecY = Vec3d(0.0, (maxY - minY).toDouble(), 0.0).toVector3f().mul(toMatrix).toVec3d()
-    val dirVecZ = Vec3d(0.0, 0.0, (maxZ - minZ).toDouble()).toVector3f().mul(toMatrix).toVec3d()
+    val posVec = Vector3f(0f, minY, minZ).mul(toMatrix).toVec3d().add(targetFrameOrigin)
+    val dirVecY = Vector3f(0f, maxY - minY, 0f).mul(toMatrix).toVec3d()
+    val dirVecZ = Vector3f(0f, 0f, maxZ - minZ).mul(toMatrix).toVec3d()
 
     val planeSection = PlaneSection(posVec, dirVecY, dirVecZ)
 
@@ -162,16 +166,16 @@ fun findVisiblePointFromVirtualEye(
 ): Vec3d? {
     val points = projectPointsOnBox(virtualEyes, box) ?: return null
 
-    val debugCollection = ModuleDebug.DebugCollection(points.map { ModuleDebug.DebuggedPoint(it, Color4b.BLUE, 0.01) })
-
-    ModuleDebug.debugGeometry(ModuleProjectileAimbot, "points", debugCollection)
+    ModuleProjectileAimbot.debugGeometry("points") {
+        ModuleDebug.DebugCollection(points.map { ModuleDebug.DebuggedPoint(it, Color4b.BLUE, 0.01) })
+    }
 
     val rays = ArrayList<ModuleDebug.DebuggedGeometry>()
 
     val center = box.center
-    val sortedPoints = points.sortedBy { it.distanceTo(center) }
+    points.sortBy { it.squaredDistanceTo(center) }
 
-    for (spot in sortedPoints) {
+    for (spot in points) {
         val vecFromEyes = spot - virtualEyes
         val raycastTarget = vecFromEyes * 2.0 + virtualEyes
         val spotOnBox = box.raycast(virtualEyes, raycastTarget).getOrNull() ?: continue
@@ -183,12 +187,12 @@ fun findVisiblePointFromVirtualEye(
         rays.add(ModuleDebug.DebuggedLineSegment(rayStart, spotOnBox, if (visible) Color4b.GREEN else Color4b.RED))
 
         if (visible) {
-            ModuleDebug.debugGeometry(ModuleProjectileAimbot, "rays", ModuleDebug.DebugCollection(rays))
+            ModuleProjectileAimbot.debugGeometry("rays") { ModuleDebug.DebugCollection(rays) }
             return spotOnBox
         }
     }
 
-    ModuleDebug.debugGeometry(ModuleProjectileAimbot, "rays", ModuleDebug.DebugCollection(rays))
+    ModuleProjectileAimbot.debugGeometry("rays") { ModuleDebug.DebugCollection(rays) }
 
     return null
 }

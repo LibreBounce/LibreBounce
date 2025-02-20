@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.TrapPl
 import net.ccbluex.liquidbounce.features.module.modules.world.traps.traps.WebTrapPlanner
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raycast
+import net.ccbluex.liquidbounce.utils.aiming.utils.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
@@ -76,7 +76,7 @@ object ModuleAutoTrap : ClientModule("AutoTrap", Category.WORLD, aliases = array
 
         currentPlan = webTrapPlanner.plan(enemies) ?: ignitionTrapPlanner.plan(enemies)
         currentPlan?.let { intent ->
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 (intent.blockChangeInfo as BlockChangeInfo.PlaceBlock).blockPlacementTarget.rotation,
                 considerInventory = !ignoreOpenInventory,
                 configurable = rotationsConfigurable,

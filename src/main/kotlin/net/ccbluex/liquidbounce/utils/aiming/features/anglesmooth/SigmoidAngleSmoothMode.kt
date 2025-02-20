@@ -19,18 +19,15 @@
  *
  */
 
-package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
+package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
 import kotlin.math.abs
 import kotlin.math.exp
-import kotlin.math.hypot
 import kotlin.math.min
 
 class SigmoidAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Sigmoid") {

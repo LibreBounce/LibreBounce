@@ -19,10 +19,10 @@
  *
  */
 
-package net.ccbluex.liquidbounce.utils.aiming.anglesmooth
+package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
 

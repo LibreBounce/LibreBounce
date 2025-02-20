@@ -42,8 +42,8 @@ import java.util.*
  * We are simulating this behaviour by calculating how many times we could have been clicked in the meantime of a tick.
  * This allows us to predict future actions and behave accordingly.
  */
-open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int = 60, name: String = "ClickScheduler")
-    : Configurable(name), EventListener where T : EventListener {
+open class Clicker<T>(val parent: T, showCooldown: Boolean, maxCps: Int = 60, name: String = "Clicker")
+    : Configurable(name, aliases = arrayOf("ClickScheduler")), EventListener where T : EventListener {
 
     companion object {
         internal val RNG = Random()
@@ -100,9 +100,9 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
         }
 
         ModuleDebug.apply {
-            debugParameter(this@ClickScheduler, "Current Clicks", clicks)
-            debugParameter(this@ClickScheduler, "Peek Clicks", clickArray.get(1))
-            debugParameter(this@ClickScheduler, "Last Click Passed", lastClickPassed)
+            debugParameter(this@Clicker, "Current Clicks", clicks)
+            debugParameter(this@Clicker, "Peek Clicks", clickArray.get(1))
+            debugParameter(this@Clicker, "Last Click Passed", lastClickPassed)
         }
 
         if (clicks > 0) {
@@ -125,9 +125,9 @@ open class ClickScheduler<T>(val parent: T, showCooldown: Boolean, maxCps: Int =
             clickArray.push(cycleArray)
         }
 
-        ModuleDebug.debugParameter(this@ClickScheduler, "Click Technique", pattern.choiceName)
+        ModuleDebug.debugParameter(this@Clicker, "Click Technique", pattern.choiceName)
         ModuleDebug.debugParameter(
-            this@ClickScheduler,
+            this@Clicker,
             "Click Array",
             clickArray.array.withIndex().joinToString { (i, v) ->
                 if (i == clickArray.head) "*$v" else v.toString()
