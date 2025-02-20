@@ -73,7 +73,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val minimum by int("Minimum", 20, 0..120, "ticks")
     }
 
-    private object ArmorMaterial : ToggleableConfigurable(ModuleAntiBot, "ArmorMaterial", false) {
+    private object Armor : ToggleableConfigurable(ModuleAntiBot, "ArmorMaterial", false) {
 
         private class ArmorConfigurable(
             name: String, val equipmentType: EquipmentType
@@ -113,7 +113,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         tree(InvalidGround)
         tree(AlwaysInRadius)
         tree(Age)
-        tree(ArmorMaterial)
+        tree(Armor)
     }
 
     private val flyingSet = Int2IntOpenHashMap()
@@ -253,7 +253,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             illegalPitch && abs(player.pitch) > 90 -> true
             AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(playerId) -> true
             Age.enabled && ageSet.contains(playerId) -> true
-            ArmorMaterial.enabled && armorSet.contains(playerId) -> true
+            Armor.enabled && armorSet.contains(playerId) -> true
             needHit && !hitListSet.contains(playerId) -> true
             health && player.health > 20f -> true
             swung && !swungSet.contains(playerId) -> true
