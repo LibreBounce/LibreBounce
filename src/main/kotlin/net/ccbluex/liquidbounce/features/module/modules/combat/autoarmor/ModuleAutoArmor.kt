@@ -53,6 +53,10 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
     @Suppress("unused")
     private val scheduleHandler = handler<ScheduleInventoryActionEvent> { event ->
+        if (player.isCreative || player.isSpectator) {
+            return@handler
+        }
+
         // Filter out already equipped armor pieces
         val durabilityThreshold = if (AutoArmorSaveArmor.enabled) durabilityThreshold else Int.MIN_VALUE
 
@@ -103,7 +107,9 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
         val inventorySlot = armorPiece.itemSlot
         val armorPieceSlot = if (isInArmorSlot) ArmorItemSlot(armorPiece.entitySlotId) else inventorySlot
 
-        val canTryHotbarMove = (!isInArmorSlot || isNewerThanOrEqual1_19_4) && useHotbar && !InventoryManager.isInventoryOpen
+        val canTryHotbarMove = (!isInArmorSlot || isNewerThanOrEqual1_19_4)
+            && useHotbar && !InventoryManager.isInventoryOpen
+
         if (inventorySlot is HotbarItemSlot && canTryHotbarMove) {
             return UseInventoryAction(inventorySlot)
         }

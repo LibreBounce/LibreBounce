@@ -16,6 +16,7 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
     private val autoOpen by boolean("AutoOpenInventory", true)
 
     private var hasOpenedInventory = false
+    private var prevArmor = 0
 
     /**
      * Opens the inventory to save armor (as if the player has opened it manually) if the following conditions are met:
@@ -28,12 +29,46 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
      */
     @Suppress("unused")
     private val armorAutoSaveHandler = tickHandler {
+        if (player.isCreative || player.isSpectator) {
+            return@tickHandler
+        }
+
         if (!ModuleAutoArmor.running || !AutoArmorSaveArmor.enabled) {
             return@tickHandler
         }
 
         // the module will save armor automatically if open inventory isn't required
         if (!ModuleAutoArmor.inventoryConstraints.requiresOpenInventory || !autoOpen) {
+            return@tickHandler
+        }
+
+        /**
+         * The server doesn't let the client know about the state of its armor items
+         * when the player in a handled screen⁽¹⁾ like a chest, crafting table, anvil, etc.,
+         * making the armor saving process not work at all when a handled screen is open.
+         * In other words, `{player.inventory.armor}` doesn't get updated in such case.
+         *
+         * So, it's necessary to track the armor items and update their state (e.g. durability)
+         * on the client side when the player receives damage, isn't it? :)
+         * Well, unfortunately, it's not possible to do this accurately, not even close.
+         * The server doesn't provide the client with enough data
+         * to calculate the armor durability on the client side. :(
+         *
+         * Nonetheless, if the player is still in a handled screen⁽¹⁾
+         * and gets an armor piece broken, his armor attribute, `{player.armor}`, gets updated.
+         * This update lets the module know exactly when it should close the handled screen⁽¹⁾
+         * so that the player equips a new armor piece.
+         * Yes, this won't save armor pieces but might save the player's life.
+         *
+         * (1) - not including the player's own inventory which is also a handled screen.
+         */
+        val hasLostArmorPiece = shouldTrackArmor && player.armor < prevArmor
+        prevArmor = player.armor
+
+        // closes the current screen so that the armor slots are synced again
+        // TODO: if possible, make it close the screen only if there is a replacement
+        if (hasLostArmorPiece) {
+            player.closeHandledScreen()
             return@tickHandler
         }
 
@@ -93,17 +128,6 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
 
             if (mc.currentScreen is HandledScreen<*>) {
                 // closes chests/crating tables/etc.
-                // TODO: well, it doesn't... :(
-                //  When the player is in a chest/anvil/crafting table/etc.,
-                //  hasArmorToReplace is always false...
-                //  The server simply doesn't let the player know anything new about his armor :/
-                //  the client knows only the state of the armor before opening the screen,
-                //  the client doesn't receive any updates on the armor slots until the screen is closed.
-                //  However, the client still gets updates on the armor of other players :/
-
-                // TODO: since the client get no updates on the armor while a chest/crating table/etc. is open,
-                //  try to approximately track the durability of the player's armor manually
-                //  when the player receives damage and chest/crating table/etc. is open :)
                 player.closeHandledScreen()
             } else if (mc.currentScreen != null) {
                 // closes ClickGUI, game chat, etc. to save some armor :)
@@ -119,4 +143,7 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
             }
         }
     }
+
+    private val shouldTrackArmor : Boolean
+        get() = mc.currentScreen !is InventoryScreen && mc.currentScreen is HandledScreen<*>
 }
