@@ -26,7 +26,7 @@ interface RotationPreference : Comparator<Rotation> {
 
     fun getPreferredSpot(eyesPos: Vec3d, range: Double, ): Vec3d
 
-    fun getPreferredSpotOnBox(box: Box, eyesPos: Vec3d, range: Double): Vec3d? {
+    fun getPreferredSpotOnBox(box: Box, eyesPos: Vec3d, range: Double): Vec3d {
         return getPreferredSpot(eyesPos, range)
     }
 
