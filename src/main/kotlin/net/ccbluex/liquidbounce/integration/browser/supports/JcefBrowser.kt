@@ -109,36 +109,38 @@ class JcefBrowser : IBrowser, EventListener {
     }
 
     /**
-     * Cleans up old cache directories.
+     * Cleans up old cache and library directories.
      *
      * TODO: Check if we have an active PID using the cache directory, if so, check if the LiquidBounce
      *   process attached to the JCEF PID is still running or not. If not, we could kill the JCEF process
      *   and clean up the cache directory.
      */
     fun cleanup() {
-        if (cacheFolder.exists()) {
-            runCatching {
-                cacheFolder.listFiles()
-                    ?.filter { file ->
-                        file.isDirectory && System.currentTimeMillis() - file.lastModified() > CACHE_CLEANUP_THRESHOLD
-                    }
-                    ?.sumOf { file ->
-                        try {
-                            val fileSize = file.walkTopDown().sumOf { uFile -> uFile.length() }
-                            file.deleteRecursively()
-                            fileSize
-                        } catch (e: Exception) {
-                            logger.error("Failed to clean up old cache directory", e)
-                            0
-                        }
-                    } ?: 0
-            }.onFailure {
-                // Not a big deal, not fatal.
-                logger.error("Failed to clean up old JCEF cache directories", it)
-            }.onSuccess { size ->
-                if (size > 0) {
-                    logger.info("Cleaned up ${size.formatBytesAsSize()} JCEF cache directories")
+        runCatching {
+            val currentLibraryDirectory = MCEF.INSTANCE.resourceManager?.commitDirectory
+
+            buildList {
+                cacheFolder.listFiles()?.let(::addAll)
+                librariesFolder.listFiles()?.let(::addAll)
+            }.filter { file ->
+                file != currentLibraryDirectory && file.isDirectory
+                    && System.currentTimeMillis() - file.lastModified() > CACHE_CLEANUP_THRESHOLD
+            }.sumOf { file ->
+                try {
+                    val fileSize = file.walkTopDown().sumOf { uFile -> uFile.length() }
+                    file.deleteRecursively()
+                    fileSize
+                } catch (e: Exception) {
+                    logger.error("Failed to clean up old cache directory", e)
+                    0
                 }
+            }
+        }.onFailure {
+            // Not a big deal, not fatal.
+            logger.error("Failed to clean up old JCEF cache directories", it)
+        }.onSuccess { size ->
+            if (size > 0) {
+                logger.info("Cleaned up ${size.formatBytesAsSize()} JCEF cache directories")
             }
         }
     }
