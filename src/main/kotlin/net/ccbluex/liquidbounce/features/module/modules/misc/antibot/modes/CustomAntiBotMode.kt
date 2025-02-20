@@ -138,7 +138,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 ageSet.add(entity.id)
             }
 
-            if (ArmorMaterial.enabled && !ArmorMaterial.isValid(entity)) {
+            if (Armor.enabled && !Armor.isValid(entity)) {
                 armorSet.add(entity.id)
             }
         }
@@ -155,7 +155,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         with(armorSet.intIterator()) {
             while (hasNext()) {
                 val entity = world.getEntityById(nextInt()) as? PlayerEntity
-                if (entity == null || ArmorMaterial.isValid(entity)) {
+                if (entity == null || Armor.isValid(entity)) {
                     remove()
                 }
             }
