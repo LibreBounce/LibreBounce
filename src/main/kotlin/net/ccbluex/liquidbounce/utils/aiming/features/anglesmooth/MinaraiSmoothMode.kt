@@ -40,6 +40,8 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 import kotlin.math.min
+import kotlin.time.DurationUnit
+import kotlin.time.measureTimedValue
 
 /**
  * Record using
@@ -131,9 +133,12 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
             age = min(MAXIMUM_TRAINING_AGE, RotationManager.ticksSinceChange)
         )
 
-        val output = model.predictor.predict(input.asInput)
+        val (output, time) = measureTimedValue {
+            model.predictor.predict(input.asInput)
+        }
         ModuleDebug.debugParameter(this, "Output [0]", output[0])
         ModuleDebug.debugParameter(this, "Output [1]", output[1])
+        ModuleDebug.debugParameter(this, "Time", "${time.toString(DurationUnit.MILLISECONDS, 2)} ms")
 
         val modelOutput = Rotation(
             currentRotation.yaw + output[0] * outputMultiplier.yawMultiplier,
