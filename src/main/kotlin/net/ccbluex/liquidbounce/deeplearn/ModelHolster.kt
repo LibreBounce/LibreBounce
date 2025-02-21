@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.deeplearn
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine.modelsFolder
 import net.ccbluex.liquidbounce.deeplearn.models.MinaraiModel
-import net.ccbluex.liquidbounce.deeplearn.models.ModelWrapper
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.logger
@@ -16,7 +15,7 @@ object ModelHolster : EventListener, Configurable("DeepLearning") {
      * Dummy choice
      */
     val models = choices(this, "Model", 0) {
-        arrayOf<ModelWrapper<*, *>>(MinaraiModel("Empty", it))
+        arrayOf<MinaraiModel>(MinaraiModel("Empty", it))
     }
 
     fun load() {
