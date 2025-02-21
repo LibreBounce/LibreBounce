@@ -71,7 +71,7 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
             targetRotation: Rotation,
             vec3d: Vec3d?,
             entity: Entity?
-        ) = targetRotation
+        ) = currentRotation
 
         override fun howLongToReach(
             currentRotation: Rotation,
