@@ -18,15 +18,11 @@ import ai.djl.training.loss.Loss
 import ai.djl.training.optimizer.Adam
 import ai.djl.training.tracker.Tracker
 import ai.djl.translate.Translator
-import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine.modelsFolder
-import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.deeplearn.listener.OverlayTrainingListener
-import net.ccbluex.liquidbounce.utils.client.logger
 import java.io.Closeable
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.nameWithoutExtension
 
@@ -72,31 +68,6 @@ abstract class ModelWrapper<I, O>(
 
     val predictor: Predictor<I, O> by lazy { model.newPredictor(translator) }
 
-    fun train(file: File) {
-        val data = if (file.isFile) {
-            file.inputStream().use { stream ->
-                decode<List<TrainingData>>(stream)
-            }
-        } else {
-            file.listFiles { it.extension == "json" }?.flatMap { file ->
-                try {
-                    file.inputStream().use { stream ->
-                        decode<List<TrainingData>>(stream)
-                    }
-                } catch (e: Exception) {
-                    println("Error parsing file ${file.name}: ${e.message}")
-                    emptyList()
-                }
-            } ?: emptyList()
-        }.mapNotNull(TrainingData::map)
-
-        logger.info("Training model $name with ${data.size} samples")
-        val features = data.map(TrainingData::asInput).toTypedArray()
-        val labels = data.map(TrainingData::asOutput).toTypedArray()
-
-        train(features, labels)
-    }
-
     fun train(features: Array<FloatArray>, labels: Array<FloatArray>) {
         require(features.size == labels.size) { "Features and labels must have the same size" }
         require(features.isNotEmpty()) { "Features and labels must not be empty" }
@@ -125,6 +96,11 @@ abstract class ModelWrapper<I, O>(
 
     fun save(name: String = this.name) {
         model.save(modelsFolder.resolve(name).toPath(), "tf")
+    }
+
+    fun delete() {
+        close()
+        modelsFolder.resolve(name).delete()
     }
 
     override fun close() {

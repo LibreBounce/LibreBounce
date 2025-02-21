@@ -14,8 +14,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
+
     val modes = choices("Mode", GenericDebugRecorder, arrayOf(
-        MinaraiRecorder,
+        MinaraiCombatRecorder,
         MinaraiTrainer,
 
         GenericDebugRecorder,
@@ -28,6 +29,9 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
         override val parent: ChoiceConfigurable<*>
             get() = modes
 
+        val folder = ConfigSystem.rootFolder.resolve("debug-recorder/$name").apply {
+            mkdirs()
+        }
         internal val packets = mutableListOf<T>()
 
         protected fun recordPacket(packet: T) {
@@ -48,26 +52,19 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
         override fun disable() {
             if (this.packets.isEmpty()) {
                 chat(regular("No packets recorded."))
-
                 return
             }
 
             runCatching {
                 val baseName = dateFormat.format(Date())
-                val folder = ConfigSystem.rootFolder.resolve("debug-recorder/$name")
-
-                folder.mkdirs()
-
                 var file = folder.resolve("${baseName}.json")
 
                 var idx = 0
-
                 while (file.exists()) {
                     file = folder.resolve("${baseName}_${idx++}.json")
                 }
 
                 file.writeText(publicGson.toJson(this.packets))
-
                 file.absolutePath
             }.onFailure {
                 chat(markAsError("Failed to write log to file $it".asText()))

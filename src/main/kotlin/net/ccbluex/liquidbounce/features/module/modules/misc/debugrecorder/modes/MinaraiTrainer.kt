@@ -21,108 +21,104 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 
-import net.ccbluex.liquidbounce.deeplearn.ModelHolster.models
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
-import net.ccbluex.liquidbounce.deeplearn.models.MinaraiModel
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.client.*
-import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.lastRotation
-import net.ccbluex.liquidbounce.utils.entity.rotation
-import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.SlimeEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.random.Random
-import kotlin.time.measureTime
-import kotlin.time.measureTimedValue
 
 /**
- * Records acceleration behavior
+ * Simulates scenarios where the player is training to hit a target.
  */
 object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("MinaraiTrainer") {
 
-    private var model: MinaraiModel? = null
-    private var successfulHit = false
+    private var isFirstRun = true
 
-    private var previousEntityDistance: Float? = null
+    private var target: LivingEntity? = null
+
+    override fun enable() {
+        isFirstRun = true
+        super.enable()
+    }
+
+    override fun disable() {
+        val target = target ?: return
+        world.removeEntity(target.id, Entity.RemovalReason.DISCARDED)
+        super.disable()
+    }
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
         var previous = RotationManager.currentRotation ?: player.rotation
 
-        successfulHit = false
-        val slime = spawn()
-        waitUntil {
-            val next = RotationManager.currentRotation ?: player.rotation
-            val current = RotationManager.previousRotation ?: player.lastRotation
-            val previous = previous.apply {
-                previous = current
+        target = spawn()
+        if (isFirstRun) {
+            // We wait until the player has hit the slime entity for the first time,
+            // then we record the data and spawn a new slime entity.
+            waitUntil { target == null }
+            isFirstRun = false
+
+            chat("✧ Starting training...")
+        } else {
+            waitUntil {
+                var target = target ?: return@waitUntil true
+
+                val next = RotationManager.currentRotation ?: player.rotation
+                val current = RotationManager.previousRotation ?: player.lastRotation
+                val previous = previous.apply {
+                    previous = current
+                }
+                val distance = player.squaredBoxedDistanceTo(target).toFloat()
+
+                recordPacket(TrainingData(
+                    currentVector = current.directionVector,
+                    previousVector = previous.directionVector,
+                    targetVector = Rotation.lookingAt(point = target.box.center, from = player.eyePos).directionVector,
+                    velocityDelta = current.rotationDeltaTo(next).toVec2f(),
+                    playerDiff = player.pos.subtract(player.prevPos),
+                    targetDiff = target.pos.subtract(target.prevPos),
+                    age = target.age,
+                    hurtTime = target.hurtTime,
+                    distance = distance
+                ))
+
+                false
             }
-            val distance = player.squaredBoxedDistanceTo(slime).toFloat()
 
-            recordPacket(TrainingData(
-                currentVector = current.directionVector,
-                previousVector = previous.directionVector,
-                targetVector = Rotation.lookingAt(player.eyePos, slime.box.center).directionVector,
-                velocityDelta = current.rotationDeltaTo(next).toVec2f(),
-                entityDistance = distance,
-                entityDistanceDelta = distance - (previousEntityDistance ?: distance),
-                age = slime.age
-            ))
-            previousEntityDistance = distance
-
-            successfulHit
+            chat("✧ Recorded ${packets.size} samples")
         }
-
-        world.removeEntity(slime.id, Entity.RemovalReason.DISCARDED)
-        chat("✧ Recorded ${packets.size} samples")
     }
 
     @Suppress("unused")
-    private val attackEntity = handler<AttackEntityEvent> {
-        successfulHit = true
-    }
+    private val attackEntity = handler<AttackEntityEvent> { event ->
+        val attackEntity = event.entity
+        val targetEntity = target ?: return@handler
 
-    override fun enable() {
-        if (isInTraining) {
-            chat(markAsError("✘ Already training a model..."))
-            ModuleDebugRecorder.enabled = false
-            return
+        if (attackEntity == targetEntity) {
+            world.removeEntity(targetEntity.id, Entity.RemovalReason.DISCARDED)
+            target = null
+            event.cancelEvent()
         }
-
-        val name = dateFormat.format(Date())
-        model = MinaraiModel(name, models)
-
-        super.enable()
     }
-
-    override fun disable() {
-        if (isInTraining) {
-            return
-        }
-
-        thread(block = ::training)
-        super.disable()
-    }
-
-    private var isInTraining = false
 
     /**
      * Spawns a slime entity about 2.0 - 3.0 blocks away from the player,
      * in a random direction and at a different height.
      */
-    fun spawn(): SlimeEntity {
+    fun spawn(): LivingEntity {
         val slime = SlimeEntity(EntityType.SLIME, world)
         slime.uuid = UUID.randomUUID()
 
@@ -131,7 +127,7 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
         // Spawn at least in view range of the player
         val direction = Rotation(
             player.yaw + Random.nextDouble(-65.0, 65.0).toFloat(),
-            Random.nextDouble(-5.0, 1.0).toFloat()
+            Random.nextDouble(-20.0, 10.0).toFloat()
         ).directionVector * distance
 
         val position = player.eyePos.add(direction)
@@ -155,49 +151,4 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
         return slime
     }
 
-    fun training() = runCatching {
-        val data = packets.mapNotNull(TrainingData::map)
-        val model = model!!
-
-        @Suppress("ArrayInDataClass")
-        data class Dataset(val features: Array<FloatArray>, val labels: Array<FloatArray>)
-
-        val (dataset, prepareTime) = measureTimedValue {
-            val features = data.map(TrainingData::asInput).toTypedArray()
-            val labels = data.map(TrainingData::asOutput).toTypedArray()
-
-            Dataset(features, labels)
-        }
-        chat(
-            regular("✧ Prepared dataset with "),
-            variable("${dataset.features.size}"),
-            regular(" samples in "),
-            variable("${prepareTime.inWholeMilliseconds}ms"),
-            dot()
-        )
-
-        measureTime {
-            chat(
-                regular("⚡ Starting training for "),
-                variable(model.name),
-                regular(" model"),
-                dot()
-            )
-
-            model.train(dataset.features, dataset.labels)
-            model.save()
-        }
-    }.onFailure { exception ->
-        isInTraining = false
-        logger.error("Error training model", exception)
-        chat(markAsError("✘ Error training model: ${exception.message}"))
-    }.onSuccess { trainingTime ->
-        chat(
-            regular("✔ Model trained and saved successfully."),
-            variable("${trainingTime.inWholeSeconds}s"),
-            dot()
-        )
-        this.model = null
-        isInTraining = false
-    }
 }

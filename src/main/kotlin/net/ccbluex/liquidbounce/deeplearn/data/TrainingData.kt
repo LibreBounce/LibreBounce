@@ -1,9 +1,11 @@
 package net.ccbluex.liquidbounce.deeplearn.data
 
 import com.google.gson.annotations.SerializedName
+import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
+import java.io.File
 
 /**
  * The age defines the ticks we start tracking the entity. However, due to the fact
@@ -24,11 +26,17 @@ data class TrainingData(
     val targetVector: Vec3d,
     @SerializedName(DELTA_VECTOR)
     val velocityDelta: Vec2f,
-    @SerializedName(CURRENT_ENTITY_DISTANCE)
-    val entityDistance: Float,
-    @SerializedName(ENTITY_DISTANCE_DELTA)
-    val entityDistanceDelta: Float,
 
+    @SerializedName(P_DIFF)
+    val playerDiff: Vec3d,
+    @SerializedName(T_DIFF)
+    val targetDiff: Vec3d,
+
+    @SerializedName(DISTANCE)
+    val distance: Float,
+
+    @SerializedName(HURT_TIME)
+    val hurtTime: Int,
     /**
      * Age in this case is the Entity Age, however, we will use it later to determine
      * the time we have been tracking this entity.
@@ -60,9 +68,6 @@ data class TrainingData(
 
     val asInput: FloatArray
         get() = floatArrayOf(
-            // Age
-            age.toFloat(),
-
             // Total Delta
             totalDelta.deltaYaw,
             totalDelta.deltaPitch,
@@ -71,9 +76,11 @@ data class TrainingData(
             previousVelocityDelta.deltaYaw,
             previousVelocityDelta.deltaPitch,
 
+            // Speed
+            targetDiff.horizontalLength().toFloat() + playerDiff.horizontalLength().toFloat(),
+
             // Distance
-            entityDistance,
-            entityDistanceDelta
+            distance.toFloat()
         )
 
     val asOutput
@@ -82,28 +89,33 @@ data class TrainingData(
             velocityDelta.y
         )
 
-    /**
-     * Filter the training data to make sure it is within the limits.
-     */
-    fun map(): TrainingData? {
-        if (age > MAXIMUM_TRAINING_AGE) return null
-
-        return copy()
-    }
-
     companion object {
         const val CURRENT_DIRECTION_VECTOR = "a"
         const val PREVIOUS_DIRECTION_VECTOR = "b"
         const val TARGET_DIRECTION_VECTOR = "c"
         const val DELTA_VECTOR = "d"
+        const val HURT_TIME = "e"
         const val AGE = "f"
+        const val P_DIFF = "g"
+        const val T_DIFF = "h"
+        const val DISTANCE = "i"
 
-        /**
-         * Unlike with all other parameters, we keep track of the entity distance
-         * as well, as it might be related to aiming behaviour.
-         */
-        const val CURRENT_ENTITY_DISTANCE = "e"
-        const val ENTITY_DISTANCE_DELTA = "g"
+        fun parse(vararg file: File): List<TrainingData> {
+            val files = file.flatMap { f ->
+                if (f.isDirectory) {
+                    f.listFiles { _, name -> name.endsWith(".json") }?.toList()
+                        ?: emptyList()
+                } else {
+                    listOf(f)
+                }
+            }
+
+            return files.flatMap { file ->
+                file.inputStream().use { stream ->
+                    decode<List<TrainingData>>(stream)
+                }
+            }
+        }
 
     }
 }
