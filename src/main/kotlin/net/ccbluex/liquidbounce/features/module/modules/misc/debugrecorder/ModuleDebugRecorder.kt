@@ -70,8 +70,8 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
 
                 runCatching { file.parentFile.mkdirs() }
 
-                fileGson.newJsonWriter(file.writer()).use {
-                    fileGson.toJson(this.packets, this.packets.javaClass, it)
+                file.bufferedWriter().use {
+                    publicGson.toJson(this.packets, it)
                 }
 
                 file.absolutePath
