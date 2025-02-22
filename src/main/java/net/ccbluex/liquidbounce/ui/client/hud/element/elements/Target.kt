@@ -51,6 +51,8 @@ class Target : Element("Target") {
     private val healthBarColor1 by color("HealthBar-Gradient1", Color(3, 65, 252))
     private val healthBarColor2 by color("HealthBar-Gradient2", Color(3, 252, 236))
 
+    private val roundHealthBarShape by boolean("RoundHealthBarShape", true)
+
     private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
 
@@ -207,25 +209,35 @@ class Target : Element("Target") {
                     val currentWidth = (easingHealth / maxHealth).coerceIn(0F, 1F) * healthBarTotal
 
                     // background bar
-                    drawRoundedRect(
-                        healthBarStart,
-                        healthBarTop,
-                        healthBarStart + healthBarTotal,
-                        healthBarTop + healthBarHeight,
-                        Color.BLACK.rgb,
-                        6F,
-                    )
-
-                    // main bar
-                    withClipping(main = {
+                    val backgroundBar = {
                         drawRoundedRect(
                             healthBarStart,
                             healthBarTop,
-                            healthBarStart + currentWidth,
+                            healthBarStart + healthBarTotal,
                             healthBarTop + healthBarHeight,
-                            0,
-                            6F
+                            Color.BLACK.rgb,
+                            6F,
                         )
+                    }
+
+                    if (roundHealthBarShape) {
+                        backgroundBar()
+                    }
+
+                    // main bar
+                    withClipping(main = {
+                        if (roundHealthBarShape) {
+                            drawRoundedRect(
+                                healthBarStart,
+                                healthBarTop,
+                                healthBarStart + currentWidth,
+                                healthBarTop + healthBarHeight,
+                                0,
+                                6F
+                            )
+                        } else {
+                            backgroundBar()
+                        }
                     }, toClip = {
                         drawGradientRect(
                             healthBarStart.toInt(),
@@ -271,15 +283,7 @@ class Target : Element("Target") {
                                     drawRoundedRect(4f, 4f, 32f, 32f, 0, roundedRectRadius)
                                 }, toClip = {
                                     drawHead(
-                                        entityTexture,
-                                        4,
-                                        4,
-                                        8f, 8f, 8, 8,
-                                        28,
-                                        28,
-                                        64F,
-                                        64F,
-                                        color
+                                        entityTexture, 4, 4, 8f, 8f, 8, 8, 28, 28, 64F, 64F, color
                                     )
                                 })
                             }
