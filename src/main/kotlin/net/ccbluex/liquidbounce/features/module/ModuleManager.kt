@@ -351,6 +351,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAttackEffects,
             ModuleNametags,
             ModuleCombineMobs,
+            ModuleAspectRatio,
             ModuleAutoF5,
             ModuleChams,
             ModuleBedPlates,

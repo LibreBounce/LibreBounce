@@ -60,6 +60,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer {
@@ -283,6 +284,18 @@ public abstract class MixinGameRenderer {
         }
 
         return original;
+    }
+
+    @Inject(method = "getBasicProjectionMatrix", at = @At("RETURN"), cancellable = true)
+    private void hookBasicProjectionMatrix(float fovDegrees, CallbackInfoReturnable<Matrix4f> cir) {
+        if (!ModuleAspectRatio.INSTANCE.getRunning()) {
+            return;
+        }
+
+        Matrix4f matrix4f = new Matrix4f();
+        matrix4f.scale((float) ModuleAspectRatio.getRatioMultiplier(), 1.0f, 1.0f);
+
+        cir.setReturnValue(cir.getReturnValue().mul(matrix4f));
     }
 
 }
