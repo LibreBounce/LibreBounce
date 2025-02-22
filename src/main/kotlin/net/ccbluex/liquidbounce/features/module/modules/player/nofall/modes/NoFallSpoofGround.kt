@@ -108,7 +108,7 @@ internal object NoFallSpoofGround : Choice("SpoofGround") {
                 true
             ))
 
-        for (i in 0..Blink.predictionTicks) {
+        for (i in 1..Blink.predictionTicks) {
             simulatedPlayer.tick()
             if (simulatedPlayer.fallDistance >= fallDistance.activeChoice.value) {
                 event.action = Action.QUEUE
