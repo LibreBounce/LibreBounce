@@ -10,6 +10,8 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,6 +57,8 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
                 return
             }
 
+            val packetsJson = publicGson.toJson(this.packets)
+
             runCatching {
                 val baseName = dateFormat.format(Date())
                 var file = folder.resolve("${baseName}.json")
@@ -64,10 +68,21 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
                     file = folder.resolve("${baseName}_${idx++}.json")
                 }
 
-                file.writeText(publicGson.toJson(this.packets))
+                runCatching { file.parentFile.mkdirs() }
+
+                file.writeText(packetsJson)
                 file.absolutePath
             }.onFailure {
                 chat(markAsError("Failed to write log to file $it".asText()))
+
+                runCatching {
+                    val selection = StringSelection(packetsJson)
+                    Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, null)
+                }.onFailure {
+                    chat(markAsError("Failed to write log to clipboard".asText()))
+                }.onSuccess {
+                    chat(regular("Log was written to clipboard."))
+                }
             }.onSuccess { path ->
                 val text = path.asText().styled {
                     it.withUnderline(true)
