@@ -91,7 +91,7 @@ internal object NoFallPacketJump : Choice("PacketJump") {
                         )
                     )
 
-                    for (i in 0..predictionTicks) {
+                    for (i in 1..predictionTicks) {
                         simulatedPlayer.tick()
                         if (simulatedPlayer.fallDistance >= fallDistance.activeChoice.value) {
                             event.action = Action.QUEUE
