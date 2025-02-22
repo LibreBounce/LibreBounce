@@ -130,12 +130,12 @@ class Target : Element("Target") {
                     width = AnimationUtil.base(width.toDouble(), targetWidth.toDouble(), animationSpeed.toDouble())
                         .toFloat().coerceAtLeast(0f)
 
-                    val targetHeight = if (shouldRender) 40f else if (delayCounter >= vanishDelay) 0f else height
+                    val targetHeight = if (shouldRender) 36f else if (delayCounter >= vanishDelay) 0f else height
                     height = AnimationUtil.base(height.toDouble(), targetHeight.toDouble(), animationSpeed.toDouble())
                         .toFloat().coerceAtLeast(0f)
                 } else {
                     width = stringWidth
-                    height = 40f
+                    height = 36f
 
                     val targetText =
                         if (shouldRender) textColor.alpha else if (delayCounter >= vanishDelay) 0f else alphaText
@@ -200,10 +200,10 @@ class Target : Element("Target") {
                         )
                     }
 
-                    val healthBarTop = 26F
+                    val healthBarTop = 24F
                     val healthBarHeight = 8F
-                    val healthBarStart = 38F
-                    val healthBarTotal = (width - 41F).coerceAtLeast(0F)
+                    val healthBarStart = 36F
+                    val healthBarTotal = (width - 39F).coerceAtLeast(0F)
                     val currentWidth = (easingHealth / maxHealth).coerceIn(0F, 1F) * healthBarTotal
 
                     // background bar
@@ -260,7 +260,7 @@ class Target : Element("Target") {
                             val f1 = (0.7F..1F).lerpWith(scale) * this.scale
                             val color = ColorUtils.interpolateColor(Color.RED, Color.WHITE, scale)
                             val centerX1 = (4..32).lerpWith(0.5F)
-                            val midY = (6f..32f).lerpWith(0.5F)
+                            val midY = (4f..28f).lerpWith(0.5F)
 
                             glTranslatef(centerX1, midY, 0f)
                             glScalef(f1, f1, f1)
@@ -268,12 +268,12 @@ class Target : Element("Target") {
 
                             if (entityTexture != null) {
                                 withClipping(main = {
-                                    drawRoundedRect(6f, 6f, 34f, 34f, 0, roundedRectRadius)
+                                    drawRoundedRect(4f, 4f, 32f, 32f, 0, roundedRectRadius)
                                 }, toClip = {
                                     drawHead(
                                         entityTexture,
-                                        6,
-                                        6,
+                                        4,
+                                        4,
                                         8f, 8f, 8, 8,
                                         28,
                                         28,
@@ -287,7 +287,7 @@ class Target : Element("Target") {
                         }
 
                         target.name?.let {
-                            titleFont.drawString(it, healthBarStart, 8F, textCustomColor, textShadow)
+                            titleFont.drawString(it, healthBarStart, 6F, textCustomColor, textShadow)
                         }
                     }
                 }
@@ -297,6 +297,6 @@ class Target : Element("Target") {
         }
 
         lastTarget = target
-        return Border(0F, 0F, stringWidth, 40F)
+        return Border(0F, 0F, stringWidth, 36F)
     }
 }
