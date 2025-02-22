@@ -55,7 +55,7 @@ object RenderUtils : MinecraftInstance {
         OutlineUtils.checkSetupFBO()
         glPushMatrix()
 
-        glDisable(GL_ALPHA_TEST)
+        disableAlpha()
 
         glEnable(GL_STENCIL_TEST)
         glStencilFunc(GL_ALWAYS, 1, 1)
@@ -74,7 +74,7 @@ object RenderUtils : MinecraftInstance {
         glStencilMask(0xFF)
         glDisable(GL_STENCIL_TEST)
 
-        glEnable(GL_ALPHA_TEST)
+        enableAlpha()
 
         glPopMatrix()
     }
@@ -83,7 +83,9 @@ object RenderUtils : MinecraftInstance {
         disableFastRender()
         OutlineUtils.checkSetupFBO()
         glPushMatrix()
-        glDisable(GL_ALPHA_TEST)
+
+        disableAlpha()
+
         glEnable(GL_STENCIL_TEST)
         glClear(GL_STENCIL_BUFFER_BIT)
 
@@ -101,7 +103,9 @@ object RenderUtils : MinecraftInstance {
 
         glStencilMask(0xFF)
         glDisable(GL_STENCIL_TEST)
-        glEnable(GL_ALPHA_TEST)
+
+        enableAlpha()
+
         glPopMatrix()
     }
 
