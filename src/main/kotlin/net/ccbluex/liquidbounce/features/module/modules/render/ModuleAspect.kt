@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
  * @author sqlerrorthing
  */
 @Suppress("MagicNumber")
-object ModuleAspectRatio : ClientModule("AspectRatio", Category.RENDER) {
+object ModuleAspect : ClientModule("Aspect", Category.RENDER) {
     private val ratioPercentage by int("Ratio", 100, 1..300, suffix = "%")
 
     @JvmStatic

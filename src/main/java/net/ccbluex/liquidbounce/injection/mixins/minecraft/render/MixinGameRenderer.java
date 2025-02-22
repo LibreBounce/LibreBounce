@@ -288,12 +288,12 @@ public abstract class MixinGameRenderer {
 
     @Inject(method = "getBasicProjectionMatrix", at = @At("RETURN"), cancellable = true)
     private void hookBasicProjectionMatrix(float fovDegrees, CallbackInfoReturnable<Matrix4f> cir) {
-        if (!ModuleAspectRatio.INSTANCE.getRunning()) {
+        if (!ModuleAspect.INSTANCE.getRunning()) {
             return;
         }
 
         Matrix4f matrix4f = new Matrix4f();
-        matrix4f.scale((float) ModuleAspectRatio.getRatioMultiplier(), 1.0f, 1.0f);
+        matrix4f.scale((float) ModuleAspect.getRatioMultiplier(), 1.0f, 1.0f);
 
         cir.setReturnValue(cir.getReturnValue().mul(matrix4f));
     }
