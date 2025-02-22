@@ -66,7 +66,6 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
         prevArmor = player.armor
 
         // closes the current screen so that the armor slots are synced again
-        // TODO: if possible, make it close the screen only if there is a replacement
         if (hasLostArmorPiece) {
             player.closeHandledScreen()
             return@tickHandler
@@ -127,14 +126,14 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
         while (hasArmorToReplace && mc.currentScreen !is InventoryScreen) {
 
             if (mc.currentScreen is HandledScreen<*>) {
-                // closes chests/crating tables/etc.
+                // closes chests/crating tables/etc. (it never happens)
                 player.closeHandledScreen()
             } else if (mc.currentScreen != null) {
                 // closes ClickGUI, game chat, etc. to save some armor :)
                 mc.currentScreen!!.close()
             }
 
-            waitTicks(1)    // TODO: custom delay?
+            waitTicks(1)
 
             // again, the current screen might change while the module is waiting
             if (mc.currentScreen == null) {
