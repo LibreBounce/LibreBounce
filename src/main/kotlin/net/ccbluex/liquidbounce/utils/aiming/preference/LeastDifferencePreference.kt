@@ -43,13 +43,9 @@ class LeastDifferencePreference(
         return eyesPos + baseRotation.directionVector * range
     }
 
-    override fun getPreferredSpotOnBox(box: Box, eyesPos: Vec3d, range: Double): Vec3d? {
+    override fun getPreferredSpotOnBox(box: Box, eyesPos: Vec3d, range: Double): Vec3d {
         if (basePoint != null) {
             return basePoint
-        }
-
-        if (box.contains(eyesPos)) {
-            return eyesPos
         }
 
         val preferredSpot = getPreferredSpot(eyesPos, range)
@@ -58,7 +54,9 @@ class LeastDifferencePreference(
         }
 
         val look = Line(eyesPos, preferredSpot - eyesPos)
-        return look.getPointOnBoxInDirection(box)?.takeIf { it.squaredDistanceTo(eyesPos) <= range.sq() }
+        return look.getPointOnBoxInDirection(box)
+            ?.takeIf { it.squaredDistanceTo(eyesPos) <= range.sq() }
+            ?: preferredSpot
     }
 
     override fun compare(o1: Rotation, o2: Rotation): Int {
