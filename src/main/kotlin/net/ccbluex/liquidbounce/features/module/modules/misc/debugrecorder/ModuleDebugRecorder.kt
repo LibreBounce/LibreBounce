@@ -1,9 +1,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder
 
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.fileGson
 import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.*
@@ -57,8 +59,6 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
                 return
             }
 
-            val packetsJson = publicGson.toJson(this.packets)
-
             runCatching {
                 val baseName = dateFormat.format(Date())
                 var file = folder.resolve("${baseName}.json")
@@ -70,13 +70,16 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
 
                 runCatching { file.parentFile.mkdirs() }
 
-                file.writeText(packetsJson)
+                fileGson.newJsonWriter(file.writer()).use {
+                    fileGson.toJson(this.packets, this.packets.javaClass, it)
+                }
+
                 file.absolutePath
             }.onFailure {
                 chat(markAsError("Failed to write log to file $it".asText()))
 
                 runCatching {
-                    val selection = StringSelection(packetsJson)
+                    val selection = StringSelection(fileGson.toJson(this.packets))
                     Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, null)
                 }.onFailure {
                     chat(markAsError("Failed to write log to clipboard".asText()))
