@@ -24,6 +24,8 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly;
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeBounce;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
@@ -33,12 +35,14 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.mob.ElytraFlightController;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -76,6 +80,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Shadow
     public abstract boolean isGliding();
+
+    @Shadow
+    @Final
+    public ElytraFlightController elytraFlightController;
 
     /**
      * Disable [StatusEffects.LEVITATION] effect when [ModuleAntiLevitation] is enabled
@@ -274,6 +282,30 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
 
         return rotation.getDirectionVector();
+    }
+
+    @Unique
+    private boolean prevElytra = false;
+
+    @Inject(method = "isGliding", at = @At("TAIL"), cancellable = true)
+    private void hookBounceElytraFly(CallbackInfoReturnable<Boolean> cir) {
+        var flag = cir.getReturnValue();
+        var elytraFly = ModuleElytraFly.INSTANCE;
+
+        if (prevElytra
+            && !flag
+            && elytraFly.getRunning()
+            && elytraFly.getModes().getActiveChoice() instanceof ElytraFlyModeBounce bounce
+        ) {
+            if (elytraFly.shouldNotOperate()) {
+                cir.setReturnValue(false);
+            } else {
+                bounce.recast();
+                cir.setReturnValue(true);
+            }
+        }
+
+        prevElytra = flag;
     }
 
 }

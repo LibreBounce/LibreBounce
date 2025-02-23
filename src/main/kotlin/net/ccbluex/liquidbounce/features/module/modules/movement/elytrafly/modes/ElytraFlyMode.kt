@@ -24,6 +24,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.Modul
 
 abstract class ElytraFlyMode(name: String) : Choice(name) {
 
+    /**
+     * Mode self-control fly start
+     */
+    open val autoControlFlyStart: Boolean get() = false
+
     override val parent: ChoiceConfigurable<ElytraFlyMode>
         get() = ModuleElytraFly.modes
 
