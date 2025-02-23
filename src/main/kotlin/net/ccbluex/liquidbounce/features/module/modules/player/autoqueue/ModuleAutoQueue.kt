@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes.A
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes.AutoQueueHypixelSW
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes.AutoQueuePaper
 
-object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER) {
+object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER, aliases = arrayOf("Auto Play")) {
     val modes = choices("Mode", AutoQueuePaper, arrayOf(
         AutoQueuePaper,
         AutoQueueHypixelSW,
