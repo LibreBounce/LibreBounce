@@ -13,5 +13,5 @@ object ModuleAspect : ClientModule("Aspect", Category.RENDER) {
     private val ratioPercentage by int("Ratio", 100, 1..300, suffix = "%")
 
     @JvmStatic
-    val ratioMultiplier: Double get() = ratioPercentage.toDouble() / 100.0
+    val ratioMultiplier: Float get() = ratioPercentage.toFloat() / 100f
 }

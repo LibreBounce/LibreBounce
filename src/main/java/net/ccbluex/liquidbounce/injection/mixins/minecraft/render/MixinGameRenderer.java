@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
@@ -59,8 +60,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer {
@@ -286,16 +289,14 @@ public abstract class MixinGameRenderer {
         return original;
     }
 
-    @Inject(method = "getBasicProjectionMatrix", at = @At("RETURN"), cancellable = true)
-    private void hookBasicProjectionMatrix(float fovDegrees, CallbackInfoReturnable<Matrix4f> cir) {
-        if (!ModuleAspect.INSTANCE.getRunning()) {
-            return;
+    @ModifyArgs(
+            method = "getBasicProjectionMatrix",
+            at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;perspective(FFFF)Lorg/joml/Matrix4f;")
+    )
+    private void hookBasicProjectionMatrix(Args args) {
+        if (ModuleAspect.INSTANCE.getRunning()) {
+            args.set(1, (float) args.get(1) / ModuleAspect.getRatioMultiplier());
         }
-
-        Matrix4f matrix4f = new Matrix4f();
-        matrix4f.scale((float) ModuleAspect.getRatioMultiplier(), 1.0f, 1.0f);
-
-        cir.setReturnValue(cir.getReturnValue().mul(matrix4f));
     }
 
 }
