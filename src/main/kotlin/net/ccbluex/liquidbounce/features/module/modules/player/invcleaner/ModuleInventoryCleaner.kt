@@ -34,7 +34,7 @@ import net.minecraft.screen.slot.SlotActionType
  * Automatically throws away useless items and sorts them.
  */
 object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER, 
-    aliases = arrayOf("Inventory Manager")) {
+    aliases = arrayOf("InventoryManager")) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
