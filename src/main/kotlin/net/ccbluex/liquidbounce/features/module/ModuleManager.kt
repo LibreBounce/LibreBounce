@@ -337,6 +337,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleCameraClip,
             ModuleClickGui,
             ModuleDamageParticles,
+            ModuleParticles,
             ModuleESP,
             ModuleFreeCam,
             ModuleFreeLook,

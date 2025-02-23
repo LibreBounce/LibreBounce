@@ -1,0 +1,216 @@
+package net.ccbluex.liquidbounce.features.module.modules.render
+
+import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.color
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.mc
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.particleSize
+import net.ccbluex.liquidbounce.render.WorldRenderEnvironment
+import net.ccbluex.liquidbounce.render.drawCustomMesh
+import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.utils.client.Chronometer
+import net.ccbluex.liquidbounce.utils.client.registerAsDynamicImageFromClientResources
+import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.kotlin.random
+import net.ccbluex.liquidbounce.utils.kotlin.randomDouble
+import net.ccbluex.liquidbounce.utils.math.interpolate
+import net.ccbluex.liquidbounce.utils.math.toBlockPos
+import net.minecraft.client.gl.ShaderProgramKeys
+import net.minecraft.client.render.VertexFormat
+import net.minecraft.client.render.VertexFormats
+import net.minecraft.util.Identifier
+import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
+import org.joml.Quaternionf
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.max
+
+/**
+ * Particles - красивые частички в мире.
+ *
+ * @author sqlerrorthing
+ */
+@Suppress("MagicNumber")
+object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
+    val particleSize by float("Size", 1f, 0.5f..2f)
+    private val count by intRange("Count", 2..10, 2..30, "particles")
+    val color by color("Color", Color4b.RED)
+    private val image by enumChoice("Particle", ParticleImage.STAR)
+
+    private val particles = CopyOnWriteArrayList<Particle>()
+    private val chronometer = Chronometer()
+
+    @Suppress("unused")
+    private val attackEvent = handler<AttackEntityEvent> { event ->
+        if (event.isCancelled || !chronometer.hasElapsed(200)) {
+            return@handler
+        } else {
+            chronometer.reset()
+        }
+
+        val center = with (event.entity) {
+            pos.add(0.0, height / 2.0, 0.0)
+        }
+
+        for (i in 0..count.random()) {
+            particles.add(Particle(center))
+        }
+    }
+
+    @Suppress("unused", "MagicNumber")
+    private val displayHandler = handler<WorldRenderEvent> { event ->
+        renderEnvironmentForWorld(event.matrixStack) {
+            RenderSystem.depthMask(true)
+            RenderSystem.disableCull()
+            mc.gameRenderer.lightmapTextureManager.disable()
+            RenderSystem.defaultBlendFunc()
+
+            for (particle in particles) {
+                if (particle.alpha <= 0 || player.pos.distanceTo(particle.pos) > 30) {
+                    particles.remove(particle)
+                } else {
+                    particle.update()
+
+                    RenderSystem.setShaderTexture(0, image.texture)
+
+                    matrixStack.push()
+                    render(particle, event.partialTicks)
+                    matrixStack.pop()
+                }
+            }
+
+            RenderSystem.depthMask(true)
+            RenderSystem.enableCull()
+            RenderSystem.defaultBlendFunc()
+            mc.gameRenderer.lightmapTextureManager.enable()
+        }
+    }
+}
+
+@Suppress("UNUSED")
+private enum class ParticleImage(
+    override val choiceName: String,
+    val texture: Identifier
+) : NamedChoice {
+    ORBIZ("Orbiz", "particles/glow.png".registerAsDynamicImageFromClientResources()),
+    STAR("Star", "particles/star.png".registerAsDynamicImageFromClientResources()),
+    DOLLAR("Dollar", "particles/dollar.png".registerAsDynamicImageFromClientResources()),
+    SNOW("Snow", "particles/snow.png".registerAsDynamicImageFromClientResources()),
+}
+
+@Suppress("MagicNumber", "LongParameterList")
+class Particle private constructor(
+    var pos: Vec3d,
+    var prevPos: Vec3d,
+    var end: Vec3d,
+    var velocity: Vec3d,
+    var collisionTime: Long = -1,
+    var alpha: Float = 1.0f, /* 0 <= alpha <= 1 */
+    val spawnTime: Long = System.currentTimeMillis()
+) {
+    constructor(pos: Vec3d) : this(
+        pos = pos,
+        prevPos = pos,
+        end = with (-1f..1f) {
+            pos.add(
+                -this.random(),
+                -this.random(),
+                this.random(),
+            )
+        },
+        velocity = Vec3d(
+            (-0.01..0.01).randomDouble(),
+            (0.01..0.02).randomDouble(),
+            (-0.01..0.01).randomDouble()
+        )
+    )
+}
+
+@Suppress("MagicNumber", "NOTHING_TO_INLINE")
+inline fun Particle.update() {
+    if (collisionTime != -1L) {
+        val timeSinceCollision = System.currentTimeMillis() - collisionTime
+        alpha = max(0f, 1f - (timeSinceCollision / 3000f))
+    }
+
+    velocity = velocity.add(0.0, -0.0001, 0.0)
+    val nextPos = pos.add(velocity)
+
+    if (!nextPos.isBlockAir) {
+        if (collisionTime == -1L) {
+            collisionTime = System.currentTimeMillis()
+        }
+
+        if (!Vec3d(pos.x + velocity.x, pos.y, pos.z).isBlockAir) {
+            velocity = Vec3d(0.0, velocity.y, velocity.z)
+        }
+
+        if (!Vec3d(pos.x, pos.y + velocity.y, pos.z).isBlockAir) {
+            velocity = Vec3d(velocity.x, -velocity.y * 0.5, velocity.z)
+        }
+
+        if (!Vec3d(pos.x, pos.y, pos.z + velocity.z).isBlockAir) {
+            velocity = Vec3d(velocity.x, velocity.y, 0.0)
+        }
+
+        pos = pos.add(velocity)
+    } else {
+        pos = nextPos
+    }
+
+    prevPos = pos
+}
+
+@Suppress("MagicNumber", "NOTHING_TO_INLINE")
+inline fun WorldRenderEnvironment.render(particle: Particle, partialTicks: Float) {
+    with(mc.gameRenderer.camera.pos) {
+        matrixStack.translate(-this.x, -this.y, -this.z)
+    }
+
+    with(particle.pos.interpolate(particle.prevPos, partialTicks.toDouble())) {
+        matrixStack.translate(x, y, z)
+    }
+
+    val size = particleSize * 0.25f * (1 - (System.currentTimeMillis() - particle.spawnTime) / 12000f)
+
+    with (matrixStack) {
+        translate(-size / 2.0, -size / 2.0, 0.0)
+        multiply(mc.gameRenderer.camera.rotation)
+        scale(-1.0f, 1.0f, -1.0f)
+        multiply(Quaternionf().fromAxisAngleDeg(0.0f, 0.0f, 1.0f, 90.0f))
+        translate(size / 2.0, size / 2.0, 0.0)
+    }
+
+    val renderColor = color.alpha(MathHelper.clamp((particle.alpha * color.a.toFloat()).toInt(), 0, color.a))
+
+    drawCustomMesh(
+        VertexFormat.DrawMode.QUADS,
+        VertexFormats.POSITION_TEXTURE_COLOR,
+        ShaderProgramKeys.POSITION_TEX_COLOR
+    ) { matrix ->
+        vertex(matrix, 0.0f, -size, 0.0f)
+            .texture(0.0f, 0.0f)
+            .color(renderColor.toARGB())
+
+        vertex(matrix, -size, -size, 0.0f)
+            .texture(0.0f, 1.0f)
+            .color(renderColor.toARGB())
+
+        vertex(matrix, -size, 0.0f, 0.0f)
+            .texture(1.0f, 1.0f)
+            .color(renderColor.toARGB())
+
+        vertex(matrix, 0.0f, 0.0f, 0.0f)
+            .texture(1.0f, 0.0f)
+            .color(renderColor.toARGB())
+    }
+}
+
+inline val Vec3d.isBlockAir: Boolean get() =
+    world.getBlockState(this.toBlockPos()).isAir
