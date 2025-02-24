@@ -32,14 +32,18 @@ object Fonts : MinecraftInstance {
     private var customFontInfoList: List<CustomFontInfo>
         get() = with(configFile) {
             if (exists()) {
-//                readJson().decode<List<CustomFontInfo>>()
-                // For old versions
-                readJson().asJsonArray.map {
-                    it as JsonObject
-                    val fontFile = it["fontFile"].asString
-                    val fontSize = it["fontSize"].asInt
-                    val name = if (it.has("name")) it["name"].asString else fontFile
-                    CustomFontInfo(name, fontFile, fontSize)
+                try {
+                    // For old versions
+                    readJson().asJsonArray.map {
+                        it as JsonObject
+                        val fontFile = it["fontFile"].asString
+                        val fontSize = it["fontSize"].asInt
+                        val name = if (it.has("name")) it["name"].asString else fontFile
+                        CustomFontInfo(name, fontFile, fontSize)
+                    }
+                } catch (e: Exception) {
+                    LOGGER.error("Failed to load fonts", e)
+                    emptyList()
                 }
             } else {
                 createNewFile()
