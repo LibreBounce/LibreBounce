@@ -462,6 +462,7 @@
   "liquidbounce.module.targets.description": "Allows you to manage which entities are considered to be your target.",
   "liquidbounce.module.esp.description": "Highlights all targets allowing you to see them through walls.",
   "liquidbounce.module.fakeLag.description": "Holds back packets so as to prevent you from being hit by an enemy.",
+  "liquidbounce.module.aspect.description": "Adjust the horizontal stretching.",
   "liquidbounce.module.fastBreak.description": "Allows you to break blocks faster.",
   "liquidbounce.module.fastPlace.description": "Allows you to place blocks faster.",
   "liquidbounce.module.fastUse.description": "Allows you to use items faster.",
