@@ -112,10 +112,16 @@ private enum class ParticleImage(
     override val choiceName: String,
     val texture: Identifier
 ) : NamedChoice {
+    /**
+     * Original: IDK (first: https://github.com/CCBlueX/LiquidBounce/pull/4976)
+     */
     ORBIZ("Orbiz", "particles/glow.png".registerAsDynamicImageFromClientResources()),
-    STAR("Star", "particles/star.png".registerAsDynamicImageFromClientResources()),
-    DOLLAR("Dollar", "particles/dollar.png".registerAsDynamicImageFromClientResources()),
-    SNOW("Snow", "particles/snow.png".registerAsDynamicImageFromClientResources()),
+
+    /**
+     * Original: https://www.svgrepo.com/svg/528677/stars-minimalistic
+     * Modified: @sqlerrorthing
+     */
+    STAR("Star", "particles/star.png".registerAsDynamicImageFromClientResources())
 }
 
 @Suppress("MagicNumber", "LongParameterList")
