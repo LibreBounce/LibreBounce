@@ -18,7 +18,7 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
+import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.presets
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.Slots
@@ -48,7 +48,7 @@ object AutoQueueGommeDuels : Choice("GommeDuels") {
     private var controlKillAura by boolean("ControlKillAura", true)
 
     override val parent: ChoiceConfigurable<*>
-        get() = modes
+        get() = presets
 
     override fun enable() {
         chat(regular("Please set your server language to German (DE) to use AutoPlay"))
