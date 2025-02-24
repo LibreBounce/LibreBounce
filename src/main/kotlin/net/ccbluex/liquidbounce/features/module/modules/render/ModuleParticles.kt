@@ -10,6 +10,8 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.color
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.mc
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.particleSize
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.rotate
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleParticles.speed
 import net.ccbluex.liquidbounce.render.WorldRenderEnvironment
 import net.ccbluex.liquidbounce.render.drawCustomMesh
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -20,6 +22,7 @@ import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.kotlin.randomDouble
 import net.ccbluex.liquidbounce.utils.math.interpolate
+import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.VertexFormat
@@ -39,7 +42,9 @@ import kotlin.math.max
 @Suppress("MagicNumber")
 object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
     val particleSize by float("Size", 1f, 0.5f..2f)
+    val speed by float("Speed", 1f, 0.5f..2f)
     private val count by intRange("Count", 2..10, 2..30, "particles")
+    val rotate by boolean("RandomParticleRotation", true)
     val color by color("Color", Color4b.RED)
     private val image by enumChoice("Particle", ParticleImage.STAR)
 
@@ -75,7 +80,7 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
                 if (particle.alpha <= 0 || player.pos.distanceTo(particle.pos) > 30) {
                     particles.remove(particle)
                 } else {
-                    particle.update()
+                    particle.update(event.partialTicks.toDouble())
 
                     RenderSystem.setShaderTexture(0, image.texture)
 
@@ -108,66 +113,65 @@ private enum class ParticleImage(
 class Particle private constructor(
     var pos: Vec3d,
     var prevPos: Vec3d,
-    var end: Vec3d,
     var velocity: Vec3d,
     var collisionTime: Long = -1,
     var alpha: Float = 1.0f, /* 0 <= alpha <= 1 */
-    val spawnTime: Long = System.currentTimeMillis()
+    val spawnTime: Long = System.currentTimeMillis(),
+    val rotation: Float
 ) {
     constructor(pos: Vec3d) : this(
         pos = pos,
         prevPos = pos,
-        end = with (-1f..1f) {
-            pos.add(
-                -this.random(),
-                -this.random(),
-                this.random(),
-            )
-        },
         velocity = Vec3d(
             (-0.01..0.01).randomDouble(),
             (0.01..0.02).randomDouble(),
             (-0.01..0.01).randomDouble()
-        )
+        ),
+        rotation = (0f..360f).random().toFloat()
     )
 }
 
-@Suppress("MagicNumber", "NOTHING_TO_INLINE")
-inline fun Particle.update() {
+@Suppress("MagicNumber", "NOTHING_TO_INLINE", "UnusedParameter")
+inline fun Particle.update(delta: Double) {
+    val particleSpeed = speed.toDouble()
+    prevPos = pos
+
     if (collisionTime != -1L) {
         val timeSinceCollision = System.currentTimeMillis() - collisionTime
         alpha = max(0f, 1f - (timeSinceCollision / 3000f))
     }
 
     velocity = velocity.add(0.0, -0.0001, 0.0)
-    val nextPos = pos.add(velocity)
+    val nextPos = pos.add((velocity * delta).multiply(particleSpeed, 1.0, particleSpeed))
 
     if (!nextPos.isBlockAir) {
         if (collisionTime == -1L) {
             collisionTime = System.currentTimeMillis()
         }
 
-        if (!Vec3d(pos.x + velocity.x, pos.y, pos.z).isBlockAir) {
+        val dx = velocity.x * delta * particleSpeed
+        val dy = velocity.y * delta
+        val dz = velocity.z * delta * particleSpeed
+
+        if (!Vec3d(pos.x + dx, pos.y, pos.z).isBlockAir) {
             velocity = Vec3d(0.0, velocity.y, velocity.z)
         }
 
-        if (!Vec3d(pos.x, pos.y + velocity.y, pos.z).isBlockAir) {
+        if (!Vec3d(pos.x, pos.y + dy, pos.z).isBlockAir) {
             velocity = Vec3d(velocity.x, -velocity.y * 0.5, velocity.z)
         }
 
-        if (!Vec3d(pos.x, pos.y, pos.z + velocity.z).isBlockAir) {
+        if (!Vec3d(pos.x, pos.y, pos.z + dz).isBlockAir) {
             velocity = Vec3d(velocity.x, velocity.y, 0.0)
         }
 
-        pos = pos.add(velocity)
+        pos = pos.add((velocity * delta).multiply(particleSpeed, 1.0, particleSpeed))
     } else {
         pos = nextPos
     }
-
-    prevPos = pos
 }
 
-@Suppress("MagicNumber", "NOTHING_TO_INLINE")
+@Suppress("MagicNumber", "NOTHING_TO_INLINE", "UnusedParameter")
 inline fun WorldRenderEnvironment.render(particle: Particle, partialTicks: Float) {
     with(mc.gameRenderer.camera.pos) {
         matrixStack.translate(-this.x, -this.y, -this.z)
@@ -178,12 +182,17 @@ inline fun WorldRenderEnvironment.render(particle: Particle, partialTicks: Float
     }
 
     val size = particleSize * 0.25f * (1 - (System.currentTimeMillis() - particle.spawnTime) / 12000f)
+    val rotation = if (rotate) {
+        (particle.rotation + 90f) % 360f
+    } else {
+        90f
+    }
 
     with (matrixStack) {
         translate(-size / 2.0, -size / 2.0, 0.0)
         multiply(mc.gameRenderer.camera.rotation)
         scale(-1.0f, 1.0f, -1.0f)
-        multiply(Quaternionf().fromAxisAngleDeg(0.0f, 0.0f, 1.0f, 90.0f))
+        multiply(Quaternionf().fromAxisAngleDeg(0.0f, 0.0f, 1.0f, rotation))
         translate(size / 2.0, size / 2.0, 0.0)
     }
 
