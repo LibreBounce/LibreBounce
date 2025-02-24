@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider
+import net.ccbluex.liquidbounce.script.bindings.api.ScriptContextProvider.setupContext
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptChoice
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptCommandBuilder
 import net.ccbluex.liquidbounce.script.bindings.features.ScriptModule
@@ -111,19 +111,13 @@ class PolyglotScript(
             // Global instances
             val bindings = getBindings(language)
 
-            ScriptContextProvider.setupContext(bindings)
+            this.setupContext(language, bindings)
 
             // Global functions
             bindings.putMember("registerScript", RegisterScript())
         }
 
     private val scriptText: String = file.readText()
-
-    internal val promiseConstructor: Value? = if (language.equals("js", true)) {
-        context.getBindings(language).getMember("Promise")
-    } else {
-        null
-    }
 
     // Script information
     lateinit var scriptName: String

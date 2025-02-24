@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.script
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
+import net.ccbluex.liquidbounce.script.bindings.api.ScriptAsyncUtil
 import net.ccbluex.liquidbounce.utils.client.logger
 import org.graalvm.polyglot.Engine
 import org.graalvm.polyglot.Source
@@ -50,6 +51,8 @@ object ScriptManager {
     }
 
     init {
+        ScriptAsyncUtil.TickScheduler
+
         try {
             // Initialize the script engine and log its version and supported languages.
             val engine = Engine.create()

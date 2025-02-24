@@ -23,7 +23,6 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.script.PolyglotScript
-import net.ccbluex.liquidbounce.script.bindings.async.JsSequenceHandler
 import net.ccbluex.liquidbounce.utils.client.*
 import java.util.function.Supplier
 import kotlin.reflect.KClass
@@ -34,7 +33,6 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
 ) {
 
     private val events = hashMapOf<String, org.graalvm.polyglot.Value>()
-    private val eventSequences = hashMapOf<String, JsSequenceHandler>()
     private val _values = linkedMapOf<String, Value<*>>()
     private var _tag: String? = null
     override val tag: String?
@@ -80,16 +78,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
             return
         }
 
-        when (handler.getMember("constructor").getMember("name").asString()) {
-            "Function" -> {
-                events[eventName] = handler
-            }
-            "AsyncFunction" -> script.promiseConstructor?.let {
-                eventSequences[eventName] = JsSequenceHandler(this, it, handler)
-            }
-            else -> { /* ??? */ }
-        }
-
+        events[eventName] = handler
         hookHandler(eventName)
     }
 
@@ -105,7 +94,6 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
     private fun callEvent(event: String, payload: Event? = null) {
         try {
             events[event]?.executeVoid(payload)
-            eventSequences[event]?.startWith(payload)
         } catch (throwable: Throwable) {
             if (inGame) {
                 chat(

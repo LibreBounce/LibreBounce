@@ -22,40 +22,61 @@ import net.ccbluex.liquidbounce.script.bindings.features.ScriptSetting
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.util.Hand
 import net.minecraft.util.math.*
+import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Value
+import java.util.function.BiFunction
+import java.util.function.Function
+import java.util.function.IntFunction
 
 /**
  * The main hub of the ScriptAPI that provides access to a useful set of members.
  */
 object ScriptContextProvider {
 
-    internal fun setupContext(bindings: Value) = bindings.apply {
-        // Class bindings
-        // -> Client API
-        putMember("Setting", ScriptSetting)
+    private lateinit var scriptAsyncUtil: ScriptAsyncUtil
 
-        // -> Minecraft API
-        putMember("Vec3i", Vec3i::class.java)
-        putMember("Vec3d", Vec3d::class.java)
-        putMember("MathHelper", MathHelper::class.java)
-        putMember("BlockPos", BlockPos::class.java)
-        putMember("Hand", Hand::class.java)
-        putMember("RotationAxis", RotationAxis::class.java)
+    internal fun Context.setupContext(language: String, bindings: Value) {
+        if (!::scriptAsyncUtil.isInitialized && language.equals("js", true)) {
+            // Init Promise constructor
+            scriptAsyncUtil = ScriptAsyncUtil(this.getBindings(language).getMember("Promise"))
+        }
 
-        // Variable bindings
-        putMember("mc", mc)
-        putMember("Client", ScriptClient)
+        bindings.apply {
+            // Class bindings
+            // -> Client API
+            putMember("Setting", ScriptSetting)
 
-        // Register utilities
-        putMember("RotationUtil", ScriptRotationUtil)
-        putMember("ItemUtil", ScriptItemUtil)
-        putMember("NetworkUtil", ScriptNetworkUtil)
-        putMember("InteractionUtil", ScriptInteractionUtil)
-        putMember("BlockUtil", ScriptBlockUtil)
-        putMember("MovementUtil", ScriptMovementUtil)
-        putMember("ReflectionUtil", ScriptReflectionUtil())
-        putMember("ParameterValidator", ScriptParameterValidator(bindings))
-        putMember("UnsafeThread", ScriptUnsafeThread)
+            // -> Minecraft API
+            putMember("Vec3i", Vec3i::class.java)
+            putMember("Vec3d", Vec3d::class.java)
+            putMember("MathHelper", MathHelper::class.java)
+            putMember("BlockPos", BlockPos::class.java)
+            putMember("Hand", Hand::class.java)
+            putMember("RotationAxis", RotationAxis::class.java)
+
+            // Variable bindings
+            putMember("mc", mc)
+            putMember("Client", ScriptClient)
+
+            // Register utilities
+            putMember("RotationUtil", ScriptRotationUtil)
+            putMember("ItemUtil", ScriptItemUtil)
+            putMember("NetworkUtil", ScriptNetworkUtil)
+            putMember("InteractionUtil", ScriptInteractionUtil)
+            putMember("BlockUtil", ScriptBlockUtil)
+            putMember("MovementUtil", ScriptMovementUtil)
+            putMember("ReflectionUtil", ScriptReflectionUtil())
+            putMember("ParameterValidator", ScriptParameterValidator(bindings))
+            putMember("UnsafeThread", ScriptUnsafeThread)
+
+            // Async support
+            if (::scriptAsyncUtil.isInitialized) {
+                putMember("ticks", IntFunction(scriptAsyncUtil::ticks))
+                putMember("seconds", IntFunction(scriptAsyncUtil::seconds))
+                putMember("until", Function(scriptAsyncUtil::until))
+                putMember("conditional", BiFunction(scriptAsyncUtil::conditional))
+            }
+        }
     }
 
 }
