@@ -80,7 +80,7 @@ class ScriptAsyncUtil(
      */
     @ScriptApiRequired
     fun until(condition: BooleanSupplier): Value = jsPromiseConstructor.newInstance(
-        ProxyExecutable {  (onResolve, onReject) ->
+        ProxyExecutable { (onResolve, onReject) ->
             var waitingTick = 0
             schedule {
                 waitingTick++
@@ -96,6 +96,8 @@ class ScriptAsyncUtil(
                     true
                 }
             }
+
+            null
         }
     )
 
