@@ -62,7 +62,7 @@ object TickScheduler : Listenable, MinecraftInstance {
  */
 suspend inline fun waitUntil(crossinline condition: () -> Boolean): Int =
     suspendCancellableCoroutine { cont ->
-        var waitingTick = -1
+        var waitingTick = 0
         TickScheduler.schedule {
             waitingTick++
             try {
