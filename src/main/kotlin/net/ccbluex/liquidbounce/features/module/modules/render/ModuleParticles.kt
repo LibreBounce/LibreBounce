@@ -58,7 +58,7 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
             pos.add(0.0, height / 2.0, 0.0)
         }
 
-        for (i in 0..count.random()) {
+        repeat(count.random()) { _ ->
             particles.add(Particle(center))
         }
     }
