@@ -9,8 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import net.ccbluex.liquidbounce.event.async.LoopManager
+import net.ccbluex.liquidbounce.event.async.TickScheduler
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -40,11 +43,12 @@ private fun List<EventHook<*>>.findIndexByPriority(item: EventHook<*>): Int {
  */
 object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     private val registry = ALL_EVENT_CLASSES.associateWithTo(IdentityHashMap(ALL_EVENT_CLASSES.size)) {
-        ArrayList<EventHook<in Event>>()
+        CopyOnWriteArrayList<EventHook<in Event>>()
     }
 
     init {
         LoopManager
+        TickScheduler
     }
 
     fun <T : Event> unregisterEventHook(eventClass: Class<out T>, eventHook: EventHook<in T>) {
@@ -85,6 +89,17 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
                 }
             }
 
+            is EventHook.Terminate -> {
+                try {
+                    action(event)
+                } catch (e: Exception) {
+                    ClientUtils.LOGGER.error("Exception during call event (terminate, remaining=${this.remaining})", e)
+                }
+                if (this.shouldStop()) {
+                    unregisterEventHook(event::class.java, this)
+                }
+            }
+
             is EventHook.Async -> {
                 launch(dispatcher) {
                     try {
@@ -119,49 +134,4 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         return event
     }
 
-}
-
-/**
- * This manager will start a job for each hook.
- *
- * Once the job is finished, the next [UpdateEvent] (any stateless event is OK for this) will start a new one.
- *
- * This is designed to run **asynchronous** tasks instead of tick loops.
- *
- * @author MukjepScarlet
- */
-internal object LoopManager : Listenable, CoroutineScope by CoroutineScope(SupervisorJob()) {
-    private val registry = IdentityHashMap<EventHook.Async<UpdateEvent>, Job?>()
-
-    operator fun plusAssign(eventHook: EventHook.Async<UpdateEvent>) {
-        registry[eventHook] = null
-    }
-
-    operator fun minusAssign(eventHook: EventHook.Async<UpdateEvent>) {
-        registry.remove(eventHook)
-    }
-
-    init {
-        handler<UpdateEvent>(priority = Byte.MAX_VALUE) {
-            for ((eventHook, job) in registry) {
-                if (eventHook.isActive) {
-                    if (job == null || !job.isActive) {
-                        registry[eventHook] = launch(eventHook.dispatcher) {
-                            try {
-                                eventHook.action(this, UpdateEvent)
-                            } catch (e: CancellationException) {
-                                // The job is canceled due to handler is no longer active
-                                return@launch
-                            } catch (e: Exception) {
-                                ClientUtils.LOGGER.error("Exception during loop in", e)
-                            }
-                        }
-                    }
-                } else if (job != null) {
-                    job.cancel()
-                    registry[eventHook] = null
-                }
-            }
-        }
-    }
 }

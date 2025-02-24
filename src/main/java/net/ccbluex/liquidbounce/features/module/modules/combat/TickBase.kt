@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
-import net.ccbluex.liquidbounce.utils.timing.WaitMsUtils
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -117,7 +116,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 WaitTickUtils.schedule(skipTicks) {
                     tick()
 
-                    WaitMsUtils.schedule(this) {
+                    once<GameLoopEvent> {
                         duringTickModification = false
                     }
                 }
@@ -127,7 +126,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 ticksToSkip = skipTicks
 
                 WaitTickUtils.schedule(skipTicks) {
-                    WaitMsUtils.schedule(this) {
+                    once<GameLoopEvent> {
                         duringTickModification = false
                     }
                 }

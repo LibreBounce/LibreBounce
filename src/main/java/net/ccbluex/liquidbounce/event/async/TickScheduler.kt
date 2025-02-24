@@ -1,0 +1,109 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.event.async
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import net.ccbluex.liquidbounce.event.GameTickEvent
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
+import java.util.function.BooleanSupplier
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.RestrictsSuspension
+import kotlin.coroutines.resume
+
+/**
+ * This manager is for suspend tick functions.
+ *
+ * **ANY** scopes without [RestrictsSuspension] annotation can use wait actions.
+ *
+ * Note: These functions will be called on [Dispatchers.Main] (the Render thread).
+ *
+ * Most of the game events are called from the Render thread, except of [PacketEvent], it's called from the Netty client thread.
+ * You should carefully use this to prevent unexpected thread issue.
+ *
+ * @author MukjepScarlet
+ */
+object TickScheduler : Listenable, MinecraftInstance {
+
+    private val schedules = arrayListOf<BooleanSupplier>()
+
+    init {
+        handler<GameTickEvent>(priority = Byte.MIN_VALUE) {
+            schedules.removeIf { it.asBoolean }
+        }
+    }
+
+    fun addScheduled(breakLoop: BooleanSupplier) {
+        if (mc.isCallingFromMinecraftThread) {
+            schedules += breakLoop
+        } else {
+            mc.addScheduledTask { schedules += breakLoop }
+        }
+    }
+
+}
+
+/**
+ * Wait until given [condition] returns true.
+ *
+ * @param condition It will be called on [Dispatchers.Main] (the Render thread)
+ * @return Total ticks during waiting
+ */
+suspend inline fun waitUntil(crossinline condition: () -> Boolean): Int =
+    suspendCancellableCoroutine { cont ->
+        var waitingTick = -1
+        TickScheduler.addScheduled {
+            waitingTick++
+            if (condition()) {
+                cont.resume(waitingTick)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+/**
+ * Wait for given [ticks].
+ */
+suspend fun waitTicks(ticks: Int) {
+    require(ticks >= 0) { "Negative tick: $ticks" }
+
+    if (ticks == 0) {
+        return
+    }
+
+    var remainingTick = ticks
+    waitUntil { --remainingTick == 0 }
+}
+
+/**
+ * Start a tick sequence for given [Listenable]
+ * which will be cancelled if [Listenable.handleEvents] of the owner returns false
+ */
+fun Listenable.tickSequence(
+    context: CoroutineContext = Dispatchers.Unconfined,
+    body: suspend () -> Unit
+) {
+    val job = GlobalScope.launch(context) {
+        body()
+    }
+
+    TickScheduler.addScheduled {
+        when {
+            !this@tickSequence.handleEvents() -> {
+                job.cancel()
+                true
+            }
+            else -> job.isCompleted
+        }
+    }
+}
