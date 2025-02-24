@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.utils.aiming.utils.canSeePointFrom
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.registerAsDynamicImageFromClientResources
 import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.kotlin.randomDouble
 import net.ccbluex.liquidbounce.utils.math.interpolate
@@ -53,7 +54,9 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
 
     @Suppress("unused")
     private val attackEvent = handler<AttackEntityEvent> { event ->
-        if (event.isCancelled || !chronometer.hasElapsed(200)) {
+        if (!(event.entity.shouldBeShown() || chronometer.hasElapsed(230))
+            || event.isCancelled
+        ) {
             return@handler
         } else {
             chronometer.reset()
