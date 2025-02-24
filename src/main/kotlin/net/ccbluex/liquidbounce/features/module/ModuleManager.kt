@@ -253,6 +253,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiBot,
             ModuleBetterTab,
             ModuleBetterChat,
+            ModuleElytraTarget,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
