@@ -177,15 +177,11 @@ object LiquidBounce : EventListener {
             ThemeManager
             ComponentOverlay.insertComponents()
 
-            // Load config system from disk
-            ConfigSystem.loadAll()
-
             // Netty WebSocket
             ClientInteropServer.start()
 
             // Initialize browser
             logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
-
             IntegrationListener
             BrowserManager.initBrowser()
 
@@ -296,6 +292,9 @@ object LiquidBounce : EventListener {
                 tasks?.awaitAll()
                 tasks = null
             }
+
+            // Load config system from disk
+            ConfigSystem.loadAll()
         }
     }
 

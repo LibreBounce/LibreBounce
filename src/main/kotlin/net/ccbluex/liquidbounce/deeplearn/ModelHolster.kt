@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.logger
 import kotlin.time.measureTimedValue
 
-// TODO: Replace with Dynamic Configurable
 object ModelHolster : EventListener, Configurable("DeepLearning") {
 
     /**
