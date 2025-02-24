@@ -259,6 +259,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     ) { predictClientMovement != 0 }
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
 
+    private val forceFirstHit by boolean("ForceFirstHit", false) { !respectMissCooldown && !useHitDelay }
+
     // Extra swing
     private val failSwing by boolean("FailSwing", true) { swing && options.rotationsActive }
     private val respectMissCooldown by boolean(
@@ -489,7 +491,15 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 ((distance / distanceFactor.random()) * cpsMultiplier.random()).roundToInt()
             } else 0
 
-            val maxClicks = clicks + extraClicks + generatedClicks
+            var maxClicks = clicks + extraClicks + generatedClicks
+
+            val prevHittable = hittable
+
+            updateHittable()
+
+            if (!prevHittable && hittable && maxClicks == 0 && forceFirstHit) {
+                maxClicks++
+            }
 
             repeat(maxClicks) {
                 val wasBlocking = blockStatus
@@ -562,7 +572,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * Attack enemy
      */
     private fun runAttack(isFirstClick: Boolean, isLastClick: Boolean) {
-        var currentTarget = this.target ?: return
+        val currentTarget = this.target ?: return
 
         val player = mc.thePlayer ?: return
         val world = mc.theWorld ?: return
@@ -574,10 +584,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // Settings
         val multi = targetMode == "Multi"
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-
-        updateHittable()
-
-        currentTarget = this.target ?: return
 
         if (hittable && currentTarget.hurtTime > hurtTime) {
             return
