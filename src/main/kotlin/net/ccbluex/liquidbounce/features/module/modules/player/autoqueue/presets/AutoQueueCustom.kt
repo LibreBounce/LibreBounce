@@ -55,24 +55,27 @@ object AutoQueueCustom : Choice("Custom") {
         )
     }
 
-    object Control : ToggleableConfigurable(this, "Control", true) {
+    private object AutoQueueControl : ToggleableConfigurable(this, "Control", true) {
 
         val killAura by boolean("KillAura", true)
         val speed by boolean("Speed", false)
 
-        fun changeGameState(isInGame: Boolean) {
-            if (!enabled) {
-                return
-            }
+        var wasInQueue = false
+            set(value) {
+                field = value
 
-            if (killAura) ModuleKillAura.enabled = isInGame
-            if (speed) ModuleSpeed.enabled = isInGame
-        }
+                if (!enabled) {
+                    return
+                }
+
+                if (killAura) ModuleKillAura.enabled = !value
+                if (speed) ModuleSpeed.enabled = !value
+            }
 
     }
 
     init {
-        tree(Control)
+        tree(AutoQueueControl)
     }
 
     private val waitUntilWorldChange by boolean("WaitUntilWorldChange", true)
@@ -83,18 +86,17 @@ object AutoQueueCustom : Choice("Custom") {
         val trigger = triggers.activeChoice
 
         if (trigger.isTriggered) {
-            Control.changeGameState(false)
+            AutoQueueControl.wasInQueue = true
 
             actions.activeChoice.execute(this)
-            onCancellation { Control.changeGameState(true) }
 
             if (waitUntilWorldChange) {
                 waitUntil { worldChangeOccurred }
                 worldChangeOccurred = false
             }
-
             waitTicks(20)
-            Control.changeGameState(true)
+        } else if (AutoQueueControl.enabled && AutoQueueControl.wasInQueue) {
+            AutoQueueControl.wasInQueue = false
         }
     }
 
