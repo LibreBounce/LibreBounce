@@ -32,7 +32,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import org.joml.Quaternionf
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.max
 
 /**
@@ -49,7 +48,7 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
     val color by color("Color", Color4b.RED)
     private val image by enumChoice("Particle", ParticleImage.STAR)
 
-    private val particles = CopyOnWriteArrayList<Particle>()
+    private val particles = mutableListOf<Particle>()
     private val chronometer = Chronometer()
 
     @Suppress("unused")
@@ -77,22 +76,23 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
             mc.gameRenderer.lightmapTextureManager.disable()
             RenderSystem.defaultBlendFunc()
 
-            for (particle in particles) {
-                if (particle.alpha <= 0 || player.pos.distanceTo(particle.pos) > 30) {
-                    particles.remove(particle)
-                } else {
+            RenderSystem.setShaderTexture(0, image.texture)
+
+            particles.removeIf { particle ->
+                val flag = particle.alpha <= 0 || player.pos.distanceTo(particle.pos) > 30
+                if (!flag) {
                     particle.update(event.partialTicks.toDouble())
 
-                    RenderSystem.setShaderTexture(0, image.texture)
-
-                    with (mc.cameraEntity) {
-                        if (this != null && canSeePointFrom(eyePos, particle.pos)) {
+                    mc.cameraEntity?.let { camera ->
+                        if (canSeePointFrom(camera.eyePos, particle.pos)) {
                             matrixStack.push()
                             render(particle, event.partialTicks)
                             matrixStack.pop()
                         }
                     }
                 }
+
+                return@removeIf flag
             }
 
             RenderSystem.depthMask(true)
