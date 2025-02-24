@@ -75,6 +75,7 @@ object SequenceManager : EventListener {
 
 }
 
+@Suppress("TooManyFunctions")
 open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
     private var coroutine: Job
 
