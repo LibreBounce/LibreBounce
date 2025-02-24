@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.render.WorldRenderEnvironment
 import net.ccbluex.liquidbounce.render.drawCustomMesh
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.utils.aiming.utils.canSeePointFrom
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.registerAsDynamicImageFromClientResources
 import net.ccbluex.liquidbounce.utils.client.world
@@ -84,9 +85,13 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
 
                     RenderSystem.setShaderTexture(0, image.texture)
 
-                    matrixStack.push()
-                    render(particle, event.partialTicks)
-                    matrixStack.pop()
+                    with (mc.cameraEntity) {
+                        if (this != null && canSeePointFrom(eyePos, particle.pos)) {
+                            matrixStack.push()
+                            render(particle, event.partialTicks)
+                            matrixStack.pop()
+                        }
+                    }
                 }
             }
 
