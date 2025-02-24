@@ -54,16 +54,17 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
 
     @Suppress("unused")
     private val attackEvent = handler<AttackEntityEvent> { event ->
-        if (!(event.entity.shouldBeShown() || chronometer.hasElapsed(230))
+        if (!event.entity.shouldBeShown()
+            || !chronometer.hasElapsed(230)
             || event.isCancelled
         ) {
             return@handler
-        } else {
-            chronometer.reset()
         }
 
+        chronometer.reset()
+
         val center = with (event.entity) {
-            pos.add(0.0, height / 2.0, 0.0)
+            boundingBox.center
         }
 
         repeat(count.random()) { _ ->
