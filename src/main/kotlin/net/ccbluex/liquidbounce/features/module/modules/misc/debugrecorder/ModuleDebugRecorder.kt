@@ -56,6 +56,9 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
             }
 
             runCatching {
+                // Create parent folder
+                folder.mkdirs()
+
                 val baseName = dateFormat.format(Date())
                 var file = folder.resolve("${baseName}.json")
 
@@ -64,7 +67,9 @@ object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
                     file = folder.resolve("${baseName}_${idx++}.json")
                 }
 
-                file.writeText(publicGson.toJson(this.packets))
+                file.bufferedWriter().use { writer ->
+                    publicGson.toJson(this.packets, writer)
+                }
                 file.absolutePath
             }.onFailure {
                 chat(markAsError("Failed to write log to file $it".asText()))
