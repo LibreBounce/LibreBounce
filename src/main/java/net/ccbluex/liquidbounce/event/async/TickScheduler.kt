@@ -5,10 +5,7 @@
  */
 package net.ccbluex.liquidbounce.event.async
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
@@ -91,11 +88,9 @@ suspend fun waitTicks(ticks: Int) {
  */
 fun Listenable.tickSequence(
     context: CoroutineContext = Dispatchers.Unconfined,
-    body: suspend () -> Unit
+    body: suspend CoroutineScope.() -> Unit
 ) {
-    val job = GlobalScope.launch(context) {
-        body()
-    }
+    val job = GlobalScope.launch(context, block = body)
 
     TickScheduler.addScheduled {
         when {
