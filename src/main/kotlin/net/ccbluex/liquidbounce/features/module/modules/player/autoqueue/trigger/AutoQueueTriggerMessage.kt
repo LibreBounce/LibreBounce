@@ -19,24 +19,20 @@
  *
  */
 
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.trigger
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
 
 /**
  * Can be used for different server that use paper to join a game
  */
-object AutoQueueMessage : Choice("Message") {
+object AutoQueueTriggerMessage : AutoQueueTrigger("Message") {
+
+    override var isTriggered: Boolean = false
+        get() = field.apply { field = false }
 
     private val text by text("Text", "Новая игра")
-    private val command by text("Command", "/next")
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
 
     @Suppress("unused")
     private val chatReceive = handler<ChatReceiveEvent> { event ->
@@ -47,11 +43,7 @@ object AutoQueueMessage : Choice("Message") {
         }
 
         if (event.message.contains(text)) {
-            if (command.startsWith("/")) {
-                network.sendCommand(command.substring(1))
-            } else {
-                network.sendChatMessage(command)
-            }
+            isTriggered = true
         }
     }
 
