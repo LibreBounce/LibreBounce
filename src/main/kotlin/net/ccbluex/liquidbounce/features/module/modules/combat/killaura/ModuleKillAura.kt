@@ -85,7 +85,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
  *
  * Automatically attacks enemies.
  */
-object ModuleKillAura : ClientModule("KillAura", Category.COMBAT, aliases = arrayOf("Aura")) {
+object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, true) {
 
