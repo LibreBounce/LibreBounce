@@ -39,7 +39,12 @@ object TickScheduler : Listenable, MinecraftInstance {
         }
     }
 
-    fun addScheduled(breakLoop: BooleanSupplier) {
+    /**
+     * Add a task for scheduling.
+     *
+     * @param breakLoop Stop tick the body when it returns `true`
+     */
+    fun schedule(breakLoop: BooleanSupplier) {
         if (mc.isCallingFromMinecraftThread) {
             schedules += breakLoop
         } else {
@@ -58,7 +63,7 @@ object TickScheduler : Listenable, MinecraftInstance {
 suspend inline fun waitUntil(crossinline condition: () -> Boolean): Int =
     suspendCancellableCoroutine { cont ->
         var waitingTick = -1
-        TickScheduler.addScheduled {
+        TickScheduler.schedule {
             waitingTick++
             try {
                 if (condition()) {
@@ -98,7 +103,7 @@ fun Listenable.tickSequence(
 ) {
     val job = GlobalScope.launch(context, block = body)
 
-    TickScheduler.addScheduled {
+    TickScheduler.schedule {
         when {
             !this@tickSequence.handleEvents() -> {
                 job.cancel()
