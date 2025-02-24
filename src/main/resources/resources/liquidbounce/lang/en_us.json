@@ -526,6 +526,7 @@
   "liquidbounce.module.nametags.description": "Improves the visibility of player's name tags and show additional information.",
   "liquidbounce.module.itemTags.description": "Display icons and quantities labels for dropped items.",
   "liquidbounce.module.noBob.description": "Disables the view bobbing effect.",
+  "liquidbounce.module.phase.description": "Allows you to phase through blocks by exploiting the anti-cheat.",
   "liquidbounce.module.noClip.description": "Allows you to move through blocks (let a sand block drop on your head first).",
   "liquidbounce.module.noClip.messages.setbackDetected": "You have been set back by the server! Make sure you are already standing inside of a block.",
   "liquidbounce.module.noFOV.description": "Disables FOV from changing during movement",
