@@ -123,6 +123,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val rotationTimingMode by enumChoice("RotationTiming", RotationTimingMode.NORMAL)
         val aimThroughWalls by boolean("ThroughWalls", false)
     })
+
     private val pointTracker = tree(PointTracker())
 
     // Bypass techniques
@@ -232,7 +233,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Determine if we should attack the target or someone else
         val rotation = if (rotations.rotationTimingMode == ON_TICK) {
-            getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW)?.rotation
+            getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW, rotations.aimThroughWalls)?.rotation
                 ?: RotationManager.currentRotation ?: player.rotation
         } else {
             RotationManager.currentRotation ?: player.rotation
@@ -370,7 +371,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                 continue
             }
 
-            val spot = getSpot(target, range.toDouble(), situation) ?: continue
+            val spot = getSpot(target, range.toDouble(), situation, rotations.aimThroughWalls) ?: continue
 
             val ticks = rotations.howLongToReach(spot.rotation)
             if (rotations.rotationTimingMode == SNAP && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
@@ -423,8 +424,12 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      *
      *  @return The best spot to attack the entity
      */
-    private fun getSpot(entity: LivingEntity, range: Double,
-                        situation: PointTracker.AimSituation): RotationWithVector? {
+    fun getSpot(
+        entity: LivingEntity,
+        range: Double,
+        situation: PointTracker.AimSituation,
+        aimThroughWalls: Boolean
+    ): RotationWithVector? {
         val point = pointTracker.gatherPoint(
             entity,
             situation
@@ -455,7 +460,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             rotationPreference = rotationPreference
         )
 
-        return if (spot == null && rotations.aimThroughWalls) {
+        return if (spot == null && aimThroughWalls) {
             val throughSpot = raytraceBox(
                 eyes, point.cutOffBox,
                 // Since [range] is squared, we need to square root
