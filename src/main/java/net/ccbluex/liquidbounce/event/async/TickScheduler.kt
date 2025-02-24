@@ -15,6 +15,7 @@ import java.util.function.BooleanSupplier
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.RestrictsSuspension
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * This manager is for suspend tick functions.
@@ -59,11 +60,16 @@ suspend inline fun waitUntil(crossinline condition: () -> Boolean): Int =
         var waitingTick = -1
         TickScheduler.addScheduled {
             waitingTick++
-            if (condition()) {
-                cont.resume(waitingTick)
+            try {
+                if (condition()) {
+                    cont.resume(waitingTick)
+                    true
+                } else {
+                    false
+                }
+            } catch (e: Throwable) {
+                cont.resumeWithException(e)
                 true
-            } else {
-                false
             }
         }
     }
