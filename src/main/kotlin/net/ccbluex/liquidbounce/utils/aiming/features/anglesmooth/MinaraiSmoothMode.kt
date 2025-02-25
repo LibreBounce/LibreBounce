@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
 import net.ccbluex.liquidbounce.deeplearn.ModelHolster.models
 import net.ccbluex.liquidbounce.deeplearn.data.MAXIMUM_TRAINING_AGE
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
-import net.ccbluex.liquidbounce.deeplearn.models.MinaraiModel
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
@@ -110,12 +109,6 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         val totalDelta = currentRotation.rotationDeltaTo(inputModelRotation)
         val velocityDelta = prevRotation.rotationDeltaTo(currentRotation)
 
-        val model = choices.activeChoice as? MinaraiModel
-            ?: run {
-                chat(markAsError("No model selected"))
-                return currentRotation
-            }
-
         ModuleDebug.debugParameter(this, "DeltaYaw", totalDelta.deltaYaw)
         ModuleDebug.debugParameter(this, "DeltaPitch", totalDelta.deltaPitch)
 
@@ -134,7 +127,7 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         )
 
         val (output, time) = measureTimedValue {
-            model.predictor.predict(input.asInput)
+            choices.activeChoice.predict(input.asInput)
         }
         ModuleDebug.debugParameter(this, "Output [0]", output[0])
         ModuleDebug.debugParameter(this, "Output [1]", output[1])

@@ -1,3 +1,22 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package net.ccbluex.liquidbounce.deeplearn
 
 import net.ccbluex.liquidbounce.config.types.Configurable
@@ -6,37 +25,68 @@ import net.ccbluex.liquidbounce.deeplearn.models.MinaraiModel
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.logger
-import kotlin.time.measureTimedValue
+import kotlin.time.measureTime
 
 object ModelHolster : EventListener, Configurable("DeepLearning") {
 
     /**
-     * Dummy choice
+     * Base models that are always available
+     * and are included in the LiquidBounce JAR.
+     *
+     * The name can contain uppercase characters,
+     * but the file should always be lowercase.
      */
-    val models = choices(this, "Model", 0) {
-        arrayOf<MinaraiModel>(MinaraiModel("Empty", it))
+    val baseModels = arrayOf(
+        "Base"
+    )
+
+    /**
+     * Available models from the models folder
+     */
+    private val availableModels: List<String>
+        get() = modelsFolder
+            .listFiles { file -> file.isDirectory }
+            ?.map { file -> file.nameWithoutExtension } ?: emptyList()
+
+    val models = choices(this, "Model", 0) { choiceConfigurable ->
+        // Empty models for start-up initialization.
+        // These will be replaced later on at [load].
+        (baseModels + availableModels).map { name ->
+            MinaraiModel(name, choiceConfigurable)
+        }.toTypedArray()
     }
 
+    /**
+     * Load models from the models folder. This only has to be triggered
+     * when reloading the models. Otherwise, the models are loaded on startup
+     * through the choice initialization.
+     */
     fun load() {
         logger.info("[DeepLearning] Loading models...")
+        val choices = (baseModels + availableModels).map { name ->
+            MinaraiModel(name, models)
+        }
 
-        val choices = (modelsFolder.listFiles { file -> file.isDirectory }?.map { file ->
-            val (model, time) = measureTimedValue { MinaraiModel(file.toPath(), models) }
-            logger.info("[DeepLearning] Loaded model ${file.name} in ${time.inWholeMilliseconds}ms")
-            model
-        } ?: emptyList()).toMutableList()
+        for (model in choices) {
+            runCatching {
+                measureTime {
+                    model.load()
+                }
+            }.onFailure { error ->
+                logger.error("[DeepLearning] Failed to load model '${model.name}'.", error)
+            }.onSuccess { time ->
+                logger.info("[DeepLearning] Loaded model '${model.name}' in ${time.inWholeMilliseconds}ms.")
+            }
+        }
 
-        // We need a new instance of [NoneChoice] in order to trigger a changed event,
-        // through [setByString] below - which is more of a hack and needs to be done properly in the future.
-        models.choices = (listOf(MinaraiModel("Empty", models)) + choices).toMutableList()
-
-        // Triggers a change event
+        models.choices = choices.toMutableList()
         models.setByString(models.activeChoice.name)
-
-        // Reload ClickGui
         ModuleClickGui.reloadView()
     }
 
+    /**
+     * Unload all models.
+     */
     fun unload() {
         val iterator = models.choices.iterator()
 
@@ -47,6 +97,9 @@ object ModelHolster : EventListener, Configurable("DeepLearning") {
         }
     }
 
+    /**
+     * Clear out all models and load-in the models again.
+     */
     fun reload() {
         unload()
         load()

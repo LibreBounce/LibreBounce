@@ -22,22 +22,13 @@ package net.ccbluex.liquidbounce.deeplearn.models
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.deeplearn.translators.FloatArrayInAndOutTranslator
-import java.nio.file.Path
 
-class MinaraiModel : ModelWrapper<FloatArray, FloatArray> {
-
-    constructor(name: String, parent: ChoiceConfigurable<*>) : super(
-        name,
-        FloatArrayInAndOutTranslator(),
-        2, // X, Y
-        parent
-    )
-
-    constructor(path: Path, parent: ChoiceConfigurable<*>) : super(
-        path,
-        FloatArrayInAndOutTranslator(),
-        2,
-        parent
-    )
-
-}
+class MinaraiModel(
+    name: String,
+    parent: ChoiceConfigurable<*>
+) : ModelWrapper<FloatArray, FloatArray>(
+    name,
+    FloatArrayInAndOutTranslator(),
+    2, // X, Y
+    parent
+)
