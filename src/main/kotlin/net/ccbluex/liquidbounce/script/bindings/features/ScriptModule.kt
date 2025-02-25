@@ -69,8 +69,8 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
      * @param eventName Name of the event.
      * @param handler JavaScript function used to handle the event.
      *   1. `() => void` (enable/disable)
-     *   2. `(Event) => void`
-     *   3. `async (JsSequence, Event) => void`
+     *   2. `(Event) => void` (handler<T>)
+     *   3. `async (Event) => void` (sequenceHandler<T>)
      */
     fun on(eventName: String, handler: org.graalvm.polyglot.Value) {
         if (!handler.canExecute()) {
