@@ -121,7 +121,13 @@ private enum class ParticleImage(
      * Original: https://www.svgrepo.com/svg/528677/stars-minimalistic
      * Modified: @sqlerrorthing
      */
-    STAR("Star", "particles/star.png".registerAsDynamicImageFromClientResources())
+    STAR("Star", "particles/star.png".registerAsDynamicImageFromClientResources()),
+
+    /**
+     * Original: https://www.svgrepo.com/svg/487288/dollar?edit=true
+     * Modifier: @sqlerrorthing
+     */
+    DOLLAR("Dollar", "particles/dollar.png".registerAsDynamicImageFromClientResources())
 }
 
 @Suppress("MagicNumber", "LongParameterList")
