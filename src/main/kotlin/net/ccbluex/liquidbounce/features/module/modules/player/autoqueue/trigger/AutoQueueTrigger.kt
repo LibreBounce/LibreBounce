@@ -15,19 +15,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueGommeDuels
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueHypixelSW
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.trigger
 
-object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER, aliases = arrayOf("AutoPlay")) {
-    val presets = choices("Presets", AutoQueueHypixelSW, arrayOf(
-        AutoQueueHypixelSW,
-        AutoQueueGommeDuels,
-        AutoQueueCustom
-    )).apply(::tagBy)
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom.triggers
+
+abstract class AutoQueueTrigger(name: String) : Choice(name) {
+    override val parent: ChoiceConfigurable<*>
+        get() = triggers
+    abstract val isTriggered: Boolean
 }

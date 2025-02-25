@@ -104,6 +104,10 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
                 return@sequenceHandler
             }
 
+            onCancellation {
+                cancelSprint = false
+            }
+
             cancelSprint = true
             waitUntil { !player.isSprinting && !player.lastSprinting }
             waitTicks(reSprintTicks.random())
@@ -143,6 +147,11 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
         private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
             if (event.isCancelled || !shouldOperate(event.entity) || !shouldStopSprinting(event) || inSequence) {
                 return@sequenceHandler
+            }
+
+            onCancellation {
+                cancelMovement = false
+                inSequence = false
             }
 
             inSequence = true

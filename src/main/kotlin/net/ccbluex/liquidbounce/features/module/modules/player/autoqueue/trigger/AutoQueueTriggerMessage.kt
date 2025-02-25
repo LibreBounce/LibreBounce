@@ -18,27 +18,33 @@
  *
  *
  */
-package net.ccbluex.liquidbounce.features.module.modules.movement.terrainspeed
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.movement.terrainspeed.fastclimb.FastClimb
-import net.ccbluex.liquidbounce.features.module.modules.movement.terrainspeed.icespeed.IceSpeed
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.trigger
+
+import net.ccbluex.liquidbounce.event.events.ChatReceiveEvent
+import net.ccbluex.liquidbounce.event.handler
 
 /**
- * TerrainSpeed module
- *
- * Move faster on specific surfaces.
+ * Can be used for different server that use paper to join a game
  */
-object ModuleTerrainSpeed : ClientModule("TerrainSpeed", Category.MOVEMENT, aliases = arrayOf("FastClimb")) {
+object AutoQueueTriggerMessage : AutoQueueTrigger("Message") {
 
-    init {
-        enableLock()
-    }
+    override var isTriggered: Boolean = false
+        get() = field.apply { field = false }
 
-    init {
-        tree(FastClimb)
-        tree(IceSpeed)
+    private val text by text("Text", "Новая игра")
+
+    @Suppress("unused")
+    private val chatReceive = handler<ChatReceiveEvent> { event ->
+        val message = event.message
+
+        if (event.type != ChatReceiveEvent.ChatType.GAME_MESSAGE) {
+            return@handler
+        }
+
+        if (event.message.contains(text)) {
+            isTriggered = true
+        }
     }
 
 }

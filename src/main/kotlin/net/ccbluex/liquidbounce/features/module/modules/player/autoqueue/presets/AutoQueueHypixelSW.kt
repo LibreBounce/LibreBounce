@@ -19,35 +19,41 @@
  *
  */
 
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.modes
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.modes
-import net.ccbluex.liquidbounce.utils.client.SilentHotbar
+import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue.presets
 import net.ccbluex.liquidbounce.utils.inventory.Slots
-import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.util.Hand
 
-/**
- * Can be used for different server that use paper to join a game
- */
-object AutoQueuePaper : Choice("Paper") {
+object AutoQueueHypixelSW : Choice("HypixelSW") {
 
     override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+        get() = presets
+
+    private val gameMode by enumChoice("GameMode", SkyWarsGameMode.NORMAL, SkyWarsGameMode.values())
+
+    private val hasPaper
+        get() = Slots.Hotbar.findSlot(Items.PAPER) != null
 
     val repeatable = tickHandler {
-        val paper = Slots.Hotbar.findSlotIndex(Items.PAPER) ?: return@tickHandler
+        // Check if we have paper in our hotbar
+        if (!hasPaper) {
+            return@tickHandler
+        }
 
-        SilentHotbar.selectSlotSilently(ModuleAutoQueue, paper)
-        waitTicks(1)
-        interaction.interactItem(player, Hand.MAIN_HAND)
-
+        // Send join command
+        network.sendCommand("play ${gameMode.joinName}")
         waitTicks(20)
+    }
+
+
+    enum class SkyWarsGameMode(override val choiceName: String, val joinName: String) : NamedChoice {
+        NORMAL("Normal", "solo_normal"),
+        INSANE("Insane", "solo_insane");
     }
 
 }

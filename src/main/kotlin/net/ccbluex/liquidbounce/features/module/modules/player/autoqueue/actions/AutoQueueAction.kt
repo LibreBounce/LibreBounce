@@ -15,19 +15,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.actions
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueGommeDuels
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueHypixelSW
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.Sequence
+import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom.triggers
 
-object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER, aliases = arrayOf("AutoPlay")) {
-    val presets = choices("Presets", AutoQueueHypixelSW, arrayOf(
-        AutoQueueHypixelSW,
-        AutoQueueGommeDuels,
-        AutoQueueCustom
-    )).apply(::tagBy)
+abstract class AutoQueueAction(name: String) : Choice(name) {
+    override val parent: ChoiceConfigurable<*>
+        get() = triggers
+    abstract suspend fun execute(sequence: Sequence)
 }

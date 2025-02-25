@@ -15,19 +15,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.actions
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueGommeDuels
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueHypixelSW
+import net.ccbluex.liquidbounce.event.Sequence
 
-object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER, aliases = arrayOf("AutoPlay")) {
-    val presets = choices("Presets", AutoQueueHypixelSW, arrayOf(
-        AutoQueueHypixelSW,
-        AutoQueueGommeDuels,
-        AutoQueueCustom
-    )).apply(::tagBy)
+object AutoQueueActionChat : AutoQueueAction("Chat") {
+
+    private val message by text("Message", "/play solo_normal")
+
+    override suspend fun execute(sequence: Sequence) {
+        if (message.startsWith("/")) {
+            network.sendCommand(message.substring(1))
+        } else {
+            network.sendChatMessage(message)
+        }
+    }
 }
