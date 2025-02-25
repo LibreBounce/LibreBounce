@@ -20,6 +20,8 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.deeplearn
 
+import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine.modelsFolder
+import net.ccbluex.liquidbounce.deeplearn.ModelHolster
 import net.ccbluex.liquidbounce.deeplearn.ModelHolster.models
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.deeplearn.models.MinaraiModel
@@ -33,6 +35,9 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
+import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.client.variable
+import net.minecraft.util.Util
 import kotlin.concurrent.thread
 import kotlin.time.DurationUnit
 import kotlin.time.measureTime
@@ -47,6 +52,8 @@ object CommandModels : CommandFactory {
             .subcommand(createModelCommand())
             .subcommand(improveModelCommand())
             .subcommand(deleteModelCommand())
+            .subcommand(reloadModelCommand())
+            .subcommand(browseModelCommand())
             .build()
     }
 
@@ -123,6 +130,27 @@ object CommandModels : CommandFactory {
                 model.delete()
                 models.choices.remove(model)
                 chat(command.result("modelDeleted", name))
+            }
+            .build()
+    }
+
+
+    private fun reloadModelCommand(): Command {
+        return CommandBuilder
+            .begin("reload")
+            .handler { command, _ ->
+                ModelHolster.reload()
+                chat(command.result("modelsReloaded"))
+            }
+            .build()
+    }
+
+    private fun browseModelCommand(): Command {
+        return CommandBuilder
+            .begin("browse")
+            .handler { command, _ ->
+                Util.getOperatingSystem().open(modelsFolder)
+                chat(regular("Location: "), variable(modelsFolder.absolutePath))
             }
             .build()
     }
