@@ -222,16 +222,13 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     val blockCount: Int
         get() {
-            val blockInMainHand = player.inventory.getStack(player.inventory.selectedSlot)
-            val blockInOffHand = player.offHandStack
+            fun ItemStack.blockCount() = if (isValidBlock(this)) this.count else 0
 
-            val blocks = hashSetOf(blockInMainHand, blockInOffHand)
-
-            if (ScaffoldAutoBlockFeature.enabled) {
-                findPlaceableSlots().mapTo(blocks) { it.value() }
+            return player.offHandStack.blockCount() + if (ScaffoldAutoBlockFeature.enabled) {
+                findPlaceableSlots().sumOf { it.value().blockCount() }
+            } else {
+                player.inventory.getStack(player.inventory.selectedSlot).blockCount()
             }
-
-            return blocks.sumOf { if (isValidBlock(it)) it.count else 0 }
         }
 
     val isBlockBelow: Boolean

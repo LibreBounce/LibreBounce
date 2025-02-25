@@ -32,7 +32,9 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
  *
  * Legit trick to build faster.
  */
-object ModuleEagle : ClientModule("Eagle", Category.PLAYER, aliases = arrayOf("FastBridge", "BridgeAssistant")) {
+object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
+    aliases = arrayOf("FastBridge", "BridgeAssistant", "LegitScaffold")
+) {
 
     private val edgeDistance by float("EagleEdgeDistance", 0.4f, 0.01f..1.3f)
 
