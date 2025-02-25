@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -47,6 +48,7 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = 
         tree(MainHand)
         tree(OffHand)
         tree(EquipOffset)
+        tree(ViewBobbing)
     }
 
     object MainHand : ToggleableConfigurable(this, "MainHand", false) {
@@ -67,6 +69,31 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = 
         val OffHandPositiveZ by float("PositiveRotationZ", 0f, -50f..50f)
     }
 
+    object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
+        val ignoreBlocking by boolean("IgnoreBlocking", true)
+        val ignorePlace by boolean("IgnorePlace", true)
+        val ignoreAmount by boolean("IgnoreAmount", false)
+    }
+
+    object ViewBobbing : ToggleableConfigurable(this, "ViewBobbing", true) {
+        val inAir by boolean("InAir", false)
+
+        object Dank : ToggleableConfigurable(this, "Dank", false) {
+            val motion by float("Motion", 5f, 1f..50f)
+        }
+
+        init {
+            tree(Dank)
+        }
+
+        @Suppress("unused")
+        val strideHandler = handler<PlayerStrideEvent> { event ->
+            if (ViewBobbing.inAir) {
+                event.strideForce = 0.1.coerceAtMost(player.velocity.horizontalLength()).toFloat()
+            }
+        }
+    }
+
     val swingDuration by int("SwingDuration", 6, 1..20)
 
     /**
@@ -80,24 +107,6 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = 
             PushdownAnimation
         )
     )
-
-    object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
-        val ignoreBlocking by boolean("IgnoreBlocking", true)
-        val ignorePlace by boolean("IgnorePlace", true)
-        val ignoreAmount by boolean("IgnoreAmount", false)
-    }
-
-    /**
-     * if true, the walk animation will also be applied in the air.
-     */
-    private val airWalker by boolean("AirWalker", false)
-
-    @Suppress("unused")
-    val strideHandler = handler<PlayerStrideEvent> { event ->
-        if (airWalker) {
-            event.strideForce = 0.1.coerceAtMost(player.velocity.horizontalLength()).toFloat()
-        }
-    }
 
     /**
      * A choice that aims to transform the held item transformation during the swing progress.

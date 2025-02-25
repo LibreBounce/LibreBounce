@@ -241,7 +241,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModulePhase,
 
             // Fun
-            ModuleDankBobbing,
             ModuleDerp,
             ModuleSkinDerp,
             ModuleHandDerp,
@@ -355,7 +354,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAutoF5,
             ModuleChams,
             ModuleBedPlates,
-            ModuleNoBob,
             ModuleNoFov,
             ModuleNoHurtCam,
             ModuleNoSignRender,
