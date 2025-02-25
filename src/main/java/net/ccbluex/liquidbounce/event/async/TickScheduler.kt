@@ -34,7 +34,7 @@ object TickScheduler : Listenable, MinecraftInstance {
     private val schedules = arrayListOf<BooleanSupplier>()
 
     init {
-        handler<GameTickEvent>(priority = Byte.MIN_VALUE) {
+        handler<GameTickEvent>(priority = Byte.MAX_VALUE) {
             schedules.removeIf { it.asBoolean }
         }
     }
