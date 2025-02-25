@@ -343,6 +343,8 @@
   "liquidbounce.command.models.subcommand.improve.result.trainingEnd": "✔ Model %s trained and saved successfully in %s.",
   "liquidbounce.command.models.subcommand.improve.result.trainingFailed": "❌ Training failed with error: %s",
 
+  "liquidbounce.command.models.subcommand.reload.result.modelsReloaded": "✔ Models reloaded.",
+
   "liquidbounce.command.models.subcommand.delete.result.modelNotFound": "❌ Model %s not found.",
   "liquidbounce.command.models.subcommand.delete.result.modelDeleted": "✔ Model %s deleted.",
 
