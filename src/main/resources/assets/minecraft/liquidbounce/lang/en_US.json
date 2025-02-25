@@ -409,6 +409,8 @@
 
         "module.chineseHat.description": "Renders a chinese-like hat on specific entities.",
 
-        "module.snakeGame.description": "The snake game for free. sniff sniff."
+        "module.snakeGame.description": "The snake game for free. sniff sniff.",
+
+        "module.anticheatDetector.description": "Detects anti-cheats by analyzing specific packets."
     }
 }
