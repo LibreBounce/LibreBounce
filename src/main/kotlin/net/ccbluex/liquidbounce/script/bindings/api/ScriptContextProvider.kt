@@ -36,7 +36,8 @@ object ScriptContextProvider {
     private lateinit var scriptAsyncUtil: ScriptAsyncUtil
 
     internal fun Context.setupContext(language: String, bindings: Value) {
-        if (!::scriptAsyncUtil.isInitialized && language.equals("js", true)) {
+        val isJs = language.equals("js", true)
+        if (!::scriptAsyncUtil.isInitialized && isJs) {
             // Init Promise constructor
             scriptAsyncUtil = ScriptAsyncUtil(this.getBindings(language).getMember("Promise"))
         }
@@ -70,7 +71,7 @@ object ScriptContextProvider {
             putMember("UnsafeThread", ScriptUnsafeThread)
 
             // Async support
-            if (::scriptAsyncUtil.isInitialized) {
+            if (::scriptAsyncUtil.isInitialized && isJs) {
                 putMember("ticks", IntFunction(scriptAsyncUtil::ticks))
                 putMember("seconds", IntFunction(scriptAsyncUtil::seconds))
                 putMember("until", Function(scriptAsyncUtil::until))
