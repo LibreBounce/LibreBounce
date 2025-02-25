@@ -125,7 +125,7 @@ private enum class ParticleImage(
 
     /**
      * Original: https://www.svgrepo.com/svg/487288/dollar?edit=true
-     * Modifier: @sqlerrorthing
+     * Modified: @sqlerrorthing
      */
     DOLLAR("Dollar", "particles/dollar.png".registerAsDynamicImageFromClientResources())
 }
