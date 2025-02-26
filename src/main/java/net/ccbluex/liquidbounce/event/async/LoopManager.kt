@@ -43,7 +43,7 @@ internal object LoopManager : Listenable, CoroutineScope by CoroutineScope(Super
                                 // The job is canceled due to handler is no longer active
                                 return@launch
                             } catch (e: Exception) {
-                                ClientUtils.LOGGER.error("Exception during loop in", e)
+                                ClientUtils.LOGGER.error("Exception during loop of ${eventHook.owner}", e)
                             }
                         }
                     }
