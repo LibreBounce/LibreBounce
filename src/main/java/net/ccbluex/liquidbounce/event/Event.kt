@@ -19,6 +19,8 @@ open class CancellableEvent : Event() {
 
     /**
      * Allows you to cancel an event
+     *
+     * Note: It doesn't make sense to cancel a event within async handlers
      */
     fun cancelEvent() {
         isCancelled = true
