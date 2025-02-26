@@ -6,8 +6,10 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.*
-import net.ccbluex.liquidbounce.event.*
-
+import net.ccbluex.liquidbounce.event.EventHook
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
 

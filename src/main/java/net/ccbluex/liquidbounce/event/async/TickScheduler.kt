@@ -5,7 +5,10 @@
  */
 package net.ccbluex.liquidbounce.event.async
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.util.function.BooleanSupplier
@@ -139,6 +142,7 @@ fun Listenable.launchSequence(
                 job.cancel()
                 true
             }
+
             else -> job.isCompleted
         }
     }

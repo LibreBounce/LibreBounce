@@ -16,8 +16,6 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.PriorityBlockingQueue
-import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 /**
  * @see List.binarySearchBy
