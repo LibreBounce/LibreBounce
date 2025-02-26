@@ -93,15 +93,15 @@ suspend fun waitTicks(ticks: Int) {
 /**
  * Wait next event of given type.
  *
- * Note: This might cause thread context difference
+ * Note: This might change thread context
  *
  * @return the event instance
  */
-suspend inline fun <reified E : Event> waitNext(): E =
+suspend inline fun <reified E : Event> waitNext(priority: Byte = 0): E =
     suspendCancellableCoroutine { cont ->
         EventManager.registerEventHook(
             E::class.java,
-            EventHook.Terminate(TickScheduler, always = true, Byte.MAX_VALUE, 1) {
+            EventHook.Terminate(TickScheduler, always = true, priority, 1) {
                 cont.resume(it)
             }
         )
