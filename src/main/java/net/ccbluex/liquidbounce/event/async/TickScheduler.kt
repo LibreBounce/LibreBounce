@@ -9,10 +9,7 @@ import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.util.function.BooleanSupplier
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.RestrictsSuspension
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.*
 
 /**
  * This manager is for suspend tick functions.
@@ -57,7 +54,7 @@ object TickScheduler : Listenable, MinecraftInstance {
  * @return Total ticks during waiting
  */
 suspend inline fun waitUntil(crossinline condition: () -> Boolean): Int =
-    suspendCancellableCoroutine { cont ->
+    suspendCoroutine { cont ->
         var waitingTick = 0
         TickScheduler.schedule {
             waitingTick++
@@ -97,7 +94,7 @@ suspend fun waitTicks(ticks: Int) {
  * @return the event instance
  */
 suspend inline fun <reified E : Event> waitNext(priority: Byte = 0): E =
-    suspendCancellableCoroutine { cont ->
+    suspendCoroutine { cont ->
         EventManager.registerTerminateEventHook(
             E::class.java,
             EventHook.Blocking(TickScheduler, always = true, priority) {
