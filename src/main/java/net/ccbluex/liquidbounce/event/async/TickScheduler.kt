@@ -6,10 +6,6 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.isActive
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.util.function.BooleanSupplier
@@ -131,10 +127,10 @@ suspend inline fun waitConditional(
 }
 
 /**
- * Start a tick sequence for given [Listenable]
+ * Start a tick sequence job for given [Listenable]
  * which will be cancelled if [Listenable.handleEvents] of the owner returns false
  */
-fun Listenable.tickSequence(
+fun Listenable.launch(
     context: CoroutineContext = Dispatchers.Unconfined,
     body: suspend CoroutineScope.() -> Unit
 ) {
@@ -142,7 +138,7 @@ fun Listenable.tickSequence(
 
     TickScheduler.schedule {
         when {
-            !this@tickSequence.handleEvents() -> {
+            !this@launch.handleEvents() -> {
                 job.cancel()
                 true
             }
