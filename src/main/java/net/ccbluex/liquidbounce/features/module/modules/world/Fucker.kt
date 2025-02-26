@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performRaytrace
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
+import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -256,7 +256,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 if (currentDamage == 0F) {
                     // Prevent flagging FastBreak
                     sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
-                    WaitTickUtils.schedule(1) {
+                    nextTick {
                         sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     }
                     if (player.capabilities.isCreativeMode ||

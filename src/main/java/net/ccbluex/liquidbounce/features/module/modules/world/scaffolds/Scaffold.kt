@@ -340,75 +340,77 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val blockSneaking = WaitTickUtils.hasScheduled("block")
             val alreadySneaking = WaitTickUtils.hasScheduled("sneak")
 
+            val options = mc.gameSettings
+
             run {
-                val options = mc.gameSettings
-
-                if (placedBlocksWithoutEagle >= blocksToEagle.random() || alreadySneaking || blockSneaking || eagleSneaking || requestedStopSneak) {
-                    val eagleCondition = when (eagleMode) {
-                        "OnGround" -> player.onGround
-                        "InAir" -> !player.onGround
-                        else -> true
-                    }
-
-                    // For better sneak support we could move this to MovementInputEvent
-                    val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
-
-                    var shouldEagle =
-                        eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
-
-                    val shouldSchedule = !requestedStopSneak
-
-                    if (requestedStopSneak) {
-                        requestedStopSneak = false
-
-                        if (!player.onGround) {
-                            shouldEagle = pressedOnKeyboard
-                        }
-                    } else if (blockSneaking || alreadySneaking) {
-                        return@run
-                    }
-
-                    if (eagle == "Silent") {
-                        if (eagleSneaking != shouldEagle) {
-                            sendPacket(
-                                C0BPacketEntityAction(
-                                    player, if (shouldEagle) {
-                                        C0BPacketEntityAction.Action.START_SNEAKING
-                                    } else {
-                                        C0BPacketEntityAction.Action.STOP_SNEAKING
-                                    }
-                                )
-                            )
-
-                            // Adjust speed when silent sneaking
-                            if (adjustedSneakSpeed && shouldEagle) {
-                                player.motionX *= eagleSpeed
-                                player.motionZ *= eagleSpeed
-                            }
-                        }
-
-                        eagleSneaking = shouldEagle
-                    } else {
-                        options.keyBindSneak.pressed = shouldEagle
-                        eagleSneaking = shouldEagle
-                    }
-
-                    if (eagleSneaking && shouldSchedule) {
-                        if (useMaxSneakTime) {
-                            WaitTickUtils.conditionalSchedule("sneak") { elapsed ->
-                                (elapsed >= maxSneakTicks.random() + 1).also { requestedStopSneak = it }
-                            }
-                        }
-
-                        if (blockSneakingAgainUntilOnGround && !player.onGround) {
-                            WaitTickUtils.conditionalSchedule("block") {
-                                mc.thePlayer?.onGround.also { if (it != false) requestedStopSneak = true } ?: true
-                            }
-                        }
-                    }
-
-                    placedBlocksWithoutEagle = 0
+                if (placedBlocksWithoutEagle < blocksToEagle.random() && !alreadySneaking && !blockSneaking && !eagleSneaking && !requestedStopSneak) {
+                    return@run
                 }
+
+                val eagleCondition = when (eagleMode) {
+                    "OnGround" -> player.onGround
+                    "InAir" -> !player.onGround
+                    else -> true
+                }
+
+                // For better sneak support we could move this to MovementInputEvent
+                val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
+
+                var shouldEagle =
+                    eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
+
+                val shouldSchedule = !requestedStopSneak
+
+                if (requestedStopSneak) {
+                    requestedStopSneak = false
+
+                    if (!player.onGround) {
+                        shouldEagle = pressedOnKeyboard
+                    }
+                } else if (blockSneaking || alreadySneaking) {
+                    return@run
+                }
+
+                if (eagle == "Silent") {
+                    if (eagleSneaking != shouldEagle) {
+                        sendPacket(
+                            C0BPacketEntityAction(
+                                player, if (shouldEagle) {
+                                    C0BPacketEntityAction.Action.START_SNEAKING
+                                } else {
+                                    C0BPacketEntityAction.Action.STOP_SNEAKING
+                                }
+                            )
+                        )
+
+                        // Adjust speed when silent sneaking
+                        if (adjustedSneakSpeed && shouldEagle) {
+                            player.motionX *= eagleSpeed
+                            player.motionZ *= eagleSpeed
+                        }
+                    }
+
+                    eagleSneaking = shouldEagle
+                } else {
+                    options.keyBindSneak.pressed = shouldEagle
+                    eagleSneaking = shouldEagle
+                }
+
+                if (eagleSneaking && shouldSchedule) {
+                    if (useMaxSneakTime) {
+                        WaitTickUtils.conditionalSchedule("sneak") { elapsed ->
+                            (elapsed >= maxSneakTicks.random() + 1).also { requestedStopSneak = it }
+                        }
+                    }
+
+                    if (blockSneakingAgainUntilOnGround && !player.onGround) {
+                        WaitTickUtils.conditionalSchedule("block") {
+                            mc.thePlayer?.onGround.also { if (it != false) requestedStopSneak = true } ?: true
+                        }
+                    }
+                }
+
+                placedBlocksWithoutEagle = 0
             }
         }
 

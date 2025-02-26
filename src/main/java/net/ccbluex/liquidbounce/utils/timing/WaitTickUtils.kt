@@ -17,7 +17,7 @@ object WaitTickUtils : MinecraftInstance, Listenable {
 
     private val scheduledActions = ArrayDeque<ScheduledAction>()
 
-    fun schedule(ticks: Int, requester: Any? = null, action: () -> Unit = { }) =
+    inline fun schedule(ticks: Int, requester: Any? = null, crossinline action: () -> Unit = { }) =
         conditionalSchedule(requester, ticks, false) { action(); null }
 
     fun conditionalSchedule(
@@ -37,7 +37,7 @@ object WaitTickUtils : MinecraftInstance, Listenable {
         scheduledActions += ScheduledAction(requester, time, isConditional, ClientUtils.runTimeTicks + time, action)
     }
 
-    fun hasScheduled(obj: Any) = scheduledActions.firstOrNull { it.requester == obj } != null
+    fun hasScheduled(obj: Any) = scheduledActions.any { it.requester == obj }
 
     val onTick = handler<GameTickEvent>(priority = -1) {
         val currentTick = ClientUtils.runTimeTicks
