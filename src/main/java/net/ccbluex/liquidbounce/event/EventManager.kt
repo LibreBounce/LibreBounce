@@ -14,9 +14,10 @@ import net.ccbluex.liquidbounce.event.async.TickScheduler
 import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.coroutines.cancellation.CancellationException
+import java.util.concurrent.PriorityBlockingQueue
+import kotlin.Comparator
+import kotlin.collections.ArrayList
 
 /**
  * @see List.binarySearchBy
@@ -45,7 +46,11 @@ private fun List<EventHook<*>>.findIndexByPriority(item: EventHook<*>): Int {
  */
 object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     private val registry = ALL_EVENT_CLASSES.associateWithTo(IdentityHashMap(ALL_EVENT_CLASSES.size)) {
-        CopyOnWriteArrayList<EventHook<in Event>>()
+        ArrayList<EventHook<in Event>>()
+    }
+
+    private val terminateHooks = ALL_EVENT_CLASSES.associateWithTo(IdentityHashMap(ALL_EVENT_CLASSES.size)) {
+        PriorityBlockingQueue<EventHook<in Event>>(11, Comparator.comparingInt { -it.priority })
     }
 
     private class AsyncTask(val owner: EventHook<*>, val job: Job)
@@ -73,17 +78,20 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         }
     }
 
-    fun <T : Event> unregisterEventHook(eventClass: Class<out T>, eventHook: EventHook<in T>) {
-        registry[eventClass]!!.remove(eventHook)
-        jobs.removeIf {
-            if (it.owner === eventHook) {
-                it.job.cancel()
-                true
-            } else {
-                false
+    fun <T : Event> unregisterEventHook(eventClass: Class<out T>, eventHook: EventHook<in T>): Boolean =
+        if (registry[eventClass]!!.remove(eventHook) || terminateHooks[eventClass]!!.remove(eventHook)) {
+            jobs.removeIf {
+                if (it.owner === eventHook) {
+                    it.job.cancel()
+                    true
+                } else {
+                    false
+                }
             }
+            true
+        } else {
+            false
         }
-    }
 
     fun <T : Event> registerEventHook(eventClass: Class<out T>, eventHook: EventHook<T>): EventHook<T> {
         val container = registry[eventClass] ?: error("Unsupported Event type: ${eventClass.simpleName}")
@@ -102,8 +110,22 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         return eventHook
     }
 
+    fun <T : Event> registerTerminateEventHook(eventClass: Class<out T>, eventHook: EventHook<T>): EventHook<T> {
+        val container = terminateHooks[eventClass] ?: error("Unsupported Event type: ${eventClass.simpleName}")
+
+        eventHook as EventHook<in Event>
+
+        check(eventHook !in container) {
+            "The EventHook of ${eventHook.owner} has already been registered"
+        }
+
+        container.add(eventHook)
+
+        return eventHook
+    }
+
     fun unregisterListener(listener: Listenable) {
-        registry.values.forEach { it.removeIf { hook -> hook.owner == listener } }
+        registry.values.forEach { it.removeIf { hook -> hook.owner === listener } }
     }
 
     private fun <T : Event> EventHook<T>.processEvent(event: T) {
@@ -116,17 +138,6 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
                     action(event)
                 } catch (e: Exception) {
                     ClientUtils.LOGGER.error("Exception during call event (blocking)", e)
-                }
-            }
-
-            is EventHook.Terminate -> {
-                try {
-                    action(event)
-                } catch (e: Exception) {
-                    ClientUtils.LOGGER.error("Exception during call event (terminate, remaining=${this.remaining})", e)
-                }
-                if (this.shouldStop()) {
-                    unregisterEventHook(event::class.java, this)
                 }
             }
 
@@ -146,6 +157,14 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     fun <T : Event> call(event: T): T {
         val hooks = registry[event.javaClass]!!
 
+        with(terminateHooks[event.javaClass]!!.iterator()) {
+            while (hasNext()) {
+                val hook = next()
+                hook.processEvent(event)
+                remove()
+            }
+        }
+
         hooks.forEach {
             it.processEvent(event)
         }
@@ -156,8 +175,19 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     fun <T : Event> call(event: T, listener: Listenable): T {
         val hooks = registry[event.javaClass]!!
 
+        with(terminateHooks[event.javaClass]!!.iterator()) {
+            while (hasNext()) {
+                val hook = next()
+                if (hook.owner !== listener) {
+                    continue
+                }
+                hook.processEvent(event)
+                remove()
+            }
+        }
+
         hooks.forEach {
-            if (it.owner == listener) {
+            if (it.owner === listener) {
                 it.processEvent(event)
             }
         }

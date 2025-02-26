@@ -33,21 +33,6 @@ inline fun <reified T : Event> Listenable.handler(
     EventManager.registerEventHook(T::class.java, EventHook.Blocking(this, always, priority, action))
 }
 
-inline fun <reified T : Event> Listenable.terminateHandler(
-    always: Boolean = false,
-    priority: Byte = 0,
-    maxExecutionTime: Int,
-    noinline action: (T) -> Unit
-) {
-    EventManager.registerEventHook(T::class.java, EventHook.Terminate(this, always, priority, maxExecutionTime, action))
-}
-
-inline fun <reified T : Event> Listenable.once(
-    always: Boolean = false,
-    priority: Byte = 0,
-    noinline action: (T) -> Unit
-) = terminateHandler(always, priority, maxExecutionTime = 1, action)
-
 inline fun <reified T : Event> Listenable.handler(
     dispatcher: CoroutineDispatcher,
     always: Boolean = false,

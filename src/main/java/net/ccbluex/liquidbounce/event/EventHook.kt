@@ -19,23 +19,6 @@ sealed class EventHook<T : Event>(
         val action: (T) -> Unit
     ) : EventHook<T>(owner, always, priority)
 
-    class Terminate<T : Event>(
-        owner: Listenable,
-        always: Boolean = false,
-        priority: Byte = 0,
-        maxExecutionTime: Int = 1,
-        val action: (T) -> Unit
-    ) : EventHook<T>(owner, always, priority) {
-        init {
-            require(maxExecutionTime > 0)
-        }
-
-        var remaining = maxExecutionTime
-            private set
-
-        fun shouldStop(): Boolean = !isActive || --remaining == 0
-    }
-
     class Async<T : Event>(
         owner: Listenable,
         /**

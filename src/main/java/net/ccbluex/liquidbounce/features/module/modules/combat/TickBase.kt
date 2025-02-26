@@ -5,7 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import kotlinx.coroutines.Dispatchers
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.async.waitNext
+import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
@@ -66,7 +69,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         }
     }
 
-    val onGameTick = handler<GameTickEvent>(priority = 1) {
+    val onGameTick = handler<GameTickEvent>(dispatcher = Dispatchers.Main, priority = 1) {
         val player = mc.thePlayer ?: return@handler
 
         if (player.ridingEntity != null || Blink.handleEvents()) {
@@ -103,7 +106,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
             val skipTicks = (bestTick + pauseAfterTick).coerceAtMost(maxTicksAtATime + pauseAfterTick)
 
-            val tick = {
+            fun tick() {
                 repeat(skipTicks) {
                     player.onUpdate()
                     tickBalance -= 1
@@ -112,24 +115,16 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
             if (mode == "Past") {
                 ticksToSkip = skipTicks
-
-                WaitTickUtils.schedule(skipTicks) {
-                    tick()
-
-                    once<GameLoopEvent> {
-                        duringTickModification = false
-                    }
-                }
+                waitTicks(skipTicks)
+                tick()
+                waitNext<GameLoopEvent>()
+                duringTickModification = false
             } else {
                 tick()
-
                 ticksToSkip = skipTicks
-
-                WaitTickUtils.schedule(skipTicks) {
-                    once<GameLoopEvent> {
-                        duringTickModification = false
-                    }
-                }
+                waitTicks(skipTicks)
+                waitNext<GameLoopEvent>()
+                duringTickModification = false
             }
         }
     }

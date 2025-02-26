@@ -6,7 +6,10 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.isActive
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.util.function.BooleanSupplier
@@ -99,9 +102,9 @@ suspend fun waitTicks(ticks: Int) {
  */
 suspend inline fun <reified E : Event> waitNext(priority: Byte = 0): E =
     suspendCancellableCoroutine { cont ->
-        EventManager.registerEventHook(
+        EventManager.registerTerminateEventHook(
             E::class.java,
-            EventHook.Terminate(TickScheduler, always = true, priority, 1) {
+            EventHook.Blocking(TickScheduler, always = true, priority) {
                 cont.resume(it)
             }
         )
