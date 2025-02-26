@@ -33,7 +33,7 @@ sealed class EventHook<T : Event>(
         var remaining = maxExecutionTime
             private set
 
-        fun shouldStop(): Boolean = !isActive || remaining-- > 0
+        fun shouldStop(): Boolean = !isActive || --remaining == 0
     }
 
     class Async<T : Event>(
