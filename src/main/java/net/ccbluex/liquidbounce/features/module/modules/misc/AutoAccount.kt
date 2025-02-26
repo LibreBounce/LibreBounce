@@ -5,7 +5,7 @@ import kotlinx.coroutines.delay
 import me.liuli.elixir.account.CrackedAccount
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.EventManager.call
-import net.ccbluex.liquidbounce.event.async.launch
+import net.ccbluex.liquidbounce.event.async.launchSequence
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
@@ -94,7 +94,7 @@ object AutoAccount :
         // Log in to account with a random name, optionally save it
         changeAccount()
 
-        launch(Dispatchers.Main) {
+        launchSequence(Dispatchers.Main) {
             delay(sendDelay.random().toLong())
             // connectToLastServer needs thread with OpenGL context
             ServerUtils.connectToLastServer()
@@ -104,7 +104,7 @@ object AutoAccount :
     private fun respond(msg: String) = when {
         register && "/reg" in msg -> {
             addNotification(Notification.informative(this, "Trying to register."))
-            launch(Dispatchers.IO) {
+            launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/register $password $password")
             }
@@ -113,7 +113,7 @@ object AutoAccount :
 
         login && "/log" in msg -> {
             addNotification(Notification.informative(this, "Trying to log in."))
-            launch(Dispatchers.IO) {
+            launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/login $password")
             }

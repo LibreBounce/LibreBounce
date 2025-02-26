@@ -130,7 +130,7 @@ suspend inline fun waitConditional(
  * Start a tick sequence job for given [Listenable]
  * which will be cancelled if [Listenable.handleEvents] of the owner returns false
  */
-fun Listenable.launch(
+fun Listenable.launchSequence(
     context: CoroutineContext = Dispatchers.Unconfined,
     body: suspend CoroutineScope.() -> Unit
 ) {
@@ -138,7 +138,7 @@ fun Listenable.launch(
 
     TickScheduler.schedule {
         when {
-            !this@launch.handleEvents() -> {
+            !this@launchSequence.handleEvents() -> {
                 job.cancel()
                 true
             }
