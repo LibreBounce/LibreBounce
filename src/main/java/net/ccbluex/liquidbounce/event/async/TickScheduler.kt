@@ -6,10 +6,8 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.*
-import net.ccbluex.liquidbounce.event.GameTickEvent
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.handler
+import kotlinx.coroutines.flow.MutableStateFlow
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.util.function.BooleanSupplier
 import kotlin.coroutines.CoroutineContext
@@ -51,7 +49,6 @@ object TickScheduler : Listenable, MinecraftInstance {
             mc.addScheduledTask { schedules += breakLoop }
         }
     }
-
 }
 
 /**
@@ -91,6 +88,43 @@ suspend fun waitTicks(ticks: Int) {
 
     var remainingTick = ticks
     waitUntil { --remainingTick == 0 }
+}
+
+/**
+ * Wait next event of given type.
+ *
+ * Note: This might cause thread context difference
+ *
+ * @return the event instance
+ */
+suspend inline fun <reified E : Event> waitNext(): E =
+    suspendCancellableCoroutine { cont ->
+        EventManager.registerEventHook(
+            E::class.java,
+            EventHook.Terminate(TickScheduler, always = true, Byte.MAX_VALUE, 1) {
+                cont.resume(it)
+            }
+        )
+    }
+
+/**
+ * Waits until the fixed amount of [ticks] ran out or the [callback] returns true.
+ */
+suspend inline fun waitConditional(
+    ticks: Int,
+    crossinline callback: (elapsedTicks: Int) -> Boolean
+): Boolean {
+    require(ticks >= 0) { "Negative tick: $ticks" }
+
+    if (ticks == 0) {
+        return true
+    }
+
+    var elapsedTicks = 0
+    // `elapsedTicks` in 0 until `ticks`
+    waitUntil { elapsedTicks >= ticks || callback(elapsedTicks++) }
+
+    return elapsedTicks >= ticks
 }
 
 /**
